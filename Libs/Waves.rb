@@ -393,8 +393,8 @@ class Waves
         }
     end
 
-    # Waves::ns16ToOrderingWeight(ns16)
-    def self.ns16ToOrderingWeight(ns16)
+    # Waves::waveOrderingPriority(wave)
+    def self.waveOrderingPriority(wave)
         mapping = {
             "sticky"                      => 5,
             "every-this-day-of-the-month" => 4,
@@ -402,44 +402,48 @@ class Waves
             "every-n-hours"               => 2,
             "every-n-days"                => 1
         }
-        mapping[ns16["wave"]["repeatType"]]
+        mapping[wave["repeatType"]]
+    end
+
+    # Waves::ns16ToOrderingWeight(ns16)
+    def self.ns16ToOrderingWeight(ns16)
+        Waves::waveOrderingPriority(ns16["wave"])
+    end
+
+    # Waves::isPriorityWave(wave)
+    def self.isPriorityWave(wave)
+        Waves::waveOrderingPriority(wave) >= 3
+    end
+
+    # Waves::compareNS16s(n1, n2)
+    def self.compareNS16s(n1, n2)
+        if Waves::ns16ToOrderingWeight(n1) < Waves::ns16ToOrderingWeight(n2) then
+            return -1
+        end
+        if Waves::ns16ToOrderingWeight(n1) > Waves::ns16ToOrderingWeight(n2) then
+            return 1
+        end
+        n1["uuid"] <=> n2["uuid"]
     end
 
     # Waves::ns16s()
     def self.ns16s()
-        compare = lambda {|n1, n2|
-            if Waves::ns16ToOrderingWeight(n1) < Waves::ns16ToOrderingWeight(n2) then
-                return -1
-            end
-            if Waves::ns16ToOrderingWeight(n1) > Waves::ns16ToOrderingWeight(n2) then
-                return 1
-            end
-            n1["uuid"] <=> n2["uuid"]
-        }
         Waves::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| compare.call(n1, n2) }
+            .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
             .reverse
     end
 
     # Waves::highPriorityNs16s()
     def self.highPriorityNs16s()
-        compare = lambda {|n1, n2|
-            if Waves::ns16ToOrderingWeight(n1) < Waves::ns16ToOrderingWeight(n2) then
-                return -1
-            end
-            if Waves::ns16ToOrderingWeight(n1) > Waves::ns16ToOrderingWeight(n2) then
-                return 1
-            end
-            n1["uuid"] <=> n2["uuid"]
-        }
         Waves::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
+            .select{|item| Waves::isPriorityWave(item) }
             .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| compare.call(n1, n2) }
+            .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
             .reverse
     end
 
