@@ -31,7 +31,7 @@ class Work
 
     # Work::workMenuCommands()
     def self.workMenuCommands()
-        "[work   ] work on | work off"
+        "[work   ] (rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)}) work on | work off"
     end
 
     # Work::workMenuInterpreter(command)
