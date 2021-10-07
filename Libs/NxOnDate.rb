@@ -137,7 +137,7 @@ class NxOnDate # OnDate
         puts "Starting at #{Time.new.to_s}"
 
         domain = Domains::interactivelyGetDomainForItemOrNull(uuid, NxOnDate::toString(item))
-        nxball = NxBalls::makeNxBall([uuid, "ONDATES-BE92-5874-85F2-64F140E3B243", Domains::domainBankAccountOrNull(domain)].compact)
+        nxball = NxBalls::makeNxBall([uuid, "ONDATES-BE92-5874-85F2-64F140E3B243"].compact)
 
         thr = Thread.new {
             loop {

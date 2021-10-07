@@ -242,7 +242,7 @@ class Waves
     def self.landing(wave)
         uuid = wave["uuid"]
 
-        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+        nxball = NxBalls::makeNxBall([uuid])
 
         loop {
             system("clear")
@@ -295,7 +295,7 @@ class Waves
             end
 
             if command == "detach running" then
-                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid])
                 break
             end
 
@@ -343,7 +343,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
         domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Waves::toString(wave))
-        nxball = NxBalls::makeNxBall([uuid, "WAVES-A81E-4726-9F17-B71CAD66D793", Domains::domainBankAccountOrNull(domain)].compact)
+        nxball = NxBalls::makeNxBall([uuid])
         Waves::accessContent(wave)
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "detach running; will done", "exit"])
 
@@ -355,12 +355,11 @@ class Waves
 
         if operation == "done (default)" then
             Waves::performDone(wave)
-            
         end
 
         if operation == "detach running; will done" then
             Waves::performDone(wave)
-            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid, "WAVES-A81E-4726-9F17-B71CAD66D793"])
+            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid])
         end
 
         if operation == "exit" then

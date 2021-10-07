@@ -141,7 +141,7 @@ class Interpreters
 
                 next if KeyValueStore::flagIsTrue(nil, "#{key}:#{nx50["uuid"]}")
 
-                nxball = NxBalls::makeNxBall([nx50["uuid"], "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", "EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D"])
+                nxball = NxBalls::makeNxBall([nx50["uuid"]])
 
                 Nx50s::accessContent(nx50)
 

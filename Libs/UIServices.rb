@@ -25,36 +25,16 @@ class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
         domain = Domains::getCurrentActiveDomain()
-
-        timeManagedNS16s = [
-            {
-                "ns16s" => Waves::ns16s(),
-                "rt"    => BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
-            },
-            {
-                "ns16s" => DomainPriorityFile::ns16s2(),
-                "rt"    => BankExtended::stdRecoveredDailyTimeInHours(Domains::domainBankAccountOrNull(domain))
-            },
-            {
-                "ns16s" => Nx50s::ns16s(),
-                "rt"    => BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
-            }
-        ].sort{|p1, p2|
-            p1["rt"] <=> p2["rt"]
-        }.map{|packet| packet["ns16s"] }
-
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             NxOnDate::ns16s(),
             Fitness::ns16s(),
-            Waves::highPriorityNs16s(),
             DrivesBackups::ns16s(),
+            Waves::ns16s(),
             Work::ns16s(),
-            #Waves::ns16s(),
-            #DomainPriorityFile::ns16s2(),
-            #Nx50s::ns16s()
-            timeManagedNS16s
+            DomainPriorityFile::ns16s2(),
+            Nx50s::ns16s()
         ]
             .flatten
             .compact
@@ -151,37 +131,7 @@ class UIServices
 
         store = ItemStore.new()
 
-        vspaceleft = Utils::screenHeight()-10
-
-        info = [
-            {
-                "line"  => "(ondates: rt: #{BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243").round(2)})",
-                "value" => BankExtended::stdRecoveredDailyTimeInHours("ONDATES-BE92-5874-85F2-64F140E3B243")
-            },
-            {
-                "line"  => "(waves: rt: #{BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793").round(2)})",
-                "value" => BankExtended::stdRecoveredDailyTimeInHours("WAVES-A81E-4726-9F17-B71CAD66D793")
-            },
-            {
-                "line"  => "(Nx50s: rt: #{BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7").round(2)} ; #{Nx50s::nx50s().size} items)",
-                "value" => BankExtended::stdRecoveredDailyTimeInHours("Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7")
-            },
-            {
-                "line"  => "(eva: rt: #{BankExtended::stdRecoveredDailyTimeInHours("EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D").round(2)})",
-                "value" => BankExtended::stdRecoveredDailyTimeInHours("EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D")
-            },
-            {
-                "line"  => "(work: rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)})",
-                "value" => BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
-            }
-        ].sort{|p1, p2| p1["value"] <=> p2["value"] }
-
-        infoLine = [
-            "[info   ]",
-            info.map{|i| i["line"] },
-        ].flatten.join(" ").yellow
-
-        vspaceleft = vspaceleft - Utils::verticalSize(infoLine)
+        vspaceleft = Utils::screenHeight()-9
 
         puts ""
         puts "Domain: #{Domains::getCurrentActiveDomain().upcase}".green
@@ -252,10 +202,6 @@ class UIServices
         puts Interpreters::mainMenuCommands().yellow
         puts Work::workMenuCommands().yellow
         puts InternetStatus::putsInternetCommands().yellow
-
-        puts ""
-
-        puts infoLine
 
         puts ""
 

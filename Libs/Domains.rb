@@ -7,13 +7,11 @@ class Domains
         [
             {
                 "filepath"    => "/Users/pascal/Desktop/Eva.txt",
-                "domain"      => "eva",
-                "bankaccount" => "EVA-60ACA3A8-E1DB-4029-BE95-5ACBFF10316D",
+                "domain"      => "eva"
             },
             {
                 "filepath"    => "/Users/pascal/Desktop/Work.txt",
-                "domain"      => "work",
-                "bankaccount" => nil, # The entire domain is managed by one NxBall, unlike Eva, where elements create their own NxBalls
+                "domain"      => "work"
             }
         ]
     end
@@ -31,14 +29,6 @@ class Domains
     # Domains::interactivelySelectDomainOrNull()
     def self.interactivelySelectDomainOrNull()
         LucilleCore::selectEntityFromListOfEntitiesOrNull("domain: ", Domains::domains())
-    end
-
-    # Domains::domainBankAccountOrNull(domain)
-    def self.domainBankAccountOrNull(domain)
-        return nil if domain.nil?
-        item = Domains::items().select{|item| item["domain"] == domain}.first
-        return nil if item.nil?
-        item["bankaccount"]
     end
 
     # Domains::setDomainForItem(id, domain)

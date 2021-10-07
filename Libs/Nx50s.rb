@@ -369,7 +369,7 @@ class Nx50s
         puts "Starting at #{Time.new.to_s}"
 
         domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Nx50s::toString(nx50))
-        nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7", Domains::domainBankAccountOrNull(domain)].compact)
+        nxball = NxBalls::makeNxBall([uuid])
 
         thr = Thread.new {
             loop {
@@ -446,7 +446,7 @@ class Nx50s
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid])
                 break
             end
 
@@ -454,14 +454,14 @@ class Nx50s
                 NxBalls::closeNxBall(nxball, true)
                 puts "Starting pause at #{Time.new.to_s}"
                 LucilleCore::pressEnterToContinue()
-                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+                nxball = NxBalls::makeNxBall([uuid])
                 next
             end
 
             if command == "pursue" then
                 # We close the ball and issue a new one
                 NxBalls::closeNxBall(nxball, true)
-                nxball = NxBalls::makeNxBall([uuid, "Nx50s-14F461E4-9387-4078-9C3A-45AE08205CA7"])
+                nxball = NxBalls::makeNxBall([uuid])
                 next
             end
 
