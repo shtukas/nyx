@@ -366,13 +366,6 @@ class Nx50s
 
         uuid = nx50["uuid"]
         puts "#{Nx50s::toString(nx50)}".green
-        puts "uuid: #{uuid}".yellow
-        puts "axiomId: #{nx50["axiomId"]}".yellow
-        puts "NxAxiom fsck: #{NxAxioms::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])}".yellow
-        puts "domain: #{nx50["domain"]}".yellow
-        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
-        puts ""
-
         puts "Starting at #{Time.new.to_s}"
 
         domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Nx50s::toString(nx50))
@@ -406,6 +399,11 @@ class Nx50s
             system("clear")
 
             puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
+            puts "uuid: #{uuid}".yellow
+            puts "axiomId: #{nx50["axiomId"]}".yellow
+            puts "NxAxiom fsck: #{NxAxioms::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])}".yellow
+            puts "domain: #{nx50["domain"]}".yellow
+            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             if note then
@@ -575,7 +573,11 @@ class Nx50s
             }
 
         if domain == "work" then
-            ns16s = (ns16s + Work::interestNS16s()).sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] }
+            x1, x2 = (ns16s + Work::interestNS16s())
+                        .partition{|ns16|
+                            ns16["rt"].nil? or ns16["rt"] < 1
+                        }
+            ns16s = x1.sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] } + x2.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
         end
 
         ns16s

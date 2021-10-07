@@ -65,16 +65,16 @@ class DomainPriorityFile
             puts ""
             puts section.green
             puts ""
-            puts "access (default) | [] | >Nx50 | exit".yellow
+            puts "access | [] | >Nx50 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
-                section = accessedit.call(filepath, section)
-                next
+                break
             end
 
-            if command == "exit" then
-                break
+            if Interpreting::match("access", command) then
+                section = accessedit.call(filepath, section)
+                next
             end
 
             if command == "[]" then
@@ -92,9 +92,8 @@ class DomainPriorityFile
                 break
             end
 
-            if Interpreting::match("access", command) then
-                section = accessedit.call(filepath, section)
-                next
+            if command == "exit" then
+                break
             end
         }
 
