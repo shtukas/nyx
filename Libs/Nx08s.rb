@@ -110,7 +110,7 @@ class Nx08s # OnDate
 
     # Nx08s::toString(item)
     def self.toString(item)
-        "[-in-] (#{item["date"]}) #{item["description"]} (#{Nx08s::getItemType(item)})"
+        "[ in ] #{item["description"]} (#{Nx08s::getItemType(item)})"
     end
 
     # Nx08s::accessContent(item)
@@ -233,35 +233,6 @@ class Nx08s # OnDate
             .map{|item| Nx08s::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
-    end
-
-    # Nx08s::main()
-    def self.main()
-        loop {
-            system("clear")
-
-            items = Nx08s::items()
-                        .sort{|i1, i2| i1["date"] <=> i2["date"] }
-
-            items.each_with_index{|item, indx| 
-                puts "[#{indx}] #{Nx08s::toString(item)}"
-            }
-
-            puts "<item index> | (empty) # exit".yellow
-            puts Interpreters::mainMenuCommands().yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                item = items[indx]
-                next if item.nil?
-                Nx08s::run(item)
-            end
-
-            Interpreters::mainMenuInterpreter(command)
-        }
     end
 
     # Nx08s::nx19s()
