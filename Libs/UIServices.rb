@@ -33,6 +33,7 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(),
             DomainPriorityFile::ns16s2(),
+            Nx08s::ns16s(),
             Work::ns16s(),
             Nx50s::ns16s()
         ]

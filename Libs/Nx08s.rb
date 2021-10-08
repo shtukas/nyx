@@ -1,49 +1,41 @@
 # encoding: UTF-8
 
-class NxOnDate # OnDate
+class Nx08s # OnDate
 
-    # NxOnDate::itemsFolderPath()
+    # Nx08s::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx08s"
     end
 
-    # NxOnDate::commitItemToDisk(item)
+    # Nx08s::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
+        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NxOnDate::quarksFolderPath()
+    # Nx08s::quarksFolderPath()
     def self.quarksFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates-quarks"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-quarks"
     end
 
-    # NxOnDate::getNxOnDateByUUIDOrNull(uuid)
-    def self.getNxOnDateByUUIDOrNull(uuid)
+    # Nx08s::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
+        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NxOnDate::items()
+    # Nx08s::items()
     def self.items()
-        LucilleCore::locationsAtFolder(NxOnDate::itemsFolderPath())
+        LucilleCore::locationsAtFolder(Nx08s::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
-            .sort{|x1, x2|  x1["date"] <=> x2["date"]}
+            .sort{|x1, x2|  x1["unixtime"] <=> x2["unixtime"]}
     end
 
-    # NxOnDate::interactivelySelectADateOrNull()
-    def self.interactivelySelectADateOrNull()
-        datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
-        unixtime = Utils::codeToUnixtimeOrNull(datecode)
-        return nil if unixtime.nil?
-        Time.at(unixtime).to_s[0, 10]
-    end
-
-    # NxOnDate::interactivelyIssueNewOrNull()
+    # Nx08s::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = LucilleCore::timeStringL22()
 
@@ -54,75 +46,99 @@ class NxOnDate # OnDate
             return nil
         end
 
-        date = NxOnDate::interactivelySelectADateOrNull()
-        return nil if date.nil?
-
-        axiomId = Quarks::interactivelyCreateNewAxiom_EchoIdOrNull(NxOnDate::quarksFolderPath(), LucilleCore::timeStringL22())
+        axiomId = Quarks::interactivelyCreateNewAxiom_EchoIdOrNull(Nx08s::quarksFolderPath(), LucilleCore::timeStringL22())
 
         item = {
               "uuid"         => uuid,
               "unixtime"     => unixtime,
               "description"  => description,
-              "date"         => date,
               "axiomId"      => axiomId
             }
 
-        NxOnDate::commitItemToDisk(item)
+        Nx08s::commitItemToDisk(item)
 
         item
     end
 
-    # NxOnDate::destroy(item)
+    # Nx08s::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
+        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
+    # Nx08s::issueItemUsingLocation(location)
+    def self.issueItemUsingLocation(location)
+        uuid        = LucilleCore::timeStringL22()
+        description = File.basename(location)
+        axiomId     = NxA003::make(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22(), location)
+        Nx08s::commitItemToDisk({
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx08s::issueNewItemFromLine(line)
+    def self.issueNewItemFromLine(line)
+        uuid = LucilleCore::timeStringL22()
+        item = {
+          "uuid"        => uuid,
+          "unixtime"    => Time.new.to_f,
+          "description" => line,
+          "axiomId"     => nil
+        }
+        Nx08s::commitItemToDisk(item)
+        Nx08s::getItemByUUIDOrNull(uuid)
+    end
+
+
     # -------------------------------------
     # Operations
 
-    # NxOnDate::getItemType(item)
+    # Nx08s::getItemType(item)
     def self.getItemType(item)
-        type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}")
+        type = KeyValueStore::getOrNull(nil, "6f3abff4-7686-454d-8190-8b0ba983ab14:#{item["uuid"]}")
         return type if type
-        type1 = Quarks::contentTypeOrNull(NxOnDate::quarksFolderPath(), item["axiomId"])
+        type1 = Quarks::contentTypeOrNull(Nx08s::quarksFolderPath(), item["axiomId"])
         type2 = type1 || "line"
-        KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}", type2)
+        KeyValueStore::set(nil, "6f3abff4-7686-454d-8190-8b0ba983ab14:#{item["uuid"]}", type2)
         type2
     end
 
-    # NxOnDate::toString(item)
+    # Nx08s::toString(item)
     def self.toString(item)
-        "[ondt] (#{item["date"]}) #{item["description"]} (#{NxOnDate::getItemType(item)})"
+        "[asap] (#{item["date"]}) #{item["description"]} (#{Nx08s::getItemType(item)})"
     end
 
-    # NxOnDate::accessContent(item)
+    # Nx08s::accessContent(item)
     def self.accessContent(item)
         if item["axiomId"].nil? then
             puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(NxOnDate::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(Nx08s::quarksFolderPath(), item["axiomId"])
     end
 
-    # NxOnDate::accessContentsIfContents(item)
+    # Nx08s::accessContentsIfContents(item)
     def self.accessContentsIfContents(item)
         return if item["axiomId"].nil?
-        Quarks::accessWithOptionToEdit(NxOnDate::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(Nx08s::quarksFolderPath(), item["axiomId"])
     end
 
-    # NxOnDate::run(item)
+    # Nx08s::run(item)
     def self.run(item)
         uuid = item["uuid"]
 
-        puts "running #{NxOnDate::toString(item)}".green
+        puts "running #{Nx08s::toString(item)}".green
         puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
-        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, NxOnDate::toString(item))
+        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Nx08s::toString(item))
         nxball = NxBalls::makeNxBall([uuid].compact)
 
         thr = Thread.new {
@@ -136,23 +152,23 @@ class NxOnDate # OnDate
 
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 
-        NxOnDate::accessContentsIfContents(item)
+        Nx08s::accessContentsIfContents(item)
 
         loop {
 
             system("clear")
 
-            puts "running #{NxOnDate::toString(item)}".green
+            puts "running #{Nx08s::toString(item)}".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 
-            puts "access | <datecode> | note | [] | update date | exit | destroy".yellow
+            puts "access | <datecode> | note | [] | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if Interpreting::match("access", command) then
-                NxOnDate::accessContent(item)
+                Nx08s::accessContent(item)
                 next
             end
 
@@ -172,21 +188,13 @@ class NxOnDate # OnDate
                 next
             end
 
-            if Interpreting::match("update date", command) then
-                date = NxOnDate::interactivelySelectADateOrNull()
-                next if date.nil?
-                item["date"] = date
-                NxOnDate::commitItemToDisk(item)
-                next
-            end
-
             if Interpreting::match("exit", command) then
                 return
             end
 
             if Interpreting::match("destroy", command) then
-                Quarks::destroy(NxOnDate::quarksFolderPath(), item["axiomId"])
-                NxOnDate::destroy(item)
+                Quarks::destroy(Nx08s::quarksFolderPath(), item["axiomId"])
+                Nx08s::destroy(item)
                 break
             end
         }
@@ -196,49 +204,56 @@ class NxOnDate # OnDate
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # NxOnDate::itemToNS16(item)
+    # Nx08s::itemToNS16(item)
     def self.itemToNS16(item)
         {
             "uuid"        => item["uuid"],
-            "announce"    => NxOnDate::toString(item),
+            "announce"    => Nx08s::toString(item),
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    NxOnDate::run(item)
+                    Nx08s::run(item)
                 end
                 if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(item)}' ? ", true) then
-                        NxOnDate::destroy(item)
+                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx08s::toString(item)}' ? ", true) then
+                        Nx08s::destroy(item)
                     end
                 end
             },
             "run" => lambda {
-                NxOnDate::run(item)
+                Nx08s::run(item)
             }
         }
     end
 
-    # NxOnDate::ns16s()
+    # Nx08s::ns16s()
     def self.ns16s()
-        NxOnDate::items()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx08 Inbox").each{|location|
+            puts "[inbox] #{location}"
+            Nx08s::issueItemUsingLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+            sleep 1
+        }
+
+
+        Nx08s::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| item["date"] <= Time.new.to_s[0, 10] }
-            .sort{|i1, i2| i1["date"] <=> i2["date"] }
-            .map{|item| NxOnDate::itemToNS16(item) }
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .map{|item| Nx08s::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
-    # NxOnDate::main()
+    # Nx08s::main()
     def self.main()
         loop {
             system("clear")
 
-            items = NxOnDate::items()
+            items = Nx08s::items()
                         .sort{|i1, i2| i1["date"] <=> i2["date"] }
 
             items.each_with_index{|item, indx| 
-                puts "[#{indx}] #{NxOnDate::toString(item)}"
+                puts "[#{indx}] #{Nx08s::toString(item)}"
             }
 
             puts "<item index> | (empty) # exit".yellow
@@ -251,20 +266,20 @@ class NxOnDate # OnDate
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 item = items[indx]
                 next if item.nil?
-                NxOnDate::run(item)
+                Nx08s::run(item)
             end
 
             Interpreters::mainMenuInterpreter(command)
         }
     end
 
-    # NxOnDate::nx19s()
+    # Nx08s::nx19s()
     def self.nx19s()
-        NxOnDate::items().map{|item|
+        Nx08s::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => NxOnDate::toString(item),
-                "lambda"   => lambda { NxOnDate::run(item) }
+                "announce" => Nx08s::toString(item),
+                "lambda"   => lambda { Nx08s::run(item) }
             }
         }
     end

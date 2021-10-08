@@ -51,28 +51,19 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] today: <line> | todo: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >> | nyx"
+        "[general] asap: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >> | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
 
-        if command.start_with?("today:") then
+        if command.start_with?("asap:") then
             line = command[6, command.size].strip
             domain = Domains::interactivelySelectDomainOrNull() || "eva"
-            item = NxOnDate::issueNewItemFromLineAtDate(line, Utils::today())
+            item = Nx08s::issueNewItemFromLine(line)
             Domains::setDomainForItem(item["uuid"], domain)
             puts JSON.pretty_generate(item)
         end
-
-        if command.start_with?("todo:") then
-            line = command[5, command.size].strip
-            domain = Domains::interactivelySelectDomainOrNull() || "eva"
-            item = Nx50s::issueNx50MidRangeUsingLine(line, domain)
-            Domains::setDomainForItem(item["uuid"], domain)
-            puts JSON.pretty_generate(item)
-        end
-
 
         if Interpreting::match("float", command) then
             NxFloats::interactivelyCreateNewOrNull()

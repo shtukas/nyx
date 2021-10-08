@@ -10,7 +10,8 @@ class Search
         NxOnDate::nx19s() + 
         Nx50s::nx19s() +
         Waves::nx19s() +
-        NxFloats::nx19s()
+        NxFloats::nx19s() + 
+        Nx08s::nx19s()
     end
 
     # Search::existingUUIDS()
