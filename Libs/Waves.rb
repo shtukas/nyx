@@ -235,7 +235,7 @@ class Waves
     # Waves::accessContent(wave)
     def self.accessContent(wave)
         return if wave["axiomId"].nil?
-        NxQuarks::accessWithOptionToEdit(Waves::quarksFolderPath(), wave["axiomId"])
+        Quarks::accessWithOptionToEdit(Waves::quarksFolderPath(), wave["axiomId"])
     end
 
     # Waves::landing(wave)

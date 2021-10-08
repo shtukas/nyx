@@ -60,7 +60,7 @@ class NxFloats
 
         unixtime     = Time.new.to_f
 
-        axiomId = NxQuarks::interactivelyCreateNewAxiom_EchoIdOrNull(NxFloats::quarksFolderPath(), LucilleCore::timeStringL22())
+        axiomId = Quarks::interactivelyCreateNewAxiom_EchoIdOrNull(NxFloats::quarksFolderPath(), LucilleCore::timeStringL22())
 
         float = {
           "uuid"           => uuid,
@@ -89,7 +89,7 @@ class NxFloats
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxQuarks::accessWithOptionToEdit(NxFloats::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(NxFloats::quarksFolderPath(), item["axiomId"])
     end
 
     # --------------------------------------------------
