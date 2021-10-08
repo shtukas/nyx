@@ -14,11 +14,6 @@ class NxOnDate # OnDate
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NxOnDate::quarksFolderPath()
-    def self.quarksFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates-quarks"
-    end
-
     # NxOnDate::getNxOnDateByUUIDOrNull(uuid)
     def self.getNxOnDateByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
@@ -57,7 +52,7 @@ class NxOnDate # OnDate
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
 
-        axiomId = Quarks::interactivelyCreateNewAxiom_EchoIdOrNull(NxOnDate::quarksFolderPath(), LucilleCore::timeStringL22())
+        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         item = {
               "uuid"         => uuid,
@@ -74,7 +69,6 @@ class NxOnDate # OnDate
 
     # NxOnDate::destroy(item)
     def self.destroy(item)
-        Quarks::destroy(NxOnDate::quarksFolderPath(), item["axiomId"])
         filename = "#{item["uuid"]}.json"
         filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
@@ -88,7 +82,7 @@ class NxOnDate # OnDate
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}")
         return type if type
-        type1 = Quarks::contentTypeOrNull(NxOnDate::quarksFolderPath(), item["axiomId"])
+        type1 = CoreData::contentTypeOrNull(item["axiomId"])
         type2 = type1 || "line"
         KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}", type2)
         type2
@@ -106,13 +100,13 @@ class NxOnDate # OnDate
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(NxOnDate::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(item["axiomId"])
     end
 
     # NxOnDate::accessContentsIfContents(item)
     def self.accessContentsIfContents(item)
         return if item["axiomId"].nil?
-        Quarks::accessWithOptionToEdit(NxOnDate::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(item["axiomId"])
     end
 
     # NxOnDate::run(item)

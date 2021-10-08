@@ -14,11 +14,6 @@ class Nx08s # OnDate
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # Nx08s::quarksFolderPath()
-    def self.quarksFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-quarks"
-    end
-
     # Nx08s::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
@@ -46,7 +41,7 @@ class Nx08s # OnDate
             return nil
         end
 
-        axiomId = Quarks::interactivelyCreateNewAxiom_EchoIdOrNull(Nx08s::quarksFolderPath(), LucilleCore::timeStringL22())
+        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         item = {
               "uuid"         => uuid,
@@ -70,7 +65,6 @@ class Nx08s # OnDate
 
     # Nx08s::destroy(item)
     def self.destroy(item)
-        Quarks::destroy(Nx08s::quarksFolderPath(), item["axiomId"])
         Nx08s::destroyItemBuNotTheAxiom(item)
     end
 
@@ -78,7 +72,7 @@ class Nx08s # OnDate
     def self.issueItemUsingLocation(location)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        axiomId     = NxA003::make(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22(), location)
+        axiomId     = CoreData::issueAionPointDataObjectUsingLocation(location)
         Nx08s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
@@ -108,7 +102,7 @@ class Nx08s # OnDate
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "6f3abff4-7686-454d-8190-8b0ba983ab14:#{item["uuid"]}")
         return type if type
-        type1 = Quarks::contentTypeOrNull(Nx08s::quarksFolderPath(), item["axiomId"])
+        type1 = CoreData::contentTypeOrNull(item["axiomId"])
         type2 = type1 || "line"
         KeyValueStore::set(nil, "6f3abff4-7686-454d-8190-8b0ba983ab14:#{item["uuid"]}", type2)
         type2
@@ -126,13 +120,13 @@ class Nx08s # OnDate
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(Nx08s::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(item["axiomId"])
     end
 
     # Nx08s::accessContentsIfContents(item)
     def self.accessContentsIfContents(item)
         return if item["axiomId"].nil?
-        Quarks::accessWithOptionToEdit(Nx08s::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(item["axiomId"])
     end
 
     # Nx08s::run(item)

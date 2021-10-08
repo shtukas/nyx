@@ -241,7 +241,6 @@ class UIServices
 end
 
 class Fsck
-
     # Fsck::fsck()
     def self.fsck()
 
@@ -251,7 +250,7 @@ class Fsck
 
         Nx08s::items().each{|item|
             puts JSON.pretty_generate(item)
-            status = Quarks::fsck(Nx08s::quarksFolderPath(), item["axiomId"])
+            status = CoreData::fsck(item["axiomId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -260,7 +259,7 @@ class Fsck
 
         NxFloats::nxfloats().each{|item|
             puts JSON.pretty_generate(item)
-            status = Quarks::fsck(NxFloats::quarksFolderPath(), item["axiomId"])
+            status = CoreData::fsck(item["axiomId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -269,7 +268,7 @@ class Fsck
 
         NxOnDate::items().each{|item|
             puts JSON.pretty_generate(item)
-            status = Quarks::fsck(NxOnDate::quarksFolderPath(), item["axiomId"])
+            status = CoreData::fsck(item["axiomId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -278,7 +277,7 @@ class Fsck
 
         Waves::items().each{|item|
             puts JSON.pretty_generate(item)
-            status = Quarks::fsck(Waves::quarksFolderPath(), item["axiomId"])
+            status = CoreData::fsck(item["axiomId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -287,7 +286,7 @@ class Fsck
 
         Nx50s::nx50s().each{|item|
             puts JSON.pretty_generate(item)
-            status = Quarks::fsck(Nx50s::quarksFolderPath(), item["axiomId"])
+            status = CoreData::fsck(item["axiomId"])
             if !status then 
                 puts "[problem]".red
                 exit
@@ -296,5 +295,4 @@ class Fsck
 
         puts "Fsck Completed!".green
     end
-
 end

@@ -93,11 +93,6 @@ class Nx50s
         db.close
     end
 
-    # Nx50s::quarksFolderPath()
-    def self.quarksFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-quarks"
-    end
-
     # Nx50s::setItemDomain(uuid, domain)
     def self.setItemDomain(uuid, domain)
         db = SQLite3::Database.new(Nx50s::databaseFilepath2())
@@ -204,7 +199,7 @@ class Nx50s
             return nil
         end
         domain = Domains::interactivelySelectDomainOrNull() || "eva"
-        axiomId = Quarks::interactivelyCreateNewAxiom_EchoIdOrNull(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22())
+        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
@@ -238,7 +233,7 @@ class Nx50s
     def self.issueNx50UsingText(text, unixtime, domain)
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
-        axiomId      = NxA001::make(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22(), text)
+        axiomId      = CoreData::issueTextDataObjectUsingText(text)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -254,7 +249,7 @@ class Nx50s
         uuid         = LucilleCore::timeStringL22()
         unixtime     = Nx50s::getUnixtimeInRange("eva", 10, 20)
         description  = url
-        axiomId      = NxA002::make(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22(), url)
+        axiomId      = CoreData::issueUrlPointDataObjectUsingUrl(url)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -283,7 +278,7 @@ class Nx50s
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}")
         return type if type
-        type1 = Quarks::contentTypeOrNull(Nx50s::quarksFolderPath(), item["axiomId"])
+        type1 = CoreData::contentTypeOrNull(item["axiomId"])
         type2 = type1 || "line"
         KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}", type2)
         type2
@@ -306,7 +301,6 @@ class Nx50s
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
-        Quarks::destroy(Nx50s::quarksFolderPath(), nx50["axiomId"]) # function accepts null ids
         Nx50s::delete(nx50["uuid"])
     end
 
@@ -317,13 +311,13 @@ class Nx50s
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(Nx50s::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(item["axiomId"])
     end
 
     # Nx50s::accessContentsIfContents(nx50)
     def self.accessContentsIfContents(nx50)
         return if nx50["axiomId"].nil?
-        Quarks::accessWithOptionToEdit(Nx50s::quarksFolderPath(), nx50["axiomId"])
+        Quarks::accessWithOptionToEdit(nx50["axiomId"])
     end
 
     # --------------------------------------------------
@@ -371,7 +365,6 @@ class Nx50s
             puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
             puts "uuid: #{uuid}".yellow
             puts "axiomId: #{nx50["axiomId"]}".yellow
-            puts "NxAxiom fsck: #{Quarks::fsck(Nx50s::quarksFolderPath(), nx50["axiomId"])}".yellow
             puts "domain: #{nx50["domain"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 

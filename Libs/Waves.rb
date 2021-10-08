@@ -41,11 +41,6 @@ class Waves
         FileUtils.rm(filepath)
     end
 
-    # Waves::quarksFolderPath()
-    def self.quarksFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves-quarks"
-    end
-
     # --------------------------------------------------
     # Making
 
@@ -156,7 +151,7 @@ class Waves
             url            = LucilleCore::askQuestionAnswerAsString("url: ")
             axiomId        = SecureRandom.uuid
             description    = url
-            NxA002::make(Waves::quarksFolderPath(), axiomId, url)
+            CoreData::issueUrlPointDataObjectUsingUrl(url)
         end
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
@@ -234,8 +229,7 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
-        return if wave["axiomId"].nil?
-        Quarks::accessWithOptionToEdit(Waves::quarksFolderPath(), wave["axiomId"])
+        Quarks::accessWithOptionToEdit(wave["axiomId"])
     end
 
     # Waves::landing(wave)

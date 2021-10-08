@@ -58,7 +58,7 @@ class CoreDataElizabeth
     end
 
     def commitBlob(blob)
-        CoreData::putBlob(blob)
+        CoreDataUtils::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -66,7 +66,7 @@ class CoreDataElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = CoreData::getBlobOrNull(nhash)
+        blob = CoreDataUtils::getBlobOrNull(nhash)
         raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
         blob
     end
@@ -106,32 +106,32 @@ CoreData objects
 
 =end
 
-class CoreData
+class CoreDataUtils
 
-    # CoreData::path()
+    # CoreDataUtils::path()
     def self.path()
         "/Users/pascal/Galaxy/DataBank/Catalyst/CoreData"
     end
 
-    # CoreData::datablobsRoot()
+    # CoreDataUtils::datablobsRoot()
     def self.datablobsRoot()
-        "#{CoreData::path()}/DataBlobs2"
+        "#{CoreDataUtils::path()}/DataBlobs2"
     end
 
-    # CoreData::objectsRoot()
+    # CoreDataUtils::objectsRoot()
     def self.objectsRoot()
-        "#{CoreData::path()}/Objects"
+        "#{CoreDataUtils::path()}/Objects"
     end
 
-    # CoreData::filepathToContentHash(filepath)
+    # CoreDataUtils::filepathToContentHash(filepath)
     def self.filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
-    # CoreData::putBlob(blob)
+    # CoreDataUtils::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        folderpath = "#{CoreData::datablobsRoot()}/#{nhash[7, 2]}/#{nhash[9, 2]}"
+        folderpath = "#{CoreDataUtils::datablobsRoot()}/#{nhash[7, 2]}/#{nhash[9, 2]}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
@@ -140,9 +140,9 @@ class CoreData
         nhash
     end
 
-    # CoreData::getBlobOrNull(nhash)
+    # CoreDataUtils::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        folderpath = "#{CoreData::datablobsRoot()}/#{nhash[7, 2]}/#{nhash[9, 2]}"
+        folderpath = "#{CoreDataUtils::datablobsRoot()}/#{nhash[7, 2]}/#{nhash[9, 2]}"
         filepath = "#{folderpath}/#{nhash}.data"
         return nil if !File.exists?(filepath)
         IO.read(filepath)
@@ -150,24 +150,157 @@ class CoreData
 
     # User Interface
 
-    # CoreData::commitObject(object)
+    # CoreDataUtils::commitObject(object): String, Object UUID
     def self.commitObject(object)
-        trace = Digest::SHA256.hexdigest(object["uuid"])
-        folderpath = "#{CoreData::objectsRoot()}/#{trace[0, 2]}/#{trace[2, 2]}"
+        uuid = object["uuid"]
+        trace = Digest::SHA256.hexdigest(uuid)
+        folderpath = "#{CoreDataUtils::objectsRoot()}/#{trace[0, 2]}/#{trace[2, 2]}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
         filepath = "#{folderpath}/#{trace}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
-        trace
+        nil
     end
 
-    # CoreData::getObjectOrNull(trace)
-    def self.getObjectOrNull(trace)
-        folderpath = "#{CoreData::objectsRoot()}/#{trace[0, 2]}/#{trace[2, 2]}"
+    # CoreDataUtils::getObjectOrNull(uuid)
+    def self.getObjectOrNull(uuid)
+        trace = Digest::SHA256.hexdigest(uuid)
+        folderpath = "#{CoreDataUtils::objectsRoot()}/#{trace[0, 2]}/#{trace[2, 2]}"
         filepath = "#{folderpath}/#{trace}.json"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
+    end
+
+end
+
+class CoreData
+
+    # CoreData::editTextSynchronously(text)
+    def self.editTextSynchronously(text)
+        filename = SecureRandom.uuid
+        filepath = "/tmp/#{filename}"
+        File.open(filepath, 'w') {|f| f.write(text)}
+        system("open '#{filepath}'")
+        print "> press enter when done: "
+        input = STDIN.gets
+        IO.read(filepath)
+    end
+
+    # CoreData::issueTextDataObjectUsingText(text)
+    def self.issueTextDataObjectUsingText(text)
+        coredataobject = {
+            "uuid" => SecureRandom.uuid,
+            "type" => "text",
+            "text" => text
+        }
+        puts JSON.pretty_generate(coredataobject)
+        return coredataobject["uuid"]
+    end
+
+    # CoreData::issueUrlPointDataObjectUsingUrl(url)
+    def self.issueUrlPointDataObjectUsingUrl(url)
+        coredataobject = {
+            "uuid" => SecureRandom.uuid,
+            "type" => "url",
+            "url"  => url
+        }
+        puts JSON.pretty_generate(coredataobject)
+        return coredataobject["uuid"]
+    end
+
+    # CoreData::issueAionPointDataObjectUsingLocation(location)
+    def self.issueAionPointDataObjectUsingLocation(location)
+        nhash = AionCore::commitLocationReturnHash(CoreDataElizabeth.new(), location)
+        coredataobject = {
+            "uuid"  => SecureRandom.uuid,
+            "type"  => "aion-point",
+            "nhash" => nhash
+        }
+        puts JSON.pretty_generate(coredataobject)
+        return coredataobject["uuid"]
+    end
+
+    # CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+    def self.interactivelyCreateANewDataObjectReturnIdOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("axiom type", ["text", "url", "location"])
+        return nil if type.nil?
+        if type == "text" then
+            text = CoreData::editTextSynchronously("")
+            coredataobject = {
+                "uuid" => SecureRandom.uuid,
+                "type" => "text",
+                "text" => text
+            }
+            puts JSON.pretty_generate(coredataobject)
+            return coredataobject["uuid"]
+        end
+
+        if type == "url" then
+            url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
+            return nil if url == ""
+            return CoreData::issueUrlPointDataObjectUsingUrl(url)
+        end
+
+        if type == "location" then
+            locationNameOnDesktop = LucilleCore::askQuestionAnswerAsString("location of desktop (empty to abort): ")
+            return nil if locationNameOnDesktop == ""
+            location = "/Users/pascal/Desktop/#{locationNameOnDesktop}"
+            return CoreData::issueAionPointDataObjectUsingLocation(location)
+        end
+
+        raise "[fd1be202-ce29-419b-8a9f-40b91a3beb65, type: #{type}]"
+    end
+
+    # CoreData::contentTypeOrNull(id: String)
+    def self.contentTypeOrNull(id)
+        return nil if id.nil?
+        object = CoreDataUtils::getObjectOrNull(id)
+        return nil if object.nil?
+        object["type"]
+    end
+
+    # CoreData::fsck(uuid: String) : Boolean
+    def self.fsck(uuid)
+        return true if uuid.nil?
+        object = CoreDataUtils::getObjectOrNull(uuid)
+        return false if object.nil?
+        if object["type"] == "text" then
+            return true
+        end
+        if object["type"] == "url" then
+            return true
+        end
+        if object["type"] == "aion-point" then
+            nhash = object["nhash"]
+            return AionFsck::structureCheckAionHash(CoreDataElizabeth.new(), nhash)
+        end
+        raise "4ecddee2-0d4c-4e26-ab41-c6da2fd91b4e: non standard variant for uuid: #{uuid}, #{object}"
+    end
+
+    # Quarks::accessWithOptionToEdit(uuid: String)
+    def self.accessWithOptionToEdit(uuid)
+        return if uuid.nil?
+        object = CoreDataUtils::getObjectOrNull(uuid)
+        if object.nil? then
+            puts "Could not find data object for uuid #{uuid}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if object["type"] == "text" then
+            puts object["text"]
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if object["type"] == "url" then
+            system("open '#{object["url"]}'")
+            return
+        end
+        if object["type"] == "aion-point" then
+            AionCore::exportHashAtFolder(CoreDataElizabeth.new(), object["nhash"], "/Users/pascal/Desktop")
+            return
+        end
+        raise "(2201ddcd-cb33-4faf-9388-e4ebb6e7f28f, uuid: #{uuid})"
     end
 
 end

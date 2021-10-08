@@ -41,11 +41,6 @@ class NxFloats
         FileUtils.rm(filepath)
     end
 
-    # NxFloats::quarksFolderPath()
-    def self.quarksFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxFloats-quarks"
-    end
-
     # --------------------------------------------------
     # Making
 
@@ -60,7 +55,7 @@ class NxFloats
 
         unixtime     = Time.new.to_f
 
-        axiomId = Quarks::interactivelyCreateNewAxiom_EchoIdOrNull(NxFloats::quarksFolderPath(), LucilleCore::timeStringL22())
+        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         float = {
           "uuid"           => uuid,
@@ -89,7 +84,7 @@ class NxFloats
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(NxFloats::quarksFolderPath(), item["axiomId"])
+        Quarks::accessWithOptionToEdit(item["axiomId"])
     end
 
     # --------------------------------------------------
