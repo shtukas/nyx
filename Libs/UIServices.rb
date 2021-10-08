@@ -239,3 +239,62 @@ class UIServices
         end
     end
 end
+
+class Fsck
+
+    # Fsck::fsck()
+    def self.fsck()
+
+        Anniversaries::anniversaries().each{|item|
+            puts JSON.pretty_generate(item)
+        }
+
+        Nx08s::items().each{|item|
+            puts JSON.pretty_generate(item)
+            status = Quarks::fsck(Nx08s::quarksFolderPath(), item["axiomId"])
+            if !status then
+                puts "Failed!".red
+                exit
+            end
+        }
+
+        NxFloats::nxfloats().each{|item|
+            puts JSON.pretty_generate(item)
+            status = Quarks::fsck(NxFloats::quarksFolderPath(), item["axiomId"])
+            if !status then
+                puts "Failed!".red
+                exit
+            end
+        }
+
+        NxOnDate::items().each{|item|
+            puts JSON.pretty_generate(item)
+            status = Quarks::fsck(NxOnDate::quarksFolderPath(), item["axiomId"])
+            if !status then
+                puts "Failed!".red
+                exit
+            end
+        }
+
+        Waves::items().each{|item|
+            puts JSON.pretty_generate(item)
+            status = Quarks::fsck(Waves::quarksFolderPath(), item["axiomId"])
+            if !status then
+                puts "Failed!".red
+                exit
+            end
+        }
+
+        Nx50s::nx50s().each{|item|
+            puts JSON.pretty_generate(item)
+            status = Quarks::fsck(Nx50s::quarksFolderPath(), item["axiomId"])
+            if !status then 
+                puts "[problem]".red
+                exit
+            end
+        }
+
+        puts "Fsck Completed!".green
+    end
+
+end

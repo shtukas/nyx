@@ -51,7 +51,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] in: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >> | nyx"
+        "[general] in: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -158,6 +158,10 @@ class Interpreters
 
         if Interpreting::match("search", command) then
             Search::search()
+        end
+
+        if Interpreting::match("fsck", command) then
+            Fsck::fsck()
         end
 
         if Interpreting::match("nyx", command) then

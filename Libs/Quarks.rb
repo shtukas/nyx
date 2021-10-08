@@ -114,6 +114,8 @@ class QsElizabeth
     end
 
     def commitBlob(blob)
+        CoreData::putBlob(blob)
+
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         @db[nhash] = blob
         @db.flush
@@ -125,8 +127,14 @@ class QsElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
+        blob = CoreData::getBlobOrNull(nhash)
+        return blob if blob
+
         blob = @db[nhash]
         raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+
+        CoreData::putBlob(blob)
+        
         blob
     end
 
@@ -336,7 +344,7 @@ class Quarks
         QsUtils::destroy(repositoryRoot, id)
     end
 
-    # Quarks::fsck(repositoryRoot: String, id: String)
+    # Quarks::fsck(repositoryRoot: String, id: String) : Boolean
     def self.fsck(repositoryRoot, id)
         return true if id.nil?
         filepath = QsUtils::findAxiomFilepathByIdOrNull(repositoryRoot, id)
@@ -367,5 +375,72 @@ class Quarks
             return status
         end
         raise "4ecddee2-0d4c-4e26-ab41-c6da2fd91b4e: non standard variant for (repositoryRoot: #{repositoryRoot}, id: #{id}, filepath: #{filepath})"
+    end
+
+    # Quarks::migration(repositoryRoot: String, id: String)
+    def self.migration(repositoryRoot, id)
+        return if id.nil?
+        filepath = QsUtils::findAxiomFilepathByIdOrNull(repositoryRoot, id)
+        if filepath.nil? then
+            puts "Could not find filepath for (repositoryRoot: #{repositoryRoot}, id: #{id})".red
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if filepath[-3, 3] == "001" then
+            db = Daybreak::DB.new filepath
+            puts db["text-4e1e-aef4-58165e46651c"]
+            coredataobject = {
+                "uuid"  => id,
+                "type"  => "text",
+                "text"  => db["text-4e1e-aef4-58165e46651c"]
+            }
+            puts JSON.pretty_generate(coredataobject)
+            CoreData::commitObject(coredataobject)
+            db.close
+            return
+        end
+        if filepath[-3, 3] == "002" then
+            db = Daybreak::DB.new filepath
+            puts db["url-45ed-960e-c23d39bb64ce"]
+            coredataobject = {
+                "uuid"  => id,
+                "type"  => "url",
+                "url"   => db["url-45ed-960e-c23d39bb64ce"]
+            }
+            puts JSON.pretty_generate(coredataobject)
+            CoreData::commitObject(coredataobject)
+            db.close
+            return
+        end
+        if filepath[-3, 3] == "003" then
+            db = Daybreak::DB.new filepath
+            operator = QsElizabeth.new(db)
+            nhash = db["nhash-c4ae0383-8a1f"]
+            if nhash.nil? then
+                db.close
+                puts "Looking at (repositoryRoot: #{repositoryRoot}, id: #{id})".red
+                puts "Could not find value for key [nhash-c4ae0383-8a1f]".red
+                puts "Did this pass fsck? 🤔".red
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            coredataobject = {
+                "uuid"  => id,
+                "type"  => "aion-point",
+                "nhash" => nhash
+            }
+            puts JSON.pretty_generate(coredataobject)
+            CoreData::commitObject(coredataobject)
+            db.close
+            status = AionFsck::structureCheckAionHash(operator, nhash)
+            db.close
+            if !status then
+                puts "Looking at (repositoryRoot: #{repositoryRoot}, id: #{id})".red
+                puts "nhash: #{nhash}".red
+                puts "AionFsck::structureCheckAionHash(operator, nhash) returned false".red
+                puts "Did this pass fsck? 🤔".red
+                LucilleCore::pressEnterToContinue()
+            end
+        end
     end
 end

@@ -98,20 +98,6 @@ class Nx50s
         "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-quarks"
     end
 
-    # Nx50s::fsckNxAxiomes()
-    def self.fsckNxAxiomes()
-        Nx50s::nx50s().each{|nx50|
-            puts Nx50s::toString(nx50)
-            next if KeyValueStore::flagIsTrue(nil, "0d972dc0-14ed-46a7-9f15-9347a97e6a70:#{Utils::today()}:#{nx50["uuid"]}")
-            status = Quarks::fsck(Nx50s::quarksFolderPath(), nx50["axiomId"])
-            if status then 
-                KeyValueStore::setFlagTrue(nil, "0d972dc0-14ed-46a7-9f15-9347a97e6a70:#{Utils::today()}:#{nx50["uuid"]}")
-            else
-                puts "[problem]".red
-            end
-        }
-    end
-
     # Nx50s::setItemDomain(uuid, domain)
     def self.setItemDomain(uuid, domain)
         db = SQLite3::Database.new(Nx50s::databaseFilepath2())
