@@ -181,7 +181,6 @@ class Nx08s # OnDate
             Nx50s::commitNx50ToDatabase(nx50)
             Domains::setDomainForItem(nx50["uuid"], domain)
             Nx08s::destroyItemBuNotTheAxiom(item)
-            # Note that we do not need to move the axiom file because, inerestingly, as a side effect of a mistake, the files are already in Nx50s-quarks
         end
 
         if action == "replace by new Catalyst item" then
