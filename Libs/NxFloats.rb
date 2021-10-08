@@ -41,9 +41,9 @@ class NxFloats
         FileUtils.rm(filepath)
     end
 
-    # NxFloats::axiomsFolderPath()
-    def self.axiomsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxFloats-axioms"
+    # NxFloats::quarksFolderPath()
+    def self.quarksFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxFloats-quarks"
     end
 
     # --------------------------------------------------
@@ -60,7 +60,7 @@ class NxFloats
 
         unixtime     = Time.new.to_f
 
-        axiomId = NxQuarks::interactivelyCreateNewAxiom_EchoIdOrNull(NxFloats::axiomsFolderPath(), LucilleCore::timeStringL22())
+        axiomId = NxQuarks::interactivelyCreateNewAxiom_EchoIdOrNull(NxFloats::quarksFolderPath(), LucilleCore::timeStringL22())
 
         float = {
           "uuid"           => uuid,
@@ -89,7 +89,7 @@ class NxFloats
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxQuarks::accessWithOptionToEdit(NxFloats::axiomsFolderPath(), item["axiomId"])
+        NxQuarks::accessWithOptionToEdit(NxFloats::quarksFolderPath(), item["axiomId"])
     end
 
     # --------------------------------------------------

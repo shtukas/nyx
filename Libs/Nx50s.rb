@@ -93,9 +93,9 @@ class Nx50s
         db.close
     end
 
-    # Nx50s::axiomsFolderPath()
-    def self.axiomsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-axioms"
+    # Nx50s::quarksFolderPath()
+    def self.quarksFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx50s-quarks"
     end
 
     # Nx50s::fsckNxAxiomes()
@@ -103,7 +103,7 @@ class Nx50s
         Nx50s::nx50s().each{|nx50|
             puts Nx50s::toString(nx50)
             next if KeyValueStore::flagIsTrue(nil, "0d972dc0-14ed-46a7-9f15-9347a97e6a70:#{Utils::today()}:#{nx50["uuid"]}")
-            status = NxQuarks::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])
+            status = NxQuarks::fsck(Nx50s::quarksFolderPath(), nx50["axiomId"])
             if status then 
                 KeyValueStore::setFlagTrue(nil, "0d972dc0-14ed-46a7-9f15-9347a97e6a70:#{Utils::today()}:#{nx50["uuid"]}")
             else
@@ -218,7 +218,7 @@ class Nx50s
             return nil
         end
         domain = Domains::interactivelySelectDomainOrNull() || "eva"
-        axiomId = NxQuarks::interactivelyCreateNewAxiom_EchoIdOrNull(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22())
+        axiomId = NxQuarks::interactivelyCreateNewAxiom_EchoIdOrNull(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22())
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
@@ -252,7 +252,7 @@ class Nx50s
     def self.issueNx50UsingText(text, unixtime, domain)
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
-        axiomId      = NxA001::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), text)
+        axiomId      = NxA001::make(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22(), text)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -268,7 +268,7 @@ class Nx50s
         uuid         = LucilleCore::timeStringL22()
         unixtime     = Nx50s::getUnixtimeInRange("eva", 10, 20)
         description  = url
-        axiomId      = NxA002::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), url)
+        axiomId      = NxA002::make(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22(), url)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -284,7 +284,7 @@ class Nx50s
         uuid        = LucilleCore::timeStringL22()
         unixtime    = Nx50s::getUnixtimeInRange("eva", 20, 50)
         description = File.basename(location)
-        axiomId     = NxA003::make(Nx50s::axiomsFolderPath(), LucilleCore::timeStringL22(), location)
+        axiomId     = NxA003::make(Nx50s::quarksFolderPath(), LucilleCore::timeStringL22(), location)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -313,7 +313,7 @@ class Nx50s
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}")
         return type if type
-        type1 = NxQuarks::contentTypeOrNull(Nx50s::axiomsFolderPath(), item["axiomId"])
+        type1 = NxQuarks::contentTypeOrNull(Nx50s::quarksFolderPath(), item["axiomId"])
         type2 = type1 || "line"
         KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}", type2)
         type2
@@ -336,7 +336,7 @@ class Nx50s
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
-        NxQuarks::destroy(Nx50s::axiomsFolderPath(), nx50["axiomId"]) # function accepts null ids
+        NxQuarks::destroy(Nx50s::quarksFolderPath(), nx50["axiomId"]) # function accepts null ids
         Nx50s::delete(nx50["uuid"])
     end
 
@@ -347,13 +347,13 @@ class Nx50s
             LucilleCore::pressEnterToContinue()
             return
         end
-        NxQuarks::accessWithOptionToEdit(Nx50s::axiomsFolderPath(), item["axiomId"])
+        NxQuarks::accessWithOptionToEdit(Nx50s::quarksFolderPath(), item["axiomId"])
     end
 
     # Nx50s::accessContentsIfContents(nx50)
     def self.accessContentsIfContents(nx50)
         return if nx50["axiomId"].nil?
-        NxQuarks::accessWithOptionToEdit(Nx50s::axiomsFolderPath(), nx50["axiomId"])
+        NxQuarks::accessWithOptionToEdit(Nx50s::quarksFolderPath(), nx50["axiomId"])
     end
 
     # --------------------------------------------------
@@ -401,7 +401,7 @@ class Nx50s
             puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
             puts "uuid: #{uuid}".yellow
             puts "axiomId: #{nx50["axiomId"]}".yellow
-            puts "NxAxiom fsck: #{NxQuarks::fsck(Nx50s::axiomsFolderPath(), nx50["axiomId"])}".yellow
+            puts "NxAxiom fsck: #{NxQuarks::fsck(Nx50s::quarksFolderPath(), nx50["axiomId"])}".yellow
             puts "domain: #{nx50["domain"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 

@@ -41,9 +41,9 @@ class Waves
         FileUtils.rm(filepath)
     end
 
-    # Waves::axiomsFolderPath()
-    def self.axiomsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves-axioms"
+    # Waves::quarksFolderPath()
+    def self.quarksFolderPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves-quarks"
     end
 
     # --------------------------------------------------
@@ -156,7 +156,7 @@ class Waves
             url            = LucilleCore::askQuestionAnswerAsString("url: ")
             axiomId        = SecureRandom.uuid
             description    = url
-            NxA002::make(Waves::axiomsFolderPath(), axiomId, url)
+            NxA002::make(Waves::quarksFolderPath(), axiomId, url)
         end
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
@@ -235,7 +235,7 @@ class Waves
     # Waves::accessContent(wave)
     def self.accessContent(wave)
         return if wave["axiomId"].nil?
-        NxQuarks::accessWithOptionToEdit(Waves::axiomsFolderPath(), wave["axiomId"])
+        NxQuarks::accessWithOptionToEdit(Waves::quarksFolderPath(), wave["axiomId"])
     end
 
     # Waves::landing(wave)
