@@ -60,12 +60,18 @@ class Nx08s # OnDate
         item
     end
 
-    # Nx08s::destroy(item)
-    def self.destroy(item)
+    # Nx08s::destroyItemBuNotTheAxiom(item)
+    def self.destroyItemBuNotTheAxiom(item)
         filename = "#{item["uuid"]}.json"
         filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
+    end
+
+    # Nx08s::destroy(item)
+    def self.destroy(item)
+        Quarks::destroy(Nx08s::quarksFolderPath(), item["axiomId"])
+        Nx08s::destroyItemBuNotTheAxiom(item)
     end
 
     # Nx08s::issueItemUsingLocation(location)
@@ -95,7 +101,6 @@ class Nx08s # OnDate
         Nx08s::getItemByUUIDOrNull(uuid)
     end
 
-
     # -------------------------------------
     # Operations
 
@@ -111,7 +116,7 @@ class Nx08s # OnDate
 
     # Nx08s::toString(item)
     def self.toString(item)
-        "[asap] (#{item["date"]}) #{item["description"]} (#{Nx08s::getItemType(item)})"
+        "[-in-] (#{item["date"]}) #{item["description"]} (#{Nx08s::getItemType(item)})"
     end
 
     # Nx08s::accessContent(item)
@@ -134,12 +139,7 @@ class Nx08s # OnDate
     def self.run(item)
         uuid = item["uuid"]
 
-        puts "running #{Nx08s::toString(item)}".green
-        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
-        puts "Starting at #{Time.new.to_s}"
-
-        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Nx08s::toString(item))
-        nxball = NxBalls::makeNxBall([uuid].compact)
+        nxball = NxBalls::makeNxBall([uuid])
 
         thr = Thread.new {
             loop {
@@ -150,54 +150,52 @@ class Nx08s # OnDate
             }
         }
 
-        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
+        system("clear")
+
+        puts "running #{Nx08s::toString(item)}".green
 
         Nx08s::accessContentsIfContents(item)
 
-        loop {
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("actions", ["done & destroy", "postpone by 1 hour (default)", "postpone by 4 hours", "recast as Nx50", "replace by new Catalyst item"])
 
-            system("clear")
+        if action == "done & destroy" then
+            Nx08s::destroy(item)
+        end
 
-            puts "running #{Nx08s::toString(item)}".green
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
+        if action.nil? or (action == "postpone by 1 hour") then
+            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600)
+        end
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
+        if action == "postpone by 4 hours" then
+            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 4*3600)
+        end
 
-            puts "access | <datecode> | note | [] | exit | destroy".yellow
+        if action == "recast as Nx50" then
+            domain = Domains::interactivelySelectDomainOrNull() || "eva"
+            description = if item["description"].start_with?("Screenshot") then 
+                                LucilleCore::askQuestionAnswerAsString("description: ")
+                          else
+                                item["description"]
+                          end
+            nx50 = {
+                "uuid"        => item["uuid"],
+                "unixtime"    => item["unixtime"],
+                "description" => item["description"],
+                "axiomId"     => item["axiomId"],
+                "domain"      => domain
+            }
+            Nx50s::commitNx50ToDatabase(nx50)
+            Domains::setDomainForItem(nx50["uuid"], domain)
+            Nx08s::destroyItemBuNotTheAxiom(item)
+            # Note that we do not need to move the axiom file because, inerestingly, as a side effect of a mistake, the files are already in Nx50s-quarks
+        end
 
+        if action == "replace by new Catalyst item" then
+            puts Interpreters::mainMenuCommands().yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            if Interpreting::match("access", command) then
-                Nx08s::accessContent(item)
-                next
-            end
-
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                break
-            end
-
-            if Interpreting::match("note", command) then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(item["uuid"]) || "")
-                StructuredTodoTexts::setNote(item["uuid"], note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(item["uuid"])
-                next
-            end
-
-            if Interpreting::match("exit", command) then
-                return
-            end
-
-            if Interpreting::match("destroy", command) then
-                Quarks::destroy(Nx08s::quarksFolderPath(), item["axiomId"])
-                Nx08s::destroy(item)
-                break
-            end
-        }
+            Interpreters::mainMenuInterpreter(command)
+            Nx08s::destroy(item)
+        end
 
         thr.exit
 
@@ -234,7 +232,6 @@ class Nx08s # OnDate
             LucilleCore::removeFileSystemLocation(location)
             sleep 1
         }
-
 
         Nx08s::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

@@ -51,14 +51,14 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] asap: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >> | nyx"
+        "[general] in: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | >> | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
 
-        if command.start_with?("asap:") then
-            line = command[6, command.size].strip
+        if command.start_with?("in:") then
+            line = command[3, command.size].strip
             domain = Domains::interactivelySelectDomainOrNull() || "eva"
             item = Nx08s::issueNewItemFromLine(line)
             Domains::setDomainForItem(item["uuid"], domain)

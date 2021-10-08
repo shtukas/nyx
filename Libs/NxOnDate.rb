@@ -74,6 +74,7 @@ class NxOnDate # OnDate
 
     # NxOnDate::destroy(item)
     def self.destroy(item)
+        Quarks::destroy(NxOnDate::quarksFolderPath(), item["axiomId"])
         filename = "#{item["uuid"]}.json"
         filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
@@ -123,7 +124,7 @@ class NxOnDate # OnDate
         puts "Starting at #{Time.new.to_s}"
 
         domain = Domains::interactivelyGetDomainForItemOrNull(uuid, NxOnDate::toString(item))
-        nxball = NxBalls::makeNxBall([uuid].compact)
+        nxball = NxBalls::makeNxBall([uuid])
 
         thr = Thread.new {
             loop {
@@ -185,7 +186,6 @@ class NxOnDate # OnDate
             end
 
             if Interpreting::match("destroy", command) then
-                Quarks::destroy(NxOnDate::quarksFolderPath(), item["axiomId"])
                 NxOnDate::destroy(item)
                 break
             end
