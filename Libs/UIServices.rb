@@ -202,6 +202,7 @@ class UIServices
 
         puts Interpreters::listingCommands().yellow
         puts Interpreters::mainMenuCommands().yellow
+        puts "[Nx50s  ] (#{Nx50s::nx50s().count} items)".yellow
         puts Work::workMenuCommands().yellow
         puts InternetStatus::putsInternetCommands().yellow
 
