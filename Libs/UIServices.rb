@@ -31,7 +31,6 @@ end
 class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
-        domain = Domains::getCurrentActiveDomain()
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -40,7 +39,7 @@ class NS16sOperator
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
             Waves::ns16s(),
-            DomainPriorityFile::ns16s2(),
+            PriorityFile::ns16s(),
             Nx08s::ns16s(),
             Work::ns16s(),
             Nx51s::ns16s(),
@@ -48,9 +47,6 @@ class NS16sOperator
         ]
             .flatten
             .compact
-            .select{|ns16|
-                ns16["domain"].nil? or (ns16["domain"] == domain)
-            }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
@@ -142,10 +138,6 @@ class UIServices
         store = ItemStore.new()
 
         vspaceleft = Utils::screenHeight()-9
-
-        puts ""
-        puts "Domain: #{Domains::getCurrentActiveDomain().upcase}".green
-        vspaceleft = vspaceleft - 2
 
 
         if !InternetStatus::internetIsActive() then

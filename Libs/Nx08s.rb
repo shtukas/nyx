@@ -160,7 +160,6 @@ class Nx08s # OnDate
         end
 
         if action == "recast as Nx50" then
-            domain = Domains::interactivelySelectDomainOrNull() || "eva"
             description = if item["description"].start_with?("Screenshot") then 
                                 LucilleCore::askQuestionAnswerAsString("description: ")
                           else
@@ -170,11 +169,9 @@ class Nx08s # OnDate
                 "uuid"        => item["uuid"],
                 "unixtime"    => item["unixtime"],
                 "description" => item["description"],
-                "axiomId"     => item["axiomId"],
-                "domain"      => domain
+                "axiomId"     => item["axiomId"]
             }
             Nx50s::commitNx50ToDatabase(nx50)
-            Domains::setDomainForItem(nx50["uuid"], domain)
             Nx08s::destroy(item)
         end
 

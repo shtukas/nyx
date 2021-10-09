@@ -170,11 +170,7 @@ class Waves
           "repeatValue"      => repeatValue,
           "lastDoneDateTime" => lastDoneDateTime
         }
-
         Waves::commitItemToDisk(wave)
-
-        Domains::setDomainForItem(uuid, Domains::interactivelySelectDomainOrNull())
-
         wave
     end
 
@@ -336,7 +332,7 @@ class Waves
         uuid = wave["uuid"]
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
-        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Waves::toString(wave))
+
         nxball = NxBalls::makeNxBall([uuid])
         Waves::accessContent(wave)
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "detach running; will done", "exit"])
@@ -366,7 +362,6 @@ class Waves
         uuid = wave["uuid"]
         {
             "uuid"        => uuid,
-            "domain"      => Domains::getDomainForItemOrNull(uuid),
             "announce"    => Waves::toString(wave),
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda{|command|

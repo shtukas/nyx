@@ -143,7 +143,6 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DrivesBackups.rb"
-require_relative "Domains.rb"
 
 require_relative "Interpreting.rb"
 require_relative "Interpreters.rb"
@@ -155,7 +154,7 @@ require_relative "Nx51s.rb"
 require_relative "NxOnDate.rb"
 
 require_relative "ProgrammableBooleans.rb"
-require_relative "DomainPriorityFile.rb"
+require_relative "PriorityFile.rb"
 
 require_relative "Runner.rb"
 =begin 

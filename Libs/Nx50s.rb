@@ -19,28 +19,7 @@ class Nx50s
                 "uuid"         => row["_uuid_"],
                 "unixtime"     => row["_unixtime_"],
                 "description"  => row["_description_"],
-                "axiomId"      => row["_axiomId_"],
-                "domain"       => row["_domain_"],
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Nx50s::nx50sForDomain(domain)
-    def self.nx50sForDomain(domain)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _items_ where _domain_=? order by _unixtime_", [domain]) do |row|
-            answer << {
-                "uuid"         => row["_uuid_"],
-                "unixtime"     => row["_unixtime_"],
-                "description"  => row["_description_"],
-                "axiomId"      => row["_axiomId_"],
-                "domain"       => row["_domain_"],
+                "axiomId"      => row["_axiomId_"]
             }
         end
         db.close
@@ -49,15 +28,12 @@ class Nx50s
 
     # Nx50s::commitNx50ToDatabase(item)
     def self.commitNx50ToDatabase(item)
-        if !Domains::domains().include?(item["domain"]) then
-            item["domain"] = "eva"
-        end
         db = SQLite3::Database.new(Nx50s::databaseFilepath2())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
-        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _axiomId_, _domain_) values (?,?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["axiomId"], item["domain"]]
+        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _axiomId_) values (?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["axiomId"]]
         db.commit 
         db.close
     end
@@ -74,8 +50,7 @@ class Nx50s
                 "uuid"         => row["_uuid_"],
                 "unixtime"     => row["_unixtime_"],
                 "description"  => row["_description_"],
-                "axiomId"      => row["_axiomId_"],
-                "domain"       => row["_domain_"],
+                "axiomId"      => row["_axiomId_"]
             }
         end
         db.close
@@ -93,26 +68,12 @@ class Nx50s
         db.close
     end
 
-    # Nx50s::setItemDomain(uuid, domain)
-    def self.setItemDomain(uuid, domain)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "update _items_ set _domain_=? where _uuid_=?", [domain, uuid]
-        db.commit 
-        db.close
-
-        # In case this had not been done, we also need to update the map in the primary domain store
-        KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Domains/KV-Store", uuid, domain)
-    end
-
     # --------------------------------------------------
     # Makers
 
-    # Nx50s::getUnixtimeInRange(domain, index1, index2)
-    def self.getUnixtimeInRange(domain, index1, index2)
-        items = Nx50s::nx50sForDomain(domain).drop(index1).take(index2-index1)
+    # Nx50s::getUnixtimeInRange(index1, index2)
+    def self.getUnixtimeInRange(index1, index2)
+        items = Nx50s::nx50s().drop(index1).take(index2-index1)
         if items.size == 0 then
             return Time.new.to_f
         end
@@ -124,10 +85,10 @@ class Nx50s
         return unixtime1 + rand*(unixtime2-unixtime1)
     end
 
-    # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain(domain)
-    def self.interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain(domain)
+    # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
+    def self.interactivelyDetermineNewItemUnixtimeManuallyPosition()
         system("clear")
-        items = Nx50s::nx50sForDomain(domain).first(Utils::screenHeight()-3)
+        items = Nx50s::nx50s().first(Utils::screenHeight()-3)
         return Time.new.to_f if items.size == 0
         items.each_with_index{|item, i|
             puts "[#{i.to_s.rjust(2)}] #{Nx50s::toString(item)}"
@@ -161,7 +122,7 @@ class Nx50s
             return Time.new.to_f
         end
         if type == "manually position" then
-            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain("work")
+            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
         end
         if type == "last" then
             return Time.new.to_f
@@ -169,21 +130,17 @@ class Nx50s
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end
 
-    # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-    def self.interactivelyDetermineNewItemUnixtime(domain)
-        if domain == "work" then
-            return Nx50s::interactivelyDetermineNewItemUnixtimeAtWork()
-        end
-
+    # Nx50s::interactivelyDetermineNewItemUnixtime()
+    def self.interactivelyDetermineNewItemUnixtime()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])
         if type.nil? then
-            return Nx50s::getUnixtimeInRange(domain, 20, 50)
+            return Nx50s::getUnixtimeInRange(20, 50)
         end
         if type == "manually position" then
-            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPositionAtDomain(domain)
+            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
         end
         if type == "in 20-50 range (default)" then
-            return Nx50s::getUnixtimeInRange(domain, 20, 50)
+            return Nx50s::getUnixtimeInRange(20, 50)
         end
         if type == "last" then
             return Time.new.to_f
@@ -198,39 +155,19 @@ class Nx50s
         if description == "" then
             return nil
         end
-        domain = Domains::interactivelySelectDomainOrNull() || "eva"
         axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
-        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "axiomId"     => axiomId,
         })
-
-        Domains::setDomainForItem(uuid, domain)
-
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueItemMidRangeUsingLine(line, domain)
-    def self.issueItemMidRangeUsingLine(line, domain)
-        uuid         = LucilleCore::timeStringL22()
-        unixtime     = Nx50s::getUnixtimeInRange(domain, 10, 20)
-        description  = line
-        axiomId      = nil
-        Nx50s::commitNx50ToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "axiomId"     => axiomId,
-        })
-        Domains::setDomainForItem(uuid, domain)
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueItemUsingText(text, unixtime, domain)
-    def self.issueItemUsingText(text, unixtime, domain)
+    # Nx50s::issueItemUsingText(text, unixtime)
+    def self.issueItemUsingText(text, unixtime)
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         axiomId      = CoreData::issueTextDataObjectUsingText(text)
@@ -240,14 +177,13 @@ class Nx50s
             "description" => description,
             "axiomId"     => axiomId,
         })
-        Domains::setDomainForItem(uuid, domain)
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueItemUsingURL(url)
     def self.issueItemUsingURL(url)
         uuid         = LucilleCore::timeStringL22()
-        unixtime     = Nx50s::getUnixtimeInRange("eva", 10, 20)
+        unixtime     = Nx50s::getUnixtimeInRange(10, 20)
         description  = url
         axiomId      = CoreData::issueUrlPointDataObjectUsingUrl(url)
         Nx50s::commitNx50ToDatabase({
@@ -256,7 +192,6 @@ class Nx50s
             "description" => description,
             "axiomId"     => axiomId,
         })
-        Domains::setDomainForItem(uuid, "eva")
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
@@ -332,7 +267,6 @@ class Nx50s
         puts "#{Nx50s::toString(nx50)}".green
         puts "Starting at #{Time.new.to_s}"
 
-        domain = Domains::interactivelyGetDomainForItemOrNull(uuid, Nx50s::toString(nx50))
         nxball = NxBalls::makeNxBall([uuid])
 
         thr = Thread.new {
@@ -365,7 +299,6 @@ class Nx50s
             puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
             puts "uuid: #{uuid}".yellow
             puts "axiomId: #{nx50["axiomId"]}".yellow
-            puts "domain: #{nx50["domain"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
@@ -375,7 +308,7 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | set domain | show json | destroy | exit".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -444,16 +377,7 @@ class Nx50s
             end
 
             if Interpreting::match("update unixtime", command) then
-                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(nx50["domain"])
-                Nx50s::commitNx50ToDatabase(nx50)
-                next
-            end
-
-            if Interpreting::match("set domain", command) then
-                domain = Domains::interactivelySelectDomainOrNull()
-                return if domain.nil?
-                Domains::setDomainForItem(nx50["uuid"], domain)
-                nx50["domain"] = domain
+                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
                 Nx50s::commitNx50ToDatabase(nx50)
                 next
             end
@@ -490,7 +414,6 @@ class Nx50s
         announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
-            "domain"   => nx50["domain"],
             "announce" => announce,
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
@@ -513,29 +436,16 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
-        domain = Domains::getCurrentActiveDomain()
-        showAboveRTOne = domain == "work"
-        cardinal = (domain == "eva" ? 5 : nil)
-        
-        ns16s = Nx50s::nx50sForDomain(domain)
+        ns16s = Nx50s::nx50s()
             .reduce([]){|object, nx50|
-                if cardinal.nil? or object.size < cardinal then
-                    ns16 = Nx50s::ns16OrNull(nx50, showAboveRTOne)
+                if object.size < 5 then
+                    ns16 = Nx50s::ns16OrNull(nx50, false)
                     if ns16 then
                         object << ns16
                     end
                 end
                 object
             }
-
-        if domain == "work" then
-            x1, x2 = (ns16s + Work::interestNS16s())
-                        .partition{|ns16|
-                            ns16["rt"].nil? or ns16["rt"] < 1
-                        }
-            ns16s = x1.sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] } + x2.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
-        end
-
         ns16s
     end
 

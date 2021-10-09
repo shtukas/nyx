@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] .. | <n> | <datecode> | hide <n> <datecode> | set domain |expose"
+        "[listing] .. | <n> | <datecode> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(store, command)
@@ -39,14 +39,6 @@ class Interpreters
             puts JSON.pretty_generate(ns16)
             LucilleCore::pressEnterToContinue()
         end
-
-        if Interpreting::match("set domain", command) then
-            ns16 = store.getDefault()
-            return if ns16.nil? 
-            domain = Domains::interactivelySelectDomainOrNull()
-            return if domain.nil?
-            Domains::setDomainForItem(ns16["uuid"], domain)
-        end
     end
 
     # Interpreters::mainMenuCommands()
@@ -59,9 +51,7 @@ class Interpreters
 
         if command.start_with?("in:") then
             line = command[3, command.size].strip
-            domain = Domains::interactivelySelectDomainOrNull() || "eva"
             item = Nx08s::issueNewItemFromLine(line)
-            Domains::setDomainForItem(item["uuid"], domain)
             puts JSON.pretty_generate(item)
         end
 
@@ -134,7 +124,7 @@ class Interpreters
 
         if Interpreting::match(">>", command) then
             key = "4b23af4b-4536-44f6-a85a-d4e8cb320b30"
-            Nx50s::nx50sForDomain("eva").each{|nx50|
+            Nx50s::nx50s().each{|nx50|
 
                 next if KeyValueStore::flagIsTrue(nil, "#{key}:#{nx50["uuid"]}")
 

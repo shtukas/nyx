@@ -12,8 +12,8 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
-    # Work::shouldBeActiveDomain()
-    def self.shouldBeActiveDomain()
+    # Work::shouldBeActive()
+    def self.shouldBeActive()
         # First check whether there is an explicit Yes (timed) override.
         doWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", "0").to_f
         return true if Time.new.to_i < doWorkUntilUnixtime
@@ -66,18 +66,17 @@ class Work
         KeyValueStore::destroy(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8")
     end
 
-    # Work::isActiveDomain()
-    def self.isActiveDomain()
+    # Work::isActive()
+    def self.isActive()
         !Work::getNxBallOrNull().nil?
     end
 
     # Work::ns16s()
     def self.ns16s()
-        if Work::shouldBeActiveDomain() and !Work::isActiveDomain() then
+        if Work::shouldBeActive() and !Work::isActive() then
             [
                 {
                     "uuid"        => "b0fbec50-7e53-4176-8c7f-fe7f452c1695:#{Utils::today()}",
-                    "domain"      => nil,
                     "announce"    => "[work] run to activate".green,
                     "commands"    => [],
                     "run"         => lambda{ Work::issueNxBallIfNotOne() },
@@ -114,7 +113,6 @@ class Work
             .map{|folderpath|
                 {
                     "uuid"        => "7b25dff2-b19d-4779-9721-d037d06135a5:#{folderpath}",
-                    "domain"      => "work",
                     "announce"    => "[work] (fldr) #{File.basename(folderpath)}",
                     "commands"    => [],
                     "run"         => lambda{ 

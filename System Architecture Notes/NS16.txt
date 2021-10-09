@@ -1,7 +1,6 @@
 
 NS16 {
     "uuid"        : String   # used by DoNotShowUntil
-    "domain"      : nil | "eva" | "work"
     "announce"    : String
     "commands"    : Array[String] | nil
     "run"         : Lambda() | nil # Default entry point when selected
