@@ -206,7 +206,7 @@ class Nx51s
 
     # Nx51s::toString(item)
     def self.toString(item)
-        "[nx51] #{item["description"]} (#{Nx51s::getItemType(item)})"
+        "[work] #{item["description"]} (#{Nx51s::getItemType(item)})"
     end
 
     # Nx51s::toStringForNS19(item)
