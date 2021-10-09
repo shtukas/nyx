@@ -84,7 +84,7 @@ class NxFloats
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
     # --------------------------------------------------

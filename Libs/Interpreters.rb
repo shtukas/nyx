@@ -51,7 +51,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] in: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "[general] in: <line> | float | wave | todo | ondate | calendar item | anniversary | Nx50 | Nx51 | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -89,9 +89,15 @@ class Interpreters
         end
 
         if Interpreting::match("Nx50", command) then
-            nx50 = Nx50s::interactivelyCreateNewOrNull()
-            return if nx50.nil?
-            puts JSON.pretty_generate(nx50)
+            item = Nx50s::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+        end
+
+        if Interpreting::match("Nx51", command) then
+            item = Nx51s::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("anniversary", command) then

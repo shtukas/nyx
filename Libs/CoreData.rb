@@ -278,7 +278,7 @@ class CoreData
         raise "4ecddee2-0d4c-4e26-ab41-c6da2fd91b4e: non standard variant for uuid: #{uuid}, #{object}"
     end
 
-    # Quarks::accessWithOptionToEdit(uuid: String)
+    # CoreData::accessWithOptionToEdit(uuid: String)
     def self.accessWithOptionToEdit(uuid)
         return if uuid.nil?
         object = CoreDataUtils::getObjectOrNull(uuid)
@@ -293,7 +293,7 @@ class CoreData
             return
         end
         if object["type"] == "url" then
-            system("open '#{object["url"]}'")
+            Utils::openUrlUsingSafari(object["url"])
             return
         end
         if object["type"] == "aion-point" then

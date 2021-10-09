@@ -20,7 +20,7 @@ class DomainPriorityFile
         DomainPriorityFile::catalystSafe(filepath)
         dx = Domains::interactivelySelectDomainOrNull() || domain
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(dx)
-        item = Nx50s::issueNx50UsingText(section.strip, unixtime, dx)
+        item = Nx50s::issueItemUsingText(section.strip, unixtime, dx)
         puts JSON.pretty_generate(item)
         text = IO.read(filepath)
         text = text.gsub(section, "")

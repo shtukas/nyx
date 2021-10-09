@@ -100,13 +100,13 @@ class NxOnDate # OnDate
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
     # NxOnDate::accessContentsIfContents(item)
     def self.accessContentsIfContents(item)
         return if item["axiomId"].nil?
-        Quarks::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
     # NxOnDate::run(item)

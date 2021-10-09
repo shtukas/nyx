@@ -21,6 +21,13 @@ class Fitness
     end
 end
 
+class AmandaBins
+    # AmandaBins::ns16s()
+    def self.ns16s()
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`)
+    end
+end
+
 class NS16sOperator
     # NS16sOperator::ns16s()
     def self.ns16s()
@@ -29,12 +36,14 @@ class NS16sOperator
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             NxOnDate::ns16s(),
+            AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
             Waves::ns16s(),
             DomainPriorityFile::ns16s2(),
             Nx08s::ns16s(),
             Work::ns16s(),
+            Nx51s::ns16s(),
             Nx50s::ns16s()
         ]
             .flatten

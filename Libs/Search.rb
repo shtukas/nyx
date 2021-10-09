@@ -11,7 +11,8 @@ class Search
         Nx50s::nx19s() +
         Waves::nx19s() +
         NxFloats::nx19s() + 
-        Nx08s::nx19s()
+        Nx08s::nx19s() + 
+        Nx51s::nx19s()
     end
 
     # Search::existingUUIDS()

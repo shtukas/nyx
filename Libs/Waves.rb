@@ -229,7 +229,7 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
-        Quarks::accessWithOptionToEdit(wave["axiomId"])
+        CoreData::accessWithOptionToEdit(wave["axiomId"])
     end
 
     # Waves::landing(wave)

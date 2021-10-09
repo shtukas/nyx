@@ -55,17 +55,12 @@ class Nx08s # OnDate
         item
     end
 
-    # Nx08s::destroyItemBuNotTheAxiom(item)
-    def self.destroyItemBuNotTheAxiom(item)
+    # Nx08s::destroy(item)
+    def self.destroy(item)
         filename = "#{item["uuid"]}.json"
         filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
-    end
-
-    # Nx08s::destroy(item)
-    def self.destroy(item)
-        Nx08s::destroyItemBuNotTheAxiom(item)
     end
 
     # Nx08s::issueItemUsingLocation(location)
@@ -120,13 +115,13 @@ class Nx08s # OnDate
             LucilleCore::pressEnterToContinue()
             return
         end
-        Quarks::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
     # Nx08s::accessContentsIfContents(item)
     def self.accessContentsIfContents(item)
         return if item["axiomId"].nil?
-        Quarks::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
     # Nx08s::run(item)
@@ -180,7 +175,7 @@ class Nx08s # OnDate
             }
             Nx50s::commitNx50ToDatabase(nx50)
             Domains::setDomainForItem(nx50["uuid"], domain)
-            Nx08s::destroyItemBuNotTheAxiom(item)
+            Nx08s::destroy(item)
         end
 
         if action == "replace by new Catalyst item" then
