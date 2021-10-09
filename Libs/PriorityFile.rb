@@ -12,7 +12,11 @@ class PriorityFile
 
     # PriorityFile::catalystSafe(filepath)
     def self.catalystSafe(filepath)
-        FileUtils.cp(filepath, "/Users/pascal/x-space/catalyst-safe/#{LucilleCore::timeStringL22()}-#{File.basename(filepath)}")
+        targetFilePath = "/Users/pascal/x-space/catalyst-safe/#{Time.new.to_s[0, 4]}/#{Time.new.to_s[0, 7]}/#{LucilleCore::timeStringL22()}-#{File.basename(filepath)}"
+        if !File.exists?(File.dirname(targetFilePath)) then
+            FileUtils.mkpath(File.dirname(targetFilePath))
+        end
+        FileUtils.cp(filepath, targetFilePath)
     end
 
     # PriorityFile::recastSectionAsNx50(filepath, section)
@@ -130,7 +134,7 @@ class PriorityFile
                 "commands"    => ["..", "[]", ">Nx50", ">Nx51"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
-                        PriorityFile::run(item, section)
+                        PriorityFile::run(filepath, section)
                     end
                     if command == "[]" then
                         PriorityFile::catalystSafe(filepath)
@@ -147,7 +151,7 @@ class PriorityFile
                     end
                 },
                 "run" => lambda {
-                    PriorityFile::run(item, section)
+                    PriorityFile::run(filepath, section)
                 }
             }
         }
