@@ -38,12 +38,14 @@ class NS16sOperator
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
-            Waves::ns16s(),
+            Waves::highPriorityNs16s(),
             PriorityFile::ns16s(),
             Nx08s::ns16s(),
             Work::ns16s(),
-            Nx51s::ns16s(),
-            Nx50s::ns16s()
+            #Nx51s::ns16s(),
+            Waves::circuitBreakerManagedNs16s(),
+            Nx50s::ns16s(),
+            Waves::ns16s(),
         ]
             .flatten
             .compact
@@ -137,7 +139,7 @@ class UIServices
 
         store = ItemStore.new()
 
-        vspaceleft = Utils::screenHeight()-9
+        vspaceleft = Utils::screenHeight()-10
 
 
         if !InternetStatus::internetIsActive() then
@@ -202,7 +204,7 @@ class UIServices
 
         puts Interpreters::listingCommands().yellow
         puts Interpreters::mainMenuCommands().yellow
-        puts "[Nx50s  ] (#{Nx50s::nx50s().count} items)".yellow
+        puts "[Nx50s  ] (wave cicuit breaker A: #{Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600)}) (#{Nx50s::nx50s().count} items)".yellow
         puts Work::workMenuCommands().yellow
         puts InternetStatus::putsInternetCommands().yellow
 

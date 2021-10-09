@@ -105,7 +105,7 @@ class Nx08s # OnDate
 
     # Nx08s::toString(item)
     def self.toString(item)
-        "[ in ] #{item["description"]} (#{Nx08s::getItemType(item)})"
+        "[inbx] #{item["description"]} (#{Nx08s::getItemType(item)})"
     end
 
     # Nx08s::accessContent(item)
