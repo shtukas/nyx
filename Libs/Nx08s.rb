@@ -145,7 +145,15 @@ class Nx08s # OnDate
 
         Nx08s::accessContentsIfContents(item)
 
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("actions", ["done & destroy", "postpone by 1 hour (default)", "postpone by 4 hours", "recast as Nx50", "replace by new Catalyst item"])
+        actions = [
+            "done & destroy",
+            "postpone by 1 hour (default)",
+            "postpone by 4 hours",
+            "recast as Nx50",
+            "recast as Nx51",
+            "replace by new Catalyst item"
+        ]
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("actions", actions)
 
         if action == "done & destroy" then
             Nx08s::destroy(item)
@@ -165,13 +173,29 @@ class Nx08s # OnDate
                           else
                                 item["description"]
                           end
-            nx50 = {
+            item = {
                 "uuid"        => item["uuid"],
                 "unixtime"    => item["unixtime"],
                 "description" => item["description"],
                 "axiomId"     => item["axiomId"]
             }
-            Nx50s::commitNx50ToDatabase(nx50)
+            Nx50s::commitNx50ToDatabase(item)
+            Nx08s::destroy(item)
+        end
+
+        if action == "recast as Nx51" then
+            description = if item["description"].start_with?("Screenshot") then 
+                                LucilleCore::askQuestionAnswerAsString("description: ")
+                          else
+                                item["description"]
+                          end
+            item = {
+                "uuid"        => item["uuid"],
+                "unixtime"    => item["unixtime"],
+                "description" => item["description"],
+                "axiomId"     => item["axiomId"]
+            }
+            Nx51s::commitItemToDisk(item)
             Nx08s::destroy(item)
         end
 
