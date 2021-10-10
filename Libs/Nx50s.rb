@@ -195,6 +195,20 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
+    # Nx50s::issueItemUsingLocation(location, unixtime)
+    def self.issueItemUsingLocation(location, unixtime)
+        uuid        = LucilleCore::timeStringL22()
+        description = File.basename(location)
+        axiomId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
     # --------------------------------------------------
     # Operations
 
@@ -436,6 +450,41 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
+
+        locations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Inbox")
+
+        if locations.size > 0 then
+
+            unixtimes = Nx50s::nx50s().map{|item| item["unixtime"] }
+
+            if unixtimes.size < 2 then
+                start1 = Time.new.to_f - 86400
+                end1   = Time.new.to_f
+            else
+                start1 = unixtimes.min
+                end1   = [unixtimes.max, Time.new.to_f].max
+            end
+
+            spread = end1 - start1
+
+            step = spread.to_f/locations.size
+
+            cursor = start1
+
+            #puts "Nx50 Inbox"
+            #puts "  start : #{Time.at(start1).to_s} (#{start1})"
+            #puts "  end   : #{Time.at(end1).to_s} (#{end1})"
+            #puts "  spread: #{spread}"
+            #puts "  step  : #{step}"
+
+            locations.each{|location|
+                cursor = cursor + step
+                puts "[Nx50] (#{Time.at(cursor).to_s}) #{location}"
+                Nx50s::issueItemUsingLocation(location, cursor)
+                LucilleCore::removeFileSystemLocation(location)
+            }
+        end
+
         ns16s = Nx50s::nx50s()
             .reduce([]){|object, nx50|
                 if object.size < 5 then

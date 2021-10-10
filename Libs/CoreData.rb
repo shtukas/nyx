@@ -194,7 +194,7 @@ class CoreData
             "type" => "text",
             "text" => text
         }
-        puts JSON.pretty_generate(coredataobject)
+        #puts JSON.pretty_generate(coredataobject)
         return coredataobject["uuid"]
     end
 
@@ -205,7 +205,7 @@ class CoreData
             "type" => "url",
             "url"  => url
         }
-        puts JSON.pretty_generate(coredataobject)
+        #puts JSON.pretty_generate(coredataobject)
         return coredataobject["uuid"]
     end
 
@@ -217,7 +217,7 @@ class CoreData
             "type"  => "aion-point",
             "nhash" => nhash
         }
-        puts JSON.pretty_generate(coredataobject)
+        #puts JSON.pretty_generate(coredataobject)
         return coredataobject["uuid"]
     end
 
@@ -232,7 +232,7 @@ class CoreData
                 "type" => "text",
                 "text" => text
             }
-            puts JSON.pretty_generate(coredataobject)
+            #puts JSON.pretty_generate(coredataobject)
             return coredataobject["uuid"]
         end
 
