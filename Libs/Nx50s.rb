@@ -117,17 +117,14 @@ class Nx50s
 
     # Nx50s::interactivelyDetermineNewItemUnixtime()
     def self.interactivelyDetermineNewItemUnixtime()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "last (default)"])
         if type.nil? then
-            return Nx50s::getUnixtimeInRange(20, 50)
+            return Time.new.to_f
         end
         if type == "manually position" then
             return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
         end
-        if type == "in 20-50 range (default)" then
-            return Nx50s::getUnixtimeInRange(20, 50)
-        end
-        if type == "last" then
+        if type == "last (default)" then
             return Time.new.to_f
         end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
@@ -156,21 +153,6 @@ class Nx50s
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         axiomId      = CoreData::issueTextDataObjectUsingText(text)
-        Nx50s::commitNx50ToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "axiomId"     => axiomId,
-        })
-        Nx50s::getNx50ByUUIDOrNull(uuid)
-    end
-
-    # Nx50s::issueItemUsingURL(url)
-    def self.issueItemUsingURL(url)
-        uuid         = LucilleCore::timeStringL22()
-        unixtime     = Nx50s::getUnixtimeInRange(10, 20)
-        description  = url
-        axiomId      = CoreData::issueUrlPointDataObjectUsingUrl(url)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,

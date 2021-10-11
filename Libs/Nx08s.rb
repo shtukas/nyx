@@ -30,6 +30,17 @@ class Nx08s # OnDate
             .sort{|x1, x2|  x1["unixtime"] <=> x2["unixtime"]}
     end
 
+    # Nx08s::destroy(item)
+    def self.destroy(item)
+        filename = "#{item["uuid"]}.json"
+        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
+    end
+
+    # --------------------------------------------------
+    # Makers
+
     # Nx08s::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = LucilleCore::timeStringL22()
@@ -55,12 +66,19 @@ class Nx08s # OnDate
         item
     end
 
-    # Nx08s::destroy(item)
-    def self.destroy(item)
-        filename = "#{item["uuid"]}.json"
-        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+    # Nx50s::issueItemUsingURL(url)
+    def self.issueItemUsingURL(url)
+        uuid        = LucilleCore::timeStringL22()
+        unixtime    = Time.new.to_f
+        description = url
+        axiomId     = CoreData::issueUrlPointDataObjectUsingUrl(url)
+        Nx08s::commitItemToDisk({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx08s::getItemByUUIDOrNull(uuid)
     end
 
     # Nx08s::issueItemUsingLocation(location)
@@ -229,7 +247,8 @@ class Nx08s # OnDate
             },
             "run" => lambda {
                 Nx08s::run(item)
-            }
+            },
+            "item" => item
         }
     end
 

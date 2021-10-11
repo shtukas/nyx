@@ -71,8 +71,8 @@ class Work
         !Work::getNxBallOrNull().nil?
     end
 
-    # Work::ns16s()
-    def self.ns16s()
+    # Work::presenceNS16()
+    def self.presenceNS16()
         if Work::shouldBeActive() and !Work::isActive() then
             [
                 {
@@ -88,16 +88,8 @@ class Work
         end
     end
 
-    # Work::updateNxBallOrNothing()
-    def self.updateNxBallOrNothing()
-        nxball = Work::getNxBallOrNull()
-        return if nxball.nil?
-        nxball = NxBalls::upgradeNxBall(nxball, false)
-        KeyValueStore::set(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8", JSON.generate(nxball))
-    end
-
-    # Work::interestNS16s()
-    def self.interestNS16s()
+    # Work::interestFoldersNS16s()
+    def self.interestFoldersNS16s()
 
         getFolderUnixtime = lambda{|folderpath|
             filepath = "#{folderpath}/.unixtime-784971ed"
@@ -122,6 +114,20 @@ class Work
                     "unixtime-bd06fbf9" => getFolderUnixtime.call(folderpath)
                 }
             }
+    end
+
+    # Work::ns16s()
+    def self.ns16s()
+        (Nx51s::ns16s()+Work::interestFoldersNS16s())
+            .sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] }
+    end
+
+    # Work::updateNxBallOrNothing()
+    def self.updateNxBallOrNothing()
+        nxball = Work::getNxBallOrNull()
+        return if nxball.nil?
+        nxball = NxBalls::upgradeNxBall(nxball, false)
+        KeyValueStore::set(nil, "89f1ba39-2a3d-4a9b-8eba-2a7a10f713b8", JSON.generate(nxball))
     end
 end
 

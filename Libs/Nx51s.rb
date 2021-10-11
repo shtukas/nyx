@@ -118,6 +118,20 @@ class Nx51s
         Nx51s::getItemByUUIDOrNull(uuid)
     end
 
+    # Nx51s::issueItemUsingLocation(location)
+    def self.issueItemUsingLocation(location)
+        uuid        = LucilleCore::timeStringL22()
+        description = File.basename(location)
+        axiomId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        Nx51s::commitItemToDisk({
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx51s::getItemByUUIDOrNull(uuid)
+    end
+
     # --------------------------------------------------
     # Operations
 
@@ -314,13 +328,12 @@ class Nx51s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx51s::ns16OrNull(nx51, showAboveRTOne)
-    def self.ns16OrNull(nx51, showAboveRTOne)
+    # Nx51s::ns16OrNull(nx51)
+    def self.ns16OrNull(nx51)
         uuid = nx51["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return nil if (!showAboveRTOne and (rt > 1))
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
         announce = "#{Nx51s::toStringForNS16(nx51, rt)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
@@ -348,22 +361,12 @@ class Nx51s
 
     # Nx51s::ns16s()
     def self.ns16s()
-        ns16s = Nx51s::items()
-            .reduce([]){|object, nx51|
-                if object.size < 32 then
-                    ns16 = Nx51s::ns16OrNull(nx51, true)
-                    if ns16 then
-                        object << ns16
-                    end
-                end
-                object
-            }
-
-        x1, x2 = (ns16s + Work::interestNS16s())
-                    .partition{|ns16|
-                        ns16["rt"].nil? or ns16["rt"] < 1
-                    }
-        x1.sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] } + x2.sort{|o1, o2| o1["rt"] <=> o2["rt"] }
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx51 Inbox").each{|location|
+            puts "[Nx51] #{location}"
+            Nx51s::issueItemUsingLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+        }
+        Nx51s::items().map{|item| Nx51s::ns16OrNull(item) }
     end
 
     # --------------------------------------------------
