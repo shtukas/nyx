@@ -115,21 +115,6 @@ class Nx50s
         system('clear')
     end
 
-    # Nx50s::interactivelyDetermineNewItemUnixtimeAtWork()
-    def self.interactivelyDetermineNewItemUnixtimeAtWork()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "last (default)"])
-        if type.nil? then
-            return Time.new.to_f
-        end
-        if type == "manually position" then
-            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
-        end
-        if type == "last" then
-            return Time.new.to_f
-        end
-        raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
-    end
-
     # Nx50s::interactivelyDetermineNewItemUnixtime()
     def self.interactivelyDetermineNewItemUnixtime()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])

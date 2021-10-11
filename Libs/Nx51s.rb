@@ -41,20 +41,6 @@ class Nx51s
     # --------------------------------------------------
     # Makers
 
-    # Nx51s::getUnixtimeInRange(index1, index2)
-    def self.getUnixtimeInRange(index1, index2)
-        items = Nx51s::items().drop(index1).take(index2-index1)
-        if items.size == 0 then
-            return Time.new.to_f
-        end
-        if items.size == 1 then
-            return items[0]["unixtime"]
-        end
-        unixtime1 = items.first["unixtime"]
-        unixtime2 = items.last["unixtime"]
-        return unixtime1 + rand*(unixtime2-unixtime1)
-    end
-
     # Nx51s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
     def self.interactivelyDetermineNewItemUnixtimeManuallyPosition()
         system("clear")
@@ -85,8 +71,8 @@ class Nx51s
         system('clear')
     end
 
-    # Nx51s::interactivelyDetermineNewItemUnixtimeAtWork()
-    def self.interactivelyDetermineNewItemUnixtimeAtWork()
+    # Nx51s::interactivelyDetermineNewItemUnixtime()
+    def self.interactivelyDetermineNewItemUnixtime()
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "last (default)"])
         if type.nil? then
             return Time.new.to_f
@@ -94,26 +80,7 @@ class Nx51s
         if type == "manually position" then
             return Nx51s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
         end
-        if type == "last" then
-            return Time.new.to_f
-        end
-        raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
-    end
-
-    # Nx51s::interactivelyDetermineNewItemUnixtime()
-    def self.interactivelyDetermineNewItemUnixtime()
-
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "in 20-50 range (default)", "last"])
-        if type.nil? then
-            return Nx51s::getUnixtimeInRange(20, 50)
-        end
-        if type == "manually position" then
-            return Nx51s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
-        end
-        if type == "in 20-50 range (default)" then
-            return Nx51s::getUnixtimeInRange(20, 50)
-        end
-        if type == "last" then
+        if type == "last (default)" then
             return Time.new.to_f
         end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
@@ -142,21 +109,6 @@ class Nx51s
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         axiomId      = CoreData::issueTextDataObjectUsingText(text)
-        Nx51s::commitItemToDisk({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "axiomId"     => axiomId,
-        })
-        Nx51s::getItemByUUIDOrNull(uuid)
-    end
-
-    # Nx51s::issueItemUsingURL(url)
-    def self.issueItemUsingURL(url)
-        uuid         = LucilleCore::timeStringL22()
-        unixtime     = Nx51s::getUnixtimeInRange("eva", 10, 20)
-        description  = url
-        axiomId      = CoreData::issueUrlPointDataObjectUsingUrl(url)
         Nx51s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
