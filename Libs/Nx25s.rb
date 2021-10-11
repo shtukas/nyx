@@ -1,39 +1,39 @@
 # encoding: UTF-8
 
-class Nx08s # OnDate
+class Nx25s
 
-    # Nx08s::itemsFolderPath()
+    # Nx25s::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx08s"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/Nx25s"
     end
 
-    # Nx08s::commitItemToDisk(item)
+    # Nx25s::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
+        filepath = "#{Nx25s::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # Nx08s::getItemByUUIDOrNull(uuid)
+    # Nx25s::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
+        filepath = "#{Nx25s::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # Nx08s::items()
+    # Nx25s::items()
     def self.items()
-        LucilleCore::locationsAtFolder(Nx08s::itemsFolderPath())
+        LucilleCore::locationsAtFolder(Nx25s::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
             .sort{|x1, x2|  x1["unixtime"] <=> x2["unixtime"]}
     end
 
-    # Nx08s::destroy(item)
+    # Nx25s::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
+        filepath = "#{Nx25s::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -41,7 +41,7 @@ class Nx08s # OnDate
     # --------------------------------------------------
     # Makers
 
-    # Nx08s::interactivelyIssueNewOrNull()
+    # Nx25s::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = LucilleCore::timeStringL22()
 
@@ -61,17 +61,32 @@ class Nx08s # OnDate
               "axiomId"      => axiomId
             }
 
-        Nx08s::commitItemToDisk(item)
+        Nx25s::commitItemToDisk(item)
 
         item
     end
 
-    # Nx08s::issueItemUsingLocation(location)
+    # Nx08s::issueItemUsingURL(url)
+    def self.issueItemUsingURL(url)
+        uuid        = LucilleCore::timeStringL22()
+        unixtime    = Time.new.to_f
+        description = url
+        axiomId     = CoreData::issueUrlPointDataObjectUsingUrl(url)
+        Nx25s::commitItemToDisk({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx25s::getItemByUUIDOrNull(uuid)
+    end
+
+    # Nx25s::issueItemUsingLocation(location)
     def self.issueItemUsingLocation(location)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
         axiomId     = CoreData::issueAionPointDataObjectUsingLocation(location)
-        Nx08s::commitItemToDisk({
+        Nx25s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => description,
@@ -80,7 +95,7 @@ class Nx08s # OnDate
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx08s::issueNewItemFromLine(line)
+    # Nx25s::issueNewItemFromLine(line)
     def self.issueNewItemFromLine(line)
         uuid = LucilleCore::timeStringL22()
         item = {
@@ -89,14 +104,29 @@ class Nx08s # OnDate
           "description" => line,
           "axiomId"     => nil
         }
-        Nx08s::commitItemToDisk(item)
-        Nx08s::getItemByUUIDOrNull(uuid)
+        Nx25s::commitItemToDisk(item)
+        Nx25s::getItemByUUIDOrNull(uuid)
     end
+
+    # Nx25s::issueItemUsingText(text, unixtime)
+    def self.issueItemUsingText(text, unixtime)
+        uuid         = LucilleCore::timeStringL22()
+        description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
+        axiomId      = CoreData::issueTextDataObjectUsingText(text)
+        Nx25s::commitItemToDisk({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "axiomId"     => axiomId,
+        })
+        Nx25s::getItemByUUIDOrNull(uuid)
+    end
+
 
     # -------------------------------------
     # Operations
 
-    # Nx08s::getItemType(item)
+    # Nx25s::getItemType(item)
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "6f3abff4-7686-454d-8190-8b0ba983ab14:#{item["uuid"]}")
         return type if type
@@ -106,12 +136,12 @@ class Nx08s # OnDate
         type2
     end
 
-    # Nx08s::toString(item)
+    # Nx25s::toString(item)
     def self.toString(item)
-        "[inbx] #{item["description"]} (#{Nx08s::getItemType(item)})"
+        "[Nx25] #{item["description"]} (#{Nx25s::getItemType(item)})"
     end
 
-    # Nx08s::accessContent(item)
+    # Nx25s::accessContent(item)
     def self.accessContent(item)
         if item["axiomId"].nil? then
             puts "description: #{item["description"]}"
@@ -121,7 +151,7 @@ class Nx08s # OnDate
         CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
-    # Nx08s::run(item)
+    # Nx25s::run(item)
     def self.run(item)
         uuid = item["uuid"]
 
@@ -138,15 +168,13 @@ class Nx08s # OnDate
 
         system("clear")
 
-        puts "running #{Nx08s::toString(item)}".green
+        puts "running #{Nx25s::toString(item)}".green
 
-        Nx08s::accessContent(item)
+        Nx25s::accessContent(item)
 
         actions = [
             "done & destroy",
-            "postpone by 1 hour (default)",
-            "postpone by 4 hours",
-            "recast as Nx25",
+            "not today",
             "recast as Nx50",
             "recast as Nx51",
             "replace by new Catalyst item"
@@ -154,31 +182,11 @@ class Nx08s # OnDate
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("actions", actions)
 
         if action == "done & destroy" then
-            Nx08s::destroy(item)
+            Nx25s::destroy(item)
         end
 
-        if action.nil? or (action == "postpone by 1 hour") then
-            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 3600)
-        end
-
-        if action == "postpone by 4 hours" then
-            DoNotShowUntil::setUnixtime(item["uuid"], Time.new.to_f + 4*3600)
-        end
-
-        if action == "recast as Nx25" then
-            description = if item["description"].start_with?("Screenshot") then 
-                                LucilleCore::askQuestionAnswerAsString("description: ")
-                          else
-                                item["description"]
-                          end
-            item = {
-                "uuid"        => item["uuid"],
-                "unixtime"    => item["unixtime"],
-                "description" => description,
-                "axiomId"     => item["axiomId"]
-            }
-            Nx25s::commitItemToDisk(item)
-            Nx08s::destroy(item)
+        if action == "not today" then
+            DoNotShowUntil::setUnixtime(item["uuid"], Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()))
         end
 
         if action == "recast as Nx50" then
@@ -190,11 +198,11 @@ class Nx08s # OnDate
             item = {
                 "uuid"        => item["uuid"],
                 "unixtime"    => item["unixtime"],
-                "description" => description,
+                "description" => item["description"],
                 "axiomId"     => item["axiomId"]
             }
             Nx50s::commitNx50ToDatabase(item)
-            Nx08s::destroy(item)
+            Nx25s::destroy(item)
         end
 
         if action == "recast as Nx51" then
@@ -203,22 +211,21 @@ class Nx08s # OnDate
                           else
                                 item["description"]
                           end
-            unixtime = Nx51s::interactivelyDetermineNewItemUnixtime()
             item = {
                 "uuid"        => item["uuid"],
-                "unixtime"    => unixtime,
-                "description" => description,
+                "unixtime"    => item["unixtime"],
+                "description" => item["description"],
                 "axiomId"     => item["axiomId"]
             }
             Nx51s::commitItemToDisk(item)
-            Nx08s::destroy(item)
+            Nx25s::destroy(item)
         end
 
         if action == "replace by new Catalyst item" then
             puts Interpreters::mainMenuCommands().yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
             Interpreters::mainMenuInterpreter(command)
-            Nx08s::destroy(item)
+            Nx25s::destroy(item)
         end
 
         thr.exit
@@ -226,53 +233,53 @@ class Nx08s # OnDate
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx08s::itemToNS16(item)
+    # Nx25s::itemToNS16(item)
     def self.itemToNS16(item)
         {
             "uuid"        => item["uuid"],
-            "announce"    => Nx08s::toString(item),
+            "announce"    => Nx25s::toString(item),
             "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    Nx08s::run(item)
+                    Nx25s::run(item)
                 end
                 if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx08s::toString(item)}' ? ", true) then
-                        Nx08s::destroy(item)
+                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{Nx25s::toString(item)}' ? ", true) then
+                        Nx25s::destroy(item)
                     end
                 end
             },
             "run" => lambda {
-                Nx08s::run(item)
+                Nx25s::run(item)
             },
             "item" => item
         }
     end
 
-    # Nx08s::ns16s()
+    # Nx25s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx08 Inbox").each{|location|
-            puts "[Nx08] #{location}"
-            Nx08s::issueItemUsingLocation(location)
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx25 Inbox").each{|location|
+            puts "[Nx25] #{location}"
+            Nx25s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
             sleep 1
         }
 
-        Nx08s::items()
+        Nx25s::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .map{|item| Nx08s::itemToNS16(item) }
+            .map{|item| Nx25s::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
-    # Nx08s::nx19s()
+    # Nx25s::nx19s()
     def self.nx19s()
-        Nx08s::items().map{|item|
+        Nx25s::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Nx08s::toString(item),
-                "lambda"   => lambda { Nx08s::run(item) }
+                "announce" => Nx25s::toString(item),
+                "lambda"   => lambda { Nx25s::run(item) }
             }
         }
     end

@@ -175,12 +175,6 @@ class Nx51s
         CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
-    # Nx51s::accessContentsIfContents(nx51)
-    def self.accessContentsIfContents(nx51)
-        return if nx51["axiomId"].nil?
-        CoreData::accessWithOptionToEdit(nx51["axiomId"])
-    end
-
     # --------------------------------------------------
     # nx16s
 
@@ -216,7 +210,7 @@ class Nx51s
             puts "--------------------------"
         end
 
-        Nx51s::accessContentsIfContents(nx51)
+        Nx51s::accessContent(nx51)
 
         loop {
 

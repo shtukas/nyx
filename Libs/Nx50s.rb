@@ -71,20 +71,6 @@ class Nx50s
     # --------------------------------------------------
     # Makers
 
-    # Nx50s::getUnixtimeInRange(index1, index2)
-    def self.getUnixtimeInRange(index1, index2)
-        items = Nx50s::nx50s().drop(index1).take(index2-index1)
-        if items.size == 0 then
-            return Time.new.to_f
-        end
-        if items.size == 1 then
-            return items[0]["unixtime"]
-        end
-        unixtime1 = items.first["unixtime"]
-        unixtime2 = items.last["unixtime"]
-        return unixtime1 + rand*(unixtime2-unixtime1)
-    end
-
     # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
     def self.interactivelyDetermineNewItemUnixtimeManuallyPosition()
         system("clear")
@@ -230,12 +216,6 @@ class Nx50s
         CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
-    # Nx50s::accessContentsIfContents(nx50)
-    def self.accessContentsIfContents(nx50)
-        return if nx50["axiomId"].nil?
-        CoreData::accessWithOptionToEdit(nx50["axiomId"])
-    end
-
     # --------------------------------------------------
     # nx16s
 
@@ -271,7 +251,7 @@ class Nx50s
             puts "--------------------------"
         end
 
-        Nx50s::accessContentsIfContents(nx50)
+        Nx50s::accessContent(nx50)
 
         loop {
 
@@ -383,13 +363,12 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx50s::ns16OrNull(nx50, showAboveRTOne)
-    def self.ns16OrNull(nx50, showAboveRTOne)
+    # Nx50s::ns16OrNull(nx50)
+    def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return nil if (!showAboveRTOne and (rt > 1))
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
         announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
@@ -452,10 +431,13 @@ class Nx50s
             }
         end
 
+        # At the moment we are not serving Nx50s NS16s, although we have a non trivial inbox 
+        return []
+
         ns16s = Nx50s::nx50s()
             .reduce([]){|object, nx50|
                 if object.size < 5 then
-                    ns16 = Nx50s::ns16OrNull(nx50, false)
+                    ns16 = Nx50s::ns16OrNull(nx50)
                     if ns16 then
                         object << ns16
                     end

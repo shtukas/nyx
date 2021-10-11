@@ -149,6 +149,7 @@ require_relative "Interpreters.rb"
 
 require_relative "NxFloats.rb"
 require_relative "Nx08s.rb"
+require_relative "Nx25s.rb"
 require_relative "Nx50s.rb"
 require_relative "Nx51s.rb"
 require_relative "NxOnDate.rb"

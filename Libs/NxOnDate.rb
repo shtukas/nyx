@@ -103,12 +103,6 @@ class NxOnDate # OnDate
         CoreData::accessWithOptionToEdit(item["axiomId"])
     end
 
-    # NxOnDate::accessContentsIfContents(item)
-    def self.accessContentsIfContents(item)
-        return if item["axiomId"].nil?
-        CoreData::accessWithOptionToEdit(item["axiomId"])
-    end
-
     # NxOnDate::run(item)
     def self.run(item)
         uuid = item["uuid"]
@@ -130,7 +124,7 @@ class NxOnDate # OnDate
 
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 
-        NxOnDate::accessContentsIfContents(item)
+        NxOnDate::accessContent(item)
 
         loop {
 

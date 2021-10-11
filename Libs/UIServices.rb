@@ -35,16 +35,16 @@ class NS16sOperator
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             NxOnDate::ns16s(),
+            Nx08s::ns16s(),
             Work::isActive() ? Work::ns16s() : [Work::presenceNS16()] ,
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
             Waves::highPriorityNs16s(),
             PriorityFile::ns16s(),
-            Nx08s::ns16s(),
             Waves::circuitBreakerManagedNs16s(),
+            Nx25s::ns16s(),
             Nx50s::ns16s(),
-            Waves::ns16s(),
         ]
             .flatten
             .compact

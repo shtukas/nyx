@@ -19,6 +19,16 @@ class PriorityFile
         FileUtils.cp(filepath, targetFilePath)
     end
 
+    # PriorityFile::recastSectionAsNx25(filepath, section)
+    def self.recastSectionAsNx25(filepath, section)
+        PriorityFile::catalystSafe(filepath)
+        item = Nx25s::issueItemUsingText(text, Time.new.to_i)
+        puts JSON.pretty_generate(item)
+        text = IO.read(filepath)
+        text = text.gsub(section, "")
+        File.open(filepath, "w"){|f| f.puts(text) }
+    end
+
     # PriorityFile::recastSectionAsNx50(filepath, section)
     def self.recastSectionAsNx50(filepath, section)
         PriorityFile::catalystSafe(filepath)
@@ -77,7 +87,7 @@ class PriorityFile
             puts ""
             puts section.green
             puts ""
-            puts "access | [] | >Nx50 | exit (default)".yellow
+            puts "access | [] | >Nx25 | >Nx50 | >Nx51 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
@@ -99,8 +109,18 @@ class PriorityFile
                 next
             end
 
+            if command == ">Nx25" then
+                PriorityFile::recastSectionAsNx25(filepath, section)
+                break
+            end
+
             if command == ">Nx50" then
                 PriorityFile::recastSectionAsNx50(filepath, section)
+                break
+            end
+
+            if command == ">Nx51" then
+                PriorityFile::recastSectionAsNx51(filepath, section)
                 break
             end
 
@@ -132,7 +152,7 @@ class PriorityFile
             {
                 "uuid"        => uuid,
                 "announce"    => (sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green,
-                "commands"    => ["..", "[]", ">Nx50", ">Nx51"],
+                "commands"    => ["..", "[]", ">Nx25", ">Nx50", ">Nx51"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
                         PriorityFile::run(filepath, section)
@@ -143,6 +163,9 @@ class PriorityFile
                         text = IO.read(filepath)
                         text = text.gsub(section, section2)
                         File.open(filepath, "w"){|f| f.puts(text) }
+                    end
+                    if command == ">Nx25" then
+                        PriorityFile::recastSectionAsNx25(filepath, section)
                     end
                     if command == ">Nx50" then
                         PriorityFile::recastSectionAsNx50(filepath, section)
