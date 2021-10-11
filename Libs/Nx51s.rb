@@ -366,7 +366,9 @@ class Nx51s
             Nx51s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
         }
-        Nx51s::items().map{|item| Nx51s::ns16OrNull(item) }
+        Nx51s::items()
+            .map{|item| Nx51s::ns16OrNull(item) }
+            .compact
     end
 
     # --------------------------------------------------
