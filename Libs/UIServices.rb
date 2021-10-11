@@ -141,6 +141,11 @@ class UIServices
 
         vspaceleft = Utils::screenHeight()-10
 
+        if Work::isActive() then
+            puts ""
+            puts "--> WORK is active".green
+            vspaceleft = vspaceleft - 2
+        end
 
         if !InternetStatus::internetIsActive() then
             puts ""
