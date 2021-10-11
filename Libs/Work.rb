@@ -88,6 +88,26 @@ class Work
         end
     end
 
+    # Work::runFolder(folderpath)
+    def self.runFolder(folderpath)
+        uuid = "7b25dff2-b19d-4779-9721-d037d06135a5:#{folderpath}"
+        nxball = NxBalls::makeNxBall([uuid])
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                end
+            }
+        }
+        system("clear")
+        puts "[work] (fldr) #{File.basename(folderpath)}".green
+        system("open '#{folderpath}'")
+        LucilleCore::pressEnterToContinue("Press [enter] to exit folder visit")
+        thr.exit
+        NxBalls::closeNxBall(nxball, true)
+    end
+
     # Work::interestFoldersNS16s()
     def self.interestFoldersNS16s()
 
@@ -103,13 +123,14 @@ class Work
         return [] if rootfolderpath.nil?
         LucilleCore::locationsAtFolder(rootfolderpath)
             .map{|folderpath|
+                uuid = "7b25dff2-b19d-4779-9721-d037d06135a5:#{folderpath}"
+                rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+                announce = "[fldr] (#{"%4.2f" % rt}) #{File.basename(folderpath)}".gsub("(0.00)", "      ")
                 {
-                    "uuid"        => "7b25dff2-b19d-4779-9721-d037d06135a5:#{folderpath}",
-                    "announce"    => "[work] (fldr) #{File.basename(folderpath)}",
-                    "commands"    => [],
-                    "run"         => lambda{ 
-                        system("open '#{folderpath}'")
-                    },
+                    "uuid"         => uuid,
+                    "announce"     => announce,
+                    "commands"     => [],
+                    "run"          => lambda{ Work::runFolder(folderpath) },
                     "interpreter"  => nil,
                     "unixtime-bd06fbf9" => getFolderUnixtime.call(folderpath)
                 }
