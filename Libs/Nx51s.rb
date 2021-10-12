@@ -100,7 +100,7 @@ class Nx51s
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -114,7 +114,7 @@ class Nx51s
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -123,12 +123,12 @@ class Nx51s
     def self.issueItemUsingLocation(location)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        coreDataId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
         Nx51s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -351,7 +351,7 @@ class Nx51s
 
     # Nx51s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx51 Inbox").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx51 Work").each{|location|
             puts "[Nx51] #{location}"
             Nx51s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)

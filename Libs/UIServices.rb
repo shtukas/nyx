@@ -36,13 +36,12 @@ class NS16sOperator
             Calendar::ns16s(),
             NxOnDate::ns16s(),
             Nx08s::ns16s(),
-            Work::isActive() ? Work::ns16s() : [Work::presenceNS16()] ,
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
-            Waves::highPriorityNs16s(),
             PriorityFile::ns16s(),
-            Waves::circuitBreakerManagedNs16s(),
+            Waves::ns16sWithCircuitBreaker(),
+            Work::isActive() ? Work::ns16s() : [Work::presenceNS16()] ,
             Nx25s::ns16s(),
             Nx50s::ns16s(),
         ]
@@ -166,7 +165,16 @@ class UIServices
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
-            
+        end
+
+        if Work::isActive() and Nx61s::ns16s().size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            Nx61s::ns16s().each{|ns16|
+                line = "(#{store.register(ns16).to_s.rjust(3, " ")}) #{ns16["announce"]}"
+                puts line.yellow
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
         end
 
         detachedRunnings = DetachedRunning::ns16s()
@@ -188,7 +196,6 @@ class UIServices
         }
 
         puts ""
-
         if ns16s.size > 0 then
             store.registerDefault(ns16s[0])
         end

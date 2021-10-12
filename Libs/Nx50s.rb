@@ -16,10 +16,10 @@ class Nx50s
         answer = []
         db.execute( "select * from _items_ order by _unixtime_") do |row|
             answer << {
-                "uuid"         => row["_uuid_"],
-                "unixtime"     => row["_unixtime_"],
-                "description"  => row["_description_"],
-                "coreDataId"      => row["_coreDataId_"]
+                "uuid"        => row["_uuid_"],
+                "unixtime"    => row["_unixtime_"],
+                "description" => row["_description_"],
+                "coreDataId"  => row["_coreDataId_"]
             }
         end
         db.close
@@ -47,10 +47,10 @@ class Nx50s
         item = nil
         db.execute( "select * from _items_ where _uuid_=?" , [uuid] ) do |row|
             item = {
-                "uuid"         => row["_uuid_"],
-                "unixtime"     => row["_unixtime_"],
-                "description"  => row["_description_"],
-                "coreDataId"      => row["_coreDataId_"]
+                "uuid"        => row["_uuid_"],
+                "unixtime"    => row["_unixtime_"],
+                "description" => row["_description_"],
+                "coreDataId"  => row["_coreDataId_"]
             }
         end
         db.close
@@ -129,7 +129,7 @@ class Nx50s
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -143,7 +143,7 @@ class Nx50s
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -152,12 +152,12 @@ class Nx50s
     def self.issueItemUsingLocation(location, unixtime)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        coreDataId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -397,7 +397,7 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
 
-        locations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Inbox")
+        locations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 The End Of The Queue")
 
         if locations.size > 0 then
 
@@ -431,8 +431,9 @@ class Nx50s
             }
         end
 
-        # At the moment we are not serving Nx50s NS16s, although we have a non trivial inbox 
-        return []
+        if !(Waves::ns16sWithCircuitBreaker()+Nx25s::ns16s()).empty? then
+            return []
+        end
 
         ns16s = Nx50s::nx50s()
             .reduce([]){|object, nx50|

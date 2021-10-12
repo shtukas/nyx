@@ -55,11 +55,11 @@ class NxOnDate # OnDate
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         item = {
-              "uuid"         => uuid,
-              "unixtime"     => unixtime,
-              "description"  => description,
-              "date"         => date,
-              "coreDataId"      => coreDataId
+              "uuid"        => uuid,
+              "unixtime"    => unixtime,
+              "description" => description,
+              "date"        => date,
+              "coreDataId"  => coreDataId
             }
 
         NxOnDate::commitItemToDisk(item)
@@ -213,7 +213,6 @@ class NxOnDate # OnDate
             .sort{|i1, i2| i1["date"] <=> i2["date"] }
             .map{|item| NxOnDate::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
     # NxOnDate::main()

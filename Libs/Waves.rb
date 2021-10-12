@@ -429,19 +429,8 @@ class Waves
             .reverse
     end
 
-    # Waves::highPriorityNs16s()
-    def self.highPriorityNs16s()
-        Waves::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
-            .select{|item| Waves::isPriorityWave(item) }
-            .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
-            .reverse
-    end
-
-    # Waves::circuitBreakerManagedNs16s()
-    def self.circuitBreakerManagedNs16s()
+    # Waves::ns16sWithCircuitBreaker()
+    def self.ns16sWithCircuitBreaker()
         return [] if Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600) >= 10
         Waves::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

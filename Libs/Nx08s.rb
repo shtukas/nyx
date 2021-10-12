@@ -55,10 +55,10 @@ class Nx08s # OnDate
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         item = {
-              "uuid"         => uuid,
-              "unixtime"     => unixtime,
-              "description"  => description,
-              "coreDataId"      => coreDataId
+              "uuid"        => uuid,
+              "unixtime"    => unixtime,
+              "description" => description,
+              "coreDataId"  => coreDataId
             }
 
         Nx08s::commitItemToDisk(item)
@@ -70,12 +70,12 @@ class Nx08s # OnDate
     def self.issueItemUsingLocation(location)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        coreDataId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
         Nx08s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -251,7 +251,7 @@ class Nx08s # OnDate
 
     # Nx08s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx08 Inbox").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx08 Buffer In").each{|location|
             puts "[Nx08] #{location}"
             Nx08s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
@@ -263,7 +263,6 @@ class Nx08s # OnDate
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| Nx08s::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
     # Nx08s::nx19s()

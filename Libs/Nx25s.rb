@@ -55,10 +55,10 @@ class Nx25s
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         item = {
-              "uuid"         => uuid,
-              "unixtime"     => unixtime,
-              "description"  => description,
-              "coreDataId"      => coreDataId
+              "uuid"        => uuid,
+              "unixtime"    => unixtime,
+              "description" => description,
+              "coreDataId"  => coreDataId
             }
 
         Nx25s::commitItemToDisk(item)
@@ -71,12 +71,12 @@ class Nx25s
         uuid        = LucilleCore::timeStringL22()
         unixtime    = Time.new.to_f
         description = url
-        coreDataId     = CoreData::issueUrlPointDataObjectUsingUrl(url)
+        coreDataId = CoreData::issueUrlPointDataObjectUsingUrl(url)
         Nx25s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx25s::getItemByUUIDOrNull(uuid)
     end
@@ -85,12 +85,12 @@ class Nx25s
     def self.issueItemUsingLocation(location)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        coreDataId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
         Nx25s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -117,7 +117,7 @@ class Nx25s
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "coreDataId"     => coreDataId,
+            "coreDataId"  => coreDataId,
         })
         Nx25s::getItemByUUIDOrNull(uuid)
     end
@@ -258,7 +258,7 @@ class Nx25s
 
     # Nx25s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx25 Inbox").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx25 After Hours, ASAP").each{|location|
             puts "[Nx25] #{location}"
             Nx25s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)
@@ -270,7 +270,6 @@ class Nx25s
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| Nx25s::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
     end
 
     # Nx25s::nx19s()

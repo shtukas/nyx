@@ -1,0 +1,5 @@
+Nx61 {
+    "uuid"        : String
+    "unixtime"    : Float,
+    "description" : String,
+}
