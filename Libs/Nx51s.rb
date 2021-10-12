@@ -30,10 +30,11 @@ class Nx51s
             .sort{|x1, x2|  x1["unixtime"] <=> x2["unixtime"]}
     end
 
-    # Nx51s::delete(item)
-    def self.delete(item)
-        filename = "#{item["uuid"]}.json"
-        filepath = "#{Nx08s::itemsFolderPath()}/#{filename}"
+    # Nx51s::delete(uuid)
+    def self.delete(uuid)
+        filename = "#{uuid}.json"
+        filepath = "#{Nx51s::itemsFolderPath()}/#{filename}"
+        puts "filepath: #{filepath}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -147,7 +148,7 @@ class Nx51s
 
     # Nx51s::toString(item)
     def self.toString(item)
-        "[work] #{item["description"]} (#{Nx51s::getItemType(item)})"
+        "[nx51] #{item["description"]} (#{Nx51s::getItemType(item)})"
     end
 
     # Nx51s::toStringForNS19(item)
@@ -158,11 +159,6 @@ class Nx51s
     # Nx51s::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
         "[nx51] (#{"%4.2f" % rt}) #{item["description"]} (#{Nx51s::getItemType(item)})"
-    end
-
-    # Nx51s::complete(nx51)
-    def self.complete(nx51)
-        Nx51s::delete(nx51["uuid"])
     end
 
     # Nx51s::accessContent(item)
@@ -309,8 +305,8 @@ class Nx51s
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx51s::toString(nx51)}' ? ", true) then
-                    Nx51s::complete(nx51)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx51s::toString(nx51)}' ? ", true) then
+                    Nx51s::delete(nx51["uuid"])
                     break
                 end
                 next
@@ -341,7 +337,7 @@ class Nx51s
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx51s::toString(nx51)}' ? ", true) then
-                        Nx51s::complete(nx51)
+                        Nx51s::delete(nx51["uuid"])
                     end
                 end
             },

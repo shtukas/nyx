@@ -350,7 +350,7 @@ class Nx50s
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("detroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
                     Nx50s::complete(nx50)
                     break
                 end
