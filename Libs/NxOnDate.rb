@@ -52,14 +52,14 @@ class NxOnDate # OnDate
         date = NxOnDate::interactivelySelectADateOrNull()
         return nil if date.nil?
 
-        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         item = {
               "uuid"         => uuid,
               "unixtime"     => unixtime,
               "description"  => description,
               "date"         => date,
-              "axiomId"      => axiomId
+              "coreDataId"      => coreDataId
             }
 
         NxOnDate::commitItemToDisk(item)
@@ -82,7 +82,7 @@ class NxOnDate # OnDate
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}")
         return type if type
-        type1 = CoreData::contentTypeOrNull(item["axiomId"])
+        type1 = CoreData::contentTypeOrNull(item["coreDataId"])
         type2 = type1 || "line"
         KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}", type2)
         type2
@@ -95,12 +95,12 @@ class NxOnDate # OnDate
 
     # NxOnDate::accessContent(item)
     def self.accessContent(item)
-        if item["axiomId"].nil? then
+        if item["coreDataId"].nil? then
             puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
-        CoreData::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["coreDataId"])
     end
 
     # NxOnDate::run(item)

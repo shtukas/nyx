@@ -2,7 +2,7 @@
   "uuid"            : String,
   "unixtime"        : Float,
   "description"     : String,
-  "axiomId"         : String,
+  "coreDataId"      : String,
   "repeatType"      : repeatType,
   "repeatValue"     : repeatValue,
   "lastDoneDateTime": DateTime Iso 8601 UTC Zulu

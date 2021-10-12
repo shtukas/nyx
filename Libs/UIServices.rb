@@ -258,7 +258,7 @@ class Fsck
 
         Nx08s::items().each{|item|
             puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["axiomId"])
+            status = CoreData::fsck(item["coreDataId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -267,7 +267,7 @@ class Fsck
 
         NxFloats::nxfloats().each{|item|
             puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["axiomId"])
+            status = CoreData::fsck(item["coreDataId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -276,7 +276,7 @@ class Fsck
 
         NxOnDate::items().each{|item|
             puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["axiomId"])
+            status = CoreData::fsck(item["coreDataId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -285,7 +285,7 @@ class Fsck
 
         Waves::items().each{|item|
             puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["axiomId"])
+            status = CoreData::fsck(item["coreDataId"])
             if !status then
                 puts "Failed!".red
                 exit
@@ -294,7 +294,7 @@ class Fsck
 
         Nx50s::nx50s().each{|item|
             puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["axiomId"])
+            status = CoreData::fsck(item["coreDataId"])
             if !status then 
                 puts "[problem]".red
                 exit

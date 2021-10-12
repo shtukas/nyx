@@ -55,13 +55,13 @@ class NxFloats
 
         unixtime     = Time.new.to_f
 
-        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         float = {
           "uuid"           => uuid,
           "unixtime"       => unixtime,
           "description"    => description,
-          "axiomId"        => axiomId
+          "coreDataId"        => coreDataId
         }
 
         NxFloats::commitFloatToDisk(float)
@@ -79,12 +79,12 @@ class NxFloats
 
     # NxFloats::accessContent(item)
     def self.accessContent(item)
-        if item["axiomId"].nil? then
+        if item["coreDataId"].nil? then
             puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
-        CoreData::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["coreDataId"])
     end
 
     # --------------------------------------------------

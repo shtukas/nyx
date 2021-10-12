@@ -93,13 +93,13 @@ class Nx51s
         if description == "" then
             return nil
         end
-        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
         unixtime = Nx51s::interactivelyDetermineNewItemUnixtime()
         Nx51s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "axiomId"     => axiomId,
+            "coreDataId"     => coreDataId,
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -108,12 +108,12 @@ class Nx51s
     def self.issueItemUsingText(text, unixtime)
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
-        axiomId      = CoreData::issueTextDataObjectUsingText(text)
+        coreDataId      = CoreData::issueTextDataObjectUsingText(text)
         Nx51s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "axiomId"     => axiomId,
+            "coreDataId"     => coreDataId,
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -122,12 +122,12 @@ class Nx51s
     def self.issueItemUsingLocation(location)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        axiomId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        coreDataId     = CoreData::issueAionPointDataObjectUsingLocation(location)
         Nx51s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "axiomId"     => axiomId,
+            "coreDataId"     => coreDataId,
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -139,7 +139,7 @@ class Nx51s
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}")
         return type if type
-        type1 = CoreData::contentTypeOrNull(item["axiomId"])
+        type1 = CoreData::contentTypeOrNull(item["coreDataId"])
         type2 = type1 || "line"
         KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}", type2)
         type2
@@ -167,12 +167,12 @@ class Nx51s
 
     # Nx51s::accessContent(item)
     def self.accessContent(item)
-        if item["axiomId"].nil? then
+        if item["coreDataId"].nil? then
             puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
-        CoreData::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["coreDataId"])
     end
 
     # --------------------------------------------------
@@ -218,7 +218,7 @@ class Nx51s
 
             puts "#{Nx51s::toString(nx51)} (#{NxBalls::runningTimeString(nxball)})".green
             puts "uuid: #{uuid}".yellow
-            puts "axiomId: #{nx51["axiomId"]}".yellow
+            puts "coreDataId: #{nx51["coreDataId"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx51["uuid"])}".yellow
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)

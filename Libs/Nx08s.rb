@@ -52,13 +52,13 @@ class Nx08s # OnDate
             return nil
         end
 
-        axiomId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         item = {
               "uuid"         => uuid,
               "unixtime"     => unixtime,
               "description"  => description,
-              "axiomId"      => axiomId
+              "coreDataId"      => coreDataId
             }
 
         Nx08s::commitItemToDisk(item)
@@ -70,12 +70,12 @@ class Nx08s # OnDate
     def self.issueItemUsingLocation(location)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        axiomId     = CoreData::issueAionPointDataObjectUsingLocation(location)
+        coreDataId     = CoreData::issueAionPointDataObjectUsingLocation(location)
         Nx08s::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "axiomId"     => axiomId,
+            "coreDataId"     => coreDataId,
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -87,7 +87,7 @@ class Nx08s # OnDate
           "uuid"        => uuid,
           "unixtime"    => Time.new.to_f,
           "description" => line,
-          "axiomId"     => nil
+          "coreDataId"     => nil
         }
         Nx08s::commitItemToDisk(item)
         Nx08s::getItemByUUIDOrNull(uuid)
@@ -100,7 +100,7 @@ class Nx08s # OnDate
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "6f3abff4-7686-454d-8190-8b0ba983ab14:#{item["uuid"]}")
         return type if type
-        type1 = CoreData::contentTypeOrNull(item["axiomId"])
+        type1 = CoreData::contentTypeOrNull(item["coreDataId"])
         type2 = type1 || "line"
         KeyValueStore::set(nil, "6f3abff4-7686-454d-8190-8b0ba983ab14:#{item["uuid"]}", type2)
         type2
@@ -113,12 +113,12 @@ class Nx08s # OnDate
 
     # Nx08s::accessContent(item)
     def self.accessContent(item)
-        if item["axiomId"].nil? then
+        if item["coreDataId"].nil? then
             puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
             return
         end
-        CoreData::accessWithOptionToEdit(item["axiomId"])
+        CoreData::accessWithOptionToEdit(item["coreDataId"])
     end
 
     # Nx08s::run(item)
@@ -175,7 +175,7 @@ class Nx08s # OnDate
                 "uuid"        => item["uuid"],
                 "unixtime"    => item["unixtime"],
                 "description" => description,
-                "axiomId"     => item["axiomId"]
+                "coreDataId"     => item["coreDataId"]
             }
             Nx25s::commitItemToDisk(item)
             Nx08s::destroy(item)
@@ -191,7 +191,7 @@ class Nx08s # OnDate
                 "uuid"        => item["uuid"],
                 "unixtime"    => item["unixtime"],
                 "description" => description,
-                "axiomId"     => item["axiomId"]
+                "coreDataId"     => item["coreDataId"]
             }
             Nx50s::commitNx50ToDatabase(item)
             Nx08s::destroy(item)
@@ -208,7 +208,7 @@ class Nx08s # OnDate
                 "uuid"        => item["uuid"],
                 "unixtime"    => unixtime,
                 "description" => description,
-                "axiomId"     => item["axiomId"]
+                "coreDataId"     => item["coreDataId"]
             }
             Nx51s::commitItemToDisk(item)
             Nx08s::destroy(item)

@@ -141,7 +141,7 @@ class Waves
         return nil if type.nil?
 
         description  = nil
-        axiomId      = nil
+        coreDataId      = nil
 
         if type == "line" then
             description    = LucilleCore::askQuestionAnswerAsString("line: ")
@@ -149,7 +149,7 @@ class Waves
 
         if type == "url" then
             url            = LucilleCore::askQuestionAnswerAsString("url: ")
-            axiomId        = SecureRandom.uuid
+            coreDataId        = SecureRandom.uuid
             description    = url
             CoreData::issueUrlPointDataObjectUsingUrl(url)
         end
@@ -165,7 +165,7 @@ class Waves
           "uuid"             => uuid,
           "unixtime"         => unixtime,
           "description"      => description,
-          "axiomId"          => axiomId,
+          "coreDataId"          => coreDataId,
           "repeatType"       => repeatType,
           "repeatValue"      => repeatValue,
           "lastDoneDateTime" => lastDoneDateTime
@@ -227,7 +227,7 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
-        CoreData::accessWithOptionToEdit(wave["axiomId"])
+        CoreData::accessWithOptionToEdit(wave["coreDataId"])
     end
 
     # Waves::landing(wave)

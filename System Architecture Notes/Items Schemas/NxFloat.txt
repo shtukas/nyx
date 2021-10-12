@@ -1,6 +1,6 @@
 {
-  "uuid"         : String,
-  "unixtime"     : Float,
-  "description"  : String,
-  "axiomId"      : String
+  "uuid"        : String,
+  "unixtime"    : Float,
+  "description" : String,
+  "coreDataId"  : String
 }
