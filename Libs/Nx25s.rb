@@ -258,7 +258,7 @@ class Nx25s
 
     # Nx25s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx25 After Hours, ASAP").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/After Hours, ASAP (Nx25)").each{|location|
             puts "[Nx25] #{location}"
             Nx25s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)

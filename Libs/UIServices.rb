@@ -40,7 +40,7 @@ class NS16sOperator
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
             PriorityFile::ns16s(),
-            Waves::ns16sWithCircuitBreaker(),
+            Work::isActive() ? [] : Waves::ns16sWithCircuitBreaker(),
             Work::isActive() ? Work::ns16s() : [Work::presenceNS16()] ,
             Nx25s::ns16s(),
             Nx50s::ns16s(),
@@ -140,7 +140,7 @@ class UIServices
         infolines = [
             Interpreters::listingCommands(),
             Interpreters::mainMenuCommands(),
-            "[Nx50s  ] (wave cicuit breaker A: #{Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600)}) (#{Nx50s::nx50s().count} items)",
+            "[Nx50s  ] (#{Nx50s::nx50s().count} items)",
             Work::workMenuCommands(),
             InternetStatus::putsInternetCommands()
         ].join("\n").yellow

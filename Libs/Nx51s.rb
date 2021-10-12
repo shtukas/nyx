@@ -351,7 +351,7 @@ class Nx51s
 
     # Nx51s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx51 Work").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Work Items (Nx51s)").each{|location|
             puts "[Nx51] #{location}"
             Nx51s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)

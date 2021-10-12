@@ -397,7 +397,7 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
 
-        locations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 The End Of The Queue")
+        locations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop/The End Of The Queue (Nx50s)")
 
         if locations.size > 0 then
 

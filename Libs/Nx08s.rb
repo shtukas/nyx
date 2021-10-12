@@ -251,7 +251,7 @@ class Nx08s # OnDate
 
     # Nx08s::ns16s()
     def self.ns16s()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx08 Buffer In").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Buffer In (Nx08s)").each{|location|
             puts "[Nx08] #{location}"
             Nx08s::issueItemUsingLocation(location)
             LucilleCore::removeFileSystemLocation(location)

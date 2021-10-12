@@ -43,43 +43,52 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] in: <line> | Nx25 | float | wave | todo | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "[general] Nx08 | Nx25 | float | wave | todo | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
     def self.mainMenuInterpreter(command)
 
         if command.start_with?("in:") then
-            line = command[3, command.size].strip
-            item = Nx08s::issueNewItemFromLine(line)
-            puts JSON.pretty_generate(item)
+            item = Nx08s::interactivelyIssueNewOrNull()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("float", command) then
-            NxFloats::interactivelyCreateNewOrNull()
+            item = NxFloats::interactivelyCreateNewOrNull()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("wave", command) then
-            Waves::issueNewWaveInteractivelyOrNull()
+            item = Waves::issueNewWaveInteractivelyOrNull()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("wave", command) then
-            Vectors::issueNewWaveInteractivelyOrNull()
+            item = Vectors::issueNewWaveInteractivelyOrNull()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("todo", command) then
-            Nx50s::interactivelyCreateNewOrNull()
+            item = Nx50s::interactivelyCreateNewOrNull()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("ondate", command) then
-            nx31 = NxOnDate::interactivelyIssueNewOrNull()
-            if nx31 then
-                puts JSON.pretty_generate(nx31)
-            end
+            item = NxOnDate::interactivelyIssueNewOrNull()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("calendar item", command) then
-            Calendar::interactivelyIssueNewCalendarItem()
+            item = Calendar::interactivelyIssueNewCalendarItem()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("Nx25", command) then
@@ -107,7 +116,9 @@ class Interpreters
         end
 
         if Interpreting::match("anniversary", command) then
-            Anniversaries::issueNewAnniversaryOrNullInteractively()
+            item = Anniversaries::issueNewAnniversaryOrNullInteractively()
+            return if item.nil?
+            JSON.pretty_generate(item)
         end
 
         if Interpreting::match("ondates", command) then
