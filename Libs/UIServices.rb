@@ -135,9 +135,19 @@ class UIServices
     def self.mainView(ns16s)
         system("clear")
 
-        store = ItemStore.new()
+        vspaceleft = Utils::screenHeight()-5
 
-        vspaceleft = Utils::screenHeight()-10
+        infolines = [
+            Interpreters::listingCommands(),
+            Interpreters::mainMenuCommands(),
+            "[Nx50s  ] (wave cicuit breaker A: #{Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600)}) (#{Nx50s::nx50s().count} items)",
+            Work::workMenuCommands(),
+            InternetStatus::putsInternetCommands()
+        ].join("\n").yellow
+
+        vspaceleft = vspaceleft - Utils::verticalSize(infolines)
+
+        store = ItemStore.new()
 
         if Work::isActive() then
             puts ""
@@ -213,11 +223,7 @@ class UIServices
 
         puts ""
 
-        puts Interpreters::listingCommands().yellow
-        puts Interpreters::mainMenuCommands().yellow
-        puts "[Nx50s  ] (wave cicuit breaker A: #{Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600)}) (#{Nx50s::nx50s().count} items)".yellow
-        puts Work::workMenuCommands().yellow
-        puts InternetStatus::putsInternetCommands().yellow
+        puts infolines
 
         puts ""
 
