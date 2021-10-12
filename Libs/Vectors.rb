@@ -1,42 +1,42 @@
 
 # encoding: UTF-8
 
-class Waves
+class Vectors
 
     # --------------------------------------------------
     # IO
 
-    # Waves::itemsFolderPath()
+    # Vectors::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/items/vectors"
     end
 
-    # Waves::commitItemToDisk(item)
+    # Vectors::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
+        filepath = "#{Vectors::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # Waves::items()
+    # Vectors::items()
     def self.items()
-        LucilleCore::locationsAtFolder(Waves::itemsFolderPath())
+        LucilleCore::locationsAtFolder(Vectors::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
     end
 
-    # Waves::getItemByUUIDOrNull(uuid)
+    # Vectors::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
+        filepath = "#{Vectors::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # Waves::destroy(item)
+    # Vectors::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
+        filepath = "#{Vectors::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -44,7 +44,7 @@ class Waves
     # --------------------------------------------------
     # Making
 
-    # Waves::makeScheduleParametersInteractivelyOrNull() # [type, value]
+    # Vectors::makeScheduleParametersInteractivelyOrNull() # [type, value]
     def self.makeScheduleParametersInteractivelyOrNull()
 
         scheduleTypes = ['sticky', 'repeat']
@@ -88,50 +88,50 @@ class Waves
         raise "e45c4622-4501-40e1-a44e-2948544df256"
     end
 
-    # Waves::waveToDoNotShowUnixtime(wave)
-    def self.waveToDoNotShowUnixtime(wave)
-        if wave["repeatType"] == 'sticky' then
+    # Vectors::vectorToDoNotShowUnixtime(vector)
+    def self.vectorToDoNotShowUnixtime(vector)
+        if vector["repeatType"] == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
-            unixtime1 = (Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 86400) + wave["repeatValue"].to_i*3600
+            unixtime1 = (Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 86400) + vector["repeatValue"].to_i*3600
             if unixtime1 > Time.new.to_i then
                 return unixtime1
             end
             # We return the event happening tomorrow
-            return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + wave["repeatValue"].to_i*3600
+            return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + vector["repeatValue"].to_i*3600
         end
-        if wave["repeatType"] == 'every-n-hours' then
-            return Time.new.to_i+3600 * wave["repeatValue"].to_f
+        if vector["repeatType"] == 'every-n-hours' then
+            return Time.new.to_i+3600 * vector["repeatValue"].to_f
         end
-        if wave["repeatType"] == 'every-n-days' then
-            return Time.new.to_i+86400 * wave["repeatValue"].to_f
+        if vector["repeatType"] == 'every-n-days' then
+            return Time.new.to_i+86400 * vector["repeatValue"].to_f
         end
-        if wave["repeatType"] == 'every-this-day-of-the-month' then
+        if vector["repeatType"] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
-            while Time.at(cursor).strftime("%d") != wave["repeatValue"] do
+            while Time.at(cursor).strftime("%d") != vector["repeatValue"] do
                 cursor = cursor + 3600
             end
            return cursor
         end
-        if wave["repeatType"] == 'every-this-day-of-the-week' then
+        if vector["repeatType"] == 'every-this-day-of-the-week' then
             mapping = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             cursor = Time.new.to_i + 86400
-            while mapping[Time.at(cursor).wday] != wave["repeatValue"] do
+            while mapping[Time.at(cursor).wday] != vector["repeatValue"] do
                 cursor = cursor + 3600
             end
             return cursor
         end
     end
 
-    # Waves::scheduleString(wave)
-    def self.scheduleString(wave)
-        if wave["repeatType"] == 'sticky' then
-            return "sticky, from: #{wave["repeatValue"]}"
+    # Vectors::scheduleString(vector)
+    def self.scheduleString(vector)
+        if vector["repeatType"] == 'sticky' then
+            return "sticky, from: #{vector["repeatValue"]}"
         end
-        "#{wave["repeatType"]}: #{wave["repeatValue"]}"
+        "#{vector["repeatType"]}: #{vector["repeatValue"]}"
     end
 
-    # Waves::issueNewWaveInteractivelyOrNull()
+    # Vectors::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
         uuid         = SecureRandom.uuid
@@ -154,14 +154,14 @@ class Waves
             CoreData::issueUrlPointDataObjectUsingUrl(url)
         end
 
-        schedule = Waves::makeScheduleParametersInteractivelyOrNull()
+        schedule = Vectors::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
 
         repeatType   = schedule[0]
         repeatValue  = schedule[1]
         lastDoneDateTime = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        wave = {
+        vector = {
           "uuid"             => uuid,
           "unixtime"         => unixtime,
           "description"      => description,
@@ -170,89 +170,89 @@ class Waves
           "repeatValue"      => repeatValue,
           "lastDoneDateTime" => lastDoneDateTime
         }
-        Waves::commitItemToDisk(wave)
-        wave
+        Vectors::commitItemToDisk(vector)
+        vector
     end
 
     # -------------------------------------------------------------------------
     # Operations
 
-    # Waves::toString(wave)
-    def self.toString(wave)
-        ago = "#{((Time.new.to_i - DateTime.parse(wave["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] #{wave["description"]} (#{Waves::scheduleString(wave)}) (#{ago})"
+    # Vectors::toString(vector)
+    def self.toString(vector)
+        ago = "#{((Time.new.to_i - DateTime.parse(vector["lastDoneDateTime"]).to_time.to_i).to_f/86400).round(2)} days ago"
+        "[vector] #{vector["description"]} (#{Vectors::scheduleString(vector)}) (#{ago})"
     end
 
-    # Waves::selectWaveOrNull()
+    # Vectors::selectWaveOrNull()
     def self.selectWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::items().sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("vector", Vectors::items().sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|vector| Vectors::toString(vector) })
     end
 
-    # Waves::performDone(wave)
-    def self.performDone(wave)
-        puts "done-ing: #{Waves::toString(wave)}"
-        wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commitItemToDisk(wave)
+    # Vectors::performDone(vector)
+    def self.performDone(vector)
+        puts "done-ing: #{Vectors::toString(vector)}"
+        vector["lastDoneDateTime"] = Time.now.utc.iso8601
+        Vectors::commitItemToDisk(vector)
 
-        unixtime = Waves::waveToDoNotShowUnixtime(wave)
+        unixtime = Vectors::vectorToDoNotShowUnixtime(vector)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
-        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+        DoNotShowUntil::setUnixtime(vector["uuid"], unixtime)
 
         Bank::put("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 1)
     end
 
-    # Waves::main()
+    # Vectors::main()
     def self.main()
         loop {
-            puts "Waves 🌊 (main)"
+            puts "Vectors 🌊 (main)"
             options = [
-                "wave",
-                "waves dive"
+                "vector",
+                "vectors dive"
             ]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             break if option.nil?
-            if option == "wave" then
-                Waves::issueNewWaveInteractivelyOrNull()
+            if option == "vector" then
+                Vectors::issueNewWaveInteractivelyOrNull()
             end
-            if option == "waves dive" then
+            if option == "vectors dive" then
                 loop {
                     system("clear")
-                    wave = Waves::selectWaveOrNull()
-                    return if wave.nil?
-                    Waves::landing(wave)
+                    vector = Vectors::selectWaveOrNull()
+                    return if vector.nil?
+                    Vectors::landing(vector)
                 }
             end
         }
     end
 
-    # Waves::accessContent(wave)
-    def self.accessContent(wave)
-        CoreData::accessWithOptionToEdit(wave["coreDataId"])
+    # Vectors::accessContent(vector)
+    def self.accessContent(vector)
+        CoreData::accessWithOptionToEdit(vector["coreDataId"])
     end
 
-    # Waves::landing(wave)
-    def self.landing(wave)
-        uuid = wave["uuid"]
+    # Vectors::landing(vector)
+    def self.landing(vector)
+        uuid = vector["uuid"]
 
         nxball = NxBalls::makeNxBall([uuid])
 
         loop {
             system("clear")
 
-            puts "#{Waves::toString(wave)}".green
+            puts "#{Vectors::toString(vector)}".green
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
-
-            puts ""
-
-            puts "uuid: #{wave["uuid"]}".yellow
-            puts "schedule: #{Waves::scheduleString(wave)}".yellow
-            puts "last done: #{wave["lastDoneDateTime"]}".yellow
-            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(vector["uuid"])}".green
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | >vector | destroy".yellow
+            puts "uuid: #{vector["uuid"]}".yellow
+            puts "schedule: #{Vectors::scheduleString(vector)}".yellow
+            puts "last done: #{vector["lastDoneDateTime"]}".yellow
+            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(vector["uuid"])}".yellow
+
+            puts ""
+
+            puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | destroy".yellow
 
             puts Interpreters::mainMenuCommands().yellow
 
@@ -261,12 +261,12 @@ class Waves
             break if command == "exit"
 
             if command == "access" then
-                Waves::accessContent(wave)
+                Vectors::accessContent(vector)
                 next
             end
 
             if command == "done" then
-                Waves::performDone(wave)
+                Vectors::performDone(vector)
                 break
             end
 
@@ -276,24 +276,24 @@ class Waves
             end
 
             if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
-                StructuredTodoTexts::setNote(wave["uuid"], note)
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(vector["uuid"]) || "")
+                StructuredTodoTexts::setNote(vector["uuid"], note)
                 next
             end
 
             if command == "[]" then
-                StructuredTodoTexts::applyT(wave["uuid"])
+                StructuredTodoTexts::applyT(vector["uuid"])
                 next
             end
 
             if command == "detach running" then
-                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid])
+                DetachedRunning::issueNew2(Vectors::toString(vector), Time.new.to_i, [uuid])
                 break
             end
 
             if Interpreting::match("update description", command) then
-                wave["description"] = Utils::editTextSynchronously(wave["description"])
-                Waves::performDone(wave)
+                vector["description"] = Utils::editTextSynchronously(vector["description"])
+                Vectors::performDone(vector)
                 next
             end
 
@@ -304,25 +304,17 @@ class Waves
             end
 
             if Interpreting::match("recast schedule", command) then
-                schedule = Waves::makeScheduleParametersInteractivelyOrNull()
+                schedule = Vectors::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
-                wave["repeatType"] = schedule[0]
-                wave["repeatValue"] = schedule[1]
-                Waves::commitItemToDisk(wave)
+                vector["repeatType"] = schedule[0]
+                vector["repeatValue"] = schedule[1]
+                Vectors::commitItemToDisk(vector)
                 next
             end
 
-            if Interpreting::match(">vector", command) then
-                filename = "#{wave["uuid"]}.json"
-                filepath1 = "#{Waves::itemsFolderPath()}/#{filename}"
-                filepath2 = "#{Vectors::itemsFolderPath()}/#{filename}"
-                FileUtils.mv(filepath1, filepath2)
-                break
-            end
-
             if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    Waves::destroy(wave)
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this vector ? : ") then
+                    Vectors::destroy(vector)
                     break
                 end
             end
@@ -336,16 +328,16 @@ class Waves
     # -------------------------------------------------------------------------
     # NS16
 
-    # Waves::run(wave)
-    def self.run(wave)
+    # Vectors::run(vector)
+    def self.run(vector)
         system("clear")
-        uuid = wave["uuid"]
-        puts Waves::toString(wave)
+        uuid = vector["uuid"]
+        puts Vectors::toString(vector)
         puts "Starting at #{Time.new.to_s}"
 
         nxball = NxBalls::makeNxBall([uuid])
 
-        Waves::accessContent(wave)
+        Vectors::accessContent(vector)
 
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "detach running; will done", "exit"])
 
@@ -356,12 +348,12 @@ class Waves
         end
 
         if operation == "done (default)" then
-            Waves::performDone(wave)
+            Vectors::performDone(vector)
         end
 
         if operation == "detach running; will done" then
-            Waves::performDone(wave)
-            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid])
+            Vectors::performDone(vector)
+            DetachedRunning::issueNew2(Vectors::toString(vector), Time.new.to_i, [uuid])
         end
 
         if operation == "exit" then
@@ -369,33 +361,33 @@ class Waves
         end
     end
 
-    # Waves::toNS16(wave)
-    def self.toNS16(wave)
-        uuid = wave["uuid"]
+    # Vectors::toNS16(vector)
+    def self.toNS16(vector)
+        uuid = vector["uuid"]
         {
             "uuid"        => uuid,
-            "announce"    => Waves::toString(wave),
+            "announce"    => Vectors::toString(vector),
             "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda{|command|
                 if command == ".." then
-                    Waves::run(wave)
+                    Vectors::run(vector)
                 end
                 if command == "landing" then
-                    Waves::landing(wave)
+                    Vectors::landing(vector)
                 end
                 if command == "done" then
-                    Waves::performDone(wave)
+                    Vectors::performDone(vector)
                 end
             },
             "run" => lambda {
-                Waves::run(wave)
+                Vectors::run(vector)
             },
-            "wave" => wave,
+            "vector" => vector,
         }
     end
 
-    # Waves::waveOrderingPriority(wave)
-    def self.waveOrderingPriority(wave)
+    # Vectors::vectorOrderingPriority(vector)
+    def self.vectorOrderingPriority(vector)
         mapping = {
             "sticky"                      => 5,
             "every-this-day-of-the-month" => 4,
@@ -403,58 +395,47 @@ class Waves
             "every-n-hours"               => 2,
             "every-n-days"                => 1
         }
-        mapping[wave["repeatType"]]
+        mapping[vector["repeatType"]]
     end
 
-    # Waves::ns16ToOrderingWeight(ns16)
+    # Vectors::ns16ToOrderingWeight(ns16)
     def self.ns16ToOrderingWeight(ns16)
-        Waves::waveOrderingPriority(ns16["wave"])
+        Vectors::vectorOrderingPriority(ns16["vector"])
     end
 
-    # Waves::isPriorityWave(wave)
-    def self.isPriorityWave(wave)
-        Waves::waveOrderingPriority(wave) >= 3
+    # Vectors::isPriorityWave(vector)
+    def self.isPriorityWave(vector)
+        Vectors::vectorOrderingPriority(vector) >= 3
     end
 
-    # Waves::compareNS16s(n1, n2)
+    # Vectors::compareNS16s(n1, n2)
     def self.compareNS16s(n1, n2)
-        if Waves::ns16ToOrderingWeight(n1) < Waves::ns16ToOrderingWeight(n2) then
+        if Vectors::ns16ToOrderingWeight(n1) < Vectors::ns16ToOrderingWeight(n2) then
             return -1
         end
-        if Waves::ns16ToOrderingWeight(n1) > Waves::ns16ToOrderingWeight(n2) then
+        if Vectors::ns16ToOrderingWeight(n1) > Vectors::ns16ToOrderingWeight(n2) then
             return 1
         end
         n1["uuid"] <=> n2["uuid"]
     end
 
-    # Waves::ns16s()
+    # Vectors::ns16s()
     def self.ns16s()
-        Waves::items()
+        Vectors::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
-            .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
+            .map{|vector| Vectors::toNS16(vector) }
+            .sort{|n1, n2| Vectors::compareNS16s(n1, n2) }
             .reverse
     end
 
-    # Waves::ns16sWithCircuitBreaker()
-    def self.ns16sWithCircuitBreaker()
-        return [] if Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600) >= 10
-        Waves::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
-            .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
-            .reverse
-    end
-
-    # Waves::nx19s()
+    # Vectors::nx19s()
     def self.nx19s()
-        Waves::items().map{|item|
+        Vectors::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Waves::toString(item),
-                "lambda"   => lambda { Waves::landing(item) }
+                "announce" => Vectors::toString(item),
+                "lambda"   => lambda { Vectors::landing(item) }
             }
         }
     end

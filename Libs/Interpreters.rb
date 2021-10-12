@@ -43,7 +43,7 @@ class Interpreters
 
     # Interpreters::mainMenuCommands()
     def self.mainMenuCommands()
-        "[general] in: <line> | Nx25 | float | wave | todo | ondate | calendar item | anniversary | Nx50 | Nx51 | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "[general] in: <line> | Nx25 | float | wave | todo | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::mainMenuInterpreter(command)
@@ -61,6 +61,10 @@ class Interpreters
 
         if Interpreting::match("wave", command) then
             Waves::issueNewWaveInteractivelyOrNull()
+        end
+
+        if Interpreting::match("wave", command) then
+            Vectors::issueNewWaveInteractivelyOrNull()
         end
 
         if Interpreting::match("todo", command) then

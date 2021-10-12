@@ -175,5 +175,6 @@ require_relative "Utils.rb"
 
 require_relative "Waves.rb"
 require_relative "Work.rb"
+require_relative "Vectors.rb"
 
 # ------------------------------------------------------------

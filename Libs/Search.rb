@@ -7,13 +7,14 @@ class Search
     def self.nx19s()
         Anniversaries::nx19s() +
         Calendar::nx19s() +
-        NxOnDate::nx19s() + 
+        NxOnDate::nx19s() +
         Nx50s::nx19s() +
         Waves::nx19s() +
-        NxFloats::nx19s() + 
-        Nx08s::nx19s() + 
-        Nx51s::nx19s() + 
-        Nx25s::nx19s()
+        NxFloats::nx19s() +
+        Nx08s::nx19s() +
+        Nx51s::nx19s() +
+        Nx25s::nx19s() +
+        Vectors::nx19s()
     end
 
     # Search::existingUUIDS()
