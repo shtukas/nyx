@@ -343,8 +343,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid])
-
+        nxball = NxBalls::makeNxBall([uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3"])
         Waves::accessContent(wave)
 
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "detach running; will done", "exit"])
@@ -437,9 +436,16 @@ class Waves
             .reverse
     end
 
+    # Waves::isCircuitBroken()
+    def self.isCircuitBroken()
+        return true if Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600) >= 10
+        return true if Beatrice::stdRecoveredHourlyTimeInHours("WAVES-TIME-75-42E8-85E2-F17E869DF4D3") >= 0.25
+        false
+    end
+
     # Waves::ns16sWithCircuitBreaker()
     def self.ns16sWithCircuitBreaker()
-        return [] if Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600) >= 10
+        return [] if Waves::isCircuitBroken()
         Waves::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
