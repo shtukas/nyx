@@ -122,7 +122,6 @@ class Nx25s
         Nx25s::getItemByUUIDOrNull(uuid)
     end
 
-
     # -------------------------------------
     # Operations
 

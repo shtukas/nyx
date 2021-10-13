@@ -22,7 +22,19 @@ class PriorityFile
     # PriorityFile::recastSectionAsNx25(filepath, section)
     def self.recastSectionAsNx25(filepath, section)
         PriorityFile::catalystSafe(filepath)
-        item = Nx25s::issueItemUsingText(text, Time.new.to_i)
+        item = Nx25s::issueItemUsingText(section.strip, Time.new.to_i)
+        puts JSON.pretty_generate(item)
+        text = IO.read(filepath)
+        text = text.gsub(section, "")
+        File.open(filepath, "w"){|f| f.puts(text) }
+    end
+
+    # PriorityFile::recastSectionAsOndate(filepath, section)
+    def self.recastSectionAsOndate(filepath, section)
+        PriorityFile::catalystSafe(filepath)
+        date = NxOnDate::interactivelySelectADateOrNull()
+        return if date.nil?
+        item = NxOnDate::issueItemUsingText(section.strip, Time.new.to_i, date)
         puts JSON.pretty_generate(item)
         text = IO.read(filepath)
         text = text.gsub(section, "")
@@ -87,7 +99,7 @@ class PriorityFile
             puts ""
             puts section.green
             puts ""
-            puts "access | [] | >Nx25 | >Nx50 | >Nx51 | exit (default)".yellow
+            puts "access | [] | >Nx25 | >ondate | >Nx50 | >Nx51 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
@@ -111,6 +123,11 @@ class PriorityFile
 
             if command == ">Nx25" then
                 PriorityFile::recastSectionAsNx25(filepath, section)
+                break
+            end
+
+            if command == ">ondate" then
+                PriorityFile::recastSectionAsOndate(filepath, section)
                 break
             end
 
@@ -152,7 +169,7 @@ class PriorityFile
             {
                 "uuid"        => uuid,
                 "announce"    => (sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green,
-                "commands"    => ["..", "[]", ">Nx25", ">Nx50", ">Nx51"],
+                "commands"    => ["..", "[]", ">Nx25", ">ondate", ">Nx50", ">Nx51"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
                         PriorityFile::run(filepath, section)
@@ -166,6 +183,9 @@ class PriorityFile
                     end
                     if command == ">Nx25" then
                         PriorityFile::recastSectionAsNx25(filepath, section)
+                    end
+                    if command == ">ondate" then
+                        PriorityFile::recastSectionAsOndate(filepath, section)
                     end
                     if command == ">Nx50" then
                         PriorityFile::recastSectionAsNx50(filepath, section)

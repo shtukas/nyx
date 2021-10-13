@@ -67,6 +67,21 @@ class NxOnDate # OnDate
         item
     end
 
+    # NxOnDate::issueItemUsingText(text, unixtime, date)
+    def self.issueItemUsingText(text, unixtime, date)
+        uuid        = LucilleCore::timeStringL22()
+        description = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
+        coreDataId  = CoreData::issueTextDataObjectUsingText(text)
+        NxOnDate::commitItemToDisk({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "date"        => date,
+            "coreDataId"  => coreDataId
+        })
+        NxOnDate::getNxOnDateByUUIDOrNull(uuid)
+    end
+
     # NxOnDate::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"

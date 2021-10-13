@@ -139,14 +139,42 @@ class Work
 
     # Work::ns16s()
     def self.ns16s()
-        a0 = Vectors::ns16s()
-        a1 = (
+
+        if Work::shouldBeActive() and !Work::isActive() then
+            return [
+                {
+                    "uuid"        => "b0fbec50-7e53-4176-8c7f-fe7f452c1695:#{Utils::today()}",
+                    "announce"    => "[work] run to activate".green,
+                    "commands"    => [],
+                    "run"         => lambda{ Work::issueNxBallIfNotOne() },
+                    "interpreter" => nil
+                }
+            ]
+        end
+
+        a0 = 
+            if Work::isActive() and !Work::shouldBeActive() then
+                [
+                    {
+                        "uuid"        => "b0fbec50-7e53-4176-8c7f-fe7f452c1695:#{Utils::today()}",
+                        "announce"    => "[work] (work time overflow) run to disactivate".green,
+                        "commands"    => [],
+                        "run"         => lambda{ Work::close() },
+                        "interpreter" => nil
+                    }
+                ]
+            else
+                []
+            end
+
+        a1 = Vectors::ns16s()
+        a2 = (
             
             Nx51s::ns16s() +
             Work::interestFoldersNS16s()
         )
             .sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] }
-        a0+a1
+        a0+a1+a2
     end
 
     # Work::updateNxBallOrNothing()
