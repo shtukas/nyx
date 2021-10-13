@@ -110,7 +110,7 @@ class CoreDataUtils
 
     # CoreDataUtils::path()
     def self.path()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/CoreData"
+        "/Users/pascal/Galaxy/DataBank/CoreData"
     end
 
     # CoreDataUtils::datablobsRoot()
