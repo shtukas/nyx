@@ -178,11 +178,12 @@ class CoreDataUtils
         JSON.parse(IO.read(filepath))
     end
 
-end
+    # CoreDataUtils::openUrlUsingSafari(url)
+    def self.openUrlUsingSafari(url)
+        system("open -a Safari '#{url}'")
+    end
 
-class CoreData
-
-    # CoreData::editTextSynchronously(text)
+    # CoreDataUtils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.uuid
         filepath = "/tmp/#{filename}"
@@ -192,6 +193,10 @@ class CoreData
         input = STDIN.gets
         IO.read(filepath)
     end
+
+end
+
+class CoreData
 
     # CoreData::issueTextDataObjectUsingText(text)
     def self.issueTextDataObjectUsingText(text)
@@ -232,7 +237,7 @@ class CoreData
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("axiom type", ["text", "url", "location"])
         return nil if type.nil?
         if type == "text" then
-            text = CoreData::editTextSynchronously("")
+            text = CoreDataUtils::editTextSynchronously("")
             coredataobject = {
                 "uuid" => SecureRandom.uuid,
                 "type" => "text",
@@ -299,7 +304,7 @@ class CoreData
             return
         end
         if object["type"] == "url" then
-            Utils::openUrlUsingSafari(object["url"])
+            CoreDataUtils::openUrlUsingSafari(object["url"])
             return
         end
         if object["type"] == "aion-point" then
