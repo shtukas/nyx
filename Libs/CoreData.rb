@@ -1,6 +1,12 @@
 
 # encoding: UTF-8
 
+=begin
+
+This library is used by Catalyst and Nyx. The master copy is in Catalyst.
+
+=end
+
 
 =begin
 
