@@ -140,7 +140,7 @@ class UIServices
         infolines = [
             Interpreters::listingCommands(),
             Interpreters::mainMenuCommands(),
-            "[       ] (wave-circuit-breaker: #{Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600)}) (Nx50s: #{Nx50s::nx50s().count} items)",
+            "[       ] (wave: circuit-breaker: #{Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600)}, #{Beatrice::stdRecoveredHourlyTimeInHours("WAVES-TIME-75-42E8-85E2-F17E869DF4D3").round(2)}) (Nx50s: #{Nx50s::nx50s().count} items)",
             Work::workMenuCommands(),
             InternetStatus::putsInternetCommands()
         ].join("\n").yellow
