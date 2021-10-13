@@ -151,25 +151,44 @@ class Interpreters
 
                 nxball = NxBalls::makeNxBall([nx50["uuid"]])
 
-                Nx50s::accessContent(nx50)
+                accessWithOptionToEdit = lambda{|uuid|
+                    return if uuid.nil?
+                    object = CoreDataUtils::getObjectOrNull(uuid)
+                    if object["type"] == "text" then
+                        puts object["text"]
+                        return
+                    end
+                    if object["type"] == "url" then
+                        Utils::openUrlUsingSafari(object["url"])
+                    end
+                    if object["type"] == "aion-point" then
+                        AionCore::exportHashAtFolder(CoreDataElizabeth.new(), object["nhash"], "/Users/pascal/Desktop")
+                    end
+                }
 
-                command = LucilleCore::askQuestionAnswerAsString("#{Nx50s::toString(nx50).green} (>> (done), landing, skip (default), exit) : ")
+                accessWithOptionToEdit.call(nx50["coreDataId"])
+
+                command = LucilleCore::askQuestionAnswerAsString("#{Nx50s::toString(nx50).green} (done, landing, >>, exit) : ")
 
                 NxBalls::closeNxBall(nxball, false)
 
-                if command == ">>" then
+                if command == "done" then
                     Nx50s::complete(nx50)
                 end
 
                 if command == "landing" then
                     Nx50s::run(nx50)
+                    KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
+                end
+
+                if command == ">>" then
+                    KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
+                    next
                 end
 
                 if command == "exit" then
                     break
                 end
-
-                KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
             }
         end
 
