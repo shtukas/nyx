@@ -66,7 +66,7 @@ class Nx25s
         item
     end
 
-    # Nx08s::issueItemUsingURL(url)
+    # Nx25s::issueItemUsingURL(url)
     def self.issueItemUsingURL(url)
         uuid        = LucilleCore::timeStringL22()
         unixtime    = Time.new.to_f
