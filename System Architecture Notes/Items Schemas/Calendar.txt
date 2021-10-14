@@ -1,0 +1,7 @@
+
+CalendarItem = {
+    "date"        => YYYY-MM-DD
+    "description" => String
+    "folderpath"  => String
+    "domain"      => "(eva)"
+}
