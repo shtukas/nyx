@@ -133,7 +133,8 @@ class Anniversaries
               "description"  => description,
               "startdate"    => startdate,
               "repeatType"   => repeatType,
-              "lastCelebrationDate" => lastCelebrationDate
+              "lastCelebrationDate" => lastCelebrationDate,
+              "domain"       => "(eva)"
             }
 
         Anniversaries::commitAnniversaryToDisk(item)

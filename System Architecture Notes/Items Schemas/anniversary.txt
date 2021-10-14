@@ -1,10 +1,11 @@
 
-{
+Anniversary {
   "uuid"        : String,
   "unixtime"    : Float,
   "description" : String,
   "startdate"   : Date # YYYY-MM-DD,
   "repeatType"  : "weekly" | "monthly" | "yearly",
   "lastCelebrationDate": Date
+  "domain"      : Domain
 }
 
