@@ -77,12 +77,6 @@ class Interpreters
             JSON.pretty_generate(item)
         end
 
-        if Interpreting::match("vector", command) then
-            item = Vectors::issueNewWaveInteractivelyOrNull()
-            return if item.nil?
-            JSON.pretty_generate(item)
-        end
-
         if Interpreting::match("ondate", command) then
             item = NxOnDate::interactivelyIssueNewOrNull()
             return if item.nil?

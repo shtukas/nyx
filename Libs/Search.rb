@@ -13,8 +13,7 @@ class Search
         NxFloats::nx19s() +
         Nx08s::nx19s() +
         Nx51s::nx19s() +
-        Nx25s::nx19s() +
-        Vectors::nx19s()
+        Nx25s::nx19s()
     end
 
     # Search::existingUUIDS()

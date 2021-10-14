@@ -301,14 +301,6 @@ class Waves
                 next
             end
 
-            if Interpreting::match(">vector", command) then
-                filename = "#{wave["uuid"]}.json"
-                filepath1 = "#{Waves::itemsFolderPath()}/#{filename}"
-                filepath2 = "#{Vectors::itemsFolderPath()}/#{filename}"
-                FileUtils.mv(filepath1, filepath2)
-                break
-            end
-
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
                     Waves::destroy(wave)

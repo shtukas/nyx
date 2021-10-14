@@ -167,14 +167,13 @@ class Work
                 []
             end
 
-        a1 = Vectors::ns16s()
         a2 = (
             
             Nx51s::ns16s() +
             Work::interestFoldersNS16s()
         )
             .sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] }
-        a0+a1+a2
+        a0+a2
     end
 
     # Work::updateNxBallOrNothing()
