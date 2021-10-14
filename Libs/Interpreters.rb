@@ -43,12 +43,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversCommands()
     def self.makersAndDiversCommands()
-        "Nx08 | Nx25 | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "Nx08 | Nx25 | float | wave | ondate | calendar item | anniversary | Nx50 | vector (work wave) | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "Nx08 | Nx25 | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings)"
+        "Nx08 | Nx25 | float | wave | ondate | calendar item | anniversary | Nx50 | vector (work wave) | Nx61 (work floatings)"
     end
 
     # Interpreters::diversCommands()
@@ -58,12 +58,6 @@ class Interpreters
 
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
-
-        if command.start_with?("in:") then
-            item = Nx08s::interactivelyIssueNewOrNull()
-            return if item.nil?
-            JSON.pretty_generate(item)
-        end
 
         if Interpreting::match("float", command) then
             item = NxFloats::interactivelyCreateNewOrNull()
@@ -97,12 +91,6 @@ class Interpreters
 
         if Interpreting::match("Nx50", command) then
             item = Nx50s::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("Nx51", command) then
-            item = Nx51s::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
         end

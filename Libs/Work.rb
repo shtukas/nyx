@@ -12,23 +12,6 @@ class Work
         BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount())
     end
 
-    # Work::shouldBeActive()
-    def self.shouldBeActive()
-        # First check whether there is an explicit Yes (timed) override.
-        doWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workon-f3d1-4bdc-9605-cda59eee09cd", "0").to_f
-        return true if Time.new.to_i < doWorkUntilUnixtime
-
-        # Check whether there is an explicit No (timed) override
-        noWorkUntilUnixtime = KeyValueStore::getOrDefaultValue(nil, "workoff-feaf-44f6-8093-800d921ab6a7", "0").to_f
-        return false if Time.new.to_i < noWorkUntilUnixtime
-
-        return false if ![1, 2, 3, 4, 5].include?(Time.new.wday)
-
-        return false if Time.new.hour < 9
-
-        BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()) < 6
-    end
-
     # Work::workMenuCommands()
     def self.workMenuCommands()
         "(rt: #{BankExtended::stdRecoveredDailyTimeInHours(Work::bankaccount()).round(2)}) work on | work off"
@@ -71,23 +54,6 @@ class Work
         !Work::getNxBallOrNull().nil?
     end
 
-    # Work::presenceNS16()
-    def self.presenceNS16()
-        if Work::shouldBeActive() and !Work::isActive() then
-            [
-                {
-                    "uuid"        => "b0fbec50-7e53-4176-8c7f-fe7f452c1695:#{Utils::today()}",
-                    "announce"    => "[work] run to activate".green,
-                    "commands"    => [],
-                    "run"         => lambda{ Work::issueNxBallIfNotOne() },
-                    "interpreter" => nil
-                }
-            ]
-        else
-            []
-        end
-    end
-
     # Work::runFolder(folderpath)
     def self.runFolder(folderpath)
         uuid = "7b25dff2-b19d-4779-9721-d037d06135a5:#{folderpath}"
@@ -108,8 +74,10 @@ class Work
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Work::interestFoldersNS16s()
-    def self.interestFoldersNS16s()
+    # Work::interestFoldersNS16s(domain)
+    def self.interestFoldersNS16s(domain)
+
+        return [] if domain != "(work)" 
 
         getFolderUnixtime = lambda{|folderpath|
             filepath = "#{folderpath}/.unixtime-784971ed"
@@ -135,45 +103,7 @@ class Work
                     "unixtime-bd06fbf9" => getFolderUnixtime.call(folderpath)
                 }
             }
-    end
-
-    # Work::ns16s()
-    def self.ns16s()
-
-        if Work::shouldBeActive() and !Work::isActive() then
-            return [
-                {
-                    "uuid"        => "b0fbec50-7e53-4176-8c7f-fe7f452c1695:#{Utils::today()}",
-                    "announce"    => "[work] run to activate".green,
-                    "commands"    => [],
-                    "run"         => lambda{ Work::issueNxBallIfNotOne() },
-                    "interpreter" => nil
-                }
-            ]
-        end
-
-        a0 = 
-            if Work::isActive() and !Work::shouldBeActive() then
-                [
-                    {
-                        "uuid"        => "b0fbec50-7e53-4176-8c7f-fe7f452c1695:#{Utils::today()}",
-                        "announce"    => "[work] (work time overflow) run to disactivate".green,
-                        "commands"    => [],
-                        "run"         => lambda{ Work::close() },
-                        "interpreter" => nil
-                    }
-                ]
-            else
-                []
-            end
-
-        a2 = (
-            
-            Nx51s::ns16s() +
-            Work::interestFoldersNS16s()
-        )
-            .sort{|o1, o2| o1["unixtime-bd06fbf9"] <=> o2["unixtime-bd06fbf9"] }
-        a0+a2
+            .sort{|q1, q2| q1["unixtime-bd06fbf9"] <=> q2["unixtime-bd06fbf9"] }
     end
 
     # Work::updateNxBallOrNothing()

@@ -186,8 +186,6 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-
-        Bank::put("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 1)
     end
 
     # Waves::main()
@@ -409,25 +407,6 @@ class Waves
 
     # Waves::ns16s(domain)
     def self.ns16s(domain)
-        Waves::items()
-            .select{|item| item["domain"] == domain }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
-            .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
-            .reverse
-    end
-
-    # Waves::isCircuitBroken()
-    def self.isCircuitBroken()
-        return true if Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600) >= 10
-        return true if Beatrice::stdRecoveredHourlyTimeInHours("WAVES-TIME-75-42E8-85E2-F17E869DF4D3") >= 0.25
-        false
-    end
-
-    # Waves::ns16sWithCircuitBreaker(domain)
-    def self.ns16sWithCircuitBreaker(domain)
-        return [] if Waves::isCircuitBroken()
         Waves::items()
             .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

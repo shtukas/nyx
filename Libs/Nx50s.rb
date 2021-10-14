@@ -394,8 +394,7 @@ class Nx50s
             "run" => lambda {
                 Nx50s::run(nx50)
             },
-            "rt" => rt,
-            "unixtime-bd06fbf9" => nx50["unixtime"]
+            "rt" => rt
         }
     end
 
@@ -436,7 +435,7 @@ class Nx50s
             }
         end
 
-        if !(Waves::ns16sWithCircuitBreaker(domain)+Nx25s::ns16s(domain)).empty? then
+        if !(Waves::ns16s(domain)+Nx25s::ns16s(domain)).empty? then
             return []
         end
 

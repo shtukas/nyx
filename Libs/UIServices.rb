@@ -35,13 +35,12 @@ class NS16sOperator
             Anniversaries::ns16s(domain),
             Calendar::ns16s(domain),
             NxOnDate::ns16s(domain),
-            Nx08s::ns16s(domain),
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
-            Waves::ns16sWithCircuitBreaker(domain),
-            PriorityFile::ns16s(),
-            Work::isActive() ? Work::ns16s() : [Work::presenceNS16()] ,
+            Waves::ns16s(domain),
+            PriorityFile::ns16s(domain),
+            Work::interestFoldersNS16s(domain),
             Nx25s::ns16s(domain),
             Nx50s::ns16s(domain),
         ]
@@ -131,8 +130,8 @@ end
 
 class UIServices
 
-    # UIServices::mainView(ns16s)
-    def self.mainView(ns16s)
+    # UIServices::mainView(domain, ns16s)
+    def self.mainView(domain, ns16s)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
@@ -141,7 +140,7 @@ class UIServices
             Interpreters::listingCommands(),
             Interpreters::makersCommands(),
             Interpreters::diversCommands(),
-            "(wave: circuit-breaker: #{Bank::valueOverTimespan("WAVE-CIRCUIT-BREAKER-A-B8-4774-A416F", 3600)}, #{Beatrice::stdRecoveredHourlyTimeInHours("WAVES-TIME-75-42E8-85E2-F17E869DF4D3").round(2)}) (Nx50s: #{Nx50s::nx50s().count} items)",
+            "(Nx50s: #{Nx50s::nx50s().count} items)",
             Work::workMenuCommands(),
             InternetStatus::putsInternetCommands()
         ].join("\n").yellow
@@ -149,6 +148,10 @@ class UIServices
         vspaceleft = vspaceleft - Utils::verticalSize(infolines)
 
         store = ItemStore.new()
+
+        puts ""
+        puts "--> #{domain}".green
+        vspaceleft = vspaceleft - 2
 
         if Work::isActive() then
             puts ""
@@ -268,15 +271,6 @@ class Fsck
 
         Anniversaries::anniversaries().each{|item|
             puts JSON.pretty_generate(item)
-        }
-
-        Nx08s::items().each{|item|
-            puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["coreDataId"])
-            if !status then
-                puts "Failed!".red
-                exit
-            end
         }
 
         NxFloats::nxfloats().each{|item|

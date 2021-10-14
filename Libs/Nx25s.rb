@@ -180,7 +180,6 @@ class Nx25s
             "done & destroy",
             "not today",
             "recast as Nx50",
-            "recast as Nx51",
             "replace by new Catalyst item"
         ]
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("actions", actions)
@@ -207,23 +206,6 @@ class Nx25s
                 "domain"      => "(eva)"
             }
             Nx50s::commitNx50ToDatabase(item)
-            Nx25s::destroy(item)
-        end
-
-        if action == "recast as Nx51" then
-            description = if item["description"].start_with?("Screenshot") then 
-                                LucilleCore::askQuestionAnswerAsString("description: ")
-                          else
-                                item["description"]
-                          end
-            item = {
-                "uuid"        => item["uuid"],
-                "unixtime"    => item["unixtime"],
-                "description" => item["description"],
-                "coreDataId"  => item["coreDataId"],
-                "domain"      => "(eva)"
-            }
-            Nx51s::commitItemToDisk(item)
             Nx25s::destroy(item)
         end
 
