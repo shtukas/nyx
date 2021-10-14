@@ -56,7 +56,8 @@ class Nx61s
                     item = {
                         "uuid"        => SecureRandom.uuid,
                         "unixtime"    => Time.new.to_f,
-                        "description" => File.basename(folderpath)
+                        "description" => File.basename(folderpath),
+                        "domain"      => "(work)"
                     }
                     File.open(itemfilepath, "w"){|f| f.puts(JSON.pretty_generate(item))}
                 end
@@ -94,7 +95,8 @@ class Nx61s
         item = {
             "uuid"        => uuid,
             "unixtime"    => unixtime,
-            "description" => description
+            "description" => description,
+            "domain"      => "(work)"
         }
         Nx61s::commitItemToDisk(item)
         folderpath = Nx61s::folderpathForUUIDOrNull(uuid)

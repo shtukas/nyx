@@ -53,15 +53,16 @@ class NxFloats
             return nil
         end
 
-        unixtime     = Time.new.to_f
+        unixtime = Time.new.to_f
 
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         float = {
-          "uuid"           => uuid,
-          "unixtime"       => unixtime,
-          "description"    => description,
-          "coreDataId"        => coreDataId
+          "uuid"        => uuid,
+          "unixtime"    => unixtime,
+          "description" => description,
+          "coreDataId"  => coreDataId,
+          "domain"      => "(eva)"
         }
 
         NxFloats::commitFloatToDisk(float)
