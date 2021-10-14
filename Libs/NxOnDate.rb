@@ -42,7 +42,7 @@ class NxOnDate # OnDate
     def self.interactivelyIssueNewOrNull()
         uuid = LucilleCore::timeStringL22()
 
-        unixtime     = Time.new.to_f
+        unixtime = Time.new.to_f
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
         if description == "" then
@@ -59,7 +59,8 @@ class NxOnDate # OnDate
               "unixtime"    => unixtime,
               "description" => description,
               "date"        => date,
-              "coreDataId"  => coreDataId
+              "coreDataId"  => coreDataId,
+              "domain"      => "(eva)"
             }
 
         NxOnDate::commitItemToDisk(item)
@@ -77,7 +78,8 @@ class NxOnDate # OnDate
             "unixtime"    => unixtime,
             "description" => description,
             "date"        => date,
-            "coreDataId"  => coreDataId
+            "coreDataId"  => coreDataId,
+            "domain"      => "(eva)"
         })
         NxOnDate::getNxOnDateByUUIDOrNull(uuid)
     end

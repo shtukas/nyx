@@ -156,7 +156,8 @@ class Waves
           "coreDataId"       => coreDataId,
           "repeatType"       => repeatType,
           "repeatValue"      => repeatValue,
-          "lastDoneDateTime" => lastDoneDateTime
+          "lastDoneDateTime" => lastDoneDateTime,
+          "domain"           => "(eva)"
         }
         Waves::commitItemToDisk(wave)
         wave

@@ -165,10 +165,11 @@ class Vectors
           "uuid"             => uuid,
           "unixtime"         => unixtime,
           "description"      => description,
-          "coreDataId"          => coreDataId,
+          "coreDataId"       => coreDataId,
           "repeatType"       => repeatType,
           "repeatValue"      => repeatValue,
-          "lastDoneDateTime" => lastDoneDateTime
+          "lastDoneDateTime" => lastDoneDateTime,
+          "domain"           => "(work)"
         }
         Vectors::commitItemToDisk(vector)
         vector
