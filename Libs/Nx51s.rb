@@ -101,6 +101,7 @@ class Nx51s
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(work)"
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -115,6 +116,7 @@ class Nx51s
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(work)"
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
@@ -129,6 +131,7 @@ class Nx51s
             "unixtime"    => Time.new.to_i,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(work)"
         })
         Nx51s::getItemByUUIDOrNull(uuid)
     end
