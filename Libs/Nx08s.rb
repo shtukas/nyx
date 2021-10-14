@@ -215,9 +215,9 @@ class Nx08s # OnDate
         end
 
         if action == "replace by new Catalyst item" then
-            puts Interpreters::mainMenuCommands().yellow
+            puts Interpreters::makersAndDiversCommands().yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
-            Interpreters::mainMenuInterpreter(command)
+            Interpreters::makersAndDiversInterpreter(command)
             Nx08s::destroy(item)
         end
 

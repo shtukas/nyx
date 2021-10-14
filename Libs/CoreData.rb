@@ -234,7 +234,7 @@ class CoreData
 
     # CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
     def self.interactivelyCreateANewDataObjectReturnIdOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("axiom type", ["text", "url", "location"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["text", "url", "location"])
         return nil if type.nil?
         if type == "text" then
             text = CoreDataUtils::editTextSynchronously("")

@@ -6,7 +6,7 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-puts Interpreters::mainMenuCommands().yellow
+puts Interpreters::makersAndDiversCommands().yellow
 command = LucilleCore::askQuestionAnswerAsString("> ")
-Interpreters::mainMenuInterpreter(command)
+Interpreters::makersAndDiversInterpreter(command)
 

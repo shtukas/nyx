@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        "[listing] .. | <n> | <datecode> | hide <n> <datecode> | expose"
+        ".. | <n> | <datecode> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(store, command)
@@ -41,13 +41,23 @@ class Interpreters
         end
     end
 
-    # Interpreters::mainMenuCommands()
-    def self.mainMenuCommands()
-        "[general] Nx08 | Nx25 | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+    # Interpreters::makersAndDiversCommands()
+    def self.makersAndDiversCommands()
+        "Nx08 | Nx25 | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
-    # Interpreters::mainMenuInterpreter(command)
-    def self.mainMenuInterpreter(command)
+    # Interpreters::makersCommands()
+    def self.makersCommands()
+        "Nx08 | Nx25 | float | wave | ondate | calendar item | anniversary | Nx50 | Nx51 | vector (work wave) | Nx61 (work floatings)"
+    end
+
+    # Interpreters::diversCommands()
+    def self.diversCommands()
+        "waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+    end
+
+    # Interpreters::makersAndDiversInterpreter(command)
+    def self.makersAndDiversInterpreter(command)
 
         if command.start_with?("in:") then
             item = Nx08s::interactivelyIssueNewOrNull()
@@ -67,7 +77,7 @@ class Interpreters
             JSON.pretty_generate(item)
         end
 
-        if Interpreting::match("wave", command) then
+        if Interpreting::match("vector", command) then
             item = Vectors::issueNewWaveInteractivelyOrNull()
             return if item.nil?
             JSON.pretty_generate(item)

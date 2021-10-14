@@ -137,22 +137,10 @@ class Waves
         uuid         = SecureRandom.uuid
         unixtime     = Time.new.to_i
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("content type", ["line", "url"])
-        return nil if type.nil?
+        description = LucilleCore::askQuestionAnswerAsString("description: ")
+        return nil if description == ""
 
-        description  = nil
-        coreDataId      = nil
-
-        if type == "line" then
-            description    = LucilleCore::askQuestionAnswerAsString("line: ")
-        end
-
-        if type == "url" then
-            url            = LucilleCore::askQuestionAnswerAsString("url: ")
-            coreDataId        = SecureRandom.uuid
-            description    = url
-            CoreData::issueUrlPointDataObjectUsingUrl(url)
-        end
+        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
@@ -165,7 +153,7 @@ class Waves
           "uuid"             => uuid,
           "unixtime"         => unixtime,
           "description"      => description,
-          "coreDataId"          => coreDataId,
+          "coreDataId"       => coreDataId,
           "repeatType"       => repeatType,
           "repeatValue"      => repeatValue,
           "lastDoneDateTime" => lastDoneDateTime
@@ -254,7 +242,7 @@ class Waves
 
             puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | >vector | destroy".yellow
 
-            puts Interpreters::mainMenuCommands().yellow
+            puts Interpreters::makersAndDiversCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -327,7 +315,7 @@ class Waves
                 end
             end
 
-            Interpreters::mainMenuInterpreter(command)
+            Interpreters::makersAndDiversInterpreter(command)
         }
 
         NxBalls::closeNxBall(nxball, true)

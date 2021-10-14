@@ -243,7 +243,7 @@ class NxOnDate # OnDate
             }
 
             puts "<item index> | (empty) # exit".yellow
-            puts Interpreters::mainMenuCommands().yellow
+            puts Interpreters::makersAndDiversCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -255,7 +255,7 @@ class NxOnDate # OnDate
                 NxOnDate::run(item)
             end
 
-            Interpreters::mainMenuInterpreter(command)
+            Interpreters::makersAndDiversInterpreter(command)
         }
     end
 

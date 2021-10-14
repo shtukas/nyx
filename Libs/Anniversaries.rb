@@ -206,7 +206,7 @@ class Anniversaries
             puts Anniversaries::toString(anniversary).green
 
             puts "update start date | destroy".yellow
-            puts Interpreters::mainMenuCommands().yellow
+            puts Interpreters::makersAndDiversCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
@@ -226,7 +226,7 @@ class Anniversaries
                 break
             end
 
-            Interpreters::mainMenuInterpreter(command)
+            Interpreters::makersAndDiversInterpreter(command)
         }
     end
 

@@ -254,7 +254,7 @@ class Vectors
 
             puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | destroy".yellow
 
-            puts Interpreters::mainMenuCommands().yellow
+            puts Interpreters::makersAndDiversCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -319,7 +319,7 @@ class Vectors
                 end
             end
 
-            Interpreters::mainMenuInterpreter(command)
+            Interpreters::makersAndDiversInterpreter(command)
         }
 
         NxBalls::closeNxBall(nxball, true)
