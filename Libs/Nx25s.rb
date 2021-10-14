@@ -262,8 +262,8 @@ class Nx25s
         }
     end
 
-    # Nx25s::ns16s()
-    def self.ns16s()
+    # Nx25s::ns16s(domain)
+    def self.ns16s(domain)
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/After Hours, ASAP (Nx25)").each{|location|
             puts "[Nx25] #{location}"
             Nx25s::issueItemUsingLocation(location)
@@ -272,6 +272,7 @@ class Nx25s
         }
 
         Nx25s::items()
+            .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| Nx25s::itemToNS16(item) }

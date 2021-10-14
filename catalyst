@@ -14,5 +14,6 @@ Thread.new {
 }
 
 loop {
-    UIServices::mainView(NS16sOperator::ns16s())
+    domain = "(eva)"
+    UIServices::mainView(NS16sOperator::ns16s(domain))
 }

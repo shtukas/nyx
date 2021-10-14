@@ -415,9 +415,10 @@ class Waves
         n1["uuid"] <=> n2["uuid"]
     end
 
-    # Waves::ns16s()
-    def self.ns16s()
+    # Waves::ns16s(domain)
+    def self.ns16s(domain)
         Waves::items()
+            .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }
@@ -432,10 +433,11 @@ class Waves
         false
     end
 
-    # Waves::ns16sWithCircuitBreaker()
-    def self.ns16sWithCircuitBreaker()
+    # Waves::ns16sWithCircuitBreaker(domain)
+    def self.ns16sWithCircuitBreaker(domain)
         return [] if Waves::isCircuitBroken()
         Waves::items()
+            .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }

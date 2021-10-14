@@ -255,8 +255,8 @@ class Nx08s # OnDate
         }
     end
 
-    # Nx08s::ns16s()
-    def self.ns16s()
+    # Nx08s::ns16s(domain)
+    def self.ns16s(domain)
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Buffer In (Nx08s)").each{|location|
             puts "[Nx08] #{location}"
             Nx08s::issueItemUsingLocation(location)
@@ -265,6 +265,7 @@ class Nx08s # OnDate
         }
 
         Nx08s::items()
+            .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| Nx08s::itemToNS16(item) }

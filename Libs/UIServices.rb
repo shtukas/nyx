@@ -29,21 +29,21 @@ class AmandaBins
 end
 
 class NS16sOperator
-    # NS16sOperator::ns16s()
-    def self.ns16s()
+    # NS16sOperator::ns16s(domain)
+    def self.ns16s(domain)
         [
-            Anniversaries::ns16s(),
-            Calendar::ns16s(),
-            NxOnDate::ns16s(),
-            Nx08s::ns16s(),
+            Anniversaries::ns16s(domain),
+            Calendar::ns16s(domain),
+            NxOnDate::ns16s(domain),
+            Nx08s::ns16s(domain),
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
-            Waves::ns16sWithCircuitBreaker(),
+            Waves::ns16sWithCircuitBreaker(domain),
             PriorityFile::ns16s(),
             Work::isActive() ? Work::ns16s() : [Work::presenceNS16()] ,
-            Nx25s::ns16s(),
-            Nx50s::ns16s(),
+            Nx25s::ns16s(domain),
+            Nx50s::ns16s(domain),
         ]
             .flatten
             .compact

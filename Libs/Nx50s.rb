@@ -399,8 +399,8 @@ class Nx50s
         }
     end
 
-    # Nx50s::ns16s()
-    def self.ns16s()
+    # Nx50s::ns16s(domain)
+    def self.ns16s(domain)
 
         locations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop/The End Of The Queue (Nx50s)")
 
@@ -436,11 +436,12 @@ class Nx50s
             }
         end
 
-        if !(Waves::ns16sWithCircuitBreaker()+Nx25s::ns16s()).empty? then
+        if !(Waves::ns16sWithCircuitBreaker(domain)+Nx25s::ns16s(domain)).empty? then
             return []
         end
 
         ns16s = Nx50s::nx50s()
+            .select{|item| item["domain"] == domain }
             .reduce([]){|object, nx50|
                 if object.size < 5 then
                     ns16 = Nx50s::ns16OrNull(nx50)

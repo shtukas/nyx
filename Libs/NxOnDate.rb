@@ -222,9 +222,10 @@ class NxOnDate # OnDate
         }
     end
 
-    # NxOnDate::ns16s()
-    def self.ns16s()
+    # NxOnDate::ns16s(domain)
+    def self.ns16s(domain)
         NxOnDate::items()
+            .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }
