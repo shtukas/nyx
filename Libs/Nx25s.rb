@@ -58,7 +58,8 @@ class Nx25s
               "uuid"        => uuid,
               "unixtime"    => unixtime,
               "description" => description,
-              "coreDataId"  => coreDataId
+              "coreDataId"  => coreDataId,
+              "domain"      => "(eva)"
             }
 
         Nx25s::commitItemToDisk(item)
@@ -77,6 +78,7 @@ class Nx25s
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(eva)"
         })
         Nx25s::getItemByUUIDOrNull(uuid)
     end
@@ -91,6 +93,7 @@ class Nx25s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(eva)"
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -102,7 +105,8 @@ class Nx25s
           "uuid"        => uuid,
           "unixtime"    => Time.new.to_f,
           "description" => line,
-          "coreDataId"     => nil
+          "coreDataId"  => nil,
+          "domain"      => "(eva)"
         }
         Nx25s::commitItemToDisk(item)
         Nx25s::getItemByUUIDOrNull(uuid)
@@ -118,6 +122,7 @@ class Nx25s
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(eva)"
         })
         Nx25s::getItemByUUIDOrNull(uuid)
     end
@@ -198,7 +203,8 @@ class Nx25s
                 "uuid"        => item["uuid"],
                 "unixtime"    => item["unixtime"],
                 "description" => item["description"],
-                "coreDataId"     => item["coreDataId"]
+                "coreDataId"  => item["coreDataId"],
+                "domain"      => "(eva)"
             }
             Nx50s::commitNx50ToDatabase(item)
             Nx25s::destroy(item)
@@ -214,7 +220,8 @@ class Nx25s
                 "uuid"        => item["uuid"],
                 "unixtime"    => item["unixtime"],
                 "description" => item["description"],
-                "coreDataId"     => item["coreDataId"]
+                "coreDataId"  => item["coreDataId"],
+                "domain"      => "(eva)"
             }
             Nx51s::commitItemToDisk(item)
             Nx25s::destroy(item)
