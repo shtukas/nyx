@@ -5,4 +5,5 @@ CREATE TABLE _items_ (_uuid_ text, _unixtime_ real, _description_ text, _coreDat
     "unixtime"    : Float
     "description" : String
     "coreDataId"  : String | null
+    "domain"      : Domain
 }

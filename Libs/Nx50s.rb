@@ -19,7 +19,8 @@ class Nx50s
                 "uuid"        => row["_uuid_"],
                 "unixtime"    => row["_unixtime_"],
                 "description" => row["_description_"],
-                "coreDataId"  => row["_coreDataId_"]
+                "coreDataId"  => row["_coreDataId_"],
+                "domain"      => "(eva)"
             }
         end
         db.close
@@ -50,7 +51,8 @@ class Nx50s
                 "uuid"        => row["_uuid_"],
                 "unixtime"    => row["_unixtime_"],
                 "description" => row["_description_"],
-                "coreDataId"  => row["_coreDataId_"]
+                "coreDataId"  => row["_coreDataId_"],
+                "domain"      => "(eva)"
             }
         end
         db.close
@@ -130,6 +132,7 @@ class Nx50s
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(eva)"
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -144,6 +147,7 @@ class Nx50s
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(eva)"
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -158,6 +162,7 @@ class Nx50s
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => "(eva)"
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
