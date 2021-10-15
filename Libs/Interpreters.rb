@@ -43,24 +43,24 @@ class Interpreters
 
     # Interpreters::makersAndDiversCommands()
     def self.makersAndDiversCommands()
-        "float | wave | ondate | calendar item | anniversary | Nx50 | vector (work wave) | waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "open | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "float | wave | ondate | calendar item | anniversary | Nx50 | vector (work wave)"
+        "open | wave | ondate | anniversary | Nx50"
     end
 
     # Interpreters::diversCommands()
     def self.diversCommands()
-        "waves | ondates | calendar | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
-        if Interpreting::match("float", command) then
-            item = NxFloats::interactivelyCreateNewOrNull()
+        if Interpreting::match("open", command) then
+            item = OpenThreadsPoints::interactivelyCreateNewOrNull()
             return if item.nil?
             JSON.pretty_generate(item)
         end
@@ -73,12 +73,6 @@ class Interpreters
 
         if Interpreting::match("ondate", command) then
             item = NxOnDate::interactivelyIssueNewOrNull()
-            return if item.nil?
-            JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("calendar item", command) then
-            item = Calendar::interactivelyIssueNewCalendarItem()
             return if item.nil?
             JSON.pretty_generate(item)
         end

@@ -1,5 +1,5 @@
 Nx19 (search item) {
-    "uuid"     : String # unique uuid of the payload
+    "uuid"     : String
     "announce" : String
     "lambda"   : Lambda: () -> () # Performs landing on the selected element
 }

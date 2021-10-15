@@ -1,42 +1,42 @@
 # encoding: UTF-8
 
-class NxFloats
+class OpenThreadsPoints
 
     # --------------------------------------------------
     # IO
 
-    # NxFloats::itemsFolderPath()
+    # OpenThreadsPoints::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/NxFloats"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/OpenThreadsPoints"
     end
 
-    # NxFloats::commitFloatToDisk(float)
+    # OpenThreadsPoints::commitFloatToDisk(float)
     def self.commitFloatToDisk(float)
         filename = "#{float["uuid"]}.json"
-        filepath = "#{NxFloats::itemsFolderPath()}/#{filename}"
+        filepath = "#{OpenThreadsPoints::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(float)) }
     end
 
-    # NxFloats::nxfloats()
-    def self.nxfloats()
-        LucilleCore::locationsAtFolder(NxFloats::itemsFolderPath())
+    # OpenThreadsPoints::items()
+    def self.items()
+        LucilleCore::locationsAtFolder(OpenThreadsPoints::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
             .sort{|f1, f2| f1["unixtime"] <=> f2["unixtime"] }
     end
 
-    # NxFloats::getNxFloatByUUIDOrNull(uuid)
+    # OpenThreadsPoints::getNxFloatByUUIDOrNull(uuid)
     def self.getNxFloatByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{NxFloats::itemsFolderPath()}/#{filename}"
+        filepath = "#{OpenThreadsPoints::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NxFloats::destroy(item)
+    # OpenThreadsPoints::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxFloats::itemsFolderPath()}/#{filename}"
+        filepath = "#{OpenThreadsPoints::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -44,7 +44,7 @@ class NxFloats
     # --------------------------------------------------
     # Making
 
-    # NxFloats::interactivelyCreateNewOrNull()
+    # OpenThreadsPoints::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         uuid = LucilleCore::timeStringL22()
 
@@ -65,7 +65,7 @@ class NxFloats
           "domain"      => "(eva)"
         }
 
-        NxFloats::commitFloatToDisk(float)
+        OpenThreadsPoints::commitFloatToDisk(float)
 
         float
     end
@@ -73,12 +73,12 @@ class NxFloats
     # --------------------------------------------------
     # Operations
 
-    # NxFloats::toString(item)
+    # OpenThreadsPoints::toString(item)
     def self.toString(item)
         "[float] #{item["description"]}"
     end
 
-    # NxFloats::accessContent(item)
+    # OpenThreadsPoints::accessContent(item)
     def self.accessContent(item)
         if item["coreDataId"].nil? then
             puts "description: #{item["description"]}"
@@ -90,38 +90,38 @@ class NxFloats
 
     # --------------------------------------------------
 
-    # NxFloats::run(nxfloat)
+    # OpenThreadsPoints::run(nxfloat)
     def self.run(nxfloat)
-        puts NxFloats::toString(nxfloat)
-        NxFloats::accessContent(nxfloat)
-        if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{NxFloats::toString(nxfloat)}' ? ") then
-            NxFloats::destroy(nxfloat)
+        puts OpenThreadsPoints::toString(nxfloat)
+        OpenThreadsPoints::accessContent(nxfloat)
+        if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{OpenThreadsPoints::toString(nxfloat)}' ? ") then
+            OpenThreadsPoints::destroy(nxfloat)
         end
     end
 
-    # NxFloats::nx19s()
+    # OpenThreadsPoints::nx19s()
     def self.nx19s()
-        NxFloats::nxfloats().map{|item|
+        OpenThreadsPoints::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => NxFloats::toString(item),
-                "lambda"   => lambda { NxFloats::run(item) }
+                "announce" => OpenThreadsPoints::toString(item),
+                "lambda"   => lambda { OpenThreadsPoints::run(item) }
             }
         }
     end
 end
 
-class FolderOfInterest
+class OpenThreadsDesktopFolders
 
-    # FolderOfInterest::runFolder(folderpath)
+    # OpenThreadsDesktopFolders::runFolder(folderpath)
     def self.runFolder(folderpath)
         system("clear")
-        puts "[work] (fldr) #{File.basename(folderpath)}".green
+        puts "(fldr) #{File.basename(folderpath)}".green
         system("open '#{folderpath}'")
         LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ")
     end
 
-    # FolderOfInterest::items(domain)
+    # OpenThreadsDesktopFolders::items(domain)
     def self.items(domain)
 
         return [] if domain != "(work)" 
@@ -134,15 +134,13 @@ class FolderOfInterest
             IO.read(filepath).strip.to_f
         }
 
-        rootfolderpath = Utils::locationByUniqueStringOrNull("8ead151f04")
-        return [] if rootfolderpath.nil?
-        LucilleCore::locationsAtFolder(rootfolderpath)
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Open Threads")
             .map{|folderpath|
-                announce = "[fldr] #{File.basename(folderpath)}".gsub("(0.00)", "      ")
+                announce = "[fldr] #{File.basename(folderpath)}"
                 {
                     "unixtime"     => getFolderUnixtime.call(folderpath),
                     "announce"     => announce,
-                    "run"          => lambda{ FolderOfInterest::runFolder(folderpath) },
+                    "run"          => lambda{ OpenThreadsDesktopFolders::runFolder(folderpath) },
                 }
             }
     end
@@ -152,20 +150,34 @@ class OpenThreads
 
     # OpenThreads::objects(domain)
     def self.objects(domain)
-        # We expect "announce" and "run"
 
-        o1 = NxFloats::nxfloats()
+        o1 = OpenThreadsPoints::items()
                 .map{|float|
                     {
                         "unixtime" => float["unixtime"],
-                        "announce" => NxFloats::toString(float).gsub("float", "floa"),
-                        "run"      => lambda { NxFloats::run(float)}
+                        "announce" => OpenThreadsPoints::toString(float).gsub("float", "floa"),
+                        "run"      => lambda { OpenThreadsPoints::run(float)}
                     }
                 }
 
-        o2 = FolderOfInterest::items(domain)
+        o2 = OpenThreadsDesktopFolders::items(domain)
 
         (o1+o2).sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        
+        #{
+        #    "announce"
+        #    "run"
+        #}
     end
 
+    # OpenThreads::ns19s()
+    def self.ns19s()
+        OpenThreads::objects(domain).map{|item|
+            {
+                "uuid"     => SecureRandom.uuid,
+                "announce" => item["announce"],
+                "lambda"   => lambda { item["run"].call() }
+            }
+        }
+    end
 end

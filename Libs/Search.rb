@@ -5,13 +5,13 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
+        OpenThreads::nx19s() + 
         Anniversaries::nx19s() +
         Calendar::nx19s() +
         NxOnDate::nx19s() +
-        Nx50s::nx19s() +
+        Inbox::nx19s() +
         Waves::nx19s() +
-        NxFloats::nx19s() + 
-        Inbox::nx19s()
+        Nx50s::nx19s()
     end
 
     # Search::existingUUIDS()

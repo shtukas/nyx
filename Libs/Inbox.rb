@@ -4,7 +4,7 @@ class Inbox
 
     # Inbox::repository()
     def self.repository()
-        "/Users/pascal/Desktop/Catalyst Inbox"
+        "/Users/pascal/Desktop/Inbox"
     end
 
     # Inbox::ns16s()
