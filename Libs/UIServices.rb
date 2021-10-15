@@ -40,7 +40,7 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             PriorityFile::ns16s(domain),
-            FolderOfInterest::items(domain),
+            Inbox::ns16s(),
             Nx50s::ns16s(domain),
         ]
             .flatten
@@ -136,11 +136,11 @@ class UIServices
         vspaceleft = Utils::screenHeight()-5
 
         infolines = [
-            Interpreters::listingCommands(),
-            Interpreters::makersCommands(),
-            Interpreters::diversCommands(),
-            Domain::domainsMenuCommands(),
-            InternetStatus::putsInternetCommands()
+            "      " + Interpreters::listingCommands(),
+            "      " + Interpreters::makersCommands(),
+            "      " + Interpreters::diversCommands(),
+            "      " + Domain::domainsMenuCommands(),
+            "      " + InternetStatus::putsInternetCommands()
         ].join("\n").yellow
 
         vspaceleft = vspaceleft - Utils::verticalSize(infolines)
@@ -158,7 +158,12 @@ class UIServices
         end
 
         puts ""
-        vspaceleft = vspaceleft - 1
+        puts "commands:"
+        puts infolines
+
+        puts ""
+        puts "open threads:"
+        vspaceleft = vspaceleft - 2
         OpenThreads::objects(domain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
@@ -166,6 +171,9 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
+        puts ""
+        puts "todo:"
+        vspaceleft = vspaceleft - 2
         detachedRunnings = DetachedRunning::ns16s()
         if detachedRunnings.size > 0 then
             puts ""
@@ -184,7 +192,6 @@ class UIServices
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
-        puts ""
         if ns16s.size > 0 then
             store.registerDefault(ns16s[0])
         end
@@ -201,11 +208,6 @@ class UIServices
             }
 
         puts ""
-
-        puts infolines
-
-        puts ""
-
         command = LucilleCore::askQuestionAnswerAsString("> ")
 
         return if command == ""
