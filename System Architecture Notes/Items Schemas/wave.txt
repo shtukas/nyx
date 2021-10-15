@@ -1,4 +1,4 @@
-{
+Wave {
   "uuid"            : String,
   "unixtime"        : Float,
   "description"     : String,

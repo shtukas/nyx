@@ -19,16 +19,6 @@ class PriorityFile
         FileUtils.cp(filepath, targetFilePath)
     end
 
-    # PriorityFile::recastSectionAsNx25(filepath, section)
-    def self.recastSectionAsNx25(filepath, section)
-        PriorityFile::catalystSafe(filepath)
-        item = Nx25s::issueItemUsingText(section.strip, Time.new.to_i)
-        puts JSON.pretty_generate(item)
-        text = IO.read(filepath)
-        text = text.gsub(section, "")
-        File.open(filepath, "w"){|f| f.puts(text) }
-    end
-
     # PriorityFile::recastSectionAsOndate(filepath, section)
     def self.recastSectionAsOndate(filepath, section)
         PriorityFile::catalystSafe(filepath)
@@ -88,7 +78,7 @@ class PriorityFile
             puts ""
             puts section.green
             puts ""
-            puts "access | [] | >Nx25 | >ondate | >Nx50 | exit (default)".yellow
+            puts "access | [] | >ondate | >Nx50 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
@@ -108,11 +98,6 @@ class PriorityFile
                 File.open(filepath, "w"){|f| f.puts(text) }
                 section = section2
                 next
-            end
-
-            if command == ">Nx25" then
-                PriorityFile::recastSectionAsNx25(filepath, section)
-                break
             end
 
             if command == ">ondate" then
@@ -153,7 +138,7 @@ class PriorityFile
             {
                 "uuid"        => uuid,
                 "announce"    => (sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green,
-                "commands"    => ["..", "[]", ">Nx25", ">ondate", ">Nx50"],
+                "commands"    => ["..", "[]", ">ondate", ">Nx50"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
                         PriorityFile::run(filepath, section)
@@ -164,9 +149,6 @@ class PriorityFile
                         text = IO.read(filepath)
                         text = text.gsub(section, section2)
                         File.open(filepath, "w"){|f| f.puts(text) }
-                    end
-                    if command == ">Nx25" then
-                        PriorityFile::recastSectionAsNx25(filepath, section)
                     end
                     if command == ">ondate" then
                         PriorityFile::recastSectionAsOndate(filepath, section)

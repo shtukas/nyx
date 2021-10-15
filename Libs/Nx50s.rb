@@ -20,7 +20,7 @@ class Nx50s
                 "unixtime"    => row["_unixtime_"],
                 "description" => row["_description_"],
                 "coreDataId"  => row["_coreDataId_"],
-                "domain"      => "(eva)"
+                "domain"      => row["_domain_"]
             }
         end
         db.close
@@ -34,7 +34,7 @@ class Nx50s
         db.busy_handler { |count| true }
         db.transaction 
         db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
-        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _coreDataId_) values (?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["coreDataId"]]
+        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _coreDataId_, _domain_) values (?,?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["coreDataId"], item["domain"]]
         db.commit 
         db.close
     end
@@ -52,7 +52,7 @@ class Nx50s
                 "unixtime"    => row["_unixtime_"],
                 "description" => row["_description_"],
                 "coreDataId"  => row["_coreDataId_"],
-                "domain"      => "(eva)"
+                "domain"      => row["_domain_"]
             }
         end
         db.close
@@ -127,12 +127,13 @@ class Nx50s
         end
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
+        domain = Domain::interactivelySelectDomain()
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
-            "domain"      => "(eva)"
+            "domain"      => domain
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -142,12 +143,13 @@ class Nx50s
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         coreDataId      = CoreData::issueTextDataObjectUsingText(text)
+        domain = Domain::interactivelySelectDomain()
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
-            "domain"      => "(eva)"
+            "domain"      => domain
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -157,12 +159,29 @@ class Nx50s
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
         coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
+        domain = Domain::interactivelySelectDomain()
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
-            "domain"      => "(eva)"
+            "domain"      => domain
+        })
+        Nx50s::getNx50ByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueItemUsingURL(url domain)
+    def self.issueItemUsingURL(url, domain)
+        uuid        = LucilleCore::timeStringL22()
+        unixtime    = Time.new.to_f
+        description = url
+        coreDataId = CoreData::issueUrlPointDataObjectUsingUrl(url)
+        Nx50s::commitNx50ToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "coreDataId"  => coreDataId,
+            "domain"      => domain
         })
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
@@ -433,10 +452,6 @@ class Nx50s
                 Nx50s::issueItemUsingLocation(location, cursor)
                 LucilleCore::removeFileSystemLocation(location)
             }
-        end
-
-        if !(Waves::ns16s(domain)+Nx25s::ns16s(domain)).empty? then
-            return []
         end
 
         ns16s = Nx50s::nx50s()
