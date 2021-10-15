@@ -7,7 +7,7 @@ class NxFloats
 
     # NxFloats::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxFloats"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/NxFloats"
     end
 
     # NxFloats::commitFloatToDisk(float)
@@ -109,4 +109,63 @@ class NxFloats
             }
         }
     end
+end
+
+class FolderOfInterest
+
+    # FolderOfInterest::runFolder(folderpath)
+    def self.runFolder(folderpath)
+        system("clear")
+        puts "[work] (fldr) #{File.basename(folderpath)}".green
+        system("open '#{folderpath}'")
+        LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ")
+    end
+
+    # FolderOfInterest::items(domain)
+    def self.items(domain)
+
+        return [] if domain != "(work)" 
+
+        getFolderUnixtime = lambda{|folderpath|
+            filepath = "#{folderpath}/.unixtime-784971ed"
+            if !File.exists?(filepath) then
+                File.open(filepath, "w") {|f| f.puts(Time.new.to_f)}
+            end
+            IO.read(filepath).strip.to_f
+        }
+
+        rootfolderpath = Utils::locationByUniqueStringOrNull("8ead151f04")
+        return [] if rootfolderpath.nil?
+        LucilleCore::locationsAtFolder(rootfolderpath)
+            .map{|folderpath|
+                announce = "[fldr] #{File.basename(folderpath)}".gsub("(0.00)", "      ")
+                {
+                    "unixtime"     => getFolderUnixtime.call(folderpath),
+                    "announce"     => announce,
+                    "run"          => lambda{ FolderOfInterest::runFolder(folderpath) },
+                }
+            }
+    end
+end
+
+class OpenThreads
+
+    # OpenThreads::objects(domain)
+    def self.objects(domain)
+        # We expect "announce" and "run"
+
+        o1 = NxFloats::nxfloats()
+                .map{|float|
+                    {
+                        "unixtime" => float["unixtime"],
+                        "announce" => NxFloats::toString(float).gsub("float", "floa"),
+                        "run"      => lambda { NxFloats::run(float)}
+                    }
+                }
+
+        o2 = FolderOfInterest::items(domain)
+
+        (o1+o2).sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+    end
+
 end

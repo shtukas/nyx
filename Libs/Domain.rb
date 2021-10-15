@@ -20,7 +20,7 @@ class Domain
 
     # Domain::domainsMenuCommands()
     def self.domainsMenuCommands()
-        "eva | work (rt: #{Work::recoveryTime().round(2)})"
+        "eva | work (rt: #{Work::recoveryTime().round(2)}) (Nx50s: #{Nx50s::nx50s().count} items)"
     end
 
     # Domain::domainsCommandInterpreter(command)

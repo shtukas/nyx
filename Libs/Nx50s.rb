@@ -4,7 +4,7 @@ class Nx50s
 
     # Nx50s::databaseFilepath2()
     def self.databaseFilepath2()
-        "#{Utils::catalystDataCenterFolderpath()}/items/Nx50s.sqlite3"
+        "#{Utils::catalystDataCenterFolderpath()}/Items/Nx50s.sqlite3"
     end
 
     # Nx50s::nx50s()

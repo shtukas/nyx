@@ -8,7 +8,7 @@ class Waves
 
     # Waves::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/waves"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/Waves"
     end
 
     # Waves::commitItemToDisk(item)

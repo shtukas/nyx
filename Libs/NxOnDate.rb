@@ -4,7 +4,7 @@ class NxOnDate # OnDate
 
     # NxOnDate::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/items/NxOnDates"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/NxOnDates"
     end
 
     # NxOnDate::commitItemToDisk(item)
