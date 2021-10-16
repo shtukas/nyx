@@ -181,12 +181,11 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueItemUsingText(text, unixtime)
-    def self.issueItemUsingText(text, unixtime)
+    # Nx50s::issueItemUsingText(text, unixtime, domain)
+    def self.issueItemUsingText(text, unixtime, domain)
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         coreDataId      = CoreData::issueTextDataObjectUsingText(text)
-        domain = Domain::interactivelySelectDomain()
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
