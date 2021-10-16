@@ -29,7 +29,20 @@ class Processes
             IO.read(filepath).strip.to_f
         }
 
+        getLocationDomain = lambda {|location|
+            d = KeyValueStore::getOrNull(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}")
+            return d if d
+            puts location.green
+            if File.file?(location) then
+                puts IO.read(location).strip.green
+            end
+            d = Domain::interactivelySelectDomain()
+            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", d)
+            d
+        }
+
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Processes")
+            .select{|location| getLocationDomain.call(location) == domain }
             .map{|location|
                 if File.file?(location) then
                     announce = "[proc] #{IO.read(location).strip}"
