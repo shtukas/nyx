@@ -93,9 +93,9 @@ class Processes
 
     # Processes::nx19s()
     def self.nx19s()
-        Processes::items(domain).map{|item|
+        (Processes::items("(eva)")+Processes::items("(work)")).map{|item|
             {
-                "uuid"     => SecureRandom.uuid,
+                "uuid"     => Digest::SHA1.hexdigest(item["announce"]),
                 "announce" => item["announce"],
                 "lambda"   => lambda { item["run"].call() }
             }
