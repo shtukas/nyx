@@ -221,6 +221,14 @@ class Utils
             }
     end
 
+    # Utils::sanitiseStringForFilenaming(str)
+    def self.sanitiseStringForFilenaming(str)
+        str
+            .gsub(":", "-")
+            .gsub("/", "-")
+            .gsub("'", "")
+    end
+
     # ----------------------------------------------------
 
     # Utils::pecoStyleSelectionOrNull(lines)

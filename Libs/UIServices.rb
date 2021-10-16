@@ -164,7 +164,7 @@ class UIServices
         puts ""
         puts "open threads:"
         vspaceleft = vspaceleft - 2
-        OpenThreads::objects(domain)
+        Processes::items(domain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
                 puts line
@@ -248,15 +248,6 @@ class Fsck
 
         Anniversaries::anniversaries().each{|item|
             puts JSON.pretty_generate(item)
-        }
-
-        OpenThreadsPoints::items().each{|item|
-            puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["coreDataId"])
-            if !status then
-                puts "Failed!".red
-                exit
-            end
         }
 
         NxOnDate::items().each{|item|

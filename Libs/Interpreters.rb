@@ -43,12 +43,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversCommands()
     def self.makersAndDiversCommands()
-        "open | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "thread | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "open | wave | ondate | anniversary | Nx50"
+        "thread | wave | ondate | anniversary | Nx50"
     end
 
     # Interpreters::diversCommands()
@@ -59,10 +59,27 @@ class Interpreters
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
-        if Interpreting::match("open", command) then
-            item = OpenThreadsPoints::interactivelyCreateNewOrNull()
-            return if item.nil?
-            JSON.pretty_generate(item)
+        if Interpreting::match("thread", command) then
+
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "folder"])
+            return if type.nil?
+
+            if type == "line" then
+                line = LucilleCore::askQuestionAnswerAsString("line: ")
+                date = Time.new.to_s[0, 10]
+                filename = "#{date} #{SecureRandom.uuid}.txt"
+                File.open("/Users/pascal/Galaxy/Processes/#{filename}", "w"){|f| f.puts(line) }
+            end
+
+            if type == "folder" then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                date = Time.new.to_s[0, 10]
+                filename = "#{date} #{description}"
+                location = "/Users/pascal/Galaxy/Processes/#{filename}"
+                FileUtils.mkdir(location)
+                system("open '#{location}'")
+                LucilleCore::pressEnterToContinue()
+            end
         end
 
         if Interpreting::match("wave", command) then
