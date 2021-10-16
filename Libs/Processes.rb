@@ -91,8 +91,8 @@ class Processes
         #}
     end
 
-    # Processes::ns19s()
-    def self.ns19s()
+    # Processes::nx19s()
+    def self.nx19s()
         Processes::items(domain).map{|item|
             {
                 "uuid"     => SecureRandom.uuid,
