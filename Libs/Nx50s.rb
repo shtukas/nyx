@@ -103,17 +103,40 @@ class Nx50s
         system('clear')
     end
 
+    # Nx50s::getNewMinUnixtime()
+    def self.getNewMinUnixtime()
+        items = Nx50s::nx50s()
+        if items.empty? then
+            return Time.new.to_f
+        end
+        items.map{|item| item["unixtime"] }.min - 1
+    end
+
+    # Nx50s::getRandomUnixtime()
+    def self.getRandomUnixtime()
+        items = Nx50s::nx50s()
+        if items.empty? then
+            return Time.new.to_f
+        end
+        lowerbound = items.map{|item| item["unixtime"] }.min
+        upperbound = Time.new.to_f
+        lowerbound + rand * (upperbound-lowerbound)
+    end
+
     # Nx50s::interactivelyDetermineNewItemUnixtime()
     def self.interactivelyDetermineNewItemUnixtime()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["manually position", "last (default)"])
-        if type.nil? then
-            return Time.new.to_f
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["asap", "manually position", "random (default)"])
+        if type == "asap" then
+            return Nx50s::getNewMinUnixtime()
         end
         if type == "manually position" then
             return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
         end
-        if type == "last (default)" then
-            return Time.new.to_f
+        if type == "random" then
+            return Nx50s::getRandomUnixtime()
+        end
+        if type.nil? then
+            return Nx50s::getRandomUnixtime()
         end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end
@@ -154,12 +177,11 @@ class Nx50s
         Nx50s::getNx50ByUUIDOrNull(uuid)
     end
 
-    # Nx50s::issueItemUsingLocation(location, unixtime)
-    def self.issueItemUsingLocation(location, unixtime)
+    # Nx50s::issueItemUsingLocation(location, unixtime, domain)
+    def self.issueItemUsingLocation(location, unixtime, domain)
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
         coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
-        domain = Domain::interactivelySelectDomain()
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -449,7 +471,7 @@ class Nx50s
             locations.each{|location|
                 cursor = cursor + step
                 puts "[Nx50] (#{Time.at(cursor).to_s}) #{location}"
-                Nx50s::issueItemUsingLocation(location, cursor)
+                Nx50s::issueItemUsingLocation(location, cursor, "(eva)")
                 LucilleCore::removeFileSystemLocation(location)
             }
         end

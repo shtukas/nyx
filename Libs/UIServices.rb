@@ -216,7 +216,7 @@ class UIServices
         # Or interpret it a command and run it by the default element interpreter.
         # Otherwise we try a bunch of generic interpreters.
 
-        if command == ".." and store.getDefault() then
+        if command == ".." and store.getDefault() and store.getDefault()["run"] then
             store.getDefault()["run"].call()
             return
         end

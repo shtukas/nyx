@@ -33,10 +33,37 @@ class Inbox
                     "uuid"         => getLocationUUID.call(location),
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
+                    "run"          => lambda {
+                        system("clear")
+                        puts location.green
+                        if File.file?(location) then
+                            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop"])
+                            if action == "open" then
+                                system("open '#{location}'")
+                            end
+                            if action == "copy to desktop" then
+                                FileUtils.cp(location, "/Users/pascal/Desktop")
+                            end
+                        else
+                            system("open '#{location}'")
+                        end
+                        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
+                        if action == "delete" then
+                            LucilleCore::removeFileSystemLocation(location)
+                        end
+                        if action == "dispatch" then
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["Nx50"])
+                            if target == "Nx50" then
+                                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
+                                domain = Domain::interactivelySelectDomain()
+                                Nx50s::issueItemUsingLocation(location, unixtime, domain)
+                                LucilleCore::removeFileSystemLocation(location)
+                            end
+                        end
+                    }
                 }
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-
     end
 
     # Inbox::nx19s()
