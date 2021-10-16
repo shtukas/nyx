@@ -27,6 +27,26 @@ class Nx50s
         answer
     end
 
+    # Nx50s::nx50sForDomain(domain)
+    def self.nx50sForDomain(domain)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _items_ where _domain_=? order by _unixtime_", [domain]) do |row|
+            answer << {
+                "uuid"        => row["_uuid_"],
+                "unixtime"    => row["_unixtime_"],
+                "description" => row["_description_"],
+                "coreDataId"  => row["_coreDataId_"],
+                "domain"      => row["_domain_"]
+            }
+        end
+        db.close
+        answer
+    end
+
     # Nx50s::commitNx50ToDatabase(item)
     def self.commitNx50ToDatabase(item)
         db = SQLite3::Database.new(Nx50s::databaseFilepath2())
@@ -73,10 +93,10 @@ class Nx50s
     # --------------------------------------------------
     # Makers
 
-    # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
-    def self.interactivelyDetermineNewItemUnixtimeManuallyPosition()
+    # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
+    def self.interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
         system("clear")
-        items = Nx50s::nx50s().first(Utils::screenHeight()-3)
+        items = Nx50s::nx50sForDomain(domain).first(Utils::screenHeight()-3)
         return Time.new.to_f if items.size == 0
         items.each_with_index{|item, i|
             puts "[#{i.to_s.rjust(2)}] #{Nx50s::toString(item)}"
@@ -103,18 +123,18 @@ class Nx50s
         system('clear')
     end
 
-    # Nx50s::getNewMinUnixtime()
-    def self.getNewMinUnixtime()
-        items = Nx50s::nx50s()
+    # Nx50s::getNewMinUnixtime(domain)
+    def self.getNewMinUnixtime(domain)
+        items = Nx50s::nx50sForDomain(domain)
         if items.empty? then
             return Time.new.to_f
         end
         items.map{|item| item["unixtime"] }.min - 1
     end
 
-    # Nx50s::getRandomUnixtime()
-    def self.getRandomUnixtime()
-        items = Nx50s::nx50s()
+    # Nx50s::getRandomUnixtime(domain)
+    def self.getRandomUnixtime(domain)
+        items = Nx50s::nx50sForDomain(domain)
         if items.empty? then
             return Time.new.to_f
         end
@@ -123,20 +143,20 @@ class Nx50s
         lowerbound + rand * (upperbound-lowerbound)
     end
 
-    # Nx50s::interactivelyDetermineNewItemUnixtime()
-    def self.interactivelyDetermineNewItemUnixtime()
+    # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+    def self.interactivelyDetermineNewItemUnixtime(domain)
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["asap", "manually position", "random (default)"])
         if type == "asap" then
-            return Nx50s::getNewMinUnixtime()
+            return Nx50s::getNewMinUnixtime(domain)
         end
         if type == "manually position" then
-            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition()
+            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
         end
         if type == "random" then
-            return Nx50s::getRandomUnixtime()
+            return Nx50s::getRandomUnixtime(domain)
         end
         if type.nil? then
-            return Nx50s::getRandomUnixtime()
+            return Nx50s::getRandomUnixtime(domain)
         end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end
@@ -149,8 +169,8 @@ class Nx50s
             return nil
         end
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
-        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
         domain = Domain::interactivelySelectDomain()
+        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
         Nx50s::commitNx50ToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
@@ -384,7 +404,8 @@ class Nx50s
             end
 
             if Interpreting::match("update unixtime", command) then
-                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime()
+                domain = nx50["domain"]
+                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
                 Nx50s::commitNx50ToDatabase(nx50)
                 next
             end

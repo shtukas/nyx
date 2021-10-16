@@ -2,6 +2,29 @@
 
 class Processes
 
+    # Processes::interactivelyCreateNewProcess()
+    def self.interactivelyCreateNewProcess()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "folder"])
+        return if type.nil?
+
+        if type == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            date = Time.new.to_s[0, 10]
+            filename = "#{date} #{SecureRandom.uuid}.txt"
+            File.open("/Users/pascal/Galaxy/Processes/#{filename}", "w"){|f| f.puts(line) }
+        end
+
+        if type == "folder" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            date = Time.new.to_s[0, 10]
+            filename = "#{date} #{description}"
+            location = "/Users/pascal/Galaxy/Processes/#{filename}"
+            FileUtils.mkdir(location)
+            system("open '#{location}'")
+            LucilleCore::pressEnterToContinue()
+        end
+    end
+
     # Processes::runFolder(folderpath)
     def self.runFolder(folderpath)
         system("clear")

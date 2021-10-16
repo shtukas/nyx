@@ -36,6 +36,9 @@ class Inbox
                     "run"          => lambda {
                         system("clear")
                         puts location.green
+
+                        # -------------------------------------
+                        # Lookup
                         if File.file?(location) then
                             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop"])
                             if action == "open" then
@@ -47,15 +50,32 @@ class Inbox
                         else
                             system("open '#{location}'")
                         end
+
+                        # -------------------------------------
+                        # Dispatch
                         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
                         if action == "delete" then
                             LucilleCore::removeFileSystemLocation(location)
                         end
                         if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["Nx50"])
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["Process", "Nx50"])
+                            if target == "Process" then
+
+                                if File.file?(location) then
+                                    Processes::interactivelyCreateNewProcess()
+                                    LucilleCore::removeFileSystemLocation(location)
+                                else
+                                    folderpath1 = location
+                                    folderpath2 = "/Users/pascal/Galaxy/Processes/#{Time.new.to_s[0, 10]} #{File.basename(location)} [#{SecureRandom.hex(2)}]"
+                                    FileUtils.mkdir(folderpath2)
+                                    LucilleCore::copyContents(folderpath1, folderpath2)
+                                    LucilleCore::removeFileSystemLocation(location)
+                                end
+
+                            end
                             if target == "Nx50" then
-                                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime()
                                 domain = Domain::interactivelySelectDomain()
+                                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
                                 Nx50s::issueItemUsingLocation(location, unixtime, domain)
                                 LucilleCore::removeFileSystemLocation(location)
                             end
