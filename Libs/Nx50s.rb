@@ -145,7 +145,7 @@ class Nx50s
 
     # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
     def self.interactivelyDetermineNewItemUnixtime(domain)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["asap", "manually position", "random (default)"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["asap", "manually position", "random", "last (default)"])
         if type == "asap" then
             return Nx50s::getNewMinUnixtime(domain)
         end
@@ -155,8 +155,11 @@ class Nx50s
         if type == "random" then
             return Nx50s::getRandomUnixtime(domain)
         end
+        if type == "last (default)" then
+            return Time.new.to_i
+        end
         if type.nil? then
-            return Nx50s::getRandomUnixtime(domain)
+            return Time.new.to_i
         end
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end

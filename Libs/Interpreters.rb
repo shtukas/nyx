@@ -120,6 +120,7 @@ class Interpreters
             Nx50s::nx50s().each{|nx50|
 
                 next if KeyValueStore::flagIsTrue(nil, "#{key}:#{nx50["uuid"]}")
+                next if nx50["domain"] != "(eva)" 
 
                 nxball = NxBalls::makeNxBall([nx50["uuid"]])
 
@@ -140,7 +141,7 @@ class Interpreters
 
                 accessWithOptionToEdit.call(nx50["coreDataId"])
 
-                command = LucilleCore::askQuestionAnswerAsString("#{Nx50s::toString(nx50).green} (done, landing, >>, exit) : ")
+                command = LucilleCore::askQuestionAnswerAsString("[#{Nx50s::nx50sForDomain("(eva)").size}] #{Nx50s::toString(nx50).green} (done, landing, next, exit) : ")
 
                 NxBalls::closeNxBall(nxball, false)
 
@@ -153,7 +154,7 @@ class Interpreters
                     KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
                 end
 
-                if command == ">>" then
+                if command == "next" then
                     KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
                     next
                 end
