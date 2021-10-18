@@ -4,6 +4,9 @@ class Processes
 
     # Processes::interactivelyCreateNewProcess()
     def self.interactivelyCreateNewProcess()
+
+        domain = Domain::getCurrentDomain(domain)
+
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "folder"])
         return if type.nil?
 
@@ -11,7 +14,9 @@ class Processes
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             date = Time.new.to_s[0, 10]
             filename = "#{date} #{SecureRandom.uuid}.txt"
-            File.open("/Users/pascal/Galaxy/Processes/#{filename}", "w"){|f| f.puts(line) }
+            location = "/Users/pascal/Galaxy/Processes/#{filename}"
+            File.open(location, "w"){|f| f.puts(line) }
+            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
         end
 
         if type == "folder" then
@@ -20,8 +25,10 @@ class Processes
             filename = "#{date} #{description}"
             location = "/Users/pascal/Galaxy/Processes/#{filename}"
             FileUtils.mkdir(location)
+            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
             system("open '#{location}'")
             LucilleCore::pressEnterToContinue()
+
         end
     end
 
@@ -72,7 +79,11 @@ class Processes
                     {
                         "announce"     => announce,
                         "unixtime"     => getFileUnixtime.call(location),
-                        "run"          => lambda{},
+                        "run"          => lambda{
+                            if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+                                LucilleCore::removeFileSystemLocation(location)
+                            end
+                        },
                     }
                 else
                     announce = "[proc] (folder) #{File.basename(location)}"
