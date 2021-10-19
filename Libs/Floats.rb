@@ -2,6 +2,11 @@
 
 class Floats
 
+    # Floats::repositoryFolderpath()
+    def self.repositoryFolderpath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Floats"
+    end
+
     # Floats::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
 
@@ -52,14 +57,15 @@ class Floats
 
     # Floats::getLocationDomain(location)
     def self.getLocationDomain(location)
-        domain = KeyValueStore::getOrNull(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}")
+        locationname = File.basename(location)
+        domain = KeyValueStore::getOrNull(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{locationname}")
         return domain if domain
         puts location.green
         if File.file?(location) then
             puts IO.read(location).strip.green
         end
         domain = Domain::interactivelySelectDomain()
-        KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
+        KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{locationname}", domain)
         domain
     end
 
@@ -82,7 +88,7 @@ class Floats
             IO.read(filepath).strip.to_f
         }
 
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Floats")
+        LucilleCore::locationsAtFolder(Floats::repositoryFolderpath())
             .select{|location| Floats::getLocationDomain(location) == domain }
             .map{|location|
                 if File.file?(location) then
@@ -115,7 +121,7 @@ class Floats
 
     # Floats::ns16s(domain)
     def self.ns16s(domain)
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Floats")
+        LucilleCore::locationsAtFolder(Floats::repositoryFolderpath())
             .select{|location| Floats::getLocationDomain(location) == domain }
             .select{|location| 
                 uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
