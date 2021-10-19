@@ -91,7 +91,7 @@ class Inbox
         Inbox::ns16s().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Inbox::toStringForNS19(item),
+                "announce" => item["announce"],
                 "lambda"   => lambda { Inbox::run(item) }
             }
         }
