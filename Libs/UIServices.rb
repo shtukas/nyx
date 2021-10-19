@@ -255,7 +255,7 @@ class Fsck
             puts JSON.pretty_generate(item)
             status = CoreData::fsck(item["coreDataId"])
             if !status then
-                puts "Failed!".red
+                puts "[problem]".red
                 exit
             end
         }
@@ -264,7 +264,7 @@ class Fsck
             puts JSON.pretty_generate(item)
             status = CoreData::fsck(item["coreDataId"])
             if !status then
-                puts "Failed!".red
+                puts "[problem]".red
                 exit
             end
         }
@@ -274,10 +274,11 @@ class Fsck
             status = CoreData::fsck(item["coreDataId"])
             if !status then 
                 puts "[problem]".red
-                exit
+                LucilleCore::pressEnterToContinue()
             end
         }
 
         puts "Fsck Completed!".green
+        LucilleCore::pressEnterToContinue()
     end
 end

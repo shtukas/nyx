@@ -110,6 +110,12 @@ CoreData objects
     "nhash" : String, Hash
 }
 
+{
+    "uuid"  : String
+    "type"  : "folder"
+    "name"  : String
+}
+
 =end
 
 class CoreDataUtils
@@ -154,8 +160,6 @@ class CoreDataUtils
         IO.read(filepath)
     end
 
-    # User Interface
-
     # CoreDataUtils::commitObject(object): String, Object UUID
     def self.commitObject(object)
         uuid = object["uuid"]
@@ -192,6 +196,16 @@ class CoreDataUtils
         print "> press enter when done: "
         input = STDIN.gets
         IO.read(filepath)
+    end
+
+    # CoreDataUtils::timeStringL22()
+    def self.timeStringL22()
+        "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+    end
+
+    # CoreDataUtils::foldersRepositoryPath()
+    def self.foldersRepositoryPath()
+        "#{CoreDataUtils::path()}/Folders"
     end
 
 end
@@ -232,9 +246,26 @@ class CoreData
         return coredataobject["uuid"]
     end
 
+    # CoreData::issueFolderObject()
+    def self.issueFolderObject()
+        foldername = CoreDataUtils::timeStringL22()
+        folderpath = "#{CoreDataUtils::foldersRepositoryPath()}/#{foldername}"
+        FileUtils.mkdir(folderpath)
+        puts "opening core data folder #{folderpath}"
+        system("open '#{folderpath}'")
+        LucilleCore::pressEnterToContinue()
+        coredataobject = {
+            "uuid" => SecureRandom.uuid,
+            "type" => "folder",
+            "name" => foldername
+        }
+        CoreDataUtils::commitObject(coredataobject)
+        return coredataobject["uuid"]
+    end
+
     # CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
     def self.interactivelyCreateANewDataObjectReturnIdOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["text", "url", "location"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["text", "url", "location", "folder"])
         return nil if type.nil?
         if type == "text" then
             text = CoreDataUtils::editTextSynchronously("")
@@ -260,6 +291,10 @@ class CoreData
             return CoreData::issueAionPointDataObjectUsingLocation(location)
         end
 
+        if type == "folder" then
+            return CoreData::issueFolderObject()
+        end
+
         raise "[fd1be202-ce29-419b-8a9f-40b91a3beb65, type: #{type}]"
     end
 
@@ -275,6 +310,7 @@ class CoreData
     def self.fsck(uuid)
         return true if uuid.nil?
         object = CoreDataUtils::getObjectOrNull(uuid)
+        puts JSON.pretty_generate([object])
         return false if object.nil?
         if object["type"] == "text" then
             return true
@@ -285,6 +321,10 @@ class CoreData
         if object["type"] == "aion-point" then
             nhash = object["nhash"]
             return AionFsck::structureCheckAionHash(CoreDataElizabeth.new(), nhash)
+        end
+        if object["type"] == "folder" then
+            foldername = object["name"]
+            return File.exists?("#{CoreDataUtils::foldersRepositoryPath()}/#{foldername}")
         end
         raise "4ecddee2-0d4c-4e26-ab41-c6da2fd91b4e: non standard variant for uuid: #{uuid}, #{object}"
     end
@@ -309,6 +349,14 @@ class CoreData
         end
         if object["type"] == "aion-point" then
             AionCore::exportHashAtFolder(CoreDataElizabeth.new(), object["nhash"], "/Users/pascal/Desktop")
+            return
+        end
+        if object["type"] == "folder" then
+            foldername = object["name"]
+            folderpath = "#{CoreDataUtils::foldersRepositoryPath()}/#{foldername}"
+            puts "opening core data folder #{folderpath}"
+            system("open '#{folderpath}'")
+            LucilleCore::pressEnterToContinue()
             return
         end
         raise "(2201ddcd-cb33-4faf-9388-e4ebb6e7f28f, uuid: #{uuid})"
