@@ -32,12 +32,35 @@ class Processes
         end
     end
 
-    # Processes::runFolder(folderpath)
-    def self.runFolder(folderpath)
+    # Processes::runLocation(location)
+    def self.runLocation(location)
         system("clear")
-        puts "[proc] #{File.basename(folderpath)}".green
-        system("open '#{folderpath}'")
-        LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ")
+        if File.file?(location) then
+            puts "[proc] #{File.basename(location)}".green
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy"])
+            if action == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+                    LucilleCore::removeFileSystemLocation(location)
+                end
+            end
+        else
+            puts "[proc] (folder) #{File.basename(location)}".green
+            system("open '#{location}'")
+            LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ") 
+        end
+    end
+
+    # Processes::getLocationDomain(location)
+    def self.getLocationDomain(location)
+        domain = KeyValueStore::getOrNull(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}")
+        return domain if domain
+        puts location.green
+        if File.file?(location) then
+            puts IO.read(location).strip.green
+        end
+        domain = Domain::interactivelySelectDomain()
+        KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
+        domain
     end
 
     # Processes::items(domain)
@@ -59,20 +82,8 @@ class Processes
             IO.read(filepath).strip.to_f
         }
 
-        getLocationDomain = lambda {|location|
-            d = KeyValueStore::getOrNull(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}")
-            return d if d
-            puts location.green
-            if File.file?(location) then
-                puts IO.read(location).strip.green
-            end
-            d = Domain::interactivelySelectDomain()
-            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", d)
-            d
-        }
-
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Processes")
-            .select{|location| getLocationDomain.call(location) == domain }
+            .select{|location| Processes::getLocationDomain(location) == domain }
             .map{|location|
                 if File.file?(location) then
                     announce = "[proc] #{IO.read(location).strip}"
@@ -90,7 +101,7 @@ class Processes
                     {
                         "announce"     => announce,
                         "unixtime"     => getFolderUnixtime.call(location),
-                        "run"          => lambda{ Processes::runFolder(location) },
+                        "run"          => lambda{ Processes::runLocation(location) },
                     }
                 end
             }
@@ -100,6 +111,39 @@ class Processes
         #    "announce"
         #    "run"
         #}
+    end
+
+    # Processes::ns16s(domain)
+    def self.ns16s(domain)
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Processes")
+            .select{|location| Processes::getLocationDomain(location) == domain }
+            .select{|location| 
+                uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
+                !KeyValueStore::flagIsTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
+            }
+            .map{|location|
+                uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
+                announce = 
+                    if File.file?(location) then
+                        "[process acknowledgement] #{IO.read(location).strip}"
+                    else
+                        "[process acknowledgement] (folder) #{File.basename(location)}"
+                    end
+                {
+                    "uuid"        => uuid,
+                    "announce"    => announce,
+                    "commands"    => ["..", "ack"],
+                    "run"         => lambda {
+                        Processes::runLocation(location)
+                        KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
+                    },
+                    "interpreter" => lambda{|command|
+                        if command == "ack" then
+                            KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
+                        end
+                    }
+                }
+            }
     end
 
     # Processes::nx19s()
