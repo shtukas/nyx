@@ -5,7 +5,7 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
-        Processes::nx19s() + 
+        Floats::nx19s() + 
         Anniversaries::nx19s() +
         Calendar::nx19s() +
         NxOnDate::nx19s() +

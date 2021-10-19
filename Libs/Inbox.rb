@@ -62,11 +62,11 @@ class Inbox
                             if target == "Process" then
 
                                 if File.file?(location) then
-                                    Processes::interactivelyCreateNewProcess()
+                                    Floats::interactivelyCreateNewOrNull()
                                     LucilleCore::removeFileSystemLocation(location)
                                 else
                                     folderpath1 = location
-                                    folderpath2 = "/Users/pascal/Galaxy/Processes/#{Time.new.to_s[0, 10]} #{File.basename(location)} [#{SecureRandom.hex(2)}]"
+                                    folderpath2 = "/Users/pascal/Galaxy/Floats/#{Time.new.to_s[0, 10]} #{File.basename(location)} [#{SecureRandom.hex(2)}]"
                                     FileUtils.mkdir(folderpath2)
                                     LucilleCore::copyContents(folderpath1, folderpath2)
                                     LucilleCore::removeFileSystemLocation(location)

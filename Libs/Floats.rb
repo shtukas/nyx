@@ -1,9 +1,9 @@
 # encoding: UTF-8
 
-class Processes
+class Floats
 
-    # Processes::interactivelyCreateNewProcess()
-    def self.interactivelyCreateNewProcess()
+    # Floats::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
 
         domain = Domain::getCurrentDomain(domain)
 
@@ -14,7 +14,7 @@ class Processes
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             date = Time.new.to_s[0, 10]
             filename = "#{date} #{SecureRandom.uuid}.txt"
-            location = "/Users/pascal/Galaxy/Processes/#{filename}"
+            location = "/Users/pascal/Galaxy/Floats/#{filename}"
             File.open(location, "w"){|f| f.puts(line) }
             KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
         end
@@ -23,7 +23,7 @@ class Processes
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             date = Time.new.to_s[0, 10]
             filename = "#{date} #{description}"
-            location = "/Users/pascal/Galaxy/Processes/#{filename}"
+            location = "/Users/pascal/Galaxy/Floats/#{filename}"
             FileUtils.mkdir(location)
             KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
             system("open '#{location}'")
@@ -32,11 +32,11 @@ class Processes
         end
     end
 
-    # Processes::runLocation(location)
+    # Floats::runLocation(location)
     def self.runLocation(location)
         system("clear")
         if File.file?(location) then
-            puts "[proc] #{File.basename(location)}".green
+            puts "[floa] #{File.basename(location)}".green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy"])
             if action == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
@@ -44,13 +44,13 @@ class Processes
                 end
             end
         else
-            puts "[proc] (folder) #{File.basename(location)}".green
+            puts "[floa] (folder) #{File.basename(location)}".green
             system("open '#{location}'")
             LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ") 
         end
     end
 
-    # Processes::getLocationDomain(location)
+    # Floats::getLocationDomain(location)
     def self.getLocationDomain(location)
         domain = KeyValueStore::getOrNull(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}")
         return domain if domain
@@ -63,7 +63,7 @@ class Processes
         domain
     end
 
-    # Processes::items(domain)
+    # Floats::items(domain)
     def self.items(domain)
 
         getFileUnixtime = lambda{|filepath|
@@ -82,11 +82,11 @@ class Processes
             IO.read(filepath).strip.to_f
         }
 
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Processes")
-            .select{|location| Processes::getLocationDomain(location) == domain }
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Floats")
+            .select{|location| Floats::getLocationDomain(location) == domain }
             .map{|location|
                 if File.file?(location) then
-                    announce = "[proc] #{IO.read(location).strip}"
+                    announce = "[floa] #{IO.read(location).strip}"
                     {
                         "announce"     => announce,
                         "unixtime"     => getFileUnixtime.call(location),
@@ -97,11 +97,11 @@ class Processes
                         },
                     }
                 else
-                    announce = "[proc] (folder) #{File.basename(location)}"
+                    announce = "[floa] (folder) #{File.basename(location)}"
                     {
                         "announce"     => announce,
                         "unixtime"     => getFolderUnixtime.call(location),
-                        "run"          => lambda{ Processes::runLocation(location) },
+                        "run"          => lambda{ Floats::runLocation(location) },
                     }
                 end
             }
@@ -113,10 +113,10 @@ class Processes
         #}
     end
 
-    # Processes::ns16s(domain)
+    # Floats::ns16s(domain)
     def self.ns16s(domain)
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Processes")
-            .select{|location| Processes::getLocationDomain(location) == domain }
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Floats")
+            .select{|location| Floats::getLocationDomain(location) == domain }
             .select{|location| 
                 uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
                 !KeyValueStore::flagIsTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
@@ -125,16 +125,16 @@ class Processes
                 uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
                 announce = 
                     if File.file?(location) then
-                        "[process acknowledgement] #{IO.read(location).strip}"
+                        "[float acknowledgement] #{IO.read(location).strip}"
                     else
-                        "[process acknowledgement] (folder) #{File.basename(location)}"
+                        "[float acknowledgement] (folder) #{File.basename(location)}"
                     end
                 {
                     "uuid"        => uuid,
                     "announce"    => announce,
                     "commands"    => ["..", "ack"],
                     "run"         => lambda {
-                        Processes::runLocation(location)
+                        Floats::runLocation(location)
                         KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
                     },
                     "interpreter" => lambda{|command|
@@ -146,9 +146,9 @@ class Processes
             }
     end
 
-    # Processes::nx19s()
+    # Floats::nx19s()
     def self.nx19s()
-        (Processes::items("(eva)")+Processes::items("(work)")).map{|item|
+        (Floats::items("(eva)")+Floats::items("(work)")).map{|item|
             {
                 "uuid"     => Digest::SHA1.hexdigest(item["announce"]),
                 "announce" => item["announce"],

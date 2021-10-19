@@ -39,7 +39,7 @@ class NS16sOperator
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
-            Processes::ns16s(domain),
+            Floats::ns16s(domain),
             Inbox::ns16s(),
             PriorityFile::ns16s(domain),
             Nx50s::ns16s(domain),
@@ -165,7 +165,7 @@ class UIServices
         puts ""
         puts "open threads:"
         vspaceleft = vspaceleft - 2
-        Processes::items(domain)
+        Floats::items(domain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
                 puts line

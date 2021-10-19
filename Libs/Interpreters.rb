@@ -60,7 +60,7 @@ class Interpreters
     def self.makersAndDiversInterpreter(command)
 
         if Interpreting::match("thread", command) then
-            Processes::interactivelyCreateNewProcess()
+            Floats::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("wave", command) then
