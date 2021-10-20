@@ -490,7 +490,7 @@ class Nx50s
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
 
-        locations = LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s Inbox Spread")
+        locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s Inbox Spread")
 
         if locations.size > 0 then
 
