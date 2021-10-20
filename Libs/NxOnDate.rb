@@ -60,7 +60,7 @@ class NxOnDate # OnDate
               "description" => description,
               "date"        => date,
               "coreDataId"  => coreDataId,
-              "domain"      => "(eva)"
+              "domain"      => nil # we display all of them at any domain
             }
 
         NxOnDate::commitItemToDisk(item)
@@ -122,6 +122,9 @@ class NxOnDate # OnDate
 
     # NxOnDate::run(item)
     def self.run(item)
+
+        system("clear")
+
         uuid = item["uuid"]
 
         puts "running #{NxOnDate::toString(item)}".green
@@ -222,10 +225,9 @@ class NxOnDate # OnDate
         }
     end
 
-    # NxOnDate::ns16s(domain)
-    def self.ns16s(domain)
+    # NxOnDate::ns16s()
+    def self.ns16s()
         NxOnDate::items()
-            .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }

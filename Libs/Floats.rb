@@ -138,14 +138,16 @@ class Floats
                 {
                     "uuid"        => uuid,
                     "announce"    => announce,
-                    "commands"    => ["..", "ack"],
+                    "commands"    => ["..", "ack", "run"],
                     "run"         => lambda {
-                        Floats::runLocation(location)
                         KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
                     },
                     "interpreter" => lambda{|command|
                         if command == "ack" then
                             KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
+                        end
+                        if command == "run" then
+                            Floats::runLocation(location)
                         end
                     }
                 }

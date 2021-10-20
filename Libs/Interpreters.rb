@@ -43,12 +43,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversCommands()
     def self.makersAndDiversCommands()
-        "todo: <line> | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "todo: <line> | float | wave | ondate | anniversary | Nx50"
+        "today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50"
     end
 
     # Interpreters::diversCommands()

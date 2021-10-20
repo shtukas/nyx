@@ -33,8 +33,8 @@ class NS16sOperator
     def self.ns16s(domain)
         [
             Anniversaries::ns16s(domain),
-            Calendar::ns16s(domain),
-            NxOnDate::ns16s(domain),
+            Calendar::ns16s(),
+            NxOnDate::ns16s(),
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),

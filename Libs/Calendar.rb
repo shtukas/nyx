@@ -81,10 +81,9 @@ class Calendar
         end
     end
 
-    # Calendar::ns16s(domain)
-    def self.ns16s(domain)
+    # Calendar::ns16s()
+    def self.ns16s()
         Calendar::items()
-            .select{|item| item["domain"] == domain }
             .select{|item| Calendar::itemIsForNS16s(item) }
             .map{|item|
                 folderpath = item["folderpath"]
