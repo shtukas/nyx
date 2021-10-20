@@ -33,6 +33,15 @@ class Inbox
                     "uuid"         => getLocationUUID.call(location),
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
+                    "commands"     => [">todo"],
+                    "interpreter"  => lambda {|command|
+                        if command == ">todo" then
+                            domain = Domain::interactivelySelectDomain()
+                            unixtime = Nx50s::randomUnixtimeWithinRange(domain, 10, 30)
+                            Nx50s::issueItemUsingLocation(location, unixtime, domain)
+                            LucilleCore::removeFileSystemLocation(location)
+                        end
+                    },
                     "run"          => lambda {
                         system("clear")
                         puts location.green
