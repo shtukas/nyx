@@ -18,6 +18,12 @@ class Today
                     "uuid"     => item["uuid"],
                     "unixtime" => item["unixtime"],
                     "announce" => "[tody] #{item["description"]}",
+                    "commands" => ["done"],
+                    "interpreter" => lambda{|command|
+                        if command == "done" then
+                            BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
+                        end
+                    },
                     "run"      => lambda {
                         if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ", true) then
                             BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
