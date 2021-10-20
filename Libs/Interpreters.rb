@@ -59,6 +59,12 @@ class Interpreters
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
+        if command.start_with?("today:") then
+            description = command[6, command.length].strip
+            item = Today::makeNewFromDescription(description)
+            puts JSON.pretty_generate(item)
+        end
+
         if command.start_with?("todo:") then
             description = command[5, command.length].strip
             return if description == ""

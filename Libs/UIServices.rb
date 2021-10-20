@@ -38,6 +38,7 @@ class NS16sOperator
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
+            Today::ns16s(),
             Waves::ns16s(domain),
             Floats::ns16s(domain),
             Inbox::ns16s(),
