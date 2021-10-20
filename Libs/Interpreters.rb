@@ -43,12 +43,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversCommands()
     def self.makersAndDiversCommands()
-        "thread | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "todo: <line> | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "thread | wave | ondate | anniversary | Nx50"
+        "todo: <line> | float | wave | ondate | anniversary | Nx50"
     end
 
     # Interpreters::diversCommands()
@@ -59,7 +59,22 @@ class Interpreters
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
-        if Interpreting::match("thread", command) then
+        if command.start_with?("todo:") then
+            description = command[5, command.length].strip
+            return if description == ""
+            uuid = LucilleCore::timeStringL22()
+            domain = Domain::interactivelySelectDomain()
+            unixtime = Nx50s::randomUnixtimeWithinRange(domain, 10, 20)
+            Nx50s::commitNx50ToDatabase({
+                "uuid"        => uuid,
+                "unixtime"    => unixtime,
+                "description" => description,
+                "coreDataId"  => nil,
+                "domain"      => domain
+            })
+        end
+
+        if Interpreting::match("float", command) then
             Floats::interactivelyCreateNewOrNull()
         end
 
@@ -105,8 +120,8 @@ class Interpreters
 
         if Interpreting::match("Nx50s", command) then
             nx50s = Nx50s::nx50s()
-            if LucilleCore::askQuestionAnswerAsBoolean("limit to 100 ? ", true) then
-                nx50s = nx50s.first(100)
+            if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
+                nx50s = nx50s.first(Utils::screenHeight()-1)
             end
             loop {
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
