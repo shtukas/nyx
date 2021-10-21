@@ -7,54 +7,6 @@ class Floats
         "/Users/pascal/Galaxy/DataBank/Catalyst/Floats"
     end
 
-    # Floats::interactivelyCreateNewOrNull()
-    def self.interactivelyCreateNewOrNull()
-
-        domain = Domain::getCurrentDomain(domain)
-
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "folder"])
-        return if type.nil?
-
-        if type == "line" then
-            line = LucilleCore::askQuestionAnswerAsString("line: ")
-            date = Time.new.to_s[0, 10]
-            filename = "#{date} #{SecureRandom.uuid}.txt"
-            location = "/Users/pascal/Galaxy/Floats/#{filename}"
-            File.open(location, "w"){|f| f.puts(line) }
-            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
-        end
-
-        if type == "folder" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            date = Time.new.to_s[0, 10]
-            filename = "#{date} #{description}"
-            location = "/Users/pascal/Galaxy/Floats/#{filename}"
-            FileUtils.mkdir(location)
-            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
-            system("open '#{location}'")
-            LucilleCore::pressEnterToContinue()
-
-        end
-    end
-
-    # Floats::landing(location)
-    def self.landing(location)
-        system("clear")
-        if File.file?(location) then
-            puts "[floa] #{File.basename(location)}".green
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy"])
-            if action == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
-                    LucilleCore::removeFileSystemLocation(location)
-                end
-            end
-        else
-            puts "[floa] (folder) #{File.basename(location)}".green
-            system("open '#{location}'")
-            LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ") 
-        end
-    end
-
     # Floats::getLocationDomain(location)
     def self.getLocationDomain(location)
         locationname = File.basename(location)
@@ -95,6 +47,36 @@ class Floats
         end
     end
 
+    # Floats::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
+
+        domain = Domain::getCurrentDomain(domain)
+
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "folder"])
+        return if type.nil?
+
+        if type == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            date = Time.new.to_s[0, 10]
+            filename = "#{date} #{SecureRandom.uuid}.txt"
+            location = "/Users/pascal/Galaxy/Floats/#{filename}"
+            File.open(location, "w"){|f| f.puts(line) }
+            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
+        end
+
+        if type == "folder" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            date = Time.new.to_s[0, 10]
+            filename = "#{date} #{description}"
+            location = "/Users/pascal/Galaxy/Floats/#{filename}"
+            FileUtils.mkdir(location)
+            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
+            system("open '#{location}'")
+            LucilleCore::pressEnterToContinue()
+
+        end
+    end
+
     # Floats::items(domain)
     def self.items(domain)
         LucilleCore::locationsAtFolder(Floats::repositoryFolderpath())
@@ -114,6 +96,24 @@ class Floats
         #    "announce"
         #    "run"
         #}
+    end
+
+    # Floats::landing(location)
+    def self.landing(location)
+        system("clear")
+        if File.file?(location) then
+            puts "[floa] #{File.basename(location)}".green
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy"])
+            if action == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+                    LucilleCore::removeFileSystemLocation(location)
+                end
+            end
+        else
+            puts "[floa] (folder) #{File.basename(location)}".green
+            system("open '#{location}'")
+            LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ") 
+        end
     end
 
     # Floats::ns16s(domain)
