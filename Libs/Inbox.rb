@@ -67,9 +67,8 @@ class Inbox
                             LucilleCore::removeFileSystemLocation(location)
                         end
                         if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["Process", "Nx50"])
-                            if target == "Process" then
-
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "on", "today", "Nx50"])
+                            if target == "float" then
                                 if File.file?(location) then
                                     Floats::interactivelyCreateNewOrNull()
                                     LucilleCore::removeFileSystemLocation(location)
@@ -80,6 +79,11 @@ class Inbox
                                     LucilleCore::copyContents(folderpath1, folderpath2)
                                     LucilleCore::removeFileSystemLocation(location)
                                 end
+                            end
+                            if target == "on" then
+                                
+                            end
+                            if target == "today" then
 
                             end
                             if target == "Nx50" then
