@@ -2,6 +2,19 @@
 
 class Today
 
+    # Today::makeNewFromDescription(description)
+    def self.makeNewFromDescription(description)
+        uuid = SecureRandom.uuid
+        item = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
+            "description" => description,
+            "coreDataId"  => CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+        }
+        BTreeSets::set(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid, item)
+        BTreeSets::getOrNull(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid)
+    end
+
     # Today::items()
     def self.items()
         BTreeSets::values(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c")
@@ -42,19 +55,6 @@ class Today
                 }
             }
         }
-    end
-
-    # Today::makeNewFromDescription(description)
-    def self.makeNewFromDescription(description)
-        uuid = SecureRandom.uuid
-        item = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "coreDataId"  => CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
-        }
-        BTreeSets::set(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid, item)
-        BTreeSets::getOrNull(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid)
     end
 
     # Today::nx19s()
