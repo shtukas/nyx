@@ -527,7 +527,7 @@ class Nx50s
         ns16s = Nx50s::nx50s()
             .select{|item| item["domain"] == domain }
             .reduce([]){|object, nx50|
-                if object.size < 5 then
+                if object.size < Utils::screenHeight() then
                     ns16 = Nx50s::ns16OrNull(nx50)
                     if ns16 then
                         object << ns16
