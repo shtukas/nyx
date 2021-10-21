@@ -38,7 +38,6 @@ class NS16sOperator
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
-            Today::ns16s(),
             Waves::ns16s(domain),
             Floats::ns16s(domain),
             Inbox::ns16s(),
@@ -177,6 +176,16 @@ class UIServices
         puts "on:"
         vspaceleft = vspaceleft - 2
         OnGoing::ns16s()
+            .each{|object|
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+
+        puts ""
+        puts "today:"
+        vspaceleft = vspaceleft - 2
+        Today::ns16s()
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line

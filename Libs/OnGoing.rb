@@ -17,7 +17,7 @@ class OnGoing
                 {
                     "uuid"     => item["uuid"],
                     "unixtime" => item["unixtime"],
-                    "announce" => "[tody] #{item["description"]}",
+                    "announce" => "[ on ] #{item["description"]}",
                     "commands" => ["done"],
                     "interpreter" => lambda{|command|
                         if command == "done" then
