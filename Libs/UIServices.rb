@@ -164,11 +164,21 @@ class UIServices
         puts infolines
 
         puts ""
-        puts "open threads:"
+        puts "floats:"
         vspaceleft = vspaceleft - 2
         Floats::items(domain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+
+        puts ""
+        puts "on:"
+        vspaceleft = vspaceleft - 2
+        OnGoing::ns16s()
+            .each{|object|
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }

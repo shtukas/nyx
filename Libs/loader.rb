@@ -153,6 +153,8 @@ require_relative "Floats.rb"
 require_relative "Nx50s.rb"
 require_relative "NxOnDate.rb"
 
+require_relative "OnGoing.rb"
+
 require_relative "ProgrammableBooleans.rb"
 require_relative "PriorityFile.rb"
 

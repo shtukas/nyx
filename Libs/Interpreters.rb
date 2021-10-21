@@ -43,12 +43,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversCommands()
     def self.makersAndDiversCommands()
-        "today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "on: <line> | today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50"
+        "on: <line> | today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50"
     end
 
     # Interpreters::diversCommands()
@@ -58,6 +58,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
+
+        if command.start_with?("on:") then
+            description = command[3, command.length].strip
+            item = OnGoing::makeNewFromDescription(description)
+            puts JSON.pretty_generate(item)
+        end
 
         if command.start_with?("today:") then
             description = command[6, command.length].strip
