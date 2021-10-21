@@ -37,8 +37,8 @@ class Floats
         end
     end
 
-    # Floats::runLocation(location)
-    def self.runLocation(location)
+    # Floats::landing(location)
+    def self.landing(location)
         system("clear")
         if File.file?(location) then
             puts "[floa] #{File.basename(location)}".green
@@ -69,47 +69,44 @@ class Floats
         domain
     end
 
-    # Floats::items(domain)
-    def self.items(domain)
+    # Floats::locationToString(location)
+    def self.locationToString(location)
+        if File.file?(location) then
+            "[float] #{IO.read(location).strip}"
+        else
+            "[float] (folder) #{File.basename(location)}"
+        end
+    end
 
-        getFileUnixtime = lambda{|filepath|
-            unixtime = KeyValueStore::getOrNull(nil, "0609a9fc-f7f6-4c3e-b0dd-952fbb26020f:#{filepath}")
+    # Floats::locationToUnixtime(location)
+    def self.locationToUnixtime(location)
+        if File.file?(location) then
+            unixtime = KeyValueStore::getOrNull(nil, "0609a9fc-f7f6-4c3e-b0dd-952fbb26020f:#{location}")
             return unixtime.to_f if unixtime
             unixtime = Time.new.to_i
-            KeyValueStore::set(nil, "0609a9fc-f7f6-4c3e-b0dd-952fbb26020f:#{filepath}", unixtime)
+            KeyValueStore::set(nil, "0609a9fc-f7f6-4c3e-b0dd-952fbb26020f:#{location}", unixtime)
             unixtime
-        }
-
-        getFolderUnixtime = lambda{|folderpath|
-            filepath = "#{folderpath}/.unixtime-784971ed"
+        else
+            filepath = "#{location}/.unixtime-784971ed"
             if !File.exists?(filepath) then
                 File.open(filepath, "w") {|f| f.puts(Time.new.to_f)}
             end
             IO.read(filepath).strip.to_f
-        }
+        end
+    end
 
+    # Floats::items(domain)
+    def self.items(domain)
         LucilleCore::locationsAtFolder(Floats::repositoryFolderpath())
             .select{|location| Floats::getLocationDomain(location) == domain }
             .map{|location|
-                if File.file?(location) then
-                    announce = "[floa] #{IO.read(location).strip}"
-                    {
-                        "announce"     => announce,
-                        "unixtime"     => getFileUnixtime.call(location),
-                        "run"          => lambda{
-                            if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
-                                LucilleCore::removeFileSystemLocation(location)
-                            end
-                        },
-                    }
-                else
-                    announce = "[floa] (folder) #{File.basename(location)}"
-                    {
-                        "announce"     => announce,
-                        "unixtime"     => getFolderUnixtime.call(location),
-                        "run"          => lambda{ Floats::runLocation(location) },
-                    }
-                end
+                announce = Floats::locationToString(location).gsub("[float]", "[floa]")
+                unixtime = Floats::locationToUnixtime(location)
+                {
+                    "announce"     => announce,
+                    "unixtime"     => unixtime,
+                    "run"          => lambda{ Floats::landing(location) },
+                }
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
 
@@ -129,25 +126,17 @@ class Floats
             }
             .map{|location|
                 uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
-                announce = 
-                    if File.file?(location) then
-                        "[float acknowledgement] #{IO.read(location).strip}"
-                    else
-                        "[float acknowledgement] (folder) #{File.basename(location)}"
-                    end
+                announce = "[acknowledgement] #{Floats::locationToString(location)}"
                 {
                     "uuid"        => uuid,
                     "announce"    => announce,
-                    "commands"    => ["..", "ack", "run"],
+                    "commands"    => ["..", "landing"],
                     "run"         => lambda {
                         KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
                     },
                     "interpreter" => lambda{|command|
-                        if command == "ack" then
-                            KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
-                        end
-                        if command == "run" then
-                            Floats::runLocation(location)
+                        if command == "dive" then
+                            Floats::landing(location)
                         end
                     }
                 }
