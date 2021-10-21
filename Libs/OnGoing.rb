@@ -15,6 +15,19 @@ class OnGoing
         BTreeSets::getOrNull(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid)
     end
 
+    # OnGoing::issueNewFromDescriptionAndLocation(description, location)
+    def self.issueNewFromDescriptionAndLocation(description, location)
+        uuid = SecureRandom.uuid
+        item = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
+            "description" => description,
+            "coreDataId"  => CoreData::issueAionPointDataObjectUsingLocation(location)
+        }
+        BTreeSets::set(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid, item)
+        BTreeSets::getOrNull(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid)
+    end
+
     # OnGoing::items()
     def self.items()
         BTreeSets::values(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9")
@@ -47,7 +60,7 @@ class OnGoing
                 },
                 "run"      => lambda {
                     system("clear")
-                    puts OnGoing::toString(item)
+                    puts OnGoing::toString(item).green
                     CoreData::accessWithOptionToEdit(item["coreDataId"])
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ", true) then
                         BTreeSets::destroy(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", item["uuid"])

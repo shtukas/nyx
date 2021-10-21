@@ -81,10 +81,16 @@ class Inbox
                                 end
                             end
                             if target == "on" then
-                                
+                                description = File.basename(location)
+                                item = OnGoing::issueNewFromDescriptionAndLocation(description, location)
+                                puts JSON.pretty_generate(item)
+                                LucilleCore::removeFileSystemLocation(location)
                             end
                             if target == "today" then
-
+                                description = File.basename(location)
+                                item = Today::issueNewFromDescriptionAndLocation(description, location)
+                                puts JSON.pretty_generate(item)
+                                LucilleCore::removeFileSystemLocation(location)
                             end
                             if target == "Nx50" then
                                 domain = Domain::interactivelySelectDomain()
