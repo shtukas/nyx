@@ -29,7 +29,7 @@ class OnGoing
 
     # OnGoing::toString(item)
     def self.toString(item)
-        "[ on ] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
+        "[ on going ] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
     end
 
     # OnGoing::ns16s()
@@ -38,7 +38,7 @@ class OnGoing
             {
                 "uuid"     => item["uuid"],
                 "unixtime" => item["unixtime"],
-                "announce" => OnGoing::toString(item),
+                "announce" => OnGoing::toString(item).gsub("[ on going ]", "[ on ]"),
                 "commands" => ["done"],
                 "interpreter" => lambda{|command|
                     if command == "done" then
