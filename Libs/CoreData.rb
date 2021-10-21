@@ -116,6 +116,12 @@ CoreData objects
     "name"  : String
 }
 
+{
+    "uuid"    : String
+    "type"    : "unique-string"
+    "payload" : String
+}
+
 =end
 
 class CoreDataUtils
@@ -263,9 +269,20 @@ class CoreData
         return coredataobject["uuid"]
     end
 
+    # CoreData::issueUniqueStringUsingString(payload)
+    def self.issueUniqueStringUsingString(payload)
+        coredataobject = {
+            "uuid"    => SecureRandom.uuid,
+            "type"    => "unique-string",
+            "payload" => payload
+        }
+        CoreDataUtils::commitObject(coredataobject)
+        return coredataobject["uuid"]
+    end
+
     # CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
     def self.interactivelyCreateANewDataObjectReturnIdOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["text", "url", "location", "folder"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["text", "url", "location", "folder", "unique string"])
         return nil if type.nil?
         if type == "text" then
             text = CoreDataUtils::editTextSynchronously("")
@@ -293,6 +310,12 @@ class CoreData
 
         if type == "folder" then
             return CoreData::issueFolderObject()
+        end
+
+        if type == "unique string" then
+            payload = LucilleCore::askQuestionAnswerAsString("unique string: ")
+            return nil if payload == ""
+            return CoreData::issueUniqueStringUsingString(payload)
         end
 
         raise "[fd1be202-ce29-419b-8a9f-40b91a3beb65, type: #{type}]"
@@ -326,6 +349,10 @@ class CoreData
             foldername = object["name"]
             return File.exists?("#{CoreDataUtils::foldersRepositoryPath()}/#{foldername}")
         end
+        if object["type"] == "unique-string" then
+            # Technically we should be checking if the target exists, but that takes too long
+            return true
+        end
         raise "4ecddee2-0d4c-4e26-ab41-c6da2fd91b4e: non standard variant for uuid: #{uuid}, #{object}"
     end
 
@@ -356,6 +383,13 @@ class CoreData
             folderpath = "#{CoreDataUtils::foldersRepositoryPath()}/#{foldername}"
             puts "opening core data folder #{folderpath}"
             system("open '#{folderpath}'")
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if object["type"] == "unique-string" then
+            payload = object["payload"]
+            puts "unique string: #{payload}"
+            puts "Use atlas to find it (or update CoreData code 😉)"
             LucilleCore::pressEnterToContinue()
             return
         end
