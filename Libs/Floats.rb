@@ -73,7 +73,6 @@ class Floats
             KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
             system("open '#{location}'")
             LucilleCore::pressEnterToContinue()
-
         end
     end
 
