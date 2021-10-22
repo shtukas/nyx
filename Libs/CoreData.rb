@@ -141,6 +141,11 @@ class CoreDataUtils
         "#{CoreDataUtils::path()}/Objects"
     end
 
+    # CoreDataUtils::foldersRepositoryPath()
+    def self.foldersRepositoryPath()
+        "#{CoreDataUtils::path()}/Folders"
+    end
+
     # CoreDataUtils::filepathToContentHash(filepath)
     def self.filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
@@ -209,11 +214,11 @@ class CoreDataUtils
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # CoreDataUtils::foldersRepositoryPath()
-    def self.foldersRepositoryPath()
-        "#{CoreDataUtils::path()}/Folders"
+    # CoreDataUtils::atlas(pattern)
+    def self.atlas(pattern)
+        location = `/Users/pascal/Galaxy/LucilleOS/Binaries/atlas '#{pattern}'`.strip
+        (location != "") ? location : nil
     end
-
 end
 
 class CoreData
@@ -389,8 +394,16 @@ class CoreData
         if object["type"] == "unique-string" then
             payload = object["payload"]
             puts "unique string: #{payload}"
-            puts "Use atlas to find it (or update CoreData code 😉)"
-            LucilleCore::pressEnterToContinue()
+            location = CoreDataUtils::atlas(payload)
+            if location then
+                puts "location: #{location}"
+                if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
+                    system("open '#{location}'")
+                end
+            else
+                puts "[CoreData] Could not find location for unique string: #{payload}"
+                LucilleCore::pressEnterToContinue()
+            end
             return
         end
         raise "(2201ddcd-cb33-4faf-9388-e4ebb6e7f28f, uuid: #{uuid})"
