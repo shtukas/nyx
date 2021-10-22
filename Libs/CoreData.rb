@@ -313,7 +313,7 @@ class CoreData
         end
 
         if type == "unique string" then
-            payload = LucilleCore::askQuestionAnswerAsString("unique string: ")
+            payload = LucilleCore::askQuestionAnswerAsString("unique string (use '#{SecureRandom.hex(6)}' if need one): ")
             return nil if payload == ""
             return CoreData::issueUniqueStringUsingString(payload)
         end

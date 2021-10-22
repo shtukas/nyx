@@ -271,11 +271,11 @@ class Nx50s
 
     # Nx50s::getItemType(item)
     def self.getItemType(item)
-        type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}")
+        type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["coreDataId"]}")
         return type if type
         type1 = CoreData::contentTypeOrNull(item["coreDataId"])
         type2 = type1 || "line"
-        KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["uuid"]}", type2)
+        KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["coreDataId"]}", type2)
         type2
     end
 
@@ -425,8 +425,10 @@ class Nx50s
             end
 
             if Interpreting::match("update contents", command) then
-                puts "update contents against the new NxAxiom library is not implemented yet"
-                LucilleCore::pressEnterToContinue()
+                coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+                return if coreDataId.nil?
+                nx50["coreDataId"] = coreDataId
+                Nx50s::commitNx50ToDatabase(nx50)
                 next
             end
 
