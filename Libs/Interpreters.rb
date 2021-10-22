@@ -93,13 +93,13 @@ class Interpreters
         if Interpreting::match("wave", command) then
             item = Waves::issueNewWaveInteractivelyOrNull()
             return if item.nil?
-            JSON.pretty_generate(item)
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("ondate", command) then
             item = NxOnDate::interactivelyIssueNewOrNull()
             return if item.nil?
-            JSON.pretty_generate(item)
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("Nx50", command) then
@@ -111,7 +111,7 @@ class Interpreters
         if Interpreting::match("anniversary", command) then
             item = Anniversaries::issueNewAnniversaryOrNullInteractively()
             return if item.nil?
-            JSON.pretty_generate(item)
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("ondates", command) then
