@@ -353,7 +353,7 @@ class Waves
         {
             "uuid"        => uuid,
             "announce"    => Waves::toString(wave),
-            "commands"    => ["..", "landing", "done"],
+            "commands"    => ["..", "landing", "done", ">today (copy to today)"],
             "interpreter" => lambda{|command|
                 if command == ".." then
                     Waves::run(wave)
@@ -362,6 +362,10 @@ class Waves
                     Waves::landing(wave)
                 end
                 if command == "done" then
+                    Waves::performDone(wave)
+                end
+                if command == ">today" then
+                    Today::makeNewFromDescription(Waves::toString(wave), false)
                     Waves::performDone(wave)
                 end
             },

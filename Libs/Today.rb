@@ -2,14 +2,14 @@
 
 class Today
 
-    # Today::makeNewFromDescription(description)
-    def self.makeNewFromDescription(description)
+    # Today::makeNewFromDescription(description, useCoreData)
+    def self.makeNewFromDescription(description, useCoreData)
         uuid = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "coreDataId"  => CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+            "coreDataId"  => useCoreData ? CoreData::interactivelyCreateANewDataObjectReturnIdOrNull() : nil
         }
         BTreeSets::set(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid, item)
         BTreeSets::getOrNull(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid)

@@ -67,7 +67,7 @@ class Interpreters
 
         if command.start_with?("today:") then
             description = command[6, command.length].strip
-            item = Today::makeNewFromDescription(description)
+            item = Today::makeNewFromDescription(description, true)
             puts JSON.pretty_generate(item)
         end
 
