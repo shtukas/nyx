@@ -127,7 +127,8 @@ class Interpreters
         end
 
         if Interpreting::match("waves", command) then
-            Waves::main()
+            domain = Domain::getCurrentDomain()
+            Waves::waves(domain)
         end
 
         if Interpreting::match("Nx50s", command) then

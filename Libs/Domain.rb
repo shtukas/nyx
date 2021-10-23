@@ -8,8 +8,8 @@ class Domain
         KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda283", domain)
     end
 
-    # Domain::getCurrentDomain(domain)
-    def self.getCurrentDomain(domain)
+    # Domain::getCurrentDomain()
+    def self.getCurrentDomain()
         KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda283") || "(eva)"
     end
 

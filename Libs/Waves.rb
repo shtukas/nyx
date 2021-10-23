@@ -25,6 +25,11 @@ class Waves
             .map{|location| JSON.parse(IO.read(location)) }
     end
 
+    # Waves::itemsForDomain(domain)
+    def self.itemsForDomain(domain)
+        Waves::items().select{|item| item["domain"] == domain }
+    end
+
     # Waves::getItemByUUIDOrNull(uuid)
     def self.getItemByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
@@ -172,11 +177,6 @@ class Waves
         "[wave] #{wave["description"]} (#{Waves::scheduleString(wave)}) (#{ago})"
     end
 
-    # Waves::selectWaveOrNull()
-    def self.selectWaveOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::items().sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
-    end
-
     # Waves::performDone(wave)
     def self.performDone(wave)
         puts "done-ing: #{Waves::toString(wave)}"
@@ -186,30 +186,6 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-    end
-
-    # Waves::main()
-    def self.main()
-        loop {
-            puts "Waves 🌊 (main)"
-            options = [
-                "wave",
-                "waves dive"
-            ]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            break if option.nil?
-            if option == "wave" then
-                Waves::issueNewWaveInteractivelyOrNull()
-            end
-            if option == "waves dive" then
-                loop {
-                    system("clear")
-                    wave = Waves::selectWaveOrNull()
-                    return if wave.nil?
-                    Waves::landing(wave)
-                }
-            end
-        }
     end
 
     # Waves::accessContent(wave)
@@ -310,6 +286,24 @@ class Waves
         }
 
         NxBalls::closeNxBall(nxball, true)
+    end
+
+    # -------------------------------------------------------------------------
+    # Waves
+
+    # Waves::selectWaveOrNull(domain)
+    def self.selectWaveOrNull(domain)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::itemsForDomain(domain).sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
+    end
+
+    # Waves::waves(domain)
+    def self.waves(domain)
+        loop {
+            system("clear")
+            wave = Waves::selectWaveOrNull(domain)
+            return if wave.nil?
+            Waves::landing(wave)
+        }
     end
 
     # -------------------------------------------------------------------------
