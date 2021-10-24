@@ -59,19 +59,19 @@ class Interpreters
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
-        if command.start_with?("on") then
+        if command == "on" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             item = OnGoing::makeNewFromDescription(description)
             puts JSON.pretty_generate(item)
         end
 
-        if command.start_with?("today") then
+        if command == "today" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             item = Today::makeNewFromDescription(description, true)
             puts JSON.pretty_generate(item)
         end
 
-        if command.start_with?("todo") then
+        if command == "todo" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return if description == ""
             uuid = LucilleCore::timeStringL22()
