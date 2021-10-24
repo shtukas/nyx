@@ -104,9 +104,7 @@ class Floats
             puts "[floa] #{File.basename(location)}".green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy"])
             if action == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
-                    LucilleCore::removeFileSystemLocation(location)
-                end
+                LucilleCore::removeFileSystemLocation(location)
             end
         else
             puts "[floa] (folder) #{File.basename(location)}".green

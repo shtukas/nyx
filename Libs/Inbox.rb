@@ -37,7 +37,7 @@ class Inbox
                     "interpreter"  => lambda {|command|
                         if command == ">todo" then
                             domain = Domain::interactivelySelectDomain()
-                            unixtime = Nx50s::randomUnixtimeWithinRange(domain, 10, 30)
+                            unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
                             Nx50s::issueItemUsingLocation(location, unixtime, domain)
                             LucilleCore::removeFileSystemLocation(location)
                         end
