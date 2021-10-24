@@ -528,18 +528,33 @@ class Nx50s
 
         screenheight = Utils::screenHeight()
 
-        ns16s = Nx50s::nx50s()
-            .select{|item| item["domain"] == domain }
-            .reduce([]){|object, nx50|
-                if object.size < screenheight then
-                    ns16 = Nx50s::ns16OrNull(nx50)
-                    if ns16 then
-                        object << ns16
-                    end
-                end
-                object
-            }
-        ns16s
+        if domain == "(eva)" then
+            nx50s = Nx50s::nx50sForDomain(domain)
+                        .reduce([]){|objects, nx50|
+                            if objects.size < screenheight then
+                                ns16 = Nx50s::ns16OrNull(nx50)
+                                if ns16 then
+                                    objects << ns16
+                                end
+                            end
+                            objects
+                        }
+
+            return [
+                nx50s.select{|nx50| nx50["rt"] > 0 }.sort{|x1, x2| x1["rt"] <=> x2["rt"] },
+                nx50s.select{|nx50| nx50["rt"] == 0 }
+            ].flatten
+        end
+
+        if domain == "(work)" then
+            return Nx50s::nx50sForDomain(domain)
+                .map{|nx50| Nx50s::ns16OrNull(nx50) }
+                .compact
+        end
+
+        Nx50s::nx50sForDomain(domain)
+            .map{|nx50| Nx50s::ns16OrNull(nx50) }
+            .compact
     end
 
     # --------------------------------------------------
