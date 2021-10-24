@@ -43,12 +43,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversCommands()
     def self.makersAndDiversCommands()
-        "on: <line> | today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "on | today | todo | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "on: <line> | today: <line> | todo: <line> | float | wave | ondate | anniversary | Nx50"
+        "on | today | todo | float | wave | ondate | anniversary | Nx50"
     end
 
     # Interpreters::diversCommands()
@@ -59,24 +59,24 @@ class Interpreters
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
-        if command.start_with?("on:") then
-            description = command[3, command.length].strip
+        if command.start_with?("on") then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             item = OnGoing::makeNewFromDescription(description)
             puts JSON.pretty_generate(item)
         end
 
-        if command.start_with?("today:") then
-            description = command[6, command.length].strip
+        if command.start_with?("today") then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             item = Today::makeNewFromDescription(description, true)
             puts JSON.pretty_generate(item)
         end
 
-        if command.start_with?("todo:") then
-            description = command[5, command.length].strip
+        if command.start_with?("todo") then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
             return if description == ""
             uuid = LucilleCore::timeStringL22()
             domain = Domain::interactivelySelectDomain()
-            unixtime = Nx50s::randomUnixtimeWithinRange(domain, 10, 20)
+            unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
             Nx50s::commitNx50ToDatabase({
                 "uuid"        => uuid,
                 "unixtime"    => unixtime,
