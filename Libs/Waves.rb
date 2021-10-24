@@ -186,6 +186,8 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+
+        Bank::put("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 1)
     end
 
     # Waves::accessContent(wave)
@@ -196,8 +198,6 @@ class Waves
     # Waves::landing(wave)
     def self.landing(wave)
         uuid = wave["uuid"]
-
-        nxball = NxBalls::makeNxBall([uuid])
 
         loop {
             system("clear")
@@ -284,8 +284,6 @@ class Waves
 
             Interpreters::makersAndDiversInterpreter(command)
         }
-
-        NxBalls::closeNxBall(nxball, true)
     end
 
     # -------------------------------------------------------------------------
@@ -403,12 +401,19 @@ class Waves
         n1["uuid"] <=> n2["uuid"]
     end
 
+    # Waves::circuitBreaker()
+    def self.circuitBreaker()
+        (Beatrice::stdRecoveredHourlyTimeInHours("WAVES-TIME-75-42E8-85E2-F17E869DF4D3") >= 0.25) or (Bank::valueOverTimespan("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 3600*2) >= 10)
+    end
+
     # Waves::ns16s(domain)
     def self.ns16s(domain)
+        breaking = Waves::circuitBreaker()
         Waves::items()
             .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
+            .select{|item| breaking ? Waves::isPriorityWave(item) : true }
             .map{|wave| Waves::toNS16(wave) }
             .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
             .reverse
