@@ -362,7 +362,7 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy (gg) | exit".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | domain | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -437,6 +437,12 @@ class Nx50s
                 nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
                 Nx50s::commitNx50ToDatabase(nx50)
                 next
+            end
+
+            if Interpreting::match("domain", command) then
+                nx50["domain"] = Domain::interactivelySelectDomain()
+                Nx50s::commitNx50ToDatabase(nx50)
+                break
             end
 
             if Interpreting::match("show json", command) then
@@ -546,16 +552,16 @@ class Nx50s
                             objects
                         }
 
-            return [
-                ns16s
+            q1 = ns16s
                     .select{|ns16| ns16["rt"] > 0 }
                     .map{|ns16|  
                         ns16["announce"] = ns16["announce"].green
                         ns16
                     }
-                    .sort{|x1, x2| x1["rt"] <=> x2["rt"] },
-                ns16s.select{|ns16| ns16["rt"] == 0 }
-            ].flatten
+
+            q2 = ns16s.select{|ns16| ns16["rt"] == 0 }
+
+            return q1.sort{|x1, x2| x1["rt"] <=> x2["rt"] } + q2
         end
 
         if domain == "(work)" then
