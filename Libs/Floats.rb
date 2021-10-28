@@ -59,7 +59,7 @@ class Floats
             line = LucilleCore::askQuestionAnswerAsString("line: ")
             date = Time.new.to_s[0, 10]
             filename = "#{date} #{SecureRandom.uuid}.txt"
-            location = "/Users/pascal/Galaxy/Floats/#{filename}"
+            location = "#{Floats::repositoryFolderpath()}/#{filename}"
             File.open(location, "w"){|f| f.puts(line) }
             KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
         end
@@ -68,7 +68,7 @@ class Floats
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             date = Time.new.to_s[0, 10]
             filename = "#{date} #{description}"
-            location = "/Users/pascal/Galaxy/Floats/#{filename}"
+            location = "#{Floats::repositoryFolderpath()}/#{filename}"
             FileUtils.mkdir(location)
             KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
             system("open '#{location}'")

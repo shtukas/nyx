@@ -362,7 +362,7 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy | exit".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -452,6 +452,12 @@ class Nx50s
                 end
                 next
             end
+
+            if command == "gg" then
+                Nx50s::complete(nx50)
+                break
+            end
+
         }
 
         thr.exit
