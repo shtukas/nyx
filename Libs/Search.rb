@@ -11,7 +11,8 @@ class Search
         NxOnDate::nx19s() +
         Inbox::nx19s() +
         Waves::nx19s() +
-        Nx50s::nx19s()
+        Nx50s::nx19s() +
+        DrivesBackups::nx19s()
     end
 
     # Search::existingUUIDS()

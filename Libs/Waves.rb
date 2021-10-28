@@ -179,6 +179,11 @@ class Waves
 
     # Waves::performDone(wave)
     def self.performDone(wave)
+        if Waves::toString(wave).include?("[backup]") then
+            logfile = "/Users/pascal/Galaxy/LucilleOS/Backups-Utils/logs/alexandra-latest/records.txt"
+            File.open(logfile, "a"){|f| f.puts("#{Time.new.to_s} : #{Waves::toString(wave)}")}
+        end
+
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
         Waves::commitItemToDisk(wave)

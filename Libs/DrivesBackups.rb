@@ -14,6 +14,11 @@ class DrivesBackups
         JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Catalyst/Drives-Backups/instructions.json"))
     end
 
+    # DrivesBackups::instructionToString(instruction)
+    def self.instructionToString(instruction)
+        "[bckp] [backup] (auto done) #{instruction["description"]}"
+    end
+
     # DrivesBackups::ns16s()
     def self.ns16s()
         DrivesBackups::instructions()
@@ -23,10 +28,23 @@ class DrivesBackups
             .map{|instruction|
                 {
                     "uuid"        => instruction["uuid"],
-                    "announce"    => "[bckp] #{instruction["description"]} (auto done)",
+                    "announce"    => DrivesBackups::instructionToString(instruction),
                     "commands"    => nil,
                     "interpreter" => nil
                 }
             }
     end
+
+    # DrivesBackups::nx19s()
+    def self.nx19s()
+        DrivesBackups::instructions()
+            .map{|instruction|
+                {
+                    "uuid"     => instruction["uuid"],
+                    "announce" => DrivesBackups::instructionToString(instruction),
+                    "lambda"   => lambda {}
+                }
+            }
+    end
+
 end
