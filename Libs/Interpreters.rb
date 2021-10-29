@@ -74,6 +74,7 @@ class Interpreters
         if command == "todo" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             return if description == ""
+            coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
             uuid = LucilleCore::timeStringL22()
             domain = Domain::interactivelySelectDomain()
             unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
@@ -81,7 +82,7 @@ class Interpreters
                 "uuid"        => uuid,
                 "unixtime"    => unixtime,
                 "description" => description,
-                "coreDataId"  => nil,
+                "coreDataId"  => coreDataId,
                 "domain"      => domain
             })
         end
