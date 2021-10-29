@@ -41,7 +41,7 @@ class NS16sOperator
             Waves::ns16s(domain),
             Floats::ns16s(domain),
             Inbox::ns16s(),
-            PriorityFile::ns16s(domain),
+            PriorityFile::ns16s(),
             Nx50s::ns16s(domain),
         ]
             .flatten

@@ -121,9 +121,9 @@ class PriorityFile
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # PriorityFile::ns16s(domain)
-    def self.ns16s(domain)
-        filepath = "/Users/pascal/Desktop/#{domain}.txt"
+    # PriorityFile::ns16s()
+    def self.ns16s()
+        filepath = "/Users/pascal/Desktop/Priority.txt"
         text = IO.read(filepath)
         sections = SectionsType0141::contentToSections(text)
 
