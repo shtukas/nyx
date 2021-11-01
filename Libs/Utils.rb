@@ -22,6 +22,7 @@ class Utils
 
         return nil if code.nil?
         return nil if code == ""
+        return nil if code == "today" # an item creation command that interfer with datcode patterns
 
         # +++ postpone til midnight
         # ++ postpone by one hour

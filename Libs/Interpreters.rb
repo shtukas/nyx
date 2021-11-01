@@ -41,11 +41,6 @@ class Interpreters
         end
     end
 
-    # Interpreters::makersAndDiversCommands()
-    def self.makersAndDiversCommands()
-        "on | today | todo | float | wave | ondate | anniversary | Nx50 | calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
-    end
-
     # Interpreters::makersCommands()
     def self.makersCommands()
         "on | today | todo | float | wave | ondate | anniversary | Nx50"
@@ -56,23 +51,33 @@ class Interpreters
         "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
     end
 
+    # Interpreters::makersAndDiversCommands()
+    def self.makersAndDiversCommands()
+        [
+            Interpreters::makersCommands(),
+            Interpreters::diversCommands()
+        ].join(" | ")
+    end
+
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
         if command == "on" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
             item = OnGoing::makeNewFromDescription(description)
             puts JSON.pretty_generate(item)
         end
 
         if command == "today" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
             item = Today::makeNewFromDescription(description, true)
             puts JSON.pretty_generate(item)
         end
 
         if command == "todo" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
             coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
             uuid = LucilleCore::timeStringL22()
