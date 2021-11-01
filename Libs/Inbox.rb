@@ -33,7 +33,7 @@ class Inbox
                     "uuid"         => getLocationUUID.call(location),
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
-                    "commands"     => [">todo"],
+                    "commands"     => ["..", ">todo"],
                     "interpreter"  => lambda {|command|
                         if command == ">todo" then
                             domain = Domain::interactivelySelectDomain()
