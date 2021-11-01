@@ -62,7 +62,7 @@ class Today
                     system("clear")
                     puts Today::itemToString(item).green
                     CoreData::accessWithOptionToEdit(item["coreDataId"])
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ", true) then
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
                         BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
                     end  
                 }
