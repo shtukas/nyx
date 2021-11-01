@@ -42,6 +42,7 @@ class NS16sOperator
             Floats::ns16s(domain),
             Inbox::ns16s(),
             PriorityFile::ns16s(),
+            Today::ns16s(),
             Nx50s::ns16s(domain),
         ]
             .flatten
@@ -176,16 +177,6 @@ class UIServices
         puts "on:"
         vspaceleft = vspaceleft - 2
         OnGoing::ns16s()
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
-
-        puts ""
-        puts "today:"
-        vspaceleft = vspaceleft - 2
-        Today::ns16s()
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line
