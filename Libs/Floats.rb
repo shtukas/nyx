@@ -86,7 +86,7 @@ class Floats
                 {
                     "announce"     => announce,
                     "unixtime"     => unixtime,
-                    "run"          => lambda{ Floats::landing(location) },
+                    "run"          => lambda{ Floats::run(location) },
                 }
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
@@ -97,11 +97,11 @@ class Floats
         #}
     end
 
-    # Floats::landing(location)
-    def self.landing(location)
+    # Floats::run(location)
+    def self.run(location)
         system("clear")
         if File.file?(location) then
-            puts "[floa] #{File.basename(location)}".green
+            puts Floats::locationToString(location).green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy"])
             if action == "destroy" then
                 LucilleCore::removeFileSystemLocation(location)
@@ -127,10 +127,16 @@ class Floats
                 {
                     "uuid"        => uuid,
                     "announce"    => announce,
-                    "commands"    => [".."],
+                    "commands"    => ["..", "open"],
                     "run"         => lambda {
                         KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
                     },
+                    "interpreter" => lambda {|command|
+                        if command == "open" then
+                            Floats::run(location)
+                            KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
+                        end
+                    }
                 }
             }
     end
