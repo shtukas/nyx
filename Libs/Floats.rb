@@ -127,15 +127,10 @@ class Floats
                 {
                     "uuid"        => uuid,
                     "announce"    => announce,
-                    "commands"    => ["..", "landing"],
+                    "commands"    => [".."],
                     "run"         => lambda {
                         KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
                     },
-                    "interpreter" => lambda{|command|
-                        if command == "dive" then
-                            Floats::landing(location)
-                        end
-                    }
                 }
             }
     end
