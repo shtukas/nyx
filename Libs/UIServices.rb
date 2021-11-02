@@ -42,6 +42,7 @@ class NS16sOperator
             Floats::ns16s(domain),
             Inbox::ns16s(),
             PriorityFile::ns16s(),
+            Work::ns16s(),
             Today::ns16s(),
             Nx50s::ns16s(domain),
         ]

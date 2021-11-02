@@ -46,6 +46,23 @@ class Work
     def self.isActive()
         !Work::getNxBallOrNull().nil?
     end
+
+    # Work::ns16s()
+    def self.ns16s()
+        return [] if (Domain::getActiveDomain() == "(work)")
+        return [] if Work::recoveryTime() > 6
+        [
+            {
+                "uuid"        => "76121744-af0d-499d-8724-fd7e2ecd7d0c",
+                "announce"    => "Should be working 🧑🏻‍💻",
+                "commands"    => [],
+                "run"         => lambda {
+                    Domain::setActiveDomain("(work)")
+                }
+            }
+        ]
+
+    end
 end
 
 Thread.new {
