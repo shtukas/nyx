@@ -3,13 +3,13 @@
 
 class Domain
 
-    # Domain::setCurrentDomain(domain)
-    def self.setCurrentDomain(domain)
+    # Domain::setActiveDomain(domain)
+    def self.setActiveDomain(domain)
         KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda283", domain)
     end
 
-    # Domain::getCurrentDomain()
-    def self.getCurrentDomain()
+    # Domain::getActiveDomain()
+    def self.getActiveDomain()
         KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda283") || "(eva)"
     end
 
@@ -26,12 +26,12 @@ class Domain
     # Domain::domainsCommandInterpreter(command)
     def self.domainsCommandInterpreter(command)
         if command == "work" then
-            Domain::setCurrentDomain("(work)")
+            Domain::setActiveDomain("(work)")
             Work::issueNxBallIfNotOne()
         end
         if command == "eva" then
             Work::closeNxBallIfOne()
-            Domain::setCurrentDomain("(eva)")
+            Domain::setActiveDomain("(eva)")
         end
     end
 end

@@ -133,7 +133,7 @@ class Interpreters
         end
 
         if Interpreting::match("waves", command) then
-            domain = Domain::getCurrentDomain()
+            domain = Domain::getActiveDomain()
             Waves::waves(domain)
         end
 
