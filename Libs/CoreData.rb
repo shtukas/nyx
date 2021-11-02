@@ -371,8 +371,14 @@ class CoreData
             return
         end
         if object["type"] == "text" then
+            puts "-- begin --".yellow
             puts object["text"]
-            LucilleCore::pressEnterToContinue()
+            puts "-- end --".yellow
+            if LucilleCore::askQuestionAnswerAsBoolean("> edit ? ", false) then
+                text = CoreDataUtils::editTextSynchronously(object["text"])
+                object["text"] = text
+                CoreDataUtils::commitObject(object)
+            end
             return
         end
         if object["type"] == "url" then
@@ -408,5 +414,4 @@ class CoreData
         end
         raise "(2201ddcd-cb33-4faf-9388-e4ebb6e7f28f, uuid: #{uuid})"
     end
-
 end
