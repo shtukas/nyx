@@ -208,10 +208,17 @@ class NxOnDate # OnDate
         {
             "uuid"        => item["uuid"],
             "announce"    => NxOnDate::toString(item),
-            "commands"    => ["..", "done"],
+            "commands"    => ["..", "redate", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     NxOnDate::run(item)
+                end
+                if command == "redate" then
+                    date = NxOnDate::interactivelySelectADateOrNull()
+                    return if date.nil?
+                    item["date"] = date
+                    puts JSON.pretty_generate(item)
+                    NxOnDate::commitItemToDisk(item)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(item)}' ? ", true) then
