@@ -611,8 +611,12 @@ class Nx50s
 
             # all: q3+q4+q5+q6
 
+            adaptedRT = lambda{|ns16|
+                ns16["rt"] == 0 ? 0.4 : ns16["rt"]
+            }
+
             q7 = (q3+q5)
-                .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+                .sort{|x1, x2| adaptedRT.call(x1) <=> adaptedRT.call(x2) }
                 .map{|ns16|  
                     ns16["announce"] = ns16["announce"].green
                     ns16
