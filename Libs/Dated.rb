@@ -1,36 +1,36 @@
 # encoding: UTF-8
 
-class NxOnDate # OnDate
+class Dated # OnDate
 
-    # NxOnDate::itemsFolderPath()
+    # Dated::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/NxOnDates"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/Dateds"
     end
 
-    # NxOnDate::commitItemToDisk(item)
+    # Dated::commitItemToDisk(item)
     def self.commitItemToDisk(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
+        filepath = "#{Dated::itemsFolderPath()}/#{filename}"
         File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
     end
 
-    # NxOnDate::getNxOnDateByUUIDOrNull(uuid)
-    def self.getNxOnDateByUUIDOrNull(uuid)
+    # Dated::getDatedByUUIDOrNull(uuid)
+    def self.getDatedByUUIDOrNull(uuid)
         filename = "#{uuid}.json"
-        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
+        filepath = "#{Dated::itemsFolderPath()}/#{filename}"
         return nil if !File.exists?(filepath)
         JSON.parse(IO.read(filepath))
     end
 
-    # NxOnDate::items()
+    # Dated::items()
     def self.items()
-        LucilleCore::locationsAtFolder(NxOnDate::itemsFolderPath())
+        LucilleCore::locationsAtFolder(Dated::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
             .sort{|x1, x2|  x1["date"] <=> x2["date"]}
     end
 
-    # NxOnDate::interactivelySelectADateOrNull()
+    # Dated::interactivelySelectADateOrNull()
     def self.interactivelySelectADateOrNull()
         datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
         unixtime = Utils::codeToUnixtimeOrNull(datecode)
@@ -38,7 +38,7 @@ class NxOnDate # OnDate
         Time.at(unixtime).to_s[0, 10]
     end
 
-    # NxOnDate::interactivelyIssueNewOrNull()
+    # Dated::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = LucilleCore::timeStringL22()
 
@@ -49,7 +49,7 @@ class NxOnDate # OnDate
             return nil
         end
 
-        date = NxOnDate::interactivelySelectADateOrNull()
+        date = Dated::interactivelySelectADateOrNull()
         return nil if date.nil?
 
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
@@ -63,17 +63,17 @@ class NxOnDate # OnDate
               "domain"      => nil # we display all of them at any domain
             }
 
-        NxOnDate::commitItemToDisk(item)
+        Dated::commitItemToDisk(item)
 
         item
     end
 
-    # NxOnDate::issueItemUsingText(text, unixtime, date)
+    # Dated::issueItemUsingText(text, unixtime, date)
     def self.issueItemUsingText(text, unixtime, date)
         uuid        = LucilleCore::timeStringL22()
         description = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         coreDataId  = CoreData::issueTextDataObjectUsingText(text)
-        NxOnDate::commitItemToDisk({
+        Dated::commitItemToDisk({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
@@ -81,13 +81,13 @@ class NxOnDate # OnDate
             "coreDataId"  => coreDataId,
             "domain"      => "(eva)"
         })
-        NxOnDate::getNxOnDateByUUIDOrNull(uuid)
+        Dated::getDatedByUUIDOrNull(uuid)
     end
 
-    # NxOnDate::destroy(item)
+    # Dated::destroy(item)
     def self.destroy(item)
         filename = "#{item["uuid"]}.json"
-        filepath = "#{NxOnDate::itemsFolderPath()}/#{filename}"
+        filepath = "#{Dated::itemsFolderPath()}/#{filename}"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -95,7 +95,7 @@ class NxOnDate # OnDate
     # -------------------------------------
     # Operations
 
-    # NxOnDate::getItemType(item)
+    # Dated::getItemType(item)
     def self.getItemType(item)
         type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}")
         return type if type
@@ -105,12 +105,12 @@ class NxOnDate # OnDate
         type2
     end
 
-    # NxOnDate::toString(item)
+    # Dated::toString(item)
     def self.toString(item)
-        "[ondt] (#{item["date"]}) #{item["description"]} (#{NxOnDate::getItemType(item)})"
+        "[ondt] (#{item["date"]}) #{item["description"]} (#{Dated::getItemType(item)})"
     end
 
-    # NxOnDate::accessContent(item)
+    # Dated::accessContent(item)
     def self.accessContent(item)
         if item["coreDataId"].nil? then
             puts "description: #{item["description"]}"
@@ -120,14 +120,14 @@ class NxOnDate # OnDate
         CoreData::accessWithOptionToEdit(item["coreDataId"])
     end
 
-    # NxOnDate::run(item)
+    # Dated::run(item)
     def self.run(item)
 
         system("clear")
 
         uuid = item["uuid"]
 
-        puts "running #{NxOnDate::toString(item)}".green
+        puts "running #{Dated::toString(item)}".green
         puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
@@ -144,13 +144,13 @@ class NxOnDate # OnDate
 
         puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 
-        NxOnDate::accessContent(item)
+        Dated::accessContent(item)
 
         loop {
 
             system("clear")
 
-            puts "running #{NxOnDate::toString(item)}".green
+            puts "running #{Dated::toString(item)}".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
@@ -160,7 +160,7 @@ class NxOnDate # OnDate
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if Interpreting::match("access", command) then
-                NxOnDate::accessContent(item)
+                Dated::accessContent(item)
                 next
             end
 
@@ -181,10 +181,10 @@ class NxOnDate # OnDate
             end
 
             if Interpreting::match("update date", command) then
-                date = NxOnDate::interactivelySelectADateOrNull()
+                date = Dated::interactivelySelectADateOrNull()
                 next if date.nil?
                 item["date"] = date
-                NxOnDate::commitItemToDisk(item)
+                Dated::commitItemToDisk(item)
                 next
             end
 
@@ -193,7 +193,7 @@ class NxOnDate # OnDate
             end
 
             if Interpreting::match("destroy", command) then
-                NxOnDate::destroy(item)
+                Dated::destroy(item)
                 break
             end
         }
@@ -203,55 +203,55 @@ class NxOnDate # OnDate
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # NxOnDate::itemToNS16(item)
+    # Dated::itemToNS16(item)
     def self.itemToNS16(item)
         {
             "uuid"        => item["uuid"],
-            "announce"    => NxOnDate::toString(item),
+            "announce"    => Dated::toString(item),
             "commands"    => ["..", "redate", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
-                    NxOnDate::run(item)
+                    Dated::run(item)
                 end
                 if command == "redate" then
-                    date = NxOnDate::interactivelySelectADateOrNull()
+                    date = Dated::interactivelySelectADateOrNull()
                     return if date.nil?
                     item["date"] = date
                     puts JSON.pretty_generate(item)
-                    NxOnDate::commitItemToDisk(item)
+                    Dated::commitItemToDisk(item)
                 end
                 if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{NxOnDate::toString(item)}' ? ", true) then
-                        NxOnDate::destroy(item)
+                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then
+                        Dated::destroy(item)
                     end
                 end
             },
             "run" => lambda {
-                NxOnDate::run(item)
+                Dated::run(item)
             }
         }
     end
 
-    # NxOnDate::ns16s()
+    # Dated::ns16s()
     def self.ns16s()
-        NxOnDate::items()
+        Dated::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .sort{|i1, i2| i1["date"] <=> i2["date"] }
-            .map{|item| NxOnDate::itemToNS16(item) }
+            .map{|item| Dated::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # NxOnDate::main()
+    # Dated::main()
     def self.main()
         loop {
             system("clear")
 
-            items = NxOnDate::items()
+            items = Dated::items()
                         .sort{|i1, i2| i1["date"] <=> i2["date"] }
 
             items.each_with_index{|item, indx| 
-                puts "[#{indx}] #{NxOnDate::toString(item)}"
+                puts "[#{indx}] #{Dated::toString(item)}"
             }
 
             puts "<item index> | (empty) # exit".yellow
@@ -264,20 +264,20 @@ class NxOnDate # OnDate
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 item = items[indx]
                 next if item.nil?
-                NxOnDate::run(item)
+                Dated::run(item)
             end
 
             Interpreters::makersAndDiversInterpreter(command)
         }
     end
 
-    # NxOnDate::nx19s()
+    # Dated::nx19s()
     def self.nx19s()
-        NxOnDate::items().map{|item|
+        Dated::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => NxOnDate::toString(item),
-                "lambda"   => lambda { NxOnDate::run(item) }
+                "announce" => Dated::toString(item),
+                "lambda"   => lambda { Dated::run(item) }
             }
         }
     end

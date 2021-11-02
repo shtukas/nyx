@@ -34,7 +34,7 @@ class NS16sOperator
         [
             Anniversaries::ns16s(domain),
             Calendar::ns16s(),
-            NxOnDate::ns16s(),
+            Dated::ns16s(),
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
@@ -262,7 +262,7 @@ class Fsck
             puts JSON.pretty_generate(item)
         }
 
-        NxOnDate::items().each{|item|
+        Dated::items().each{|item|
             puts JSON.pretty_generate(item)
             status = CoreData::fsck(item["coreDataId"])
             if !status then

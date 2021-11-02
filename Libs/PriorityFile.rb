@@ -22,9 +22,9 @@ class PriorityFile
     # PriorityFile::recastSectionAsOndate(filepath, section)
     def self.recastSectionAsOndate(filepath, section)
         PriorityFile::catalystSafe(filepath)
-        date = NxOnDate::interactivelySelectADateOrNull()
+        date = Dated::interactivelySelectADateOrNull()
         return if date.nil?
-        item = NxOnDate::issueItemUsingText(section.strip, Time.new.to_i, date)
+        item = Dated::issueItemUsingText(section.strip, Time.new.to_i, date)
         puts JSON.pretty_generate(item)
         text = IO.read(filepath)
         text = text.gsub(section, "")

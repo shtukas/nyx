@@ -103,7 +103,7 @@ class Interpreters
         end
 
         if Interpreting::match("ondate", command) then
-            item = NxOnDate::interactivelyIssueNewOrNull()
+            item = Dated::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
         end
@@ -121,7 +121,7 @@ class Interpreters
         end
 
         if Interpreting::match("ondates", command) then
-            NxOnDate::main()
+            Dated::main()
         end
 
         if Interpreting::match("anniversaries", command) then

@@ -151,7 +151,7 @@ require_relative "Inbox.rb"
 
 require_relative "Floats.rb"
 require_relative "Nx50s.rb"
-require_relative "NxOnDate.rb"
+require_relative "Dated.rb"
 
 require_relative "OnGoing.rb"
 
