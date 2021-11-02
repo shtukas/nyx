@@ -2,8 +2,8 @@
 
 class Today
 
-    # Today::makeNewFromDescription(description, useCoreData)
-    def self.makeNewFromDescription(description, useCoreData)
+    # Today::issueNewFromDescription(description, useCoreData)
+    def self.issueNewFromDescription(description, useCoreData)
         uuid = SecureRandom.uuid
         item = {
             "uuid"        => uuid,

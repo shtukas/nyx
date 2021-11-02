@@ -107,7 +107,7 @@ class Dated # OnDate
 
     # Dated::toString(item)
     def self.toString(item)
-        "[ondt] (#{item["date"]}) #{item["description"]} (#{Dated::getItemType(item)})"
+        "[date] (#{item["date"]}) #{item["description"]} (#{Dated::getItemType(item)})"
     end
 
     # Dated::accessContent(item)
@@ -208,7 +208,7 @@ class Dated # OnDate
         {
             "uuid"        => item["uuid"],
             "announce"    => Dated::toString(item),
-            "commands"    => ["..", "redate", "done"],
+            "commands"    => ["..", "redate", ">hud", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     Dated::run(item)
@@ -219,6 +219,10 @@ class Dated # OnDate
                     item["date"] = date
                     puts JSON.pretty_generate(item)
                     Dated::commitItemToDisk(item)
+                end
+                if command == ">hud" then
+                    Hud::issueNewFromDescriptionAndCoreDataId(Dated::toString(item), item["coreDataId"])
+                    Dated::destroy(item)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then

@@ -62,17 +62,17 @@ class Interpreters
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
-        if command == "on" then
+        if command == "hud" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            item = OnGoing::makeNewFromDescription(description)
+            item = Hud::issueNewFromDescriptionAndCoreDataId(description, nil)
             puts JSON.pretty_generate(item)
         end
 
         if command == "today" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            item = Today::makeNewFromDescription(description, true)
+            item = Today::issueNewFromDescription(description, true)
             puts JSON.pretty_generate(item)
         end
 

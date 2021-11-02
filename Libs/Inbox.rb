@@ -67,7 +67,7 @@ class Inbox
                             LucilleCore::removeFileSystemLocation(location)
                         end
                         if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "on", "today", "Nx50"])
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "hud", "today", "Nx50"])
                             if target == "float" then
                                 if File.file?(location) then
                                     Floats::interactivelyCreateNewOrNull()
@@ -80,9 +80,9 @@ class Inbox
                                     LucilleCore::removeFileSystemLocation(location)
                                 end
                             end
-                            if target == "on" then
+                            if target == "hud" then
                                 description = File.basename(location)
-                                item = OnGoing::issueNewFromDescriptionAndLocation(description, location)
+                                item = Hud::issueNewFromDescriptionAndLocation(description, location)
                                 puts JSON.pretty_generate(item)
                                 LucilleCore::removeFileSystemLocation(location)
                             end

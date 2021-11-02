@@ -350,7 +350,7 @@ class Waves
         {
             "uuid"        => uuid,
             "announce"    => Waves::toString(wave),
-            "commands"    => ["..", "landing", "done", ">today (copy to today)"],
+            "commands"    => ["..", "landing", "done", ">hud (done and copy to hud)"],
             "interpreter" => lambda{|command|
                 if command == ".." then
                     Waves::run(wave)
@@ -361,8 +361,8 @@ class Waves
                 if command == "done" then
                     Waves::performDone(wave)
                 end
-                if command == ">today" then
-                    Today::makeNewFromDescription(Waves::toString(wave), false)
+                if command == ">hud" then
+                    Hud::issueNewFromDescriptionAndCoreDataId(Waves::toString(wave), wave["coreDataId"])
                     Waves::performDone(wave)
                 end
             },

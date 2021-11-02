@@ -174,9 +174,9 @@ class UIServices
             }
 
         puts ""
-        puts "on:"
+        puts "hud:"
         vspaceleft = vspaceleft - 2
-        OnGoing::ns16s()
+        Hud::ns16s()
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line

@@ -1,21 +1,21 @@
 # encoding: UTF-8
 
-class OnGoing
+class Hud
 
-    # OnGoing::makeNewFromDescription(description)
-    def self.makeNewFromDescription(description)
+    # Hud::issueNewFromDescriptionAndCoreDataId(description, coreDataId)
+    def self.issueNewFromDescriptionAndCoreDataId(description, coreDataId)
         uuid = SecureRandom.uuid
         item = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "coreDataId"  => CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+            "coreDataId"  => coreDataId
         }
         BTreeSets::set(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid, item)
         BTreeSets::getOrNull(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid)
     end
 
-    # OnGoing::issueNewFromDescriptionAndLocation(description, location)
+    # Hud::issueNewFromDescriptionAndLocation(description, location)
     def self.issueNewFromDescriptionAndLocation(description, location)
         uuid = SecureRandom.uuid
         item = {
@@ -28,7 +28,7 @@ class OnGoing
         BTreeSets::getOrNull(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid)
     end
 
-    # OnGoing::items()
+    # Hud::items()
     def self.items()
         BTreeSets::values(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
@@ -40,18 +40,18 @@ class OnGoing
         #}
     end
 
-    # OnGoing::toString(item)
+    # Hud::toString(item)
     def self.toString(item)
-        "[ on going ] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
+        "[hud*] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
     end
 
-    # OnGoing::ns16s()
+    # Hud::ns16s()
     def self.ns16s()
-        OnGoing::items().map{|item|
+        Hud::items().map{|item|
             {
                 "uuid"     => item["uuid"],
                 "unixtime" => item["unixtime"],
-                "announce" => OnGoing::toString(item).gsub("[ on going ]", "[ on ]"),
+                "announce" => Hud::toString(item),
                 "commands" => ["done"],
                 "interpreter" => lambda{|command|
                     if command == "done" then
@@ -60,7 +60,7 @@ class OnGoing
                 },
                 "run"      => lambda {
                     system("clear")
-                    puts OnGoing::toString(item).green
+                    puts Hud::toString(item).green
                     CoreData::accessWithOptionToEdit(item["coreDataId"])
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
                         BTreeSets::destroy(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", item["uuid"])
@@ -70,7 +70,7 @@ class OnGoing
         }
     end
 
-    # OnGoing::nx19s()
+    # Hud::nx19s()
     def self.nx19s()
         []
     end
