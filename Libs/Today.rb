@@ -52,9 +52,25 @@ class Today
                 "uuid"     => item["uuid"],
                 "unixtime" => item["unixtime"],
                 "announce" => Today::itemToString(item).gsub("[today]", "[tday]"),
-                "commands" => ["done"],
+                "commands" => ["done", ">todo"],
                 "interpreter" => lambda{|command|
                     if command == "done" then
+                        BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
+                    end
+                    if command == ">todo" then
+                        uuid2 = LucilleCore::timeStringL22()
+                        domain = Domain::interactivelySelectDomain()
+                        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+                        item2 = {
+                            "uuid"        => uuid2,
+                            "unixtime"    => unixtime,
+                            "description" => item["description"],
+                            "coreDataId"  => item["coreDataId"],
+                            "domain"      => domain
+                        }
+                        Nx50s::commitNx50ToDatabase(item2)
+                        item2 = Nx50s::getNx50ByUUIDOrNull(uuid2)
+                        puts JSON.pretty_generate(item2)
                         BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
                     end
                 },
