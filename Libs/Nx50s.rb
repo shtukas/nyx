@@ -596,16 +596,31 @@ class Nx50s
                             objects
                         }
 
-            q1 = ns16s
-                    .select{|ns16| ns16["rt"] > 0 }
-                    .map{|ns16|  
-                        ns16["announce"] = ns16["announce"].green
-                        ns16
-                    }
+            q1, q2 = ns16s.partition{|ns16| ns16["rt"] > 0 }
 
-            q2 = ns16s.select{|ns16| ns16["rt"] == 0 }
+            # all: q1+q2
 
-            return q1.sort{|x1, x2| x1["rt"] <=> x2["rt"] } + q2
+            q3, q4 = q1.partition{|ns16| ns16["rt"] < 1 }
+
+            # all: q3+q4+q2
+
+            x1 = [5 - q3.size, 0].max
+
+            q5 = q2.take(x1)
+            q6 = q2.drop(x1)
+
+            # all: q3+q4+q5+q6
+
+            q7 = (q3+q5)
+                .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+                .map{|ns16|  
+                    ns16["announce"] = ns16["announce"].green
+                    ns16
+                }
+
+            # all: q7+q4+q6
+
+            return q7 + q4 + q6
         end
 
         if domain == "(work)" then
