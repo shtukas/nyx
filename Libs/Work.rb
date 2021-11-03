@@ -49,19 +49,31 @@ class Work
 
     # Work::ns16s()
     def self.ns16s()
-        return [] if (Domain::getActiveDomain() == "(work)")
-        return [] if Work::recoveryTime() > 6
-        [
-            {
-                "uuid"        => "76121744-af0d-499d-8724-fd7e2ecd7d0c",
-                "announce"    => "Should be working 🧑🏻‍💻",
-                "commands"    => [],
-                "run"         => lambda {
-                    Domain::setActiveDomain("(work)")
+        if Domain::getActiveDomain() == "(eva)" and Work::recoveryTime() < 5 then
+            return [
+                {
+                    "uuid"        => "76121744-af0d-499d-8724-fd7e2ecd7d0c",
+                    "announce"    => "Should be working 🧑🏻‍💻",
+                    "commands"    => [],
+                    "run"         => lambda {
+                        Domain::setActiveDomain("(work)")
+                    }
                 }
-            }
-        ]
-
+            ]
+        end
+        if Domain::getActiveDomain() == "(work)" and Work::recoveryTime() > 6 then
+            return [
+                {
+                    "uuid"        => "76121744-af0d-499d-8724-fd7e2ecd7d0c",
+                    "announce"    => "Should be (eva)ing 👩",
+                    "commands"    => [],
+                    "run"         => lambda {
+                        Domain::setActiveDomain("(eva)")
+                    }
+                }
+            ]
+        end
+        []
     end
 end
 

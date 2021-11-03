@@ -68,8 +68,8 @@ class Today
                             "coreDataId"  => item["coreDataId"],
                             "domain"      => domain
                         }
-                        Nx50s::commitNx50ToDatabase(item2)
-                        item2 = Nx50s::getNx50ByUUIDOrNull(uuid2)
+                        Nx50s::commitItemToDatabase(item2)
+                        item2 = Nx50s::getItemByUUIDOrNull(uuid2)
                         puts JSON.pretty_generate(item2)
                         BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
                     end

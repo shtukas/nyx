@@ -83,7 +83,7 @@ class Interpreters
             uuid = LucilleCore::timeStringL22()
             domain = Domain::interactivelySelectDomain()
             unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-            Nx50s::commitNx50ToDatabase({
+            Nx50s::commitItemToDatabase({
                 "uuid"        => uuid,
                 "unixtime"    => unixtime,
                 "description" => description,

@@ -47,8 +47,8 @@ class Nx50s
         answer
     end
 
-    # Nx50s::commitNx50ToDatabase(item)
-    def self.commitNx50ToDatabase(item)
+    # Nx50s::commitItemToDatabase(item)
+    def self.commitItemToDatabase(item)
         db = SQLite3::Database.new(Nx50s::databaseFilepath2())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -59,8 +59,8 @@ class Nx50s
         db.close
     end
 
-    # Nx50s::getNx50ByUUIDOrNull(uuid)
-    def self.getNx50ByUUIDOrNull(uuid)
+    # Nx50s::getItemByUUIDOrNull(uuid)
+    def self.getItemByUUIDOrNull(uuid)
         db = SQLite3::Database.new(Nx50s::databaseFilepath2())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -199,14 +199,14 @@ class Nx50s
         coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
         domain = Domain::interactivelySelectDomain()
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-        Nx50s::commitNx50ToDatabase({
+        Nx50s::commitItemToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
             "domain"      => domain
         })
-        Nx50s::getNx50ByUUIDOrNull(uuid)
+        Nx50s::getItemByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueItemUsingText(text, unixtime, domain)
@@ -214,14 +214,14 @@ class Nx50s
         uuid         = LucilleCore::timeStringL22()
         description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
         coreDataId      = CoreData::issueTextDataObjectUsingText(text)
-        Nx50s::commitNx50ToDatabase({
+        Nx50s::commitItemToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
             "domain"      => domain
         })
-        Nx50s::getNx50ByUUIDOrNull(uuid)
+        Nx50s::getItemByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueItemUsingLocation(location, unixtime, domain)
@@ -229,14 +229,14 @@ class Nx50s
         uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
         coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
-        Nx50s::commitNx50ToDatabase({
+        Nx50s::commitItemToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
             "domain"      => domain
         })
-        Nx50s::getNx50ByUUIDOrNull(uuid)
+        Nx50s::getItemByUUIDOrNull(uuid)
     end
 
     # Nx50s::issueItemUsingURL(url domain)
@@ -245,14 +245,14 @@ class Nx50s
         unixtime    = Time.new.to_f
         description = url
         coreDataId = CoreData::issueUrlPointDataObjectUsingUrl(url)
-        Nx50s::commitNx50ToDatabase({
+        Nx50s::commitItemToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
             "domain"      => domain
         })
-        Nx50s::getNx50ByUUIDOrNull(uuid)
+        Nx50s::getItemByUUIDOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -419,7 +419,7 @@ class Nx50s
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 if description.size > 0 then
                     Nx50s::updateDescription(nx50["uuid"], description)
-                    nx50 = Nx50s::getNx50ByUUIDOrNull(nx50["uuid"])
+                    nx50 = Nx50s::getItemByUUIDOrNull(nx50["uuid"])
                 end
                 next
             end
@@ -428,20 +428,20 @@ class Nx50s
                 coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
                 return if coreDataId.nil?
                 nx50["coreDataId"] = coreDataId
-                Nx50s::commitNx50ToDatabase(nx50)
+                Nx50s::commitItemToDatabase(nx50)
                 next
             end
 
             if Interpreting::match("update unixtime", command) then
                 domain = nx50["domain"]
                 nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                Nx50s::commitNx50ToDatabase(nx50)
+                Nx50s::commitItemToDatabase(nx50)
                 next
             end
 
             if Interpreting::match("domain", command) then
                 nx50["domain"] = Domain::interactivelySelectDomain()
-                Nx50s::commitNx50ToDatabase(nx50)
+                Nx50s::commitItemToDatabase(nx50)
                 break
             end
 
@@ -548,53 +548,12 @@ class Nx50s
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
 
-        locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s Inbox Spread")
-
-        if locations.size > 0 then
-
-            unixtimes = Nx50s::nx50s().map{|item| item["unixtime"] }
-
-            if unixtimes.size < 2 then
-                start1 = Time.new.to_f - 86400
-                end1   = Time.new.to_f
-            else
-                start1 = unixtimes.min
-                end1   = [unixtimes.max, Time.new.to_f].max
-            end
-
-            spread = end1 - start1
-
-            step = spread.to_f/locations.size
-
-            cursor = start1
-
-            #puts "Nx50 Inbox"
-            #puts "  start : #{Time.at(start1).to_s} (#{start1})"
-            #puts "  end   : #{Time.at(end1).to_s} (#{end1})"
-            #puts "  spread: #{spread}"
-            #puts "  step  : #{step}"
-
-            locations.each{|location|
-                cursor = cursor + step
-                puts "[Nx50] (#{Time.at(cursor).to_s}) #{location}"
-                Nx50s::issueItemUsingLocation(location, cursor, "(eva)")
-                LucilleCore::removeFileSystemLocation(location)
-            }
-        end
-
-        screenheight = Utils::screenHeight()
+        Quarks::importspread()
 
         if domain == "(eva)" then
             ns16s = Nx50s::nx50sForDomain(domain)
-                        .reduce([]){|objects, nx50|
-                            if objects.size < screenheight then
-                                ns16 = Nx50s::ns16OrNull(nx50)
-                                if ns16 then
-                                    objects << ns16
-                                end
-                            end
-                            objects
-                        }
+                        .map{|item| Nx50s::ns16OrNull(item) }
+                        .compact
 
             q1, q2 = ns16s.partition{|ns16| ns16["rt"] > 0 }
 

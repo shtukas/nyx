@@ -1,4 +1,4 @@
-CREATE TABLE _items_ (_uuid_ text, _unixtime_ real, _description_ text, _coreDataId_ text);
+CREATE TABLE _items_ (_uuid_ text, _unixtime_ real, _description_ text, _coreDataId_ text, _domain_ text);
 
 {
     "uuid"        : String
