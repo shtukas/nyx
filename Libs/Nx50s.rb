@@ -132,17 +132,6 @@ class Nx50s
         items.map{|item| item["unixtime"] }.min - 1
     end
 
-    # Nx50s::getRandomUnixtime(domain)
-    def self.getRandomUnixtime(domain)
-        items = Nx50s::nx50sForDomain(domain)
-        if items.empty? then
-            return Time.new.to_f
-        end
-        lowerbound = items.map{|item| item["unixtime"] }.min
-        upperbound = Time.new.to_f
-        lowerbound + rand * (upperbound-lowerbound)
-    end
-
     # Nx50s::randomUnixtimeWithinTop10(domain)
     def self.randomUnixtimeWithinTop10(domain)
         items = Nx50s::nx50sForDomain(domain).first(10)
@@ -167,7 +156,7 @@ class Nx50s
 
     # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
     def self.interactivelyDetermineNewItemUnixtime(domain)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["new first", "top 10", "manually position", "random", "last (default)"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["new first", "top 10", "manually position", "last (default)"])
         if type == "new first" then
             return Nx50s::getNewMinUnixtime(domain)
         end
@@ -176,9 +165,6 @@ class Nx50s
         end
         if type == "manually position" then
             return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
-        end
-        if type == "random" then
-            return Nx50s::getRandomUnixtime(domain)
         end
         if type == "last (default)" then
             return Time.new.to_i
