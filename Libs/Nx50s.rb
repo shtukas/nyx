@@ -322,7 +322,7 @@ class Nx50s
         puts "#{Nx50s::toString(nx50)}".green
         puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid])
+        nxball = NxBalls::makeNxBall([uuid, Domain::getDomainBankAccount(nx50["domain"])])
 
         thr = Thread.new {
             loop {
