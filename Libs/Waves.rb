@@ -319,7 +319,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3"])
+        nxball = NxBalls::makeNxBall([uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::getDomainBankAccount(wave["domain"])])
         Waves::accessContent(wave)
 
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "detach running; will done", "exit"])
