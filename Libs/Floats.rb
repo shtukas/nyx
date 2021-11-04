@@ -102,43 +102,34 @@ class Floats
         system("clear")
         if File.file?(location) then
             puts Floats::locationToString(location).green
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy", ">todo"])
             if action == "destroy" then
+                LucilleCore::removeFileSystemLocation(location)
+            end
+            if action == ">todo" then
+                description = Floats::locationToString(location)
+                item = Nx50s::issueItemUsingLine(description)
+                puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             end
         else
             puts "[floa] (folder) #{File.basename(location)}".green
-            system("open '#{location}'")
-            LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ") 
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "destroy", ">todo"])
+            if action == "open" then
+                system("open '#{location}'")
+                LucilleCore::pressEnterToContinue("> Press [enter] to exit folder visit: ")
+            end
+            if action == "destroy" then
+                LucilleCore::removeFileSystemLocation(location)
+            end
+            if action == ">todo" then
+                domain   = Domain::interactivelySelectDomain()
+                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+                item = Nx50s::issueItemUsingLocation(location, unixtime, domain)
+                puts JSON.pretty_generate(item)
+                LucilleCore::removeFileSystemLocation(location)
+            end
         end
-    end
-
-    # Floats::ns16s(domain)
-    def self.ns16s(domain)
-        LucilleCore::locationsAtFolder(Floats::repositoryFolderpath())
-            .select{|location| Floats::getLocationDomain(location) == domain }
-            .select{|location| 
-                uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
-                !KeyValueStore::flagIsTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
-            }
-            .map{|location|
-                uuid = Digest::SHA1.hexdigest("7d7967c7-3214-47af-ab9d-6c314085c88d:#{location}")
-                announce = "[acknowledgement] #{Floats::locationToString(location)}"
-                {
-                    "uuid"        => uuid,
-                    "announce"    => announce,
-                    "commands"    => ["..", "open"],
-                    "run"         => lambda {
-                        KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
-                    },
-                    "interpreter" => lambda {|command|
-                        if command == "open" then
-                            Floats::run(location)
-                            KeyValueStore::setFlagTrue(nil, "80954193-8ff0-4d90-af94-20862d67f9dd:#{uuid}:#{Utils::today()}")
-                        end
-                    }
-                }
-            }
     end
 
     # Floats::nx19s()

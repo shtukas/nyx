@@ -62,7 +62,7 @@ class Hud
                     system("clear")
                     puts Hud::toString(item).green
                     CoreData::accessWithOptionToEdit(item["coreDataId"])
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("> destroy ? ") then
                         BTreeSets::destroy(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", item["uuid"])
                     end  
                 }

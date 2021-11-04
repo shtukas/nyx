@@ -39,7 +39,6 @@ class NS16sOperator
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
-            Floats::ns16s(domain),
             Inbox::ns16s(),
             PriorityFile::ns16s(),
             Work::ns16s(),

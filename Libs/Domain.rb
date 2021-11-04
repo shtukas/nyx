@@ -20,7 +20,9 @@ class Domain
 
     # Domain::domainsMenuCommands()
     def self.domainsMenuCommands()
-        "eva | work (rt: #{Work::recoveryTime().round(2)}) (Nx50s: #{Nx50s::nx50s().count} items)"
+        count1 = Nx50s::nx50s().select{|item| item["domain"] == "(eva)" }.count
+        count2 = Nx50s::nx50s().select{|item| item["domain"] == "(work)" }.count
+        "eva (Nx50s: #{count1} items) | work (Nx50s: #{count2} items) (rt: #{Work::recoveryTime().round(2)})"
     end
 
     # Domain::domainsCommandInterpreter(command)

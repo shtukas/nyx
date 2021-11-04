@@ -197,14 +197,29 @@ class Nx50s
 
     # Nx50s::issueItemUsingText(text, unixtime, domain)
     def self.issueItemUsingText(text, unixtime, domain)
-        uuid         = LucilleCore::timeStringL22()
-        description  = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
-        coreDataId      = CoreData::issueTextDataObjectUsingText(text)
+        uuid        = LucilleCore::timeStringL22()
+        description = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
+        coreDataId  = CoreData::issueTextDataObjectUsingText(text)
         Nx50s::commitItemToDatabase({
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
             "coreDataId"  => coreDataId,
+            "domain"      => domain
+        })
+        Nx50s::getItemByUUIDOrNull(uuid)
+    end
+
+    # Nx50s::issueItemUsingLine(line)
+    def self.issueItemUsingLine(line)
+        uuid     = LucilleCore::timeStringL22()
+        domain   = Domain::interactivelySelectDomain()
+        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+        Nx50s::commitItemToDatabase({
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "coreDataId"  => nil,
             "domain"      => domain
         })
         Nx50s::getItemByUUIDOrNull(uuid)
