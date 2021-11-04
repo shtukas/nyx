@@ -338,14 +338,9 @@ class Nx50s
             }
         }
 
-        note = StructuredTodoTexts::getNoteOrNull(uuid)
-        if note then
-            puts "Note ---------------------"
-            puts note.green
-            puts "--------------------------"
+        if !nx50["coreDataId"].nil? then
+            Nx50s::accessContent(nx50)
         end
-
-        Nx50s::accessContent(nx50)
 
         loop {
 
