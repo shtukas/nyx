@@ -16,8 +16,8 @@ class Domain
     # Domain::getDomainBankAccount(domain)
     def self.getDomainBankAccount(domain)
         mapping = {
+            "(eva)"  => "EVA-97F7F3341-4CD1-8B20-4A2466751408",
             "(work)" => Work::bankaccount(),
-            "(eva)"  => "EVA-97F7F3341-4CD1-8B20-4A2466751408"
         }
         raise "[62e07265-cda5-45e1-9b90-7c88db751a1c: #{domain}]" if !mapping.keys.include?(domain)
         mapping[domain]
