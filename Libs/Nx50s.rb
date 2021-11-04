@@ -313,6 +313,15 @@ class Nx50s
     # --------------------------------------------------
     # nx16s
 
+    # Nx50s::processInboxLastAtDomain(foldername, domain)
+    def self.processInboxLastAtDomain(foldername, domain)
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/#{foldername}").each{|location|
+            puts "[Nx50] #{domain} (last) #{location}"
+            Nx50s::issueItemUsingLocation(location, Time.new.to_f, domain)
+            LucilleCore::removeFileSystemLocation(location)
+        }
+    end
+
     # Nx50s::run(nx50)
     def self.run(nx50)
 
@@ -550,6 +559,8 @@ class Nx50s
     def self.ns16s(domain)
 
         Quarks::importspread()
+        Nx50s::processInboxLastAtDomain("(eva)-last", "(eva)")
+        Nx50s::processInboxLastAtDomain("(work)-last", "(work)")
 
         if domain == "(eva)" then
             threshold = Nx50s::hudThreshold(domain)
