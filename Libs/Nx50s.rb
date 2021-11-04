@@ -541,56 +541,58 @@ class Nx50s
         }
     end
 
+    # Nx50s::hudThreshold(domain)
+    def self.hudThreshold(domain)
+        (domain == "(work)") ? 2 : 1
+    end
+
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
 
         Quarks::importspread()
 
         if domain == "(eva)" then
+            threshold = Nx50s::hudThreshold(domain)
             ns16s = Nx50s::nx50sForDomain(domain)
                         .map{|item| Nx50s::ns16OrNull(item) }
                         .compact
+                        .select{|ns16| ns16["rt"] < threshold }
 
-            q1, q2 = ns16s.partition{|ns16| ns16["rt"] > 0 }
-
-            # all: q1+q2
-
-            q3, q4 = q1.partition{|ns16| ns16["rt"] < 1 }
-
-            # all: q3+q4+q2
-
-            x1 = [5 - q3.size, 0].max
-
-            q5 = q2.take(x1)
-            q6 = q2.drop(x1)
-
-            # all: q3+q4+q5+q6
+            q1 = ns16s.take(5)
+            q2 = ns16s.drop(5)
 
             adaptedRT = lambda{|ns16|
                 ns16["rt"] == 0 ? 0.4 : ns16["rt"]
             }
 
-            q7 = (q3+q5)
+            q1 = q1
                 .sort{|x1, x2| adaptedRT.call(x1) <=> adaptedRT.call(x2) }
                 .map{|ns16|  
                     ns16["announce"] = ns16["announce"].green
                     ns16
                 }
 
-            # all: q7+q4+q6
-
-            return q7 + q4 + q6
+            return q1 + q2
         end
 
         if domain == "(work)" then
+            threshold = Nx50s::hudThreshold(domain)
             return Nx50s::nx50sForDomain(domain)
                 .map{|nx50| Nx50s::ns16OrNull(nx50) }
                 .compact
+                .select{|ns16| ns16["rt"] < threshold }
         end
 
+        raise "f39cca51-54a3-40df-945d-77eba1fc664c: domain: #{domain}"
+    end
+
+    # Nx50s::hud(domain)
+    def self.hud(domain)
+        threshold = Nx50s::hudThreshold(domain)
         Nx50s::nx50sForDomain(domain)
             .map{|nx50| Nx50s::ns16OrNull(nx50) }
             .compact
+            .select{|ns16| ns16["rt"] >= threshold }
     end
 
     # --------------------------------------------------

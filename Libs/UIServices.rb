@@ -184,11 +184,20 @@ class UIServices
             }
 
         puts ""
-        puts "todo:"
+        puts "todo overflow:"
+        vspaceleft = vspaceleft - 2
+        Nx50s::hud(domain)
+            .each{|object|
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+
+        puts ""
+        puts "detached runnings:"
         vspaceleft = vspaceleft - 2
         detachedRunnings = DetachedRunning::ns16s()
         if detachedRunnings.size > 0 then
-            puts ""
             vspaceleft = vspaceleft - 1
             detachedRunnings.each{|item|
                 line = "(#{store.register(item).to_s.rjust(3, " ")}) #{item["announce"].green}"
@@ -208,6 +217,9 @@ class UIServices
             store.registerDefault(ns16s[0])
         end
 
+        puts ""
+        puts "todo:"
+        vspaceleft = vspaceleft - 2
         ns16s
             .each_with_index{|ns16|
                 indx = store.register(ns16)
