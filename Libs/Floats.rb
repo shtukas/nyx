@@ -50,7 +50,7 @@ class Floats
     # Floats::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
 
-        domain = Domain::getActiveDomain()
+        domain = Domain::interactivelySelectDomain()
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "folder"])
         return if type.nil?

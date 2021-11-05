@@ -134,7 +134,6 @@ class Anniversaries
               "startdate"    => startdate,
               "repeatType"   => repeatType,
               "lastCelebrationDate" => lastCelebrationDate,
-              "domain"       => "(eva)"
             }
 
         Anniversaries::commitAnniversaryToDisk(item)
@@ -162,10 +161,9 @@ class Anniversaries
         end
     end
 
-    # Anniversaries::ns16s(domain)
-    def self.ns16s(domain)
+    # Anniversaries::ns16s()
+    def self.ns16s()
         Anniversaries::anniversaries()
-            .select{|item| item["domain"] == domain }
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
             .map{|anniversary|
                 {

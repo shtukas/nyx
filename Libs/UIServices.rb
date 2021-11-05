@@ -32,7 +32,7 @@ class NS16sOperator
     # NS16sOperator::ns16s(domain)
     def self.ns16s(domain)
         [
-            Anniversaries::ns16s(domain),
+            Anniversaries::ns16s(),
             Calendar::ns16s(),
             Dated::ns16s(),
             AmandaBins::ns16s(),
@@ -41,7 +41,6 @@ class NS16sOperator
             Waves::ns16s(domain),
             Inbox::ns16s(),
             PriorityFile::ns16s(),
-            Work::ns16s(),
             Today::ns16s(),
             Nx50s::ns16s(domain),
         ]

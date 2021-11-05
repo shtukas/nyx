@@ -562,6 +562,16 @@ class Nx50s
         Nx50s::processInboxLastAtDomain("(eva)-last", "(eva)")
         Nx50s::processInboxLastAtDomain("(work)-last", "(work)")
 
+        if domain == "(multiplex)" then
+            rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
+            rt2 = Work::recoveryTime()
+            if rt1 > rt2 then
+                return Nx50s::ns16s("(work)")
+            else
+                return Nx50s::ns16s("(eva)")
+            end
+        end
+
         if domain == "(eva)" then
             threshold = Nx50s::hudThreshold(domain)
             ns16s = Nx50s::nx50sForDomain(domain)

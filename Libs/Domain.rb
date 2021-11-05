@@ -1,16 +1,19 @@
 
 # encoding: UTF-8
 
+# Domains          : "(eva)" | "(work)"
+# Extended domains : "(eva)" | "(work)" | "(multiplex)"
+
 class Domain
 
-    # Domain::setActiveDomain(domain)
-    def self.setActiveDomain(domain)
+    # Domain::setActiveExtendedDomain(domain)
+    def self.setActiveExtendedDomain(domain)
         KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda283", domain)
     end
 
-    # Domain::getActiveDomain()
-    def self.getActiveDomain()
-        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda283") || "(eva)"
+    # Domain::getActiveExtendedDomain()
+    def self.getActiveExtendedDomain()
+        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda283") || "(multiplex)"
     end
 
     # Domain::getDomainBankAccount(domain)
@@ -33,16 +36,20 @@ class Domain
         count1 = Nx50s::nx50s().select{|item| item["domain"] == "(eva)" }.count
         count2 = Nx50s::nx50s().select{|item| item["domain"] == "(work)" }.count
         rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
-        "eva (Nx50s: #{count1} items) (rt: #{rt1.round(2)}) | work (Nx50s: #{count2} items) (rt: #{Work::recoveryTime().round(2)})"
+        rt2 = Work::recoveryTime()
+        "multiplex | eva (Nx50s: #{count1} items) (rt: #{rt1.round(2)}) | work (Nx50s: #{count2} items) (rt: #{rt2.round(2)})"
     end
 
     # Domain::domainsCommandInterpreter(command)
     def self.domainsCommandInterpreter(command)
-        if command == "work" then
-            Domain::setActiveDomain("(work)")
+        if command == "multiplex" then
+            Domain::setActiveExtendedDomain("(multiplex)")
         end
         if command == "eva" then
-            Domain::setActiveDomain("(eva)")
+            Domain::setActiveExtendedDomain("(eva)")
+        end
+        if command == "work" then
+            Domain::setActiveExtendedDomain("(work)")
         end
     end
 end
