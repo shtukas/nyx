@@ -52,4 +52,11 @@ class Domain
             Domain::setActiveExtendedDomain("(work)")
         end
     end
+
+    # Domain::getDominantDomainDuringMultiplex()
+    def self.getDominantDomainDuringMultiplex()
+        rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
+        rt2 = Work::recoveryTime()
+        rt1 > rt2 ? "(work)" : "(eva)"
+    end
 end

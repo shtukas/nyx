@@ -413,9 +413,14 @@ class Waves
 
     # Waves::ns16s(domain)
     def self.ns16s(domain)
+
+        if domain == "(multiplex)" then
+            domain = Domain::getDominantDomainDuringMultiplex()
+        end
+
         breaking = Waves::circuitBreaker()
         Waves::items()
-            .select{|item| (domain == "(multiplex)") or (item["domain"] == domain) }
+            .select{|item| item["domain"] == domain }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .select{|item| breaking ? Waves::isPriorityWave(item) : true }

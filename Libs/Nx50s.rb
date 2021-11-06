@@ -476,47 +476,6 @@ class Nx50s
         NxBalls::closeNxBall(nxball, true)
     end
 
-    # Nx50s::gg(nx50)
-    def self.gg(nx50)
-
-        system("clear")
-
-        uuid = nx50["uuid"]
-        puts "#{Nx50s::toString(nx50)}".green
-        puts "Starting at #{Time.new.to_s}"
-
-        nxball = NxBalls::makeNxBall([uuid])
-
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
-
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
-                end
-            }
-        }
-
-        note = StructuredTodoTexts::getNoteOrNull(uuid)
-        if note then
-            puts "Note ---------------------"
-            puts note.green
-            puts "--------------------------"
-        end
-
-        Nx50s::accessContent(nx50)
-        LucilleCore::pressEnterToContinue()
-        Nx50s::complete(nx50)
-
-        thr.exit
-
-        NxBalls::closeNxBall(nxball, true)
-    end
-
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
@@ -529,13 +488,10 @@ class Nx50s
         {
             "uuid"     => uuid,
             "announce" => announce,
-            "commands"    => ["..", "gg", "done"],
+            "commands"    => ["..", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     Nx50s::run(nx50)
-                end
-                if command == "gg" then
-                    Nx50s::gg(nx50)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
@@ -563,13 +519,7 @@ class Nx50s
         Nx50s::processInboxLastAtDomain("(work)-last", "(work)")
 
         if domain == "(multiplex)" then
-            rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
-            rt2 = Work::recoveryTime()
-            if rt1 > rt2 then
-                return Nx50s::ns16s("(work)")
-            else
-                return Nx50s::ns16s("(eva)")
-            end
+            return Nx50s::ns16s(Domain::getDominantDomainDuringMultiplex())
         end
 
         if domain == "(eva)" then

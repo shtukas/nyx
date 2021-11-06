@@ -1,0 +1,7 @@
+{
+    "uuid"        => uuid,
+    "unixtime"    => unixtime,
+    "description" => description,
+    "date"        => date,
+    "coreDataId"  => coreDataId
+}

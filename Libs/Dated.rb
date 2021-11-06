@@ -59,8 +59,7 @@ class Dated # OnDate
               "unixtime"    => unixtime,
               "description" => description,
               "date"        => date,
-              "coreDataId"  => coreDataId,
-              "domain"      => nil # we display all of them at any domain
+              "coreDataId"  => coreDataId
             }
 
         Dated::commitItemToDisk(item)
@@ -78,8 +77,7 @@ class Dated # OnDate
             "unixtime"    => unixtime,
             "description" => description,
             "date"        => date,
-            "coreDataId"  => coreDataId,
-            "domain"      => "(eva)"
+            "coreDataId"  => coreDataId
         })
         Dated::getDatedByUUIDOrNull(uuid)
     end
@@ -155,7 +153,7 @@ class Dated # OnDate
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
 
-            puts "access | <datecode> | note | [] | update date | exit | destroy".yellow
+            puts "access | <datecode> | note | [] | update description | update date | update contents | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -180,10 +178,26 @@ class Dated # OnDate
                 next
             end
 
+            if Interpreting::match("update description", command) then
+                description = LucilleCore::askQuestionAnswerAsString("description: ")
+                return if description == ""
+                item["description"] = description
+                Dated::commitItemToDisk(item)
+                next
+            end
+
             if Interpreting::match("update date", command) then
                 date = Dated::interactivelySelectADateOrNull()
                 next if date.nil?
                 item["date"] = date
+                Dated::commitItemToDisk(item)
+                next
+            end
+
+            if Interpreting::match("update contents", command) then
+                coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+                return if coreDataId.nil?
+                item["coreDataId"] = coreDataId
                 Dated::commitItemToDisk(item)
                 next
             end
