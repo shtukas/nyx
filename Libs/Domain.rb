@@ -35,9 +35,33 @@ class Domain
     def self.domainsMenuCommands()
         count1 = Nx50s::nx50s().select{|item| item["domain"] == "(eva)" }.count
         count2 = Nx50s::nx50s().select{|item| item["domain"] == "(work)" }.count
+        today = Time.new.to_s[0, 10]
+        h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
+        h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
         rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
         rt2 = Work::recoveryTime()
-        "multiplex | eva (Nx50s: #{count1} items) (rt: #{rt1.round(2)}) | work (Nx50s: #{count2} items) (rt: #{rt2.round(2)})"
+        [
+
+            {
+                "announce" => "multiplex",
+                "metric"   => 0,
+                "active"   => true
+            },
+            {
+                "announce" => "eva (Nx50s: #{count1} items) (hours: #{h1.round(2)}) (rt: #{rt1.round(2)})",
+                "metric"   => h1,
+                "active"   => true
+            },
+            {
+                "announce" => "work (Nx50s: #{count2} items) (hours: #{h2.round(2)}) (rt: #{rt2.round(2)})",
+                "metric"   => h2,
+                "active"   => ![6, 0].include?(Time.new.wday)
+            }
+        ]
+            .select{|i| i["active"] }
+            .sort{|i1, i2| i1["metric"]<=>i2["metric"] }
+            .map{|i| i["announce"] }
+            .join(" | ")
     end
 
     # Domain::domainsCommandInterpreter(command)
@@ -55,8 +79,23 @@ class Domain
 
     # Domain::getDominantDomainDuringMultiplex()
     def self.getDominantDomainDuringMultiplex()
-        rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
-        rt2 = Work::recoveryTime()
-        rt1 > rt2 ? "(work)" : "(eva)"
+
+        if [6, 0].include?(Time.new.wday) then
+            return "(eva)"
+        end
+
+        if Time.new.hour < 8 then
+            return "(eva)"
+        end
+        if Time.new.hour >= 20 then
+            return "(eva)"
+        end
+
+        today = Time.new.to_s[0, 10]
+
+        v1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today)
+        v2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today)
+
+        v1 > v2 ? "(work)" : "(eva)"
     end
 end
