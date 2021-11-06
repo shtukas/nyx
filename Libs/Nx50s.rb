@@ -1,5 +1,41 @@
 # encoding: UTF-8
 
+class Nx50DoneCounter
+
+    # Nx50DoneCounter::increaseDateCount(date)
+    def self.increaseDateCount(date)
+        count = KeyValueStore::getOrDefaultValue(nil, "3ed4c841-3a98-47b6-8c22-9a006e0d70c5:#{date}", "0").to_i
+        KeyValueStore::set(nil, "3ed4c841-3a98-47b6-8c22-9a006e0d70c5:#{date}", count+1)
+    end
+
+    # Nx50DoneCounter::increaseTodayCount()
+    def self.increaseTodayCount()
+        Nx50DoneCounter::increaseDateCount(Utils::today())
+    end
+
+    # Nx50DoneCounter::getDateCount(date)
+    def self.getDateCount(date)
+        KeyValueStore::getOrDefaultValue(nil, "3ed4c841-3a98-47b6-8c22-9a006e0d70c5:#{date}", "0").to_i
+    end
+
+    # Nx50DoneCounter::getPastNDaysCount(n)
+    def self.getPastNDaysCount(n)
+        (0..n)
+            .map{|i| Utils::nDaysInTheFuture(-i) }
+            .map{|date| Nx50DoneCounter::getDateCount(date) }
+            .inject(0, :+)
+    end
+
+    # Nx50DoneCounter::numbers()
+    def self.numbers()
+        [
+            Nx50DoneCounter::getPastNDaysCount(7).to_f/7,
+            Nx50DoneCounter::getPastNDaysCount(30).to_f/30,
+        ]
+    end
+
+end
+
 class Nx50s
 
     # Nx50s::databaseFilepath2()
@@ -298,6 +334,7 @@ class Nx50s
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         Nx50s::delete(nx50["uuid"])
+        Nx50DoneCounter::increaseTodayCount()
     end
 
     # Nx50s::accessContent(item)

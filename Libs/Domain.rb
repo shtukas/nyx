@@ -41,19 +41,18 @@ class Domain
         rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
         rt2 = Work::recoveryTime()
         [
-
             {
-                "announce" => "multiplex",
+                "announce" => "(multiplex: #{Nx50DoneCounter::numbers().map{|n| n.round(2) }.join(", ")})",
                 "metric"   => 0,
                 "active"   => true
             },
             {
-                "announce" => "eva (Nx50s: #{count1} items) (hours: #{h1.round(2)}) (rt: #{rt1.round(2)})",
+                "announce" => "(eva: Nx50s: #{count1} items, today: #{h1.round(2)} hours, rt: #{rt1.round(2)})",
                 "metric"   => h1,
                 "active"   => true
             },
             {
-                "announce" => "work (Nx50s: #{count2} items) (hours: #{h2.round(2)}) (rt: #{rt2.round(2)})",
+                "announce" => "(work: Nx50s: #{count2} items, today: #{h2.round(2)} hours, rt: #{rt2.round(2)})",
                 "metric"   => h2,
                 "active"   => ![6, 0].include?(Time.new.wday)
             }
@@ -61,7 +60,7 @@ class Domain
             .select{|i| i["active"] }
             .sort{|i1, i2| i1["metric"]<=>i2["metric"] }
             .map{|i| i["announce"] }
-            .join(" | ")
+            .join(" ")
     end
 
     # Domain::domainsCommandInterpreter(command)
