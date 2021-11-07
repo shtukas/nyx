@@ -185,7 +185,7 @@ class UIServices
         puts ""
         puts "todo overflow:"
         vspaceleft = vspaceleft - 2
-        Nx50s::hud(domain)
+        Nx50s::structure(domain)["hud"]
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line

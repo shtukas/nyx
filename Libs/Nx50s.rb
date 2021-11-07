@@ -33,7 +33,6 @@ class Nx50DoneCounter
             Nx50DoneCounter::getPastNDaysCount(30).to_f/30,
         ]
     end
-
 end
 
 class Nx50s
@@ -548,6 +547,58 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
+    # Nx50s::structure(domain)
+    def self.structure(domain)
+        getTopStoredPool = lambda {|domain|
+            JSON.parse(KeyValueStore::getOrDefaultValue(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{domain}", "[]"))
+        }
+
+        ns16BelongsToPool = lambda {|ns16, uuids|
+            uuids.include?(ns16["uuid"])
+        }
+
+        setTopStoredPool = lambda{|domain, uuids|
+            KeyValueStore::set(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{domain}", JSON.generate(uuids))
+        }
+
+        threshold = Nx50s::hudThreshold(domain)
+
+        q1, q2 = Nx50s::nx50sForDomain(domain)
+                    .map{|item| Nx50s::ns16OrNull(item) }
+                    .compact
+                    .partition{|ns16| ns16["rt"] >= threshold }
+
+        # q1: hud
+        # q2: head and tail
+
+        pool = getTopStoredPool.call(domain)
+
+        q3, q4 = q2.partition{|ns16| ns16BelongsToPool.call(ns16, pool) }
+
+        # q3: head
+        # q4: tail
+
+        # If head is empty, we need a new one
+
+        if q3.empty? then
+            q3 = q4.first(5)
+            q4 = q4.drop(5)
+            setTopStoredPool.call(domain, q3.map{|ns16| ns16["uuid"] })
+        end
+
+        q3 = q3
+                .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+                .map{|ns16|  
+                    ns16["announce"] = ns16["announce"].green
+                    ns16
+                }
+        {
+            "hud"  => q1,
+            "head" => q3,
+            "tail" => q4
+        }
+    end
+
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
 
@@ -559,48 +610,8 @@ class Nx50s
             return Nx50s::ns16s(Domain::getDominantDomainDuringMultiplex())
         end
 
-        if domain == "(eva)" then
-            threshold = Nx50s::hudThreshold(domain)
-            ns16s = Nx50s::nx50sForDomain(domain)
-                        .map{|item| Nx50s::ns16OrNull(item) }
-                        .compact
-                        .select{|ns16| ns16["rt"] < threshold }
-
-            q1 = ns16s.take(5)
-            q2 = ns16s.drop(5)
-
-            adaptedRT = lambda{|ns16|
-                ns16["rt"] == 0 ? 0.4 : ns16["rt"]
-            }
-
-            q1 = q1
-                .sort{|x1, x2| adaptedRT.call(x1) <=> adaptedRT.call(x2) }
-                .map{|ns16|  
-                    ns16["announce"] = ns16["announce"].green
-                    ns16
-                }
-
-            return q1 + q2
-        end
-
-        if domain == "(work)" then
-            threshold = Nx50s::hudThreshold(domain)
-            return Nx50s::nx50sForDomain(domain)
-                .map{|nx50| Nx50s::ns16OrNull(nx50) }
-                .compact
-                .select{|ns16| ns16["rt"] < threshold }
-        end
-
-        raise "f39cca51-54a3-40df-945d-77eba1fc664c: domain: #{domain}"
-    end
-
-    # Nx50s::hud(domain)
-    def self.hud(domain)
-        threshold = Nx50s::hudThreshold(domain)
-        Nx50s::nx50sForDomain(domain)
-            .map{|nx50| Nx50s::ns16OrNull(nx50) }
-            .compact
-            .select{|ns16| ns16["rt"] >= threshold }
+        structure = Nx50s::structure(domain)
+        structure["head"] + structure["tail"]
     end
 
     # --------------------------------------------------
