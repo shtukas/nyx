@@ -149,7 +149,12 @@ class UIServices
         store = ItemStore.new()
 
         puts ""
-        puts "--> #{domain}".green
+        if domain != "(multiplex)" then
+            puts "--> #{domain}".green
+        else
+            puts "--> #{domain} #{Domain::getDominantDomainDuringMultiplex()}".green
+        end
+
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
