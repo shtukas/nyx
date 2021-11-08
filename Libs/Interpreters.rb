@@ -43,7 +43,7 @@ class Interpreters
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "on | today | todo | float | wave | ondate | anniversary | Nx50"
+        "on | today | todo | float | wave | ondate | anniversary | Nx50 | work item"
     end
 
     # Interpreters::diversCommands()
@@ -61,6 +61,12 @@ class Interpreters
 
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
+
+        if command == "work item" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
+            DetachedRunning::issueNew2(description, Time.new.to_i, [Work::bankaccount()])
+        end
 
         if command == "hud" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")

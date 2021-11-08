@@ -1,5 +1,3 @@
-
-
 CREATE TABLE _operations_ (_setuuid_ text, _operationuuid_ text, _unixtime_ real, _weight_ real);
 CREATE TABLE _operations2_ (_setuuid_ text, _operationuuid_ text, _unixtime_ real, _date_ text, _weight_ real);
 
