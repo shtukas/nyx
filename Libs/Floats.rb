@@ -61,7 +61,7 @@ class Floats
             filename = "#{date} #{SecureRandom.uuid}.txt"
             location = "#{Floats::repositoryFolderpath()}/#{filename}"
             File.open(location, "w"){|f| f.puts(line) }
-            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
+            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{filename}", domain)
         end
 
         if type == "folder" then
@@ -70,7 +70,7 @@ class Floats
             filename = "#{date} #{description}"
             location = "#{Floats::repositoryFolderpath()}/#{filename}"
             FileUtils.mkdir(location)
-            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{location}", domain)
+            KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{filename}", domain)
             system("open '#{location}'")
             LucilleCore::pressEnterToContinue()
         end
