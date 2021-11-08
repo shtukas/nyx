@@ -413,11 +413,6 @@ class Waves
 
     # Waves::ns16s(domain)
     def self.ns16s(domain)
-
-        if domain == "(multiplex)" then
-            domain = Domain::getDominantDomainDuringMultiplex()
-        end
-
         breaking = Waves::circuitBreaker()
         Waves::items()
             .select{|item| item["domain"] == domain }

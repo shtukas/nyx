@@ -78,10 +78,6 @@ class Floats
 
     # Floats::items(domain)
     def self.items(domain)
-        if domain == "(multiplex)" then
-            return Floats::items(Domain::getDominantDomainDuringMultiplex())
-        end
-
         LucilleCore::locationsAtFolder(Floats::repositoryFolderpath())
             .select{|location| Floats::getLocationDomain(location) == domain }
             .map{|location|

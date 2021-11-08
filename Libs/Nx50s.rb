@@ -393,6 +393,7 @@ class Nx50s
 
             puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
             puts "uuid: #{uuid}".yellow
+            puts "recovery time: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "coreDataId: #{nx50["coreDataId"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
@@ -547,6 +548,11 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
+    # Nx50s::headCapacity(domain)
+    def self.headCapacity(domain)
+        (domain == "(work)") ? 3 : 5
+    end
+
     # Nx50s::structure(domain)
     def self.structure(domain)
         getTopStoredPool = lambda {|domain|
@@ -581,8 +587,8 @@ class Nx50s
         # If head is empty, we need a new one
 
         if q3.empty? then
-            q3 = q4.first(5)
-            q4 = q4.drop(5)
+            q3 = q4.first(Nx50s::headCapacity(domain))
+            q4 = q4.drop(Nx50s::headCapacity(domain))
             setTopStoredPool.call(domain, q3.map{|ns16| ns16["uuid"] })
         end
 
@@ -593,9 +599,9 @@ class Nx50s
                     ns16
                 }
         {
-            "hud"  => q1,
-            "head" => q3,
-            "tail" => q4
+            "overflow" => q1,
+            "head"     => q3,
+            "tail"     => q4
         }
     end
 
@@ -605,10 +611,6 @@ class Nx50s
         Quarks::importspread()
         Nx50s::processInboxLastAtDomain("(eva)-last", "(eva)")
         Nx50s::processInboxLastAtDomain("(work)-last", "(work)")
-
-        if domain == "(multiplex)" then
-            return Nx50s::ns16s(Domain::getDominantDomainDuringMultiplex())
-        end
 
         structure = Nx50s::structure(domain)
         structure["head"] + structure["tail"]

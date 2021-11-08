@@ -130,8 +130,8 @@ end
 
 class UIServices
 
-    # UIServices::mainView(domain, ns16s)
-    def self.mainView(domain, ns16s)
+    # UIServices::mainView(extendedDomain, dominantDomain, ns16s)
+    def self.mainView(extendedDomain, dominantDomain, ns16s)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
@@ -149,10 +149,10 @@ class UIServices
         store = ItemStore.new()
 
         puts ""
-        if domain != "(multiplex)" then
-            puts "--> #{domain}".green
+        if extendedDomain != "(multiplex)" then
+            puts "--> #{extendedDomain}".green
         else
-            puts "--> #{domain} #{Domain::getDominantDomainDuringMultiplex()}".green
+            puts "--> #{extendedDomain} #{dominantDomain}".green
         end
 
         vspaceleft = vspaceleft - 2
@@ -170,7 +170,7 @@ class UIServices
         puts ""
         puts "floats:"
         vspaceleft = vspaceleft - 2
-        Floats::items(domain)
+        Floats::items(dominantDomain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
                 puts line
@@ -190,7 +190,7 @@ class UIServices
         puts ""
         puts "todo overflow:"
         vspaceleft = vspaceleft - 2
-        Nx50s::structure(domain)["hud"]
+        Nx50s::structure(dominantDomain)["overflow"]
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line

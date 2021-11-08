@@ -76,8 +76,12 @@ class Domain
         end
     end
 
-    # Domain::getDominantDomainDuringMultiplex()
-    def self.getDominantDomainDuringMultiplex()
+    # Domain::getDominantDomain()
+    def self.getDominantDomain()
+
+        if ["(work)", "(eva)"].include?(Domain::getActiveExtendedDomain()) then
+            return Domain::getActiveExtendedDomain()
+        end
 
         if [6, 0].include?(Time.new.wday) then
             return "(eva)"
@@ -86,6 +90,7 @@ class Domain
         if Time.new.hour < 8 then
             return "(eva)"
         end
+        
         if Time.new.hour >= 20 then
             return "(eva)"
         end
