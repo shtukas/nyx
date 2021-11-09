@@ -595,7 +595,7 @@ class Nx50s
         q3 = q3
                 .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
                 .map{|ns16|  
-                    ns16["announce"] = ns16["announce"].green
+                    ns16["announce"] = ns16["announce"].red
                     ns16
                 }
         {
