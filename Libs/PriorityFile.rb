@@ -136,9 +136,10 @@ class PriorityFile
         sections.map{|section|
             sectionSmall = section.strip
             uuid = Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{sectionSmall}:#{Utils::today()}")
+            announce = "[prio] #{(sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green}"
             {
                 "uuid"        => uuid,
-                "announce"    => (sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green,
+                "announce"    => announce,
                 "commands"    => ["..", "[]", ">ondate", ">Nx50"],
                 "interpreter" => lambda{|command|
                     if command == ".." then

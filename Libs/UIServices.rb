@@ -40,7 +40,6 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
-            PriorityFile::ns16s(),
             Today::ns16s(),
             Nx50s::ns16s(domain),
         ]
@@ -192,6 +191,12 @@ class UIServices
         puts ""
         puts "hud:"
         vspaceleft = vspaceleft - 2
+        PriorityFile::ns16s()
+            .each{|object|
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
         Hud::ns16s()
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
@@ -201,10 +206,6 @@ class UIServices
 
         todoOverflow = UIServices::todoOverflow(store, dominantDomain)
         vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
-
-        puts ""
-        puts "detached runnings:"
-        vspaceleft = vspaceleft - 2
         detachedRunnings = DetachedRunning::ns16s()
         if detachedRunnings.size > 0 then
             vspaceleft = vspaceleft - 1
