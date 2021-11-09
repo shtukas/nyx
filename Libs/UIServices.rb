@@ -130,6 +130,18 @@ end
 
 class UIServices
 
+    # UIServices::todoOverflow(store, dominantDomain)
+    def self.todoOverflow(store, dominantDomain)
+        [
+            "",
+            "todo overflow:",
+            Nx50s::structure(dominantDomain)["overflow"]
+                .map{|object|
+                    "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                }
+        ].flatten.join("\n")
+    end
+
     # UIServices::mainView(extendedDomain, dominantDomain, ns16s)
     def self.mainView(extendedDomain, dominantDomain, ns16s)
         system("clear")
@@ -187,15 +199,8 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        puts ""
-        puts "todo overflow:"
-        vspaceleft = vspaceleft - 2
-        Nx50s::structure(dominantDomain)["overflow"]
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
+        todoOverflow = UIServices::todoOverflow(store, dominantDomain)
+        vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
 
         puts ""
         puts "detached runnings:"
@@ -234,6 +239,8 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
+
+        puts todoOverflow
 
         puts ""
         command = LucilleCore::askQuestionAnswerAsString("> ")
