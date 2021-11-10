@@ -556,7 +556,7 @@ class Nx50s
     # Nx50s::structure(domain)
     def self.structure(domain)
         getTopStoredPool = lambda {|domain|
-            JSON.parse(KeyValueStore::getOrDefaultValue(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{domain}", "[]"))
+            JSON.parse(KeyValueStore::getOrDefaultValue(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{Utils::today()}:#{domain}", "[]"))
         }
 
         ns16BelongsToPool = lambda {|ns16, uuids|
@@ -564,7 +564,7 @@ class Nx50s
         }
 
         setTopStoredPool = lambda{|domain, uuids|
-            KeyValueStore::set(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{domain}", JSON.generate(uuids))
+            KeyValueStore::set(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{Utils::today()}:#{domain}", JSON.generate(uuids))
         }
 
         threshold = Nx50s::hudThreshold(domain)
