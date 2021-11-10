@@ -383,23 +383,23 @@ class Nx50s
             }
         }
 
-        if !nx50["coreDataId"].nil? then
-            Nx50s::accessContent(nx50)
-        end
-
         loop {
 
             system("clear")
 
             puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
             puts "uuid: #{uuid}".yellow
-            puts "recovery time: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "coreDataId: #{nx50["coreDataId"]}".yellow
+            puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
+
+            puts ""
+            puts CoreData::toTextOrNull(nx50["coreDataId"])
+            puts ""
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             if note then
-                puts "Note ---------------------"
+                puts "-- Note ------------------"
                 puts note.green
                 puts "--------------------------"
             end
