@@ -252,9 +252,9 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
-        puts backlog
-
         puts todoOverflow
+
+        puts backlog
 
         puts ""
         command = LucilleCore::askQuestionAnswerAsString("> ")
