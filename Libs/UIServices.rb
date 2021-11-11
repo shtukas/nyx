@@ -136,18 +136,6 @@ class UIServices
             "todo overflow:",
             Nx50s::structure(domain)["overflow"]
                 .map{|object|
-                    "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
-                }
-        ].flatten.join("\n")
-    end
-
-    # UIServices::backlog(store, domain)
-    def self.backlog(store, domain)
-        [
-            "",
-            "backlog:",
-            Backlog::ns16s(domain)
-                .map{|object|
                     "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
                 }
         ].flatten.join("\n")
@@ -211,9 +199,6 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        backlog = UIServices::backlog(store, domain)
-        vspaceleft = vspaceleft - Utils::verticalSize(backlog)
-
         todoOverflow = UIServices::todoOverflow(store, domain)
         vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
 
@@ -243,8 +228,6 @@ class UIServices
             }
 
         puts todoOverflow
-
-        puts backlog
 
         puts ""
         command = LucilleCore::askQuestionAnswerAsString("> ")
