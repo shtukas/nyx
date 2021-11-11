@@ -2,18 +2,40 @@
 # encoding: UTF-8
 
 # Domains          : "(eva)" | "(work)"
-# Extended domains : "(eva)" | "(work)" | "(multiplex)"
 
 class Domain
 
-    # Domain::setActiveExtendedDomain(domain)
-    def self.setActiveExtendedDomain(domain)
-        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda283", domain)
+    # Domain::setStoredDomain(domain)
+    def self.setStoredDomain(domain)
+        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda284", JSON.generate([Time.new.to_i, domain]))
     end
 
-    # Domain::getActiveExtendedDomain()
-    def self.getActiveExtendedDomain()
-        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda283") || "(multiplex)"
+    # Domain::getStoredDomainOrNull()
+    def self.getStoredDomainOrNull()
+        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda284")
+    end
+
+    # Domain::getProgramaticDomain()
+    def self.getProgramaticDomain()
+        if [6, 0].include?(Time.new.wday) then
+            return "(eva)"
+        end
+        if Time.new.hour >= 9 and Time.new.hour < 17 then
+            return "(work)"
+        end
+        "(eva)"
+    end
+
+    # Domain::getDomain()
+    def self.getDomain()
+        i = Domain::getStoredDomainOrNull()
+        if i then
+            i = JSON.parse(i)
+            if (Time.new.to_i - i[0]) < 7200 then
+                return i[1]
+            end
+        end
+        Domain::getProgramaticDomain()
     end
 
     # Domain::getDomainBankAccount(domain)
@@ -42,7 +64,7 @@ class Domain
         rt2 = Work::recoveryTime()
         [
             {
-                "announce" => "(multiplex: #{Nx50DoneCounter::numbers().map{|n| n.round(2) }.join(", ")})",
+                "announce" => "(Nx50: done: #{Nx50DoneCounter::numbers().map{|n| n.round(2) }.join(", ")})",
                 "metric"   => 0,
                 "active"   => true
             },
@@ -65,32 +87,13 @@ class Domain
 
     # Domain::domainsCommandInterpreter(command)
     def self.domainsCommandInterpreter(command)
-        if command == "multiplex" then
-            Domain::setActiveExtendedDomain("(multiplex)")
-        end
         if command == "eva" then
-            Domain::setActiveExtendedDomain("(eva)")
+            Domain::setStoredDomain("(eva)")
         end
         if command == "work" then
-            Domain::setActiveExtendedDomain("(work)")
+            Domain::setStoredDomain("(work)")
         end
     end
 
-    # Domain::getRealDomain()
-    def self.getRealDomain()
 
-        if ["(work)", "(eva)"].include?(Domain::getActiveExtendedDomain()) then
-            return Domain::getActiveExtendedDomain()
-        end
-
-        if [6, 0].include?(Time.new.wday) then
-            return "(eva)"
-        end
-
-        if Time.new.hour >= 9 and Time.new.hour < 17 then
-            return "(work)"
-        end
-
-        "(eva)"
-    end
 end

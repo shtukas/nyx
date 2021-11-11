@@ -129,20 +129,20 @@ end
 
 class UIServices
 
-    # UIServices::todoOverflow(store, realDomain)
-    def self.todoOverflow(store, realDomain)
+    # UIServices::todoOverflow(store, domain)
+    def self.todoOverflow(store, domain)
         [
             "",
             "todo overflow:",
-            Nx50s::structure(realDomain)["overflow"]
+            Nx50s::structure(domain)["overflow"]
                 .map{|object|
                     "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 }
         ].flatten.join("\n")
     end
 
-    # UIServices::backlog(store, realDomain)
-    def self.backlog(store, realDomain)
+    # UIServices::backlog(store, domain)
+    def self.backlog(store, domain)
         [
             "",
             "backlog:",
@@ -153,8 +153,8 @@ class UIServices
         ].flatten.join("\n")
     end
 
-    # UIServices::mainView(extendedDomain, realDomain, ns16s)
-    def self.mainView(extendedDomain, realDomain, ns16s)
+    # UIServices::mainView(domain, ns16s)
+    def self.mainView(domain, ns16s)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
@@ -172,12 +172,7 @@ class UIServices
         store = ItemStore.new()
 
         puts ""
-        if extendedDomain != "(multiplex)" then
-            puts "--> #{extendedDomain}".green
-        else
-            puts "--> #{extendedDomain} #{realDomain}".green
-        end
-
+        puts "--> #{domain}".green
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
@@ -193,7 +188,7 @@ class UIServices
         puts ""
         puts "floats:"
         vspaceleft = vspaceleft - 2
-        Floats::items(realDomain)
+        Floats::items(domain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
                 puts line
@@ -226,10 +221,10 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        backlog = UIServices::backlog(store, realDomain)
+        backlog = UIServices::backlog(store, domain)
         vspaceleft = vspaceleft - Utils::verticalSize(backlog)
 
-        todoOverflow = UIServices::todoOverflow(store, realDomain)
+        todoOverflow = UIServices::todoOverflow(store, domain)
         vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
