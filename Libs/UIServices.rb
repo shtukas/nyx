@@ -153,6 +153,12 @@ class UIServices
         ].flatten.join("\n")
     end
 
+    # UIServices::hud(domain)
+    def self.hud(domain)
+        items = Floats::items(domain) + OpenCyles::ns16s() + PriorityFile::ns16s()
+        items.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+    end
+
     # UIServices::mainView(domain, ns16s)
     def self.mainView(domain, ns16s)
         system("clear")
@@ -186,27 +192,11 @@ class UIServices
         puts infolines
 
         puts ""
-        puts "floats:"
-        vspaceleft = vspaceleft - 2
-        Floats::items(domain)
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
-
-        puts ""
         puts "hud:"
         vspaceleft = vspaceleft - 2
-        PriorityFile::ns16s()
+        UIServices::hud(domain)
             .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
-        Hud::ns16s()
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
@@ -216,7 +206,7 @@ class UIServices
         vspaceleft = vspaceleft - 2
         DetachedRunning::ns16s()
             .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }

@@ -235,7 +235,7 @@ class Dated # OnDate
                     Dated::commitItemToDisk(item)
                 end
                 if command == ">hud" then
-                    Hud::issueNewFromDescriptionAndCoreDataId(Dated::toString(item), item["coreDataId"])
+                    OpenCyles::issueNewFromDescriptionAndCoreDataId(Dated::toString(item), item["coreDataId"])
                     Dated::destroy(item)
                 end
                 if command == "done" then

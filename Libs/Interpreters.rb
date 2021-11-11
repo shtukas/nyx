@@ -77,7 +77,7 @@ class Interpreters
         if command == "hud" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            item = Hud::issueNewFromDescriptionAndCoreDataId(description, nil)
+            item = OpenCyles::issueNewFromDescriptionAndCoreDataId(description, nil)
             puts JSON.pretty_generate(item)
         end
 

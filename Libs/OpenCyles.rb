@@ -1,8 +1,8 @@
 # encoding: UTF-8
 
-class Hud
+class OpenCyles
 
-    # Hud::issueNewFromDescriptionAndCoreDataId(description, coreDataId)
+    # OpenCyles::issueNewFromDescriptionAndCoreDataId(description, coreDataId)
     def self.issueNewFromDescriptionAndCoreDataId(description, coreDataId)
         uuid = SecureRandom.uuid
         item = {
@@ -15,7 +15,7 @@ class Hud
         BTreeSets::getOrNull(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid)
     end
 
-    # Hud::issueNewFromDescriptionAndLocation(description, location)
+    # OpenCyles::issueNewFromDescriptionAndLocation(description, location)
     def self.issueNewFromDescriptionAndLocation(description, location)
         uuid = SecureRandom.uuid
         item = {
@@ -28,7 +28,7 @@ class Hud
         BTreeSets::getOrNull(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", uuid)
     end
 
-    # Hud::items()
+    # OpenCyles::items()
     def self.items()
         BTreeSets::values(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
@@ -40,18 +40,18 @@ class Hud
         #}
     end
 
-    # Hud::toString(item)
+    # OpenCyles::toString(item)
     def self.toString(item)
         "[hud*] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
     end
 
-    # Hud::ns16s()
+    # OpenCyles::ns16s()
     def self.ns16s()
-        Hud::items().map{|item|
+        OpenCyles::items().map{|item|
             {
                 "uuid"     => item["uuid"],
                 "unixtime" => item["unixtime"],
-                "announce" => Hud::toString(item),
+                "announce" => OpenCyles::toString(item),
                 "commands" => ["done"],
                 "interpreter" => lambda{|command|
                     if command == "done" then
@@ -60,7 +60,7 @@ class Hud
                 },
                 "run"      => lambda {
                     system("clear")
-                    puts Hud::toString(item).green
+                    puts OpenCyles::toString(item).green
                     CoreData::accessWithOptionToEdit(item["coreDataId"])
                     if LucilleCore::askQuestionAnswerAsBoolean("> destroy ? ") then
                         BTreeSets::destroy(nil, "5f8226ce-87e0-45aa-8df7-15d36ec568d9", item["uuid"])
@@ -70,7 +70,7 @@ class Hud
         }
     end
 
-    # Hud::nx19s()
+    # OpenCyles::nx19s()
     def self.nx19s()
         []
     end

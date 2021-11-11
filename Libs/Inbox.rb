@@ -82,7 +82,7 @@ class Inbox
                             end
                             if target == "hud" then
                                 description = File.basename(location)
-                                item = Hud::issueNewFromDescriptionAndLocation(description, location)
+                                item = OpenCyles::issueNewFromDescriptionAndLocation(description, location)
                                 puts JSON.pretty_generate(item)
                                 LucilleCore::removeFileSystemLocation(location)
                             end

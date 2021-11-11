@@ -133,10 +133,20 @@ class PriorityFile
             line + lines.map{|line| "      #{line}" }.join()
         }
 
+        getUnixtime = lambda{|section|
+            unixtime = KeyValueStore::getOrNull(nil, "386410cf-7ccf-4bc6-88a8-4fd90e1c64fd:#{section}")
+            if unixtime then
+                return unixtime.to_f
+            end
+            unixtime = Time.new.to_f
+            KeyValueStore::set(nil, "386410cf-7ccf-4bc6-88a8-4fd90e1c64fd:#{section}", unixtime)
+            unixtime
+        }
+
         sections.map{|section|
             sectionSmall = section.strip
             uuid = Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{sectionSmall}:#{Utils::today()}")
-            announce = "[prio] #{(sectionSmall.lines.size == 1) ? sectionSmall.green : shiftText.call(sectionSmall).green}"
+            announce = "[prio] #{(sectionSmall.lines.size == 1) ? sectionSmall : shiftText.call(sectionSmall)}"
             {
                 "uuid"        => uuid,
                 "announce"    => announce,
@@ -161,7 +171,8 @@ class PriorityFile
                 },
                 "run" => lambda {
                     PriorityFile::run(filepath, section)
-                }
+                },
+                "unixtime" => getUnixtime.call(section) # required for sorting in UIServices::hud(domain)
             }
         }
     end

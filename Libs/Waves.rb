@@ -362,7 +362,7 @@ class Waves
                     Waves::performDone(wave)
                 end
                 if command == ">hud" then
-                    Hud::issueNewFromDescriptionAndCoreDataId(Waves::toString(wave), wave["coreDataId"])
+                    OpenCyles::issueNewFromDescriptionAndCoreDataId(Waves::toString(wave), wave["coreDataId"])
                     Waves::performDone(wave)
                 end
             },
