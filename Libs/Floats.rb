@@ -84,7 +84,7 @@ class Floats
                 announce = Floats::locationToString(location).gsub("[float]", "[floa]")
                 unixtime = Floats::locationToUnixtime(location)
                 {
-                    "announce"     => announce,
+                    "announce"     => announce.yellow,
                     "unixtime"     => unixtime,
                     "run"          => lambda{ Floats::run(location) },
                 }
