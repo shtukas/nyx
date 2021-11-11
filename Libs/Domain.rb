@@ -87,19 +87,10 @@ class Domain
             return "(eva)"
         end
 
-        if Time.new.hour < 8 then
-            return "(eva)"
-        end
-        
-        if Time.new.hour >= 20 then
-            return "(eva)"
+        if Time.new.hour >= 9 and Time.new.hour < 17 then
+            return "(work)"
         end
 
-        today = Time.new.to_s[0, 10]
-
-        v1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today)
-        v2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today)
-
-        v1 > v2 ? "(work)" : "(eva)"
+        "(eva)"
     end
 end
