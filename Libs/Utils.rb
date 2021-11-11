@@ -78,7 +78,7 @@ class Utils
     # Utils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.uuid
-        filepath = "/tmp/#{filename}"
+        filepath = "/tmp/#{filename}.txt"
         File.open(filepath, 'w') {|f| f.write(text)}
         system("open '#{filepath}'")
         print "> press enter when done: "

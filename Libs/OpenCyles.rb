@@ -42,7 +42,7 @@ class OpenCyles
 
     # OpenCyles::toString(item)
     def self.toString(item)
-        "[hud*] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
+        "[open] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
     end
 
     # OpenCyles::ns16s()
