@@ -129,20 +129,32 @@ end
 
 class UIServices
 
-    # UIServices::todoOverflow(store, dominantDomain)
-    def self.todoOverflow(store, dominantDomain)
+    # UIServices::todoOverflow(store, realDomain)
+    def self.todoOverflow(store, realDomain)
         [
             "",
             "todo overflow:",
-            Nx50s::structure(dominantDomain)["overflow"]
+            Nx50s::structure(realDomain)["overflow"]
                 .map{|object|
                     "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 }
         ].flatten.join("\n")
     end
 
-    # UIServices::mainView(extendedDomain, dominantDomain, ns16s)
-    def self.mainView(extendedDomain, dominantDomain, ns16s)
+    # UIServices::backlog(store, realDomain)
+    def self.backlog(store, realDomain)
+        [
+            "",
+            "backlog:",
+            DetachedRunning::ns16s()
+                .map{|object|
+                    "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                }
+        ].flatten.join("\n")
+    end
+
+    # UIServices::mainView(extendedDomain, realDomain, ns16s)
+    def self.mainView(extendedDomain, realDomain, ns16s)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
@@ -163,7 +175,7 @@ class UIServices
         if extendedDomain != "(multiplex)" then
             puts "--> #{extendedDomain}".green
         else
-            puts "--> #{extendedDomain} #{dominantDomain}".green
+            puts "--> #{extendedDomain} #{realDomain}".green
         end
 
         vspaceleft = vspaceleft - 2
@@ -181,7 +193,7 @@ class UIServices
         puts ""
         puts "floats:"
         vspaceleft = vspaceleft - 2
-        Floats::items(dominantDomain)
+        Floats::items(realDomain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].yellow}"
                 puts line
@@ -204,17 +216,21 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        todoOverflow = UIServices::todoOverflow(store, dominantDomain)
-        vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
-        detachedRunnings = DetachedRunning::ns16s()
-        if detachedRunnings.size > 0 then
-            vspaceleft = vspaceleft - 1
-            detachedRunnings.each{|item|
-                line = "(#{store.register(item).to_s.rjust(3, " ")}) #{item["announce"].green}"
+        puts ""
+        puts "detached runnings:"
+        vspaceleft = vspaceleft - 2
+        DetachedRunning::ns16s()
+            .each{|object|
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
-        end
+
+        backlog = UIServices::backlog(store, realDomain)
+        vspaceleft = vspaceleft - Utils::verticalSize(backlog)
+
+        todoOverflow = UIServices::todoOverflow(store, realDomain)
+        vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -240,6 +256,8 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
+
+        puts backlog
 
         puts todoOverflow
 

@@ -76,8 +76,8 @@ class Domain
         end
     end
 
-    # Domain::getDominantDomain()
-    def self.getDominantDomain()
+    # Domain::getRealDomain()
+    def self.getRealDomain()
 
         if ["(work)", "(eva)"].include?(Domain::getActiveExtendedDomain()) then
             return Domain::getActiveExtendedDomain()

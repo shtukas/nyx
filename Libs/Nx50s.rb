@@ -404,7 +404,7 @@ class Nx50s
                 puts "--------------------------"
             end
 
-            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | domain | show json | destroy (gg) | exit".yellow
+            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | domain | show json | >backlog | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -499,6 +499,12 @@ class Nx50s
                     break
                 end
                 next
+            end
+
+            if command == ">backlog" then
+                Backlog::commitItemToDatabase(nx50)
+                Nx50s::delete(nx50["uuid"])
+                break
             end
 
             if command == "gg" then
