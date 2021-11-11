@@ -397,7 +397,8 @@ class Nx50s
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             if note then
                 puts "-- Note ------------------"
-                puts note
+                puts note.strip
+                puts ""
             end
 
             puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | domain | show json | >backlog | destroy (gg) | exit".yellow
@@ -426,9 +427,9 @@ class Nx50s
                 StructuredTodoTexts::applyT(uuid)
                 note = StructuredTodoTexts::getNoteOrNull(uuid)
                 if note then
-                    puts "Note ---------------------"
-                    puts note.green
-                    puts "--------------------------"
+                    puts "-- Note -------------------"
+                    puts note.strip
+                    puts ""
                 end
                 next
             end
