@@ -146,7 +146,7 @@ class UIServices
         [
             "",
             "backlog:",
-            DetachedRunning::ns16s()
+            Backlog::ns16s(domain)
                 .map{|object|
                     "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 }
