@@ -26,12 +26,9 @@ class Nx50DoneCounter
             .inject(0, :+)
     end
 
-    # Nx50DoneCounter::numbers()
-    def self.numbers()
-        [
-            Nx50DoneCounter::getPastNDaysCount(7).to_f/7,
-            Nx50DoneCounter::getPastNDaysCount(30).to_f/30,
-        ]
+    # Nx50DoneCounter::rate()
+    def self.rate()
+        Nx50DoneCounter::getPastNDaysCount(30).to_f/30
     end
 end
 

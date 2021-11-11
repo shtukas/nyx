@@ -63,25 +63,10 @@ class Domain
         rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
         rt2 = Work::recoveryTime()
         [
-            {
-                "announce" => "(Nx50: done: #{Nx50DoneCounter::numbers().map{|n| n.round(2) }.join(", ")})",
-                "metric"   => 0,
-                "active"   => true
-            },
-            {
-                "announce" => "(eva: Nx50s: #{count1} items, today: #{h1.round(2)} hours, rt: #{rt1.round(2)})",
-                "metric"   => h1,
-                "active"   => true
-            },
-            {
-                "announce" => "(work: Nx50s: #{count2} items, today: #{h2.round(2)} hours, rt: #{rt2.round(2)})",
-                "metric"   => h2,
-                "active"   => ![6, 0].include?(Time.new.wday)
-            }
+            "(Nx50: done: #{Nx50DoneCounter::rate()}/day)",
+            "(eva: Nx50s: #{count1} items, #{h1.round(2)} hours today, rt: #{rt1.round(2)})",
+            "(work: Nx50s: #{count2} items, #{h2.round(2)} hours today, rt: #{rt2.round(2)})"
         ]
-            .select{|i| i["active"] }
-            .sort{|i1, i2| i1["metric"]<=>i2["metric"] }
-            .map{|i| i["announce"] }
             .join(" ")
     end
 
