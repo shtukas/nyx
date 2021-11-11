@@ -148,7 +148,7 @@ class UIServices
             "backlog:",
             Backlog::ns16s(domain)
                 .map{|object|
-                    "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                    "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
                 }
         ].flatten.join("\n")
     end
