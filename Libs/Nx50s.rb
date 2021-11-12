@@ -540,8 +540,8 @@ class Nx50s
         }
     end
 
-    # Nx50s::hudThreshold(domain)
-    def self.hudThreshold(domain)
+    # Nx50s::overflowThreshold(domain)
+    def self.overflowThreshold(domain)
         (domain == "(work)") ? 2 : 1
     end
 
@@ -564,7 +564,7 @@ class Nx50s
             KeyValueStore::set(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{Utils::today()}:#{domain}", JSON.generate(uuids))
         }
 
-        threshold = Nx50s::hudThreshold(domain)
+        threshold = Nx50s::overflowThreshold(domain)
 
         q1, q2 = Nx50s::nx50sForDomain(domain)
                     .map{|item| Nx50s::ns16OrNull(item) }

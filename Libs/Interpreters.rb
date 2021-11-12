@@ -74,13 +74,6 @@ class Interpreters
             DetachedRunning::issueNew2(description, Time.new.to_i, [Domain::getDomainBankAccount("(eva)")])
         end
 
-        if command == "hud" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            item = OpenCyles::issueNewFromDescriptionAndCoreDataId(description, nil)
-            puts JSON.pretty_generate(item)
-        end
-
         if command == "today" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""

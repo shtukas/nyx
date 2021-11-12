@@ -115,6 +115,7 @@ class Waves
     def self.issueNewWaveInteractivelyOrNull()
 
         atom = CoreData2::interactivelyCreateANewAtomOrNull([Waves::coreData2SetUUID()])
+        return nil if atom.nil?
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         if schedule.nil? then
@@ -318,7 +319,7 @@ class Waves
         {
             "uuid"        => uuid,
             "announce"    => Waves::toString(wave),
-            "commands"    => ["..", "landing", "done", ">hud (done and copy to hud)"],
+            "commands"    => ["..", "landing", "done"],
             "interpreter" => lambda{|command|
                 if command == ".." then
                     Waves::run(wave)
@@ -327,10 +328,6 @@ class Waves
                     Waves::landing(wave)
                 end
                 if command == "done" then
-                    Waves::performDone(wave)
-                end
-                if command == ">hud" then
-                    OpenCyles::issueNewFromDescriptionAndCoreDataId(Waves::toString(wave), wave["coreDataId"])
                     Waves::performDone(wave)
                 end
             },

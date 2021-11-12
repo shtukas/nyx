@@ -27,12 +27,12 @@ class Dated # OnDate
 
     # Dated::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
-        atom = CoreData2::interactivelyCreateANewAtomOrNull([Dated::coreData2SetUUID()])
         date = Dated::interactivelySelectADateOrNull()
-        if date.nil? then
-            CoreData2::destroyAtom(atom["uuid"])
-            return nil
-        end
+        return nil if date.nil?
+
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([Dated::coreData2SetUUID()])
+        return nil if atom.nil?
+
         atom["date"] = date
         CoreData2::commitAtom2(atom)
         atom
@@ -158,7 +158,7 @@ class Dated # OnDate
         {
             "uuid"        => item["uuid"],
             "announce"    => Dated::toString(item),
-            "commands"    => ["..", "redate", ">hud", "done"],
+            "commands"    => ["..", "redate", "done"],
             "interpreter" => lambda {|command|
                 if command == ".." then
                     Dated::run(item)
@@ -169,10 +169,6 @@ class Dated # OnDate
                     item["date"] = date
                     puts JSON.pretty_generate(item)
                     Dated::commitAtomToDisk(item)
-                end
-                if command == ">hud" then
-                    OpenCyles::issueNewFromDescriptionAndCoreDataId(Dated::toString(item), item["coreDataId"])
-                    Dated::destroy(item)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then

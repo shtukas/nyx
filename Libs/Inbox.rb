@@ -67,7 +67,7 @@ class Inbox
                             LucilleCore::removeFileSystemLocation(location)
                         end
                         if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "hud", "today", "Nx50"])
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "today", "Nx50"])
                             if target == "float" then
                                 if File.file?(location) then
                                     Floats::interactivelyCreateNewOrNull()
@@ -79,12 +79,6 @@ class Inbox
                                     LucilleCore::copyContents(folderpath1, folderpath2)
                                     LucilleCore::removeFileSystemLocation(location)
                                 end
-                            end
-                            if target == "hud" then
-                                description = File.basename(location)
-                                item = OpenCyles::issueNewFromDescriptionAndLocation(description, location)
-                                puts JSON.pretty_generate(item)
-                                LucilleCore::removeFileSystemLocation(location)
                             end
                             if target == "today" then
                                 description = File.basename(location)
