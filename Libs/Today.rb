@@ -43,7 +43,7 @@ class Today
                 "commands" => ["..", "done"],
                 "interpreter" => lambda{|command|
                     if command == "done" then
-                        CoreData2::deleteAtomFromSet(atom["uuid"], Today::coreData2SetUUID())
+                        CoreData2::removeAtomFromSet(atom["uuid"], Today::coreData2SetUUID())
                     end
                 },
                 "run"      => lambda {
@@ -51,7 +51,7 @@ class Today
                     puts Today::itemToString(atom).green
                     CoreData2::accessWithOptionToEdit(atom)
                     if LucilleCore::askQuestionAnswerAsBoolean("> destroy ? ") then
-                        CoreData2::deleteAtomFromSet(atom["uuid"], Today::coreData2SetUUID())
+                        CoreData2::removeAtomFromSet(atom["uuid"], Today::coreData2SetUUID())
                     end
                     t2 = Time.new.to_i
                     puts "> Select domain for accounting"

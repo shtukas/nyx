@@ -2,91 +2,31 @@
 
 class Quarks
 
-    # Quarks::databaseFilepath2()
-    def self.databaseFilepath2()
-        "#{Utils::catalystDataCenterFolderpath()}/Items/Quarks.sqlite3"
+    # Quarks::coreData2SetUUID()
+    def self.coreData2SetUUID()
+        "catalyst:d0af5f97-2b44-4bf5-8179-07bcdbbcd7ab"
     end
 
     # Quarks::items()
     def self.items()
-        db = SQLite3::Database.new(Quarks::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _items_ order by _unixtime_") do |row|
-            answer << {
-                "uuid"        => row["_uuid_"],
-                "unixtime"    => row["_unixtime_"],
-                "description" => row["_description_"],
-                "coreDataId"  => row["_coreDataId_"]
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Quarks::commitItemToDatabase(item)
-    def self.commitItemToDatabase(item)
-        db = SQLite3::Database.new(Quarks::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
-        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _coreDataId_) values (?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["coreDataId"]]
-        db.commit 
-        db.close
-    end
-
-    # Quarks::getItemByUUIDOrNull(uuid)
-    def self.getItemByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Quarks::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        item = nil
-        db.execute( "select * from _items_ where _uuid_=?" , [uuid] ) do |row|
-            item = {
-                "uuid"        => row["_uuid_"],
-                "unixtime"    => row["_unixtime_"],
-                "description" => row["_description_"],
-                "coreDataId"  => row["_coreDataId_"]
-            }
-        end
-        db.close
-        item
-    end
-
-    # Quarks::delete(uuid)
-    def self.delete(uuid)
-        db = SQLite3::Database.new(Quarks::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _items_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
+        CoreData2::getSet(Quarks::coreData2SetUUID())
+            .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"] }
     end
 
     # Operations
 
     # Quarks::toString(item)
     def self.toString(item)
-        "[quark] #{item["description"]} (#{Nx50s::getItemType(item)})"
+        "[quark] #{CoreData2::toString(atom)}"
     end
 
     # Quarks::issueItemUsingLocation(location, unixtime)
     def self.issueItemUsingLocation(location, unixtime)
-        uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
-        Quarks::commitItemToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "coreDataId"  => coreDataId
-        })
-        Quarks::getItemByUUIDOrNull(uuid)
+        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Dated::coreData2SetUUID()])
+        atom["unixtime"] = unixtime
+        CoreData2::commitAtom2(atom)
+        atom
     end
 
     # Quarks::importspread()
@@ -133,11 +73,12 @@ Thread.new {
         while Nx50s::nx50sForDomain("(eva)").size <= 50 do
             Quarks::items()
                 .take(1)
-                .each{|item|
-                    puts "Nx50 <- #{Quarks::toString(item)}"
-                    item["domain"] = "(eva)"
-                    Nx50s::commitItemToDatabase(item)
-                    Quarks::delete(item["uuid"])
+                .each{|atom|
+                    puts "Nx50 <- #{Quarks::toString(atom)}"
+                    atom["domain"] = "(eva)"
+                    CoreData2::commitAtom2(atom)
+                    CoreData2::addAtomToSet(atom["uuid"], Nx50s::coreData2SetUUID())
+                    CoreData2::removeAtomFromSet(atom["uuid"], Quarks::coreData2SetUUID())
                 }
         end
     }

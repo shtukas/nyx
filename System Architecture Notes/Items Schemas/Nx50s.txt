@@ -1,9 +1,12 @@
-CREATE TABLE _items_ (_uuid_ text, _unixtime_ real, _description_ text, _coreDataId_ text, _domain_ text);
+CoreData2 Set: "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
 
-{
-    "uuid"        : String
-    "unixtime"    : Float
-    "description" : String
-    "coreDataId"  : String | null
+Nx50 {
+    (CoreData2Atom)
+    "uuid"        : uuid,
+    "unixtime"    : unixtime,
+    "description" : description,
+    "type"        : CoreData2AtomType,
+    "payload"     : CoreData2AtomPayload
+
     "domain"      : Domain
 }

@@ -34,96 +34,24 @@ end
 
 class Nx50s
 
-    # Nx50s::databaseFilepath2()
-    def self.databaseFilepath2()
-        "#{Utils::catalystDataCenterFolderpath()}/Items/Nx50s.sqlite3"
+    # Nx50s::coreData2SetUUID()
+    def self.coreData2SetUUID()
+        "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
     end
 
     # Nx50s::nx50s()
     def self.nx50s()
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _items_ order by _unixtime_") do |row|
-            answer << {
-                "uuid"        => row["_uuid_"],
-                "unixtime"    => row["_unixtime_"],
-                "description" => row["_description_"],
-                "coreDataId"  => row["_coreDataId_"],
-                "domain"      => row["_domain_"]
-            }
-        end
-        db.close
-        answer
+        CoreData2::getSet(Nx50s::coreData2SetUUID())
+            .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"] }
     end
 
     # Nx50s::nx50sForDomain(domain)
     def self.nx50sForDomain(domain)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _items_ where _domain_=? order by _unixtime_", [domain]) do |row|
-            answer << {
-                "uuid"        => row["_uuid_"],
-                "unixtime"    => row["_unixtime_"],
-                "description" => row["_description_"],
-                "coreDataId"  => row["_coreDataId_"],
-                "domain"      => row["_domain_"]
-            }
-        end
-        db.close
-        answer
-    end
-
-    # Nx50s::commitItemToDatabase(item)
-    def self.commitItemToDatabase(item)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _items_ where _uuid_=?", [item["uuid"]]
-        db.execute "insert into _items_ (_uuid_, _unixtime_, _description_, _coreDataId_, _domain_) values (?,?,?,?,?)", [item["uuid"], item["unixtime"], item["description"], item["coreDataId"], item["domain"]]
-        db.commit 
-        db.close
-    end
-
-    # Nx50s::getItemByUUIDOrNull(uuid)
-    def self.getItemByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        item = nil
-        db.execute( "select * from _items_ where _uuid_=?" , [uuid] ) do |row|
-            item = {
-                "uuid"        => row["_uuid_"],
-                "unixtime"    => row["_unixtime_"],
-                "description" => row["_description_"],
-                "coreDataId"  => row["_coreDataId_"],
-                "domain"      => row["_domain_"]
-            }
-        end
-        db.close
-        item
-    end
-
-    # Nx50s::delete(uuid)
-    def self.delete(uuid)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _items_ where _uuid_=?", [uuid]
-        db.commit 
-        db.close
+        Nx50s::nx50s().select{|atom| atom["domain"] == domain }
     end
 
     # --------------------------------------------------
-    # Makers
+    # Unixtimes
 
     # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
     def self.interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
@@ -207,140 +135,78 @@ class Nx50s
         raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
     end
 
+    # --------------------------------------------------
+    # Makers
+
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        uuid = LucilleCore::timeStringL22()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
-        if description == "" then
-            return nil
-        end
-        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
         domain = Domain::interactivelySelectDomain()
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-        Nx50s::commitItemToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "coreDataId"  => coreDataId,
-            "domain"      => domain
-        })
-        Nx50s::getItemByUUIDOrNull(uuid)
+        atom["unixtime"] = unixtime
+        atom["domain"] = domain
+        CoreData2::commitAtom2(atom)
     end
 
-    # Nx50s::issueItemUsingText(text, unixtime, domain)
+    # Nx50s::issueItemUsingTextOrNull(text, unixtime, domain)
     def self.issueItemUsingText(text, unixtime, domain)
-        uuid        = LucilleCore::timeStringL22()
-        description = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
-        coreDataId  = CoreData::issueTextDataObjectUsingText(text)
-        Nx50s::commitItemToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "coreDataId"  => coreDataId,
-            "domain"      => domain
-        })
-        Nx50s::getItemByUUIDOrNull(uuid)
+        text = text.strip
+        return nil if text == ""
+        description = text.lines.first.strip
+        atom = CoreData2::issueTextAtomUsingText(SecureRandom.uuid, description, text, [Nx50s::coreData2SetUUID()])
+        atom["unixtime"] = unixtime
+        atom["domain"] = domain
+        CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
-        uuid     = LucilleCore::timeStringL22()
-        domain   = Domain::interactivelySelectDomain()
+        atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
+        domain = Domain::interactivelySelectDomain()
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-        Nx50s::commitItemToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "coreDataId"  => nil,
-            "domain"      => domain
-        })
-        Nx50s::getItemByUUIDOrNull(uuid)
+        atom["unixtime"] = unixtime
+        atom["domain"] = domain
+        CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueItemUsingLocation(location, unixtime, domain)
     def self.issueItemUsingLocation(location, unixtime, domain)
-        uuid        = LucilleCore::timeStringL22()
         description = File.basename(location)
-        coreDataId = CoreData::issueAionPointDataObjectUsingLocation(location)
-        Nx50s::commitItemToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "coreDataId"  => coreDataId,
-            "domain"      => domain
-        })
-        Nx50s::getItemByUUIDOrNull(uuid)
+        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
+        atom["unixtime"] = unixtime
+        atom["domain"] = domain
+        CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueItemUsingURL(url domain)
     def self.issueItemUsingURL(url, domain)
-        uuid        = LucilleCore::timeStringL22()
-        unixtime    = Time.new.to_f
-        description = url
-        coreDataId = CoreData::issueUrlPointDataObjectUsingUrl(url)
-        Nx50s::commitItemToDatabase({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "coreDataId"  => coreDataId,
-            "domain"      => domain
-        })
-        Nx50s::getItemByUUIDOrNull(uuid)
+        CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
+        atom["domain"] = domain
+        CoreData2::commitAtom2(atom)
     end
 
     # --------------------------------------------------
     # Operations
 
-    # Nx50s::updateDescription(uuid, description)
-    def self.updateDescription(uuid, description)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath2())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "update _items_ set _description_=? where _uuid_=?", [description, uuid]
-        db.commit 
-        db.close
+    # Nx50s::toString(atom)
+    def self.toString(atom)
+        "[nx50] #{CoreData2::toString(atom)}"
     end
 
-    # Nx50s::getItemType(item)
-    def self.getItemType(item)
-        type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["coreDataId"]}")
-        return type if type
-        type1 = CoreData::contentTypeOrNull(item["coreDataId"])
-        type2 = type1 || "line"
-        KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc77:#{item["coreDataId"]}", type2)
-        type2
+    # Nx50s::toStringForNS19(atom)
+    def self.toStringForNS19(atom)
+        "[nx50] #{atom["description"]}"
     end
 
-    # Nx50s::toString(item)
-    def self.toString(item)
-        "[nx50] #{item["description"]} (#{Nx50s::getItemType(item)})"
+    # Nx50s::toStringForNS16(atom, rt)
+    def self.toStringForNS16(atom, rt)
+        "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toString(atom)}"
     end
 
-    # Nx50s::toStringForNS19(item)
-    def self.toStringForNS19(item)
-        "[nx50] #{item["description"]}"
-    end
-
-    # Nx50s::toStringForNS16(item, rt)
-    def self.toStringForNS16(item, rt)
-        "[nx50] (#{"%4.2f" % rt}) #{item["description"]} (#{Nx50s::getItemType(item)})"
-    end
-
-    # Nx50s::complete(nx50)
-    def self.complete(nx50)
-        Nx50s::delete(nx50["uuid"])
+    # Nx50s::complete(atom)
+    def self.complete(atom)
+        CoreData2::removeAtomFromSet(atom["uuid"], Nx50s::coreData2SetUUID())
         Nx50DoneCounter::increaseTodayCount()
-    end
-
-    # Nx50s::accessContent(item)
-    def self.accessContent(item)
-        if item["coreDataId"].nil? then
-            puts "description: #{item["description"]}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        CoreData::accessWithOptionToEdit(item["coreDataId"])
     end
 
     # --------------------------------------------------
@@ -413,7 +279,7 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                Nx50s::accessContent(nx50)
+                CoreData2::accessWithOptionToEdit(nx50)
                 next
             end
 
@@ -456,10 +322,9 @@ class Nx50s
 
             if Interpreting::match("update description", command) then
                 description = Utils::editTextSynchronously(nx50["description"]).strip
-                if description.size > 0 then
-                    Nx50s::updateDescription(nx50["uuid"], description)
-                    nx50 = Nx50s::getItemByUUIDOrNull(nx50["uuid"])
-                end
+                next if description == ""
+                nx50["description"] = description
+                CoreData2::commitAtom2(nx50)
                 next
             end
 

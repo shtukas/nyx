@@ -1,1 +1,10 @@
 CoreData2 Set: "catalyst:998deeb2-7746-4578-b5ff-844f83fac6bd"
+
+Today {
+    (CoreData2Atom)
+    "uuid"        : uuid,
+    "unixtime"    : unixtime,
+    "description" : description,
+    "type"        : CoreData2AtomType,
+    "payload"     : CoreData2AtomPayload
+}

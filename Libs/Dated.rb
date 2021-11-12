@@ -48,7 +48,7 @@ class Dated # OnDate
 
     # Dated::destroy(atom)
     def self.destroy(atom)
-        CoreData2::deleteAtomFromSet(atom["uuid"], Dated::coreData2SetUUID())
+        CoreData2::removeAtomFromSet(atom["uuid"], Dated::coreData2SetUUID())
     end
 
     # -------------------------------------

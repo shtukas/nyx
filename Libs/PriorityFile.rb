@@ -101,9 +101,9 @@ class PriorityFile
             if command == ">Nx50" then
                 domain = Domain::interactivelySelectDomain()
                 unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                item = Nx50s::issueItemUsingText(section.strip, unixtime, domain)
+                item = Nx50s::issueItemUsingTextOrNull(section.strip, unixtime, domain)
+                next if item.nil?
                 puts JSON.pretty_generate(item)
-
                 PriorityFile::rewriteFileWithoutSection(filepath, section)
                 break
             end
@@ -183,9 +183,9 @@ class PriorityFile
                     if command == ">Nx50" then
                         domain = Domain::interactivelySelectDomain()
                         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                        item = Nx50s::issueItemUsingText(section.strip, unixtime, domain)
+                        item = Nx50s::issueItemUsingTextOrNull(section.strip, unixtime, domain)
+                        return if item.nil?
                         puts JSON.pretty_generate(item)
-
                         PriorityFile::rewriteFileWithoutSection(filepath, section)
                     end
                     if command == ">today" then
