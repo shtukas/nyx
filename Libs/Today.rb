@@ -50,9 +50,24 @@ class Today
                     t1 = Time.new.to_i
                     puts Today::itemToString(atom).green
                     CoreData2::accessWithOptionToEdit(atom)
-                    if LucilleCore::askQuestionAnswerAsBoolean("> destroy ? ") then
+
+                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", [">ondate", "destroy"])
+
+                    if operation == ">ondate" then
+                        date = Dated::interactivelySelectADateOrNull()
+                        if date then
+                            atom["date"] = date
+                            atom["unixtime"] = Time.new.to_f
+                            CoreData2::commitAtom2(atom)
+                            CoreData2::addAtomToSet(atom["uuid"], Dated::coreData2SetUUID())
+                            CoreData2::removeAtomFromSet(atom["uuid"], Today::coreData2SetUUID())
+                        end
+                    end
+
+                    if operation == "destroy" then
                         CoreData2::removeAtomFromSet(atom["uuid"], Today::coreData2SetUUID())
                     end
+
                     t2 = Time.new.to_i
                     puts "> Select domain for accounting"
                     domain = Domain::interactivelySelectOrGetCachedDomain(Today::itemToString(atom))
