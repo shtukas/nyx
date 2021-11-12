@@ -40,6 +40,7 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
+            OpenCyles::ns16s(),
             Nx50s::ns16s(domain),
         ]
             .flatten
@@ -140,12 +141,6 @@ class UIServices
         ].flatten.join("\n")
     end
 
-    # UIServices::hud(domain)
-    def self.hud(domain)
-        items = Floats::items(domain) + OpenCyles::ns16s() + PriorityFile::ns16s()
-        items.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-    end
-
     # UIServices::mainView(domain, ns16s)
     def self.mainView(domain, ns16s)
         system("clear")
@@ -179,9 +174,9 @@ class UIServices
         puts infolines
 
         puts ""
-        puts "hud:"
+        puts "floats:"
         vspaceleft = vspaceleft - 2
-        UIServices::hud(domain)
+        Floats::items(domain)
             .each{|object|
                 line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
                 puts line
@@ -189,11 +184,11 @@ class UIServices
             }
 
         puts ""
-        puts "today (to complete before bed time):"
+        puts "to complete before bed time:"
         vspaceleft = vspaceleft - 2
-        Today::ns16s()
+        (PriorityFile::ns16s()+Today::ns16s())
             .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }

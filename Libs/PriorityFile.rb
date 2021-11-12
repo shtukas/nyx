@@ -171,8 +171,7 @@ class PriorityFile
                 },
                 "run" => lambda {
                     PriorityFile::run(filepath, section)
-                },
-                "unixtime" => getUnixtime.call(section) # required for sorting in UIServices::hud(domain)
+                }
             }
         }
     end
