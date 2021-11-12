@@ -184,32 +184,41 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        puts ""
-        puts "Priority.txt:"
-        vspaceleft = vspaceleft - 2
-        text = IO.read("/Users/pascal/Desktop/Priority.txt")
-        puts text.strip.green
-        vspaceleft = vspaceleft - Utils::verticalSize(text.strip)
+        text = IO.read("/Users/pascal/Desktop/Priority.txt").strip
+        if text.size > 0 then
+            puts ""
+            puts "Priority.txt:"
+            vspaceleft = vspaceleft - 2
+            puts text.green
+            vspaceleft = vspaceleft - Utils::verticalSize(text)
+        end
 
-        puts ""
-        puts "to complete before bed time:"
-        vspaceleft = vspaceleft - 2
-        (PriorityFile::ns16s()+Today::ns16s())
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
 
-        puts ""
-        puts "detached runnings:"
-        vspaceleft = vspaceleft - 2
-        DetachedRunning::ns16s()
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
+        items = (PriorityFile::ns16s()+Today::ns16s())
+        if !items.empty? then
+            puts ""
+            puts "to complete before bed time:"
+            vspaceleft = vspaceleft - 2
+            items
+                .each{|object|
+                    line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
+                    puts line
+                    vspaceleft = vspaceleft - Utils::verticalSize(line)
+                }
+        end
+
+        items = DetachedRunning::ns16s()
+        if !items.empty? then
+            puts ""
+            puts "detached runnings:"
+            vspaceleft = vspaceleft - 2
+            items
+                .each{|object|
+                    line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                    puts line
+                    vspaceleft = vspaceleft - Utils::verticalSize(line)
+                }
+        end
 
         todoOverflow = UIServices::todoOverflow(store, domain)
         vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
