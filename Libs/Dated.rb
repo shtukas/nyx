@@ -2,32 +2,19 @@
 
 class Dated # OnDate
 
-    # Dated::itemsFolderPath()
-    def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/Dateds"
+    # Dated::coreData2SetUUID()
+    def self.coreData2SetUUID()
+        "catalyst:908fffc7-19a5-41cc-a2ff-e316711b373f"
     end
 
-    # Dated::commitItemToDisk(item)
-    def self.commitItemToDisk(item)
-        filename = "#{item["uuid"]}.json"
-        filepath = "#{Dated::itemsFolderPath()}/#{filename}"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
-    # Dated::getDatedByUUIDOrNull(uuid)
-    def self.getDatedByUUIDOrNull(uuid)
-        filename = "#{uuid}.json"
-        filepath = "#{Dated::itemsFolderPath()}/#{filename}"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
+    # Dated::getDatedByUUIDOrNull(atomuuid)
+    def self.getDatedByUUIDOrNull(atomuuid)
+        CoreData2::getAtomOrNull(atomuuid)
     end
 
     # Dated::items()
     def self.items()
-        LucilleCore::locationsAtFolder(Dated::itemsFolderPath())
-            .select{|location| location[-5, 5] == ".json" }
-            .map{|location| JSON.parse(IO.read(location)) }
-            .sort{|x1, x2|  x1["date"] <=> x2["date"]}
+        CoreData2::getSet(Dated::coreData2SetUUID())
     end
 
     # Dated::interactivelySelectADateOrNull()
@@ -40,93 +27,44 @@ class Dated # OnDate
 
     # Dated::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
-        uuid = LucilleCore::timeStringL22()
-
-        unixtime = Time.new.to_f
-
-        description = LucilleCore::askQuestionAnswerAsString("description (empty for abort): ")
-        if description == "" then
-            return nil
-        end
-
         date = Dated::interactivelySelectADateOrNull()
         return nil if date.nil?
-
-        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
-
-        item = {
-              "uuid"        => uuid,
-              "unixtime"    => unixtime,
-              "description" => description,
-              "date"        => date,
-              "coreDataId"  => coreDataId
-            }
-
-        Dated::commitItemToDisk(item)
-
-        item
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([Dated::coreData2SetUUID()])
+        atom["date"] = date
+        CoreData2::commitAtom2(atom)
+        atom
     end
 
     # Dated::issueItemUsingText(text, unixtime, date)
     def self.issueItemUsingText(text, unixtime, date)
-        uuid        = LucilleCore::timeStringL22()
-        description = text.strip.lines.first.strip || "todo text @ #{Time.new.to_s}" 
-        coreDataId  = CoreData::issueTextDataObjectUsingText(text)
-        Dated::commitItemToDisk({
-            "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
-            "date"        => date,
-            "coreDataId"  => coreDataId
-        })
-        Dated::getDatedByUUIDOrNull(uuid)
+        text = text.strip
+        return if text.size == 0
+        description = text.lines.first.strip
+        CoreData2::issueTextAtomUsingText(SecureRandom.uuid, description, text, [Dated::coreData2SetUUID()])
     end
 
-    # Dated::destroy(item)
-    def self.destroy(item)
-        filename = "#{item["uuid"]}.json"
-        filepath = "#{Dated::itemsFolderPath()}/#{filename}"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+    # Dated::destroy(atom)
+    def self.destroy(atom)
+        CoreData2::destroyAtom(atom["uuid"])
     end
 
     # -------------------------------------
     # Operations
 
-    # Dated::getItemType(item)
-    def self.getItemType(item)
-        type = KeyValueStore::getOrNull(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}")
-        return type if type
-        type1 = CoreData::contentTypeOrNull(item["coreDataId"])
-        type2 = type1 || "line"
-        KeyValueStore::set(nil, "bb9de7f7-022c-4881-bf8d-fb749cd2cc78:#{item["uuid"]}", type2)
-        type2
+    # Dated::toString(atom)
+    def self.toString(atom)
+        "[date] (#{atom["date"]}) #{CoreData2::toString(atom)}"
     end
 
-    # Dated::toString(item)
-    def self.toString(item)
-        "[date] (#{item["date"]}) #{item["description"]} (#{Dated::getItemType(item)})"
-    end
-
-    # Dated::accessContent(item)
-    def self.accessContent(item)
-        if item["coreDataId"].nil? then
-            puts "description: #{item["description"]}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        CoreData::accessWithOptionToEdit(item["coreDataId"])
-    end
-
-    # Dated::run(item)
-    def self.run(item)
+    # Dated::run(atom)
+    def self.run(atom)
 
         system("clear")
 
-        uuid = item["uuid"]
+        uuid = atom["uuid"]
 
-        puts "running #{Dated::toString(item)}".green
-        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
+        puts "running #{Dated::toString(atom)}".green
+        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
         puts "Starting at #{Time.new.to_s}"
 
         nxball = NxBalls::makeNxBall([uuid])
@@ -140,65 +78,60 @@ class Dated # OnDate
             }
         }
 
-        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
-
-        Dated::accessContent(item)
+        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
 
         loop {
 
             system("clear")
 
-            puts "running #{Dated::toString(item)}".green
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
+            puts "running #{Dated::toString(atom)}".green
+            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(item["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
 
             puts "access | <datecode> | note | [] | update description | update date | update contents | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if Interpreting::match("access", command) then
-                Dated::accessContent(item)
+                CoreData2::accessWithOptionToEdit(atom)
                 next
             end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                DoNotShowUntil::setUnixtime(atom["uuid"], unixtime)
                 break
             end
 
             if Interpreting::match("note", command) then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(item["uuid"]) || "")
-                StructuredTodoTexts::setNote(item["uuid"], note)
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(atom["uuid"]) || "")
+                StructuredTodoTexts::setNote(atom["uuid"], note)
                 next
             end
 
             if command == "[]" then
-                StructuredTodoTexts::applyT(item["uuid"])
+                StructuredTodoTexts::applyT(atom["uuid"])
                 next
             end
 
             if Interpreting::match("update description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
-                item["description"] = description
-                Dated::commitItemToDisk(item)
+                atom["description"] = description
+                CoreData2::commitAtom2(atom)
                 next
             end
 
             if Interpreting::match("update date", command) then
                 date = Dated::interactivelySelectADateOrNull()
                 next if date.nil?
-                item["date"] = date
-                Dated::commitItemToDisk(item)
+                atom["date"] = date
+                CoreData2::commitAtom2(atom)
                 next
             end
 
             if Interpreting::match("update contents", command) then
-                coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
-                return if coreDataId.nil?
-                item["coreDataId"] = coreDataId
-                Dated::commitItemToDisk(item)
+                CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(atom)
                 next
             end
 
@@ -207,7 +140,7 @@ class Dated # OnDate
             end
 
             if Interpreting::match("destroy", command) then
-                Dated::destroy(item)
+                Dated::destroy(atom)
                 break
             end
         }
@@ -232,7 +165,7 @@ class Dated # OnDate
                     return if date.nil?
                     item["date"] = date
                     puts JSON.pretty_generate(item)
-                    Dated::commitItemToDisk(item)
+                    Dated::commitAtomToDisk(item)
                 end
                 if command == ">hud" then
                     OpenCyles::issueNewFromDescriptionAndCoreDataId(Dated::toString(item), item["coreDataId"])
