@@ -9,16 +9,7 @@ class Floats
 
     # Floats::getLocationDomain(location)
     def self.getLocationDomain(location)
-        locationname = File.basename(location)
-        domain = KeyValueStore::getOrNull(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{locationname}")
-        return domain if domain
-        puts location.green
-        if File.file?(location) then
-            puts IO.read(location).strip.green
-        end
-        domain = Domain::interactivelySelectDomain()
-        KeyValueStore::set(nil, "196d3609-eea7-47ea-a172-b24c7240c4df:#{locationname}", domain)
-        domain
+        Domain::interactivelySelectOrGetCachedDomain(Floats::locationToString(location))
     end
 
     # Floats::locationToString(location)

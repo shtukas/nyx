@@ -49,7 +49,7 @@ class Today
                     end
                     t2 = Time.new.to_i
                     puts "> Select domain for accounting"
-                    domain = Domain::interactivelySelectDomain()
+                    domain = Domain::interactivelySelectOrGetCachedDomain(Today::itemToString(atom))
                     bankAccount = Domain::getDomainBankAccount(domain)
                     Bank::put(bankAccount, t2-t1)
                 }
