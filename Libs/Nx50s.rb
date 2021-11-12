@@ -329,7 +329,7 @@ class Nx50s
             end
 
             if Interpreting::match("update contents", command) then
-                CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(nx50)
+                atom = CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(nx50)
                 next
             end
 

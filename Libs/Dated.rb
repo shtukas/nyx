@@ -134,7 +134,7 @@ class Dated # OnDate
             end
 
             if Interpreting::match("update contents", command) then
-                CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(atom)
+                atom = CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(atom)
                 next
             end
 
