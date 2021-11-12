@@ -33,7 +33,7 @@ class PriorityFile
         nxball = NxBalls::makeNxBall([])
 
         puts "> identify the domain of this priority item"
-        domain = Domain::interactivelySelectDomain()
+        domain = Domain::interactivelySelectOrGetCachedDomain(section.strip)
         domainBankAccount = Domain::getDomainBankAccount(domain)
 
         thr = Thread.new {
@@ -64,8 +64,7 @@ class PriorityFile
 
             break if section.strip.size == 0
 
-            puts ""
-            puts section.green
+            puts section.strip.green
             puts ""
             puts "[] | access | >today | >ondate | >Nx50 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
