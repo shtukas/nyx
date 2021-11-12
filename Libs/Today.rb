@@ -51,7 +51,16 @@ class Today
                     puts Today::itemToString(atom).green
                     CoreData2::accessWithOptionToEdit(atom)
 
-                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", [">ondate", "destroy"])
+                    operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", [">tomorrow", ">ondate", "destroy"])
+
+                    if operation == ">tomorrow" then
+                        date = (Time.new+86400).to_s[0, 10]
+                        atom["date"] = date
+                        atom["unixtime"] = Time.new.to_f
+                        CoreData2::commitAtom2(atom)
+                        CoreData2::addAtomToSet(atom["uuid"], Dated::coreData2SetUUID())
+                        CoreData2::removeAtomFromSet(atom["uuid"], Today::coreData2SetUUID())
+                    end
 
                     if operation == ">ondate" then
                         date = Dated::interactivelySelectADateOrNull()
