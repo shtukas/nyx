@@ -186,6 +186,13 @@ class UIServices
             }
 
         puts ""
+        puts "Priority.txt:"
+        vspaceleft = vspaceleft - 2
+        text = IO.read("/Users/pascal/Desktop/Priority.txt")
+        puts text.strip.green
+        vspaceleft = vspaceleft - Utils::verticalSize(text.strip)
+
+        puts ""
         puts "to complete before bed time:"
         vspaceleft = vspaceleft - 2
         (PriorityFile::ns16s()+Today::ns16s())
@@ -243,6 +250,11 @@ class UIServices
         # We first interpret the command as an index and call "run"
         # Or interpret it a command and run it by the default element interpreter.
         # Otherwise we try a bunch of generic interpreters.
+
+        if command == "[]" then
+            PriorityFile::applyNextTransformation("/Users/pascal/Desktop/Priority.txt")
+            return
+        end
 
         if command == ".." and store.getDefault() and store.getDefault()["run"] then
             store.getDefault()["run"].call()
