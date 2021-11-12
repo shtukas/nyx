@@ -40,6 +40,8 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
+            PriorityFile::ns16s(),
+            Today::ns16s(),
             OpenCyles::ns16s(),
             Nx50s::ns16s(domain),
         ]
