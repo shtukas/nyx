@@ -171,7 +171,7 @@ class Dated # OnDate
                     return if date.nil?
                     item["date"] = date
                     puts JSON.pretty_generate(item)
-                    Dated::commitAtomToDisk(item)
+                    CoreData2::commitAtom2(item)
                 end
                 if command == "done" then
                     if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then
