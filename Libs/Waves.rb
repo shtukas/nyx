@@ -3,47 +3,22 @@
 
 class Waves
 
+    # Waves::coreData2SetUUID()
+    def self.coreData2SetUUID()
+        "catalyst:489e8f4a-8b09-456d-ad5c-64fa551b9534"
+    end
+
     # --------------------------------------------------
     # IO
 
-    # Waves::itemsFolderPath()
-    def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Items/Waves"
-    end
-
-    # Waves::commitItemToDisk(item)
-    def self.commitItemToDisk(item)
-        filename = "#{item["uuid"]}.json"
-        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
-    end
-
     # Waves::items()
     def self.items()
-        LucilleCore::locationsAtFolder(Waves::itemsFolderPath())
-            .select{|location| location[-5, 5] == ".json" }
-            .map{|location| JSON.parse(IO.read(location)) }
+        CoreData2::getSet(Waves::coreData2SetUUID())
     end
 
     # Waves::itemsForDomain(domain)
     def self.itemsForDomain(domain)
         Waves::items().select{|item| item["domain"] == domain }
-    end
-
-    # Waves::getItemByUUIDOrNull(uuid)
-    def self.getItemByUUIDOrNull(uuid)
-        filename = "#{uuid}.json"
-        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Waves::destroy(item)
-    def self.destroy(item)
-        filename = "#{item["uuid"]}.json"
-        filepath = "#{Waves::itemsFolderPath()}/#{filename}"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
@@ -139,33 +114,26 @@ class Waves
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
-        uuid         = SecureRandom.uuid
-        unixtime     = Time.new.to_i
-
-        description = LucilleCore::askQuestionAnswerAsString("description: ")
-        return nil if description == ""
-
-        coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([Waves::coreData2SetUUID()])
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
-        return nil if schedule.nil?
+        if schedule.nil? then
+            CoreData2::destroyAtom(atom["uuid"])
+            return nil
+        end
 
-        repeatType   = schedule[0]
-        repeatValue  = schedule[1]
+        repeatType       = schedule[0]
+        repeatValue      = schedule[1]
         lastDoneDateTime = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
+        domain           = Domain::interactivelySelectDomain()
 
-        wave = {
-          "uuid"             => uuid,
-          "unixtime"         => unixtime,
-          "description"      => description,
-          "coreDataId"       => coreDataId,
-          "repeatType"       => repeatType,
-          "repeatValue"      => repeatValue,
-          "lastDoneDateTime" => lastDoneDateTime,
-          "domain"           => "(eva)"
-        }
-        Waves::commitItemToDisk(wave)
-        wave
+        atom["repeatType"]       = repeatType
+        atom["repeatValue"]      = repeatValue
+        atom["lastDoneDateTime"] = lastDoneDateTime
+        atom["domain"]           = domain
+
+        CoreData2::commitAtom2(atom)
+        atom
     end
 
     # -------------------------------------------------------------------------
@@ -186,7 +154,7 @@ class Waves
 
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commitItemToDisk(wave)
+        CoreData2::commitAtom2(wave)
 
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
@@ -195,28 +163,28 @@ class Waves
         Bank::put("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 1)
     end
 
-    # Waves::accessContent(wave)
-    def self.accessContent(wave)
-        CoreData::accessWithOptionToEdit(wave["coreDataId"])
+    # Waves::accessContent(atom)
+    def self.accessContent(atom)
+        CoreData2::accessWithOptionToEdit(atom)
     end
 
-    # Waves::landing(wave)
-    def self.landing(wave)
-        uuid = wave["uuid"]
+    # Waves::landing(atom)
+    def self.landing(atom)
+        uuid = atom["uuid"]
 
         loop {
             system("clear")
 
-            puts "#{Waves::toString(wave)}".green
+            puts "#{Waves::toString(atom)}".green
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
 
             puts ""
 
-            puts "uuid: #{wave["uuid"]}".yellow
-            puts "schedule: #{Waves::scheduleString(wave)}".yellow
-            puts "last done: #{wave["lastDoneDateTime"]}".yellow
-            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
+            puts "uuid: #{atom["uuid"]}".yellow
+            puts "schedule: #{Waves::scheduleString(atom)}".yellow
+            puts "last done: #{atom["lastDoneDateTime"]}".yellow
+            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
 
             puts ""
 
@@ -229,12 +197,12 @@ class Waves
             break if command == "exit"
 
             if command == "access" then
-                Waves::accessContent(wave)
+                Waves::accessContent(atom)
                 next
             end
 
             if command == "done" then
-                Waves::performDone(wave)
+                Waves::performDone(atom)
                 break
             end
 
@@ -244,24 +212,24 @@ class Waves
             end
 
             if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
-                StructuredTodoTexts::setNote(wave["uuid"], note)
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(atom["uuid"]) || "")
+                StructuredTodoTexts::setNote(atom["uuid"], note)
                 next
             end
 
             if command == "[]" then
-                StructuredTodoTexts::applyT(wave["uuid"])
+                StructuredTodoTexts::applyT(atom["uuid"])
                 next
             end
 
             if command == "detach running" then
-                DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid])
+                DetachedRunning::issueNew2(Waves::toString(atom), Time.new.to_i, [uuid])
                 break
             end
 
             if Interpreting::match("update description", command) then
-                wave["description"] = Utils::editTextSynchronously(wave["description"])
-                Waves::performDone(wave)
+                atom["description"] = Utils::editTextSynchronously(atom["description"])
+                Waves::performDone(atom)
                 next
             end
 
@@ -274,15 +242,15 @@ class Waves
             if Interpreting::match("recast schedule", command) then
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
-                wave["repeatType"] = schedule[0]
-                wave["repeatValue"] = schedule[1]
-                Waves::commitItemToDisk(wave)
+                atom["repeatType"] = schedule[0]
+                atom["repeatValue"] = schedule[1]
+                CoreData2::commitAtom2(atom)
                 next
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    Waves::destroy(wave)
+                    CoreData2::deleteAtomFromSet(atom["uuid"], Waves::coreData2SetUUID())
                     break
                 end
             end

@@ -27,9 +27,12 @@ class Dated # OnDate
 
     # Dated::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
-        date = Dated::interactivelySelectADateOrNull()
-        return nil if date.nil?
         atom = CoreData2::interactivelyCreateANewAtomOrNull([Dated::coreData2SetUUID()])
+        date = Dated::interactivelySelectADateOrNull()
+        if date.nil? then
+            CoreData2::destroyAtom(atom["uuid"])
+            return nil
+        end
         atom["date"] = date
         CoreData2::commitAtom2(atom)
         atom
@@ -45,7 +48,7 @@ class Dated # OnDate
 
     # Dated::destroy(atom)
     def self.destroy(atom)
-        CoreData2::destroyAtom(atom["uuid"])
+        CoreData2::deleteAtomFromSet(atom["uuid"], Dated::coreData2SetUUID())
     end
 
     # -------------------------------------

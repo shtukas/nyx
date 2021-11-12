@@ -1,11 +1,17 @@
+CoreData2 Set: "catalyst:489e8f4a-8b09-456d-ad5c-64fa551b9534"
+
 Wave {
-  "uuid"            : String,
-  "unixtime"        : Float,
-  "description"     : String,
-  "coreDataId"      : String,
-  "repeatType"      : repeatType,
-  "repeatValue"     : repeatValue,
-  "lastDoneDateTime": DateTime Iso 8601 UTC Zulu
+    (CoreData2Atom)
+    "uuid"        : uuid,
+    "unixtime"    : unixtime,
+    "description" : description,
+    "type"        : CoreData2AtomType,
+    "payload"     : CoreData2AtomPayload
+
+    "repeatType"       : repeatType,
+    "repeatValue"      : repeatValue,
+    "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
+    "domain"           : String
 }
 
 repeatType                       repeatValue

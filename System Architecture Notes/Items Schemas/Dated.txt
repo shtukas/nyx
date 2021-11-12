@@ -3,10 +3,12 @@ CoreData2 Set: "catalyst:908fffc7-19a5-41cc-a2ff-e316711b373f"
 
 Dated # Essentially a CoreData2Atom with a date
 {
-    "uuid"        => uuid,
-    "unixtime"    => unixtime,
-    "description" => description,
-    "date"        => date,
-    "type"        => CoreData2AtomType,
-    "payload"     => CoreData2AtomPayload
+    (CoreData2Atom)
+    "uuid"        : uuid,
+    "unixtime"    : unixtime,
+    "description" : description,
+    "type"        : CoreData2AtomType,
+    "payload"     : CoreData2AtomPayload
+
+    "date"        : date,
 }
