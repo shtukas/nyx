@@ -34,18 +34,24 @@ class Today
                 "uuid"     => atom["uuid"],
                 "unixtime" => atom["unixtime"],
                 "announce" => Today::itemToString(atom).gsub("[today]", "[tday]"),
-                "commands" => ["done"],
+                "commands" => ["..", "done"],
                 "interpreter" => lambda{|command|
                     if command == "done" then
                         CoreData2::destroyAtom(atom["uuid"])
                     end
                 },
                 "run"      => lambda {
+                    t1 = Time.new.to_i
                     puts Today::itemToString(atom).green
                     CoreData2::accessWithOptionToEdit(atom)
                     if LucilleCore::askQuestionAnswerAsBoolean("> destroy ? ") then
                         CoreData2::destroyAtom(atom["uuid"])
                     end
+                    t2 = Time.new.to_i
+                    puts "> Select domain for accounting"
+                    domain = Domain::interactivelySelectDomain()
+                    bankAccount = Domain::getDomainBankAccount(domain)
+                    Bank::put(bankAccount, t2-t1)
                 }
             }
         }
