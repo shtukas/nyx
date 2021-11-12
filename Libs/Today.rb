@@ -12,6 +12,11 @@ class Today
         CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Today::coreData2SetUUID()])
     end
 
+    # Today::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
+        CoreData2::interactivelyCreateANewAtomOrNull([Today::coreData2SetUUID()])
+    end
+
     # Today::issueNewFromDescriptionAndLocation(description, location)
     def self.issueNewFromDescriptionAndLocation(description, location)
         CoreData2::issueAionPointAtomUsingLocation(uuid, description, location, [Today::coreData2SetUUID()])

@@ -75,26 +75,12 @@ class Interpreters
         end
 
         if command == "today" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            item = Today::issueNewFromDescription(description)
+            item = Today::interactivelyIssueNewOrNull()
             puts JSON.pretty_generate(item)
         end
 
         if command == "todo" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
-            uuid = LucilleCore::timeStringL22()
-            domain = Domain::interactivelySelectDomain()
-            unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-            Nx50s::commitItemToDatabase({
-                "uuid"        => uuid,
-                "unixtime"    => unixtime,
-                "description" => description,
-                "coreDataId"  => coreDataId,
-                "domain"      => domain
-            })
+            Nx50s::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("float", command) then
