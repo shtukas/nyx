@@ -43,7 +43,10 @@ class Dated # OnDate
         text = text.strip
         return if text.size == 0
         description = text.lines.first.strip
-        CoreData2::issueTextAtomUsingText(SecureRandom.uuid, description, text, [Dated::coreData2SetUUID()])
+        atom = CoreData2::issueTextAtomUsingText(SecureRandom.uuid, description, text, [Dated::coreData2SetUUID()])
+        atom["date"] = date
+        CoreData2::commitAtom2(atom)
+        atom
     end
 
     # Dated::destroy(atom)
