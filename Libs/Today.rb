@@ -7,8 +7,8 @@ class Today
         "catalyst:998deeb2-7746-4578-b5ff-844f83fac6bd"
     end
 
-    # Today::issueNewFromDescription(description, useCoreData)
-    def self.issueNewFromDescription(description, useCoreData)
+    # Today::issueNewFromDescription(description)
+    def self.issueNewFromDescription(description)
         CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Today::coreData2SetUUID()])
     end
 
@@ -30,6 +30,7 @@ class Today
     # Today::ns16s()
     def self.ns16s()
         Today::items().map{|atom|
+            Domain::interactivelySelectOrGetCachedDomain(Today::itemToString(atom)) # Domain identification
             {
                 "uuid"     => atom["uuid"],
                 "unixtime" => atom["unixtime"],

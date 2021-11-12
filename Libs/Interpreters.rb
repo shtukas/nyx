@@ -84,7 +84,7 @@ class Interpreters
         if command == "today" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            item = Today::issueNewFromDescription(description, true)
+            item = Today::issueNewFromDescription(description)
             puts JSON.pretty_generate(item)
         end
 

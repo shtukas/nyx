@@ -110,7 +110,8 @@ class PriorityFile
             end
 
             if command == ">today" then
-
+                Today::issueNewFromDescription(section.strip)
+                PriorityFile::rewriteFileWithoutSection(filepath, section)
                 break
             end
 
@@ -182,7 +183,8 @@ class PriorityFile
                         PriorityFile::rewriteFileWithoutSection(filepath, section)
                     end
                     if command == ">today" then
-
+                        Today::issueNewFromDescription(section.strip)
+                        PriorityFile::rewriteFileWithoutSection(filepath, section)
                     end
                 },
                 "run" => lambda {
