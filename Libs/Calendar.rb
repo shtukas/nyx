@@ -60,6 +60,7 @@ class Calendar
 
     # Calendar::moveToArchives(item)
     def self.moveToArchives(item)
+        return if !File.exist?(item["folderpath"])
         FileUtils.mv(item["folderpath"], Calendar::pathToArchivesFolder())
     end
 

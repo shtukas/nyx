@@ -40,7 +40,6 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
-            Today::ns16s(),
             Nx50s::ns16s(domain),
         ]
             .flatten
@@ -190,11 +189,21 @@ class UIServices
             }
 
         puts ""
+        puts "today (to complete before bed time):"
+        vspaceleft = vspaceleft - 2
+        Today::ns16s()
+            .each{|object|
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+
+        puts ""
         puts "detached runnings:"
         vspaceleft = vspaceleft - 2
         DetachedRunning::ns16s()
             .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }

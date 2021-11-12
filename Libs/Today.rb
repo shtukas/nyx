@@ -2,85 +2,50 @@
 
 class Today
 
+    # Today::coreData2SetUUID()
+    def self.coreData2SetUUID()
+        "catalyst:998deeb2-7746-4578-b5ff-844f83fac6bd"
+    end
+
     # Today::issueNewFromDescription(description, useCoreData)
     def self.issueNewFromDescription(description, useCoreData)
-        uuid = SecureRandom.uuid
-        item = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "coreDataId"  => useCoreData ? CoreData::interactivelyCreateANewDataObjectReturnIdOrNull() : nil
-        }
-        BTreeSets::set(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid, item)
-        BTreeSets::getOrNull(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid)
+        CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Today::coreData2SetUUID()])
     end
 
     # Today::issueNewFromDescriptionAndLocation(description, location)
     def self.issueNewFromDescriptionAndLocation(description, location)
-        uuid = SecureRandom.uuid
-        item = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "coreDataId"  => CoreData::issueAionPointDataObjectUsingLocation(location)
-        }
-        BTreeSets::set(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid, item)
-        BTreeSets::getOrNull(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", uuid)
+        CoreData2::issueAionPointAtomUsingLocation(uuid, description, location, [Today::coreData2SetUUID()])
     end
 
     # Today::items()
     def self.items()
-        BTreeSets::values(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c")
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        #{
-        #    "uuid"
-        #    "unixtime"
-        #    "description"
-        #    "coreDataId"
-        #}
+        CoreData2::getSet(Today::coreData2SetUUID())
     end
 
-    # Today::itemToString(item)
-    def self.itemToString(item)
-        "[today] #{item["description"]} (#{CoreData::contentTypeOrNull(item["coreDataId"])})"
+    # Today::itemToString(atom)
+    def self.itemToString(atom)
+        "[today] #{atom["description"]} (#{atom["type"]})"
     end
 
     # Today::ns16s()
     def self.ns16s()
-        Today::items().map{|item|
+        Today::items().map{|atom|
             {
-                "uuid"     => item["uuid"],
-                "unixtime" => item["unixtime"],
-                "announce" => Today::itemToString(item).gsub("[today]", "[tday]"),
-                "commands" => ["done", ">todo"],
+                "uuid"     => atom["uuid"],
+                "unixtime" => atom["unixtime"],
+                "announce" => Today::itemToString(atom).gsub("[today]", "[tday]"),
+                "commands" => ["done"],
                 "interpreter" => lambda{|command|
                     if command == "done" then
-                        BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
-                    end
-                    if command == ">todo" then
-                        uuid2 = LucilleCore::timeStringL22()
-                        domain = Domain::interactivelySelectDomain()
-                        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                        item2 = {
-                            "uuid"        => uuid2,
-                            "unixtime"    => unixtime,
-                            "description" => item["description"],
-                            "coreDataId"  => item["coreDataId"],
-                            "domain"      => domain
-                        }
-                        Nx50s::commitItemToDatabase(item2)
-                        item2 = Nx50s::getItemByUUIDOrNull(uuid2)
-                        puts JSON.pretty_generate(item2)
-                        BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
+                        CoreData2::destroyAtom(atom["uuid"])
                     end
                 },
                 "run"      => lambda {
-                    system("clear")
-                    puts Today::itemToString(item).green
-                    CoreData::accessWithOptionToEdit(item["coreDataId"])
+                    puts Today::itemToString(atom).green
+                    CoreData2::accessWithOptionToEdit(atom)
                     if LucilleCore::askQuestionAnswerAsBoolean("> destroy ? ") then
-                        BTreeSets::destroy(nil, "b153bd30-0582-4019-963a-68b01fb4bb7c", item["uuid"])
-                    end  
+                        CoreData2::destroyAtom(atom["uuid"])
+                    end
                 }
             }
         }

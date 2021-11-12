@@ -62,7 +62,7 @@ class DetachedRunning
         .map{|item|
             {
                 "uuid"     => SecureRandom.hex, # We do this because we do not want those items to be DoNotShowUntil'ed
-                "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]").green,
+                "announce" => DetachedRunning::toString(item).gsub("[detached running]", "[detr]"),
                 "commands" => ["pause", "pursue", "done"],
                 "interpreter" => lambda {|command|
                     if command == "pause" then
