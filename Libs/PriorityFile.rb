@@ -19,25 +19,9 @@ class PriorityFile
         FileUtils.cp(filepath, targetFilePath)
     end
 
-    # PriorityFile::recastSectionAsOndate(filepath, section)
-    def self.recastSectionAsOndate(filepath, section)
+    # PriorityFile::rewriteFileWithoutSection(filepath, section)
+    def self.rewriteFileWithoutSection(filepath, section)
         PriorityFile::catalystSafe(filepath)
-        date = Dated::interactivelySelectADateOrNull()
-        return if date.nil?
-        item = Dated::issueItemUsingText(section.strip, Time.new.to_i, date)
-        puts JSON.pretty_generate(item)
-        text = IO.read(filepath)
-        text = text.gsub(section, "")
-        File.open(filepath, "w"){|f| f.puts(text) }
-    end
-
-    # PriorityFile::recastSectionAsNx50(filepath, section)
-    def self.recastSectionAsNx50(filepath, section)
-        PriorityFile::catalystSafe(filepath)
-        domain = Domain::interactivelySelectDomain()
-        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-        item = Nx50s::issueItemUsingText(section.strip, unixtime, domain)
-        puts JSON.pretty_generate(item)
         text = IO.read(filepath)
         text = text.gsub(section, "")
         File.open(filepath, "w"){|f| f.puts(text) }
@@ -48,12 +32,16 @@ class PriorityFile
 
         nxball = NxBalls::makeNxBall([])
 
+        puts "> identify the domain of this priority item"
+        domain = Domain::interactivelySelectDomain()
+        domainBankAccount = Domain::getDomainBankAccount(domain)
+
         thr = Thread.new {
             loop {
                 sleep 60
 
                 if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
+                    nxball = NxBalls::upgradeNxBall(nxball, [domainBankAccount])
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
@@ -79,7 +67,7 @@ class PriorityFile
             puts ""
             puts section.green
             puts ""
-            puts "access | [] | >ondate | >Nx50 | exit (default)".yellow
+            puts "[] | access | >today | >ondate | >Nx50 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
@@ -102,12 +90,27 @@ class PriorityFile
             end
 
             if command == ">ondate" then
-                PriorityFile::recastSectionAsOndate(filepath, section)
+                date = Dated::interactivelySelectADateOrNull()
+                return if date.nil?
+                item = Dated::issueItemUsingText(section.strip, Time.new.to_i, date)
+                puts JSON.pretty_generate(item)
+
+                PriorityFile::rewriteFileWithoutSection(filepath, section)
                 break
             end
 
             if command == ">Nx50" then
-                PriorityFile::recastSectionAsNx50(filepath, section)
+                domain = Domain::interactivelySelectDomain()
+                unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+                item = Nx50s::issueItemUsingText(section.strip, unixtime, domain)
+                puts JSON.pretty_generate(item)
+
+                PriorityFile::rewriteFileWithoutSection(filepath, section)
+                break
+            end
+
+            if command == ">today" then
+
                 break
             end
 
@@ -150,7 +153,7 @@ class PriorityFile
             {
                 "uuid"        => uuid,
                 "announce"    => announce,
-                "commands"    => ["..", "[]", ">ondate", ">Nx50"],
+                "commands"    => ["..", "[]", ">today", ">ondate", ">Nx50"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
                         PriorityFile::run(filepath, section)
@@ -163,10 +166,23 @@ class PriorityFile
                         File.open(filepath, "w"){|f| f.puts(text) }
                     end
                     if command == ">ondate" then
-                        PriorityFile::recastSectionAsOndate(filepath, section)
+                        date = Dated::interactivelySelectADateOrNull()
+                        return if date.nil?
+                        item = Dated::issueItemUsingText(section.strip, Time.new.to_i, date)
+                        puts JSON.pretty_generate(item)
+
+                        PriorityFile::rewriteFileWithoutSection(filepath, section)
                     end
                     if command == ">Nx50" then
-                        PriorityFile::recastSectionAsNx50(filepath, section)
+                        domain = Domain::interactivelySelectDomain()
+                        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+                        item = Nx50s::issueItemUsingText(section.strip, unixtime, domain)
+                        puts JSON.pretty_generate(item)
+
+                        PriorityFile::rewriteFileWithoutSection(filepath, section)
+                    end
+                    if command == ">today" then
+
                     end
                 },
                 "run" => lambda {
