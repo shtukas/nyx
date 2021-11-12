@@ -257,7 +257,7 @@ class Nx50s
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
             puts ""
-            puts CoreData::toTextOrNull(nx50["coreDataId"])
+            puts CoreData2::atomPayloadToText(nx50)
             puts ""
 
             note = StructuredTodoTexts::getNoteOrNull(uuid)
@@ -329,10 +329,7 @@ class Nx50s
             end
 
             if Interpreting::match("update contents", command) then
-                coreDataId = CoreData::interactivelyCreateANewDataObjectReturnIdOrNull()
-                return if coreDataId.nil?
-                nx50["coreDataId"] = coreDataId
-                Nx50s::commitItemToDatabase(nx50)
+                CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(nx50)
                 next
             end
 

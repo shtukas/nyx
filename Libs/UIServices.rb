@@ -289,33 +289,6 @@ class Fsck
             puts JSON.pretty_generate(item)
         }
 
-        Dated::items().each{|item|
-            puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["coreDataId"])
-            if !status then
-                puts "[problem]".red
-                exit
-            end
-        }
-
-        Waves::items().each{|item|
-            puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["coreDataId"])
-            if !status then
-                puts "[problem]".red
-                exit
-            end
-        }
-
-        Nx50s::nx50s().each{|item|
-            puts JSON.pretty_generate(item)
-            status = CoreData::fsck(item["coreDataId"])
-            if !status then 
-                puts "[problem]".red
-                LucilleCore::pressEnterToContinue()
-            end
-        }
-
         puts "Fsck Completed!".green
         LucilleCore::pressEnterToContinue()
     end
