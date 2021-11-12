@@ -7,12 +7,16 @@ class Domain
 
     # Domain::setStoredDomain(domain)
     def self.setStoredDomain(domain)
-        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda284", JSON.generate([Time.new.to_i, domain]))
+        packet = {
+            "domain" => domain,
+            "unixtime" => Time.new.to_i
+        }
+        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda285", JSON.generate(packet))
     end
 
     # Domain::getStoredDomainOrNull()
     def self.getStoredDomainOrNull()
-        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda284")
+        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda285")
     end
 
     # Domain::getProgramaticDomain()
@@ -20,7 +24,10 @@ class Domain
         if [6, 0].include?(Time.new.wday) then
             return "(eva)"
         end
-        if Time.new.hour >= 9 and Time.new.hour < 17 then
+        if Time.new.hour <= 8 then
+            return "(eva)"
+        end
+        if Work::recoveryTime() < 6 then
             return "(work)"
         end
         "(eva)"
@@ -28,11 +35,11 @@ class Domain
 
     # Domain::getDomain()
     def self.getDomain()
-        i = Domain::getStoredDomainOrNull()
-        if i then
-            i = JSON.parse(i)
-            if (Time.new.to_i - i[0]) < 7200 then
-                return i[1]
+        packet = Domain::getStoredDomainOrNull()
+        if packet then
+            packet = JSON.parse(packet)
+            if (Time.new.to_i - packet["unixtime"]) < 3600 then
+                return packet["domain"]
             end
         end
         Domain::getProgramaticDomain()
