@@ -545,25 +545,8 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
-    # Nx50s::headCapacity(domain)
-    def self.headCapacity(domain)
-        (domain == "(work)") ? 3 : 5
-    end
-
     # Nx50s::structure(domain)
     def self.structure(domain)
-        getTopStoredPool = lambda {|domain|
-            JSON.parse(KeyValueStore::getOrDefaultValue(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{Utils::today()}:#{domain}", "[]"))
-        }
-
-        ns16BelongsToPool = lambda {|ns16, uuids|
-            uuids.include?(ns16["uuid"])
-        }
-
-        setTopStoredPool = lambda{|domain, uuids|
-            KeyValueStore::set(nil, "2b9c7de0-5392-422c-9bb4-e1c04553d633:#{Utils::today()}:#{domain}", JSON.generate(uuids))
-        }
-
         threshold = Nx50s::overflowThreshold(domain)
 
         q1, q2 = Nx50s::nx50sForDomain(domain)
@@ -571,29 +554,9 @@ class Nx50s
                     .compact
                     .partition{|ns16| ns16["rt"] >= threshold }
 
-        # q1: hud
-        # q2: head and tail
-
-        pool = getTopStoredPool.call(domain)
-
-        q3, q4 = q2.partition{|ns16| ns16BelongsToPool.call(ns16, pool) }
-
-        # q3: head
-        # q4: tail
-
-        # If head is empty, we need a new one
-
-        if q3.empty? then
-            q3 = q4.first(Nx50s::headCapacity(domain))
-            q4 = q4.drop(Nx50s::headCapacity(domain))
-            setTopStoredPool.call(domain, q3.map{|ns16| ns16["uuid"] })
-        end
-
-        q3 = q3.sort{|x1, x2| x1["rt"] <=> x2["rt"] }
         {
             "overflow" => q1,
-            "head"     => q3,
-            "tail"     => q4
+            "tail"     => q2,
         }
     end
 
@@ -604,8 +567,7 @@ class Nx50s
         Nx50s::processInboxLastAtDomain("(eva)-last", "(eva)")
         Nx50s::processInboxLastAtDomain("(work)-last", "(work)")
 
-        structure = Nx50s::structure(domain)
-        structure["head"] + structure["tail"]
+        Nx50s::structure(domain)["tail"]
     end
 
     # --------------------------------------------------
