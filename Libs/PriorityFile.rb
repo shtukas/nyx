@@ -130,10 +130,11 @@ class PriorityFile
         text = IO.read(filepath)
         sections = SectionsType0141::contentToSections(text)
 
-        shiftText = lambda{|text|
-            line = text.lines.first
-            lines = text.lines.drop(1)
-            line + lines.map{|line| "      #{line}" }.join()
+        shiftText = lambda{|text, padding|
+            text
+                .lines
+                .map{|line| "#{padding}#{line}" }
+                .join()
         }
 
         getUnixtime = lambda{|section|
@@ -146,13 +147,19 @@ class PriorityFile
             unixtime
         }
 
+        textToAnnounce = lambda {|text|
+            if (text.lines.size == 1) then
+                "[prio] #{text}"
+            else
+                "[prio]\n#{shiftText.call(text, "             ")}"
+            end
+        }
+
         sections.map{|section|
-            sectionSmall = section.strip
-            uuid = Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{sectionSmall}:#{Utils::today()}")
-            announce = "[prio] #{(sectionSmall.lines.size == 1) ? sectionSmall : shiftText.call(sectionSmall)}"
+            uuid = Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{section.strip}:#{Utils::today()}")
             {
                 "uuid"        => uuid,
-                "announce"    => announce,
+                "announce"    => textToAnnounce.call(section.strip),
                 "commands"    => ["..", "[]", ">today", ">ondate", ">Nx50"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
