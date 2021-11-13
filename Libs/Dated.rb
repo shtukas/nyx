@@ -95,7 +95,7 @@ class Dated # OnDate
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
 
-            puts "access | <datecode> | note | [] | update description | update date | update contents | exit | destroy".yellow
+            puts "access | <datecode> | note | update description | update date | update contents | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -112,11 +112,6 @@ class Dated # OnDate
             if Interpreting::match("note", command) then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(atom["uuid"]) || "")
                 StructuredTodoTexts::setNote(atom["uuid"], note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(atom["uuid"])
                 next
             end
 

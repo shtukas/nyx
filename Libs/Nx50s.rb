@@ -267,7 +267,7 @@ class Nx50s
                 puts ""
             end
 
-            puts "access | note | [] | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | domain | show json | destroy (gg) | exit".yellow
+            puts "access | note | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | domain | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -286,17 +286,6 @@ class Nx50s
             if command == "note" then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
                 StructuredTodoTexts::setNote(uuid, note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(uuid)
-                note = StructuredTodoTexts::getNoteOrNull(uuid)
-                if note then
-                    puts "-- Note -------------------"
-                    puts note.strip
-                    puts ""
-                end
                 next
             end
 
