@@ -34,7 +34,6 @@ class NS16sOperator
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
-            Dated::ns16s(),
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
@@ -194,7 +193,7 @@ class UIServices
         end
 
 
-        items = (PriorityFile::ns16s()+Today::ns16s())
+        items = (PriorityFile::ns16s()+Today::ns16s()+Dated::ns16s())
         if !items.empty? then
             puts ""
             puts "to complete before bed time:"
