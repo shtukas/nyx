@@ -185,6 +185,7 @@ class UIServices
 
         text = IO.read("/Users/pascal/Desktop/Priority.txt").strip
         if text.size > 0 then
+            text = text.lines.first(5).join().strip
             puts ""
             puts "Priority.txt:"
             vspaceleft = vspaceleft - 2

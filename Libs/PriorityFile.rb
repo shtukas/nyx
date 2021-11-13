@@ -30,11 +30,11 @@ class PriorityFile
     # PriorityFile::run(filepath, section)
     def self.run(filepath, section)
 
-        nxball = NxBalls::makeNxBall([])
-
         puts "> identify the domain of this priority item"
         domain = Domain::interactivelySelectOrGetCachedDomain(section.strip)
         domainBankAccount = Domain::getDomainBankAccount(domain)
+
+        nxball = NxBalls::makeNxBall([domainBankAccount])
 
         thr = Thread.new {
             loop {
