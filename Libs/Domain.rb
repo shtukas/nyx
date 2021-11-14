@@ -62,17 +62,13 @@ class Domain
 
     # Domain::domainsMenuCommands()
     def self.domainsMenuCommands()
-        count1 = Nx50s::nx50s().select{|item| item["domain"] == "(eva)" }.count
-        count2 = Nx50s::nx50s().select{|item| item["domain"] == "(work)" }.count
         today = Time.new.to_s[0, 10]
         h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
         h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
-        rt1 = BankExtended::stdRecoveredDailyTimeInHours("EVA-97F7F3341-4CD1-8B20-4A2466751408")
-        rt2 = Work::recoveryTime()
         [
-            "(Nx50: done: #{Nx50DoneCounter::rate()}/day)",
-            "(eva: Nx50s: #{count1} items, #{h1.round(2)} hours today, rt: #{rt1.round(2)})",
-            "(work: Nx50s: #{count2} items, #{h2.round(2)} hours today, rt: #{rt2.round(2)})"
+            "(Nx50: differential: #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*7)})",
+            "(eva: #{h1.round(2)} hours today)",
+            "(work: #{h2.round(2)} hours today)"
         ]
             .join(" ")
     end

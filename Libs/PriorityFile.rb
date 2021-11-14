@@ -64,7 +64,7 @@ class PriorityFile
 
             break if section.strip.size == 0
 
-            puts section.strip.green
+            puts section.lines.first(10).join().strip.green
             puts ""
             puts "[] | access | >today | >ondate | >Nx50 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -151,7 +151,7 @@ class PriorityFile
             if (text.lines.size == 1) then
                 "[prio] #{text}"
             else
-                "[prio]\n#{shiftText.call(text, "             ")}"
+                "[prio]\n#{shiftText.call(text.lines.first(5).join(), "             ")}"
             end
         }
 

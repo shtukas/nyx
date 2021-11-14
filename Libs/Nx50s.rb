@@ -1,37 +1,5 @@
 # encoding: UTF-8
 
-class Nx50DoneCounter
-
-    # Nx50DoneCounter::increaseDateCount(date)
-    def self.increaseDateCount(date)
-        count = KeyValueStore::getOrDefaultValue(nil, "3ed4c841-3a98-47b6-8c22-9a006e0d70c5:#{date}", "0").to_i
-        KeyValueStore::set(nil, "3ed4c841-3a98-47b6-8c22-9a006e0d70c5:#{date}", count+1)
-    end
-
-    # Nx50DoneCounter::increaseTodayCount()
-    def self.increaseTodayCount()
-        Nx50DoneCounter::increaseDateCount(Utils::today())
-    end
-
-    # Nx50DoneCounter::getDateCount(date)
-    def self.getDateCount(date)
-        KeyValueStore::getOrDefaultValue(nil, "3ed4c841-3a98-47b6-8c22-9a006e0d70c5:#{date}", "0").to_i
-    end
-
-    # Nx50DoneCounter::getPastNDaysCount(n)
-    def self.getPastNDaysCount(n)
-        (0..n)
-            .map{|i| Utils::nDaysInTheFuture(-i) }
-            .map{|date| Nx50DoneCounter::getDateCount(date) }
-            .inject(0, :+)
-    end
-
-    # Nx50DoneCounter::rate()
-    def self.rate()
-        Nx50DoneCounter::getPastNDaysCount(30).to_f/30
-    end
-end
-
 class Nx50s
 
     # Nx50s::coreData2SetUUID()
@@ -141,6 +109,8 @@ class Nx50s
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
+        return nil if atom.nil?
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         domain = Domain::interactivelySelectDomain()
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
         atom["unixtime"] = unixtime
@@ -152,6 +122,7 @@ class Nx50s
     def self.issueItemUsingText(text, unixtime, domain)
         text = text.strip
         return nil if text == ""
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         description = text.lines.first.strip
         atom = CoreData2::issueTextAtomUsingText(SecureRandom.uuid, description, text, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = unixtime
@@ -161,6 +132,7 @@ class Nx50s
 
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
         domain = Domain::interactivelySelectDomain()
         unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
@@ -171,6 +143,7 @@ class Nx50s
 
     # Nx50s::issueItemUsingLocation(location, unixtime, domain)
     def self.issueItemUsingLocation(location, unixtime, domain)
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         description = File.basename(location)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = unixtime
@@ -180,6 +153,7 @@ class Nx50s
 
     # Nx50s::issueItemUsingURL(url domain)
     def self.issueItemUsingURL(url, domain)
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
         atom["domain"] = domain
         CoreData2::commitAtom2(atom)
@@ -206,7 +180,7 @@ class Nx50s
     # Nx50s::complete(atom)
     def self.complete(atom)
         CoreData2::removeAtomFromSet(atom["uuid"], Nx50s::coreData2SetUUID())
-        Nx50DoneCounter::increaseTodayCount()
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", -1)
     end
 
     # --------------------------------------------------
