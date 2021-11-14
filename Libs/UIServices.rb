@@ -197,7 +197,7 @@ class UIServices
         items = (PriorityFile::ns16s()+Today::ns16s()+Dated::ns16s())
         if !items.empty? then
             puts ""
-            puts "to complete before bed time:"
+            puts "today:"
             vspaceleft = vspaceleft - 2
             items
                 .each{|object|
