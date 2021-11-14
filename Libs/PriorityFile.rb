@@ -41,7 +41,7 @@ class PriorityFile
                 sleep 60
 
                 if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, [domainBankAccount])
+                    nxball = NxBalls::upgradeNxBall(nxball, false)
                 end
 
                 if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
