@@ -190,7 +190,7 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | >vector | destroy | exit".yellow
+            puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | domain | destroy | exit".yellow
 
             puts Interpreters::makersAndDiversCommands().yellow
 
@@ -248,6 +248,12 @@ class Waves
                 atom["repeatValue"] = schedule[1]
                 CoreData2::commitAtom2(atom)
                 next
+            end
+
+            if Interpreting::match("domain", command) then
+                atom["domain"] = Domain::interactivelySelectDomain()
+                CoreData2::commitAtom2(atom)
+                break
             end
 
             if Interpreting::match("destroy", command) then
