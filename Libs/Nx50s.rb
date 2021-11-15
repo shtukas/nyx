@@ -232,7 +232,7 @@ class Nx50s
                 puts ""
             end
 
-            puts "access | note | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | domain | show json | destroy (gg) | exit".yellow
+            puts "access | note | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -290,13 +290,19 @@ class Nx50s
             if Interpreting::match("update unixtime", command) then
                 domain = nx50["domain"]
                 nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                Nx50s::commitItemToDatabase(nx50)
+                CoreData2::commitAtom2(nx50)
                 next
+            end
+
+            if Interpreting::match("rotate", command) then
+                nx50["unixtime"] = Time.new.to_f
+                CoreData2::commitAtom2(nx50)
+                break
             end
 
             if Interpreting::match("domain", command) then
                 nx50["domain"] = Domain::interactivelySelectDomain()
-                Nx50s::commitItemToDatabase(nx50)
+                CoreData2::commitAtom2(nx50)
                 break
             end
 
