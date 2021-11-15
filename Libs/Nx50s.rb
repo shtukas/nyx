@@ -15,7 +15,8 @@ class Nx50s
 
     # Nx50s::nx50sForDomain(domain)
     def self.nx50sForDomain(domain)
-        Nx50s::nx50s().select{|atom| atom["domain"] == domain }
+        Nx50s::nx50s()
+            .select{|atom| atom["domain"] == domain }
     end
 
     # --------------------------------------------------
@@ -371,14 +372,21 @@ class Nx50s
     def self.structure(domain)
         threshold = Nx50s::overflowThreshold(domain)
 
-        q1, q2 = Nx50s::nx50sForDomain(domain)
+        data = Nx50s::nx50sForDomain(domain)
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
-                    .partition{|ns16| ns16["rt"] >= threshold }
+                    .first(20)
+                    .map
+                    .with_index{|ns16, indx| 
+                        {
+                            "ns16" => ns16,
+                            "isOverflow" => ns16["rt"] > 1.to_f/(2 ** indx)
+                        }
+                    }
 
         {
-            "overflow" => q1,
-            "tail"     => q2,
+            "overflow" => data.select{|node| node["isOverflow"] }.map{|node| node["ns16"] },
+            "tail"     => data.select{|node| !node["isOverflow"] }.map{|node| node["ns16"] }
         }
     end
 
