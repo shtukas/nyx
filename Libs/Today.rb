@@ -81,7 +81,9 @@ class Today
                     puts "> Select domain for accounting"
                     domain = Domain::interactivelySelectOrGetCachedDomain(Today::itemToString(atom))
                     bankAccount = Domain::getDomainBankAccount(domain)
-                    Bank::put(bankAccount, t2-t1)
+                    timespan = t2-t1
+                    puts "(#{Time.new.to_s}) putting #{timespan} seconds into account: #{bankAccount}"
+                    Bank::put(bankAccount, timespan)
                 }
             }
         }

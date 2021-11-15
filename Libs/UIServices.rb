@@ -41,6 +41,7 @@ class NS16sOperator
             Inbox::ns16s(),
             PriorityFile::ns16s(),
             Today::ns16s(),
+            Dated::ns16s(),
             Nx50s::ns16s(domain),
         ]
             .flatten
@@ -191,20 +192,6 @@ class UIServices
             vspaceleft = vspaceleft - 2
             puts text.green
             vspaceleft = vspaceleft - Utils::verticalSize(text)
-        end
-
-
-        items = (PriorityFile::ns16s()+Today::ns16s()+Dated::ns16s())
-        if !items.empty? then
-            puts ""
-            puts "today:"
-            vspaceleft = vspaceleft - 2
-            items
-                .each{|object|
-                    line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
-                    puts line
-                    vspaceleft = vspaceleft - Utils::verticalSize(line)
-                }
         end
 
         items = DetachedRunning::ns16s()
