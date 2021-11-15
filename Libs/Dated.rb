@@ -15,6 +15,12 @@ class Dated # OnDate
     # Dated::items()
     def self.items()
         CoreData2::getSet(Dated::coreData2SetUUID())
+            .map{|atom|
+                if atom["date"].nil? then
+                    atom["date"] = Utils::today()
+                end
+                atom
+            }
     end
 
     # Dated::interactivelySelectADateOrNull()

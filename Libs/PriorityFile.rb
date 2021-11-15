@@ -66,7 +66,7 @@ class PriorityFile
 
             puts section.lines.first(10).join().strip.green
             puts ""
-            puts "[] | access | >today | >ondate | >Nx50 | exit (default)".yellow
+            puts "[] | access | >ondate | >Nx50 | exit (default)".yellow
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if command == "" then
@@ -104,12 +104,6 @@ class PriorityFile
                 item = Nx50s::issueItemUsingTextOrNull(section.strip, unixtime, domain)
                 next if item.nil?
                 puts JSON.pretty_generate(item)
-                PriorityFile::rewriteFileWithoutSection(filepath, section)
-                break
-            end
-
-            if command == ">today" then
-                Today::issueNewFromDescription(section.strip)
                 PriorityFile::rewriteFileWithoutSection(filepath, section)
                 break
             end
@@ -160,7 +154,7 @@ class PriorityFile
             {
                 "uuid"        => uuid,
                 "announce"    => textToAnnounce.call(section.strip),
-                "commands"    => ["..", "[]", ">today", ">ondate", ">Nx50"],
+                "commands"    => ["..", "[]", ">ondate", ">Nx50"],
                 "interpreter" => lambda{|command|
                     if command == ".." then
                         PriorityFile::run(filepath, section)
@@ -186,10 +180,6 @@ class PriorityFile
                         item = Nx50s::issueItemUsingTextOrNull(section.strip, unixtime, domain)
                         return if item.nil?
                         puts JSON.pretty_generate(item)
-                        PriorityFile::rewriteFileWithoutSection(filepath, section)
-                    end
-                    if command == ">today" then
-                        Today::issueNewFromDescription(section.strip)
                         PriorityFile::rewriteFileWithoutSection(filepath, section)
                     end
                 },

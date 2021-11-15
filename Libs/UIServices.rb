@@ -40,7 +40,6 @@ class NS16sOperator
             Waves::ns16s(domain),
             Inbox::ns16s(),
             PriorityFile::ns16s(),
-            Today::ns16s(),
             Dated::ns16s(),
             Nx50s::ns16s(domain),
         ]

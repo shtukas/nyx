@@ -74,11 +74,6 @@ class Interpreters
             DetachedRunning::issueNew2(description, Time.new.to_i, [Domain::getDomainBankAccount("(eva)")])
         end
 
-        if command == "today" then
-            item = Today::interactivelyIssueNewOrNull()
-            puts JSON.pretty_generate(item)
-        end
-
         if command == "todo" then
             Nx50s::interactivelyCreateNewOrNull()
         end

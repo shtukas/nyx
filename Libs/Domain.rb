@@ -66,7 +66,7 @@ class Domain
         h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
         h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
         [
-            "(Nx50: differential: #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*7)})",
+            "(Nx50: differential (month): #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*30)})",
             "(eva: #{h1.round(2)} hours today)",
             "(work: #{h2.round(2)} hours today)"
         ]

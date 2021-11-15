@@ -67,7 +67,7 @@ class Inbox
                             LucilleCore::removeFileSystemLocation(location)
                         end
                         if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "today", "Nx50"])
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "Nx50"])
                             if target == "float" then
                                 if File.file?(location) then
                                     Floats::interactivelyCreateNewOrNull()
@@ -80,10 +80,16 @@ class Inbox
                                     LucilleCore::removeFileSystemLocation(location)
                                 end
                             end
-                            if target == "today" then
-                                description = File.basename(location)
-                                item = Today::issueNewFromDescriptionAndLocation(description, location)
-                                puts JSON.pretty_generate(item)
+                            if target == "ondate" then
+
+                                date = Dated::interactivelySelectADateOrNull()
+                                return nil if date.nil?
+
+                                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, File.basename(location), location, [Dated::coreData2SetUUID()])
+                                atom["date"] = date
+                                CoreData2::commitAtom2(atom)
+
+                                puts JSON.pretty_generate(atom)
                                 LucilleCore::removeFileSystemLocation(location)
                             end
                             if target == "Nx50" then

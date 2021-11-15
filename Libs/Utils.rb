@@ -22,7 +22,20 @@ class Utils
 
         return nil if code.nil?
         return nil if code == ""
-        return nil if code == "today" # an item creation command that interfer with datcode patterns
+
+        localsuffix = Time.new.to_s[-5,5]
+
+        dateToMorningUnixtime = lambda {|date|
+            DateTime.parse("#{date} 07:00:00 #{localsuffix}").to_time.to_i
+        }
+
+        if code == "today" then
+            return dateToMorningUnixtime.call(Utils::today())
+        end
+
+        if code == "tomorrow" then
+            return dateToMorningUnixtime.call(Utils::nDaysInTheFuture(1))
+        end
 
         # +++ postpone til midnight
         # ++ postpone by one hour
@@ -43,16 +56,14 @@ class Utils
         # YYYY-MM-DD
         # 1@12:34
 
-        localsuffix = Time.new.to_s[-5,5]
-        morningShowTime = "07:00:00 #{localsuffix}"
+        
         weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
 
         if weekdayNames.include?(code) then
             # We have a week day
             weekdayName = code
             date = Utils::selectDateOfNextNonTodayWeekDay(weekdayName)
-            datetime = "#{date} #{morningShowTime}"
-            return DateTime.parse(datetime).to_time.to_i
+            return dateToMorningUnixtime.call(date)
         end
 
         if code.include?("hour") then
@@ -64,7 +75,7 @@ class Utils
         end
 
         if code[4,1]=="-" and code[7,1]=="-" then
-            return DateTime.parse("#{code} #{morningShowTime}").to_time.to_i
+            return dateToMorningUnixtime.call(code)
         end
 
         if code.include?('@') then
