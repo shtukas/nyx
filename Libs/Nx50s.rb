@@ -255,7 +255,7 @@ class Nx50s
             end
 
             if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, [uuid])
+                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, nxball["bankAccounts"])
                 break
             end
 
