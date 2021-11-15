@@ -101,7 +101,7 @@ class Dated # OnDate
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
 
-            puts "access | <datecode> | note | update description | update date | update contents | exit | destroy".yellow
+            puts "access | <datecode> | note | update description | update date | update contents | >todo | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -140,6 +140,14 @@ class Dated # OnDate
             if Interpreting::match("update contents", command) then
                 atom = CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(atom)
                 next
+            end
+
+            if Interpreting::match(">todo", command) then
+                domain = Domain::interactivelySelectDomain()
+                atom["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+                CoreData2::addAtomToSet(atom["uuid"], [Nx50s::coreData2SetUUID()])
+                CoreData2::removeAtomFromSet(atom["uuid"], [Dated::coreData2SetUUID()])
+                break
             end
 
             if Interpreting::match("exit", command) then
