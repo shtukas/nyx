@@ -207,7 +207,12 @@ class UIServices
                 }
         end
 
+        if ns16s.size > 0 then
+            store.registerDefault(ns16s[0])
+        end
+
         todoOverflow = UIServices::todoOverflow(store, domain)
+        puts todoOverflow
         vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
@@ -216,10 +221,6 @@ class UIServices
             return "" if ns16["commands"].empty?
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
-
-        if ns16s.size > 0 then
-            store.registerDefault(ns16s[0])
-        end
 
         puts ""
         puts "todo:"
@@ -234,8 +235,6 @@ class UIServices
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
-
-        puts todoOverflow
 
         puts ""
         command = LucilleCore::askQuestionAnswerAsString("> ")
