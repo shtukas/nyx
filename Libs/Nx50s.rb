@@ -375,7 +375,6 @@ class Nx50s
         data = Nx50s::nx50sForDomain(domain)
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
-                    .first(20)
                     .map
                     .with_index{|ns16, indx| 
                         {
