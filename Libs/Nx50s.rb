@@ -165,7 +165,7 @@ class Nx50s
 
     # Nx50s::toString(atom)
     def self.toString(atom)
-        "[nx50] #{CoreData2::toString(atom)}"
+        "[nx50] #{CoreData2::toString(atom)} (#{atom["type"]})"
     end
 
     # Nx50s::toStringForNS19(atom)
