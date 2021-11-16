@@ -13,7 +13,7 @@ class Fitness
                     system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}") 
                 end
             }
-            ns16["run"] = lambda {
+            ns16["start-land"] = lambda {
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}") 
             }
             ns16
@@ -129,20 +129,15 @@ end
 
 class UIServices
 
-    # UIServices::todoOverflow(store, domain)
-    def self.todoOverflow(store, domain)
-        [
-            "",
-            "todo overflow:",
-            Nx50s::structure(domain)["overflow"]
-                .map{|object|
-                    "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
-                }
-        ].flatten.join("\n")
-    end
-
     # UIServices::mainView(domain, ns16s)
     def self.mainView(domain, ns16s)
+        commandStrWithPrefix = lambda{|ns16, isDefaultItem|
+            return "" if !isDefaultItem
+            return "" if ns16["commands"].nil?
+            return "" if ns16["commands"].empty?
+            " (commands: #{ns16["commands"].join(", ")})".yellow
+        }
+
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
@@ -183,6 +178,19 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
+        running = ns16s.select{|ns16| StoredNxBalls::isRunning(ns16["uuid"]) }
+        if running.size > 0 then
+            puts ""
+            puts "running items:"
+            vspaceleft = vspaceleft - 2
+            running.each{|ns16|
+                indx = store.register(ns16)
+                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}".green
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+            }
+        end
+
         text = IO.read("/Users/pascal/Desktop/Priority.txt").strip
         if text.size > 0 then
             text = text.lines.first(5).join().strip
@@ -193,33 +201,9 @@ class UIServices
             vspaceleft = vspaceleft - Utils::verticalSize(text)
         end
 
-        items = DetachedRunning::ns16s()
-        if !items.empty? then
-            puts ""
-            puts "detached runnings:"
-            vspaceleft = vspaceleft - 2
-            items
-                .each{|object|
-                    line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"].green}"
-                    puts line
-                    vspaceleft = vspaceleft - Utils::verticalSize(line)
-                }
-        end
-
         if ns16s.size > 0 then
             store.registerDefault(ns16s[0])
         end
-
-        todoOverflow = UIServices::todoOverflow(store, domain)
-        puts todoOverflow
-        vspaceleft = vspaceleft - Utils::verticalSize(todoOverflow)
-
-        commandStrWithPrefix = lambda{|ns16, isDefaultItem|
-            return "" if !isDefaultItem
-            return "" if ns16["commands"].nil?
-            return "" if ns16["commands"].empty?
-            " (commands: #{ns16["commands"].join(", ")})".yellow
-        }
 
         puts ""
         puts "todo:"
@@ -240,7 +224,7 @@ class UIServices
 
         return if command == ""
 
-        # We first interpret the command as an index and call "run"
+        # We first interpret the command as an index and call "start-land"
         # Or interpret it a command and run it by the default element interpreter.
         # Otherwise we try a bunch of generic interpreters.
 
@@ -249,15 +233,15 @@ class UIServices
             return
         end
 
-        if command == ".." and store.getDefault() and store.getDefault()["run"] then
-            store.getDefault()["run"].call()
+        if command == ".." and store.getDefault() and store.getDefault()["start-land"] then
+            store.getDefault()["start-land"].call()
             return
         end
 
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
             return if item.nil?
-            item["run"].call()
+            item["start-land"].call()
             return
         end
 

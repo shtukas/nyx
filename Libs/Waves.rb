@@ -190,7 +190,7 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | [] | detach running | update description | update contents | recast schedule | domain | destroy | exit".yellow
+            puts "[item   ] access | done | <datecode> | note | [] | update description | update contents | recast schedule | domain | destroy | exit".yellow
 
             puts Interpreters::makersAndDiversCommands().yellow
 
@@ -222,11 +222,6 @@ class Waves
             if command == "[]" then
                 StructuredTodoTexts::applyT(atom["uuid"])
                 next
-            end
-
-            if command == "detach running" then
-                DetachedRunning::issueNew2(Waves::toString(atom), Time.new.to_i, [uuid])
-                break
             end
 
             if Interpreting::match("update description", command) then
@@ -298,7 +293,7 @@ class Waves
         nxball = NxBalls::makeNxBall([uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::getDomainBankAccount(wave["domain"])])
         Waves::accessContent(wave)
 
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "detach running; will done", "exit"])
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "exit"])
 
         NxBalls::closeNxBall(nxball, true)
 
@@ -308,11 +303,6 @@ class Waves
 
         if operation == "done (default)" then
             Waves::performDone(wave)
-        end
-
-        if operation == "detach running; will done" then
-            Waves::performDone(wave)
-            DetachedRunning::issueNew2(Waves::toString(wave), Time.new.to_i, [uuid])
         end
 
         if operation == "exit" then
@@ -338,10 +328,11 @@ class Waves
                     Waves::performDone(wave)
                 end
             },
-            "run" => lambda {
+            "start-land" => lambda {
                 Waves::run(wave)
             },
             "wave" => wave,
+            "bank-accounts" => [Domain::getDomainBankAccount(wave["domain"])]
         }
     end
 

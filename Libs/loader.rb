@@ -140,7 +140,6 @@ require_relative "Calendar.rb"
 
 require_relative "Domain.rb"
 
-require_relative "DetachedRunning.rb"
 require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::setUnixtime(uid, unixtime)
 #    DoNotShowUntil::isVisible(uid)

@@ -42,7 +42,7 @@ class Inbox
                             LucilleCore::removeFileSystemLocation(location)
                         end
                     },
-                    "run"          => lambda {
+                    "start-land"   => lambda {
                         system("clear")
                         puts location.green
 

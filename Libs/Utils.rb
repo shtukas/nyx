@@ -22,6 +22,7 @@ class Utils
 
         return nil if code.nil?
         return nil if code == ""
+        return nil if code == "today"
 
         localsuffix = Time.new.to_s[-5,5]
 
@@ -29,27 +30,24 @@ class Utils
             DateTime.parse("#{date} 07:00:00 #{localsuffix}").to_time.to_i
         }
 
-        if code == "today" then
-            return dateToMorningUnixtime.call(Utils::today())
-        end
-
-        if code == "tomorrow" then
-            return dateToMorningUnixtime.call(Utils::nDaysInTheFuture(1))
-        end
-
         # +++ postpone til midnight
         # ++ postpone by one hour
+        # +today
+        # +tomorrow
         # +<weekdayname>
         # +<integer>day(s)
         # +<integer>hour(s)
         # +YYYY-MM-DD
         # +1@12:34
 
+
         return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) if code == "+++"
         return (Time.new.to_i+3600) if code == "++"
 
         code = code[1,99].strip
 
+        # today
+        # tomorrow
         # <weekdayname>
         # <integer>day(s)
         # <integer>hour(s)
@@ -68,6 +66,14 @@ class Utils
 
         if code.include?("hour") then
             return Time.new.to_i + code.to_f*3600
+        end
+
+        if code == "today" then
+            return dateToMorningUnixtime.call(Utils::today())
+        end
+
+        if code == "tomorrow" then
+            return dateToMorningUnixtime.call(Utils::nDaysInTheFuture(1))
         end
 
         if code.include?("day") then

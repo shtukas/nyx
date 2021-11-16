@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        ".. | <n> | <datecode> | hide <n> <datecode> | expose"
+        ".. | <n> | <datecode> | start <n> | stop <n> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::listingInterpreter(store, command)
@@ -21,6 +21,28 @@ class Interpreters
             return if ns16.nil? 
             DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
             puts "Hidden until: #{Time.at(unixtime).to_s}"
+        end
+
+        if Interpreting::match("start *", command) then
+            _, ordinal = Interpreting::tokenizer(command)
+            ordinal = ordinal.to_i
+            ns16 = store.get(ordinal)
+            return if ns16.nil?
+            bankAccounts = 
+                if ns16["bank-accounts"].nil? then
+                    [Domain::getDomainBankAccount(Domain::interactivelySelectDomain())]
+                else
+                    ns16["bank-accounts"]
+                end
+            StoredNxBalls::issue(ns16["uuid"], bankAccounts)
+        end
+
+        if Interpreting::match("stop *", command) then
+            _, ordinal = Interpreting::tokenizer(command)
+            ordinal = ordinal.to_i
+            ns16 = store.get(ordinal)
+            return if ns16.nil?
+            StoredNxBalls::closeOrNothing(ns16["uuid"], true)
         end
 
         if Interpreting::match("hide * *", command) then
@@ -43,7 +65,7 @@ class Interpreters
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "on | today | todo | float | wave | ondate | anniversary | Nx50 | eva item | work item"
+        "on | todo | float | wave | ondate | anniversary | Nx50 | eva item | work item"
     end
 
     # Interpreters::diversCommands()
@@ -61,18 +83,6 @@ class Interpreters
 
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
-
-        if command == "work item" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            DetachedRunning::issueNew2(description, Time.new.to_i, [Work::bankaccount()])
-        end
-
-        if command == "eva item" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            DetachedRunning::issueNew2(description, Time.new.to_i, [Domain::getDomainBankAccount("(eva)")])
-        end
 
         if command == "todo" then
             Nx50s::interactivelyCreateNewOrNull()

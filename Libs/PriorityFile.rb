@@ -27,10 +27,15 @@ class PriorityFile
         File.open(filepath, "w"){|f| f.puts(text) }
     end
 
+    # PriorityFile::sectionToUUID(section)
+    def self.sectionToUUID(section)
+        Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{section.strip}:#{Utils::today()}")
+    end
+
     # PriorityFile::run(filepath, section)
     def self.run(filepath, section)
 
-        puts "> identify the domain of this priority item"
+        uuid = PriorityFile::sectionToUUID(section)
         domain = Domain::interactivelySelectOrGetCachedDomain(section.strip)
         domainBankAccount = Domain::getDomainBankAccount(domain)
 
@@ -40,11 +45,11 @@ class PriorityFile
             loop {
                 sleep 60
 
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
+                if (Time.new.to_i - StoredNxBalls::cursorUnixtimeOrNow(uuid)) >= 600 then
                     nxball = NxBalls::upgradeNxBall(nxball, false)
                 end
 
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
+                if (Time.new.to_i - StoredNxBalls::startUnixtimeOrNow(uuid)) >= 3600 then
                     Utils::onScreenNotification("Catalyst", "Priority file section running for more than an hour")
                 end
             }
@@ -150,7 +155,9 @@ class PriorityFile
         }
 
         sections.map{|section|
-            uuid = Digest::SHA1.hexdigest("6a212fa7-ccbb-461d-8204-9f22a9713d55:#{section.strip}:#{Utils::today()}")
+            uuid = PriorityFile::sectionToUUID(section)
+            domain = Domain::interactivelySelectOrGetCachedDomain(section.strip)
+            domainBankAccount = Domain::getDomainBankAccount(domain)
             {
                 "uuid"        => uuid,
                 "announce"    => textToAnnounce.call(section.strip),
@@ -183,9 +190,10 @@ class PriorityFile
                         PriorityFile::rewriteFileWithoutSection(filepath, section)
                     end
                 },
-                "run" => lambda {
+                "start-land" => lambda {
                     PriorityFile::run(filepath, section)
-                }
+                },
+                "bank-accounts" => [domainBankAccount]
             }
         }
     end

@@ -23,7 +23,7 @@ class Quarks
     # Quarks::issueItemUsingLocation(location, unixtime)
     def self.issueItemUsingLocation(location, unixtime)
         description = File.basename(location)
-        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Dated::coreData2SetUUID()])
+        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Quarks::coreData2SetUUID()])
         atom["unixtime"] = unixtime
         CoreData2::commitAtom2(atom)
         atom

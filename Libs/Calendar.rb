@@ -101,7 +101,7 @@ class Calendar
                             Calendar::moveToArchives(item)
                         end
                     },
-                    "run" => lambda {
+                    "start-land" => lambda {
                         Calendar::run(item)
                     }
                 }

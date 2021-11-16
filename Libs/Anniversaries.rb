@@ -180,7 +180,7 @@ class Anniversaries
                             Anniversaries::commitAnniversaryToDisk(anniversary)
                         end
                     },
-                    "run" => lambda {
+                    "start-land" => lambda {
                         Anniversaries::run(anniversary)
                     }
                 }

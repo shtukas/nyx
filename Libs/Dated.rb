@@ -75,28 +75,26 @@ class Dated # OnDate
 
         uuid = atom["uuid"]
 
-        puts "running #{Dated::toString(atom)}".green
-        puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
-        puts "Starting at #{Time.new.to_s}"
+        isRunning = StoredNxBalls::isRunning(uuid)
 
-        nxball = NxBalls::makeNxBall([uuid])
+        if !isRunning then
+            StoredNxBalls::issue(uuid, [uuid])
 
-        thr = Thread.new {
-            loop {
-                sleep 60
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
+            thr = Thread.new {
+                loop {
+                    sleep 60
+                    if (Time.new.to_i - StoredNxBalls::cursorUnixtimeOrNow(uuid)) >= 600 then
+                        StoredNxBalls::marginCallOrNothing(uuid, false)
+                    end
+                }
             }
-        }
-
-        puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
+        end
 
         loop {
 
             system("clear")
 
-            puts "running #{Dated::toString(atom)}".green
+            puts "#{Dated::toString(atom)}#{StoredNxBalls::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
@@ -160,9 +158,10 @@ class Dated # OnDate
             end
         }
 
-        thr.exit
-
-        NxBalls::closeNxBall(nxball, true)
+        if !isRunning then
+            thr.exit
+            StoredNxBalls::closeOrNothing(uuid, true)
+        end
     end
 
     # Dated::itemToNS16(item)
@@ -188,7 +187,7 @@ class Dated # OnDate
                     end
                 end
             },
-            "run" => lambda {
+            "start-land" => lambda {
                 Dated::run(item)
             }
         }

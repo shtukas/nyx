@@ -193,30 +193,32 @@ class Nx50s
         system("clear")
 
         uuid = nx50["uuid"]
-        puts "#{Nx50s::toString(nx50)}".green
-        puts "Starting at #{Time.new.to_s}"
 
-        nxball = NxBalls::makeNxBall([uuid, Domain::getDomainBankAccount(nx50["domain"])])
+        isRunning = StoredNxBalls::isRunning(uuid)
 
-        thr = Thread.new {
-            loop {
-                sleep 60
+        if !isRunning then
+            StoredNxBalls::issue(uuid, [uuid, Domain::getDomainBankAccount(nx50["domain"])])
 
-                if (Time.new.to_i - nxball["cursorUnixtime"]) >= 600 then
-                    nxball = NxBalls::upgradeNxBall(nxball, false)
-                end
+            thr = Thread.new {
+                loop {
+                    sleep 60
 
-                if (Time.new.to_i - nxball["startUnixtime"]) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
-                end
+                    if (Time.new.to_i - StoredNxBalls::cursorUnixtimeOrNow(uuid)) >= 600 then
+                        StoredNxBalls::marginCallOrNothing(uuid, false)
+                    end
+
+                    if (Time.new.to_i - StoredNxBalls::startUnixtimeOrNow(uuid)) >= 3600 then
+                        Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
+                    end
+                }
             }
-        }
+        end
 
         loop {
 
             system("clear")
 
-            puts "#{Nx50s::toString(nx50)} (#{NxBalls::runningTimeString(nxball)})".green
+            puts "#{Nx50s::toString(nx50)}#{StoredNxBalls::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "coreDataId: #{nx50["coreDataId"]}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
@@ -233,7 +235,7 @@ class Nx50s
                 puts ""
             end
 
-            puts "access | note | <datecode> | detach running | pause | pursue | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | exit".yellow
+            puts "access | note | <datecode> | pursue | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -252,19 +254,6 @@ class Nx50s
             if command == "note" then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
                 StructuredTodoTexts::setNote(uuid, note)
-                next
-            end
-
-            if Interpreting::match("detach running", command) then
-                DetachedRunning::issueNew2(Nx50s::toString(nx50), Time.new.to_i, nxball["bankAccounts"])
-                break
-            end
-
-            if Interpreting::match("pause", command) then
-                NxBalls::closeNxBall(nxball, true)
-                puts "Starting pause at #{Time.new.to_s}"
-                LucilleCore::pressEnterToContinue()
-                nxball = NxBalls::makeNxBall([uuid])
                 next
             end
 
@@ -328,9 +317,10 @@ class Nx50s
 
         }
 
-        thr.exit
-
-        NxBalls::closeNxBall(nxball, true)
+        if !isRunning then
+            thr.exit
+            StoredNxBalls::closeOrNothing(uuid, true)
+        end
     end
 
     # Nx50s::ns16OrNull(nx50)
@@ -339,9 +329,10 @@ class Nx50s
         return nil if !DoNotShowUntil::isVisible(uuid)
         return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        tx = Bank::valueAtDate(uuid, Utils::today()).to_f/3600
         note = StructuredTodoTexts::getNoteOrNull(uuid)
         noteStr = note ? " [note]" : ""
-        announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (rt: #{rt.round(2)})".gsub("(0.00)", "      ")
+        announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (today: #{tx.round(2)}, rt: #{rt.round(2)})".gsub("(0.00)", "      ").gsub("(today: 0.0, rt: 0.0)", "").strip
         {
             "uuid"     => uuid,
             "announce" => announce,
@@ -356,9 +347,10 @@ class Nx50s
                     end
                 end
             },
-            "run" => lambda {
+            "start-land" => lambda {
                 Nx50s::run(nx50)
             },
+            "bank-accounts" => [Domain::getDomainBankAccount(nx50["domain"])],
             "rt" => rt
         }
     end
@@ -368,31 +360,21 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
-    # Nx50s::structure(domain)
-    def self.structure(domain)
-        threshold = Nx50s::overflowThreshold(domain)
-
-        data = Nx50s::nx50sForDomain(domain)
-                    .map{|item| Nx50s::ns16OrNull(item) }
-                    .compact
-                    .map
-                    .with_index{|ns16, indx| 
-                        {
-                            "ns16" => ns16,
-                            "isOverflow" => ns16["rt"] > 1.to_f/(2 ** indx)
-                        }
-                    }
-
-        {
-            "overflow" => data.select{|node| node["isOverflow"] }.map{|node| node["ns16"] },
-            "tail"     => data.select{|node| !node["isOverflow"] }.map{|node| node["ns16"] }
-        }
-    end
-
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
         Quarks::importspread()
-        Nx50s::structure(domain)["tail"]
+        threshold = Nx50s::overflowThreshold(domain)
+
+        ns16s = Nx50s::nx50sForDomain(domain)
+                    .map{|item| Nx50s::ns16OrNull(item) }
+                    .compact
+
+        overflow, tail = ns16s.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
+        overflow = overflow.map{|ns16|
+            ns16["announce"] = ns16["announce"].red
+            ns16
+        }
+        tail.take(1) + overflow + tail.drop(1)
     end
 
     # --------------------------------------------------

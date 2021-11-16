@@ -77,7 +77,7 @@ class Floats
                 {
                     "announce"     => announce.yellow,
                     "unixtime"     => unixtime,
-                    "run"          => lambda{ Floats::run(location) },
+                    "start-land"   => lambda{ Floats::run(location) }
                 }
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
@@ -85,7 +85,7 @@ class Floats
         #{
         #    "announce"
         #    "unixtime"
-        #    "run"
+        #    "start-land"
         #}
     end
 
@@ -130,7 +130,7 @@ class Floats
             {
                 "uuid"     => Digest::SHA1.hexdigest(item["announce"]),
                 "announce" => item["announce"],
-                "lambda"   => lambda { item["run"].call() }
+                "lambda"   => lambda { item["start-land"].call() }
             }
         }
     end
