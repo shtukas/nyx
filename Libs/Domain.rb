@@ -5,44 +5,37 @@
 
 class Domain
 
-    # Domain::setStoredDomain(domain)
-    def self.setStoredDomain(domain)
+    # Domain::setStoredDomainWithExpiry(domain, expiryUnixtime)
+    def self.setStoredDomainWithExpiry(domain, expiryUnixtime)
         packet = {
             "domain" => domain,
-            "unixtime" => Time.new.to_i
+            "expiry" => expiryUnixtime
         }
-        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda285", JSON.generate(packet))
+        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda286", JSON.generate(packet))
     end
 
-    # Domain::getStoredDomainOrNull()
-    def self.getStoredDomainOrNull()
-        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda285")
-    end
-
-    # Domain::getProgramaticDomain()
-    def self.getProgramaticDomain()
-        if [6, 0].include?(Time.new.wday) then
-            return "(eva)"
-        end
-        if Time.new.hour <= 8 then
-            return "(eva)"
-        end
-        if Work::recoveryTime() < 6 then
-            return "(work)"
-        end
-        "(eva)"
+    # Domain::getStoredDomainWithExpiryOrNull()
+    def self.getStoredDomainWithExpiryOrNull()
+        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
     end
 
     # Domain::getDomain()
     def self.getDomain()
-        packet = Domain::getStoredDomainOrNull()
+        packet = Domain::getStoredDomainWithExpiryOrNull()
         if packet then
             packet = JSON.parse(packet)
-            if (Time.new.to_i - packet["unixtime"]) < 3600 then
+            if Time.new.to_i < packet["expiry"] then
                 return packet["domain"]
             end
         end
-        Domain::getProgramaticDomain()
+
+        return "(eva)" if (Time.new.wday == 6 or Time.new.wday == 0)
+
+        if Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()) < 6*3600 then
+            "(work)"
+        else
+            "(eva)"
+        end
     end
 
     # Domain::getDomainBankAccount(domain)
@@ -76,10 +69,10 @@ class Domain
     # Domain::domainsCommandInterpreter(command)
     def self.domainsCommandInterpreter(command)
         if command == "eva" then
-            Domain::setStoredDomain("(eva)")
+            Domain::setStoredDomainWithExpiry("(eva)", Time.new.to_i + 3600)
         end
         if command == "work" then
-            Domain::setStoredDomain("(work)")
+            Domain::setStoredDomainWithExpiry("(work)", Time.new.to_i + 3600)
         end
     end
 
