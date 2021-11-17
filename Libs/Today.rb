@@ -8,6 +8,7 @@
     "ordinal"     : Float
     "type"        : "description | "text"       | "coredata"            | "pointer"
     "payload"     : null         | String Text  | CoreDataContentPair | String UUID 
+    "domain"      : Domain
 }
 
 =end
@@ -37,7 +38,8 @@ class Today
                 "description" => description,
                 "ordinal"     => ordinal,
                 "type"        => "description",
-                "payload"     => nil
+                "payload"     => nil,
+                "domain"      => Domain::interactivelySelectDomain()
             }
             BTreeSets::set(nil, "aa77ca31-eb98-4aa7-91db-9e86ab86b89f", item["uuid"], item)
             return
@@ -48,7 +50,8 @@ class Today
                 "description" => description,
                 "ordinal"     => ordinal,
                 "type"        => "text",
-                "payload"     => Utils::editTextSynchronously("")
+                "payload"     => Utils::editTextSynchronously(""),
+                "domain"      => Domain::interactivelySelectDomain()
             }
             BTreeSets::set(nil, "aa77ca31-eb98-4aa7-91db-9e86ab86b89f", item["uuid"], item)
             return
