@@ -65,7 +65,7 @@ class Interpreters
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "on | todo | float | wave | ondate | anniversary | Nx50 | eva item | work item"
+        "on | todo | float | wave | ondate | anniversary | Nx50 | start # unscheduled"
     end
 
     # Interpreters::diversCommands()
@@ -143,6 +143,20 @@ class Interpreters
                 return if nx50.nil?
                 Nx50s::run(nx50)
             }
+        end
+
+        if command == "start" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
+            domain = Domain::interactivelySelectDomain()
+            domainBankAccount = Domain::getDomainBankAccount(domain)
+            StoredNxBalls::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", [domainBankAccount])
+            ns16 = {
+                "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",
+                "announce" => "[unscheduled] #{description}".green, 
+                "commands" => ["done"],
+            }
+            KeyValueStore::set(nil, "f05fe844-128b-4e80-b13e-e0756c84204c", JSON.generate(ns16))
         end
 
         if Interpreting::match(">>", command) then

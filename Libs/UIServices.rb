@@ -29,9 +29,26 @@ class AmandaBins
 end
 
 class NS16sOperator
+
+    # NS16sOperator::theUnscheduledItemAsArray()
+    def self.theUnscheduledItemAsArray()
+        item = KeyValueStore::getOrNull(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
+        return [] if item.nil?
+        item = JSON.parse(item)
+        item["interpreter"] = lambda {|command|
+            if command == "done" then
+                StoredNxBalls::closeOrNothing("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
+                KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
+                return true
+            end
+        }
+        item
+    end
+
     # NS16sOperator::ns16s(domain)
     def self.ns16s(domain)
         [
+            NS16sOperator::theUnscheduledItemAsArray(),
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             AmandaBins::ns16s(),
