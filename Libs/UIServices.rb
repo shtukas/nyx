@@ -37,7 +37,7 @@ class NS16sOperator
         item = JSON.parse(item)
         item["interpreter"] = lambda {|command|
             if command == "done" then
-                StoredNxBalls::closeOrNothing("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
+                NxBallsService::decreaseOwnerCountOrClose("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
                 KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
                 return true
             end
@@ -195,7 +195,7 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        running = ns16s.select{|ns16| StoredNxBalls::isRunning(ns16["uuid"]) }
+        running = ns16s.select{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
         if running.size > 0 then
             puts ""
             puts "running items:"

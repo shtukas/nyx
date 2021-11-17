@@ -34,7 +34,7 @@ class Interpreters
                 else
                     ns16["bank-accounts"]
                 end
-            StoredNxBalls::issue(ns16["uuid"], bankAccounts)
+            NxBallsService::issueOrIncreaseOwnerCount(ns16["uuid"], bankAccounts)
         end
 
         if Interpreting::match("stop *", command) then
@@ -42,7 +42,7 @@ class Interpreters
             ordinal = ordinal.to_i
             ns16 = store.get(ordinal)
             return if ns16.nil?
-            StoredNxBalls::closeOrNothing(ns16["uuid"], true)
+            NxBallsService::decreaseOwnerCountOrClose(ns16["uuid"], true)
         end
 
         if Interpreting::match("hide * *", command) then
@@ -70,7 +70,7 @@ class Interpreters
 
     # Interpreters::diversCommands()
     def self.diversCommands()
-        "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | >> | nyx"
+        "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | nyx"
     end
 
     # Interpreters::makersAndDiversCommands()
@@ -154,63 +154,13 @@ class Interpreters
             return if description == ""
             domain = Domain::interactivelySelectDomain()
             domainBankAccount = Domain::getDomainBankAccount(domain)
-            StoredNxBalls::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", [domainBankAccount])
+            NxBallsService::issueOrIncreaseOwnerCount("04b8932b-986a-4f25-8320-5fc00c076dc1", [domainBankAccount])
             ns16 = {
                 "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",
                 "announce" => "[unscheduled] #{description}".green, 
                 "commands" => ["done"],
             }
             KeyValueStore::set(nil, "f05fe844-128b-4e80-b13e-e0756c84204c", JSON.generate(ns16))
-        end
-
-        if Interpreting::match(">>", command) then
-            key = "4b23af4b-4536-44f6-a85a-d4e8cb320b30"
-            Nx50s::nx50s().each{|nx50|
-
-                next if KeyValueStore::flagIsTrue(nil, "#{key}:#{nx50["uuid"]}")
-                next if nx50["domain"] != "(eva)" 
-
-                nxball = NxBalls::makeNxBall([nx50["uuid"]])
-
-                accessWithOptionToEdit = lambda{|uuid|
-                    return if uuid.nil?
-                    object = CoreDataUtils::getObjectOrNull(uuid)
-                    if object["type"] == "text" then
-                        puts object["text"]
-                        return
-                    end
-                    if object["type"] == "url" then
-                        Utils::openUrlUsingSafari(object["url"])
-                    end
-                    if object["type"] == "aion-point" then
-                        AionCore::exportHashAtFolder(CoreDataElizabeth.new(), object["nhash"], "/Users/pascal/Desktop")
-                    end
-                }
-
-                accessWithOptionToEdit.call(nx50["coreDataId"])
-
-                command = LucilleCore::askQuestionAnswerAsString("[#{Nx50s::nx50sForDomain("(eva)").size}] #{Nx50s::toString(nx50).green} (done, landing, next, exit) : ")
-
-                NxBalls::closeNxBall(nxball, false)
-
-                if command == "done" then
-                    Nx50s::complete(nx50)
-                end
-
-                if command == "landing" then
-                    Nx50s::run(nx50)
-                    KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
-                end
-
-                if command == "next" then
-                    KeyValueStore::setFlagTrue(nil, "#{key}:#{nx50["uuid"]}")
-                    next
-                end
-
-                if command == "exit" then
-                    break
-                end
-            }
         end
 
         if Interpreting::match("search", command) then

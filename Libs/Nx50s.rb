@@ -194,31 +194,27 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        isRunning = StoredNxBalls::isRunning(uuid)
+        NxBallsService::issueOrIncreaseOwnerCount(uuid, [uuid, Domain::getDomainBankAccount(nx50["domain"])])
 
-        if !isRunning then
-            StoredNxBalls::issue(uuid, [uuid, Domain::getDomainBankAccount(nx50["domain"])])
+        thr = Thread.new {
+            loop {
+                sleep 60
 
-            thr = Thread.new {
-                loop {
-                    sleep 60
+                if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) >= 600 then
+                    NxBallsService::marginCall(uuid, false)
+                end
 
-                    if (Time.new.to_i - StoredNxBalls::cursorUnixtimeOrNow(uuid)) >= 600 then
-                        StoredNxBalls::marginCallOrNothing(uuid, false)
-                    end
-
-                    if (Time.new.to_i - StoredNxBalls::startUnixtimeOrNow(uuid)) >= 3600 then
-                        Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
-                    end
-                }
+                if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) >= 3600 then
+                    Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
+                end
             }
-        end
+        }
 
         loop {
 
             system("clear")
 
-            puts "#{Nx50s::toString(nx50)}#{StoredNxBalls::runningStringOrEmptyString(" (", uuid, ")")}".green
+            puts "#{Nx50s::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "coreDataId: #{nx50["coreDataId"]}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
@@ -235,7 +231,7 @@ class Nx50s
                 puts ""
             end
 
-            puts "access | note | <datecode> | pursue | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | exit".yellow
+            puts "access | note | <datecode> | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -254,13 +250,6 @@ class Nx50s
             if command == "note" then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
                 StructuredTodoTexts::setNote(uuid, note)
-                next
-            end
-
-            if command == "pursue" then
-                # We close the ball and issue a new one
-                NxBalls::closeNxBall(nxball, true)
-                nxball = NxBalls::makeNxBall([uuid])
                 next
             end
 
@@ -317,10 +306,8 @@ class Nx50s
 
         }
 
-        if !isRunning then
-            thr.exit
-            StoredNxBalls::closeOrNothing(uuid, true)
-        end
+        thr.exit
+        NxBallsService::decreaseOwnerCountOrClose(uuid, true)
     end
 
     # Nx50s::ns16OrNull(nx50)

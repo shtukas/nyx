@@ -158,14 +158,6 @@ require_relative "Dated.rb"
 require_relative "ProgrammableBooleans.rb"
 require_relative "PriorityFile.rb"
 
-require_relative "Runner.rb"
-=begin 
-    Runner::isRunning?(uuid)
-    Runner::runTimeInSecondsOrNull(uuid) # null | Float
-    Runner::start(uuid)
-    Runner::stop(uuid) # null | Float
-=end
-
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "StructuredTodoTexts.rb"

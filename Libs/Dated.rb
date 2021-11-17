@@ -75,26 +75,22 @@ class Dated # OnDate
 
         uuid = atom["uuid"]
 
-        isRunning = StoredNxBalls::isRunning(uuid)
+        NxBallsService::issueOrIncreaseOwnerCount(uuid, [uuid])
 
-        if !isRunning then
-            StoredNxBalls::issue(uuid, [uuid])
-
-            thr = Thread.new {
-                loop {
-                    sleep 60
-                    if (Time.new.to_i - StoredNxBalls::cursorUnixtimeOrNow(uuid)) >= 600 then
-                        StoredNxBalls::marginCallOrNothing(uuid, false)
-                    end
-                }
+        thr = Thread.new {
+            loop {
+                sleep 60
+                if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) >= 600 then
+                    NxBallsService::marginCall(uuid, false)
+                end
             }
-        end
+        }
 
         loop {
 
             system("clear")
 
-            puts "#{Dated::toString(atom)}#{StoredNxBalls::runningStringOrEmptyString(" (", uuid, ")")}".green
+            puts "#{Dated::toString(atom)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
@@ -158,10 +154,8 @@ class Dated # OnDate
             end
         }
 
-        if !isRunning then
-            thr.exit
-            StoredNxBalls::closeOrNothing(uuid, true)
-        end
+        thr.exit
+        NxBallsService::decreaseOwnerCountOrClose(uuid, true)
     end
 
     # Dated::itemToNS16(item)

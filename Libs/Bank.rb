@@ -133,24 +133,25 @@ class Beatrice
     end
 end
 
-class NxBalls
+class NxBallsInternal
 
-    # NxBalls::makeNxBall(accounts)
+    # NxBallsInternal::makeNxBall(accounts)
     def self.makeNxBall(accounts)
         start = Time.new.to_f
         nxball = {
             "versionId"      => SecureRandom.hex,
             "startUnixtime"  => start,
             "cursorUnixtime" => start,
-            "bankAccounts"   => accounts
+            "bankAccounts"   => accounts,
+            "ownerCount"     => 1
         }
         #puts "make, returning"
         #puts JSON.pretty_generate(nxball)
         nxball
     end
 
-    # NxBalls::upgradeNxBall(nxball, verbose)
-    def self.upgradeNxBall(nxball, verbose)
+    # NxBallsInternal::marginCall(nxball, verbose)
+    def self.marginCall(nxball, verbose)
         #puts "upgrade, receiving"
         #puts JSON.pretty_generate(nxball)
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
@@ -166,8 +167,8 @@ class NxBalls
         nxball
     end
 
-    # NxBalls::closeNxBall(nxball, verbose)
-    def self.closeNxBall(nxball, verbose)
+    # NxBallsInternal::close(nxball, verbose)
+    def self.close(nxball, verbose)
         #puts "close, receiving"
         #puts JSON.pretty_generate(nxball)
         puts "(#{Time.new.to_s}) Running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours" if verbose
@@ -180,52 +181,60 @@ class NxBalls
         nil
     end
 
-    # NxBalls::runningTimeString(nxball)
+    # NxBallsInternal::runningTimeString(nxball)
     def self.runningTimeString(nxball)
         "running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours"
     end
 end
 
-class StoredNxBalls
-    # StoredNxBalls::issue(uuid, accounts)
-    def self.issue(uuid, accounts)
-        nxball = NxBalls::makeNxBall(accounts)
+class NxBallsService
+
+    # Operations
+
+    # NxBallsService::issueOrIncreaseOwnerCount(uuid, accounts)
+    def self.issueOrIncreaseOwnerCount(uuid, accounts)
+        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        if nxball then
+            nxball = JSON.parse(nxball)
+            nxball["ownerCount"] = nxball["ownerCount"] + 1
+        else
+            nxball = NxBallsInternal::makeNxBall(accounts)
+        end
         KeyValueStore::set(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}", JSON.generate(nxball))
         nxball
     end
 
-    # StoredNxBalls::isRunning(uuid)
+    # NxBallsService::isRunning(uuid)
     def self.isRunning(uuid)
         !KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}").nil?
     end
 
-    # StoredNxBalls::runningStringOrEmptyString(leftSide, uuid, rightSide)
-    def self.runningStringOrEmptyString(leftSide, uuid, rightSide)
-        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
-        return "" if nxball.nil?
-        nxball = JSON.parse(nxball)
-        "#{leftSide}#{NxBalls::runningTimeString(nxball)}#{rightSide}"
-    end
-
-    # StoredNxBalls::marginCallOrNothing(uuid, verbose)
-    def self.marginCallOrNothing(uuid, verbose)
+    # NxBallsService::marginCall(uuid, verbose)
+    def self.marginCall(uuid, verbose)
         nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
         return if nxball.nil?
         nxball = JSON.parse(nxball)
-        nxball = NxBalls::upgradeNxBall(nxball, verbose)
+        nxball = NxBallsInternal::marginCall(nxball, verbose)
         KeyValueStore::set(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}", JSON.generate(nxball))
     end
 
-    # StoredNxBalls::closeOrNothing(uuid, verbose)
-    def self.closeOrNothing(uuid, verbose)
+    # NxBallsService::decreaseOwnerCountOrClose(uuid, verbose)
+    def self.decreaseOwnerCountOrClose(uuid, verbose)
         nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
         return if nxball.nil?
         nxball = JSON.parse(nxball)
-        NxBalls::closeNxBall(nxball, verbose)
-        KeyValueStore::destroy(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        if nxball["ownerCount"] > 1 then
+            nxball["ownerCount"] = nxball["ownerCount"] - 1
+            KeyValueStore::set(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}", JSON.generate(nxball))
+        else
+            NxBallsInternal::close(nxball, verbose)
+            KeyValueStore::destroy(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        end
     end
 
-    # StoredNxBalls::cursorUnixtimeOrNow(uuid)
+    # Information
+
+    # NxBallsService::cursorUnixtimeOrNow(uuid)
     def self.cursorUnixtimeOrNow(uuid)
         nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
         return Time.new.to_i if nxball.nil?
@@ -233,11 +242,19 @@ class StoredNxBalls
         nxball["cursorUnixtime"]
     end
 
-    # StoredNxBalls::startUnixtimeOrNow(uuid)
+    # NxBallsService::startUnixtimeOrNow(uuid)
     def self.startUnixtimeOrNow(uuid)
         nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
         return Time.new.to_i if nxball.nil?
         nxball = JSON.parse(nxball)
         nxball["startUnixtime"]
+    end
+
+    # NxBallsService::runningStringOrEmptyString(leftSide, uuid, rightSide)
+    def self.runningStringOrEmptyString(leftSide, uuid, rightSide)
+        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        return "" if nxball.nil?
+        nxball = JSON.parse(nxball)
+        "#{leftSide}#{NxBallsInternal::runningTimeString(nxball)}#{rightSide}"
     end
 end
