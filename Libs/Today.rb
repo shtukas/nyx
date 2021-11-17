@@ -6,7 +6,7 @@
     "uuid" : String # used by DoNotShowUntil
     "description" : String
     "ordinal"     : Float
-    "type"        : "description | "text"       | coredata            | "pointer"
+    "type"        : "description | "text"       | "coredata"            | "pointer"
     "payload"     : null         | String Text  | CoreDataContentPair | String UUID 
 }
 
@@ -66,7 +66,7 @@ class Today
 
     # Today::toString(item)
     def self.toString(item)
-        "[tday] #{item["ordinal"]} | #{item["type"]} | #{item["description"]}"
+        "[tday] #{"%5.2f" % item["ordinal"]} | #{item["type"]} | #{item["description"]}"
     end
 
     # Today::run(item)
