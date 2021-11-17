@@ -190,7 +190,7 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | [] | update description | update contents | recast schedule | domain | destroy | exit".yellow
+            puts "[item   ] access | done | <datecode> | note | update description | update contents | recast schedule | domain | destroy | exit".yellow
 
             puts Interpreters::makersAndDiversCommands().yellow
 
@@ -216,11 +216,6 @@ class Waves
             if command == "note" then
                 note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(atom["uuid"]) || "")
                 StructuredTodoTexts::setNote(atom["uuid"], note)
-                next
-            end
-
-            if command == "[]" then
-                StructuredTodoTexts::applyT(atom["uuid"])
                 next
             end
 

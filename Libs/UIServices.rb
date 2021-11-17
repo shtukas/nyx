@@ -50,13 +50,13 @@ class NS16sOperator
         [
             NS16sOperator::theUnscheduledItemAsArray(),
             Anniversaries::ns16s(),
+            Today::ns16s(),
             Calendar::ns16s(),
             AmandaBins::ns16s(),
             Fitness::ns16s(),
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
-            PriorityFile::ns16s(),
             Dated::ns16s(),
             Nx50s::ns16s(domain),
         ]
@@ -214,7 +214,7 @@ class UIServices
             puts ""
             puts "Priority.txt:"
             vspaceleft = vspaceleft - 2
-            puts text.green
+            puts text
             vspaceleft = vspaceleft - Utils::verticalSize(text)
         end
 
@@ -246,7 +246,9 @@ class UIServices
         # Otherwise we try a bunch of generic interpreters.
 
         if command == "[]" then
-            PriorityFile::applyNextTransformation("/Users/pascal/Desktop/Priority.txt")
+            filepath = "/Users/pascal/Desktop/Priority.txt"
+            PriorityFile::catalystSafe(filepath)
+            PriorityFile::applyNextTransformation(filepath)
             return
         end
 

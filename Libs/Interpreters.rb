@@ -65,7 +65,7 @@ class Interpreters
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "on | todo | float | wave | ondate | anniversary | Nx50 | start # unscheduled"
+        "today | todo | float | wave | ondate | anniversary | Nx50 | start # unscheduled"
     end
 
     # Interpreters::diversCommands()
@@ -83,6 +83,10 @@ class Interpreters
 
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
+
+        if command == "today" then
+            Today::interactivelyIssueNewOrNull()
+        end
 
         if command == "todo" then
             Nx50s::interactivelyCreateNewOrNull()
