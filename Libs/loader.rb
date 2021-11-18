@@ -149,8 +149,6 @@ require_relative "Interpreting.rb"
 require_relative "Interpreters.rb"
 require_relative "Inbox.rb"
 
-require_relative "Quarks.rb"
-
 require_relative "Floats.rb"
 require_relative "Nx50s.rb"
 require_relative "Dated.rb"

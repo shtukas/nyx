@@ -105,7 +105,7 @@ class Dated # OnDate
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
 
-            puts "access | <datecode> | note | update description | update date | update contents | >todo | exit | destroy".yellow
+            puts "access | <datecode> | note | update description | date | update contents | >todo | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -133,7 +133,7 @@ class Dated # OnDate
                 next
             end
 
-            if Interpreting::match("update date", command) then
+            if Interpreting::match("date", command) then
                 date = Dated::interactivelySelectADateOrNull()
                 next if date.nil?
                 atom["date"] = date
