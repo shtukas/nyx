@@ -17,7 +17,7 @@ class Quarks
 
     # Quarks::toString(item)
     def self.toString(item)
-        "[quark] #{CoreData2::toString(atom)}"
+        "[quark] #{CoreData2::toString(atom)} (#{atom["type"]})"
     end
 
     # Quarks::issueItemUsingLocation(location, unixtime)
