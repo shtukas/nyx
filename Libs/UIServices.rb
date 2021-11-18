@@ -147,6 +147,9 @@ class UIServices
 
     # UIServices::mainView(domain, ns16s)
     def self.mainView(domain, ns16s)
+
+        collection = ns16s.clone
+
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
             return "" if ns16["commands"].nil?
@@ -198,10 +201,10 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        running = ns16s.select{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
+        running, collection = collection.partition{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
         if running.size > 0 then
             puts ""
-            puts "running items:"
+            puts "running:"
             vspaceleft = vspaceleft - 2
             running.each{|ns16|
                 indx = store.register(ns16)
@@ -211,23 +214,29 @@ class UIServices
             }
         end
 
+        stacked, collection = collection.partition{|ns16| isStacked.call(ns16) }
+        if stacked.size > 0 then
+            puts ""
+            puts "stacked:"
+            vspaceleft = vspaceleft - 2
+            stacked.each{|ns16|
+                indx = store.register(ns16)
+                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}"
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+            }
+        end
+
         puts ""
         puts "todo:"
         vspaceleft = vspaceleft - 2
-        ns16s
-            .select{|ns16| !NxBallsService::isRunning(ns16["uuid"]) }
-            .each_with_index{|ns16|
+        collection
+            .each{|ns16|
                 indx = store.register(ns16)
-
-                isDefaultItem = false
-                if store.getDefault().nil? and !isStacked.call(ns16) then
-                    isDefaultItem = true
-                    store.registerDefault(ns16)
-                end
-
+                isDefaultItem = (indx == 0)
                 posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
                 announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
-                break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                break if (!isDefaultItem and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
