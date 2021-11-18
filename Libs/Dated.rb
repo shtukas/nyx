@@ -145,7 +145,7 @@ class Dated # OnDate
                 next if date.nil?
                 atom["date"] = date
                 CoreData2::commitAtom2(atom)
-                next
+                break
             end
 
             if Interpreting::match("update contents", command) then
