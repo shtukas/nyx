@@ -155,7 +155,7 @@ class UIServices
         }
 
         isStacked = lambda{|ns16|
-            KeyValueStore::flagIsTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{ns16["uuid"]}")
+            KeyValueStore::flagIsTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{Utils::today()}:#{ns16["uuid"]}")
         }
 
         system("clear")

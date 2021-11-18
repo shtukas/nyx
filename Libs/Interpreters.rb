@@ -58,7 +58,7 @@ class Interpreters
         if command == "stack" then
             ns16 = store.getDefault()
             return if ns16.nil? 
-            KeyValueStore::setFlagTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{ns16["uuid"]}")
+            KeyValueStore::setFlagTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{Utils::today()}:#{ns16["uuid"]}")
         end
 
         if Interpreting::match("stop *", command) then
