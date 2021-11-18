@@ -225,8 +225,6 @@ class Anniversaries
                 FileUtils.rm(filepath)
                 break
             end
-
-            Interpreters::makersAndDiversInterpreter(command)
         }
     end
 

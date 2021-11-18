@@ -252,8 +252,6 @@ class Waves
                     break
                 end
             end
-
-            Interpreters::makersAndDiversInterpreter(command)
         }
     end
 

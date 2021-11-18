@@ -6,8 +6,8 @@
     "uuid" : String # used by DoNotShowUntil
     "description" : String
     "ordinal"     : Float
-    "type"        : "description | "text"       | "coredata"            | "pointer"
-    "payload"     : null         | String Text  | CoreDataContentPair | String UUID 
+    "type"        : "description | "text"       | "coredata"          
+    "payload"     : null         | String Text  | CoreDataContentPair 
     "domain"      : Domain
 }
 
@@ -31,7 +31,7 @@ class Today
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description only (default)", "text", "coredata (not supported yet)", "pointer (not supported yet)"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description only (default)", "text", "coredata (not supported yet)"])
         if type.nil? or type == "description only (default)" then
             item = {
                 "uuid"        => uuid,
@@ -41,6 +41,7 @@ class Today
                 "payload"     => nil,
                 "domain"      => Domain::interactivelySelectDomain()
             }
+            puts JSON.pretty_generate(item)
             BTreeSets::set(nil, "aa77ca31-eb98-4aa7-91db-9e86ab86b89f", item["uuid"], item)
             return
         end
@@ -53,6 +54,7 @@ class Today
                 "payload"     => Utils::editTextSynchronously(""),
                 "domain"      => Domain::interactivelySelectDomain()
             }
+            puts JSON.pretty_generate(item)
             BTreeSets::set(nil, "aa77ca31-eb98-4aa7-91db-9e86ab86b89f", item["uuid"], item)
             return
         end
@@ -74,6 +76,7 @@ class Today
 
     # Today::run(item)
     def self.run(item)
+        NxBallsService::issueOrIncreaseOwnerCount(item["uuid"], [Domain::getDomainBankAccount(item["domain"])])
         if item["type"] == "description" then
             puts "description: #{item["description"]}"
             LucilleCore::pressEnterToContinue()
@@ -82,6 +85,7 @@ class Today
             puts item["payload"]
             LucilleCore::pressEnterToContinue()
         end
+        NxBallsService::decreaseOwnerCountOrClose(item["uuid"], true)
     end
 
     # Today::itemToNS16(item)

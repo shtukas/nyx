@@ -221,8 +221,6 @@ class Dated # OnDate
                 next if item.nil?
                 Dated::run(item)
             end
-
-            Interpreters::makersAndDiversInterpreter(command)
         }
     end
 
