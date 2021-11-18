@@ -65,7 +65,7 @@ class Interpreters
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "today | todo | float | wave | ondate | anniversary | Nx50 | start # unscheduled"
+        "start # unscheduled | today | todo | float | wave | ondate | anniversary | Nx50"
     end
 
     # Interpreters::diversCommands()
