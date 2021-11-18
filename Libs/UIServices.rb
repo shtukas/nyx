@@ -50,7 +50,6 @@ class NS16sOperator
         [
             NS16sOperator::theUnscheduledItemAsArray(),
             Anniversaries::ns16s(),
-            Today::ns16s(),
             Calendar::ns16s(),
             AmandaBins::ns16s(),
             Fitness::ns16s(),
@@ -155,6 +154,10 @@ class UIServices
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
+        isStacked = lambda{|ns16|
+            KeyValueStore::flagIsTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{ns16["uuid"]}")
+        }
+
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
@@ -218,18 +221,20 @@ class UIServices
             vspaceleft = vspaceleft - Utils::verticalSize(text)
         end
 
-        if ns16s.size > 0 then
-            store.registerDefault(ns16s[0])
-        end
-
         puts ""
         puts "todo:"
         vspaceleft = vspaceleft - 2
         ns16s
             .each_with_index{|ns16|
                 indx = store.register(ns16)
-                isDefaultItem = ns16["uuid"] == (store.getDefault() ? store.getDefault()["uuid"] : "")
-                posStr = isDefaultItem ? "(-->)" : "(#{"%3d" % indx})"
+
+                isDefaultItem = false
+                if store.getDefault().nil? and !isStacked.call(ns16) then
+                    isDefaultItem = true
+                    store.registerDefault(ns16)
+                end
+
+                posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
                 announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
                 break if ((indx > 0) and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce

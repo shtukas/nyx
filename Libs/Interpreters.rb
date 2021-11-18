@@ -6,7 +6,25 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        ".. | <n> | <datecode> | start <n> | stop <n> | hide <n> <datecode> | expose"
+        ".. | <n> | <datecode> | start <n> | stop <n> | hide <n> <datecode> | stack | expose"
+    end
+
+    # Interpreters::makersCommands()
+    def self.makersCommands()
+        "start # unscheduled | todo | float | wave | ondate | anniversary"
+    end
+
+    # Interpreters::diversCommands()
+    def self.diversCommands()
+        "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | nyx"
+    end
+
+    # Interpreters::makersAndDiversCommands()
+    def self.makersAndDiversCommands()
+        [
+            Interpreters::makersCommands(),
+            Interpreters::diversCommands()
+        ].join(" | ")
     end
 
     # Interpreters::listingInterpreter(store, command)
@@ -37,6 +55,12 @@ class Interpreters
             NxBallsService::issueOrIncreaseOwnerCount(ns16["uuid"], bankAccounts)
         end
 
+        if command == "stack" then
+            ns16 = store.getDefault()
+            return if ns16.nil? 
+            KeyValueStore::setFlagTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{ns16["uuid"]}")
+        end
+
         if Interpreting::match("stop *", command) then
             _, ordinal = Interpreting::tokenizer(command)
             ordinal = ordinal.to_i
@@ -63,33 +87,27 @@ class Interpreters
         end
     end
 
-    # Interpreters::makersCommands()
-    def self.makersCommands()
-        "start # unscheduled | today | todo | float | wave | ondate | anniversary | Nx50"
-    end
-
-    # Interpreters::diversCommands()
-    def self.diversCommands()
-        "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | nyx"
-    end
-
-    # Interpreters::makersAndDiversCommands()
-    def self.makersAndDiversCommands()
-        [
-            Interpreters::makersCommands(),
-            Interpreters::diversCommands()
-        ].join(" | ")
-    end
-
     # Interpreters::makersAndDiversInterpreter(command)
     def self.makersAndDiversInterpreter(command)
 
-        if command == "today" then
-            Today::interactivelyIssueNewOrNull()
+        if command == "start" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
+            domain = Domain::interactivelySelectDomain()
+            domainBankAccount = Domain::getDomainBankAccount(domain)
+            NxBallsService::issueOrIncreaseOwnerCount("04b8932b-986a-4f25-8320-5fc00c076dc1", [domainBankAccount])
+            ns16 = {
+                "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",
+                "announce" => "[unscheduled] #{description}".green, 
+                "commands" => ["done"],
+            }
+            KeyValueStore::set(nil, "f05fe844-128b-4e80-b13e-e0756c84204c", JSON.generate(ns16))
         end
 
         if command == "todo" then
-            Nx50s::interactivelyCreateNewOrNull()
+            item = Nx50s::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("float", command) then
@@ -104,12 +122,6 @@ class Interpreters
 
         if Interpreting::match("ondate", command) then
             item = Dated::interactivelyIssueNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("Nx50", command) then
-            item = Nx50s::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
         end
@@ -147,20 +159,6 @@ class Interpreters
                 return if nx50.nil?
                 Nx50s::run(nx50)
             }
-        end
-
-        if command == "start" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            domain = Domain::interactivelySelectDomain()
-            domainBankAccount = Domain::getDomainBankAccount(domain)
-            NxBallsService::issueOrIncreaseOwnerCount("04b8932b-986a-4f25-8320-5fc00c076dc1", [domainBankAccount])
-            ns16 = {
-                "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",
-                "announce" => "[unscheduled] #{description}".green, 
-                "commands" => ["done"],
-            }
-            KeyValueStore::set(nil, "f05fe844-128b-4e80-b13e-e0756c84204c", JSON.generate(ns16))
         end
 
         if Interpreting::match("search", command) then
