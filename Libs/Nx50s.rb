@@ -389,6 +389,7 @@ class Nx50s
         threshold = Nx50s::overflowThreshold(domain)
 
         ns16s = Nx50s::nx50sForDomain(domain)
+                    .first(100)
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
