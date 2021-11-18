@@ -211,16 +211,6 @@ class UIServices
             }
         end
 
-        text = IO.read("/Users/pascal/Desktop/Priority.txt").strip
-        if text.size > 0 then
-            text = text.lines.first(5).join().strip
-            puts ""
-            puts "Priority.txt:"
-            vspaceleft = vspaceleft - 2
-            puts text
-            vspaceleft = vspaceleft - Utils::verticalSize(text)
-        end
-
         puts ""
         puts "todo:"
         vspaceleft = vspaceleft - 2
@@ -250,13 +240,6 @@ class UIServices
         # We first interpret the command as an index and call "start-land"
         # Or interpret it a command and run it by the default element interpreter.
         # Otherwise we try a bunch of generic interpreters.
-
-        if command == "[]" then
-            filepath = "/Users/pascal/Desktop/Priority.txt"
-            PriorityFile::catalystSafe(filepath)
-            PriorityFile::applyNextTransformation(filepath)
-            return
-        end
 
         if command == ".." and store.getDefault() and store.getDefault()["start-land"] then
             store.getDefault()["start-land"].call()
