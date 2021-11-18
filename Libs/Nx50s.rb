@@ -152,14 +152,6 @@ class Nx50s
         CoreData2::commitAtom2(atom)
     end
 
-    # Nx50s::issueItemUsingURL(url domain)
-    def self.issueItemUsingURL(url, domain)
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
-        CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
-        atom["domain"] = domain
-        CoreData2::commitAtom2(atom)
-    end
-
     # --------------------------------------------------
     # Operations
 

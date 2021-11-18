@@ -65,6 +65,13 @@ class Dated # OnDate
         atom
     end
 
+    # Dated::issueViennaURL(url domain)
+    def self.issueItemUsingURL(url, domain)
+        atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Dated::coreData2SetUUID()])
+        atom["date"] = Utils::nDaysInTheFuture(1)
+        CoreData2::commitAtom2(atom)
+    end
+
     # Dated::destroy(atom)
     def self.destroy(atom)
         CoreData2::removeAtomFromSet(atom["uuid"], Dated::coreData2SetUUID())
