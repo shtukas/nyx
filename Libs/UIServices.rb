@@ -233,7 +233,10 @@ class UIServices
         collection
             .each{|ns16|
                 indx = store.register(ns16)
-                isDefaultItem = (indx == 0)
+                isDefaultItem = store.getDefault().nil? # the default item is the first element
+                if isDefaultItem then
+                    store.registerDefault(ns16)
+                end
                 posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
                 announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
                 break if (!isDefaultItem and ((vspaceleft - Utils::verticalSize(announce)) < 0))

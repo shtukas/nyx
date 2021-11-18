@@ -394,11 +394,7 @@ class Nx50s
                     .compact
 
         overflow, tail = ns16s.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
-        overflow = overflow.map{|ns16|
-            ns16["announce"] = ns16["announce"].red
-            ns16
-        }
-        tail.take(1) + overflow + tail.drop(1)
+        tail
     end
 
     # --------------------------------------------------
