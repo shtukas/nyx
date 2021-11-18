@@ -225,6 +225,7 @@ class UIServices
         puts "todo:"
         vspaceleft = vspaceleft - 2
         ns16s
+            .select{|ns16| !NxBallsService::isRunning(ns16["uuid"]) }
             .each_with_index{|ns16|
                 indx = store.register(ns16)
 

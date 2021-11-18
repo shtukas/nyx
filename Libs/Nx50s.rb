@@ -223,7 +223,9 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        NxBallsService::issueOrIncreaseOwnerCount(uuid, [uuid, Domain::getDomainBankAccount(nx50["domain"])])
+        bankAccounts = [uuid, Domain::getDomainBankAccount(nx50["domain"])]
+
+        NxBallsService::issueOrIncreaseOwnerCount(uuid, bankAccounts)
 
         thr = Thread.new {
             loop {
@@ -260,7 +262,7 @@ class Nx50s
                 puts ""
             end
 
-            puts "access | note | <datecode> | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | exit".yellow
+            puts "access | note | <datecode> | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | pursue | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -317,6 +319,11 @@ class Nx50s
             if Interpreting::match("show json", command) then
                 puts JSON.pretty_generate(nx50)
                 LucilleCore::pressEnterToContinue()
+                break
+            end
+
+            if Interpreting::match("pursue", command) then
+                NxBallsService::issueOrIncreaseOwnerCount(uuid, bankAccounts)
                 break
             end
 

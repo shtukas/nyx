@@ -112,7 +112,7 @@ class Dated # OnDate
 
             puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
 
-            puts "access | <datecode> | note | update description | date | update contents | >todo | exit | destroy".yellow
+            puts "access | <datecode> | note | update description | date | update contents | >todo | pursue | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -158,6 +158,11 @@ class Dated # OnDate
                 atom["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
                 CoreData2::addAtomToSet(atom["uuid"], [Nx50s::coreData2SetUUID()])
                 CoreData2::removeAtomFromSet(atom["uuid"], [Dated::coreData2SetUUID()])
+                break
+            end
+
+            if Interpreting::match("pursue", command) then
+                NxBallsService::issueOrIncreaseOwnerCount(uuid, [uuid])
                 break
             end
 
