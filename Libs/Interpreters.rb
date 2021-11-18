@@ -11,7 +11,7 @@ class Interpreters
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "start # unscheduled | todo | float | wave | ondate | anniversary"
+        "start # unscheduled | today | todo | float | wave | ondate | anniversary"
     end
 
     # Interpreters::diversCommands()
@@ -102,6 +102,12 @@ class Interpreters
                 "commands" => ["done"],
             }
             KeyValueStore::set(nil, "f05fe844-128b-4e80-b13e-e0756c84204c", JSON.generate(ns16))
+        end
+
+        if command == "today" then
+            item = Dated::interactivelyIssueNewTodayOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
         end
 
         if command == "todo" then

@@ -44,6 +44,16 @@ class Dated # OnDate
         atom
     end
 
+    # Dated::interactivelyIssueNewTodayOrNull()
+    def self.interactivelyIssueNewTodayOrNull()
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([Dated::coreData2SetUUID()])
+        return nil if atom.nil?
+
+        atom["date"] = Utils::today()
+        CoreData2::commitAtom2(atom)
+        atom
+    end
+
     # Dated::issueItemUsingText(text, unixtime, date)
     def self.issueItemUsingText(text, unixtime, date)
         text = text.strip
