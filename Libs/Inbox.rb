@@ -43,6 +43,11 @@ class Inbox
                         end
                     },
                     "start-land"   => lambda {
+
+                        time1 = Time.new.to_f
+
+                        domain = nil
+
                         system("clear")
                         puts location.green
 
@@ -62,12 +67,13 @@ class Inbox
 
                         # -------------------------------------
                         # Dispatch
+
                         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
                         if action == "delete" then
                             LucilleCore::removeFileSystemLocation(location)
                         end
                         if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "Nx50"])
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "todo"])
                             if target == "float" then
                                 if File.file?(location) then
                                     Floats::interactivelyCreateNewOrNull()
@@ -92,13 +98,22 @@ class Inbox
                                 puts JSON.pretty_generate(atom)
                                 LucilleCore::removeFileSystemLocation(location)
                             end
-                            if target == "Nx50" then
+                            if target == "todo" then
                                 domain = Domain::interactivelySelectDomain()
                                 unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
                                 Nx50s::issueItemUsingLocation(location, unixtime, domain)
                                 LucilleCore::removeFileSystemLocation(location)
                             end
                         end
+
+                        if domain.nil? then 
+                            domain = Domain::interactivelySelectDomain()
+                        end
+                        account = Domain::getDomainBankAccount(domain)
+                        time2 = Time.new.to_f
+                        timespan = time2 - time1
+                        puts "Putting #{timespan} seconds into #{account}"
+                        Bank::put(account, timespan)
                     }
                 }
             }
