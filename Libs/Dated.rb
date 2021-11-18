@@ -66,7 +66,7 @@ class Dated # OnDate
     end
 
     # Dated::issueViennaURL(url domain)
-    def self.issueItemUsingURL(url, domain)
+    def self.issueViennaURL(url, domain)
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Dated::coreData2SetUUID()])
         atom["date"] = Utils::nDaysInTheFuture(1)
         CoreData2::commitAtom2(atom)
