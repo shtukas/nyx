@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        ".. | <n> | <datecode> | start <n> | stop <n> | hide <n> <datecode> | stack | expose"
+        ".. | <n> | <datecode> | start <n> | stop <n> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::makersCommands()
@@ -53,12 +53,6 @@ class Interpreters
                     ns16["bank-accounts"]
                 end
             NxBallsService::issueOrIncreaseOwnerCount(ns16["uuid"], bankAccounts)
-        end
-
-        if command == "stack" then
-            ns16 = store.getDefault()
-            return if ns16.nil? 
-            KeyValueStore::setFlagTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{Utils::today()}:#{ns16["uuid"]}")
         end
 
         if Interpreting::match("stop *", command) then

@@ -159,10 +159,6 @@ class UIServices
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
-        isStacked = lambda{|ns16|
-            KeyValueStore::flagIsTrue(nil, "717e03df-1204-484a-a09c-c9cc89f7090e:#{Utils::today()}:#{ns16["uuid"]}")
-        }
-
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
@@ -212,19 +208,6 @@ class UIServices
             running.each{|ns16|
                 indx = store.register(ns16)
                 announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}".green
-                puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
-            }
-        end
-
-        stacked, collection = collection.partition{|ns16| isStacked.call(ns16) }
-        if stacked.size > 0 then
-            puts ""
-            puts "stacked:"
-            vspaceleft = vspaceleft - 2
-            stacked.each{|ns16|
-                indx = store.register(ns16)
-                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}"
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
