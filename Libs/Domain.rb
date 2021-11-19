@@ -48,10 +48,10 @@ class Domain
 
         return "(eva)" if (Time.new.wday == 6 or Time.new.wday == 0)
 
-        if Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()) < 6*3600 then
-            "(work)"
+        if Time.new.hour < 12 then
+            (Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()) < 3*3600) ? "(work)" : "eva"
         else
-            "(eva)"
+            (Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()) < 6*3600) ? "(work)" : "eva"
         end
     end
 
@@ -88,11 +88,14 @@ class Domain
         today = Time.new.to_s[0, 10]
         h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
         h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
-        [
+        strings = [
             "(eva: #{h1.round(2)} hours today)",
             "(work: #{h2.round(2)} hours today)"
         ]
-            .join(" ")
+        if Domain::getDomain() != "(eva)" then
+            strings = strings.reverse
+        end
+        strings.join(" ")
     end
 
     # Domain::domainsCommandInterpreter(command)

@@ -398,7 +398,7 @@ class Nx50s
         x1 = Nx50s::tx24s()
                 .map{|tx24| "#{tx24["tx23"]["attribute"]}, #{tx24["rt"].round(2)}" }
                 .join(", ")
-        "(Nx50: differential (month): #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*30)}, #{x1})"
+        "(Nx50: differential (month): #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*30).to_i}, #{x1})"
     end
 
     # Nx50s::nx19s()
