@@ -80,18 +80,20 @@ class Nx50s
         CoreData2::commitAtom2(atom)
     end
 
-    # Nx50s::issueItemUsingLocation2(location, domain)
-    def self.issueItemUsingLocation2(location, domain)
+    # Nx50s::issueCommunicationItemUsingLocation(location, domain)
+    def self.issueCommunicationItemUsingLocation(location, domain)
         Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         description = File.basename(location)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
-        atom["unixtime"] = Nx50s::getNewUnixtime()
+        atom["unixtime"] = 1 + rand # That's how we ensure that they come after everybody
         atom["domain"] = domain
+        atom["isCommunication"] = true
         CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = Nx50s::getNewUnixtime()
         atom["domain"]   = "(eva)"
@@ -372,13 +374,22 @@ class Nx50s
             .flatten
     end
 
+    # Nx50s::ns16sCommunications(domain)
+    def self.ns16sCommunications(domain)
+        Nx50s::nx50sForDomain(domain)
+            .select{|item| item["isCommunication"] }
+            .map{|item| Nx50s::ns16OrNull(item) }
+            .compact
+    end
+
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
         Nx50s::importspread()
         threshold = Nx50s::overflowThreshold(domain)
 
         items = Nx50s::nx50sForDomain(domain)
-         
+                    .select{|item| !item["isCommunication"] }
+
         if domain == "(eva)" then
             items =  Nx50s::itemsCollapseToTx24s(items).first(50)
         end

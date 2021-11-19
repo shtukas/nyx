@@ -58,6 +58,7 @@ class NS16sOperator
             Waves::ns16s(domain),
             Inbox::ns16s(),
             Dated::ns16s(),
+            Nx50s::ns16sCommunications(domain),
             Nx50s::ns16s(domain),
         ]
             .flatten

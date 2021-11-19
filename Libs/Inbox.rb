@@ -73,7 +73,7 @@ class Inbox
                             LucilleCore::removeFileSystemLocation(location)
                         end
                         if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "todo"])
+                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "communication", "todo"])
                             if target == "float" then
                                 if File.file?(location) then
                                     Floats::interactivelyCreateNewOrNull()
@@ -96,6 +96,11 @@ class Inbox
                                 CoreData2::commitAtom2(atom)
 
                                 puts JSON.pretty_generate(atom)
+                                LucilleCore::removeFileSystemLocation(location)
+                            end
+                            if target == "communication" then
+                                domain = Domain::interactivelySelectDomain()
+                                Nx50s::issueCommunicationItemUsingLocation(location, domain)
                                 LucilleCore::removeFileSystemLocation(location)
                             end
                             if target == "todo" then
