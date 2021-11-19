@@ -56,7 +56,7 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
-            #Dated::ns16s(),
+            Dated::ns16s(),
             Nx50s::ns16s(domain),
         ]
             .flatten
