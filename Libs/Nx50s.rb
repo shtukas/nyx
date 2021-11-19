@@ -22,86 +22,28 @@ class Nx50s
     # --------------------------------------------------
     # Unixtimes
 
-    # Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
-    def self.interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
-        system("clear")
-        items = Nx50s::nx50sForDomain(domain).first(Utils::screenHeight()-3)
-        return Time.new.to_f if items.size == 0
-        items.each_with_index{|item, i|
-            puts "[#{i.to_s.rjust(2)}] #{Nx50s::toString(item)}"
-        }
-        puts "new first | <n> # index of previous item".yellow
-        command = LucilleCore::askQuestionAnswerAsString("> ")
-        if command == "new first" then
-            return items[0]["unixtime"]-1 
-        else
-            # Here we interpret as index of an element
-            i = command.to_i
-            items = items.drop(i)
-            if items.size == 0 then
-                return Time.new.to_f
-            end
-            if items.size == 1 then
-                return items[0]["unixtime"]+1 
-            end
-            if items.size >= 2 then
-                return (items[0]["unixtime"]+items[1]["unixtime"]).to_f/2
-            end
-            raise "fa7e03a4-ce26-40c4-82d5-151f98908dca"
+    # Nx50s::getCurrentUnixtimeEndPoints()
+    def self.getCurrentUnixtimeEndPoints()
+        unixtimes = Nx50s::nx50sForDomain().map{|item| item["unixtime"]}
+        if unixtimes.size < 2 then
+            return [Time.new.to_f- 86400, Time.new.to_f]
         end
-        system('clear')
+        [unixtimes.min, unixtimes.max]
     end
 
-    # Nx50s::getNewMinUnixtime(domain)
-    def self.getNewMinUnixtime(domain)
-        items = Nx50s::nx50sForDomain(domain)
-        if items.empty? then
+    # Nx50s::getNewUnixtimeEndPoints()
+    def self.getNewUnixtimeEndPoints()
+        t1, t2 = Nx50s::getCurrentUnixtimeEndPoints()
+        [0.5*(t1+t2), Time.new.to_f]
+    end
+
+    # Nx50s::getNewUnixtime(domain)
+    def self.getNewUnixtime(domain)
+        if domain == "(work)" then
             return Time.new.to_f
         end
-        items.map{|item| item["unixtime"] }.min - 1
-    end
-
-    # Nx50s::randomUnixtimeWithinTop10(domain)
-    def self.randomUnixtimeWithinTop10(domain)
-        items = Nx50s::nx50sForDomain(domain).first(10)
-        if items.empty? then
-            return Time.new.to_f
-        end
-        lowerbound = items.map{|item| item["unixtime"] }.min
-        upperbound = items.map{|item| item["unixtime"] }.max
-        lowerbound + rand * (upperbound-lowerbound)
-    end
-
-    # Nx50s::randomUnixtimeWithinRange(domain, n1, n2)
-    def self.randomUnixtimeWithinRange(domain, n1, n2)
-        items = Nx50s::nx50sForDomain(domain).drop(n1).first(n2-n1)
-        if items.empty? then
-            return Time.new.to_f
-        end
-        lowerbound = items.map{|item| item["unixtime"] }.min
-        upperbound = items.map{|item| item["unixtime"] }.max
-        lowerbound + rand * (upperbound-lowerbound)
-    end
-
-    # Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-    def self.interactivelyDetermineNewItemUnixtime(domain)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("unixtime type", ["new first", "top 10", "manually position", "last (default)"])
-        if type == "new first" then
-            return Nx50s::getNewMinUnixtime(domain)
-        end
-        if type == "top 10" then
-            return Nx50s::randomUnixtimeWithinTop10(domain)
-        end
-        if type == "manually position" then
-            return Nx50s::interactivelyDetermineNewItemUnixtimeManuallyPosition(domain)
-        end
-        if type == "last (default)" then
-            return Time.new.to_i
-        end
-        if type.nil? then
-            return Time.new.to_i
-        end
-        raise "13a8d479-3d49-415e-8d75-7d0c5d5c695e"
+        t1, t2 = Nx50s::getNewUnixtimeEndPoints()
+        rand*(t2-t1)+t1
     end
 
     # --------------------------------------------------
@@ -113,7 +55,7 @@ class Nx50s
         return nil if atom.nil?
         Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         domain = Domain::interactivelySelectDomain()
-        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+        unixtime = Nx50s::getNewUnixtime(domain)
         atom["unixtime"] = unixtime
         atom["domain"] = domain
         CoreData2::commitAtom2(atom)
@@ -136,7 +78,7 @@ class Nx50s
         Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
         domain = Domain::interactivelySelectDomain()
-        unixtime = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+        unixtime = Nx50s::getNewUnixtime(domain)
         atom["unixtime"] = unixtime
         atom["domain"] = domain
         CoreData2::commitAtom2(atom)
@@ -149,6 +91,14 @@ class Nx50s
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = unixtime
         atom["domain"] = domain
+        CoreData2::commitAtom2(atom)
+    end
+
+    # Nx50s::issueViennaURL(url)
+    def self.issueViennaURL(url)
+        atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
+        atom["unixtime"] = Nx50s::getNewUnixtime("(eva)")
+        atom["domain"] = "(eva)"
         CoreData2::commitAtom2(atom)
     end
 
@@ -262,7 +212,7 @@ class Nx50s
                 puts ""
             end
 
-            puts "access | note | <datecode> | update description | update contents | update unixtime | rotate | domain | show json | destroy (gg) | pursue | exit".yellow
+            puts "access | note | <datecode> | update description | update contents | rotate | domain | show json | destroy (gg) | pursue | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -294,13 +244,6 @@ class Nx50s
 
             if Interpreting::match("update contents", command) then
                 atom = CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(nx50)
-                next
-            end
-
-            if Interpreting::match("update unixtime", command) then
-                domain = nx50["domain"]
-                nx50["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
-                CoreData2::commitAtom2(nx50)
                 next
             end
 

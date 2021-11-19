@@ -65,13 +65,6 @@ class Dated # OnDate
         atom
     end
 
-    # Dated::issueViennaURL(url domain)
-    def self.issueViennaURL(url, domain)
-        atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Dated::coreData2SetUUID()])
-        atom["date"] = Utils::nDaysInTheFuture(1)
-        CoreData2::commitAtom2(atom)
-    end
-
     # Dated::destroy(atom)
     def self.destroy(atom)
         CoreData2::removeAtomFromSet(atom["uuid"], Dated::coreData2SetUUID())
@@ -155,7 +148,7 @@ class Dated # OnDate
 
             if Interpreting::match(">todo", command) then
                 domain = Domain::interactivelySelectDomain()
-                atom["unixtime"] = Nx50s::interactivelyDetermineNewItemUnixtime(domain)
+                atom["unixtime"] = Nx50s::getNewUnixtime(domain)
                 CoreData2::addAtomToSet(atom["uuid"], [Nx50s::coreData2SetUUID()])
                 CoreData2::removeAtomFromSet(atom["uuid"], [Dated::coreData2SetUUID()])
                 break
