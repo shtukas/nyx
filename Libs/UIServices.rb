@@ -2,32 +2,6 @@
 
 # ------------------------------------------------------------------------------------------
 
-class Top
-
-    # Top::ns16()
-    def self.ns16()
-        BTreeSets::values(nil, "213f801a-fd93-4839-a55b-8323520494bc").map{|item|
-            announce = "[top ] #{item["description"]}"
-            {
-                "uuid"        => item["uuid"],
-                "announce"    => announce,
-                "commands"    => ["..", "done"],
-                "interpreter" => lambda {|command|
-                    if command == "done" then
-                        BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", item["uuid"])
-                    end
-                },
-                "start-land"  => lambda {
-                    puts announce
-                    if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-                        BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", item["uuid"])
-                    end
-                } 
-            }
-        }
-    end
-end
-
 class Fitness
     # Fitness::ns16s()
     def self.ns16s()

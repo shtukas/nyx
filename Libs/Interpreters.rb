@@ -105,14 +105,7 @@ class Interpreters
         end
 
         if command == "top" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            uuid = Time.new.to_f.to_s
-            item = {
-                "uuid"        => uuid,
-                "description" => description
-            }
-            BTreeSets::set(nil, "213f801a-fd93-4839-a55b-8323520494bc", uuid, item)
+            Top::interactivelyMakeNewTop()
         end
 
         if command == "today" then
