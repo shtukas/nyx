@@ -24,7 +24,7 @@ class Nx50s
 
     # Nx50s::getCurrentUnixtimeEndPoints()
     def self.getCurrentUnixtimeEndPoints()
-        unixtimes = Nx50s::nx50sForDomain().map{|item| item["unixtime"]}
+        unixtimes = Nx50s::nx50s().map{|item| item["unixtime"]}
         if unixtimes.size < 2 then
             return [Time.new.to_f- 86400, Time.new.to_f]
         end

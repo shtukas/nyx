@@ -160,7 +160,7 @@ class Dated # OnDate
             end
 
             if Interpreting::match("exit", command) then
-                return
+                break
             end
 
             if Interpreting::match("destroy", command) then
