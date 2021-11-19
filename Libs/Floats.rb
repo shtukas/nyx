@@ -115,8 +115,8 @@ class Floats
                 LucilleCore::removeFileSystemLocation(location)
             end
             if action == ">todo" then
+                unixtime = Nx50s::getNewUnixtime()
                 domain   = Domain::interactivelySelectDomain()
-                unixtime = Nx50s::getNewUnixtime(domain)
                 item = Nx50s::issueItemUsingLocation(location, unixtime, domain)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)

@@ -16,6 +16,16 @@ class Dated # OnDate
     def self.items()
         CoreData2::getSet(Dated::coreData2SetUUID())
             .map{|atom|
+                Domain::ensureDomainCorrectionAllowNull(
+                    atom["domain"], 
+                    lambda{|atom|
+                        puts "Correcting domain for '#{Dated::toString(atom)}'"
+                        atom["domain"] = Domain::interactivelySelectDomainOrNull()
+                        puts JSON.pretty_generate(atom)
+                        CoreData2::commitAtom2(atom)
+                    }, 
+                    atom
+                )
                 if atom["date"].nil? then
                     atom["date"] = Utils::today()
                 end
@@ -147,8 +157,7 @@ class Dated # OnDate
             end
 
             if Interpreting::match(">todo", command) then
-                domain = Domain::interactivelySelectDomain()
-                atom["unixtime"] = Nx50s::getNewUnixtime(domain)
+                atom["unixtime"] = Nx50s::getNewUnixtime()
                 CoreData2::addAtomToSet(atom["uuid"], [Nx50s::coreData2SetUUID()])
                 CoreData2::removeAtomFromSet(atom["uuid"], [Dated::coreData2SetUUID()])
                 break

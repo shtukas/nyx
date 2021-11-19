@@ -9,4 +9,10 @@ Nx50 {
     "payload"     : CoreData2AtomPayload
 
     "domain"      : Domain
+
+    "isQuark"     : Boolean # The original list is the list of itemms as it was on 19th Nov 2021
+                            # After which we interleaves the items
+    "isVienna"    : Indicates whether the item came from Vienna, this is used to better position them. Relatively to one another.
+    "isHandMade"  : true if not isQuark and not isVienna
+
 }

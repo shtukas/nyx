@@ -10,7 +10,26 @@ class Nx50s
     # Nx50s::nx50s()
     def self.nx50s()
         CoreData2::getSet(Nx50s::coreData2SetUUID())
-            .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"] }
+            .map{|atom|
+                Domain::ensureDomainCorrection(
+                    atom["domain"], 
+                    lambda{|atom|
+                        puts "Correcting domain for '#{Nx50s::toString(atom)}'"
+                        atom["domain"] = Domain::interactivelySelectDomain()
+                        puts JSON.pretty_generate(atom)
+                        CoreData2::commitAtom2(atom)
+                    }, 
+                    atom
+                )
+                atom
+            }
+            .map{|atom|
+                if !atom["isQuark"] and !atom["isVienna"] then
+                    atom["isHandMade"] = true
+                end
+                atom
+            }
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # Nx50s::nx50sForDomain(domain)
@@ -22,28 +41,9 @@ class Nx50s
     # --------------------------------------------------
     # Unixtimes
 
-    # Nx50s::getCurrentUnixtimeEndPoints()
-    def self.getCurrentUnixtimeEndPoints()
-        unixtimes = Nx50s::nx50s().map{|item| item["unixtime"]}
-        if unixtimes.size < 2 then
-            return [Time.new.to_f- 86400, Time.new.to_f]
-        end
-        [unixtimes.min, unixtimes.max]
-    end
-
-    # Nx50s::getNewUnixtimeEndPoints()
-    def self.getNewUnixtimeEndPoints()
-        t1, t2 = Nx50s::getCurrentUnixtimeEndPoints()
-        [0.5*(t1+t2), Time.new.to_f]
-    end
-
-    # Nx50s::getNewUnixtime(domain)
-    def self.getNewUnixtime(domain)
-        if domain == "(work)" then
-            return Time.new.to_f
-        end
-        t1, t2 = Nx50s::getNewUnixtimeEndPoints()
-        rand*(t2-t1)+t1
+    # Nx50s::getNewUnixtime()
+    def self.getNewUnixtime()
+        Time.new.to_f
     end
 
     # --------------------------------------------------
@@ -55,20 +55,7 @@ class Nx50s
         return nil if atom.nil?
         Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         domain = Domain::interactivelySelectDomain()
-        unixtime = Nx50s::getNewUnixtime(domain)
-        atom["unixtime"] = unixtime
-        atom["domain"] = domain
-        CoreData2::commitAtom2(atom)
-    end
-
-    # Nx50s::issueItemUsingTextOrNull(text, unixtime, domain)
-    def self.issueItemUsingText(text, unixtime, domain)
-        text = text.strip
-        return nil if text == ""
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
-        description = text.lines.first.strip
-        atom = CoreData2::issueTextAtomUsingText(SecureRandom.uuid, description, text, [Nx50s::coreData2SetUUID()])
-        atom["unixtime"] = unixtime
+        atom["unixtime"] = Nx50s::getNewUnixtime()
         atom["domain"] = domain
         CoreData2::commitAtom2(atom)
     end
@@ -78,8 +65,7 @@ class Nx50s
         Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
         domain = Domain::interactivelySelectDomain()
-        unixtime = Nx50s::getNewUnixtime(domain)
-        atom["unixtime"] = unixtime
+        atom["unixtime"] = Nx50s::getNewUnixtime()
         atom["domain"] = domain
         CoreData2::commitAtom2(atom)
     end
@@ -94,11 +80,22 @@ class Nx50s
         CoreData2::commitAtom2(atom)
     end
 
+    # Nx50s::issueItemUsingLocation2(location, domain)
+    def self.issueItemUsingLocation2(location, domain)
+        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
+        description = File.basename(location)
+        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
+        atom["unixtime"] = Nx50s::getNewUnixtime()
+        atom["domain"] = domain
+        CoreData2::commitAtom2(atom)
+    end
+
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
-        atom["unixtime"] = Nx50s::getNewUnixtime("(eva)")
-        atom["domain"] = "(eva)"
+        atom["unixtime"] = Nx50s::getNewUnixtime()
+        atom["domain"]   = "(eva)"
+        atom["isVienna"] =  true
         CoreData2::commitAtom2(atom)
     end
 
@@ -166,16 +163,44 @@ class Nx50s
     # --------------------------------------------------
     # nx16s
 
+    # Nx50s::tx23s()
+    def self.tx23s()
+       [
+            {
+                "attribute" => "isQuark",
+                "account"   => "9979D5C8-091D-4929-9E2E-2191FA1291B6"
+            },
+            {
+                "attribute" => "isVienna",
+                "account"   => "35EFF9F7-1A58-48C4-B0CD-3499A0683A4D"
+            },
+            {
+                "attribute" => "isHandMade",
+                "account"   => "88245B96-DE84-4A4F-9F7B-50F7C907204C"
+            }
+        ]
+    end
+
     # Nx50s::run(nx50)
     def self.run(nx50)
+
+        itemToBankAccounts = lambda{|item|
+            accounts = []
+            accounts << item["uuid"]
+            accounts << Domain::getDomainBankAccount(item["domain"])
+            Nx50s::tx23s().each{|tx23|
+                if item[tx23["attribute"]] then
+                    accounts << tx23["account"]
+                end
+            }
+            accounts
+        }
 
         system("clear")
 
         uuid = nx50["uuid"]
 
-        bankAccounts = [uuid, Domain::getDomainBankAccount(nx50["domain"])]
-
-        NxBallsService::issueOrIncreaseOwnerCount(uuid, bankAccounts)
+        NxBallsService::issueOrIncreaseOwnerCount(uuid, itemToBankAccounts.call(nx50))
 
         thr = Thread.new {
             loop {
@@ -326,13 +351,39 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
+    # Nx50s::tx24s()
+    def self.tx24s()
+        Nx50s::tx23s()
+            .map{|tx23|
+                {
+                    "tx23" => tx23,
+                    "rt"   => BankExtended::stdRecoveredDailyTimeInHours(tx23["account"])
+                }
+            }
+            .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+    end
+
+    # Nx50s::itemsCollapseToTx24s(items)
+    def self.itemsCollapseToTx24s(items)
+        Nx50s::tx24s()
+            .map{|tx24|
+                items.select{|item| item[tx24["tx23"]["attribute"]] }
+            }
+            .flatten
+    end
+
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
         Nx50s::importspread()
         threshold = Nx50s::overflowThreshold(domain)
 
-        ns16s = Nx50s::nx50sForDomain(domain)
-                    .first(100)
+        items = Nx50s::nx50sForDomain(domain)
+         
+        if domain == "(eva)" then
+            items =  Nx50s::itemsCollapseToTx24s(items).first(50)
+        end
+
+        ns16s = items
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
@@ -341,6 +392,14 @@ class Nx50s
     end
 
     # --------------------------------------------------
+
+    # Nx50s::dx()
+    def self.dx()
+        x1 = Nx50s::tx24s()
+                .map{|tx24| "#{tx24["tx23"]["attribute"]}, #{tx24["rt"].round(2)}" }
+                .join(", ")
+        "(Nx50: differential (month): #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*30)}, #{x1})"
+    end
 
     # Nx50s::nx19s()
     def self.nx19s()

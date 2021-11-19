@@ -48,7 +48,6 @@ class Calendar
                 "date"        => date,
                 "description" => basename,
                 "folderpath"  => folderpath,
-                "domain"      => "(eva)"
             }
         }
     end

@@ -1,9 +1,26 @@
 
 # encoding: UTF-8
 
-# Domains          : "(eva)" | "(work)"
+# Domains: "(eva)" | "(work)"
 
 class Domain
+
+    # Domain::domains()
+    def self.domains()
+        ["(eva)", "(work)"]
+    end
+
+    # Domain::ensureDomainCorrection(domain, correctionLambda, correctionObject)
+    def self.ensureDomainCorrection(domain, correctionLambda, correctionObject)
+        return if Domain::domains().include?(domain)
+        correctionLambda.call(correctionObject)
+    end
+
+    # Domain::ensureDomainCorrectionAllowNull(domain, correctionLambda, correctionObject)
+    def self.ensureDomainCorrectionAllowNull(domain, correctionLambda, correctionObject)
+        return if (Domain::domains() + [nil]).include?(domain)
+        correctionLambda.call(correctionObject)
+    end
 
     # Domain::setStoredDomainWithExpiry(domain, expiryUnixtime)
     def self.setStoredDomainWithExpiry(domain, expiryUnixtime)
@@ -50,7 +67,20 @@ class Domain
 
     # Domain::interactivelySelectDomain()
     def self.interactivelySelectDomain()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["(eva)", "(work)"]) || "(eva)"
+        domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["(eva)", "(work)"])
+        if !domain.nil? then
+            return domain
+        end
+        Domain::interactivelySelectDomain()
+    end
+
+    # Domain::interactivelySelectDomainOrNull()
+    def self.interactivelySelectDomainOrNull()
+        entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["(eva)", "(work)", "(null) # default"])
+        if entity == "(null) # default" then
+            return nil
+        end
+        entity
     end
 
     # Domain::domainsMenuCommands()
@@ -59,7 +89,6 @@ class Domain
         h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
         h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
         [
-            "(Nx50: differential (month): #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*30)})",
             "(eva: #{h1.round(2)} hours today)",
             "(work: #{h2.round(2)} hours today)"
         ]

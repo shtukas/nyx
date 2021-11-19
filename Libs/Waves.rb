@@ -14,6 +14,19 @@ class Waves
     # Waves::items()
     def self.items()
         CoreData2::getSet(Waves::coreData2SetUUID())
+            .map{|atom|
+                Domain::ensureDomainCorrection(
+                    atom["domain"], 
+                    lambda{|atom|
+                        puts "Correcting domain for '#{Waves::toString(atom)}'"
+                        atom["domain"] = Domain::interactivelySelectDomain()
+                        puts JSON.pretty_generate(atom)
+                        CoreData2::commitAtom2(atom)
+                    }, 
+                    atom
+                )
+                atom
+            }
     end
 
     # Waves::itemsForDomain(domain)
@@ -335,7 +348,7 @@ class Waves
             "every-n-hours"               => 2,
             "every-n-days"                => 1
         }
-        mapping[wave["repeatType"]]
+        mapping[wave["repeatType"]] || (raise "[error: 4a4038be-e071-4860] wave: #{wave}")
     end
 
     # Waves::ns16ToOrderingWeight(ns16)
