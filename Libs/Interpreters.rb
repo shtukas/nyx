@@ -11,7 +11,7 @@ class Interpreters
 
     # Interpreters::makersCommands()
     def self.makersCommands()
-        "start # unscheduled | today | todo | float | wave | ondate | anniversary"
+        "start # unscheduled | top | today | todo | float | wave | ondate | anniversary"
     end
 
     # Interpreters::diversCommands()
@@ -102,6 +102,17 @@ class Interpreters
                 "commands" => ["done"],
             }
             KeyValueStore::set(nil, "f05fe844-128b-4e80-b13e-e0756c84204c", JSON.generate(ns16))
+        end
+
+        if command == "top" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
+            uuid = Time.new.to_f.to_s
+            item = {
+                "uuid"        => uuid,
+                "description" => description
+            }
+            BTreeSets::set(nil, "213f801a-fd93-4839-a55b-8323520494bc", uuid, item)
         end
 
         if command == "today" then
