@@ -37,7 +37,7 @@ class NS16sOperator
         item = JSON.parse(item)
         item["interpreter"] = lambda {|command|
             if command == "done" then
-                NxBallsService::decreaseOwnerCountOrClose("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
+                NxBallsService::close("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
                 KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
                 return true
             end
@@ -200,14 +200,14 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        running, collection = collection.partition{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
+        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
         if running.size > 0 then
             puts ""
             puts "running:"
             vspaceleft = vspaceleft - 2
-            running.each{|ns16|
-                indx = store.register(ns16)
-                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}".green
+            running.each{|nxball|
+                indx = store.register(nxball)
+                announce = "(#{"%3d" % indx}) #{nxball["description"]}".green
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }

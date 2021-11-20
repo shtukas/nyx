@@ -196,14 +196,14 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        NxBallsService::issueOrIncreaseOwnerCount(uuid, itemToBankAccounts.call(nx50))
+        NxBallsService::issue(uuid, Nx50s::toString(nx50), itemToBankAccounts.call(nx50))
 
         thr = Thread.new {
             loop {
                 sleep 60
 
                 if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) >= 600 then
-                    NxBallsService::marginCall(uuid, false)
+                    NxBallsService::marginCall(uuid)
                 end
 
                 if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) >= 3600 then
@@ -224,12 +224,12 @@ class Nx50s
 
             puts CoreData2::atomPayloadToText(nx50)
 
-            note = StructuredTodoTexts::getNoteOrNull(atom["uuid"])
+            note = StructuredTodoTexts::getNoteOrNull(nx50["uuid"])
             if note then
                 puts "note:\n#{note}".green
             end
 
-            puts "access | note | <datecode> | update description | update contents | rotate | domain | show json | destroy (gg) | pursue | exit".yellow
+            puts "access | note | <datecode> | update description | update contents | rotate | domain | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -282,11 +282,6 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("pursue", command) then
-                NxBallsService::issueOrIncreaseOwnerCount(uuid, bankAccounts)
-                break
-            end
-
             if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
                     Nx50s::complete(nx50)
@@ -303,7 +298,7 @@ class Nx50s
         }
 
         thr.exit
-        NxBallsService::decreaseOwnerCountOrClose(uuid, true)
+        NxBallsService::closeWithAsking(uuid)
     end
 
     # Nx50s::ns16OrNull(nx50)

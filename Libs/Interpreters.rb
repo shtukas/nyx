@@ -6,7 +6,7 @@ class Interpreters
 
     # Interpreters::listingCommands()
     def self.listingCommands()
-        ".. | <n> | <datecode> | start <n> | stop <n> | hide <n> <datecode> | expose"
+        ".. | <n> | <datecode> | hide <n> <datecode> | expose"
     end
 
     # Interpreters::makersCommands()
@@ -41,28 +41,6 @@ class Interpreters
             puts "Hidden until: #{Time.at(unixtime).to_s}"
         end
 
-        if Interpreting::match("start *", command) then
-            _, ordinal = Interpreting::tokenizer(command)
-            ordinal = ordinal.to_i
-            ns16 = store.get(ordinal)
-            return if ns16.nil?
-            bankAccounts = 
-                if ns16["bank-accounts"].nil? then
-                    [Domain::getDomainBankAccount(Domain::interactivelySelectDomain())]
-                else
-                    ns16["bank-accounts"]
-                end
-            NxBallsService::issueOrIncreaseOwnerCount(ns16["uuid"], bankAccounts)
-        end
-
-        if Interpreting::match("stop *", command) then
-            _, ordinal = Interpreting::tokenizer(command)
-            ordinal = ordinal.to_i
-            ns16 = store.get(ordinal)
-            return if ns16.nil?
-            NxBallsService::decreaseOwnerCountOrClose(ns16["uuid"], true)
-        end
-
         if Interpreting::match("hide * *", command) then
             _, ordinal, datecode = Interpreting::tokenizer(command)
             ordinal = ordinal.to_i
@@ -89,7 +67,7 @@ class Interpreters
             return if description == ""
             domain = Domain::interactivelySelectDomain()
             domainBankAccount = Domain::getDomainBankAccount(domain)
-            NxBallsService::issueOrIncreaseOwnerCount("04b8932b-986a-4f25-8320-5fc00c076dc1", [domainBankAccount])
+            NxBallsService::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", description, [domainBankAccount])
             ns16 = {
                 "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",
                 "announce" => "[unscheduled] #{description}".green, 

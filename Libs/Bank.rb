@@ -133,102 +133,75 @@ class Beatrice
     end
 end
 
-class NxBallsInternal
+=begin
+{
+    "uuid"           => SecureRandom.hex,
+    "startUnixtime"  => start,
+    "cursorUnixtime" => start,
+    "bankAccounts"   => accounts,
+    "ownerCount"     => 1
+}
+=end
 
-    # NxBallsInternal::makeNxBall(accounts)
-    def self.makeNxBall(accounts)
-        start = Time.new.to_f
+class NxBallsService
+
+    # Operations
+
+    # NxBallsService::issue(uuid, description, accounts)
+    def self.issue(uuid, description, accounts)
+        return if BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         nxball = {
-            "versionId"      => SecureRandom.hex,
-            "startUnixtime"  => start,
-            "cursorUnixtime" => start,
+            "uuid"           => uuid,
+            "description"    => description,
+            "startUnixtime"  => Time.new.to_f,
+            "cursorUnixtime" => Time.new.to_f,
             "bankAccounts"   => accounts,
             "ownerCount"     => 1
         }
-        #puts "make, returning"
-        #puts JSON.pretty_generate(nxball)
-        nxball
+        BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
 
-    # NxBallsInternal::marginCall(nxball, verbose)
-    def self.marginCall(nxball, verbose)
-        #puts "upgrade, receiving"
-        #puts JSON.pretty_generate(nxball)
+    # NxBallsService::isRunning(uuid)
+    def self.isRunning(uuid)
+        !BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid).nil?
+    end
+
+    # NxBallsService::marginCall(uuid)
+    def self.marginCall(uuid)
+        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        return if nxball.nil?
+
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
         nxball["bankAccounts"].each{|account|
-            puts "#{Time.new.to_s} putting #{timespan} seconds into account: #{account}" if verbose
             Bank::put(account, timespan)
         }
         nxball["cursorUnixtime"] = Time.new.to_i
-        nxball["versionId"] = SecureRandom.hex
-        #puts "upgrade, returning"
-        #puts JSON.pretty_generate(nxball)
-        nxball
+        BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
 
-    # NxBallsInternal::close(nxball, verbose)
-    def self.close(nxball, verbose)
-        #puts "close, receiving"
-        #puts JSON.pretty_generate(nxball)
-        puts "(#{Time.new.to_s}) Running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours" if verbose
+    # NxBallsService::close(uuid, verbose)
+    def self.close(uuid, verbose)
+        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        return if nxball.nil?
+        if verbose then
+            puts "(#{Time.new.to_s}) Running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours"
+        end
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
         nxball["bankAccounts"].each{|account|
             puts "(#{Time.new.to_s}) putting #{timespan} seconds into account: #{account}" if verbose
             Bank::put(account, timespan)
         }
-        nil
+        BTreeSets::destroy(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
     end
 
-    # NxBallsInternal::runningTimeString(nxball)
-    def self.runningTimeString(nxball)
-        "running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours"
-    end
-end
-
-class NxBallsService
-
-    # Operations
-
-    # NxBallsService::issueOrIncreaseOwnerCount(uuid, accounts)
-    def self.issueOrIncreaseOwnerCount(uuid, accounts)
-        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
-        if nxball then
-            nxball = JSON.parse(nxball)
-            nxball["ownerCount"] = nxball["ownerCount"] + 1
-        else
-            nxball = NxBallsInternal::makeNxBall(accounts)
-        end
-        KeyValueStore::set(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}", JSON.generate(nxball))
-        nxball
-    end
-
-    # NxBallsService::isRunning(uuid)
-    def self.isRunning(uuid)
-        !KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}").nil?
-    end
-
-    # NxBallsService::marginCall(uuid, verbose)
-    def self.marginCall(uuid, verbose)
-        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+    # NxBallsService::closeWithAsking(uuid)
+    def self.closeWithAsking(uuid)
+        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
-        nxball = JSON.parse(nxball)
-        nxball = NxBallsInternal::marginCall(nxball, verbose)
-        KeyValueStore::set(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}", JSON.generate(nxball))
-    end
-
-    # NxBallsService::decreaseOwnerCountOrClose(uuid, verbose)
-    def self.decreaseOwnerCountOrClose(uuid, verbose)
-        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
-        return if nxball.nil?
-        nxball = JSON.parse(nxball)
-        if nxball["ownerCount"] > 1 then
-            nxball["ownerCount"] = nxball["ownerCount"] - 1
-            KeyValueStore::set(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}", JSON.generate(nxball))
-        else
-            NxBallsInternal::close(nxball, verbose)
-            KeyValueStore::destroy(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        if LucilleCore::askQuestionAnswerAsBoolean("> [running: #{nxball["description"]}] continue? ") then
+            NxBallsService::close(uuid, true)
         end
     end
 
@@ -255,6 +228,6 @@ class NxBallsService
         nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
         return "" if nxball.nil?
         nxball = JSON.parse(nxball)
-        "#{leftSide}#{NxBallsInternal::runningTimeString(nxball)}#{rightSide}"
+        "#{leftSide}running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours#{rightSide}"
     end
 end

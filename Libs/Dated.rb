@@ -85,13 +85,13 @@ class Dated # OnDate
 
         uuid = atom["uuid"]
 
-        NxBallsService::issueOrIncreaseOwnerCount(uuid, [uuid])
+        NxBallsService::issue(uuid, Dated::toString(atom), [uuid])
 
         thr = Thread.new {
             loop {
                 sleep 60
                 if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) >= 600 then
-                    NxBallsService::marginCall(uuid, false)
+                    NxBallsService::marginCall(uuid)
                 end
             }
         }
@@ -110,7 +110,7 @@ class Dated # OnDate
                 puts "note:\n#{note}".green
             end
 
-            puts "access | <datecode> | note | update description | date | update contents | >todo | pursue | exit | destroy".yellow
+            puts "access | <datecode> | note | update description | date | update contents | >todo | exit | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -158,11 +158,6 @@ class Dated # OnDate
                 break
             end
 
-            if Interpreting::match("pursue", command) then
-                NxBallsService::issueOrIncreaseOwnerCount(uuid, [uuid])
-                break
-            end
-
             if Interpreting::match("exit", command) then
                 break
             end
@@ -174,7 +169,7 @@ class Dated # OnDate
         }
 
         thr.exit
-        NxBallsService::decreaseOwnerCountOrClose(uuid, true)
+        NxBallsService::closeWithAsking(uuid)
     end
 
     # Dated::itemToNS16(item)

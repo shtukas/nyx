@@ -296,13 +296,13 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issueOrIncreaseOwnerCount(uuid, [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::getDomainBankAccount(wave["domain"])])
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::getDomainBankAccount(wave["domain"])])
 
         Waves::accessContent(wave)
 
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "exit"])
 
-        NxBallsService::decreaseOwnerCountOrClose(uuid, true)
+        NxBallsService::close(uuid, true)
 
         if operation.nil? or operation == "done (default)" then
             Waves::performDone(wave)
