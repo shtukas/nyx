@@ -10,6 +10,5 @@ Dated # Essentially a CoreData2Atom with a date
     "type"        : CoreData2AtomType,
     "payload"     : CoreData2AtomPayload
 
-    "date"        : date,
-    "domain"      : null | Domain
+    "date"        : date
 }

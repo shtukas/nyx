@@ -16,12 +16,6 @@ class Domain
         correctionLambda.call(correctionObject)
     end
 
-    # Domain::ensureDomainCorrectionAllowNull(domain, correctionLambda, correctionObject)
-    def self.ensureDomainCorrectionAllowNull(domain, correctionLambda, correctionObject)
-        return if (Domain::domains() + [nil]).include?(domain)
-        correctionLambda.call(correctionObject)
-    end
-
     # Domain::setStoredDomainWithExpiry(domain, expiryUnixtime)
     def self.setStoredDomainWithExpiry(domain, expiryUnixtime)
         packet = {
