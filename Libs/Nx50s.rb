@@ -53,7 +53,6 @@ class Nx50s
     def self.interactivelyCreateNewOrNull()
         atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
         return nil if atom.nil?
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         domain = Domain::interactivelySelectDomain()
         atom["unixtime"] = Nx50s::getNewUnixtime()
         atom["domain"] = domain
@@ -62,7 +61,6 @@ class Nx50s
 
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
         domain = Domain::interactivelySelectDomain()
         atom["unixtime"] = Nx50s::getNewUnixtime()
@@ -72,7 +70,6 @@ class Nx50s
 
     # Nx50s::issueItemUsingLocation(location, unixtime, domain)
     def self.issueItemUsingLocation(location, unixtime, domain)
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         description = File.basename(location)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = unixtime
@@ -82,7 +79,6 @@ class Nx50s
 
     # Nx50s::issueCommunicationItemUsingLocation(location, domain)
     def self.issueCommunicationItemUsingLocation(location, domain)
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         description = File.basename(location)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = 1 + rand # That's how we ensure that they come after everybody
@@ -93,7 +89,6 @@ class Nx50s
 
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", 1)
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = Nx50s::getNewUnixtime()
         atom["domain"]   = "(eva)"
@@ -122,7 +117,6 @@ class Nx50s
     # Nx50s::complete(atom)
     def self.complete(atom)
         CoreData2::removeAtomFromSet(atom["uuid"], Nx50s::coreData2SetUUID())
-        Bank::put("8504debe-2445-4361-a892-daecdc58650d", -1)
     end
 
     # Nx50s::importspread()
@@ -409,7 +403,7 @@ class Nx50s
         x1 = Nx50s::tx24s()
                 .map{|tx24| "#{tx24["tx23"]["attribute"]}, #{tx24["rt"].round(2)}" }
                 .join(", ")
-        "(Nx50: differential (month): #{Bank::valueOverTimespan("8504debe-2445-4361-a892-daecdc58650d", 86400*30).to_i}, #{x1})"
+        "(Nx50 #{x1})"
     end
 
     # Nx50s::nx19s()
