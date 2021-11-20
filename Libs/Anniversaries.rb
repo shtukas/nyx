@@ -205,11 +205,17 @@ class Anniversaries
 
             puts Anniversaries::toString(anniversary).green
 
-            puts "update start date | destroy".yellow
-            puts Interpreters::makersAndDiversCommands().yellow
+            puts "description | update start date | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
             break if command == ""
+
+            if Interpreting::match("description", command) then
+                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+                return if description == ""
+                anniversary["description"] = description
+                Anniversaries::commitAnniversaryToDisk(anniversary)
+            end
 
             if Interpreting::match("update start date", command) then
                 startdate = Utils::editTextSynchronously(anniversary["startdate"])
