@@ -206,7 +206,11 @@ class UIServices
             puts "running:"
             vspaceleft = vspaceleft - 2
             running.each{|nxball|
-                indx = store.register(nxball)
+                delegate = {
+                    "uuid"  => nxball["uuid"],
+                    "NS198" => "NxBallDelegate1" 
+                }
+                indx = store.register(delegate)
                 announce = "(#{"%3d" % indx}) #{nxball["description"]}".green
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
@@ -247,6 +251,10 @@ class UIServices
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
             return if item.nil?
+            if item["NS198"] then
+                CentralDispatch::access(item)
+                return
+            end
             item["start-land"].call()
             return
         end

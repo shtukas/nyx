@@ -152,11 +152,11 @@ class NxBallsService
         return if BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         nxball = {
             "uuid"           => uuid,
+            "NS198"          => "NxBall.v1",
             "description"    => description,
             "startUnixtime"  => Time.new.to_f,
             "cursorUnixtime" => Time.new.to_f,
-            "bankAccounts"   => accounts,
-            "ownerCount"     => 1
+            "bankAccounts"   => accounts
         }
         BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
