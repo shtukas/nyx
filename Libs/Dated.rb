@@ -103,7 +103,12 @@ class Dated # OnDate
             puts "#{Dated::toString(atom)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
+            puts CoreData2::atomPayloadToText(atom)
+
+            note = StructuredTodoTexts::getNoteOrNull(atom["uuid"])
+            if note then
+                puts "note:\n#{note}".green
+            end
 
             puts "access | <datecode> | note | update description | date | update contents | >todo | pursue | exit | destroy".yellow
 

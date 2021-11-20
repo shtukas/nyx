@@ -222,15 +222,11 @@ class Nx50s
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
 
-            puts ""
             puts CoreData2::atomPayloadToText(nx50)
-            puts ""
 
-            note = StructuredTodoTexts::getNoteOrNull(uuid)
+            note = StructuredTodoTexts::getNoteOrNull(atom["uuid"])
             if note then
-                puts "-- Note ------------------"
-                puts note.strip
-                puts ""
+                puts "note:\n#{note}".green
             end
 
             puts "access | note | <datecode> | update description | update contents | rotate | domain | show json | destroy (gg) | pursue | exit".yellow
