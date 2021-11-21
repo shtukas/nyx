@@ -113,6 +113,12 @@ class CentralDispatch
             return
         end
 
+        if object["NS198"] == "TheUnscheduledNS16" and command == "done" then
+            NxBallsService::close("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
+            KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
+            return
+        end
+
         raise "[0fd3da2d-07ac-476c-afc9-4a1194599d11: #{object}, #{command}]"
     end
 
@@ -134,6 +140,7 @@ class CentralDispatch
             NxBallsService::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", description, [domainBankAccount])
             ns16 = {
                 "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",
+                "NS198"    => "TheUnscheduledNS16",
                 "announce" => "[unscheduled] #{description}".green, 
                 "commands" => ["done"],
             }

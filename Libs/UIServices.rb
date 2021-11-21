@@ -8,15 +8,7 @@ class NS16sOperator
     def self.theUnscheduledItemAsArray()
         item = KeyValueStore::getOrNull(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
         return [] if item.nil?
-        item = JSON.parse(item)
-        item["interpreter"] = lambda {|command|
-            if command == "done" then
-                NxBallsService::close("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
-                KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
-                return true
-            end
-        }
-        item
+        [item]
     end
 
     # NS16sOperator::ns16s(domain)
