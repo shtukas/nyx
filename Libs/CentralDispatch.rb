@@ -1,27 +1,34 @@
 
 class CentralDispatch
 
-    # CentralDispatch::doubleDotAccess(object)
-    def self.doubleDotAccess(object)
+    # CentralDispatch::operator1(object, command)
+    def self.operator1(object, command)
 
-        if object["NS198"] == "NxBallDelegate1" then
+        if object["NS198"] == "NxBallDelegate1" and command == ".." then
             uuid = object["uuid"]
             NxBallsService::close(uuid, true)
             return
         end
 
-        if object["NS198"] == "ns16:fitness1" then
+        if object["NS198"] == "ns16:fitness1" and command == ".." then
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
             return
         end
 
-        raise "[d8d9bb2a-d5da-4934-8146-7cc4a65dbffc: #{object}]"
-    end
+        if object["NS198"] == "ns16:wave1" and command == ".." then
+            Waves::run(object["wave"])
+            return
+        end
 
-    # CentralDispatch::operator1(object, command)
-    def self.operator1(object, command)
+        if object["NS198"] == "ns16:wave1" and command == "landing" then
+            Waves::landing(object["wave"])
+            return
+        end
 
-
+        if object["NS198"] == "ns16:wave1" and command == "done" then
+            Waves::performDone(object["wave"])
+            return
+        end
 
         raise "[0fd3da2d-07ac-476c-afc9-4a1194599d11: #{object}, #{command}]"
     end

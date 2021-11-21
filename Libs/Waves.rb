@@ -317,24 +317,11 @@ class Waves
     def self.toNS16(wave)
         uuid = wave["uuid"]
         {
-            "uuid"        => uuid,
-            "announce"    => Waves::toString(wave),
-            "commands"    => ["..", "landing", "done"],
-            "interpreter" => lambda{|command|
-                if command == ".." then
-                    Waves::run(wave)
-                end
-                if command == "landing" then
-                    Waves::landing(wave)
-                end
-                if command == "done" then
-                    Waves::performDone(wave)
-                end
-            },
-            "start-land" => lambda {
-                Waves::run(wave)
-            },
-            "wave" => wave,
+            "uuid"     => uuid,
+            "NS198"    => "ns16:wave1",
+            "announce" => Waves::toString(wave),
+            "commands" => ["..", "landing", "done"],
+            "wave"     => wave,
             "bank-accounts" => [Domain::getDomainBankAccount(wave["domain"])]
         }
     end

@@ -246,17 +246,10 @@ class UIServices
             end
         end
 
-        if command == ".." then
-            item = store.getDefault()
-            return if item.nil?
-            CentralDispatch::doubleDotAccess(item)
-            return
-        end
-
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
             return if item.nil?
-            CentralDispatch::doubleDotAccess(item)
+            CentralDispatch::operator1(item, "..")
             return
         end
 
