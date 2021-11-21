@@ -75,9 +75,10 @@ class Floats
                 announce = Floats::locationToString(location).gsub("[float]", "[floa]")
                 unixtime = Floats::locationToUnixtime(location)
                 {
-                    "announce"     => announce.yellow,
-                    "unixtime"     => unixtime,
-                    "start-land"   => lambda{ Floats::run(location) }
+                    "NS198"       => "float1",
+                    "announce"    => announce.yellow,
+                    "unixtime"    => unixtime,
+                    "location"    => location
                 }
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }

@@ -7,6 +7,85 @@ class Inbox
         "/Users/pascal/Desktop/Inbox"
     end
 
+    # Inbox::run(location)
+    def self.run(location)
+        time1 = Time.new.to_f
+
+        domain = nil
+
+        system("clear")
+        puts location.green
+
+        # -------------------------------------
+        # Lookup
+        if File.file?(location) then
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop"])
+            if action == "open" then
+                system("open '#{location}'")
+            end
+            if action == "copy to desktop" then
+                FileUtils.cp(location, "/Users/pascal/Desktop")
+            end
+        else
+            system("open '#{location}'")
+        end
+
+        # -------------------------------------
+        # Dispatch
+
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
+        if action == "delete" then
+            LucilleCore::removeFileSystemLocation(location)
+        end
+        if action == "dispatch" then
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "communication", "todo"])
+            if target == "float" then
+                if File.file?(location) then
+                    Floats::interactivelyCreateNewOrNull()
+                    LucilleCore::removeFileSystemLocation(location)
+                else
+                    folderpath1 = location
+                    folderpath2 = "/Users/pascal/Galaxy/Floats/#{Time.new.to_s[0, 10]} #{File.basename(location)} [#{SecureRandom.hex(2)}]"
+                    FileUtils.mkdir(folderpath2)
+                    LucilleCore::copyContents(folderpath1, folderpath2)
+                    LucilleCore::removeFileSystemLocation(location)
+                end
+            end
+            if target == "ondate" then
+
+                date = Dated::interactivelySelectADateOrNull()
+                return nil if date.nil?
+
+                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, File.basename(location), location, [Dated::coreData2SetUUID()])
+                atom["date"] = date
+                CoreData2::commitAtom2(atom)
+
+                puts JSON.pretty_generate(atom)
+                LucilleCore::removeFileSystemLocation(location)
+            end
+            if target == "communication" then
+                domain = Domain::interactivelySelectDomain()
+                Nx50s::issueCommunicationItemUsingLocation(location, domain)
+                LucilleCore::removeFileSystemLocation(location)
+            end
+            if target == "todo" then
+                unixtime = Nx50s::getNewUnixtime()
+                domain = Domain::interactivelySelectDomain()
+                Nx50s::issueItemUsingLocation(location, unixtime, domain)
+                LucilleCore::removeFileSystemLocation(location)
+            end
+        end
+
+        if domain.nil? then 
+            domain = Domain::interactivelySelectDomain()
+        end
+        account = Domain::getDomainBankAccount(domain)
+        time2 = Time.new.to_f
+        timespan = time2 - time1
+        puts "Putting #{timespan} seconds into #{account}"
+        Bank::put(account, timespan)
+    end
+
     # Inbox::ns16s()
     def self.ns16s()
 
@@ -31,87 +110,11 @@ class Inbox
                 announce = "[inbx] #{File.basename(location)}"
                 {
                     "uuid"         => getLocationUUID.call(location),
+                    "NS198"        => "inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
                     "commands"     => [".."],
-                    "start-land"   => lambda {
-
-                        time1 = Time.new.to_f
-
-                        domain = nil
-
-                        system("clear")
-                        puts location.green
-
-                        # -------------------------------------
-                        # Lookup
-                        if File.file?(location) then
-                            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop"])
-                            if action == "open" then
-                                system("open '#{location}'")
-                            end
-                            if action == "copy to desktop" then
-                                FileUtils.cp(location, "/Users/pascal/Desktop")
-                            end
-                        else
-                            system("open '#{location}'")
-                        end
-
-                        # -------------------------------------
-                        # Dispatch
-
-                        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
-                        if action == "delete" then
-                            LucilleCore::removeFileSystemLocation(location)
-                        end
-                        if action == "dispatch" then
-                            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "communication", "todo"])
-                            if target == "float" then
-                                if File.file?(location) then
-                                    Floats::interactivelyCreateNewOrNull()
-                                    LucilleCore::removeFileSystemLocation(location)
-                                else
-                                    folderpath1 = location
-                                    folderpath2 = "/Users/pascal/Galaxy/Floats/#{Time.new.to_s[0, 10]} #{File.basename(location)} [#{SecureRandom.hex(2)}]"
-                                    FileUtils.mkdir(folderpath2)
-                                    LucilleCore::copyContents(folderpath1, folderpath2)
-                                    LucilleCore::removeFileSystemLocation(location)
-                                end
-                            end
-                            if target == "ondate" then
-
-                                date = Dated::interactivelySelectADateOrNull()
-                                return nil if date.nil?
-
-                                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, File.basename(location), location, [Dated::coreData2SetUUID()])
-                                atom["date"] = date
-                                CoreData2::commitAtom2(atom)
-
-                                puts JSON.pretty_generate(atom)
-                                LucilleCore::removeFileSystemLocation(location)
-                            end
-                            if target == "communication" then
-                                domain = Domain::interactivelySelectDomain()
-                                Nx50s::issueCommunicationItemUsingLocation(location, domain)
-                                LucilleCore::removeFileSystemLocation(location)
-                            end
-                            if target == "todo" then
-                                unixtime = Nx50s::getNewUnixtime()
-                                domain = Domain::interactivelySelectDomain()
-                                Nx50s::issueItemUsingLocation(location, unixtime, domain)
-                                LucilleCore::removeFileSystemLocation(location)
-                            end
-                        end
-
-                        if domain.nil? then 
-                            domain = Domain::interactivelySelectDomain()
-                        end
-                        account = Domain::getDomainBankAccount(domain)
-                        time2 = Time.new.to_f
-                        timespan = time2 - time1
-                        puts "Putting #{timespan} seconds into #{account}"
-                        Bank::put(account, timespan)
-                    }
+                    "location"     => location
                 }
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }

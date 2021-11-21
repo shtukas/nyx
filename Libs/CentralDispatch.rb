@@ -30,6 +30,16 @@ class CentralDispatch
             return
         end
 
+        if object["NS198"] == "float1" and command == ".." then
+            Floats::run(object["location"])
+            return
+        end
+
+        if object["NS198"] == "inbox1" and command == ".." then
+            Inbox::run(object["location"])
+            return
+        end
+
         raise "[0fd3da2d-07ac-476c-afc9-4a1194599d11: #{object}, #{command}]"
     end
 
