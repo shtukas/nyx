@@ -41,7 +41,7 @@ class CentralDispatch
         end
 
         if object["NS198"] == "ns16:dated1" and command == ".." then
-            Dated::run(object["location"])
+            Dated::run(object["atom"])
             return
         end
 
