@@ -183,23 +183,26 @@ class Waves
         CoreData2::accessWithOptionToEdit(atom)
     end
 
-    # Waves::landing(atom)
-    def self.landing(atom)
-        uuid = atom["uuid"]
+    # Waves::landing(wave)
+    def self.landing(wave)
+        uuid = wave["uuid"]
+
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::getDomainBankAccount(wave["domain"])])
 
         loop {
+
             system("clear")
 
-            puts "#{Waves::toString(atom)}".green
+            puts "#{Waves::toString(wave)}".green
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(atom["uuid"])}".green
+            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
 
             puts ""
 
-            puts "uuid: #{atom["uuid"]}".yellow
-            puts "schedule: #{Waves::scheduleString(atom)}".yellow
-            puts "last done: #{atom["lastDoneDateTime"]}".yellow
-            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
+            puts "uuid: #{wave["uuid"]}".yellow
+            puts "schedule: #{Waves::scheduleString(wave)}".yellow
+            puts "last done: #{wave["lastDoneDateTime"]}".yellow
+            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
 
             puts ""
 
@@ -212,12 +215,12 @@ class Waves
             break if command == "exit"
 
             if command == "access" then
-                Waves::accessContent(atom)
+                Waves::accessContent(wave)
                 next
             end
 
             if command == "done" then
-                Waves::performDone(atom)
+                Waves::performDone(wave)
                 break
             end
 
@@ -227,14 +230,14 @@ class Waves
             end
 
             if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(atom["uuid"]) || "")
-                StructuredTodoTexts::setNote(atom["uuid"], note)
+                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
+                StructuredTodoTexts::setNote(wave["uuid"], note)
                 next
             end
 
             if Interpreting::match("update description", command) then
-                atom["description"] = Utils::editTextSynchronously(atom["description"])
-                Waves::performDone(atom)
+                wave["description"] = Utils::editTextSynchronously(wave["description"])
+                Waves::performDone(wave)
                 next
             end
 
@@ -247,25 +250,27 @@ class Waves
             if Interpreting::match("recast schedule", command) then
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
-                atom["repeatType"] = schedule[0]
-                atom["repeatValue"] = schedule[1]
-                CoreData2::commitAtom2(atom)
+                wave["repeatType"] = schedule[0]
+                wave["repeatValue"] = schedule[1]
+                CoreData2::commitAtom2(wave)
                 next
             end
 
             if Interpreting::match("domain", command) then
-                atom["domain"] = Domain::interactivelySelectDomain()
-                CoreData2::commitAtom2(atom)
+                wave["domain"] = Domain::interactivelySelectDomain()
+                CoreData2::commitAtom2(wave)
                 break
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    CoreData2::removeAtomFromSet(atom["uuid"], Waves::coreData2SetUUID())
+                    CoreData2::removeAtomFromSet(wave["uuid"], Waves::coreData2SetUUID())
                     break
                 end
             end
         }
+
+        NxBallsService::closeWithAsking(uuid)
     end
 
     # -------------------------------------------------------------------------
@@ -302,8 +307,6 @@ class Waves
 
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "exit"])
 
-        NxBallsService::close(uuid, true)
-
         if operation.nil? or operation == "done (default)" then
             Waves::performDone(wave)
         end
@@ -311,6 +314,8 @@ class Waves
         if operation == "exit" then
             # nothing
         end
+
+        NxBallsService::closeWithAsking(uuid)
     end
 
     # Waves::toNS16(wave)
