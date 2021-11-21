@@ -305,17 +305,20 @@ class Waves
 
         Waves::accessContent(wave)
 
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "exit"])
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue"])
 
         if operation.nil? or operation == "done (default)" then
             Waves::performDone(wave)
+            NxBallsService::close(uuid, true)
         end
 
-        if operation == "exit" then
+        if operation == "stop and exit" then
+            NxBallsService::close(uuid, true)
+        end
+
+        if operation == "exit and continue" then
             # nothing
         end
-
-        NxBallsService::closeWithAsking(uuid)
     end
 
     # Waves::toNS16(wave)
