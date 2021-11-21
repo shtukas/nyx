@@ -11,27 +11,36 @@ class Top
             }
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .map{|item|
-                announce = "[top ] (#{item["ordinal"]}) #{item["description"]}"
+                atom = item["atom"]
+                announce = "[top ] (#{item["ordinal"]}) #{atom["description"]}"
                 {
                     "uuid"        => item["uuid"],
                     "NS198"       => "ns16:top1",
                     "announce"    => announce,
-                    "commands"    => ["..", "done"]
+                    "commands"    => ["..", "done"],
+                    "item"        => item
                 }
             }
     end
 
     # Top::interactivelyMakeNewTop()
     def self.interactivelyMakeNewTop()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return if description == ""
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([])
+        return if atom.nil?
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
         uuid = Time.new.to_f.to_s
         item = {
             "uuid"        => uuid,
             "ordinal"     => ordinal,
-            "description" => description
+            "atom"        => atom
         }
         BTreeSets::set(nil, "213f801a-fd93-4839-a55b-8323520494bc", uuid, item)
+    end
+
+    # Top::run(item)
+    def self.run(item)
+        atom = CoreData2::accessWithOptionToEdit(item["atom"])
+        item["atom"] = atom
+        BTreeSets::set(nil, "213f801a-fd93-4839-a55b-8323520494bc", item["uuid"], item)
     end
 end

@@ -4,6 +4,8 @@ class CentralDispatch
     # CentralDispatch::operator1(object, command)
     def self.operator1(object, command)
 
+        # puts "CentralDispatch, object: #{object}, command: #{command}"
+
         if object["NS198"] == "NxBallDelegate1" and command == ".." then
             uuid = object["uuid"]
             NxBallsService::close(uuid, true)
@@ -100,14 +102,13 @@ class CentralDispatch
         end
 
         if object["NS198"] == "ns16:top1" and command == ".." then
-            Calendar::run(object["item"])
-            BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
+            Top::run(object["item"])
             return
         end
 
         if object["NS198"] == "ns16:top1" and command == "done" then
             puts object["announce"]
-            if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+            if LucilleCore::askQuestionAnswerAsBoolean("> done ? ") then
                 BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
             end
             return
@@ -118,8 +119,6 @@ class CentralDispatch
             KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
             return
         end
-
-        raise "[0fd3da2d-07ac-476c-afc9-4a1194599d11: #{object}, #{command}]"
     end
 
     # CentralDispatch::operator4(command)

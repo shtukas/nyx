@@ -294,7 +294,6 @@ class Nx50s
                 Nx50s::complete(nx50)
                 break
             end
-
         }
 
         thr.exit
