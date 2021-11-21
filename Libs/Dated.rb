@@ -175,29 +175,11 @@ class Dated # OnDate
     # Dated::itemToNS16(item)
     def self.itemToNS16(item)
         {
-            "uuid"        => item["uuid"],
-            "announce"    => Dated::toString(item),
-            "commands"    => ["..", "redate", "done"],
-            "interpreter" => lambda {|command|
-                if command == ".." then
-                    Dated::run(item)
-                end
-                if command == "redate" then
-                    date = Dated::interactivelySelectADateOrNull()
-                    return if date.nil?
-                    item["date"] = date
-                    puts JSON.pretty_generate(item)
-                    CoreData2::commitAtom2(item)
-                end
-                if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then
-                        Dated::destroy(item)
-                    end
-                end
-            },
-            "start-land" => lambda {
-                Dated::run(item)
-            }
+            "uuid"     => item["uuid"],
+            "NS198"    => "ns16:dated1",
+            "announce" => Dated::toString(item),
+            "commands" => ["..", "redate", "done"],
+            "atom"     => item
         }
     end
 

@@ -110,7 +110,7 @@ class Inbox
                 announce = "[inbx] #{File.basename(location)}"
                 {
                     "uuid"         => getLocationUUID.call(location),
-                    "NS198"        => "inbox1",
+                    "NS198"        => "ns16:inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
                     "commands"     => [".."],

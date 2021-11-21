@@ -35,8 +35,31 @@ class CentralDispatch
             return
         end
 
-        if object["NS198"] == "inbox1" and command == ".." then
+        if object["NS198"] == "ns16:inbox1" and command == ".." then
             Inbox::run(object["location"])
+            return
+        end
+
+        if object["NS198"] == "ns16:dated1" and command == ".." then
+            Dated::run(object["location"])
+            return
+        end
+
+        if object["NS198"] == "ns16:dated1" and command == "redate" then
+            item = object["atom"]
+            date = Dated::interactivelySelectADateOrNull()
+            return if date.nil?
+            item["date"] = date
+            puts JSON.pretty_generate(item)
+            CoreData2::commitAtom2(item)
+            return
+        end
+
+        if object["NS198"] == "ns16:dated1" and command == "done" then
+            item = object["atom"]
+            if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then
+                Dated::destroy(item)
+            end
             return
         end
 
