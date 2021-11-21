@@ -2,25 +2,6 @@
 
 # ------------------------------------------------------------------------------------------
 
-class Fitness
-    # Fitness::ns16s()
-    def self.ns16s()
-        ns16s = JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`)
-        ns16s.map{|ns16|
-            ns16["commands"] = [".."]
-            ns16["interpreter"] = lambda {|command|
-                if command == ".." then
-                    system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}") 
-                end
-            }
-            ns16["start-land"] = lambda {
-                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}") 
-            }
-            ns16
-        }
-    end
-end
-
 class AmandaBins
     # AmandaBins::ns16s()
     def self.ns16s()
@@ -53,7 +34,7 @@ class NS16sOperator
             Top::ns16(),
             Calendar::ns16s(),
             AmandaBins::ns16s(),
-            Fitness::ns16s(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),

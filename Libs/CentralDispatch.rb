@@ -10,6 +10,11 @@ class CentralDispatch
             return
         end
 
+        if object["NS198"] == "ns16:fitness1" then
+            system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
+            return
+        end
+
         raise "[d8d9bb2a-d5da-4934-8146-7cc4a65dbffc: #{object}]"
     end
 
