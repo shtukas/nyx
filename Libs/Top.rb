@@ -14,19 +14,9 @@ class Top
                 announce = "[top ] (#{item["ordinal"]}) #{item["description"]}"
                 {
                     "uuid"        => item["uuid"],
+                    "NS198"       => "ns16:top1",
                     "announce"    => announce,
-                    "commands"    => ["..", "done"],
-                    "interpreter" => lambda {|command|
-                        if command == "done" then
-                            BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", item["uuid"])
-                        end
-                    },
-                    "start-land"  => lambda {
-                        puts announce
-                        if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
-                            BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", item["uuid"])
-                        end
-                    } 
+                    "commands"    => ["..", "done"]
                 }
             }
     end

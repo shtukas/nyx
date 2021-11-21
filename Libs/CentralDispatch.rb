@@ -99,6 +99,20 @@ class CentralDispatch
             return
         end
 
+        if object["NS198"] == "ns16:top1" and command == ".." then
+            Calendar::run(object["item"])
+            BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
+            return
+        end
+
+        if object["NS198"] == "ns16:top1" and command == "done" then
+            puts object["announce"]
+            if LucilleCore::askQuestionAnswerAsBoolean("done ? ") then
+                BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
+            end
+            return
+        end
+
         raise "[0fd3da2d-07ac-476c-afc9-4a1194599d11: #{object}, #{command}]"
     end
 

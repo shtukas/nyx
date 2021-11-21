@@ -29,8 +29,6 @@ class DrivesBackups
                 {
                     "uuid"        => instruction["uuid"],
                     "announce"    => DrivesBackups::instructionToString(instruction),
-                    "commands"    => nil,
-                    "interpreter" => nil
                 }
             }
     end
