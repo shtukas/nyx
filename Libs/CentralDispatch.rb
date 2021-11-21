@@ -133,27 +133,6 @@ class CentralDispatch
     # CentralDispatch::operator5(store, command)
     def self.operator5(store, command)
 
-        # The case <n> should hve already been captured by UIServices
-
-        # The case [] should have already been caputred by UIServices
-
-        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-            ns16 = store.getDefault()
-            return if ns16.nil? 
-            DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
-            puts "Hidden until: #{Time.at(unixtime).to_s}"
-        end
-
-        if Interpreting::match("hide * *", command) then
-            _, ordinal, datecode = Interpreting::tokenizer(command)
-            ordinal = ordinal.to_i
-            ns16 = store.get(ordinal)
-            return if ns16.nil?
-            unixtime = Utils::codeToUnixtimeOrNull(datecode)
-            return if unixtime.nil?
-            DoNotShowUntil::setUnixtime(ns16["uuid"], unixtime)
-        end
-
         if Interpreting::match("expose", command) then
             ns16 = store.getDefault()
             return if ns16.nil? 

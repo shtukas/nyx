@@ -122,7 +122,7 @@ class UIServices
 
     # UIServices::listingCommands()
     def self.listingCommands()
-        ".. | <n> | <datecode> | hide <n> <datecode> | expose"
+        ".. | <n> | <datecode> | expose"
     end
 
     # UIServices::makersCommands()
@@ -239,7 +239,14 @@ class UIServices
         # Or interpret it a command and run it by the default element interpreter.
         # Otherwise we try a bunch of generic interpreters.
 
-        if command == ".." and store.getDefault() then
+        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+            if (item = store.getDefault()) then
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+        end
+
+        if command == ".." then
             item = store.getDefault()
             return if item.nil?
             CentralDispatch::doubleDotAccess(item)
