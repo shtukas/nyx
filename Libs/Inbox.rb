@@ -65,7 +65,7 @@ class Inbox
             end
             if target == "communication" then
                 domain = Domain::interactivelySelectDomain()
-                Nx50s::issueCommunicationItemUsingLocation(location, domain)
+                Nx50s::issuePriorityCommunicationItemUsingLocation(location, domain)
                 LucilleCore::removeFileSystemLocation(location)
             end
             if target == "todo" then
@@ -79,7 +79,7 @@ class Inbox
         if domain.nil? then 
             domain = Domain::interactivelySelectDomain()
         end
-        account = Domain::getDomainBankAccount(domain)
+        account = Domain::domainToBankAccount(domain)
         time2 = Time.new.to_f
         timespan = time2 - time1
         puts "Putting #{timespan} seconds into #{account}"

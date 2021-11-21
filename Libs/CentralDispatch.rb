@@ -135,7 +135,7 @@ class CentralDispatch
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
             domain = Domain::interactivelySelectDomain()
-            domainBankAccount = Domain::getDomainBankAccount(domain)
+            domainBankAccount = Domain::domainToBankAccount(domain)
             NxBallsService::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", description, [domainBankAccount])
             ns16 = {
                 "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",

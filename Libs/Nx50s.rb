@@ -11,21 +11,18 @@ class Nx50s
     def self.nx50s()
         CoreData2::getSet(Nx50s::coreData2SetUUID())
             .map{|atom|
-                Domain::ensureDomainCorrection(
-                    atom["domain"], 
-                    lambda{|atom|
-                        puts "Correcting domain for '#{Nx50s::toString(atom)}'"
-                        atom["domain"] = Domain::interactivelySelectDomain()
-                        puts JSON.pretty_generate(atom)
-                        CoreData2::commitAtom2(atom)
-                    }, 
-                    atom
-                )
+                if !Domain::domains().include?(atom["domain"]) then
+                    puts "Correcting domain for '#{Nx50s::toString(atom)}'"
+                    atom["domain"] = Domain::interactivelySelectDomain()
+                    puts JSON.pretty_generate(atom)
+                    CoreData2::commitAtom2(atom)
+                end
                 atom
             }
             .map{|atom|
-                if !atom["isQuark"] and !atom["isVienna"] then
-                    atom["isHandMade"] = true
+                if !Nx50s::categories().include?(atom["category"]) then
+                    atom["category"] = "Priority Communication"
+                    CoreData2::commitAtom2(atom)
                 end
                 atom
             }
@@ -53,18 +50,18 @@ class Nx50s
     def self.interactivelyCreateNewOrNull()
         atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
         return nil if atom.nil?
-        domain = Domain::interactivelySelectDomain()
         atom["unixtime"] = Nx50s::getNewUnixtime()
-        atom["domain"] = domain
+        atom["domain"]   = Domain::interactivelySelectDomain()
+        atom["category"] = Nx50s::interactivelySelectCategory()
         CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
-        domain = Domain::interactivelySelectDomain()
         atom["unixtime"] = Nx50s::getNewUnixtime()
-        atom["domain"] = domain
+        atom["domain"]   = Domain::interactivelySelectDomain()
+        atom["category"] = Nx50s::interactivelySelectCategory()
         CoreData2::commitAtom2(atom)
     end
 
@@ -73,17 +70,18 @@ class Nx50s
         description = File.basename(location)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = unixtime
-        atom["domain"] = domain
+        atom["domain"]   = Domain::interactivelySelectDomain()
+        atom["category"] = Nx50s::interactivelySelectCategory()
         CoreData2::commitAtom2(atom)
     end
 
-    # Nx50s::issueCommunicationItemUsingLocation(location, domain)
-    def self.issueCommunicationItemUsingLocation(location, domain)
+    # Nx50s::issuePriorityCommunicationItemUsingLocation(location, domain)
+    def self.issuePriorityCommunicationItemUsingLocation(location, domain)
         description = File.basename(location)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
-        atom["unixtime"] = 1 + rand # That's how we ensure that they come after everybody
-        atom["domain"] = domain
-        atom["isCommunication"] = true
+        atom["unixtime"] = Time.new.to_f
+        atom["domain"]   = domain
+        atom["category"] = "Priority Communication"
         CoreData2::commitAtom2(atom)
     end
 
@@ -92,7 +90,7 @@ class Nx50s
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = Nx50s::getNewUnixtime()
         atom["domain"]   = "(eva)"
-        atom["isVienna"] =  true
+        atom["category"] = "Vienna"
         CoreData2::commitAtom2(atom)
     end
 
@@ -157,25 +155,41 @@ class Nx50s
     end
 
     # --------------------------------------------------
-    # nx16s
+    # Categories
 
-    # Nx50s::tx23s()
-    def self.tx23s()
-       [
-            {
-                "attribute" => "isQuark",
-                "account"   => "9979D5C8-091D-4929-9E2E-2191FA1291B6"
-            },
-            {
-                "attribute" => "isVienna",
-                "account"   => "35EFF9F7-1A58-48C4-B0CD-3499A0683A4D"
-            },
-            {
-                "attribute" => "isHandMade",
-                "account"   => "88245B96-DE84-4A4F-9F7B-50F7C907204C"
-            }
-        ]
+    # Nx50s::managedCategories()
+    def self.managedCategories()
+        ["Quark", "Vienna", "Standard"]
     end
+
+    # Nx50s::categories()
+    def self.categories()
+        ["Quark", "Vienna", "Standard", "Priority Communication"]
+    end
+
+    # Nx50s::managedCategoryToBankAccount(category)
+    def self.managedCategoryToBankAccount(category)
+        mapping = {
+            "Quark"    => "9979D5C8-091D-4929-9E2E-2191FA1291B6",
+            "Vienna"   => "35EFF9F7-1A58-48C4-B0CD-3499A0683A4D",
+            "Standard" => "88245B96-DE84-4A4F-9F7B-50F7C907204C"
+        }
+        account = mapping[category]
+        raise "[a8d5a315-ae3c-41c1-9477-195a71164b7e: #{category}]" if account.nil?
+        account
+    end
+
+    # Nx50s::interactivelySelectCategory()
+    def self.interactivelySelectCategory()
+        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::categories())
+        if !category.nil? then
+            return category
+        end
+        Nx50s::interactivelySelectCategory()
+    end
+
+    # --------------------------------------------------
+    # nx16s
 
     # Nx50s::run(nx50)
     def self.run(nx50)
@@ -183,13 +197,9 @@ class Nx50s
         itemToBankAccounts = lambda{|item|
             accounts = []
             accounts << item["uuid"]
-            accounts << Domain::getDomainBankAccount(item["domain"])
-            Nx50s::tx23s().each{|tx23|
-                if item[tx23["attribute"]] then
-                    accounts << tx23["account"]
-                end
-            }
-            accounts
+            accounts << Domain::domainToBankAccount(item["domain"])
+            accounts << Nx50s::managedCategoryToBankAccount(item["category"])
+            accounts.compact
         }
 
         system("clear")
@@ -215,7 +225,7 @@ class Nx50s
                 puts "note:\n#{note}".green
             end
 
-            puts "access | note | <datecode> | update description | update contents | rotate | domain | show json | destroy (gg) | exit".yellow
+            puts "access | note | <datecode> | update description | update contents | rotate | domain | category | show json | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -260,6 +270,13 @@ class Nx50s
                 nx50["domain"] = Domain::interactivelySelectDomain()
                 CoreData2::commitAtom2(nx50)
                 break
+            end
+
+            if Interpreting::match("category", command) then
+                nx50["category"] = Nx50s::interactivelySelectCategory()
+                puts JSON.pretty_generate(nx50)
+                CoreData2::commitAtom2(nx50)
+                next
             end
 
             if Interpreting::match("show json", command) then
@@ -310,45 +327,26 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
-    # Nx50s::tx24s()
-    def self.tx24s()
-        Nx50s::tx23s()
-            .map{|tx23|
-                {
-                    "tx23" => tx23,
-                    "rt"   => BankExtended::stdRecoveredDailyTimeInHours(tx23["account"])
-                }
-            }
-            .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-    end
-
-    # Nx50s::itemsCollapseToTx24s(items)
-    def self.itemsCollapseToTx24s(items)
-        Nx50s::tx24s()
-            .map{|tx24|
-                items.select{|item| item[tx24["tx23"]["attribute"]] }
-            }
-            .flatten
-    end
-
-    # Nx50s::ns16sCommunications(domain)
-    def self.ns16sCommunications(domain)
-        Nx50s::nx50sForDomain(domain)
-            .select{|item| item["isCommunication"] }
-            .map{|item| Nx50s::ns16OrNull(item) }
-            .compact
-    end
-
     # Nx50s::ns16s(domain)
     def self.ns16s(domain)
         Nx50s::importspread()
         threshold = Nx50s::overflowThreshold(domain)
 
         items = Nx50s::nx50sForDomain(domain)
-                    .select{|item| !item["isCommunication"] }
 
         if domain == "(eva)" then
-            items =  Nx50s::itemsCollapseToTx24s(items).first(50)
+            items1 = items.select{|item| item["category"] == "Priority Communication" }
+            items2 = Nx50s::managedCategories()
+                        .map{|category|
+                            {
+                                "items"      => items.select{|item| item["category"] == category }.first(50),
+                                "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::managedCategoryToBankAccount(category)) 
+                            }
+                        }
+                        .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
+                        .map{|packet| packet["items"] }
+                        .flatten
+            items = items1 + items2
         end
 
         ns16s = items
@@ -363,8 +361,15 @@ class Nx50s
 
     # Nx50s::dx()
     def self.dx()
-        x1 = Nx50s::tx24s()
-                .map{|tx24| "#{tx24["tx23"]["attribute"]}, #{tx24["rt"].round(2)}" }
+        x1 = Nx50s::managedCategories()
+                .map{|category|
+                    {
+                        "category"   => category,
+                        "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::managedCategoryToBankAccount(category)) 
+                    }
+                }
+                .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
+                .map{|packet| "#{packet["category"]}, #{packet["categoryRT"].round(2)}" }
                 .join(", ")
         "(Nx50: #{x1})"
     end

@@ -10,12 +10,6 @@ class Domain
         ["(eva)", "(work)"]
     end
 
-    # Domain::ensureDomainCorrection(domain, correctionLambda, correctionObject)
-    def self.ensureDomainCorrection(domain, correctionLambda, correctionObject)
-        return if Domain::domains().include?(domain)
-        correctionLambda.call(correctionObject)
-    end
-
     # Domain::setStoredDomainWithExpiry(domain, expiryUnixtime)
     def self.setStoredDomainWithExpiry(domain, expiryUnixtime)
         packet = {
@@ -49,8 +43,8 @@ class Domain
         end
     end
 
-    # Domain::getDomainBankAccount(domain)
-    def self.getDomainBankAccount(domain)
+    # Domain::domainToBankAccount(domain)
+    def self.domainToBankAccount(domain)
         mapping = {
             "(eva)"  => "EVA-97F7F3341-4CD1-8B20-4A2466751408",
             "(work)" => Work::bankaccount(),

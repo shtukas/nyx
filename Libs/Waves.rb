@@ -15,16 +15,12 @@ class Waves
     def self.items()
         CoreData2::getSet(Waves::coreData2SetUUID())
             .map{|atom|
-                Domain::ensureDomainCorrection(
-                    atom["domain"], 
-                    lambda{|atom|
-                        puts "Correcting domain for '#{Waves::toString(atom)}'"
-                        atom["domain"] = Domain::interactivelySelectDomain()
-                        puts JSON.pretty_generate(atom)
-                        CoreData2::commitAtom2(atom)
-                    }, 
-                    atom
-                )
+                if !Domain::domains().include?(atom["domain"]) then
+                    puts "Correcting domain for '#{Waves::toString(atom)}'"
+                    atom["domain"] = Domain::interactivelySelectDomain()
+                    puts JSON.pretty_generate(atom)
+                    CoreData2::commitAtom2(atom)
+                end
                 atom
             }
     end
@@ -187,7 +183,7 @@ class Waves
     def self.landing(wave)
         uuid = wave["uuid"]
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::getDomainBankAccount(wave["domain"])])
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::domainToBankAccount(wave["domain"])])
 
         loop {
 
@@ -301,7 +297,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::getDomainBankAccount(wave["domain"])])
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::domainToBankAccount(wave["domain"])])
 
         Waves::accessContent(wave)
 
