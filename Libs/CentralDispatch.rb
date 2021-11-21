@@ -63,6 +63,19 @@ class CentralDispatch
             return
         end
 
+        if object["NS198"] == "ns16:Nx501" and command == ".." then
+            Nx50s::run(object["Nx50"])
+            return
+        end
+
+        if object["NS198"] == "ns16:Nx501" and command == "done" then
+            nx50 = object["Nx50"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                Nx50s::complete(nx50)
+            end
+            return
+        end
+
         raise "[0fd3da2d-07ac-476c-afc9-4a1194599d11: #{object}, #{command}]"
     end
 

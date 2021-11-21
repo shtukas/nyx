@@ -313,21 +313,10 @@ class Nx50s
         announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (today: #{tx.round(2)}, rt: #{rt.round(2)})".gsub("(0.00)", "      ").gsub("(today: 0.0, rt: 0.0)", "").strip
         {
             "uuid"     => uuid,
+            "NS198"    => "ns16:Nx501",
             "announce" => announce,
-            "commands"    => ["..", "done"],
-            "interpreter" => lambda {|command|
-                if command == ".." then
-                    Nx50s::run(nx50)
-                end
-                if command == "done" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                        Nx50s::complete(nx50)
-                    end
-                end
-            },
-            "start-land" => lambda {
-                Nx50s::run(nx50)
-            },
+            "commands" => ["..", "done"],
+            "Nx50"     => nx50,
             "bank-accounts" => [Domain::getDomainBankAccount(nx50["domain"])],
             "rt" => rt
         }
