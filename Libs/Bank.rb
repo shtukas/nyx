@@ -208,25 +208,41 @@ class NxBallsService
 
     # NxBallsService::cursorUnixtimeOrNow(uuid)
     def self.cursorUnixtimeOrNow(uuid)
-        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return Time.new.to_i if nxball.nil?
-        nxball = JSON.parse(nxball)
         nxball["cursorUnixtime"]
     end
 
     # NxBallsService::startUnixtimeOrNow(uuid)
     def self.startUnixtimeOrNow(uuid)
-        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return Time.new.to_i if nxball.nil?
-        nxball = JSON.parse(nxball)
         nxball["startUnixtime"]
     end
 
     # NxBallsService::runningStringOrEmptyString(leftSide, uuid, rightSide)
     def self.runningStringOrEmptyString(leftSide, uuid, rightSide)
-        nxball = KeyValueStore::getOrNull(nil, "6ef1ba9a-b607-41cc-afbb-bf8e2ddadffe:#{uuid}")
+        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return "" if nxball.nil?
-        nxball = JSON.parse(nxball)
         "#{leftSide}running for #{((Time.new.to_i-nxball["startUnixtime"]).to_f/3600).round(2)} hours#{rightSide}"
     end
 end
+
+Thread.new {
+    loop {
+        sleep 60
+
+        BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
+            uuid = nxball["uuid"]
+            next if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) < 600
+            NxBallsService::marginCall(uuid)
+        }
+
+        BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
+            uuid = nxball["uuid"]
+            next if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) < 3600
+            Utils::onScreenNotification("Catalyst", "NxBall running for more than an hour")
+        }
+        
+    }
+}

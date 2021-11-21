@@ -87,15 +87,6 @@ class Dated # OnDate
 
         NxBallsService::issue(uuid, Dated::toString(atom), [uuid])
 
-        thr = Thread.new {
-            loop {
-                sleep 60
-                if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) >= 600 then
-                    NxBallsService::marginCall(uuid)
-                end
-            }
-        }
-
         loop {
 
             system("clear")
@@ -168,7 +159,6 @@ class Dated # OnDate
             end
         }
 
-        thr.exit
         NxBallsService::closeWithAsking(uuid)
     end
 

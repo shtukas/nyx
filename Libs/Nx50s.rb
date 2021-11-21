@@ -198,20 +198,6 @@ class Nx50s
 
         NxBallsService::issue(uuid, Nx50s::toString(nx50), itemToBankAccounts.call(nx50))
 
-        thr = Thread.new {
-            loop {
-                sleep 60
-
-                if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) >= 600 then
-                    NxBallsService::marginCall(uuid)
-                end
-
-                if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) >= 3600 then
-                    Utils::onScreenNotification("Catalyst", "Nx50 item running for more than an hour")
-                end
-            }
-        }
-
         loop {
 
             system("clear")
@@ -296,7 +282,6 @@ class Nx50s
             end
         }
 
-        thr.exit
         NxBallsService::closeWithAsking(uuid)
     end
 

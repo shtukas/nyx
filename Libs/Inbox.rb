@@ -19,7 +19,7 @@ class Inbox
         # -------------------------------------
         # Lookup
         if File.file?(location) then
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "next step (default)"])
             if action == "open" then
                 system("open '#{location}'")
             end
