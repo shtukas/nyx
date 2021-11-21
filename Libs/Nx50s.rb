@@ -317,8 +317,7 @@ class Nx50s
             "announce" => announce,
             "commands" => ["..", "done"],
             "Nx50"     => nx50,
-            "bank-accounts" => [Domain::getDomainBankAccount(nx50["domain"])],
-            "rt" => rt
+            "rt"       => rt
         }
     end
 

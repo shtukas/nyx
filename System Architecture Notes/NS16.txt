@@ -1,16 +1,5 @@
 NS16 {
     "uuid"        : String # used by DoNotShowUntil
-
     "announce"    : String
-
     "commands"    : Array[String] | nil
-
-    "start-land"  : Lambda() | nil # actvated by `..`
-                    Activate the item if it wasn't already running and land on it
-
-    "interpreter" : Lambda(command: String): Boolean | nil # optional 
-                    return true if the command was matched
-                    handle special commands that can be issued from the listing prompt
-
-    "bank-accounts" : Array[String] | nil # to use when we `start`
 }

@@ -5,7 +5,6 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
-        Floats::nx19s() + 
         Anniversaries::nx19s() +
         Calendar::nx19s() +
         Dated::nx19s() +

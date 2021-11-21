@@ -321,8 +321,7 @@ class Waves
             "NS198"    => "ns16:wave1",
             "announce" => Waves::toString(wave),
             "commands" => ["..", "landing", "done"],
-            "wave"     => wave,
-            "bank-accounts" => [Domain::getDomainBankAccount(wave["domain"])]
+            "wave"     => wave
         }
     end
 

@@ -86,7 +86,6 @@ class Floats
         #{
         #    "announce"
         #    "unixtime"
-        #    "start-land"
         #}
     end
 
@@ -123,16 +122,5 @@ class Floats
                 LucilleCore::removeFileSystemLocation(location)
             end
         end
-    end
-
-    # Floats::nx19s()
-    def self.nx19s()
-        (Floats::items("(eva)")+Floats::items("(work)")).map{|item|
-            {
-                "uuid"     => Digest::SHA1.hexdigest(item["announce"]),
-                "announce" => item["announce"],
-                "lambda"   => lambda { item["start-land"].call() }
-            }
-        }
     end
 end

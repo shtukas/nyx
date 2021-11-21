@@ -220,10 +220,6 @@ class UIServices
 
         return if command == ""
 
-        # We first interpret the command as an index and call "start-land"
-        # Or interpret it a command and run it by the default element interpreter.
-        # Otherwise we try a bunch of generic interpreters.
-
         if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
