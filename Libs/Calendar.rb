@@ -90,19 +90,10 @@ class Calendar
                 uuid = Digest::SHA1.hexdigest("4dc9a277-8880-472e-a459-cf1d9b7b6604:#{item["date"]}:#{item["description"]}")
                 {
                     "uuid"     => uuid,
+                    "NS198"    => "ns16:calendar1",
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
                     "commands" => ["..", "done"],
-                    "interpreter" => lambda {|command|
-                        if command == ".." then
-                            Calendar::run(item)
-                        end
-                        if command == "done" then
-                            Calendar::moveToArchives(item)
-                        end
-                    },
-                    "start-land" => lambda {
-                        Calendar::run(item)
-                    }
+                    "item"     => item
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

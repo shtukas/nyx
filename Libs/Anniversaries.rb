@@ -167,22 +167,11 @@ class Anniversaries
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
             .map{|anniversary|
                 {
-                    "uuid"     => anniversary["uuid"],
-                    "announce" => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "commands" => ["..", "done"],
-                    "interpreter" => lambda {|command|
-                        if command == ".." then
-                            Anniversaries::run(anniversary)
-                        end
-                        if command == "done" then
-                            puts Anniversaries::toString(anniversary).green
-                            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                            Anniversaries::commitAnniversaryToDisk(anniversary)
-                        end
-                    },
-                    "start-land" => lambda {
-                        Anniversaries::run(anniversary)
-                    }
+                    "uuid"  => anniversary["uuid"],
+                    "NS198" => "ns16:anniversary1",
+                    "announce"    => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
+                    "commands"    => ["..", "done"],
+                    "anniversary" => anniversary
                 }
             }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

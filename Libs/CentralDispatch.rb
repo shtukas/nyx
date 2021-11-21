@@ -76,6 +76,29 @@ class CentralDispatch
             return
         end
 
+        if object["NS198"] == "ns16:anniversary1" and command == ".." then
+            Anniversaries::run(object["anniversary"])
+            return
+        end
+
+        if object["NS198"] == "ns16:anniversary1" and command == "done" then
+            anniversary = object["anniversary"]
+            puts Anniversaries::toString(anniversary).green
+            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+            Anniversaries::commitAnniversaryToDisk(anniversary)
+            return
+        end
+
+        if object["NS198"] == "ns16:calendar1" and command == ".." then
+            Calendar::run(object["item"])
+            return
+        end
+
+        if object["NS198"] == "ns16:calendar1" and command == "done" then
+            Calendar::moveToArchives(object["item"])
+            return
+        end
+
         raise "[0fd3da2d-07ac-476c-afc9-4a1194599d11: #{object}, #{command}]"
     end
 
