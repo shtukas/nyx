@@ -2,13 +2,6 @@
 
 # ------------------------------------------------------------------------------------------
 
-class AmandaBins
-    # AmandaBins::ns16s()
-    def self.ns16s()
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`)
-    end
-end
-
 class NS16sOperator
 
     # NS16sOperator::theUnscheduledItemAsArray()
@@ -33,7 +26,7 @@ class NS16sOperator
             Anniversaries::ns16s(),
             Top::ns16(),
             Calendar::ns16s(),
-            AmandaBins::ns16s(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
