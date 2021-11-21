@@ -77,31 +77,6 @@ class Domain
         entity
     end
 
-    # Domain::domainsMenuCommands()
-    def self.domainsMenuCommands()
-        today = Time.new.to_s[0, 10]
-        h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
-        h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
-        strings = [
-            "(eva: #{h1.round(2)} hours today)",
-            "(work: #{h2.round(2)} hours today)"
-        ]
-        if Domain::getDomain() != "(eva)" then
-            strings = strings.reverse
-        end
-        strings.join(" ")
-    end
-
-    # Domain::domainsCommandInterpreter(command)
-    def self.domainsCommandInterpreter(command)
-        if command == "eva" then
-            Domain::setStoredDomainWithExpiry("(eva)", Time.new.to_i + 3600)
-        end
-        if command == "work" then
-            Domain::setStoredDomainWithExpiry("(work)", Time.new.to_i + 3600)
-        end
-    end
-
     # Domain::interactivelySelectOrGetCachedDomain(string)
     def self.interactivelySelectOrGetCachedDomain(string)
         domain = KeyValueStore::getOrNull(nil, "a1808e21-5861-452c-8638-f356c4e9a37f:#{string}")

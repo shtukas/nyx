@@ -205,7 +205,7 @@ class Waves
 
             puts "[item   ] access | done | <datecode> | note | update description | update contents | recast schedule | domain | destroy | exit".yellow
 
-            puts Interpreters::makersAndDiversCommands().yellow
+            puts UIServices::makersAndDiversCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

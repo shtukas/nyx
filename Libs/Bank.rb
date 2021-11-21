@@ -170,7 +170,6 @@ class NxBallsService
     def self.marginCall(uuid)
         nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
-
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
         nxball["bankAccounts"].each{|account|

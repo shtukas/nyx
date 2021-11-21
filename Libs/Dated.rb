@@ -224,7 +224,7 @@ class Dated # OnDate
             }
 
             puts "<item index> | (empty) # exit".yellow
-            puts Interpreters::makersAndDiversCommands().yellow
+            puts UIServices::makersAndDiversCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

@@ -120,32 +120,47 @@ class InternetStatus
     def self.ns16ShouldShow(id)
         InternetStatus::internetIsActive() or !InternetStatus::trueIfElementRequiresInternet(id)
     end
-
-    # InternetStatus::putsInternetCommands()
-    def self.putsInternetCommands()
-        "internet on | internet off | requires internet"
-    end
-
-    # InternetStatus::interpreter(command, store)
-    def self.interpreter(command, store)
-
-        if Interpreting::match("internet on", command) then
-            InternetStatus::setInternetOn()
-        end
-
-        if Interpreting::match("internet off", command) then
-            InternetStatus::setInternetOff()
-        end
-
-        if Interpreting::match("requires internet", command) then
-            ns16 = store.getDefault()
-            return if ns16.nil?
-            InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
-        end
-    end
 end
 
 class UIServices
+
+    # UIServices::domainsMenuCommands()
+    def self.domainsMenuCommands()
+        today = Time.new.to_s[0, 10]
+        h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
+        h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
+        strings = [
+            "(eva: #{h1.round(2)} hours today)",
+            "(work: #{h2.round(2)} hours today)"
+        ]
+        if Domain::getDomain() != "(eva)" then
+            strings = strings.reverse
+        end
+        strings.join(" ")
+    end
+
+    # UIServices::listingCommands()
+    def self.listingCommands()
+        ".. | <n> | <datecode> | hide <n> <datecode> | expose"
+    end
+
+    # UIServices::makersCommands()
+    def self.makersCommands()
+        "start # unscheduled | top | today | todo | float | wave | ondate | anniversary"
+    end
+
+    # UIServices::diversCommands()
+    def self.diversCommands()
+        "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | nyx"
+    end
+
+    # UIServices::makersAndDiversCommands()
+    def self.makersAndDiversCommands()
+        [
+            UIServices::makersCommands(),
+            UIServices::diversCommands()
+        ].join(" | ")
+    end
 
     # UIServices::mainView(domain, ns16s)
     def self.mainView(domain, ns16s)
@@ -164,12 +179,12 @@ class UIServices
         vspaceleft = Utils::screenHeight()-5
 
         infolines = [
-            "      " + Interpreters::listingCommands(),
-            "      " + Interpreters::makersCommands(),
-            "      " + Interpreters::diversCommands(),
-            "      " + Domain::domainsMenuCommands(),
+            "      " + UIServices::listingCommands(),
+            "      " + UIServices::makersCommands(),
+            "      " + UIServices::diversCommands(),
+            "      " + UIServices::domainsMenuCommands(),
             "      " + Nx50s::dx(),
-            "      " + InternetStatus::putsInternetCommands()
+            "      internet on | internet off | requires internet"
         ].join("\n").yellow
 
         vspaceleft = vspaceleft - Utils::verticalSize(infolines)
@@ -243,32 +258,26 @@ class UIServices
         # Or interpret it a command and run it by the default element interpreter.
         # Otherwise we try a bunch of generic interpreters.
 
-        if command == ".." and store.getDefault() and store.getDefault()["start-land"] then
-            store.getDefault()["start-land"].call()
+        if command == ".." and store.getDefault() then
+            item = store.getDefault()
+            return if item.nil?
+            CentralDispatch::doubleDotAccess(item)
             return
         end
 
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
             return if item.nil?
-            if item["NS198"] then
-                CentralDispatch::access(item)
-                return
-            end
-            item["start-land"].call()
+            CentralDispatch::doubleDotAccess(item)
             return
         end
 
-        Interpreters::listingInterpreter(store, command)
-        Interpreters::makersAndDiversInterpreter(command)
-        Domain::domainsCommandInterpreter(command)
-        InternetStatus::interpreter(command, store)
+        CentralDispatch::operator4(command)
+        CentralDispatch::operator5(store, command)
 
         if store.getDefault() then
             item = store.getDefault()
-            if item["interpreter"] then
-                item["interpreter"].call(command)
-            end
+            CentralDispatch::operator1(item, command)
         end
     end
 end
