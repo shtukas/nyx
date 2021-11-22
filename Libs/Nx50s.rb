@@ -95,9 +95,9 @@ class Nx50s
     # --------------------------------------------------
     # Operations
 
-    # Nx50s::toString(atom)
-    def self.toString(atom)
-        "[nx50] #{CoreData2::toString(atom)} (#{atom["type"]})"
+    # Nx50s::toString(nx50)
+    def self.toString(nx50)
+        "[nx50] #{CoreData2::toString(nx50)} (#{nx50["type"]})"
     end
 
     # Nx50s::toStringForNS19(atom)
@@ -105,9 +105,23 @@ class Nx50s
         "[nx50] #{atom["description"]}"
     end
 
-    # Nx50s::toStringForNS16(atom, rt)
-    def self.toStringForNS16(atom, rt)
-        "[nx50] (#{"%4.2f" % rt}) #{Nx50s::toString(atom)}"
+    # Nx50s::toStringForNS16(nx50, rt)
+    def self.toStringForNS16(nx50, rt)
+
+        mapping = {
+            "Float"    => "",
+            "Priority Communication" => "(comm)".green,
+            "Asap"     => "(asap)".green,
+            "Quark"    => "(qurk)",
+            "Vienna"   => "(vinn)",
+            "Standard" => "(stnd)"
+        }
+
+       if nx50["category"] == "Float" then
+            nx50["description"]
+       else
+            "[nx50] (#{"%4.2f" % rt}) #{mapping[nx50["category"]]} #{Nx50s::toString(nx50).gsub("[nx50] [atom] ", " ")}"
+       end
     end
 
     # Nx50s::complete(atom)
@@ -157,7 +171,9 @@ class Nx50s
 
     # Nx50s::categories()
     def self.categories()
-        ["Quark", "Vienna", "Standard", "Priority Communication", "Float"]
+        # "Priority Communication", "Asap" are in the order we want them to display
+        ["Float", "Priority Communication", "Asap", "Quark", "Vienna", "Standard"]
+
     end
 
     # Nx50s::timeTrackedCategories()
@@ -172,7 +188,7 @@ class Nx50s
 
     # Nx50s::selectableCategories()
     def self.selectableCategories()
-        ["Float", "Priority Communication", "Standard"]
+        ["Float", "Priority Communication", "Asap", "Standard"]
     end
 
     # Nx50s::categoryToBankAccountOrNull(category)

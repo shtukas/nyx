@@ -13,15 +13,22 @@ Nx50 {
     "category"    : "Quark" | "Vienna" | "HandMade" | "Priority Communication"
 }
 
-
 categories
 
-    - "Quark"                  : The original list is the list of items as it was on 19th Nov 2021
-
-    - "Vienna"                 : Indicates that the item came from Vienna, this is used to better position them. Relatively to one another.
-
-    - "Standard"               : Standard (essentially not any other category)
+    - "Float"                  : Floating items for on going processes
 
     - "Priority Communication" : Typically created as a Nx50 from a Inbox item in the (work) domain
 
-    - "Float"                  : Floating items for on going processes
+    - "Asap"                   : Displays between "Priority Communication" and the rest, use sparcely...
+                                 It's more towards the sprit of the Nx50 to not use it
+
+    (time tracked) (
+
+        - "Quark"              : The original list is the list of items as it was on 19th Nov 2021
+
+        - "Vienna"             : Indicates that the item came from Vienna.
+
+        - "Standard"           : Standard (essentially not any other category)
+
+    )
+
