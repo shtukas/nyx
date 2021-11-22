@@ -48,19 +48,7 @@ class Inbox
             LucilleCore::removeFileSystemLocation(location)
         end
         if action == "dispatch" then
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["float", "ondate", "communication", "todo"])
-            if target == "float" then
-                if File.file?(location) then
-                    Floats::interactivelyCreateNewOrNull()
-                    LucilleCore::removeFileSystemLocation(location)
-                else
-                    folderpath1 = location
-                    folderpath2 = "/Users/pascal/Galaxy/Floats/#{Time.new.to_s[0, 10]} #{File.basename(location)} [#{SecureRandom.hex(2)}]"
-                    FileUtils.mkdir(folderpath2)
-                    LucilleCore::copyContents(folderpath1, folderpath2)
-                    LucilleCore::removeFileSystemLocation(location)
-                end
-            end
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["ondate", "communication", "todo"])
             if target == "ondate" then
 
                 date = Dated::interactivelySelectADateOrNull()

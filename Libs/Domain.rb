@@ -70,14 +70,4 @@ class Domain
         end
         entity
     end
-
-    # Domain::interactivelySelectOrGetCachedDomain(string)
-    def self.interactivelySelectOrGetCachedDomain(string)
-        domain = KeyValueStore::getOrNull(nil, "a1808e21-5861-452c-8638-f356c4e9a37f:#{string}")
-        return domain if domain
-        puts "> select domain for: #{string}"
-        domain = Domain::interactivelySelectDomain()
-        KeyValueStore::set(nil, "a1808e21-5861-452c-8638-f356c4e9a37f:#{string}", domain)
-        domain
-    end
 end

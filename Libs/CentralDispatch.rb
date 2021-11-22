@@ -37,10 +37,6 @@ class CentralDispatch
             Waves::performDone(object["wave"])
         end
 
-        if object["NS198"] == "float1" and command == ".." then
-            Floats::run(object["location"])
-        end
-
         if object["NS198"] == "ns16:inbox1" and command == ".." then
             Inbox::run(object["location"])
         end
@@ -137,10 +133,6 @@ class CentralDispatch
             item = Nx50s::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("float", command) then
-            Floats::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("wave", command) then

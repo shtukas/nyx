@@ -147,8 +147,6 @@ require_relative "DoNotShowUntil.rb"
 #    DoNotShowUntil::isVisible(uid)
 require_relative "DrivesBackups.rb"
 
-require_relative "Floats.rb"
-
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 

@@ -103,7 +103,7 @@ class UIServices
 
     # UIServices::makersCommands()
     def self.makersCommands()
-        "start # unscheduled | top | today | todo | ondate | float | wave | anniversary"
+        "start # unscheduled | top | today | todo | ondate | wave | anniversary"
     end
 
     # UIServices::diversCommands()
@@ -174,16 +174,6 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
         end
-
-        puts ""
-        puts "floats:"
-        vspaceleft = vspaceleft - 2
-        Floats::items(domain)
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
 
         puts ""
         puts "floats:"
