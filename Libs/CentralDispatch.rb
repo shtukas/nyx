@@ -108,9 +108,7 @@ class CentralDispatch
 
         if object["NS198"] == "ns16:top1" and command == "done" then
             puts object["announce"]
-            if LucilleCore::askQuestionAnswerAsBoolean("> done ? ") then
-                BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
-            end
+            BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
             return
         end
 
