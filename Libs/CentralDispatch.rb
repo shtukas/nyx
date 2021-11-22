@@ -91,10 +91,6 @@ class CentralDispatch
             Calendar::moveToArchives(object["item"])
         end
 
-        if object["NS198"] == "ns16:top1" and command == ".." then
-            Top::run(object["item"])
-        end
-
         if object["NS198"] == "ns16:top1" and command == "done" then
             puts object["announce"]
             BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
@@ -117,10 +113,6 @@ class CentralDispatch
             domain = Domain::interactivelySelectDomain()
             domainBankAccount = Domain::domainToBankAccount(domain)
             NxBallsService::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", description, [domainBankAccount])
-        end
-
-        if command == "top" then
-            Top::interactivelyMakeNewTop()
         end
 
         if command == "today" then

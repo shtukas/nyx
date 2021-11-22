@@ -8,7 +8,6 @@ class NS16sOperator
     def self.ns16s(domain)
         [
             Anniversaries::ns16s(),
-            Top::ns16(),
             Calendar::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
