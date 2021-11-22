@@ -28,7 +28,7 @@ class Dated # OnDate
                 mapping[atom["date"]] << atom
                 mapping
             }
-        mapping.keys.map{|date| mapping[date].sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] } }.flatten
+        mapping.keys.sort.map{|date| mapping[date].sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] } }.flatten
     end
 
     # Dated::interactivelySelectADateOrNull()
@@ -187,7 +187,6 @@ class Dated # OnDate
         Dated::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
-            .sort{|i1, i2| i1["date"] <=> i2["date"] }
             .map{|item| Dated::itemToNS16(item) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
@@ -198,7 +197,6 @@ class Dated # OnDate
             system("clear")
 
             items = Dated::items()
-                        .sort{|i1, i2| i1["date"] <=> i2["date"] }
 
             items.each_with_index{|item, indx| 
                 puts "[#{indx}] #{Dated::toString(item)}"
