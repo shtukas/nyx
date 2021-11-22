@@ -4,17 +4,9 @@
 
 class NS16sOperator
 
-    # NS16sOperator::theUnscheduledItemAsArray()
-    def self.theUnscheduledItemAsArray()
-        item = KeyValueStore::getOrNull(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
-        return [] if item.nil?
-        [JSON.parse(item)]
-    end
-
     # NS16sOperator::ns16s(domain)
     def self.ns16s(domain)
         [
-            NS16sOperator::theUnscheduledItemAsArray(),
             Anniversaries::ns16s(),
             Top::ns16(),
             Calendar::ns16s(),

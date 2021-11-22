@@ -100,11 +100,6 @@ class CentralDispatch
             puts object["announce"]
             BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
         end
-
-        if object["NS198"] == "TheUnscheduledNS16" and command == "done" then
-            NxBallsService::close("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
-            KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
-        end
     end
 
     # CentralDispatch::operator4(command)
@@ -123,13 +118,6 @@ class CentralDispatch
             domain = Domain::interactivelySelectDomain()
             domainBankAccount = Domain::domainToBankAccount(domain)
             NxBallsService::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", description, [domainBankAccount])
-            ns16 = {
-                "uuid"     => "f05fe844-128b-4e80-b13e-e0756c84204c",
-                "NS198"    => "TheUnscheduledNS16",
-                "announce" => "[unscheduled] #{description}".green, 
-                "commands" => ["done"],
-            }
-            KeyValueStore::set(nil, "f05fe844-128b-4e80-b13e-e0756c84204c", JSON.generate(ns16))
         end
 
         if command == "top" then
