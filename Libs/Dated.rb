@@ -14,13 +14,21 @@ class Dated # OnDate
 
     # Dated::items()
     def self.items()
-        CoreData2::getSet(Dated::coreData2SetUUID())
+        mapping = CoreData2::getSet(Dated::coreData2SetUUID())
             .map{|atom|
                 if atom["date"].nil? then
                     atom["date"] = Utils::today()
                 end
                 atom
             }
+            .reduce({}){|mapping, atom|
+                if mapping[atom["date"]].nil? then
+                    mapping[atom["date"]] = []
+                end
+                mapping[atom["date"]] << atom
+                mapping
+            }
+        mapping.keys.map{|date| mapping[date].sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] } }.flatten
     end
 
     # Dated::interactivelySelectADateOrNull()
