@@ -1,1 +1,3 @@
 Domain : "(eva)" | "(work)"
+
+Domains are used by Nx50s and Waves.

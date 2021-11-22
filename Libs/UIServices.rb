@@ -204,7 +204,7 @@ class UIServices
                     "NS198" => "NxBallDelegate1" 
                 }
                 indx = store.register(delegate)
-                announce = "(#{"%3d" % indx}) #{nxball["description"]}".green
+                announce = "(#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
