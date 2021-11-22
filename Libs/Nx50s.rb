@@ -369,38 +369,35 @@ class Nx50s
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
-        if domain == "(eva)" then
+        items1 = items
+            .select{|item| Nx50s::nonTimeTrackedCategories().include?(item["category"]) }
+            .reduce([]){|selection, item|  
+                if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                    selection << item
+                end
+                selection
+            }
 
-            items1 = items
-                .select{|item| Nx50s::nonTimeTrackedCategories().include?(item["category"]) }
-                .reduce([]){|selection, item|  
-                    if selection.size < 20 and Nx50s::itemIsOperational(item) then
-                        selection << item
-                    end
-                    selection
-                }
-
-            items2 = Nx50s::timeTrackedCategories()
-                        .map{|category|
-                            its = items
-                                        .select{|item| item["category"] == category }
-                                        .reduce([]){|selection, item|  
-                                            if selection.size < 20 and Nx50s::itemIsOperational(item) then
-                                                selection << item
-                                            end
-                                            selection
-                                        }
-                            {
-                                "items"      => its,
-                                "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::categoryToBankAccountOrNull(category)) 
-                            }
+        items2 = Nx50s::timeTrackedCategories()
+                    .map{|category|
+                        its = items
+                                    .select{|item| item["category"] == category }
+                                    .reduce([]){|selection, item|  
+                                        if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                                            selection << item
+                                        end
+                                        selection
+                                    }
+                        {
+                            "items"      => its,
+                            "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::categoryToBankAccountOrNull(category)) 
                         }
-                        .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
-                        .map{|packet| packet["items"] }
-                        .flatten
+                    }
+                    .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
+                    .map{|packet| packet["items"] }
+                    .flatten
 
-            items = items1 + items2
-        end
+        items = items1 + items2
 
         ns16s = items
                     .map{|item| Nx50s::ns16OrNull(item) }
@@ -416,21 +413,6 @@ class Nx50s
     end
 
     # --------------------------------------------------
-
-    # Nx50s::dx()
-    def self.dx()
-        x1 = Nx50s::timeTrackedCategories()
-                .map{|category|
-                    {
-                        "category"   => category,
-                        "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::categoryToBankAccountOrNull(category)) 
-                    }
-                }
-                .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
-                .map{|packet| "#{packet["category"]}, #{packet["categoryRT"].round(2)}" }
-                .join(", ")
-        "(Nx50: #{x1})"
-    end
 
     # Nx50s::nx19s()
     def self.nx19s()

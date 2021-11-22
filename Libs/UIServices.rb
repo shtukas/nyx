@@ -138,7 +138,6 @@ class UIServices
             "      " + UIServices::makersCommands(),
             "      " + UIServices::diversCommands(),
             "      " + UIServices::domainsMenuCommands(),
-            "      " + Nx50s::dx(),
             "      internet on | internet off | requires internet"
         ].join("\n").yellow
 
