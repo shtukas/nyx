@@ -24,7 +24,7 @@ class NS16sOperator
             Waves::ns16s(domain),
             Inbox::ns16s(),
             Dated::ns16s(),
-            Nx50s::ns16s(domain),
+            Nx50s::ns16sX2(domain)["tail"],
         ]
             .flatten
             .compact
@@ -111,7 +111,7 @@ class UIServices
 
     # UIServices::makersCommands()
     def self.makersCommands()
-        "start # unscheduled | top | today | todo | float | wave | ondate | anniversary"
+        "start # unscheduled | top | today | todo | ondate | float | wave | anniversary"
     end
 
     # UIServices::diversCommands()
@@ -169,6 +169,19 @@ class UIServices
         puts ""
         puts "commands:"
         puts infolines
+
+        overflow = Nx50s::ns16sX2(domain)["overflow"]
+        if overflow.size > 0 then
+            puts ""
+            puts "overflow:"
+            vspaceleft = vspaceleft - 2
+            overflow.each{|ns16|
+                indx = store.register(ns16)
+                announce = "(#{"%3d" % indx}) #{ns16["announce"]}"
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+            }
+        end
 
         puts ""
         puts "floats:"

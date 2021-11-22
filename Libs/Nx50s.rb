@@ -327,8 +327,8 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
-    # Nx50s::ns16s(domain)
-    def self.ns16s(domain)
+    # Nx50s::ns16sX2(domain)
+    def self.ns16sX2(domain)
         Nx50s::importspread()
         threshold = Nx50s::overflowThreshold(domain)
 
@@ -354,7 +354,10 @@ class Nx50s
                     .compact
 
         overflow, tail = ns16s.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
-        tail
+        {
+            "overflow" => overflow,
+            "tail"     => tail
+        }
     end
 
     # --------------------------------------------------
