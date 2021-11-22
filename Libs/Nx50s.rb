@@ -157,18 +157,23 @@ class Nx50s
     # --------------------------------------------------
     # Categories
 
-    # Nx50s::managedCategories()
-    def self.managedCategories()
-        ["Quark", "Vienna", "Standard"]
-    end
-
     # Nx50s::categories()
     def self.categories()
         ["Quark", "Vienna", "Standard", "Priority Communication"]
     end
 
-    # Nx50s::managedCategoryToBankAccount(category)
-    def self.managedCategoryToBankAccount(category)
+    # Nx50s::timeTrackedCategories()
+    def self.timeTrackedCategories()
+        ["Quark", "Vienna", "Standard"]
+    end
+
+    # Nx50s::selectableCategories()
+    def self.selectableCategories()
+        ["Standard", "Priority Communication"]
+    end
+
+    # Nx50s::timeTrackedCategorToBankAccount(category)
+    def self.timeTrackedCategorToBankAccount(category)
         mapping = {
             "Quark"    => "9979D5C8-091D-4929-9E2E-2191FA1291B6",
             "Vienna"   => "35EFF9F7-1A58-48C4-B0CD-3499A0683A4D",
@@ -181,7 +186,7 @@ class Nx50s
 
     # Nx50s::interactivelySelectCategory()
     def self.interactivelySelectCategory()
-        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::categories())
+        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::selectableCategories())
         if !category.nil? then
             return category
         end
@@ -198,7 +203,7 @@ class Nx50s
             accounts = []
             accounts << item["uuid"]
             accounts << Domain::domainToBankAccount(item["domain"])
-            accounts << Nx50s::managedCategoryToBankAccount(item["category"])
+            accounts << Nx50s::timeTrackedCategorToBankAccount(item["category"])
             accounts.compact
         }
 
@@ -336,11 +341,11 @@ class Nx50s
 
         if domain == "(eva)" then
             items1 = items.select{|item| item["category"] == "Priority Communication" }
-            items2 = Nx50s::managedCategories()
+            items2 = Nx50s::timeTrackedCategories()
                         .map{|category|
                             {
                                 "items"      => items.select{|item| item["category"] == category }.first(50),
-                                "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::managedCategoryToBankAccount(category)) 
+                                "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::timeTrackedCategorToBankAccount(category)) 
                             }
                         }
                         .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
@@ -364,11 +369,11 @@ class Nx50s
 
     # Nx50s::dx()
     def self.dx()
-        x1 = Nx50s::managedCategories()
+        x1 = Nx50s::timeTrackedCategories()
                 .map{|category|
                     {
                         "category"   => category,
-                        "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::managedCategoryToBankAccount(category)) 
+                        "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::timeTrackedCategorToBankAccount(category)) 
                     }
                 }
                 .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
