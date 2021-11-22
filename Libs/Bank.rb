@@ -179,6 +179,19 @@ class NxBallsService
         BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
 
+    # NxBallsService::pursue(uuid)
+    def self.pursue(uuid)
+        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        return if nxball.nil?
+
+        description = nxball["description"]
+        accounts    = nxball["accounts"]
+
+        NxBallsService::close(uuid, true)
+
+        NxBallsService::issue(uuid, description, accounts)
+    end
+
     # NxBallsService::close(uuid, verbose)
     def self.close(uuid, verbose)
         nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)

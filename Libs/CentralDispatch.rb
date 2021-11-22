@@ -8,43 +8,42 @@ class CentralDispatch
 
         if object["NS198"] == "NxBallDelegate1" and command == ".." then
             uuid = object["uuid"]
-            NxBallsService::close(uuid, true)
-            return
+
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue"])
+            if action == "close" then
+                NxBallsService::close(uuid, true)
+            end
+            if action == "pursue" then
+                NxBallsService::pursue(uuid)
+            end
         end
 
         if object["NS198"] == "ns16:fitness1" and command == ".." then
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
-            return
         end
 
         if object["NS198"] == "ns16:wave1" and command == ".." then
             Waves::run(object["wave"])
-            return
         end
 
         if object["NS198"] == "ns16:wave1" and command == "landing" then
             Waves::landing(object["wave"])
-            return
         end
 
         if object["NS198"] == "ns16:wave1" and command == "done" then
             Waves::performDone(object["wave"])
-            return
         end
 
         if object["NS198"] == "float1" and command == ".." then
             Floats::run(object["location"])
-            return
         end
 
         if object["NS198"] == "ns16:inbox1" and command == ".." then
             Inbox::run(object["location"])
-            return
         end
 
         if object["NS198"] == "ns16:dated1" and command == ".." then
             Dated::run(object["atom"])
-            return
         end
 
         if object["NS198"] == "ns16:dated1" and command == "redate" then
@@ -54,7 +53,6 @@ class CentralDispatch
             item["date"] = date
             puts JSON.pretty_generate(item)
             CoreData2::commitAtom2(item)
-            return
         end
 
         if object["NS198"] == "ns16:dated1" and command == "done" then
@@ -62,12 +60,10 @@ class CentralDispatch
             if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then
                 Dated::destroy(item)
             end
-            return
         end
 
         if object["NS198"] == "ns16:Nx501" and command == ".." then
             Nx50s::run(object["Nx50"])
-            return
         end
 
         if object["NS198"] == "ns16:Nx501" and command == "done" then
@@ -75,12 +71,10 @@ class CentralDispatch
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
                 Nx50s::complete(nx50)
             end
-            return
         end
 
         if object["NS198"] == "ns16:anniversary1" and command == ".." then
             Anniversaries::run(object["anniversary"])
-            return
         end
 
         if object["NS198"] == "ns16:anniversary1" and command == "done" then
@@ -88,34 +82,28 @@ class CentralDispatch
             puts Anniversaries::toString(anniversary).green
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
             Anniversaries::commitAnniversaryToDisk(anniversary)
-            return
         end
 
         if object["NS198"] == "ns16:calendar1" and command == ".." then
             Calendar::run(object["item"])
-            return
         end
 
         if object["NS198"] == "ns16:calendar1" and command == "done" then
             Calendar::moveToArchives(object["item"])
-            return
         end
 
         if object["NS198"] == "ns16:top1" and command == ".." then
             Top::run(object["item"])
-            return
         end
 
         if object["NS198"] == "ns16:top1" and command == "done" then
             puts object["announce"]
             BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
-            return
         end
 
         if object["NS198"] == "TheUnscheduledNS16" and command == "done" then
             NxBallsService::close("04b8932b-986a-4f25-8320-5fc00c076dc1", true)
             KeyValueStore::destroy(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
-            return
         end
     end
 
