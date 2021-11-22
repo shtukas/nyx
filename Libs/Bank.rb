@@ -138,7 +138,7 @@ end
     "uuid"           => SecureRandom.hex,
     "startUnixtime"  => start,
     "cursorUnixtime" => start,
-    "bankAccounts"   => accounts,
+    "accounts"       => accounts,
     "ownerCount"     => 1
 }
 =end
@@ -156,7 +156,7 @@ class NxBallsService
             "description"    => description,
             "startUnixtime"  => Time.new.to_f,
             "cursorUnixtime" => Time.new.to_f,
-            "bankAccounts"   => accounts
+            "accounts"       => accounts
         }
         BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
@@ -172,7 +172,7 @@ class NxBallsService
         return if nxball.nil?
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
-        nxball["bankAccounts"].each{|account|
+        nxball["accounts"].each{|account|
             Bank::put(account, timespan)
         }
         nxball["cursorUnixtime"] = Time.new.to_i
@@ -201,7 +201,7 @@ class NxBallsService
         end
         timespan = Time.new.to_f - nxball["cursorUnixtime"]
         timespan = [timespan, 3600*2].min
-        nxball["bankAccounts"].each{|account|
+        nxball["accounts"].each{|account|
             puts "(#{Time.new.to_s}) putting #{timespan} seconds into account: #{account}" if verbose
             Bank::put(account, timespan)
         }
