@@ -33,6 +33,16 @@ class Inbox
         # -------------------------------------
         # Dispatch
 
+        locationToDescription = lambda{|location|
+            description = File.basename(location)
+            puts "description: #{description}"
+            d = LucilleCore::askQuestionAnswerAsString("description (empty to ignore step) : ")
+            if d.size > 0 then
+                description = d
+            end
+            description
+        }
+
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
         if action == "delete" then
             LucilleCore::removeFileSystemLocation(location)
@@ -56,7 +66,7 @@ class Inbox
                 date = Dated::interactivelySelectADateOrNull()
                 return nil if date.nil?
 
-                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, File.basename(location), location, [Dated::coreData2SetUUID()])
+                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, description, locationToDescription.call(location) [Dated::coreData2SetUUID()])
                 atom["date"] = date
                 CoreData2::commitAtom2(atom)
 
@@ -65,13 +75,13 @@ class Inbox
             end
             if target == "communication" then
                 domain = Domain::interactivelySelectDomain()
-                Nx50s::issuePriorityCommunicationItemUsingLocation(location, domain)
+                Nx50s::issuePriorityCommunicationItemUsingLocation(location, locationToDescription.call(location), domain)
                 LucilleCore::removeFileSystemLocation(location)
             end
             if target == "todo" then
                 unixtime = Nx50s::getNewUnixtime()
                 domain = Domain::interactivelySelectDomain()
-                Nx50s::issueItemUsingLocation(location, unixtime, domain)
+                Nx50s::issueItemUsingLocation(location, locationToDescription.call(location), unixtime, domain)
                 LucilleCore::removeFileSystemLocation(location)
             end
         end

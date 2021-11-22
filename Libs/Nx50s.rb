@@ -65,19 +65,17 @@ class Nx50s
         CoreData2::commitAtom2(atom)
     end
 
-    # Nx50s::issueItemUsingLocation(location, unixtime, domain)
-    def self.issueItemUsingLocation(location, unixtime, domain)
-        description = File.basename(location)
+    # Nx50s::issueItemUsingLocation(location, description, unixtime, domain)
+    def self.issueItemUsingLocation(location, description, unixtime, domain)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = unixtime
-        atom["domain"]   = Domain::interactivelySelectDomain()
+        atom["domain"]   = domain
         atom["category"] = Nx50s::interactivelySelectCategory()
         CoreData2::commitAtom2(atom)
     end
 
-    # Nx50s::issuePriorityCommunicationItemUsingLocation(location, domain)
-    def self.issuePriorityCommunicationItemUsingLocation(location, domain)
-        description = File.basename(location)
+    # Nx50s::issuePriorityCommunicationItemUsingLocation(location, description, domain)
+    def self.issuePriorityCommunicationItemUsingLocation(location, description, domain)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
         atom["unixtime"] = Time.new.to_f
         atom["domain"]   = domain
@@ -148,7 +146,7 @@ class Nx50s
             locations.each{|location|
                 cursor = cursor + step
                 puts "[quark] (#{Time.at(cursor).to_s}) #{location}"
-                Nx50s::issueItemUsingLocation(location, cursor, "(eva)")
+                Nx50s::issueItemUsingLocation(location, File.basename(location), cursor, "(eva)")
                 LucilleCore::removeFileSystemLocation(location)
             }
         end

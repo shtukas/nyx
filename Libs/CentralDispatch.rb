@@ -9,12 +9,15 @@ class CentralDispatch
         if object["NS198"] == "NxBallDelegate1" and command == ".." then
             uuid = object["uuid"]
 
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
             if action == "close" then
                 NxBallsService::close(uuid, true)
             end
             if action == "pursue" then
                 NxBallsService::pursue(uuid)
+            end
+            if action == "pause" then
+                NxBallsService::pause(uuid)
             end
         end
 

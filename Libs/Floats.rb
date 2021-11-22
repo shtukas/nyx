@@ -91,6 +91,17 @@ class Floats
 
     # Floats::run(location)
     def self.run(location)
+
+        locationToDescription = lambda{|location|
+            description = File.basename(location)
+            puts "description: #{description}"
+            d = LucilleCore::askQuestionAnswerAsString("description (empty to ignore step) : ")
+            if d.size > 0 then
+                description = d
+            end
+            description
+        }
+
         system("clear")
         if File.file?(location) then
             puts Floats::locationToString(location).green
@@ -117,7 +128,7 @@ class Floats
             if action == ">todo" then
                 unixtime = Nx50s::getNewUnixtime()
                 domain   = Domain::interactivelySelectDomain()
-                item = Nx50s::issueItemUsingLocation(location, unixtime, domain)
+                item = Nx50s::issueItemUsingLocation(location, locationToDescription.call(location), unixtime, domain)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             end
