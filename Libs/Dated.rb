@@ -109,7 +109,7 @@ class Dated # OnDate
                 puts "note:\n#{note}".green
             end
 
-            puts "access | <datecode> | note | update description | date | update contents | >todo | exit | destroy".yellow
+            puts "access | <datecode> | note | update description | date | update contents | >todo | exit | destroy (gg)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -161,8 +161,9 @@ class Dated # OnDate
                 break
             end
 
-            if Interpreting::match("destroy", command) then
+            if command == "destroy" or command == "gg" then
                 Dated::destroy(atom)
+                NxBallsService::close(uuid, true)
                 break
             end
         }
