@@ -8,7 +8,7 @@ class NS16sOperator
     def self.theUnscheduledItemAsArray()
         item = KeyValueStore::getOrNull(nil, "f05fe844-128b-4e80-b13e-e0756c84204c")
         return [] if item.nil?
-        [item]
+        [JSON.parse(item)]
     end
 
     # NS16sOperator::ns16s(domain)
