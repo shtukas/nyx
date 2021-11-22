@@ -83,7 +83,7 @@ class Dated # OnDate
 
     # Dated::toString(atom)
     def self.toString(atom)
-        "[date] (#{atom["date"]}) #{CoreData2::toString(atom)} (#{atom["type"]})"
+        "[date] (#{atom["date"]}) #{CoreData2::toString(atom).gsub("[atom] ", "")} (#{atom["type"]})"
     end
 
     # Dated::run(atom)

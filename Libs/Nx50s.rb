@@ -97,7 +97,7 @@ class Nx50s
 
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{CoreData2::toString(nx50)} (#{nx50["type"]})"
+        "[nx50] (#{nx50["category"].downcase}) #{CoreData2::toString(nx50)} (#{nx50["type"]})"
     end
 
     # Nx50s::toStringForNS19(atom)
@@ -109,7 +109,7 @@ class Nx50s
     def self.toStringForNS16(nx50, rt)
 
         mapping = {
-            "Float"    => "",
+            "Float"    => nil,
             "Priority Communication" => "(comm)".green,
             "Asap"     => "(asap)".green,
             "Quark"    => "(qurk)",
@@ -120,7 +120,7 @@ class Nx50s
        if nx50["category"] == "Float" then
             nx50["description"]
        else
-            "[nx50] (#{"%4.2f" % rt}) #{mapping[nx50["category"]]} #{Nx50s::toString(nx50).gsub("[nx50] [atom] ", " ")}"
+            "[nx50] (#{"%4.2f" % rt}) #{mapping[nx50["category"]]} #{CoreData2::toString(nx50).gsub("[atom] ", "")} (#{nx50["type"]})"
        end
     end
 
