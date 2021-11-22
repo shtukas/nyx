@@ -23,3 +23,5 @@ categories
     - "Standard"               : Standard (essentially not any other category)
 
     - "Priority Communication" : Typically created as a Nx50 from a Inbox item in the (work) domain
+
+    - "Float"                  : Floating items for on going processes

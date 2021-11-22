@@ -185,6 +185,17 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
+        puts ""
+        puts "floats:"
+        vspaceleft = vspaceleft - 2
+        Nx50s::ns16sX2(domain)["Floats"]
+            .each{|object|
+                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+
+
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
         if running.size > 0 then
             puts ""

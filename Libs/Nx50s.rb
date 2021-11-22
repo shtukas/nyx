@@ -157,7 +157,7 @@ class Nx50s
 
     # Nx50s::categories()
     def self.categories()
-        ["Quark", "Vienna", "Standard", "Priority Communication"]
+        ["Quark", "Vienna", "Standard", "Priority Communication", "Float"]
     end
 
     # Nx50s::timeTrackedCategories()
@@ -167,7 +167,7 @@ class Nx50s
 
     # Nx50s::selectableCategories()
     def self.selectableCategories()
-        ["Standard", "Priority Communication"]
+        ["Float", "Priority Communication", "Standard"]
     end
 
     # Nx50s::timeTrackedCategorToBankAccount(category)
@@ -337,6 +337,12 @@ class Nx50s
 
         items = Nx50s::nx50sForDomain(domain)
 
+        floats, items = items.partition{|item| item["category"] == "Float" }
+
+        floats = floats
+                    .map{|item| Nx50s::ns16OrNull(item) }
+                    .compact
+
         if domain == "(eva)" then
             items1 = items.select{|item| item["category"] == "Priority Communication" }
             items2 = Nx50s::timeTrackedCategories()
@@ -358,6 +364,7 @@ class Nx50s
 
         overflow, tail = ns16s.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
         {
+            "Floats"   => floats,
             "overflow" => overflow,
             "tail"     => tail
         }
