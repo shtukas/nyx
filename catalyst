@@ -13,8 +13,4 @@ Thread.new {
     }
 }
 
-loop {
-    domain = Domain::getDomain()
-    ns16s = NS16sOperator::ns16s(domain)
-    UIServices::mainView(domain, ns16s)
-}
+UIServices::displayLoop()

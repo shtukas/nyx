@@ -165,21 +165,24 @@ class Nx50s
         ["Quark", "Vienna", "Standard"]
     end
 
+    # Nx50s::nonTimeTrackedCategories()
+    def self.nonTimeTrackedCategories()
+        Nx50s::categories() - Nx50s::timeTrackedCategories()
+    end
+
     # Nx50s::selectableCategories()
     def self.selectableCategories()
         ["Float", "Priority Communication", "Standard"]
     end
 
-    # Nx50s::timeTrackedCategorToBankAccount(category)
-    def self.timeTrackedCategorToBankAccount(category)
+    # Nx50s::categoryToBankAccountOrNull(category)
+    def self.categoryToBankAccountOrNull(category)
         mapping = {
             "Quark"    => "9979D5C8-091D-4929-9E2E-2191FA1291B6",
             "Vienna"   => "35EFF9F7-1A58-48C4-B0CD-3499A0683A4D",
             "Standard" => "88245B96-DE84-4A4F-9F7B-50F7C907204C"
         }
-        account = mapping[category]
-        raise "[a8d5a315-ae3c-41c1-9477-195a71164b7e: #{category}]" if account.nil?
-        account
+        mapping[category]
     end
 
     # Nx50s::interactivelySelectCategory()
@@ -201,7 +204,7 @@ class Nx50s
             accounts = []
             accounts << item["uuid"]
             accounts << Domain::domainToBankAccount(item["domain"])
-            accounts << Nx50s::timeTrackedCategorToBankAccount(item["category"])
+            accounts << Nx50s::categoryToBankAccountOrNull(item["category"])
             accounts.compact
         }
 
@@ -305,11 +308,18 @@ class Nx50s
         NxBallsService::closeWithAsking(uuid)
     end
 
+    # Nx50s::itemIsOperational(item)
+    def self.itemIsOperational(item)
+        uuid = item["uuid"]
+        return false if !DoNotShowUntil::isVisible(uuid)
+        return false if !InternetStatus::ns16ShouldShow(uuid)
+        true
+    end
+
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
-        return nil if !DoNotShowUntil::isVisible(uuid)
-        return nil if !InternetStatus::ns16ShouldShow(uuid)
+        return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         tx = Bank::valueAtDate(uuid, Utils::today()).to_f/3600
         note = StructuredTodoTexts::getNoteOrNull(uuid)
@@ -332,8 +342,8 @@ class Nx50s
 
     # Nx50s::ns16sX2(domain)
     def self.ns16sX2(domain)
+
         Nx50s::importspread()
-        threshold = Nx50s::overflowThreshold(domain)
 
         items = Nx50s::nx50sForDomain(domain)
 
@@ -344,17 +354,35 @@ class Nx50s
                     .compact
 
         if domain == "(eva)" then
-            items1 = items.select{|item| item["category"] == "Priority Communication" }
+
+            items1 = items
+                .select{|item| Nx50s::nonTimeTrackedCategories().include?(item["category"]) }
+                .reduce([]){|selection, item|  
+                    if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                        selection << item
+                    end
+                    selection
+                }
+
             items2 = Nx50s::timeTrackedCategories()
                         .map{|category|
+                            its = items
+                                        .select{|item| item["category"] == category }
+                                        .reduce([]){|selection, item|  
+                                            if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                                                selection << item
+                                            end
+                                            selection
+                                        }
                             {
-                                "items"      => items.select{|item| item["category"] == category }.first(50),
-                                "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::timeTrackedCategorToBankAccount(category)) 
+                                "items"      => its,
+                                "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::categoryToBankAccountOrNull(category)) 
                             }
                         }
                         .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
                         .map{|packet| packet["items"] }
                         .flatten
+
             items = items1 + items2
         end
 
@@ -362,6 +390,7 @@ class Nx50s
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
+        threshold = Nx50s::overflowThreshold(domain)
         overflow, tail = ns16s.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
         {
             "Floats"   => floats,
@@ -378,7 +407,7 @@ class Nx50s
                 .map{|category|
                     {
                         "category"   => category,
-                        "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::timeTrackedCategorToBankAccount(category)) 
+                        "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::categoryToBankAccountOrNull(category)) 
                     }
                 }
                 .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }

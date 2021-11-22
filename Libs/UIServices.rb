@@ -16,7 +16,6 @@ class NS16sOperator
             Waves::ns16s(domain),
             Inbox::ns16s(),
             Dated::ns16s(),
-            Nx50s::ns16sX2(domain)["tail"],
         ]
             .flatten
             .compact
@@ -119,8 +118,8 @@ class UIServices
         ].join(" | ")
     end
 
-    # UIServices::mainView(domain, ns16s)
-    def self.mainView(domain, ns16s)
+    # UIServices::mainView(domain, floats, overflow, ns16s)
+    def self.mainView(domain, floats, overflow, ns16s)
 
         collection = ns16s.clone
 
@@ -162,29 +161,27 @@ class UIServices
         puts "commands:"
         puts infolines
 
-        overflow = Nx50s::ns16sX2(domain)["overflow"]
+        # This blank run is only to reserve screen space
         if overflow.size > 0 then
-            puts ""
-            puts "overflow:"
             vspaceleft = vspaceleft - 2
             overflow.each{|ns16|
-                indx = store.register(ns16)
-                announce = "(#{"%3d" % indx}) #{ns16["announce"]}"
-                puts announce
+                announce = "(#{"%3d" % 0}) #{ns16["announce"]}"
+                #puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
         end
 
-        puts ""
-        puts "floats:"
-        vspaceleft = vspaceleft - 2
-        Nx50s::ns16sX2(domain)["Floats"]
-            .each{|object|
-                line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
-
+        if floats.size > 0 then
+            puts ""
+            puts "floats:"
+            vspaceleft = vspaceleft - 2
+            floats
+                .each{|object|
+                    line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
+                    puts line
+                    vspaceleft = vspaceleft - Utils::verticalSize(line)
+                }
+        end
 
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
         if running.size > 0 then
@@ -220,6 +217,15 @@ class UIServices
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
+        if overflow.size > 0 then
+            puts ""
+            puts "overflow:"
+            overflow.each{|ns16|
+                indx = store.register(ns16)
+                puts "(#{"%3d" % indx}) #{ns16["announce"]}"
+            }
+        end
+
         puts ""
         command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -247,6 +253,17 @@ class UIServices
             CentralDispatch::operator1(item, command)
         end
     end
+
+    # UIServices::displayLoop()
+    def self.displayLoop()
+        loop {
+            domain = Domain::getDomain()
+            structure = Nx50s::ns16sX2(domain)
+            ns16s = NS16sOperator::ns16s(domain)
+            UIServices::mainView(domain, structure["Floats"], structure["overflow"], ns16s + structure["tail"])
+        }
+    end
+
 end
 
 class Fsck
