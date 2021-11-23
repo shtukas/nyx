@@ -118,7 +118,7 @@ class CentralDispatch
             return if description == ""
             domain = Domain::interactivelySelectDomain()
             domainBankAccount = Domain::domainToBankAccount(domain)
-            NxBallsService::issue("04b8932b-986a-4f25-8320-5fc00c076dc1", description, [domainBankAccount])
+            NxBallsService::issue(SecureRandom.uuid, description, [domainBankAccount])
         end
 
         if command == "today" then
