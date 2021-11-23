@@ -164,7 +164,7 @@ class Dated # OnDate
             end
 
             if Interpreting::match(">todo", command) then
-                atom["unixtime"] = Nx50s::getNewUnixtime()
+                atom["unixtime"] = Time.new.to_f
                 CoreData2::addAtomToSet(atom["uuid"], [Nx50s::coreData2SetUUID()])
                 CoreData2::removeAtomFromSet(atom["uuid"], [Dated::coreData2SetUUID()])
                 break

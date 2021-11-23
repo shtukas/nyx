@@ -101,7 +101,7 @@ class UIServices
 
     # UIServices::makersCommands()
     def self.makersCommands()
-        "start # unscheduled | top | today | todo | ondate | wave | anniversary"
+        "start # unscheduled | monitor | today | ondate | asap | todo | wave | anniversary"
     end
 
     # UIServices::diversCommands()
@@ -171,7 +171,7 @@ class UIServices
 
         if floats.size > 0 then
             puts ""
-            puts "floats:"
+            puts "monitor:"
             vspaceleft = vspaceleft - 2
             floats
                 .each{|object|

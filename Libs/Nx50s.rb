@@ -38,11 +38,6 @@ class Nx50s
     # --------------------------------------------------
     # Unixtimes
 
-    # Nx50s::getNewUnixtime()
-    def self.getNewUnixtime()
-        Time.new.to_f
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -50,7 +45,7 @@ class Nx50s
     def self.interactivelyCreateNewOrNull()
         atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
         return nil if atom.nil?
-        atom["unixtime"] = Nx50s::getNewUnixtime()
+        atom["unixtime"] = Time.new.to_f
         atom["domain"]   = Domain::interactivelySelectDomain()
         atom["category"] = Nx50s::interactivelySelectCategory()
         CoreData2::commitAtom2(atom)
@@ -59,7 +54,7 @@ class Nx50s
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
-        atom["unixtime"] = Nx50s::getNewUnixtime()
+        atom["unixtime"] = Time.new.to_f
         atom["domain"]   = Domain::interactivelySelectDomain()
         atom["category"] = Nx50s::interactivelySelectCategory()
         CoreData2::commitAtom2(atom)
@@ -86,7 +81,7 @@ class Nx50s
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
-        atom["unixtime"] = Nx50s::getNewUnixtime()
+        atom["unixtime"] = Time.new.to_f
         atom["domain"]   = "(eva)"
         atom["category"] = "Vienna"
         CoreData2::commitAtom2(atom)

@@ -121,6 +121,24 @@ class CentralDispatch
             NxBallsService::issue(SecureRandom.uuid, description, [domainBankAccount])
         end
 
+        if command == "monitor" then
+            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
+            return nil if atom.nil?
+            atom["unixtime"] = Time.new.to_f
+            atom["domain"]   = Domain::interactivelySelectDomain()
+            atom["category"] = "Float"
+            CoreData2::commitAtom2(atom)
+        end
+
+        if command == "asap" then
+            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
+            return nil if atom.nil?
+            atom["unixtime"] = Time.new.to_f
+            atom["domain"]   = Domain::interactivelySelectDomain()
+            atom["category"] = "Asap"
+            CoreData2::commitAtom2(atom)
+        end
+
         if command == "today" then
             item = Dated::interactivelyIssueNewTodayOrNull()
             return if item.nil?

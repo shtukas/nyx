@@ -44,6 +44,8 @@ class Inbox
         }
 
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
+        return if action.nil?
+
         if action == "delete" then
             LucilleCore::removeFileSystemLocation(location)
         end
@@ -67,7 +69,7 @@ class Inbox
                 LucilleCore::removeFileSystemLocation(location)
             end
             if target == "todo" then
-                unixtime = Nx50s::getNewUnixtime()
+                unixtime = Time.new.to_f
                 domain = Domain::interactivelySelectDomain()
                 Nx50s::issueItemUsingLocation(location, locationToDescription.call(location), unixtime, domain)
                 LucilleCore::removeFileSystemLocation(location)
