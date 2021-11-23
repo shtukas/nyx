@@ -31,6 +31,13 @@ class Dated # OnDate
         mapping.keys.sort.map{|date| mapping[date].sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] } }.flatten
     end
 
+    # Dated::itemsForDomain(domain)
+    def self.itemsForDomain(domain)
+        Dated::items().select{|item|
+            item["domain"].nil? or (item["domain"] == domain)
+        }
+    end
+
     # Dated::interactivelySelectADateOrNull()
     def self.interactivelySelectADateOrNull()
         datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
@@ -109,7 +116,7 @@ class Dated # OnDate
                 puts "note:\n#{note}".green
             end
 
-            puts "access | <datecode> | note | update description | date | update contents | >todo | exit | destroy (gg)".yellow
+            puts "access | <datecode> | note | update description | date | domain | update contents | >todo | exit | destroy (gg)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -135,6 +142,12 @@ class Dated # OnDate
                 atom["description"] = description
                 CoreData2::commitAtom2(atom)
                 next
+            end
+
+            if Interpreting::match("domain", command) then
+                atom["domain"] = Domain::interactivelySelectDomainOrNull()
+                CoreData2::commitAtom2(atom)
+                break
             end
 
             if Interpreting::match("date", command) then
@@ -177,14 +190,14 @@ class Dated # OnDate
             "uuid"     => item["uuid"],
             "NS198"    => "ns16:dated1",
             "announce" => Dated::toString(item),
-            "commands" => ["..", "redate", "done"],
+            "commands" => ["..", "redate", "domain", "done"],
             "atom"     => item
         }
     end
 
-    # Dated::ns16s()
-    def self.ns16s()
-        Dated::items()
+    # Dated::ns16s(domain)
+    def self.ns16s(domain)
+        Dated::itemsForDomain(domain)
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| item["date"] <= Time.new.to_s[0, 10] }
             .map{|item| Dated::itemToNS16(item) }

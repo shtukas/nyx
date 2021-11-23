@@ -54,6 +54,12 @@ class CentralDispatch
             CoreData2::commitAtom2(item)
         end
 
+        if object["NS198"] == "ns16:dated1" and command == "domain" then
+            atom = object["atom"]
+            atom["domain"] = Domain::interactivelySelectDomainOrNull()
+            CoreData2::commitAtom2(atom)
+        end
+
         if object["NS198"] == "ns16:dated1" and command == "done" then
             item = object["atom"]
             if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then

@@ -11,4 +11,5 @@ Dated # Essentially a CoreData2Atom with a date
     "payload"     : CoreData2AtomPayload
 
     "date"        : date
+    "domain"      : Domain | nil (when nil, displays at both domains)
 }
