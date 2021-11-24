@@ -104,7 +104,7 @@ class Nx50s
     def self.toStringForNS16(nx50, rt)
 
         mapping = {
-            "Float"    => nil,
+            "Monitor"  => nil,
             "Priority Communication" => "(comm)".green,
             "Asap"     => "(asap)".green,
             "Quark"    => "(qurk)",
@@ -112,7 +112,7 @@ class Nx50s
             "Standard" => "(stnd)"
         }
 
-       if nx50["category"] == "Float" then
+       if nx50["category"] == "Monitor" then
             nx50["description"]
        else
             "[nx50] (#{"%4.2f" % rt}) #{mapping[nx50["category"]]} #{CoreData2::toString(nx50).gsub("[atom] ", "")} (#{nx50["type"]})"
@@ -167,7 +167,7 @@ class Nx50s
     # Nx50s::categories()
     def self.categories()
         # "Priority Communication", "Asap" are in the order we want them to display
-        ["Float", "Priority Communication", "Asap", "Quark", "Vienna", "Standard"]
+        ["Monitor", "Priority Communication", "Asap", "Quark", "Vienna", "Standard"]
 
     end
 
@@ -183,7 +183,7 @@ class Nx50s
 
     # Nx50s::selectableCategories()
     def self.selectableCategories()
-        ["Float", "Priority Communication", "Asap", "Standard"]
+        ["Monitor", "Priority Communication", "Asap", "Standard"]
     end
 
     # Nx50s::categoryToBankAccountOrNull(category)
@@ -358,9 +358,9 @@ class Nx50s
 
         items = Nx50s::nx50sForDomain(domain)
 
-        floats, items = items.partition{|item| item["category"] == "Float" }
+        monitor, items = items.partition{|item| item["category"] == "Monitor" }
 
-        floats = floats
+        monitor = monitor
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
@@ -401,7 +401,7 @@ class Nx50s
         threshold = Nx50s::overflowThreshold(domain)
         overflow, tail = ns16s.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
         {
-            "Floats"   => floats,
+            "Monitor"  => monitor,
             "overflow" => overflow,
             "tail"     => tail
         }

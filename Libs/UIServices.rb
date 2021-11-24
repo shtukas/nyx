@@ -256,7 +256,7 @@ class UIServices
             domain = Domain::getDomain()
             structure = Nx50s::ns16sX2(domain)
             ns16s = NS16sOperator::ns16s(domain)
-            UIServices::mainView(domain, structure["Floats"], structure["overflow"], ns16s + structure["tail"])
+            UIServices::mainView(domain, structure["Monitor"], structure["overflow"], ns16s + structure["tail"])
         }
     end
 
