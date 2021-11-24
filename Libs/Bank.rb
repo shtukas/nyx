@@ -251,7 +251,7 @@ class NxBallsService
     def self.closeWithAsking(uuid)
         nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
-        if !LucilleCore::askQuestionAnswerAsBoolean("(#{Time.new.to_s}) Running '#{nxball["description"]}'. Continue ? ") then
+        if !LucilleCore::askQuestionAnswerAsBoolean("(#{Time.new.to_s}) Running '#{nxball["description"]}'. Continue ? ", false) then
             NxBallsService::close(uuid, true)
         end
     end
