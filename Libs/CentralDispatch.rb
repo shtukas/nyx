@@ -51,13 +51,13 @@ class CentralDispatch
             return if date.nil?
             item["date"] = date
             puts JSON.pretty_generate(item)
-            CoreData2::commitAtom2(item)
+            ObjectStore4::store(item, Dated::setuuid())
         end
 
         if object["NS198"] == "ns16:dated1" and command == "domain" then
-            atom = object["atom"]
-            atom["domain"] = Domain::interactivelySelectDomainOrNull()
-            CoreData2::commitAtom2(atom)
+            item = object["atom"]
+            item["domain"] = Domain::interactivelySelectDomainOrNull()
+            ObjectStore4::store(item, Dated::setuuid())
         end
 
         if object["NS198"] == "ns16:dated1" and command == "done" then
