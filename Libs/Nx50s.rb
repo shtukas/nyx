@@ -173,7 +173,7 @@ class Nx50s
 
     # Nx50s::timeTrackedCategories()
     def self.timeTrackedCategories()
-        ["Quark", "Vienna", "Standard"]
+        ["Quark", "Vienna", "Standard", "Asap"]
     end
 
     # Nx50s::nonTimeTrackedCategories()
@@ -378,7 +378,7 @@ class Nx50s
                         its = items
                                     .select{|item| item["category"] == category }
                                     .reduce([]){|selection, item|  
-                                        if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                                        if selection.size < 10 and Nx50s::itemIsOperational(item) then
                                             selection << item
                                         end
                                         selection
