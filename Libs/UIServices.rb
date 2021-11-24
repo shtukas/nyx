@@ -136,7 +136,7 @@ class UIServices
             "      " + UIServices::makersCommands(),
             "      " + UIServices::diversCommands(),
             "      " + UIServices::domainsMenuCommands(),
-            "      internet on | internet off | requires internet"
+            "      internet on | internet off | require internet"
         ].join("\n").yellow
 
         vspaceleft = vspaceleft - Utils::verticalSize(infolines)

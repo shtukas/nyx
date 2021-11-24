@@ -232,7 +232,7 @@ class CentralDispatch
             InternetStatus::setInternetOff()
         end
 
-        if Interpreting::match("requires internet", command) then
+        if Interpreting::match("require internet", command) then
             ns16 = store.getDefault()
             return if ns16.nil?
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
