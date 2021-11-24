@@ -128,7 +128,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNullForClient(channel, clientId)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/CoreData.rb"
+require "/Users/pascal/Galaxy/Software/CoreData/CoreData.rb"
 
 # ------------------------------------------------------------
 
