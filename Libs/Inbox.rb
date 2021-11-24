@@ -56,7 +56,7 @@ class Inbox
                 date = Dated::interactivelySelectADateOrNull()
                 return nil if date.nil?
 
-                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, description, locationToDescription.call(location) [Dated::coreData2SetUUID()])
+                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, description, locationToDescription.call(location) [Dated::setuuid()])
                 atom["date"] = date
                 CoreData2::commitAtom2(atom)
 

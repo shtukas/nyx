@@ -2,19 +2,19 @@
 
 class Dated # OnDate
 
-    # Dated::coreData2SetUUID()
-    def self.coreData2SetUUID()
+    # Dated::setuuid()
+    def self.setuuid()
         "catalyst:908fffc7-19a5-41cc-a2ff-e316711b373f"
     end
 
     # Dated::getDatedByUUIDOrNull(atomuuid)
     def self.getDatedByUUIDOrNull(atomuuid)
-        CoreData2::getAtomOrNull(atomuuid)
+        ObjectStore4::getObjectByUUIDOrNull(atomuuid)
     end
 
     # Dated::items()
     def self.items()
-        mapping = CoreData2::getSet(Dated::coreData2SetUUID())
+        mapping = ObjectStore4::getSet(Dated::setuuid())
             .map{|atom|
                 if atom["date"].nil? then
                     atom["date"] = Utils::today()
@@ -51,22 +51,22 @@ class Dated # OnDate
         date = Dated::interactivelySelectADateOrNull()
         return nil if date.nil?
 
-        atom = CoreData2::interactivelyCreateANewAtomOrNull([Dated::coreData2SetUUID()])
-        return nil if atom.nil?
+        item = CoreData3::interactivelyCreateNewAtomOrNull()
+        return nil if item.nil?
 
-        atom["date"] = date
-        CoreData2::commitAtom2(atom)
-        atom
+        item["date"] = date
+        ObjectStore4::store(item, Dated::setuuid())
+        item
     end
 
     # Dated::interactivelyIssueNewTodayOrNull()
     def self.interactivelyIssueNewTodayOrNull()
-        atom = CoreData2::interactivelyCreateANewAtomOrNull([Dated::coreData2SetUUID()])
-        return nil if atom.nil?
+        item = CoreData3::interactivelyCreateNewAtomOrNull()
+        return nil if item.nil?
 
-        atom["date"] = Utils::today()
-        CoreData2::commitAtom2(atom)
-        atom
+        item["date"] = Utils::today()
+        ObjectStore4::store(item, Dated::setuuid())
+        item
     end
 
     # Dated::issueItemUsingText(text, unixtime, date)
@@ -74,23 +74,23 @@ class Dated # OnDate
         text = text.strip
         return if text.size == 0
         description = text.lines.first.strip
-        atom = CoreData2::issueTextAtomUsingText(SecureRandom.uuid, description, text, [Dated::coreData2SetUUID()])
-        atom["date"] = date
-        CoreData2::commitAtom2(atom)
-        atom
+        item = CoreData3::issueTextAtomUsingText(SecureRandom.uuid, description, text)
+        item["date"] = date
+        ObjectStore4::store(item, Dated::setuuid())
+        item
     end
 
-    # Dated::destroy(atom)
-    def self.destroy(atom)
-        CoreData2::removeAtomFromSet(atom["uuid"], Dated::coreData2SetUUID())
+    # Dated::destroy(item)
+    def self.destroy(item)
+        ObjectStore4::removeObjectFromSet(Dated::setuuid(), item["uuid"])
     end
 
     # -------------------------------------
     # Operations
 
-    # Dated::toString(atom)
-    def self.toString(atom)
-        "[date] (#{atom["date"]}) #{CoreData2::toString(atom).gsub("[atom] ", "")} (#{atom["type"]})"
+    # Dated::toString(item)
+    def self.toString(item)
+        "[date] (#{item["date"]}) #{CoreData3::toString(item).gsub("[atom] ", "")} (#{item["type"]})"
     end
 
     # Dated::run(atom)
@@ -109,7 +109,7 @@ class Dated # OnDate
             puts "#{Dated::toString(atom)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(atom["uuid"])}".yellow
 
-            puts CoreData2::atomPayloadToText(atom)
+            puts CoreData3::atomPayloadToText(atom)
 
             note = StructuredTodoTexts::getNoteOrNull(atom["uuid"])
             if note then
@@ -121,7 +121,7 @@ class Dated # OnDate
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             if Interpreting::match("access", command) then
-                CoreData2::accessWithOptionToEdit(atom)
+                CoreData3::accessWithOptionToEdit(atom)
                 next
             end
 
@@ -140,13 +140,13 @@ class Dated # OnDate
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
                 atom["description"] = description
-                CoreData2::commitAtom2(atom)
+                ObjectStore4::store(atom, Dated::setuuid())
                 next
             end
 
             if Interpreting::match("domain", command) then
                 atom["domain"] = Domain::interactivelySelectDomainOrNull()
-                CoreData2::commitAtom2(atom)
+                ObjectStore4::store(atom, Dated::setuuid())
                 break
             end
 
@@ -154,19 +154,20 @@ class Dated # OnDate
                 date = Dated::interactivelySelectADateOrNull()
                 next if date.nil?
                 atom["date"] = date
-                CoreData2::commitAtom2(atom)
+                ObjectStore4::store(atom, Dated::setuuid())
                 break
             end
 
             if Interpreting::match("update contents", command) then
-                atom = CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(atom)
+                atom = CoreData3::interactivelyMakeNewContentOrIdentity(atom)
+                ObjectStore4::store(atom, Dated::setuuid())
                 next
             end
 
             if Interpreting::match(">todo", command) then
                 atom["unixtime"] = Time.new.to_f
                 CoreData2::addAtomToSet(atom["uuid"], [Nx50s::coreData2SetUUID()])
-                CoreData2::removeAtomFromSet(atom["uuid"], [Dated::coreData2SetUUID()])
+                ObjectStore4::removeObjectFromSet(Dated::setuuid(), atom["uuid"])
                 break
             end
 

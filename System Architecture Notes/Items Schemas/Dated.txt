@@ -1,9 +1,10 @@
 
-CoreData2 Set: "catalyst:908fffc7-19a5-41cc-a2ff-e316711b373f"
+CoreData3 
 
-Dated # Essentially a CoreData2Atom with a date
+Set: "catalyst:908fffc7-19a5-41cc-a2ff-e316711b373f"
+
+Dated
 {
-    (CoreData2Atom)
     "uuid"        : uuid,
     "unixtime"    : unixtime,
     "description" : description,
