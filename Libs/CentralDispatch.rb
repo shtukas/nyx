@@ -112,6 +112,9 @@ class CentralDispatch
         if command == "work" then
             Domain::setStoredDomainWithExpiry("(work)", Time.new.to_i + 3600)
         end
+        if command == "jedi" then
+            Domain::setStoredDomainWithExpiry("(jedi)", Time.new.to_i + 3600)
+        end
 
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")

@@ -82,16 +82,14 @@ class UIServices
     # UIServices::domainsMenuCommands()
     def self.domainsMenuCommands()
         today = Time.new.to_s[0, 10]
-        h1 = Bank::valueAtDate("EVA-97F7F3341-4CD1-8B20-4A2466751408", today).to_f/3600
-        h2 = Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", today).to_f/3600
-        strings = [
-            "(eva: #{h1.round(2)} hours today)",
-            "(work: #{h2.round(2)} hours today)"
-        ]
-        if Domain::getDomain() != "(eva)" then
-            strings = strings.reverse
-        end
-        strings.join(" ")
+        Domain::domains()
+            .map{|domain|
+                account = Domain::domainToBankAccount(domain)
+                value = Bank::valueAtDate(account, today).to_f/3600
+                d = domain.gsub("(", "").gsub(")", "")
+                "(#{d}: #{value.round(2)} hours today)"
+            }
+            .join(" ")
     end
 
     # UIServices::listingCommands()

@@ -1,13 +1,11 @@
 
 # encoding: UTF-8
 
-# Domains: "(eva)" | "(work)"
-
 class Domain
 
     # Domain::domains()
     def self.domains()
-        ["(eva)", "(work)"]
+        ["(eva)", "(work)", "(jedi)"]
     end
 
     # Domain::setStoredDomainWithExpiry(domain, expiryUnixtime)
@@ -48,6 +46,7 @@ class Domain
         mapping = {
             "(eva)"  => "EVA-97F7F3341-4CD1-8B20-4A2466751408",
             "(work)" => Work::bankaccount(),
+            "(jedi)" => "C87787F9-77E9-4518-BC41-DBCFB7775299",
         }
         raise "[62e07265-cda5-45e1-9b90-7c88db751a1c: #{domain}]" if !mapping.keys.include?(domain)
         mapping[domain]
@@ -55,7 +54,7 @@ class Domain
 
     # Domain::interactivelySelectDomain()
     def self.interactivelySelectDomain()
-        domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["(eva)", "(work)"])
+        domain = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", Domain::domains())
         if !domain.nil? then
             return domain
         end
@@ -64,7 +63,7 @@ class Domain
 
     # Domain::interactivelySelectDomainOrNull()
     def self.interactivelySelectDomainOrNull()
-        entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", ["(eva)", "(work)", "(null) # default"])
+        entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("domain", Domain::domains() + ["(null) # default"])
         if entity == "(null) # default" then
             return nil
         end
