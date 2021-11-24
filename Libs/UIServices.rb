@@ -184,22 +184,35 @@ class UIServices
             puts ""
             puts "running:"
             vspaceleft = vspaceleft - 2
-            running.each{|nxball|
-                delegate = {
-                    "uuid"  => nxball["uuid"],
-                    "NS198" => "NxBallDelegate1" 
+            running
+                .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
+                .each{|nxball|
+                    delegate = {
+                        "uuid"  => nxball["uuid"],
+                        "NS198" => "NxBallDelegate1" 
+                    }
+                    indx = store.register(delegate)
+                    announce = "(#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                    puts announce
+                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
-                indx = store.register(delegate)
-                announce = "(#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+        end
+        runningUUIDs = running.map{|item| item["uuid"] }
+        collection
+            .select{|ns16| runningUUIDs.include?(ns16["uuid"]) }
+            .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
+            .each{|ns16|
+                indx = store.register(ns16)
+                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}"
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
-        end
 
         puts ""
         puts "todo:"
         vspaceleft = vspaceleft - 2
         collection
+            .select{|ns16| !runningUUIDs.include?(ns16["uuid"]) }
             .each{|ns16|
                 indx = store.register(ns16)
                 isDefaultItem = store.getDefault().nil? # the default item is the first element
