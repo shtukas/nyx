@@ -69,21 +69,12 @@ class Nx50s
         CoreData2::commitAtom2(atom)
     end
 
-    # Nx50s::issuePriorityCommunicationItemUsingLocation(location, description, domain)
-    def self.issuePriorityCommunicationItemUsingLocation(location, description, domain)
-        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::setuuid()])
-        atom["unixtime"]  = Time.new.to_f
-        atom["domain"]    = domain
-        atom["category2"] = ["Priority Communication"]
-        CoreData2::commitAtom2(atom)
-    end
-
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::setuuid()])
         atom["unixtime"]  = Time.new.to_f
         atom["domain"]    = "(eva)"
-        atom["category2"] = ["Vienna"]
+        atom["category2"] = ["Tail"]
         CoreData2::commitAtom2(atom)
     end
 
@@ -92,31 +83,23 @@ class Nx50s
 
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        "[nx50] (#{nx50["category2"][0].downcase}) #{CoreData2::toString(nx50)} (#{nx50["type"]})"
+        "[nx50] #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
-    # Nx50s::toStringForNS19(atom)
-    def self.toStringForNS19(atom)
-        "[nx50] #{atom["description"]}"
+    # Nx50s::toStringForNS19(nx50)
+    def self.toStringForNS19(nx50)
+        "[nx50] #{nx50["description"]}"
     end
 
     # Nx50s::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-
-        mapping = {
-            "Monitor"  => nil,
-            "Priority Communication" => "(comm)".green,
-            "Asap"     => "(asap)".green,
-            "Quark"    => "(qurk)",
-            "Vienna"   => "(vinn)",
-            "Standard" => "(stnd)"
-        }
-
-       if nx50["category2"][0] == "Monitor" then
-            nx50["description"]
-       else
-            "[nx50] (#{"%4.2f" % rt}) #{mapping[nx50["category2"][0]]} #{CoreData2::toString(nx50).gsub("[atom] ", "")} (#{nx50["type"]})"
-       end
+        if nx50["category2"][0] == "Monitor" then
+            return "#{nx50["description"]} (#{nx50["atom"]["type"]})"
+        end
+        if nx50["category2"][0] == "Dated" then
+            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        end
+        "(#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
     # Nx50s::complete(atom)
@@ -166,38 +149,12 @@ class Nx50s
 
     # Nx50s::coreCategories()
     def self.coreCategories()
-        # "Priority Communication", "Asap" are in the order we want them to display
-        ["Monitor", "Priority Communication", "Dated", "Asap", "Quark", "Vienna", "Standard"]
-    end
-
-    # Nx50s::timeTrackedCoreCategories()
-    def self.timeTrackedCoreCategories()
-        ["Quark", "Vienna", "Standard", "Asap"]
-    end
-
-    # Nx50s::nonTimeTrackedCoreCategories()
-    def self.nonTimeTrackedCoreCategories()
-        Nx50s::coreCategories() - Nx50s::timeTrackedCoreCategories()
-    end
-
-    # Nx50s::selectableCoreCategories()
-    def self.selectableCoreCategories()
-        ["Monitor", "Priority Communication", "Asap", "Standard"]
-    end
-
-    # Nx50s::coreCategoryToBankAccountOrNull(category)
-    def self.coreCategoryToBankAccountOrNull(category)
-        mapping = {
-            "Quark"    => "9979D5C8-091D-4929-9E2E-2191FA1291B6",
-            "Vienna"   => "35EFF9F7-1A58-48C4-B0CD-3499A0683A4D",
-            "Standard" => "88245B96-DE84-4A4F-9F7B-50F7C907204C"
-        }
-        mapping[category]
+        ["Monitor", "Dated", "Tail"]
     end
 
     # Nx50s::interactivelySelectCoreCategory()
     def self.interactivelySelectCoreCategory()
-        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::selectableCoreCategories())
+        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::coreCategories())
         if !category.nil? then
             return category
         end
@@ -207,11 +164,9 @@ class Nx50s
     # Nx50s::makeNewCategory2Sequence()
     def self.makeNewCategory2Sequence()
         corecategory = Nx50s::interactivelySelectCoreCategory()
-
         if category == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
         end
-
         [corecategory]
     end
 
@@ -225,7 +180,6 @@ class Nx50s
             accounts = []
             accounts << item["uuid"]
             accounts << Domain::domainToBankAccount(item["domain"])
-            accounts << Nx50s::coreCategoryToBankAccountOrNull(item["category2"][0])
             accounts.compact
         }
 
@@ -341,30 +295,13 @@ class Nx50s
 
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
-        announceMake = lambda {|nx50, rt, tx|
-            uuid = nx50["uuid"]
-            note = StructuredTodoTexts::getNoteOrNull(uuid)
-            noteStr = note ? " [note]" : ""
-            if nx50["category2"][0] == "Monitor" then
-                return "[#{Time.at(nx50["unixtime"]).to_s[0, 10]}] #{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (#{nx50["type"]})".strip
-            end
-            if nx50["category2"][0] == "Dated" then
-                return "[#{nx50["category2"][1]}] #{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (#{nx50["type"]})".strip
-            end
-            "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (today: #{tx.round(2)}, rt: #{rt.round(2)})".gsub("(0.00)", "      ").gsub("(today: 0.0, rt: 0.0)", "").strip
-        }
-
         uuid = nx50["uuid"]
         return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        tx = Bank::valueAtDate(uuid, Utils::today()).to_f/3600
-        
-        
-        announce = announceMake.call(nx50, rt, tx)
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:Nx501",
-            "announce" => announce,
+            "announce" => Nx50s::toStringForNS16(nx50, rt),
             "commands" => ["..", "done"],
             "Nx50"     => nx50,
             "rt"       => rt
@@ -376,18 +313,22 @@ class Nx50s
         (domain == "(work)") ? 2 : 1
     end
 
-    # Nx50s::ns16sX2(domain)
-    def self.ns16sX2(domain)
+    # Nx50s::structure(domain)
+    def self.structure(domain)
 
         Nx50s::importspread()
 
         items = Nx50s::nx50sForDomain(domain)
+
+        # -- monitor ---------------------------
 
         monitor, items = items.partition{|item| item["category2"][0] == "Monitor" }
 
         monitor = monitor
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
+
+        # -- dated ---------------------------
 
         dated, items = items.partition{|item| item["category2"][0] == "Dated" }
 
@@ -414,47 +355,30 @@ class Nx50s
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
-        items1 = items
-            .select{|item| Nx50s::nonTimeTrackedCoreCategories().include?(item["category2"][0]) }
-            .reduce([]){|selection, item|  
-                if selection.size < 20 and Nx50s::itemIsOperational(item) then
-                    selection << item
-                end
-                selection
-            }
+        # -- tail ---------------------------
 
-        items2 = Nx50s::timeTrackedCoreCategories()
-                    .map{|category|
-                        its = items
-                                    .select{|item| item["category2"][0] == category }
-                                    .reduce([]){|selection, item|  
-                                        if selection.size < 10 and Nx50s::itemIsOperational(item) then
-                                            selection << item
-                                        end
-                                        selection
-                                    }
-                        {
-                            "items"      => its,
-                            "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::coreCategoryToBankAccountOrNull(category)) 
-                        }
-                    }
-                    .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
-                    .map{|packet| packet["items"] }
-                    .flatten
+        tail = items
+                .reduce([]){|selection, item|  
+                    if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                        selection << item
+                    end
+                    selection
+                }
 
-        items = items1 + items2
+        tail = tail
+                .map{|item| Nx50s::ns16OrNull(item) }
+                .compact
 
-        ns16s = items
-                    .map{|item| Nx50s::ns16OrNull(item) }
-                    .compact
+        # -- overflow ---------------------------
 
         threshold = Nx50s::overflowThreshold(domain)
-        overflow, tail = ns16s.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
+        overflow, tail = tail.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
+
         {
             "Monitor"  => monitor,
             "overflow" => overflow,
-            "dated"    => dated,
-            "tail"     => tail
+            "Dated"    => dated,
+            "Tail"     => tail
         }
     end
 

@@ -9,27 +9,5 @@ Nx50 {
     "category2"   : 
                         ["Monitor"]
                         ["Dated", Date]
-                        ["Priority Communication"]
-                        ["Asap"] 
-                        ["Quark"] 
-                        ["Vienna"]
-                        ["Standard"]
+                        ["Tail"]
 }
-
-categories
-
-    - ["Monitor"]                : Floating items for on going monitored/HUD'ed processes
-
-    - ["Dated", Date]
-
-    - ["Priority Communication"] : Typically created as a Nx50 from a Inbox item in the (work) domain
-
-    - ["Asap"]                   : Displays between "Priority Communication" and the rest, use sparcely...
-                                 It's more towards the sprit of the Nx50 to not use it
-
-    - ["Quark"]                  : The original list is the list of items as it was on 19th Nov 2021
-
-    - ["Vienna"]                 : Indicates that the item came from Vienna.
-
-    - ["Standard"]               : Standard (essentially not any other category)
-

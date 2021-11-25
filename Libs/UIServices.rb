@@ -4,8 +4,8 @@
 
 class NS16sOperator
 
-    # NS16sOperator::ns16s(domain)
-    def self.ns16s(domain)
+    # NS16sOperator::ns16s(domain, structure)
+    def self.ns16s(domain, structure)
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -14,6 +14,8 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
+            structure["Dated"],
+            structure["Tail"]
         ]
             .flatten
             .compact
@@ -98,7 +100,7 @@ class UIServices
 
     # UIServices::makersCommands()
     def self.makersCommands()
-        "start # unscheduled | monitor | today | ondate | asap | todo | wave | anniversary"
+        "start # unscheduled | monitor | today | ondate | todo | wave | anniversary"
     end
 
     # UIServices::diversCommands()
@@ -266,9 +268,9 @@ class UIServices
     def self.displayLoop()
         loop {
             domain = Domain::getDomain()
-            structure = Nx50s::ns16sX2(domain)
-            ns16s = NS16sOperator::ns16s(domain)
-            UIServices::mainView(domain, structure["Monitor"], structure["overflow"], structure["dated"] + ns16s + structure["tail"])
+            structure = Nx50s::structure(domain)
+            ns16s = NS16sOperator::ns16s(domain, structure)
+            UIServices::mainView(domain, structure["Monitor"], structure["overflow"], ns16s)
         }
     end
 

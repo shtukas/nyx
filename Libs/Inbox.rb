@@ -49,13 +49,9 @@ class Inbox
         if action == "delete" then
             LucilleCore::removeFileSystemLocation(location)
         end
+        
         if action == "dispatch" then
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["communication", "todo"])
-            if target == "communication" then
-                domain = Domain::interactivelySelectDomain()
-                Nx50s::issuePriorityCommunicationItemUsingLocation(location, locationToDescription.call(location), domain)
-                LucilleCore::removeFileSystemLocation(location)
-            end
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["todo"])
             if target == "todo" then
                 unixtime = Time.new.to_f
                 domain = Domain::interactivelySelectDomain()
