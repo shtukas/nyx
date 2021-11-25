@@ -20,8 +20,8 @@ class Nx50s
                 atom
             }
             .map{|atom|
-                if !Nx50s::categories().include?(atom["category"]) then
-                    atom["category"] = "Priority Communication"
+                if !Nx50s::categories().include?(atom["category2"][0]) then
+                    atom["category2"] = ["Priority Communication"]
                     CoreData2::commitAtom2(atom)
                 end
                 atom
@@ -45,45 +45,45 @@ class Nx50s
     def self.interactivelyCreateNewOrNull()
         atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
         return nil if atom.nil?
-        atom["unixtime"] = Time.new.to_f
-        atom["domain"]   = Domain::interactivelySelectDomain()
-        atom["category"] = Nx50s::interactivelySelectCategory()
+        atom["unixtime"]  = Time.new.to_f
+        atom["domain"]    = Domain::interactivelySelectDomain()
+        atom["category2"] = [Nx50s::interactivelySelectCategory()]
         CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::setuuid()])
-        atom["unixtime"] = Time.new.to_f
-        atom["domain"]   = Domain::interactivelySelectDomain()
-        atom["category"] = Nx50s::interactivelySelectCategory()
+        atom["unixtime"]  = Time.new.to_f
+        atom["domain"]    = Domain::interactivelySelectDomain()
+        atom["category2"] = [Nx50s::interactivelySelectCategory()]
         CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueItemUsingLocation(location, description, unixtime, domain)
     def self.issueItemUsingLocation(location, description, unixtime, domain)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::setuuid()])
-        atom["unixtime"] = unixtime
-        atom["domain"]   = domain
-        atom["category"] = Nx50s::interactivelySelectCategory()
+        atom["unixtime"]  = unixtime
+        atom["domain"]    = domain
+        atom["category2"] = [Nx50s::interactivelySelectCategory()]
         CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issuePriorityCommunicationItemUsingLocation(location, description, domain)
     def self.issuePriorityCommunicationItemUsingLocation(location, description, domain)
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::setuuid()])
-        atom["unixtime"] = Time.new.to_f
-        atom["domain"]   = domain
-        atom["category"] = "Priority Communication"
+        atom["unixtime"]  = Time.new.to_f
+        atom["domain"]    = domain
+        atom["category2"] = ["Priority Communication"]
         CoreData2::commitAtom2(atom)
     end
 
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
         atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::setuuid()])
-        atom["unixtime"] = Time.new.to_f
-        atom["domain"]   = "(eva)"
-        atom["category"] = "Vienna"
+        atom["unixtime"]  = Time.new.to_f
+        atom["domain"]    = "(eva)"
+        atom["category2"] = ["Vienna"]
         CoreData2::commitAtom2(atom)
     end
 
@@ -92,7 +92,7 @@ class Nx50s
 
     # Nx50s::toString(nx50)
     def self.toString(nx50)
-        "[nx50] (#{nx50["category"].downcase}) #{CoreData2::toString(nx50)} (#{nx50["type"]})"
+        "[nx50] (#{nx50["category2"][0].downcase}) #{CoreData2::toString(nx50)} (#{nx50["type"]})"
     end
 
     # Nx50s::toStringForNS19(atom)
@@ -112,10 +112,10 @@ class Nx50s
             "Standard" => "(stnd)"
         }
 
-       if nx50["category"] == "Monitor" then
+       if nx50["category2"][0] == "Monitor" then
             nx50["description"]
        else
-            "[nx50] (#{"%4.2f" % rt}) #{mapping[nx50["category"]]} #{CoreData2::toString(nx50).gsub("[atom] ", "")} (#{nx50["type"]})"
+            "[nx50] (#{"%4.2f" % rt}) #{mapping[nx50["category2"][0]]} #{CoreData2::toString(nx50).gsub("[atom] ", "")} (#{nx50["type"]})"
        end
     end
 
@@ -215,7 +215,7 @@ class Nx50s
             accounts = []
             accounts << item["uuid"]
             accounts << Domain::domainToBankAccount(item["domain"])
-            accounts << Nx50s::categoryToBankAccountOrNull(item["category"])
+            accounts << Nx50s::categoryToBankAccountOrNull(item["category2"][0])
             accounts.compact
         }
 
@@ -234,7 +234,7 @@ class Nx50s
             puts "coreDataId: #{nx50["coreDataId"]}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
-            puts "category: #{nx50["category"]}".yellow
+            puts "category: #{nx50["category2"][0]}".yellow
 
             puts CoreData2::atomPayloadToText(nx50)
 
@@ -292,7 +292,7 @@ class Nx50s
             end
 
             if Interpreting::match("category", command) then
-                nx50["category"] = Nx50s::interactivelySelectCategory()
+                nx50["category2"] = [Nx50s::interactivelySelectCategory()]
                 puts JSON.pretty_generate(nx50)
                 CoreData2::commitAtom2(nx50)
                 next
@@ -335,7 +335,7 @@ class Nx50s
             uuid = nx50["uuid"]
             note = StructuredTodoTexts::getNoteOrNull(uuid)
             noteStr = note ? " [note]" : ""
-            if nx50["category"] == "Monitor" then
+            if nx50["category2"][0] == "Monitor" then
                 return "[#{Time.at(nx50["unixtime"]).to_s[0, 10]}] #{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (#{nx50["type"]})".strip
             end
             "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (today: #{tx.round(2)}, rt: #{rt.round(2)})".gsub("(0.00)", "      ").gsub("(today: 0.0, rt: 0.0)", "").strip
@@ -370,14 +370,14 @@ class Nx50s
 
         items = Nx50s::nx50sForDomain(domain)
 
-        monitor, items = items.partition{|item| item["category"] == "Monitor" }
+        monitor, items = items.partition{|item| item["category2"][0] == "Monitor" }
 
         monitor = monitor
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
         items1 = items
-            .select{|item| Nx50s::nonTimeTrackedCategories().include?(item["category"]) }
+            .select{|item| Nx50s::nonTimeTrackedCategories().include?(item["category2"][0]) }
             .reduce([]){|selection, item|  
                 if selection.size < 20 and Nx50s::itemIsOperational(item) then
                     selection << item
@@ -388,7 +388,7 @@ class Nx50s
         items2 = Nx50s::timeTrackedCategories()
                     .map{|category|
                         its = items
-                                    .select{|item| item["category"] == category }
+                                    .select{|item| item["category2"][0] == category }
                                     .reduce([]){|selection, item|  
                                         if selection.size < 10 and Nx50s::itemIsOperational(item) then
                                             selection << item

@@ -10,7 +10,7 @@ Nx50 {
 
     "domain"      : Domain
 
-    "category"    : "Quark" | "Vienna" | "HandMade" | "Priority Communication"
+    "category2"   : ["Quark"] | ["Vienna"] | ["HandMade"] | ["Priority Communication"]
 }
 
 categories

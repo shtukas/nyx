@@ -129,7 +129,7 @@ class CentralDispatch
             return nil if atom.nil?
             atom["unixtime"] = Time.new.to_f
             atom["domain"]   = Domain::interactivelySelectDomain()
-            atom["category"] = "Monitor"
+            atom["category2"] = ["Monitor"]
             CoreData2::commitAtom2(atom)
         end
 
@@ -138,7 +138,7 @@ class CentralDispatch
             return nil if atom.nil?
             atom["unixtime"] = Time.new.to_f
             atom["domain"]   = Domain::interactivelySelectDomain()
-            atom["category"] = "Asap"
+            atom["category2"] = ["Asap"]
             CoreData2::commitAtom2(atom)
         end
 
