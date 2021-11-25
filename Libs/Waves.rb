@@ -3,8 +3,8 @@
 
 class Waves
 
-    # Waves::coreData2SetUUID()
-    def self.coreData2SetUUID()
+    # Waves::setuuid()
+    def self.setuuid()
         "catalyst:489e8f4a-8b09-456d-ad5c-64fa551b9534"
     end
 
@@ -13,7 +13,7 @@ class Waves
 
     # Waves::items()
     def self.items()
-        CoreData2::getSet(Waves::coreData2SetUUID())
+        CoreData2::getSet(Waves::setuuid())
             .map{|atom|
                 if !Domain::domains().include?(atom["domain"]) then
                     puts "Correcting domain for '#{Waves::toString(atom)}'"
@@ -123,7 +123,7 @@ class Waves
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
-        atom = CoreData2::interactivelyCreateANewAtomOrNull([Waves::coreData2SetUUID()])
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([Waves::setuuid()])
         return nil if atom.nil?
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
@@ -261,7 +261,7 @@ class Waves
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    CoreData2::removeAtomFromSet(wave["uuid"], Waves::coreData2SetUUID())
+                    CoreData2::removeAtomFromSet(wave["uuid"], Waves::setuuid())
                     break
                 end
             end

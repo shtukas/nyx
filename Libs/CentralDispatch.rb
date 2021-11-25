@@ -125,7 +125,7 @@ class CentralDispatch
         end
 
         if command == "monitor" then
-            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
+            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
             return nil if atom.nil?
             atom["unixtime"] = Time.new.to_f
             atom["domain"]   = Domain::interactivelySelectDomain()
@@ -134,7 +134,7 @@ class CentralDispatch
         end
 
         if command == "asap" then
-            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
+            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
             return nil if atom.nil?
             atom["unixtime"] = Time.new.to_f
             atom["domain"]   = Domain::interactivelySelectDomain()

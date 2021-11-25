@@ -2,14 +2,14 @@
 
 class Nx50s
 
-    # Nx50s::coreData2SetUUID()
-    def self.coreData2SetUUID()
+    # Nx50s::setuuid()
+    def self.setuuid()
         "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
     end
 
     # Nx50s::nx50s()
     def self.nx50s()
-        CoreData2::getSet(Nx50s::coreData2SetUUID())
+        CoreData2::getSet(Nx50s::setuuid())
             .map{|atom|
                 if !Domain::domains().include?(atom["domain"]) then
                     puts "Correcting domain for '#{Nx50s::toString(atom)}'"
@@ -43,7 +43,7 @@ class Nx50s
 
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::coreData2SetUUID()])
+        atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
         return nil if atom.nil?
         atom["unixtime"] = Time.new.to_f
         atom["domain"]   = Domain::interactivelySelectDomain()
@@ -53,7 +53,7 @@ class Nx50s
 
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
-        atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::coreData2SetUUID()])
+        atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::setuuid()])
         atom["unixtime"] = Time.new.to_f
         atom["domain"]   = Domain::interactivelySelectDomain()
         atom["category"] = Nx50s::interactivelySelectCategory()
@@ -62,7 +62,7 @@ class Nx50s
 
     # Nx50s::issueItemUsingLocation(location, description, unixtime, domain)
     def self.issueItemUsingLocation(location, description, unixtime, domain)
-        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
+        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::setuuid()])
         atom["unixtime"] = unixtime
         atom["domain"]   = domain
         atom["category"] = Nx50s::interactivelySelectCategory()
@@ -71,7 +71,7 @@ class Nx50s
 
     # Nx50s::issuePriorityCommunicationItemUsingLocation(location, description, domain)
     def self.issuePriorityCommunicationItemUsingLocation(location, description, domain)
-        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::coreData2SetUUID()])
+        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::setuuid()])
         atom["unixtime"] = Time.new.to_f
         atom["domain"]   = domain
         atom["category"] = "Priority Communication"
@@ -80,7 +80,7 @@ class Nx50s
 
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
-        atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::coreData2SetUUID()])
+        atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::setuuid()])
         atom["unixtime"] = Time.new.to_f
         atom["domain"]   = "(eva)"
         atom["category"] = "Vienna"
@@ -121,7 +121,7 @@ class Nx50s
 
     # Nx50s::complete(atom)
     def self.complete(atom)
-        CoreData2::removeAtomFromSet(atom["uuid"], Nx50s::coreData2SetUUID())
+        CoreData2::removeAtomFromSet(atom["uuid"], Nx50s::setuuid())
     end
 
     # Nx50s::importspread()
