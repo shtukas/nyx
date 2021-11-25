@@ -116,7 +116,7 @@ class Dated # OnDate
                 puts "note:\n#{note}".green
             end
 
-            puts "access | <datecode> | note | update description | date | domain | update contents | >todo | exit | destroy (gg)".yellow
+            puts "access | <datecode> | note | description | date | domain | update contents | >todo | exit (xx) | destroy (gg)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -136,7 +136,7 @@ class Dated # OnDate
                 next
             end
 
-            if Interpreting::match("update description", command) then
+            if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description: ")
                 return if description == ""
                 atom["description"] = description
@@ -171,7 +171,7 @@ class Dated # OnDate
                 break
             end
 
-            if Interpreting::match("exit", command) then
+            if Interpreting::match("exit", command) or command == "xx" then
                 break
             end
 

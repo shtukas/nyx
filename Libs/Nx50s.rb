@@ -242,11 +242,12 @@ class Nx50s
                 puts "note:\n#{note}".green
             end
 
-            puts "access | note | <datecode> | update description | update contents | rotate | domain | category | show json | destroy (gg) | exit".yellow
+            puts "access | note | <datecode> | description | update contents | rotate | domain | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
+            break if command == "xx"
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -264,7 +265,7 @@ class Nx50s
                 next
             end
 
-            if Interpreting::match("update description", command) then
+            if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
                 nx50["description"] = description

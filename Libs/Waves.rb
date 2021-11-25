@@ -202,13 +202,14 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | update description | update contents | recast schedule | domain | destroy | exit".yellow
+            puts "[item   ] access | done | <datecode> | note | description | update contents | recast schedule | domain | destroy | exit (xx)".yellow
 
             puts UIServices::makersAndDiversCommands().yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
+            break if command == "xx"
 
             if command == "access" then
                 Waves::accessContent(wave)
@@ -231,7 +232,7 @@ class Waves
                 next
             end
 
-            if Interpreting::match("update description", command) then
+            if Interpreting::match("description", command) then
                 wave["description"] = Utils::editTextSynchronously(wave["description"])
                 Waves::performDone(wave)
                 next
