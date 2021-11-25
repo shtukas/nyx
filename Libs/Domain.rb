@@ -32,13 +32,34 @@ class Domain
             end
         end
 
-        return "(eva)" if (Time.new.wday == 6 or Time.new.wday == 0)
+        compete = lambda{|domains|
+            domains
+                .map{|domain|
+                    account = Domain::domainToBankAccount(domain)
+                    {
+                        "domain" => domain,
+                        "value"  => Bank::valueAtDate(account, Utils::today())
+                    }
+                }
+                .sort{|i1, i2|
+                    i1["value"] <=> i2["value"]
+                }
+                .first["domain"]
+        }
 
-        if Time.new.hour < 12 then
-            (Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()) < 3*3600) ? "(work)" : "eva"
-        else
-            (Bank::valueAtDate("WORK-E4A9-4BCD-9824-1EEC4D648408", Utils::today()) < 6*3600) ? "(work)" : "eva"
+        if Time.new.wday == 6 then
+            return compete.call(["(eva)", "(jedi)"])
         end
+
+        if Time.new.wday == 0 then
+            return compete.call(["(eva)", "(jedi)"])
+        end
+
+        if Time.new.hour >= 9 and Time.new.hour < 17 then
+            return "(work)"
+        end
+        
+        "(eva)"
     end
 
     # Domain::domainToBankAccount(domain)
