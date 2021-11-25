@@ -234,6 +234,7 @@ class Nx50s
             puts "coreDataId: #{nx50["coreDataId"]}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
+            puts "category: #{nx50["category"]}".yellow
 
             puts CoreData2::atomPayloadToText(nx50)
 
@@ -330,13 +331,23 @@ class Nx50s
 
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
+        announceMake = lambda {|nx50, rt, tx|
+            uuid = nx50["uuid"]
+            note = StructuredTodoTexts::getNoteOrNull(uuid)
+            noteStr = note ? " [note]" : ""
+            if nx50["category"] == "Monitor" then
+                return "[#{Time.at(nx50["unixtime"]).to_s[0, 10]}] #{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (#{nx50["type"]})".strip
+            end
+            "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (today: #{tx.round(2)}, rt: #{rt.round(2)})".gsub("(0.00)", "      ").gsub("(today: 0.0, rt: 0.0)", "").strip
+        }
+
         uuid = nx50["uuid"]
         return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         tx = Bank::valueAtDate(uuid, Utils::today()).to_f/3600
-        note = StructuredTodoTexts::getNoteOrNull(uuid)
-        noteStr = note ? " [note]" : ""
-        announce = "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (today: #{tx.round(2)}, rt: #{rt.round(2)})".gsub("(0.00)", "      ").gsub("(today: 0.0, rt: 0.0)", "").strip
+        
+        
+        announce = announceMake.call(nx50, rt, tx)
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:Nx501",
