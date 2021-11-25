@@ -20,9 +20,9 @@ class Nx50s
                 atom
             }
             .map{|atom|
-                if !Nx50s::categories().include?(atom["category2"][0]) then
-                    atom["category2"] = ["Priority Communication"]
-                    CoreData2::commitAtom2(atom)
+                if !Nx50s::coreCategories().include?(atom["category2"][0]) then
+                    puts JSON.pretty_generate(atom)
+                    raise "[error: af17a326-1637-473e-bc1b-ba53b4717591]"
                 end
                 atom
             }
@@ -47,7 +47,7 @@ class Nx50s
         return nil if atom.nil?
         atom["unixtime"]  = Time.new.to_f
         atom["domain"]    = Domain::interactivelySelectDomain()
-        atom["category2"] = [Nx50s::interactivelySelectCategory()]
+        atom["category2"] = Nx50s::makeNewCategory2Sequence()
         CoreData2::commitAtom2(atom)
     end
 
@@ -56,7 +56,7 @@ class Nx50s
         atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::setuuid()])
         atom["unixtime"]  = Time.new.to_f
         atom["domain"]    = Domain::interactivelySelectDomain()
-        atom["category2"] = [Nx50s::interactivelySelectCategory()]
+        atom["category2"] = Nx50s::makeNewCategory2Sequence()
         CoreData2::commitAtom2(atom)
     end
 
@@ -65,7 +65,7 @@ class Nx50s
         atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::setuuid()])
         atom["unixtime"]  = unixtime
         atom["domain"]    = domain
-        atom["category2"] = [Nx50s::interactivelySelectCategory()]
+        atom["category2"] = Nx50s::makeNewCategory2Sequence()
         CoreData2::commitAtom2(atom)
     end
 
@@ -164,30 +164,29 @@ class Nx50s
     # --------------------------------------------------
     # Categories
 
-    # Nx50s::categories()
-    def self.categories()
+    # Nx50s::coreCategories()
+    def self.coreCategories()
         # "Priority Communication", "Asap" are in the order we want them to display
-        ["Monitor", "Priority Communication", "Asap", "Quark", "Vienna", "Standard"]
-
+        ["Monitor", "Priority Communication", "Dated", "Asap", "Quark", "Vienna", "Standard"]
     end
 
-    # Nx50s::timeTrackedCategories()
-    def self.timeTrackedCategories()
+    # Nx50s::timeTrackedCoreCategories()
+    def self.timeTrackedCoreCategories()
         ["Quark", "Vienna", "Standard", "Asap"]
     end
 
-    # Nx50s::nonTimeTrackedCategories()
-    def self.nonTimeTrackedCategories()
-        Nx50s::categories() - Nx50s::timeTrackedCategories()
+    # Nx50s::nonTimeTrackedCoreCategories()
+    def self.nonTimeTrackedCoreCategories()
+        Nx50s::coreCategories() - Nx50s::timeTrackedCoreCategories()
     end
 
-    # Nx50s::selectableCategories()
-    def self.selectableCategories()
+    # Nx50s::selectableCoreCategories()
+    def self.selectableCoreCategories()
         ["Monitor", "Priority Communication", "Asap", "Standard"]
     end
 
-    # Nx50s::categoryToBankAccountOrNull(category)
-    def self.categoryToBankAccountOrNull(category)
+    # Nx50s::coreCategoryToBankAccountOrNull(category)
+    def self.coreCategoryToBankAccountOrNull(category)
         mapping = {
             "Quark"    => "9979D5C8-091D-4929-9E2E-2191FA1291B6",
             "Vienna"   => "35EFF9F7-1A58-48C4-B0CD-3499A0683A4D",
@@ -196,13 +195,24 @@ class Nx50s
         mapping[category]
     end
 
-    # Nx50s::interactivelySelectCategory()
-    def self.interactivelySelectCategory()
-        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::selectableCategories())
+    # Nx50s::interactivelySelectCoreCategory()
+    def self.interactivelySelectCoreCategory()
+        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::selectableCoreCategories())
         if !category.nil? then
             return category
         end
-        Nx50s::interactivelySelectCategory()
+        Nx50s::interactivelySelectCoreCategory()
+    end
+
+    # Nx50s::makeNewCategory2Sequence()
+    def self.makeNewCategory2Sequence()
+        corecategory = Nx50s::interactivelySelectCoreCategory()
+
+        if category == "Dated" then
+            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
+        end
+
+        [corecategory]
     end
 
     # --------------------------------------------------
@@ -215,7 +225,7 @@ class Nx50s
             accounts = []
             accounts << item["uuid"]
             accounts << Domain::domainToBankAccount(item["domain"])
-            accounts << Nx50s::categoryToBankAccountOrNull(item["category2"][0])
+            accounts << Nx50s::coreCategoryToBankAccountOrNull(item["category2"][0])
             accounts.compact
         }
 
@@ -234,7 +244,7 @@ class Nx50s
             puts "coreDataId: #{nx50["coreDataId"]}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
-            puts "category: #{nx50["category2"][0]}".yellow
+            puts "category: #{nx50["category2"].join(", ")}".yellow
 
             puts CoreData2::atomPayloadToText(nx50)
 
@@ -292,7 +302,7 @@ class Nx50s
             end
 
             if Interpreting::match("category", command) then
-                nx50["category2"] = [Nx50s::interactivelySelectCategory()]
+                nx50["category2"] = Nx50s::makeNewCategory2Sequence()
                 puts JSON.pretty_generate(nx50)
                 CoreData2::commitAtom2(nx50)
                 next
@@ -338,6 +348,9 @@ class Nx50s
             if nx50["category2"][0] == "Monitor" then
                 return "[#{Time.at(nx50["unixtime"]).to_s[0, 10]}] #{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (#{nx50["type"]})".strip
             end
+            if nx50["category2"][0] == "Dated" then
+                return "[#{nx50["category2"][1]}] #{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (#{nx50["type"]})".strip
+            end
             "#{Nx50s::toStringForNS16(nx50, rt)}#{noteStr} (today: #{tx.round(2)}, rt: #{rt.round(2)})".gsub("(0.00)", "      ").gsub("(today: 0.0, rt: 0.0)", "").strip
         }
 
@@ -376,8 +389,33 @@ class Nx50s
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
+        dated, items = items.partition{|item| item["category2"][0] == "Dated" }
+
+        dated = dated.select{|item| item["category2"][1] <= Utils::today()}
+
+        mapping = dated
+            .map{|atom|
+                if atom["date"].nil? then
+                    atom["date"] = Utils::today()
+                end
+                atom
+            }
+            .reduce({}){|mapping, atom|
+                if mapping[atom["date"]].nil? then
+                    mapping[atom["date"]] = []
+                end
+                mapping[atom["date"]] << atom
+                mapping
+            }
+
+        dated = mapping.keys.sort.map{|date| mapping[date].sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] } }.flatten
+
+        dated = dated
+                    .map{|item| Nx50s::ns16OrNull(item) }
+                    .compact
+
         items1 = items
-            .select{|item| Nx50s::nonTimeTrackedCategories().include?(item["category2"][0]) }
+            .select{|item| Nx50s::nonTimeTrackedCoreCategories().include?(item["category2"][0]) }
             .reduce([]){|selection, item|  
                 if selection.size < 20 and Nx50s::itemIsOperational(item) then
                     selection << item
@@ -385,7 +423,7 @@ class Nx50s
                 selection
             }
 
-        items2 = Nx50s::timeTrackedCategories()
+        items2 = Nx50s::timeTrackedCoreCategories()
                     .map{|category|
                         its = items
                                     .select{|item| item["category2"][0] == category }
@@ -397,7 +435,7 @@ class Nx50s
                                     }
                         {
                             "items"      => its,
-                            "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::categoryToBankAccountOrNull(category)) 
+                            "categoryRT" => BankExtended::stdRecoveredDailyTimeInHours(Nx50s::coreCategoryToBankAccountOrNull(category)) 
                         }
                     }
                     .sort{|p1, p2| p1["categoryRT"] <=> p2["categoryRT"] }
@@ -415,6 +453,7 @@ class Nx50s
         {
             "Monitor"  => monitor,
             "overflow" => overflow,
+            "dated"    => dated,
             "tail"     => tail
         }
     end

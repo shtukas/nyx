@@ -14,7 +14,6 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(domain),
             Inbox::ns16s(),
-            Dated::ns16s(domain),
         ]
             .flatten
             .compact
@@ -269,7 +268,7 @@ class UIServices
             domain = Domain::getDomain()
             structure = Nx50s::ns16sX2(domain)
             ns16s = NS16sOperator::ns16s(domain)
-            UIServices::mainView(domain, structure["Monitor"], structure["overflow"], ns16s + structure["tail"])
+            UIServices::mainView(domain, structure["Monitor"], structure["overflow"], structure["dated"] + ns16s + structure["tail"])
         }
     end
 

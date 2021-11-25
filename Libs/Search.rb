@@ -7,7 +7,6 @@ class Search
     def self.nx19s()
         Anniversaries::nx19s() +
         Calendar::nx19s() +
-        Dated::nx19s() +
         Inbox::nx19s() +
         Waves::nx19s() +
         Nx50s::nx19s() +

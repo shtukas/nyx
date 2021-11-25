@@ -139,7 +139,6 @@ require_relative "Bank.rb"
 require_relative "Calendar.rb"
 require_relative "CentralDispatch.rb"
 
-require_relative "Dated.rb"
 require_relative "Domain.rb"
 
 require_relative "DoNotShowUntil.rb"

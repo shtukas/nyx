@@ -50,19 +50,7 @@ class Inbox
             LucilleCore::removeFileSystemLocation(location)
         end
         if action == "dispatch" then
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["ondate", "communication", "todo"])
-            if target == "ondate" then
-
-                date = Dated::interactivelySelectADateOrNull()
-                return nil if date.nil?
-
-                atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.hex, description, locationToDescription.call(location) [Dated::setuuid()])
-                atom["date"] = date
-                CoreData2::commitAtom2(atom)
-
-                puts JSON.pretty_generate(atom)
-                LucilleCore::removeFileSystemLocation(location)
-            end
+            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["communication", "todo"])
             if target == "communication" then
                 domain = Domain::interactivelySelectDomain()
                 Nx50s::issuePriorityCommunicationItemUsingLocation(location, locationToDescription.call(location), domain)

@@ -3,9 +3,7 @@ Dated extends CoreData3 Atom {
     "uuid"        : uuid,
     "unixtime"    : unixtime,
     "description" : description,
-    "type"        : CoreData2AtomType,
-    "payload"     : CoreData2AtomPayload
-
+    "atom"        : CoreData5.Atom
     "date"        : date
     "domain"      : Domain | nil (when nil, displays at both domains)
 }

@@ -41,32 +41,6 @@ class CentralDispatch
             Inbox::run(object["location"])
         end
 
-        if object["NS198"] == "ns16:dated1" and command == ".." then
-            Dated::run(object["atom"])
-        end
-
-        if object["NS198"] == "ns16:dated1" and command == "redate" then
-            item = object["atom"]
-            date = Dated::interactivelySelectADateOrNull()
-            return if date.nil?
-            item["date"] = date
-            puts JSON.pretty_generate(item)
-            ObjectStore4::store(item, Dated::setuuid())
-        end
-
-        if object["NS198"] == "ns16:dated1" and command == "domain" then
-            item = object["atom"]
-            item["domain"] = Domain::interactivelySelectDomainOrNull()
-            ObjectStore4::store(item, Dated::setuuid())
-        end
-
-        if object["NS198"] == "ns16:dated1" and command == "done" then
-            item = object["atom"]
-            if LucilleCore::askQuestionAnswerAsBoolean("done '#{Dated::toString(item)}' ? ", true) then
-                Dated::destroy(item)
-            end
-        end
-
         if object["NS198"] == "ns16:Nx501" and command == ".." then
             Nx50s::run(object["Nx50"])
         end
@@ -131,6 +105,7 @@ class CentralDispatch
             atom["domain"]   = Domain::interactivelySelectDomain()
             atom["category2"] = ["Monitor"]
             CoreData2::commitAtom2(atom)
+            puts JSON.pretty_generate(atom)
         end
 
         if command == "asap" then
@@ -140,12 +115,17 @@ class CentralDispatch
             atom["domain"]   = Domain::interactivelySelectDomain()
             atom["category2"] = ["Asap"]
             CoreData2::commitAtom2(atom)
+            puts JSON.pretty_generate(atom)
         end
 
         if command == "today" then
-            item = Dated::interactivelyIssueNewTodayOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
+            return nil if atom.nil?
+            atom["unixtime"]  = Time.new.to_f
+            atom["domain"]    = Domain::interactivelySelectDomain()
+            atom["category2"] = Nx50s::makeNewCategory2Sequence()
+            CoreData2::commitAtom2(atom)
+            puts JSON.pretty_generate(atom)
         end
 
         if command == "todo" then
@@ -161,19 +141,18 @@ class CentralDispatch
         end
 
         if Interpreting::match("ondate", command) then
-            item = Dated::interactivelyIssueNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
+            return nil if atom.nil?
+            atom["unixtime"]  = Time.new.to_f
+            atom["domain"]    = Domain::interactivelySelectDomain()
+            atom["category2"] = Nx50s::makeNewCategory2Sequence()
+            CoreData2::commitAtom2(atom)
         end
 
         if Interpreting::match("anniversary", command) then
             item = Anniversaries::issueNewAnniversaryOrNullInteractively()
             return if item.nil?
             puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("ondates", command) then
-            Dated::main()
         end
 
         if Interpreting::match("anniversaries", command) then

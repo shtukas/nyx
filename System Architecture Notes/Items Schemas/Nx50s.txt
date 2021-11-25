@@ -1,34 +1,35 @@
 CoreData2 Set: "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
 
 Nx50 {
-    (CoreData2Atom)
-    "uuid"        : uuid,
-    "unixtime"    : unixtime,
-    "description" : description,
-    "type"        : CoreData2AtomType,
-    "payload"     : CoreData2AtomPayload
-
+    "uuid"        : uuid
+    "unixtime"    : unixtime
+    "description" : String
+    "atom"        : CoreData5.Atom
     "domain"      : Domain
-
-    "category2"   : ["Quark"] | ["Vienna"] | ["HandMade"] | ["Priority Communication"]
+    "category2"   : 
+                        ["Monitor"]
+                        ["Dated", Date]
+                        ["Priority Communication"]
+                        ["Asap"] 
+                        ["Quark"] 
+                        ["Vienna"]
+                        ["Standard"]
 }
 
 categories
 
-    - "Monitor"                : Floating items for on going monitored/HUD'ed processes
+    - ["Monitor"]                : Floating items for on going monitored/HUD'ed processes
 
-    - "Priority Communication" : Typically created as a Nx50 from a Inbox item in the (work) domain
+    - ["Dated", Date]
 
-    - "Asap"                   : Displays between "Priority Communication" and the rest, use sparcely...
+    - ["Priority Communication"] : Typically created as a Nx50 from a Inbox item in the (work) domain
+
+    - ["Asap"]                   : Displays between "Priority Communication" and the rest, use sparcely...
                                  It's more towards the sprit of the Nx50 to not use it
 
-    (time tracked) (
+    - ["Quark"]                  : The original list is the list of items as it was on 19th Nov 2021
 
-        - "Quark"              : The original list is the list of items as it was on 19th Nov 2021
+    - ["Vienna"]                 : Indicates that the item came from Vienna.
 
-        - "Vienna"             : Indicates that the item came from Vienna.
-
-        - "Standard"           : Standard (essentially not any other category)
-
-    )
+    - ["Standard"]               : Standard (essentially not any other category)
 
