@@ -13,15 +13,15 @@ class Waves
 
     # Waves::items()
     def self.items()
-        CoreData2::getSet(Waves::setuuid())
-            .map{|atom|
-                if !Domain::domains().include?(atom["domain"]) then
-                    puts "Correcting domain for '#{Waves::toString(atom)}'"
-                    atom["domain"] = Domain::interactivelySelectDomain()
-                    puts JSON.pretty_generate(atom)
-                    CoreData2::commitAtom2(atom)
+        ObjectStore4::getSet(Waves::setuuid())
+            .map{|wave|
+                if !Domain::domains().include?(wave["domain"]) then
+                    puts "Correcting domain for '#{Waves::toString(wave)}'"
+                    wave["domain"] = Domain::interactivelySelectDomain()
+                    puts JSON.pretty_generate(wave)
+                    ObjectStore4::store(wave, Waves::setuuid())
                 end
-                atom
+                wave
             }
     end
 
@@ -123,27 +123,24 @@ class Waves
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
-        atom = CoreData2::interactivelyCreateANewAtomOrNull([Waves::setuuid()])
-        return nil if atom.nil?
+        wave = CoreData2::interactivelyCreateANewAtomOrNull([])
+        return nil if wave.nil?
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
-        if schedule.nil? then
-            CoreData2::destroyAtom(atom["uuid"])
-            return nil
-        end
+        return nil if schedule.nil?
 
         repeatType       = schedule[0]
         repeatValue      = schedule[1]
         lastDoneDateTime = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         domain           = Domain::interactivelySelectDomain()
 
-        atom["repeatType"]       = repeatType
-        atom["repeatValue"]      = repeatValue
-        atom["lastDoneDateTime"] = lastDoneDateTime
-        atom["domain"]           = domain
+        wave["repeatType"]       = repeatType
+        wave["repeatValue"]      = repeatValue
+        wave["lastDoneDateTime"] = lastDoneDateTime
+        wave["domain"]           = domain
 
-        CoreData2::commitAtom2(atom)
-        atom
+        ObjectStore4::store(wave, Waves::setuuid())
+        wave
     end
 
     # -------------------------------------------------------------------------
@@ -165,7 +162,7 @@ class Waves
 
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        CoreData2::commitAtom2(wave)
+        ObjectStore4::store(wave, Waves::setuuid())
 
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
@@ -174,9 +171,9 @@ class Waves
         Bank::put("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 1)
     end
 
-    # Waves::accessContent(atom)
-    def self.accessContent(atom)
-        CoreData2::accessWithOptionToEdit(atom)
+    # Waves::accessContent(wave)
+    def self.accessContent(wave)
+        CoreData5::accessWithOptionToEdit(wave)
     end
 
     # Waves::landing(wave)
@@ -249,19 +246,19 @@ class Waves
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
-                CoreData2::commitAtom2(wave)
+                ObjectStore4::store(wave, Waves::setuuid())
                 next
             end
 
             if Interpreting::match("domain", command) then
                 wave["domain"] = Domain::interactivelySelectDomain()
-                CoreData2::commitAtom2(wave)
+                ObjectStore4::store(wave, Waves::setuuid())
                 break
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    CoreData2::removeAtomFromSet(wave["uuid"], Waves::setuuid())
+                    CoreData5::removeAtomFromSet(Waves::setuuid(), wave["uuid"])
                     break
                 end
             end

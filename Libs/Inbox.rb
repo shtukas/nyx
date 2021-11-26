@@ -53,9 +53,8 @@ class Inbox
         if action == "dispatch" then
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["todo"])
             if target == "todo" then
-                unixtime = Time.new.to_f
                 domain = Domain::interactivelySelectDomain()
-                Nx50s::issueItemUsingLocation(location, locationToDescription.call(location), unixtime, domain)
+                Nx50s::issueItemUsingLocatio(location, domain)
                 LucilleCore::removeFileSystemLocation(location)
             end
         end

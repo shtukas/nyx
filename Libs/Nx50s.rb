@@ -9,22 +9,35 @@ class Nx50s
 
     # Nx50s::nx50s()
     def self.nx50s()
-        CoreData2::getSet(Nx50s::setuuid())
-            .map{|atom|
-                if !Domain::domains().include?(atom["domain"]) then
-                    puts "Correcting domain for '#{Nx50s::toString(atom)}'"
-                    atom["domain"] = Domain::interactivelySelectDomain()
-                    puts JSON.pretty_generate(atom)
-                    CoreData2::commitAtom2(atom)
+        ObjectStore4::getSet(Nx50s::setuuid())
+            .map{|nx50|
+                if !Domain::domains().include?(nx50["domain"]) then
+                    puts "Correcting domain for '#{nx50}'"
+                    nx50["domain"] = Domain::interactivelySelectDomain()
+                    puts JSON.pretty_generate(nx50)
+                    ObjectStore4::store(nx50, Nx50s::setuuid())
                 end
-                atom
+                nx50
             }
-            .map{|atom|
-                if !Nx50s::coreCategories().include?(atom["category2"][0]) then
-                    puts JSON.pretty_generate(atom)
-                    raise "[error: af17a326-1637-473e-bc1b-ba53b4717591]"
+            .map{|nx50|
+                if nx50["category2"].nil? or !Nx50s::coreCategories().include?(nx50["category2"][0]) then
+                    puts JSON.pretty_generate(nx50)
+                    nx50["category2"] = ["Dated", Utils::today()]
+                    puts JSON.pretty_generate(nx50)
+                    LucilleCore::pressEnterToContinue()
+                    ObjectStore4::store(nx50, Nx50s::setuuid())
                 end
-                atom
+                nx50
+            }
+            .map{|nx50|
+                if nx50["atom"].nil? then
+                    puts JSON.pretty_generate(nx50)
+                    nx50["atom"] = CoreData5::issueDescriptionOnlyAtom()
+                    puts JSON.pretty_generate(nx50)
+                    LucilleCore::pressEnterToContinue()
+                    ObjectStore4::store(nx50, Nx50s::setuuid())
+                end
+                nx50
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
@@ -43,39 +56,96 @@ class Nx50s
 
     # Nx50s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
-        return nil if atom.nil?
-        atom["unixtime"]  = Time.new.to_f
-        atom["domain"]    = Domain::interactivelySelectDomain()
-        atom["category2"] = Nx50s::makeNewCategory2Sequence()
-        CoreData2::commitAtom2(atom)
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uuid = SecureRandom.uuid
+        nx50 = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => description,
+            "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
+            "domain"      => Domain::interactivelySelectDomain(),
+            "category2"   => Nx50s::makeNewCategory2Sequence()
+        }
+        ObjectStore4::store(nx50, Nx50s::setuuid())
+        nx50
+    end
+
+    # Nx50s::issueItemWithCategoryLambda(lambda1)
+    def self.issueItemWithCategoryLambda(lambda1)
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uuid = SecureRandom.uuid
+        nx50 = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => description,
+            "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
+            "domain"      => Domain::interactivelySelectDomain(),
+            "category2"   => lambda1.call()
+        }
+        ObjectStore4::store(nx50, Nx50s::setuuid())
+        nx50
     end
 
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
-        atom = CoreData2::issueDescriptionOnlyAtom(SecureRandom.uuid, description, [Nx50s::setuuid()])
-        atom["unixtime"]  = Time.new.to_f
-        atom["domain"]    = Domain::interactivelySelectDomain()
-        atom["category2"] = Nx50s::makeNewCategory2Sequence()
-        CoreData2::commitAtom2(atom)
+        uuid = SecureRandom.uuid
+        nx50 = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => line,
+            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
+            "domain"      => Domain::interactivelySelectDomain(),
+            "category2"   => Nx50s::makeNewCategory2Sequence()
+        }
+        ObjectStore4::store(nx50, Nx50s::setuuid())
+        nx50
     end
 
-    # Nx50s::issueItemUsingLocation(location, description, unixtime, domain)
-    def self.issueItemUsingLocation(location, description, unixtime, domain)
-        atom = CoreData2::issueAionPointAtomUsingLocation(SecureRandom.uuid, description, location, [Nx50s::setuuid()])
-        atom["unixtime"]  = unixtime
-        atom["domain"]    = domain
-        atom["category2"] = Nx50s::makeNewCategory2Sequence()
-        CoreData2::commitAtom2(atom)
+    # Nx50s::issueItemUsingLocation(location, domain)
+    def self.issueItemUsingLocation(location, domain)
+        uuid = SecureRandom.uuid
+        nx50 = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => File.basename(location),
+            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
+            "domain"      => Domain::interactivelySelectDomain(),
+            "category2"   => Nx50s::makeNewCategory2Sequence()
+        }
+        ObjectStore4::store(nx50, Nx50s::setuuid())
+        nx50
+    end
+
+    # Nx50s::issueSpreadItem(location, description, unixtime)
+    def self.issueSpreadItem(location, description, unixtime)
+        uuid = SecureRandom.uuid
+        nx50 = {
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
+            "domain"      => "(eva)",
+            "category2"   => ["Tail"]
+        }
+        ObjectStore4::store(nx50, Nx50s::setuuid())
+        nx50
     end
 
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
-        atom = CoreData2::issueUrlAtomUsingUrl(SecureRandom.uuid, url, url, [Nx50s::setuuid()])
-        atom["unixtime"]  = Time.new.to_f
-        atom["domain"]    = "(eva)"
-        atom["category2"] = ["Tail"]
-        CoreData2::commitAtom2(atom)
+        uuid = SecureRandom.uuid
+        nx50 = {
+            "uuid"        => uuid,
+            "unixtime"    => unixtime,
+            "description" => description,
+            "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
+            "domain"      => "(eva)",
+            "category2"   => ["Tail"]
+        }
+        ObjectStore4::store(nx50, Nx50s::setuuid())
+        nx50
     end
 
     # --------------------------------------------------
@@ -102,9 +172,9 @@ class Nx50s
         "(#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
-    # Nx50s::complete(atom)
-    def self.complete(atom)
-        CoreData2::removeAtomFromSet(atom["uuid"], Nx50s::setuuid())
+    # Nx50s::complete(nx50)
+    def self.complete(nx50)
+        CoreData5::removeAtomFromSet(Nx50s::setuuid(), nx50["uuid"])
     end
 
     # Nx50s::importspread()
@@ -138,7 +208,7 @@ class Nx50s
             locations.each{|location|
                 cursor = cursor + step
                 puts "[quark] (#{Time.at(cursor).to_s}) #{location}"
-                Nx50s::issueItemUsingLocation(location, File.basename(location), cursor, "(eva)")
+                Nx50s::issueSpreadItem(location, File.basename(location), cursor)
                 LucilleCore::removeFileSystemLocation(location)
             }
         end
@@ -164,7 +234,7 @@ class Nx50s
     # Nx50s::makeNewCategory2Sequence()
     def self.makeNewCategory2Sequence()
         corecategory = Nx50s::interactivelySelectCoreCategory()
-        if category == "Dated" then
+        if corecategory == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
         end
         [corecategory]
@@ -200,7 +270,7 @@ class Nx50s
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "category: #{nx50["category2"].join(", ")}".yellow
 
-            puts CoreData2::atomPayloadToText(nx50)
+            puts CoreData5::atomPayloadToText(nx50)
 
             note = StructuredTodoTexts::getNoteOrNull(nx50["uuid"])
             if note then
@@ -220,7 +290,7 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                CoreData2::accessWithOptionToEdit(nx50)
+                CoreData5::accessWithOptionToEdit(nx50)
                 next
             end
 
@@ -234,31 +304,32 @@ class Nx50s
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
                 nx50["description"] = description
-                CoreData2::commitAtom2(nx50)
+                ObjectStore4::store(nx50, Nx50s::setuuid())
                 next
             end
 
             if Interpreting::match("update contents", command) then
-                atom = CoreData2::interactivelyUpdateAtomTypePayloadPairOrNothing(nx50)
+                nx50["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
+                ObjectStore4::store(nx50, Nx50s::setuuid())
                 next
             end
 
             if Interpreting::match("rotate", command) then
                 nx50["unixtime"] = Time.new.to_f
-                CoreData2::commitAtom2(nx50)
+                ObjectStore4::store(nx50, Nx50s::setuuid())
                 break
             end
 
             if Interpreting::match("domain", command) then
                 nx50["domain"] = Domain::interactivelySelectDomain()
-                CoreData2::commitAtom2(nx50)
+                ObjectStore4::store(nx50, Nx50s::setuuid())
                 break
             end
 
             if Interpreting::match("category", command) then
                 nx50["category2"] = Nx50s::makeNewCategory2Sequence()
                 puts JSON.pretty_generate(nx50)
-                CoreData2::commitAtom2(nx50)
+                ObjectStore4::store(nx50, Nx50s::setuuid())
                 next
             end
 

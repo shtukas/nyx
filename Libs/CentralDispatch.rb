@@ -99,23 +99,18 @@ class CentralDispatch
         end
 
         if command == "monitor" then
-            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
-            return nil if atom.nil?
-            atom["unixtime"] = Time.new.to_f
-            atom["domain"]   = Domain::interactivelySelectDomain()
-            atom["category2"] = ["Monitor"]
-            CoreData2::commitAtom2(atom)
-            puts JSON.pretty_generate(atom)
+            nx50 = Nx50s::issueItemWithCategoryLambda(lambda{["Monitor"]})
+            puts JSON.pretty_generate(nx50)
         end
 
         if command == "today" then
-            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
-            return nil if atom.nil?
-            atom["unixtime"]  = Time.new.to_f
-            atom["domain"]    = Domain::interactivelySelectDomain()
-            atom["category2"] = Nx50s::makeNewCategory2Sequence()
-            CoreData2::commitAtom2(atom)
-            puts JSON.pretty_generate(atom)
+            nx50 = Nx50s::issueItemWithCategoryLambda(lambda{["Dated", Utils::today()]})
+            puts JSON.pretty_generate(nx50)
+        end
+
+        if Interpreting::match("ondate", command) then
+            nx50 = Nx50s::issueItemWithCategoryLambda(lambda{["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]})
+            puts JSON.pretty_generate(nx50)
         end
 
         if command == "todo" then
@@ -128,15 +123,6 @@ class CentralDispatch
             item = Waves::issueNewWaveInteractivelyOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("ondate", command) then
-            atom = CoreData2::interactivelyCreateANewAtomOrNull([Nx50s::setuuid()])
-            return nil if atom.nil?
-            atom["unixtime"]  = Time.new.to_f
-            atom["domain"]    = Domain::interactivelySelectDomain()
-            atom["category2"] = Nx50s::makeNewCategory2Sequence()
-            CoreData2::commitAtom2(atom)
         end
 
         if Interpreting::match("anniversary", command) then
