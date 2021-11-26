@@ -11,17 +11,12 @@ class Nathalie
         }
     end
 
-    # Nathalie::orderedNS16sForDomain(domain)
-    def self.orderedNS16sForDomain(domain)
-        structure = Nx50s::structure(domain)
-        NS16sOperator::ns16s(domain, structure)
-    end
 
-    # Nathalie::newCollectionNS16s()
-    def self.newCollectionNS16s()
+    # Nathalie::buildNewCollectionNS16s()
+    def self.buildNewCollectionNS16s()
         Domain::domains()
             .map{|domain| 
-                Nathalie::orderedNS16sForDomain(domain)
+                []
                     .first(5)
                     .map{|ns16|
                         ns16["x-domain"] = domain
@@ -41,14 +36,14 @@ class Nathalie
     def self.issueNewCollection()
         collection = {
             "unixtime" => Time.new.to_i,
-            "ns16s"    => Nathalie::newCollectionNS16s()
+            "ns16s"    => Nathalie::buildNewCollectionNS16s()
         }
         KeyValueStore::set(nil, Nathalie::collectionStorageKey(), JSON.pretty_generate(collection))
         collection
     end
 
-    # Nathalie::getNS16sFromCollection()
-    def self.getNS16sFromCollection()
+    # Nathalie::ns16s()
+    def self.ns16s()
         collection = KeyValueStore::getOrNull(nil, Nathalie::collectionStorageKey())
         if collection.nil? then
             collection = Nathalie::issueNewCollection()

@@ -6,7 +6,7 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-puts UIServices::makersAndDiversCommands().yellow
+puts Commands::makersAndDiversCommands().yellow
 command = LucilleCore::askQuestionAnswerAsString("> ")
 CentralDispatch::operator4(command)
 

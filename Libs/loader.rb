@@ -150,7 +150,7 @@ require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
 require_relative "Nx50s.rb"
-require_relative "NS16sOperator.rb"
+require_relative "DisplayListingParameters.rb"
 require_relative "Nathalie.rb"
 
 require_relative "ProgrammableBooleans.rb"
@@ -159,7 +159,7 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "StructuredTodoTexts.rb"
 
-require_relative "UIServices.rb"
+require_relative "DisplayOperator.rb"
 require_relative "Utils.rb"
 
 require_relative "Waves.rb"

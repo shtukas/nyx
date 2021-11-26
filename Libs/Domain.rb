@@ -22,44 +22,13 @@ class Domain
         KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
     end
 
-    # Domain::getDomain()
-    def self.getDomain()
+    # Domain::getContextualDomainOrNull()
+    def self.getContextualDomainOrNull()
         packet = Domain::getStoredDomainWithExpiryOrNull()
-        if packet then
-            packet = JSON.parse(packet)
-            if Time.new.to_i < packet["expiry"] then
-                return packet["domain"]
-            end
-        end
-
-        compete = lambda{|domains|
-            domains
-                .map{|domain|
-                    account = Domain::domainToBankAccount(domain)
-                    {
-                        "domain" => domain,
-                        "value"  => Bank::valueAtDate(account, Utils::today())
-                    }
-                }
-                .sort{|i1, i2|
-                    i1["value"] <=> i2["value"]
-                }
-                .first["domain"]
-        }
-
-        if Time.new.wday == 6 then
-            return compete.call(["(eva)", "(jedi)"])
-        end
-
-        if Time.new.wday == 0 then
-            return compete.call(["(eva)", "(jedi)"])
-        end
-
-        if Time.new.hour >= 9 and Time.new.hour < 17 then
-            return "(work)"
-        end
-        
-        "(eva)"
+        return nil if packet.nil?
+        packet = JSON.parse(packet)
+        return nil if Time.new.to_i > packet["expiry"]
+        packet["domain"]
     end
 
     # Domain::domainToBankAccount(domain)

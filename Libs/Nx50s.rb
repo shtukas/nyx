@@ -379,17 +379,10 @@ class Nx50s
         }
     end
 
-    # Nx50s::overflowThreshold(domain)
-    def self.overflowThreshold(domain)
-        (domain == "(work)") ? 2 : 1
-    end
-
-    # Nx50s::structure(domain)
-    def self.structure(domain)
+    # Nx50s::structureGivenNx50s(items)
+    def self.structureGivenNx50s(items)
 
         Nx50s::importspread()
-
-        items = Nx50s::nx50sForDomain(domain)
 
         # -- monitor ---------------------------
 
@@ -442,8 +435,7 @@ class Nx50s
 
         # -- overflow ---------------------------
 
-        threshold = Nx50s::overflowThreshold(domain)
-        overflow, tail = tail.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > threshold }
+        overflow, tail = tail.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > 1 }
 
         {
             "Monitor"  => monitor,
@@ -451,6 +443,16 @@ class Nx50s
             "Dated"    => dated,
             "Tail"     => tail
         }
+    end
+
+    # Nx50s::structureForNathalie()
+    def self.structureForNathalie()
+        Nx50s::structureGivenNx50s(Nx50s::nx50s())
+    end
+
+    # Nx50s::structureForDomain(domain)
+    def self.structureForDomain(domain)
+        Nx50s::structureGivenNx50s(Nx50s::nx50sForDomain(domain))
     end
 
     # --------------------------------------------------
