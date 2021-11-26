@@ -353,6 +353,7 @@ class Nx50s
         }
 
         NxBallsService::closeWithAsking(uuid)
+        Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", nx50["uuid"])
     end
 
     # Nx50s::itemIsOperational(item)

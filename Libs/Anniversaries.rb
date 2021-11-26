@@ -158,6 +158,7 @@ class Anniversaries
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
             Anniversaries::commitAnniversaryToDisk(anniversary)
+            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", anniversary["uuid"])
         end
     end
 

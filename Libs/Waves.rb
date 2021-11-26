@@ -171,6 +171,8 @@ class Waves
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
 
         Bank::put("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 1)
+
+        Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", wave["uuid"])
     end
 
     # Waves::accessContent(wave)

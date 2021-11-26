@@ -23,6 +23,7 @@ class CentralDispatch
 
         if object["NS198"] == "ns16:fitness1" and command == ".." then
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
+            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", object["uuid"])
         end
 
         if object["NS198"] == "ns16:wave1" and command == ".." then

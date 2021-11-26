@@ -55,6 +55,11 @@ class Nathalie
         else
             collection = JSON.parse(collection)
         end
-        collection["ns16s"]
+        ns16s = collection["ns16s"]
+        while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
+            puts "[Nathalie] removing uuid: #{uuid}"
+            ns16s = ns16s.select{|ns16| ns16["uuid"] != uuid }
+        end
+        ns16s
     end
 end
