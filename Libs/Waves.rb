@@ -123,21 +123,23 @@ class Waves
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
 
-        wave = CoreData2::interactivelyCreateANewAtomOrNull([])
-        return nil if wave.nil?
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+
+        wave = {
+            "uuid"        => SecureRandom.uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => description,
+            "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
+        }
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
 
-        repeatType       = schedule[0]
-        repeatValue      = schedule[1]
-        lastDoneDateTime = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
-        domain           = Domain::interactivelySelectDomain()
-
-        wave["repeatType"]       = repeatType
-        wave["repeatValue"]      = repeatValue
-        wave["lastDoneDateTime"] = lastDoneDateTime
-        wave["domain"]           = domain
+        wave["repeatType"]       = schedule[0]
+        wave["repeatValue"]      = schedule[1]
+        wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
+        wave["domain"]           = Domain::interactivelySelectDomain()
 
         ObjectStore4::store(wave, Waves::setuuid())
         wave
@@ -173,7 +175,7 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
-        CoreData5::accessWithOptionToEdit(wave)
+        CoreData5::accessWithOptionToEdit(wave["atom"])
     end
 
     # Waves::landing(wave)
@@ -236,8 +238,8 @@ class Waves
             end
 
             if Interpreting::match("update contents", command) then
-                puts "update contents against NxAxiom library has not been implemented yet"
-                LucilleCore::pressEnterToContinue()
+                wave["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
+                ObjectStore4::store(wave, Waves::setuuid())
                 next
             end
 
