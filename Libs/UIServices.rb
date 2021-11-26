@@ -2,28 +2,6 @@
 
 # ------------------------------------------------------------------------------------------
 
-class NS16sOperator
-
-    # NS16sOperator::ns16s(domain, structure)
-    def self.ns16s(domain, structure)
-        [
-            Anniversaries::ns16s(),
-            Calendar::ns16s(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            DrivesBackups::ns16s(),
-            Waves::ns16s(domain),
-            Inbox::ns16s(),
-            structure["Dated"],
-            structure["Tail"]
-        ]
-            .flatten
-            .compact
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-    end
-end
-
 class ItemStore
     def initialize() # : Integer
         @items = []
@@ -42,39 +20,6 @@ class ItemStore
     end
     def getDefault()
         @defaultItem.clone
-    end
-end
-
-class InternetStatus
-
-    # InternetStatus::setInternetOn()
-    def self.setInternetOn()
-        KeyValueStore::destroy(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d")
-    end
-
-    # InternetStatus::setInternetOff()
-    def self.setInternetOff()
-        KeyValueStore::set(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d", "off")
-    end
-
-    # InternetStatus::internetIsActive()
-    def self.internetIsActive()
-        KeyValueStore::getOrNull(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d").nil?
-    end
-
-    # InternetStatus::markIdAsRequiringInternet(id)
-    def self.markIdAsRequiringInternet(id)
-        KeyValueStore::set(nil, "29f7d6a5-91ed-4623-9f52-543684881f33:#{id}", "require")
-    end
-
-    # InternetStatus::trueIfElementRequiresInternet(id)
-    def self.trueIfElementRequiresInternet(id)
-        KeyValueStore::getOrNull(nil, "29f7d6a5-91ed-4623-9f52-543684881f33:#{id}") == "require"
-    end
-
-    # InternetStatus::ns16ShouldShow(id)
-    def self.ns16ShouldShow(id)
-        InternetStatus::internetIsActive() or !InternetStatus::trueIfElementRequiresInternet(id)
     end
 end
 
@@ -105,7 +50,7 @@ class UIServices
 
     # UIServices::diversCommands()
     def self.diversCommands()
-        "calendar | waves | ondates | Nx50s | anniversaries | search | fsck | nyx"
+        "calendar | waves | ondates | Nx50s | anniversaries | search | nyx"
     end
 
     # UIServices::makersAndDiversCommands()
@@ -264,6 +209,101 @@ class UIServices
         end
     end
 
+    # UIServices::mainViewDomainOptimization(ns16s)
+    def self.mainViewDomainOptimization(ns16s)
+
+        collection = ns16s.clone
+
+        commandStrWithPrefix = lambda{|ns16, isDefaultItem|
+            return "" if !isDefaultItem
+            return "" if ns16["commands"].nil?
+            return "" if ns16["commands"].empty?
+            " (commands: #{ns16["commands"].join(", ")})".yellow
+        }
+
+        system("clear")
+
+        vspaceleft = Utils::screenHeight()-5
+
+        puts ""
+        puts Domain::dx().yellow
+        vspaceleft = vspaceleft - 2
+
+        store = ItemStore.new()
+
+        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+        if running.size > 0 then
+            puts ""
+            puts "running:"
+            vspaceleft = vspaceleft - 2
+            running
+                .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
+                .each{|nxball|
+                    delegate = {
+                        "uuid"  => nxball["uuid"],
+                        "NS198" => "NxBallDelegate1" 
+                    }
+                    indx = store.register(delegate)
+                    announce = "(#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                    puts announce
+                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                }
+        end
+        runningUUIDs = running.map{|item| item["uuid"] }
+        collection
+            .select{|ns16| runningUUIDs.include?(ns16["uuid"]) }
+            .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
+            .each{|ns16|
+                indx = store.register(ns16)
+                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}"
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+            }
+
+        puts ""
+        collection
+            .select{|ns16| !runningUUIDs.include?(ns16["uuid"]) }
+            .each{|ns16|
+                indx = store.register(ns16)
+                isDefaultItem = store.getDefault().nil? # the default item is the first element
+                if isDefaultItem then
+                    store.registerDefault(ns16)
+                end
+                posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
+                announce = "#{ns16["x-domain"].ljust(7, " ")} #{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                break if (!isDefaultItem and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                puts announce
+                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+            }
+
+        puts ""
+        command = LucilleCore::askQuestionAnswerAsString("> ")
+
+        return if command == ""
+
+        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+            if (item = store.getDefault()) then
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+        end
+
+        if (i = Interpreting::readAsIntegerOrNull(command)) then
+            item = store.get(i)
+            return if item.nil?
+            CentralDispatch::operator1(item, "..")
+            return
+        end
+
+        CentralDispatch::operator4(command)
+        CentralDispatch::operator5(store, command)
+
+        if store.getDefault() then
+            item = store.getDefault()
+            CentralDispatch::operator1(item, command)
+        end
+    end
+
     # UIServices::displayLoop()
     def self.displayLoop()
         loop {
@@ -274,17 +314,11 @@ class UIServices
         }
     end
 
-end
-
-class Fsck
-    # Fsck::fsck()
-    def self.fsck()
-
-        Anniversaries::anniversaries().each{|item|
-            puts JSON.pretty_generate(item)
+    # UIServices::displayLoopDomainOptimization()
+    def self.displayLoopDomainOptimization()
+        loop {
+            UIServices::mainViewDomainOptimization(Nathalie::getNS16sFromCollection())
         }
-
-        puts "Fsck Completed!".green
-        LucilleCore::pressEnterToContinue()
     end
+
 end

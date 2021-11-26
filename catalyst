@@ -13,4 +13,5 @@ Thread.new {
     }
 }
 
-UIServices::displayLoop()
+# UIServices::displayLoop()
+UIServices::displayLoopDomainOptimization()

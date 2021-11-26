@@ -90,4 +90,22 @@ class Domain
         end
         entity
     end
+
+    # Domain::dx()
+    def self.dx()
+        Domain::domains()
+            .map{|domain|
+                {
+                    "domain" => domain,
+                    "rt" => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain))
+                }
+            }
+            .sort{|p1, p2| p1["rt"]<=>p2["rt"] }
+            .map{|px|
+                domain = px["domain"].gsub("(", "").gsub(")", "")
+                rt = px["rt"]
+                "(#{domain}: rt: #{rt.round(2)})"
+            }
+            .join(" ")
+    end
 end

@@ -160,10 +160,6 @@ class CentralDispatch
             Search::search()
         end
 
-        if Interpreting::match("fsck", command) then
-            Fsck::fsck()
-        end
-
         if Interpreting::match("nyx", command) then
             system("/Users/pascal/Galaxy/Software/Nyx/nyx")
         end

@@ -169,7 +169,7 @@ class Nx50s
         if nx50["category2"][0] == "Dated" then
             return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]})"
         end
-        "(#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
     # Nx50s::complete(nx50)
