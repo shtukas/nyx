@@ -138,8 +138,8 @@ class Nx50s
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => unixtime,
-            "description" => description,
+            "unixtime"    => Time.new.to_f,
+            "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
             "domain"      => "(eva)",
             "category2"   => ["Tail"]
@@ -265,7 +265,6 @@ class Nx50s
 
             puts "#{Nx50s::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "coreDataId: #{nx50["coreDataId"]}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "category: #{nx50["category2"].join(", ")}".yellow

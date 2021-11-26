@@ -161,6 +161,5 @@ require_relative "UIServices.rb"
 require_relative "Utils.rb"
 
 require_relative "Waves.rb"
-require_relative "Work.rb"
 
 # ------------------------------------------------------------
