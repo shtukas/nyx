@@ -260,7 +260,7 @@ class Waves
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    CoreData5::removeAtomFromSet(Waves::setuuid(), wave["uuid"])
+                    ObjectStore4::removeObjectFromSet(Waves::setuuid(), wave["uuid"])
                     break
                 end
             end

@@ -174,7 +174,7 @@ class Nx50s
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
-        CoreData5::removeAtomFromSet(Nx50s::setuuid(), nx50["uuid"])
+        ObjectStore4::removeObjectFromSet(Nx50s::setuuid(), nx50["uuid"])
     end
 
     # Nx50s::importspread()
