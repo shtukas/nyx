@@ -150,7 +150,6 @@ require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
 require_relative "Nx50s.rb"
-require_relative "DisplayListingParameters.rb"
 require_relative "Nathalie.rb"
 
 require_relative "ProgrammableBooleans.rb"

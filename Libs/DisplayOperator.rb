@@ -25,19 +25,6 @@ end
 
 class Commands
 
-    # Commands::domainsMenuCommands()
-    def self.domainsMenuCommands()
-        today = Time.new.to_s[0, 10]
-        Domain::domains()
-            .map{|domain|
-                account = Domain::domainToBankAccount(domain)
-                value = Bank::valueAtDate(account, today).to_f/3600
-                d = domain.gsub("(", "").gsub(")", "")
-                "(#{d}: #{value.round(2)} hours today)"
-            }
-            .join(" ")
-    end
-
     # Commands::listingCommands()
     def self.listingCommands()
         ".. | <n> | <datecode> | expose"
@@ -59,6 +46,48 @@ class Commands
             Commands::makersCommands(),
             Commands::diversCommands()
         ].join(" | ")
+    end
+end
+
+class DisplayListingParameters
+
+    # DisplayListingParameters::ns16sPart1(domain)
+    def self.ns16sPart1(domain)
+        [
+            Anniversaries::ns16s(),
+            Calendar::ns16s(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            DrivesBackups::ns16s(),
+            Waves::ns16s(domain),
+            Inbox::ns16s()
+        ]
+            .flatten
+            .compact
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    end
+
+    # DisplayListingParameters::removeDuplicates(ns16s)
+    def self.removeDuplicates(ns16s)
+        ns16s.reduce([]){|elements, ns16|
+            if elements.none?{|x| x["uuid"] == ns16["uuid"]} then
+                elements << ns16
+            end
+            elements
+        }
+    end
+
+    # DisplayListingParameters::getListingParametersForDomain(domain)
+    def self.getListingParametersForDomain(domain)
+        ns16sPart1 = DisplayListingParameters::ns16sPart1(domain)
+        structure = Nx50s::structureForDomain(domain)
+        {
+            "domain"   => domain,
+            "Monitor"  => structure["Monitor"],
+            "overflow" => structure["overflow"],
+            "ns16s"    => ns16sPart1 + structure["Dated"] + structure["Tail"]
+        }
     end
 end
 
@@ -84,7 +113,6 @@ class DisplayOperator
             "      " + Commands::listingCommands(),
             "      " + Commands::makersCommands(),
             "      " + Commands::diversCommands(),
-            "      " + Commands::domainsMenuCommands(),
             "      internet on | internet off | require internet"
         ].join("\n").yellow
 
@@ -93,7 +121,7 @@ class DisplayOperator
         store = ItemStore.new()
 
         puts ""
-        puts "--> #{domain || "Nathalie"}".green
+        puts "--> #{domain || "Nathalie"} #{Domain::dx()}".green
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
@@ -122,7 +150,7 @@ class DisplayOperator
             vspaceleft = vspaceleft - 2
             monitor
                 .each{|object|
-                    line = "(#{store.register(object).to_s.rjust(3, " ")}) [#{Time.at(object["Nx50"]["unixtime"]).to_s[0, 10]}] #{object["announce"]}"
+                    line = "(#{store.register(object).to_s.rjust(3, " ")}) [#{Time.at(object["Nx50"]["unixtime"]).to_s[0, 10]}] #{object["announce"]}".yellow
                     puts line
                     vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
@@ -219,7 +247,7 @@ class DisplayOperator
             if domain then
                 parameters = DisplayListingParameters::getListingParametersForDomain(domain)
             else
-                parameters = DisplayListingParameters::getNathalieListingParameters()
+                parameters = Nathalie::listingParameters()
             end
             DisplayOperator::listing(parameters["domain"], parameters["Monitor"], parameters["overflow"], parameters["ns16s"])
         }
