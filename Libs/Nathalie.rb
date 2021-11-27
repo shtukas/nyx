@@ -48,6 +48,9 @@ class Nathalie
         if $NathalieData.nil? then
             $NathalieData = Nathalie::computeNewListingParameters()
         end
+        if $NathalieData["ns16s"].empty? then
+            $NathalieData = Nathalie::computeNewListingParameters()
+        end
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
             puts "[Nathalie] removing uuid: #{uuid}"
             $NathalieData["ns16s"]  = $NathalieData["ns16s"].select{|ns16| ns16["uuid"] != uuid }
