@@ -126,7 +126,7 @@ class Nx50s
             "unixtime"    => unixtime,
             "description" => description,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "domain"      => "(eva)",
+            "domain"      => "(entertainment)",
             "category2"   => ["Tail"]
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())

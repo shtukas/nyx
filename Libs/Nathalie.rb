@@ -9,7 +9,8 @@ class Nathalie
         {
             "(eva)"  => 3,
             "(work)" => 6,
-            "(jedi)" => 2
+            "(jedi)" => 2,
+            "(entertainment)" => 1
         }
     end
 
@@ -22,8 +23,8 @@ class Nathalie
     def self.domains()
         # This is a slightly different list than (subset of) Domain::domains()
         # Because there are days we do not want (work), for instance
-        return ["(eva)", "(jedi)"] if Time.new.wday == 6
-        return ["(eva)", "(jedi)"] if Time.new.wday == 0
+        return ["(eva)", "(jedi)", "(entertainment)"] if Time.new.wday == 6
+        return ["(eva)", "(jedi)", "(entertainment)"] if Time.new.wday == 0
         Domain::domains()
     end
 
@@ -39,7 +40,7 @@ class Nathalie
             "domain"   => nil,
             "Monitor"  => monitor,
             "overflow" => [],
-            "ns16s"    => ns16sPart1 + dated + tail
+            "ns16s"    => (ns16sPart1 + dated + tail).shuffle
         }
     end
 

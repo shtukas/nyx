@@ -5,7 +5,7 @@ class Domain
 
     # Domain::domains()
     def self.domains()
-        ["(eva)", "(work)", "(jedi)"]
+        ["(eva)", "(work)", "(jedi)", "(entertainment)"]
     end
 
     # Domain::setStoredDomainWithExpiry(domain, expiryUnixtime)
@@ -34,9 +34,10 @@ class Domain
     # Domain::domainToBankAccount(domain)
     def self.domainToBankAccount(domain)
         mapping = {
-            "(eva)"  => "EVA-97F7F3341-4CD1-8B20-4A2466751408",
-            "(work)" => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-            "(jedi)" => "C87787F9-77E9-4518-BC41-DBCFB7775299",
+            "(eva)"           => "EVA-97F7F3341-4CD1-8B20-4A2466751408",
+            "(work)"          => "WORK-E4A9-4BCD-9824-1EEC4D648408",
+            "(jedi)"          => "C87787F9-77E9-4518-BC41-DBCFB7775299",
+            "(entertainment)" => "C00F4D2B-DE5E-41A5-8791-8F486EC05ED7"
         }
         raise "[62e07265-cda5-45e1-9b90-7c88db751a1c: #{domain}]" if !mapping.keys.include?(domain)
         mapping[domain]

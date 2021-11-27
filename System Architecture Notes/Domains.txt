@@ -1,2 +1,2 @@
-Domain : "(eva)" | "(work)" | "(jedi)"
+Domain : "(eva)" | "(work)" | "(jedi)" | "(entertainment)"
 Domains are used by Waves and Nx50s (but not Anniversaries or Calendar)
