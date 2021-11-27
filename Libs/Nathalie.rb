@@ -4,16 +4,6 @@ $NathalieData = nil
 
 class Nathalie
 
-    # Nathalie::simulationTimeCommitments()
-    def self.simulationTimeCommitments()
-        {
-            "(eva)"  => 3,
-            "(work)" => 6,
-            "(jedi)" => 2,
-            "(entertainment)" => 1
-        }
-    end
-
     # Nathalie::dataStorageKey()
     def self.dataStorageKey()
         Digest::SHA1.hexdigest("aa3d441d-a247-489d-9662-7ee3f668adcf:#{IO.read(__FILE__)}")
@@ -28,14 +18,36 @@ class Nathalie
         Domain::domains()
     end
 
+    # Nathalie::listingDomains()
+    def self.listingDomains()
+        map1 = {
+            "(eva)"  => 3,
+            "(work)" => 6,
+            "(jedi)" => 2,
+            "(entertainment)" => 1
+        }
+        Nathalie::domains()
+            .map {|domain|
+                {
+                    "domain" => domain,
+                    "ratio"  => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain)).to_f/map1[domain]
+                }
+            }
+            .sort{|p1, p2|
+                p1["ratio"] <=> p2["ratio"]
+            }
+            .first(2)
+            .map{|packet| packet["domain"] }
+    end
+
     # Nathalie::computeNewListingParameters()
     def self.computeNewListingParameters()
         puts "Nathalie::computeNewListingParameters()"
-        monitor    = Nathalie::domains().map{|domain| Nx50s::structureForDomain(domain)["Monitor"] }.flatten
-        ns16sPart1 = Nathalie::domains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten.first(5)
+        monitor    = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Monitor"] }.flatten
+        ns16sPart1 = Nathalie::listingDomains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten.first(5)
         ns16sPart1 = DisplayListingParameters::removeDuplicates(ns16sPart1)
-        dated      = Nathalie::domains().map{|domain| Nx50s::structureForDomain(domain)["Dated"].first(2) }.flatten
-        tail       = Nathalie::domains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
+        dated      = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Dated"].first(2) }.flatten
+        tail       = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
         {
             "domain"   => nil,
             "Monitor"  => monitor,
