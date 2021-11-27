@@ -62,18 +62,21 @@ class Domain
 
     # Domain::dx()
     def self.dx()
+        domainToString = lambda{|domain|
+            domain.gsub("(", "").gsub(")", "")
+        }
         Domain::domains()
             .map{|domain|
+                account = Domain::domainToBankAccount(domain)
                 {
                     "domain" => domain,
-                    "rt" => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain))
+                    "rt"     => BankExtended::stdRecoveredDailyTimeInHours(account),
+                    "today"  => Bank::valueAtDate(account, Utils::today()).to_f/3600
                 }
             }
             .sort{|p1, p2| p1["rt"]<=>p2["rt"] }
             .map{|px|
-                domain = px["domain"].gsub("(", "").gsub(")", "")
-                rt = px["rt"]
-                "(#{domain}: rt: #{rt.round(2)})"
+                "(#{domainToString.call(px["domain"])}: rt: #{px["rt"].round(2)}, today: #{px["today"].round(2)} hours)"
             }
             .join(" ")
     end
