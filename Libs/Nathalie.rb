@@ -11,50 +11,53 @@ class Nathalie
         }
     end
 
-
-    # Nathalie::buildNewCollectionNS16s()
-    def self.buildNewCollectionNS16s()
-        Domain::domains()
-            .map{|domain| 
-                []
-                    .first(5)
-                    .map{|ns16|
-                        ns16["x-domain"] = domain
-                        ns16
-                    } 
-            }
-            .flatten
-            .shuffle
-    end
-
-    # Nathalie::collectionStorageKey()
-    def self.collectionStorageKey()
+    # Nathalie::structureStorageKey()
+    def self.structureStorageKey()
         Digest::SHA1.hexdigest("aa3d441d-a247-489d-9662-7ee3f668adcf:#{IO.read(__FILE__)}")
     end
 
-    # Nathalie::issueNewCollection()
-    def self.issueNewCollection()
-        collection = {
-            "unixtime" => Time.new.to_i,
-            "ns16s"    => Nathalie::buildNewCollectionNS16s()
+    # Nathalie::computeNewStructure()
+    def self.computeNewStructure()
+        zero = {
+            "Monitor"  => [],
+            "overflow" => [],
+            "Dated"    => [],
+            "Tail"     => []
         }
-        KeyValueStore::set(nil, Nathalie::collectionStorageKey(), JSON.pretty_generate(collection))
-        collection
+
+        Domain::domains()
+            .sort{|d1, d2| d1 <=> d2 } # for the moment we apply a dummy ordering
+            .zip([8, 5, 2]) # 8 elements of the domain with the lowest completion ratio, etc...
+            .map{|pair|
+                domain, cardinal = pair
+                structure = Nx50s::structureForDomain(domain)
+                structure["Dated"] = structure["Dated"].take(cardinal)
+                structure["Tail"]  = structure["Tail"].take([0, structure["Dated"].size - cardinal].max)
+                structure
+            }
+            .reduce(zero){|cursor, struc|
+                cursor["Monitor"] = cursor["Monitor"] + struc["Monitor"]
+                cursor["Dated"]   = (cursor["Dated"] + struc["Dated"]).shuffle
+                cursor["Tail"]    = (cursor["Tail"] + struc["Tail"]).shuffle
+                cursor
+            }
     end
 
-    # Nathalie::ns16s()
-    def self.ns16s()
-        collection = KeyValueStore::getOrNull(nil, Nathalie::collectionStorageKey())
-        if collection.nil? then
-            collection = Nathalie::issueNewCollection()
+    # Nathalie::structure()
+    def self.structure()
+        structure = KeyValueStore::getOrNull(nil, Nathalie::structureStorageKey())
+        if structure.nil? then
+            structure = Nathalie::computeNewStructure()
+            KeyValueStore::set(nil, Nathalie::structureStorageKey(), JSON.generate(structure))
         else
-            collection = JSON.parse(collection)
+            structure = JSON.parse(structure)
         end
-        ns16s = collection["ns16s"]
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
             puts "[Nathalie] removing uuid: #{uuid}"
-            ns16s = ns16s.select{|ns16| ns16["uuid"] != uuid }
+            structure["Dated"] = structure["Dated"].select{|ns16| ns16["uuid"] != uuid }
+            structure["Tail"]  = structure["Tail"].select{|ns16| ns16["uuid"] != uuid }
+            KeyValueStore::set(nil, Nathalie::structureStorageKey(), JSON.pretty_generate(structure))
         end
-        ns16s
+        structure
     end
 end

@@ -93,7 +93,7 @@ class DisplayOperator
         store = ItemStore.new()
 
         puts ""
-        puts "--> #{domain}".green
+        puts "--> #{domain || "Nathalie"}".green
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
@@ -122,7 +122,7 @@ class DisplayOperator
             vspaceleft = vspaceleft - 2
             monitor
                 .each{|object|
-                    line = "(#{store.register(object).to_s.rjust(3, " ")}) #{object["announce"]}"
+                    line = "(#{store.register(object).to_s.rjust(3, " ")}) [#{Time.at(object["Nx50"]["unixtime"]).to_s[0, 10]}] #{object["announce"]}"
                     puts line
                     vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
@@ -221,7 +221,7 @@ class DisplayOperator
             else
                 parameters = DisplayListingParameters::getNathalieListingParameters()
             end
-            DisplayOperator::listing(parameters["domain"], parameters["monitor"], parameters["overflow"], parameters["ns16s"])
+            DisplayOperator::listing(parameters["domain"], parameters["Monitor"], parameters["overflow"], parameters["ns16s"])
         }
     end
 end

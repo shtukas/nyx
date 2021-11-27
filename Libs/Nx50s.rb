@@ -445,11 +445,6 @@ class Nx50s
         }
     end
 
-    # Nx50s::structureForNathalie()
-    def self.structureForNathalie()
-        Nx50s::structureGivenNx50s(Nx50s::nx50s())
-    end
-
     # Nx50s::structureForDomain(domain)
     def self.structureForDomain(domain)
         Nx50s::structureGivenNx50s(Nx50s::nx50sForDomain(domain))

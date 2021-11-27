@@ -1,9 +1,21 @@
 # encoding: UTF-8
 
+=begin
+
+This class prepares the DisplayParameters used by the Display Operator.
+It
+    1. Computes the NS16s without the Nx50s (wihtout Dated and Tail)
+    2. Computes the display parameters for domain listings
+    3. Computes the display parameters for Nathalie. Nathalie only deals with a managed collection of NS16s. 
+       When we display Nathalie We display the latest Nx50 Monitor and Overflow, not a cached version.
+
+=end
+
+
 class DisplayListingParameters
 
-    # DisplayListingParameters::ns16sWithoutNx50s(domain)
-    def self.ns16sWithoutNx50s(domain)
+    # DisplayListingParameters::ns16sPart1(domain)
+    def self.ns16sPart1(domain)
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -31,11 +43,11 @@ class DisplayListingParameters
 
     # DisplayListingParameters::getListingParametersForDomain(domain)
     def self.getListingParametersForDomain(domain)
-        ns16sPart1 = DisplayListingParameters::ns16sWithoutNx50s(domain)
+        ns16sPart1 = DisplayListingParameters::ns16sPart1(domain)
         structure = Nx50s::structureForDomain(domain)
         {
             "domain"   => domain,
-            "monitor"  => structure["Monitor"],
+            "Monitor"  => structure["Monitor"],
             "overflow" => structure["overflow"],
             "ns16s"    => ns16sPart1 + structure["Dated"] + structure["Tail"]
         }
@@ -43,14 +55,14 @@ class DisplayListingParameters
 
     # DisplayListingParameters::getNathalieListingParameters()
     def self.getNathalieListingParameters()
-        ns16sPart1 = Domain::domains().map{|domain| DisplayListingParameters::ns16sWithoutNx50s(domain) }.flatten
+        ns16sPart1 = Domain::domains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten
         ns16sPart1 = DisplayListingParameters::removeDuplicates(ns16sPart1)
-        structure = Nx50s::structureForNathalie()
+        structure = Nathalie::structure()
         {
             "domain"   => nil,
-            "monitor"  => structure["Monitor"],
+            "Monitor"  => structure["Monitor"],
             "overflow" => structure["overflow"],
-            "ns16s"    => (ns16sPart1 + structure["Dated"] + structure["Tail"]).shuffle
+            "ns16s"    => ns16sPart1 + structure["Dated"] + structure["Tail"]
         }
     end
 end
