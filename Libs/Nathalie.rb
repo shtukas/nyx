@@ -22,7 +22,7 @@ class Nathalie
     def self.computeNewListingParameters()
         puts "Nathalie::computeNewListingParameters()"
         monitor    = Domain::domains().map{|domain| Nx50s::structureForDomain(domain)["Monitor"] }.flatten
-        ns16sPart1 = Domain::domains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten
+        ns16sPart1 = Domain::domains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten.first(5)
         ns16sPart1 = DisplayListingParameters::removeDuplicates(ns16sPart1)
         dated      = Domain::domains().map{|domain| Nx50s::structureForDomain(domain)["Dated"].first(2) }.flatten
         tail       = Domain::domains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
