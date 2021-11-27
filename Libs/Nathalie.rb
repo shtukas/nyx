@@ -18,15 +18,23 @@ class Nathalie
         Digest::SHA1.hexdigest("aa3d441d-a247-489d-9662-7ee3f668adcf:#{IO.read(__FILE__)}")
     end
 
+    # Nathalie::domains()
+    def self.domains()
+        # This is a slightly different list than (subset of) Domain::domains()
+        # Because there are days we do not want (work), for instance
+        return ["(eva)", "(jedi)"] if Time.new.wday == 6
+        return ["(eva)", "(jedi)"] if Time.new.wday == 0
+        Domain::domains()
+    end
+
     # Nathalie::computeNewListingParameters()
     def self.computeNewListingParameters()
         puts "Nathalie::computeNewListingParameters()"
-        monitor    = Domain::domains().map{|domain| Nx50s::structureForDomain(domain)["Monitor"] }.flatten
-        ns16sPart1 = Domain::domains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten.first(5)
+        monitor    = Nathalie::domains().map{|domain| Nx50s::structureForDomain(domain)["Monitor"] }.flatten
+        ns16sPart1 = Nathalie::domains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten.first(5)
         ns16sPart1 = DisplayListingParameters::removeDuplicates(ns16sPart1)
-        dated      = Domain::domains().map{|domain| Nx50s::structureForDomain(domain)["Dated"].first(2) }.flatten
-        tail       = Domain::domains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
-
+        dated      = Nathalie::domains().map{|domain| Nx50s::structureForDomain(domain)["Dated"].first(2) }.flatten
+        tail       = Nathalie::domains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
         {
             "domain"   => nil,
             "Monitor"  => monitor,
