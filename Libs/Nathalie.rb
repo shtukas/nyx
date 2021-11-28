@@ -74,7 +74,7 @@ class Nathalie
             puts "[Nathalie] removing uuid: #{uuid}"
             nathalie["ns16s"]  = nathalie["ns16s"].select{|ns16| ns16["uuid"] != uuid }
         end
-        KeyValueStore::set(nil, "E393A7D1-7601-4DE1-BA18-775D5E75C431", JSON.pretty_generate(nathalie))
+        KeyValueStore::set(nil, "E393A7D1-7601-4DE1-BA18-775D5E75C431", JSON.generate(nathalie))
         nathalie
     end
 
