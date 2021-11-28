@@ -15,7 +15,7 @@ class Nathalie
 
     # Nathalie::dataStorageKey()
     def self.dataStorageKey()
-        Digest::SHA1.hexdigest("aa3d441d-a247-489d-9662-7ee3f668adcf:#{IO.read(__FILE__)}")
+        Digest::SHA1.hexdigest("aa3d441d-a247-489d-9662-7ee3f668adcf:#{Utils::today()}:#{IO.read(__FILE__)}")
     end
 
     # Nathalie::domains()
@@ -43,39 +43,46 @@ class Nathalie
             .map{|packet| packet["domain"] }
     end
 
-    # Nathalie::computeNewListingParameters()
-    def self.computeNewListingParameters()
-        puts "Nathalie::computeNewListingParameters()"
+    # Nathalie::computeNewNx77()
+    def self.computeNewNx77()
+        puts "Nathalie::computeNewNx77()"
         monitor    = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Monitor"] }.flatten
         ns16sPart1 = Nathalie::listingDomains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten.first(5)
         ns16sPart1 = DisplayListingParameters::removeDuplicates(ns16sPart1)
         dated      = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Dated"].first(2) }.flatten
         tail       = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
-        {
+        listingParameters = {
             "domain"   => nil,
             "Monitor"  => monitor,
             "overflow" => [],
             "ns16s"    => (ns16sPart1 + dated + tail).shuffle
         }
+        {
+            "unixtime"   => Time.new.to_i,
+            "parameters" => listingParameters
+        }
     end
 
     # Nathalie::listingParameters()
     def self.listingParameters()
-        nathalie = KeyValueStore::getOrNull(nil, "E393A7D1-7601-4DE1-BA18-775D5E75C431")
-        if nathalie.nil? then
-            nathalie = Nathalie::computeNewListingParameters()
+        nx77 = KeyValueStore::getOrNull(nil, Nathalie::dataStorageKey())
+        if nx77.nil? then
+            nx77 = Nathalie::computeNewNx77()
         else
-            nathalie = JSON.parse(nathalie)
+            nx77 = JSON.parse(nx77)
         end
-        if nathalie["ns16s"].empty? then
-            nathalie = Nathalie::computeNewListingParameters()
+        if (Time.new.to_f - nx77["unixtime"]) > 36400*4 then # We expire after 4 hours
+            nx77 = Nathalie::computeNewNx77()
+        end
+        if nx77["parameters"]["ns16s"].empty? then
+            nx77 = Nathalie::computeNewNx77()
         end
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
             puts "[Nathalie] removing uuid: #{uuid}"
-            nathalie["ns16s"]  = nathalie["ns16s"].select{|ns16| ns16["uuid"] != uuid }
+            nx77["parameters"]["ns16s"]  = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
         end
-        KeyValueStore::set(nil, "E393A7D1-7601-4DE1-BA18-775D5E75C431", JSON.generate(nathalie))
-        nathalie
+        KeyValueStore::set(nil, Nathalie::dataStorageKey(), JSON.generate(nx77))
+        nx77["parameters"]
     end
 
 

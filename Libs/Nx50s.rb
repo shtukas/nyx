@@ -268,6 +268,8 @@ class Nx50s
 
         NxBallsService::issue(uuid, Nx50s::toString(nx50), itemToBankAccounts.call(nx50))
 
+        didItOnce1 = false
+
         loop {
 
             system("clear")
@@ -286,9 +288,10 @@ class Nx50s
                 puts "note:\n#{note}".green
             end
 
-            if LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
+            if !didItOnce1 and LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
                 Nx50s::accessContent(nx50)
             end
+            didItOnce1 = true
 
             puts "access | note | <datecode> | description | update contents | rotate | domain | category | show json | destroy (gg) | exit (xx)".yellow
 
