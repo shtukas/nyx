@@ -329,7 +329,7 @@ class Waves
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:wave1",
-            "announce" => Waves::toString(wave),
+            "announce" => "#{Waves::toString(wave)} (#{wave["domain"]})",
             "commands" => ["..", "landing", "done"],
             "wave"     => wave
         }

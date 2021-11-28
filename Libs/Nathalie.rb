@@ -15,7 +15,7 @@ class Nathalie
 
     # Nathalie::dataStorageKey()
     def self.dataStorageKey()
-        Digest::SHA1.hexdigest("aa3d441d-a247-489d-9662-7ee3f668adcf:#{Utils::today()}:#{IO.read(__FILE__)}")
+        Digest::SHA1.hexdigest("aa3d441d-a247-489d-9662-7ee3f668adff:#{Utils::today()}:#{IO.read(__FILE__)}")
     end
 
     # Nathalie::domains()

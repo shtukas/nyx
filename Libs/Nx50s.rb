@@ -164,17 +164,18 @@ class Nx50s
     # Nx50s::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
         if nx50["category2"][0] == "Monitor" then
-            return "#{nx50["description"]} (#{nx50["atom"]["type"]})"
+            return "#{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["domain"]}"
         end
         if nx50["category2"][0] == "Dated" then
-            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]})"
+            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["domain"]}"
         end
-        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["domain"]}"
     end
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
         ObjectStore4::removeObjectFromSet(Nx50s::setuuid(), nx50["uuid"])
+        Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", nx50["uuid"])
     end
 
     # Nx50s::importspread()
@@ -287,8 +288,9 @@ class Nx50s
             if note then
                 puts "note:\n#{note}".green
             end
-
-            if !didItOnce1 and LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
+            puts nx50
+            exit
+            if nx50["atom"]["type"] != "description-only" and !didItOnce1 and LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
                 Nx50s::accessContent(nx50)
             end
             didItOnce1 = true
