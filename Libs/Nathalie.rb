@@ -1,8 +1,17 @@
 # encoding: UTF-8
 
-$NathalieData = nil
-
 class Nathalie
+
+    # Nathalie::expectation(domain)
+    def self.expectation(domain)
+        map = {
+            "(eva)"           => 3,
+            "(work)"          => 6,
+            "(jedi)"          => 2,
+            "(entertainment)" => 1
+        }
+        map[domain]
+    end
 
     # Nathalie::dataStorageKey()
     def self.dataStorageKey()
@@ -20,17 +29,11 @@ class Nathalie
 
     # Nathalie::listingDomains()
     def self.listingDomains()
-        map1 = {
-            "(eva)"  => 3,
-            "(work)" => 6,
-            "(jedi)" => 2,
-            "(entertainment)" => 1
-        }
         Nathalie::domains()
             .map {|domain|
                 {
                     "domain" => domain,
-                    "ratio"  => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain)).to_f/map1[domain]
+                    "ratio"  => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain)).to_f/Nathalie::expectation(domain)
                 }
             }
             .sort{|p1, p2|
@@ -58,16 +61,43 @@ class Nathalie
 
     # Nathalie::listingParameters()
     def self.listingParameters()
-        if $NathalieData.nil? then
-            $NathalieData = Nathalie::computeNewListingParameters()
+        nathalie = KeyValueStore::getOrNull(nil, "E393A7D1-7601-4DE1-BA18-775D5E75C431")
+        if nathalie.nil? then
+            nathalie = Nathalie::computeNewListingParameters()
+        else
+            nathalie = JSON.parse(nathalie)
         end
-        if $NathalieData["ns16s"].empty? then
-            $NathalieData = Nathalie::computeNewListingParameters()
+        if nathalie["ns16s"].empty? then
+            nathalie = Nathalie::computeNewListingParameters()
         end
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
             puts "[Nathalie] removing uuid: #{uuid}"
-            $NathalieData["ns16s"]  = $NathalieData["ns16s"].select{|ns16| ns16["uuid"] != uuid }
+            nathalie["ns16s"]  = nathalie["ns16s"].select{|ns16| ns16["uuid"] != uuid }
         end
-        $NathalieData.clone
+        KeyValueStore::set(nil, "E393A7D1-7601-4DE1-BA18-775D5E75C431", JSON.pretty_generate(nathalie))
+        nathalie
+    end
+
+
+    # Nathalie::dx()
+    def self.dx()
+        domainToString = lambda{|domain|
+            domain.gsub("(", "").gsub(")", "")
+        }
+        Domain::domains()
+            .map{|domain|
+                account = Domain::domainToBankAccount(domain)
+                {
+                    "domain" => domain,
+                    "rt"     => BankExtended::stdRecoveredDailyTimeInHours(account),
+                    "today"  => Bank::valueAtDate(account, Utils::today()).to_f/3600,
+                    "ratio"  => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain)).to_f/Nathalie::expectation(domain)
+                }
+            }
+            .sort{|p1, p2| p1["ratio"]<=>p2["ratio"] }
+            .map{|px|
+                "(#{domainToString.call(px["domain"])}: #{px["ratio"].round(2)}% of #{Nathalie::expectation(px["domain"])} hours)"
+            }
+            .join(" ")
     end
 end

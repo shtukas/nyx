@@ -7,6 +7,15 @@ class Inbox
         "/Users/pascal/Desktop/Inbox"
     end
 
+    # Inbox::getLocationUUID(location)
+    def self.getLocationUUID(location)
+        uuid = KeyValueStore::getOrNull(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
+        return uuid.to_f if uuid
+        uuid = SecureRandom.uuid
+        KeyValueStore::set(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}", uuid)
+        uuid
+    end
+
     # Inbox::run(location)
     def self.run(location)
         time1 = Time.new.to_f
@@ -48,6 +57,7 @@ class Inbox
 
         if action == "delete" then
             LucilleCore::removeFileSystemLocation(location)
+            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
         end
         
         if action == "dispatch" then
@@ -56,6 +66,7 @@ class Inbox
                 domain = Domain::interactivelySelectDomain()
                 Nx50s::issueItemUsingLocation(location, domain)
                 LucilleCore::removeFileSystemLocation(location)
+                Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
             end
         end
 
@@ -72,14 +83,6 @@ class Inbox
     # Inbox::ns16s()
     def self.ns16s()
 
-        getLocationUUID = lambda{|location|
-            uuid = KeyValueStore::getOrNull(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
-            return uuid.to_f if uuid
-            uuid = SecureRandom.uuid
-            KeyValueStore::set(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}", uuid)
-            uuid
-        }
-
         getLocationUnixtime = lambda{|location|
             unixtime = KeyValueStore::getOrNull(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
             return unixtime.to_f if unixtime
@@ -92,7 +95,7 @@ class Inbox
             .map{|location|
                 announce = "[inbx] #{File.basename(location)}"
                 {
-                    "uuid"         => getLocationUUID.call(location),
+                    "uuid"         => Inbox::getLocationUUID(location),
                     "NS198"        => "ns16:inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,

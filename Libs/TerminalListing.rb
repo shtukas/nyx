@@ -121,7 +121,7 @@ class DisplayOperator
         store = ItemStore.new()
 
         puts ""
-        puts "--> #{domain || "Nathalie"} #{Domain::dx()}".green
+        puts "--> #{domain || "Nathalie"} #{Nathalie::dx()}".green
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
