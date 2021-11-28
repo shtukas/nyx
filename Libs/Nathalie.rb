@@ -96,7 +96,7 @@ class Nathalie
             }
             .sort{|p1, p2| p1["ratio"]<=>p2["ratio"] }
             .map{|px|
-                "(#{domainToString.call(px["domain"])}: #{px["ratio"].round(2)}% of #{Nathalie::expectation(px["domain"])} hours)"
+                "(#{domainToString.call(px["domain"])}: #{(100*px["ratio"]).to_i}% of #{Nathalie::expectation(px["domain"])} hours)"
             }
             .join(" ")
     end
