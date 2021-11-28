@@ -265,9 +265,10 @@ class Nx50s
 
             puts "#{Nx50s::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
-            puts "category: #{nx50["category2"].join(", ")}".yellow
+            puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
+            puts "Domain: #{nx50["domain"]}".yellow
+            puts "Category: #{nx50["category2"].join(", ")}".yellow
 
             puts CoreData5::atomPayloadToText(nx50)
 
