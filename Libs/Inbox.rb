@@ -54,7 +54,7 @@ class Inbox
             target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["todo"])
             if target == "todo" then
                 domain = Domain::interactivelySelectDomain()
-                Nx50s::issueItemUsingLocatio(location, domain)
+                Nx50s::issueItemUsingLocation(location, domain)
                 LucilleCore::removeFileSystemLocation(location)
             end
         end
