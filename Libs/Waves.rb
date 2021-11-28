@@ -177,7 +177,11 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
-        CoreData5::accessWithOptionToEdit(wave["atom"])
+        updated = CoreData5::accessWithOptionToEdit(wave["atom"])
+        if updated then
+            wave["atom"] = updated
+            ObjectStore4::store(wave, Waves::setuuid())
+        end
     end
 
     # Waves::landing(wave)

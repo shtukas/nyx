@@ -214,6 +214,15 @@ class Nx50s
         end
     end
 
+    # Nx50s::accessContent(nx50)
+    def self.accessContent(nx50)
+        updated = CoreData5::accessWithOptionToEdit(nx50["atom"])
+        if updated then
+            nx50["atom"] = updated
+            ObjectStore4::store(nx50, Nx50s::setuuid())
+        end
+    end
+
     # --------------------------------------------------
     # Categories
 
@@ -278,7 +287,7 @@ class Nx50s
             end
 
             if LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
-                CoreData5::accessWithOptionToEdit(nx50)
+                Nx50s::accessContent(nx50)
             end
 
             puts "access | note | <datecode> | description | update contents | rotate | domain | category | show json | destroy (gg) | exit (xx)".yellow
@@ -294,7 +303,7 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                CoreData5::accessWithOptionToEdit(nx50)
+                Nx50s::accessContent(nx50)
                 next
             end
 
