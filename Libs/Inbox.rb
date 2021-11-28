@@ -93,6 +93,14 @@ class Inbox
 
         LucilleCore::locationsAtFolder(Inbox::repository())
             .map{|location|
+                if File.basename(location).include?("'") then
+                    location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", "")}"
+                    puts "Inbox renaming:"
+                    puts "    #{location}"
+                    puts "    #{location2}"
+                    FileUtils.mv(location, location2)
+                    location = location2
+                end
                 announce = "[inbx] #{File.basename(location)}"
                 {
                     "uuid"         => Inbox::getLocationUUID(location),
