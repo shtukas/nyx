@@ -84,7 +84,7 @@ class Nathalie
         domainToString = lambda{|domain|
             domain.gsub("(", "").gsub(")", "")
         }
-        Domain::domains()
+        Nathalie::domains()
             .map{|domain|
                 account = Domain::domainToBankAccount(domain)
                 {

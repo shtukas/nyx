@@ -277,6 +277,10 @@ class Nx50s
                 puts "note:\n#{note}".green
             end
 
+            if LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
+                CoreData5::accessWithOptionToEdit(nx50)
+            end
+
             puts "access | note | <datecode> | description | update contents | rotate | domain | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
