@@ -282,14 +282,12 @@ class Nx50s
             puts "Domain: #{nx50["domain"]}".yellow
             puts "Category: #{nx50["category2"].join(", ")}".yellow
 
-            puts CoreData5::atomPayloadToText(nx50)
+            puts CoreData5::atomPayloadToText(nx50["atom"])
 
             note = StructuredTodoTexts::getNoteOrNull(nx50["uuid"])
             if note then
                 puts "note:\n#{note}".green
             end
-            puts nx50
-            exit
             if nx50["atom"]["type"] != "description-only" and !didItOnce1 and LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
                 Nx50s::accessContent(nx50)
             end
