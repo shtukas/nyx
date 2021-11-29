@@ -46,21 +46,26 @@ class Nathalie
     # Nathalie::computeNewNx77()
     def self.computeNewNx77()
         puts "Nathalie::computeNewNx77()"
-        monitor    = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Monitor"] }.flatten
-        ns16sPart1 = Nathalie::listingDomains().map{|domain| DisplayListingParameters::ns16sPart1(domain) }.flatten.first(5)
-        ns16sPart1 = DisplayListingParameters::removeDuplicates(ns16sPart1)
-        dated      = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Dated"].first(2) }.flatten
+        monitor2   = Nathalie::listingDomains().map{|domain|  
+            {
+                "domain" => domain,
+                "ns16s"  => Nx50s::structureForDomain(domain)["Monitor"]
+            }
+        }
+        ns16sNonNx50s = Nathalie::listingDomains().map{|domain| DisplayListingParameters::ns16sNonNx50s(domain).first(5) }.flatten
+        ns16sNonNx50s = DisplayListingParameters::removeDuplicates(ns16sNonNx50s)
+        dated      = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Dated"] }.flatten
         tail       = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
         listingParameters = {
             "domain"   => nil,
-            "Monitor"  => monitor,
+            "monitor2" => monitor2,
             "overflow" => [],
-            "ns16s"    => (ns16sPart1 + dated + tail).shuffle
+            "ns16s"    => ns16sNonNx50s + dated + tail
         }
         {
             "unixtime"   => Time.new.to_i,
             "parameters" => listingParameters
-        }
+        } 
     end
 
     # Nathalie::listingParameters()

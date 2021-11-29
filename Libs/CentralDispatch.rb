@@ -93,6 +93,9 @@ class CentralDispatch
         if command == "entertainment" then
             Domain::setStoredDomainWithExpiry("(entertainment)", Time.new.to_i + 3600)
         end
+        if command == "nathalie" then
+            KeyValueStore::destroy(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
+        end
 
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")

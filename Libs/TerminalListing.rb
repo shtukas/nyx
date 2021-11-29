@@ -51,8 +51,8 @@ end
 
 class DisplayListingParameters
 
-    # DisplayListingParameters::ns16sPart1(domain)
-    def self.ns16sPart1(domain)
+    # DisplayListingParameters::ns16sNonNx50s(domain)
+    def self.ns16sNonNx50s(domain)
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -80,21 +80,26 @@ class DisplayListingParameters
 
     # DisplayListingParameters::getListingParametersForDomain(domain)
     def self.getListingParametersForDomain(domain)
-        ns16sPart1 = DisplayListingParameters::ns16sPart1(domain)
+        ns16sNonNx50s = DisplayListingParameters::ns16sNonNx50s(domain)
         structure = Nx50s::structureForDomain(domain)
         {
             "domain"   => domain,
-            "Monitor"  => structure["Monitor"],
+            "monitor2" => [
+                {
+                    "domain" => domain,
+                    "ns16s"  => structure["Monitor"]
+                }
+            ],
             "overflow" => structure["overflow"],
-            "ns16s"    => ns16sPart1 + structure["Dated"] + structure["Tail"]
+            "ns16s"    => ns16sNonNx50s + structure["Dated"] + structure["Tail"]
         }
     end
 end
 
 class DisplayOperator
 
-    # DisplayOperator::listing(domain or null, monitor, overflow, ns16s)
-    def self.listing(domain, monitor, overflow, ns16s)
+    # DisplayOperator::listing(domain or null, monitor2, overflow, ns16s)
+    def self.listing(domain, monitor2, overflow, ns16s)
 
         collection = ns16s.clone
 
@@ -144,17 +149,17 @@ class DisplayOperator
             }
         end
 
-        if monitor.size > 0 then
-            puts ""
-            puts "monitor:"
-            vspaceleft = vspaceleft - 2
-            monitor
-                .each{|object|
-                    line = "(#{store.register(object).to_s.rjust(3, " ")}) [#{Time.at(object["Nx50"]["unixtime"]).to_s[0, 10]}] #{object["announce"]}".yellow
-                    puts line
-                    vspaceleft = vspaceleft - Utils::verticalSize(line)
-                }
-        end
+        puts ""
+        vspaceleft = vspaceleft - 1
+
+        monitor2.each{|item|
+            puts "monitor: #{item["domain"]}".yellow
+            item["ns16s"].each{|ns16|
+                line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+        }
 
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
         if running.size > 0 then
@@ -249,7 +254,7 @@ class DisplayOperator
             else
                 parameters = Nathalie::listingParameters()
             end
-            DisplayOperator::listing(parameters["domain"], parameters["Monitor"], parameters["overflow"], parameters["ns16s"])
+            DisplayOperator::listing(parameters["domain"], parameters["monitor2"], parameters["overflow"], parameters["ns16s"])
         }
     end
 end
