@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$nx77 = nil
+
 class Nathalie
 
     # Nathalie::expectation(domain)
@@ -52,15 +54,15 @@ class Nathalie
                 "ns16s"  => Nx50s::structureForDomain(domain)["Monitor"]
             }
         }
-        ns16sNonNx50s = Nathalie::listingDomains().map{|domain| DisplayListingParameters::ns16sNonNx50s(domain).first(5) }.flatten
-        ns16sNonNx50s = DisplayListingParameters::removeDuplicates(ns16sNonNx50s)
-        dated      = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Dated"] }.flatten
-        tail       = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
+        ns16sNonNx50s = Nathalie::listingDomains().map{|domain| DisplayListingParameters::ns16sNonNx50s(domain)}.flatten
+        dated = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Dated"] }.flatten
+        tail  = Nathalie::listingDomains().map{|domain| Nx50s::structureForDomain(domain)["Tail"].first(2) }.flatten
+        ns16s = DisplayListingParameters::removeDuplicates(ns16sNonNx50s + dated + tail)
         listingParameters = {
             "domain"   => nil,
             "monitor2" => monitor2,
             "overflow" => [],
-            "ns16s"    => ns16sNonNx50s + dated + tail
+            "ns16s"    => ns16s
         }
         {
             "unixtime"   => Time.new.to_i,
@@ -70,11 +72,9 @@ class Nathalie
 
     # Nathalie::listingParameters()
     def self.listingParameters()
-        nx77 = KeyValueStore::getOrNull(nil, Nathalie::dataStorageKey())
+        nx77 = $nx77.clone
         if nx77.nil? then
             nx77 = Nathalie::computeNewNx77()
-        else
-            nx77 = JSON.parse(nx77)
         end
         if (Time.new.to_f - nx77["unixtime"]) > 36400*4 then # We expire after 4 hours
             nx77 = Nathalie::computeNewNx77()
@@ -86,7 +86,7 @@ class Nathalie
             puts "[Nathalie] removing uuid: #{uuid}"
             nx77["parameters"]["ns16s"]  = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
         end
-        KeyValueStore::set(nil, Nathalie::dataStorageKey(), JSON.generate(nx77))
+        $nx77 = nx77.clone
         nx77["parameters"]
     end
 

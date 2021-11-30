@@ -154,6 +154,7 @@ class DisplayOperator
 
         monitor2.each{|item|
             puts "monitor: #{item["domain"]}".yellow
+            vspaceleft = vspaceleft - 1
             item["ns16s"].each{|ns16|
                 line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
                 puts line
