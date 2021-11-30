@@ -7,7 +7,7 @@ class Nathalie
     # Nathalie::expectation(domain)
     def self.expectation(domain)
         map = {
-            "(eva)"           => 3,
+            "(eva)"           => 1,
             "(work)"          => 6,
             "(jedi)"          => 2,
             "(entertainment)" => 1
