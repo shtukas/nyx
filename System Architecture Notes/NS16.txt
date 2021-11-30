@@ -1,5 +1,9 @@
 NS16 {
     "uuid"        : String # used by DoNotShowUntil
+    "NS198"       : String # type of Ns16 used for dispatch
     "announce"    : String
     "commands"    : Array[String] | nil
+
+    "defaultable" : nil or Boolean # If set and then if false, then cannot become the default item
+                                   # Was introduce to display the oveflowing Nx50s in place
 }

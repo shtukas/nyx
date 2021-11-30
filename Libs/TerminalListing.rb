@@ -87,7 +87,6 @@ class DisplayListingParameters
         {
             "domain"   => domain,
             "monitor2" => structure["Monitor"],
-            "overflow" => structure["overflow"],
             "ns16s"    => ns16sNonNx50s + structure["Dated"] + structure["Tail"]
         }
     end
@@ -121,8 +120,8 @@ end
 
 class DisplayOperator
 
-    # DisplayOperator::listing(domain or null, monitor2, overflow, ns16s)
-    def self.listing(domain, monitor2, overflow, ns16s)
+    # DisplayOperator::listing(domain or null, monitor2, ns16s)
+    def self.listing(domain, monitor2, ns16s)
 
         collection = ns16s.clone
 
@@ -161,17 +160,6 @@ class DisplayOperator
         puts ""
         puts "commands:"
         puts infolines
-
-        # This blank run is only to reserve screen space
-        if overflow.size > 0 then
-            vspaceleft = vspaceleft - 2
-            overflow.each{|ns16|
-                announce = "(#{"%3d" % 0}) #{ns16["announce"]}"
-                #puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
-            }
-        end
-
 
         if !monitor2.empty? then
             puts ""
@@ -220,7 +208,7 @@ class DisplayOperator
             .select{|ns16| !runningUUIDs.include?(ns16["uuid"]) }
             .each{|ns16|
                 indx = store.register(ns16)
-                isDefaultItem = store.getDefault().nil? # the default item is the first element
+                isDefaultItem = ((ns16["defaultable"].nil? or ns16["defaultable"]) and store.getDefault().nil?) # the default item is the first element, unless it's defaultable
                 if isDefaultItem then
                     store.registerDefault(ns16)
                 end
@@ -230,15 +218,6 @@ class DisplayOperator
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
-
-        if overflow.size > 0 then
-            puts ""
-            puts "overflow:"
-            overflow.each{|ns16|
-                indx = store.register(ns16)
-                puts "(#{"%3d" % indx}) #{ns16["announce"]}"
-            }
-        end
 
         puts ""
         command = LucilleCore::askQuestionAnswerAsString("> ")
@@ -273,7 +252,7 @@ class DisplayOperator
         loop {
             domain = Domain::getDomainForListing()
             parameters = DisplayListingParameters::getListingParametersForDomainUseCache(domain)
-            DisplayOperator::listing(parameters["domain"], parameters["monitor2"], parameters["overflow"], parameters["ns16s"])
+            DisplayOperator::listing(parameters["domain"], parameters["monitor2"], parameters["ns16s"])
         }
     end
 end

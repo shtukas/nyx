@@ -412,7 +412,7 @@ class Nx50s
         uuid = nx50["uuid"]
         return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        {
+        ns16 = {
             "uuid"     => uuid,
             "NS198"    => "ns16:Nx501",
             "announce" => Nx50s::toStringForNS16(nx50, rt),
@@ -420,6 +420,11 @@ class Nx50s
             "Nx50"     => nx50,
             "rt"       => rt
         }
+        if Bank::valueAtDate(uuid, Utils::today()) > 3600  then
+            ns16["announce"] = ns16["announce"].yellow
+            ns16["defaultable"] = false
+        end
+        ns16
     end
 
     # Nx50s::structureGivenNx50s(items)
@@ -476,13 +481,10 @@ class Nx50s
                 .map{|item| Nx50s::ns16OrNull(item) }
                 .compact
 
-        # -- overflow ---------------------------
-
-        overflow, tail = tail.partition{|ns16| Bank::valueAtDate(ns16["uuid"], Utils::today()).to_f/3600 > 1 }
+        # -- structure ---------------------------
 
         {
             "Monitor"  => monitor,
-            "overflow" => overflow,
             "Dated"    => dated,
             "Tail"     => tail
         }
