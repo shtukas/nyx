@@ -8,6 +8,15 @@ class Domain
         ["(eva)", "(work)", "(jedi)", "(entertainment)"]
     end
 
+    # Domain::getActionAvailableDomains()
+    def self.getActionAvailableDomains()
+        return (Domain::domains() - ["(work)"]) if Time.new.wday == 6
+        return (Domain::domains() - ["(work)"]) if Time.new.wday == 0
+        return (Domain::domains() - ["(work)"]) if Time.new.hour < 8
+        return (Domain::domains() - ["(work)"]) if Time.new.hour > 17
+        Domain::domains()
+    end
+
     # Domain::setStoredDomainWithExpiry(domain, expiryUnixtime)
     def self.setStoredDomainWithExpiry(domain, expiryUnixtime)
         packet = {
@@ -44,13 +53,7 @@ class Domain
 
     # Domain::getProgrammaticDomain()
     def self.getProgrammaticDomain()
-        (lambda{
-            return (Domain::domains() - ["(work)"]) if Time.new.wday == 6
-            return (Domain::domains() - ["(work)"]) if Time.new.wday == 0
-            return (Domain::domains() - ["(work)"]) if Time.new.hour < 8
-            return (Domain::domains() - ["(work)"]) if Time.new.hour > 17
-            Domain::domains()
-        }).call()
+        Domain::getActionAvailableDomains()
             .map {|domain|
                 {
                     "domain" => domain,
@@ -105,7 +108,7 @@ class Domain
         domainToString = lambda{|domain|
             domain.gsub("(", "").gsub(")", "")
         }
-        Domain::domains()
+        Domain::getActionAvailableDomains()
             .map{|domain|
                 account = Domain::domainToBankAccount(domain)
                 {
