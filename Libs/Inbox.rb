@@ -16,23 +16,13 @@ class Inbox
         uuid
     end
 
-    # Inbox::run(location)
-    def self.run(location)
-        time1 = Time.new.to_f
-
-        domain = nil
-
-        system("clear")
-        puts location.green
-
-        # -------------------------------------
-        # Lookup
-
+    # Inbox::probe(location) : "EXIT" | "DISPATCH" | "DESTROYED"
+    def self.probe(location)
         loop {
             if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "exit", "next step (default)"])
-                if action.nil? then
-                    break
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "dispatch (default)", "destroy", "exit"])
+                if action.nil? or action == "dispatch (default)" then
+                    return "DISPATCH" 
                 end
                 if action == "open" then
                     system("open '#{location}'")
@@ -40,17 +30,32 @@ class Inbox
                 if action == "copy to desktop" then
                     FileUtils.cp(location, "/Users/pascal/Desktop")
                 end
+                if action == "destroy" then
+                    LucilleCore::removeFileSystemLocation(location)
+                    return "DESTROYED"
+                end
                 if action == "exit" then
-                    return
+                    return "EXIT"
                 end
             else
                 system("open '#{location}'")
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch (default)", "destroy", "exit"])
+                if action.nil? or action == "dispatch (default)" then
+                    return "DISPATCH" 
+                end
+                if action == "destroy" then
+                    LucilleCore::removeFileSystemLocation(location)
+                    return "DESTROYED"
+                end
+                if action == "exit" then
+                    return "EXIT"
+                end
             end
         }
+    end
 
-        # -------------------------------------
-        # Dispatch
-
+    # Inbox::dispatch(location)
+    def self.dispatch(location)
         locationToDescription = lambda{|location|
             description = File.basename(location)
             puts "description: #{description}"
@@ -60,26 +65,54 @@ class Inbox
             end
             description
         }
-
-        domain = Inbox::dispatch(location)
-
-        if domain.nil? then 
-            domain = Domain::interactivelySelectDomain()
-        end
-        account = Domain::domainToBankAccount(domain)
-        time2 = Time.new.to_f
-        timespan = time2 - time1
-        puts "Putting #{timespan} seconds into #{account}"
-        Bank::put(account, timespan)
-    end
-
-    # Inbox::dispatch(location)
-    def self.dispatch(location)
+        description = locationToDescription.call(location)
         domain = Domain::interactivelySelectDomain()
-        Nx50s::issueItemUsingLocation(location, domain)
+        Nx50s::issueInboxItemUsingLocation(location, domain, description)
         LucilleCore::removeFileSystemLocation(location)
         Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
         domain
+    end
+
+    # Inbox::run(location)
+    def self.run(location)
+        time1 = Time.new.to_f
+
+        close = lambda{|time1, domain|
+            account = Domain::domainToBankAccount(domain)
+            time2 = Time.new.to_f
+            timespan = time2 - time1
+            puts "Putting #{timespan} seconds into #{account}"
+            Bank::put(account, timespan)
+        }
+
+        selectDomainInteractivelyOrDefaultIfSmallTime = lambda{|time1|
+            return "(eva)" if (Time.new.to_f - time1) < 120
+            Domain::interactivelySelectDomain()
+        }
+
+        system("clear")
+        puts location.green
+
+        command = Inbox::probe(location) # "EXIT" | "DISPATCH" | "DESTROYED"
+
+        if command == "EXIT" then
+            close.call(time1, selectDomainInteractivelyOrDefaultIfSmallTime.call(time1))
+            return
+        end
+
+        if command == "DISPATCH" then
+            domain = Inbox::dispatch(location)
+            close.call(time1, domain)
+            return
+        end
+
+        if command == "DESTROYED" then
+            close.call(time1, selectDomainInteractivelyOrDefaultIfSmallTime.call(time1))
+            return
+        end
+
+        domain = Inbox::dispatch(location)
+        close.call(time1, domain)
     end
 
     # Inbox::ns16s()

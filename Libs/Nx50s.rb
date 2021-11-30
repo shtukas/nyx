@@ -118,13 +118,13 @@ class Nx50s
         nx50
     end
 
-    # Nx50s::issueInboxItemUsingLocation(location, domain)
-    def self.issueInboxItemUsingLocation(location, domain)
+    # Nx50s::issueInboxItemUsingLocation(location, domain, description)
+    def self.issueInboxItemUsingLocation(location, domain, description)
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
-            "description" => File.basename(location),
+            "description" => description,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
             "domain"      => domain,
             "category2"   => Nx50s::makeNewInboxCategory2(domain)
@@ -267,8 +267,8 @@ class Nx50s
 
     # Nx50s::makeNewInboxCategory2(domain)
     def self.makeNewInboxCategory2(domain)
-        return "Tail" if domain == "(entertainment)"
-        return "Tail" if domain == "(jedi)"
+        return ["Tail"] if domain == "(entertainment)"
+        return ["Tail"] if domain == "(jedi)"
         corecategory = Nx50s::interactivelySelectCoreCategory()
         if corecategory == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
@@ -466,7 +466,7 @@ class Nx50s
 
         tail = items
                 .reduce([]){|selection, item|  
-                    if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                    if selection.size < 100 and Nx50s::itemIsOperational(item) then
                         selection << item
                     end
                     selection

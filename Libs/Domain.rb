@@ -45,8 +45,10 @@ class Domain
     # Domain::getProgrammaticDomain()
     def self.getProgrammaticDomain()
         (lambda{
-            return ["(eva)", "(jedi)", "(entertainment)"] if Time.new.wday == 6
-            return ["(eva)", "(jedi)", "(entertainment)"] if Time.new.wday == 0
+            return (Domain::domains() - ["(work)"]) if Time.new.wday == 6
+            return (Domain::domains() - ["(work)"]) if Time.new.wday == 0
+            return (Domain::domains() - ["(work)"]) if Time.new.hour < 8
+            return (Domain::domains() - ["(work)"]) if Time.new.hour > 17
             Domain::domains()
         }).call()
             .map {|domain|
