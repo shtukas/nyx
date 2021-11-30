@@ -22,13 +22,50 @@ class Domain
         KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
     end
 
-    # Domain::getContextualDomainOrNull()
-    def self.getContextualDomainOrNull()
+    # Domain::getStoredDomainOrNull()
+    def self.getStoredDomainOrNull()
         packet = Domain::getStoredDomainWithExpiryOrNull()
         return nil if packet.nil?
         packet = JSON.parse(packet)
         return nil if Time.new.to_i > packet["expiry"]
         packet["domain"]
+    end
+
+    # Domain::expectation(domain)
+    def self.expectation(domain)
+        map = {
+            "(eva)"           => 1,
+            "(work)"          => 6,
+            "(jedi)"          => 2,
+            "(entertainment)" => 1
+        }
+        map[domain]
+    end
+
+    # Domain::getProgrammaticDomain()
+    def self.getProgrammaticDomain()
+        (lambda{
+            return ["(eva)", "(jedi)", "(entertainment)"] if Time.new.wday == 6
+            return ["(eva)", "(jedi)", "(entertainment)"] if Time.new.wday == 0
+            Domain::domains()
+        }).call()
+            .map {|domain|
+                {
+                    "domain" => domain,
+                    "ratio"  => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain)).to_f/Domain::expectation(domain)
+                }
+            }
+            .sort{|p1, p2|
+                p1["ratio"] <=> p2["ratio"]
+            }
+            .first["domain"]
+    end
+
+    # Domain::getDomainForListing()
+    def self.getDomainForListing()
+        domain = Domain::getStoredDomainOrNull()
+        return domain if !domain.nil?
+        Domain::getProgrammaticDomain()
     end
 
     # Domain::domainToBankAccount(domain)
@@ -72,12 +109,13 @@ class Domain
                 {
                     "domain" => domain,
                     "rt"     => BankExtended::stdRecoveredDailyTimeInHours(account),
-                    "today"  => Bank::valueAtDate(account, Utils::today()).to_f/3600
+                    "today"  => Bank::valueAtDate(account, Utils::today()).to_f/3600,
+                    "ratio"  => BankExtended::stdRecoveredDailyTimeInHours(Domain::domainToBankAccount(domain)).to_f/Domain::expectation(domain)
                 }
             }
-            .sort{|p1, p2| p1["rt"]<=>p2["rt"] }
+            .sort{|p1, p2| p1["ratio"]<=>p2["ratio"] }
             .map{|px|
-                "(#{domainToString.call(px["domain"])}: rt: #{px["rt"].round(2)}, today: #{px["today"].round(2)} hours)"
+                "(#{domainToString.call(px["domain"])}: #{(100*px["ratio"]).to_i}% of #{Domain::expectation(px["domain"])} hours)"
             }
             .join(" ")
     end

@@ -65,7 +65,7 @@ class Nx50s
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
             "domain"      => Domain::interactivelySelectDomain(),
-            "category2"   => Nx50s::makeNewCategory2Sequence()
+            "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -97,7 +97,7 @@ class Nx50s
             "description" => line,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
             "domain"      => Domain::interactivelySelectDomain(),
-            "category2"   => Nx50s::makeNewCategory2Sequence()
+            "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -112,7 +112,7 @@ class Nx50s
             "description" => File.basename(location),
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
             "domain"      => domain,
-            "category2"   => Nx50s::makeNewCategory2Sequence()
+            "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -241,8 +241,8 @@ class Nx50s
         Nx50s::interactivelySelectCoreCategory()
     end
 
-    # Nx50s::makeNewCategory2Sequence()
-    def self.makeNewCategory2Sequence()
+    # Nx50s::makeNewCategory2()
+    def self.makeNewCategory2()
         corecategory = Nx50s::interactivelySelectCoreCategory()
         if corecategory == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
@@ -343,7 +343,7 @@ class Nx50s
             end
 
             if Interpreting::match("category", command) then
-                nx50["category2"] = Nx50s::makeNewCategory2Sequence()
+                nx50["category2"] = Nx50s::makeNewCategory2()
                 puts JSON.pretty_generate(nx50)
                 ObjectStore4::store(nx50, Nx50s::setuuid())
                 next

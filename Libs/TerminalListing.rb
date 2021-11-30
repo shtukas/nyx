@@ -49,6 +49,8 @@ class Commands
     end
 end
 
+$nx77 = nil
+
 class DisplayListingParameters
 
     # DisplayListingParameters::ns16sNonNx50s(domain)
@@ -84,15 +86,36 @@ class DisplayListingParameters
         structure = Nx50s::structureForDomain(domain)
         {
             "domain"   => domain,
-            "monitor2" => [
-                {
-                    "domain" => domain,
-                    "ns16s"  => structure["Monitor"]
-                }
-            ],
+            "monitor2" => structure["Monitor"],
             "overflow" => structure["overflow"],
             "ns16s"    => ns16sNonNx50s + structure["Dated"] + structure["Tail"]
         }
+    end
+
+    # DisplayListingParameters::getListingParametersForDomainUseCache(domain)
+    def self.getListingParametersForDomainUseCache(domain)
+        computeNewNx77 = lambda {|domain|
+            {
+                "unixtime"   => Time.new.to_i,
+                "parameters" => DisplayListingParameters::getListingParametersForDomain(domain)
+            }
+        }
+        nx77 = $nx77.clone
+        if nx77.nil? then
+            nx77 = computeNewNx77.call(domain)
+        end
+        if (Time.new.to_f - nx77["unixtime"]) > 36400*2 then # We expire after 2 hours
+            nx77 = computeNewNx77.call(domain)
+        end
+        if nx77["parameters"]["ns16s"].empty? then
+            nx77 = computeNewNx77.call(domain)
+        end
+        while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
+            puts "[Nx77] removing uuid: #{uuid}"
+            nx77["parameters"]["ns16s"]  = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
+        end
+        $nx77 = nx77.clone
+        nx77["parameters"]
     end
 end
 
@@ -126,7 +149,7 @@ class DisplayOperator
         store = ItemStore.new()
 
         puts ""
-        puts "--> #{domain || "Nathalie"} #{Nathalie::dx()}".green
+        puts "--> #{domain} #{Domain::dx()}".green
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
@@ -149,18 +172,17 @@ class DisplayOperator
             }
         end
 
-        puts ""
-        vspaceleft = vspaceleft - 1
 
-        monitor2.each{|item|
-            puts "monitor: #{item["domain"]}".yellow
+        if !monitor2.empty? then
+            puts ""
             vspaceleft = vspaceleft - 1
-            item["ns16s"].each{|ns16|
+            puts "monitor:".yellow
+            monitor2.each{|ns16|
                 line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
-        }
+        end
 
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
         if running.size > 0 then
@@ -249,12 +271,8 @@ class DisplayOperator
     # DisplayOperator::displayLoop()
     def self.displayLoop()
         loop {
-            domain = Domain::getContextualDomainOrNull()
-            if domain then
-                parameters = DisplayListingParameters::getListingParametersForDomain(domain)
-            else
-                parameters = Nathalie::listingParameters()
-            end
+            domain = Domain::getDomainForListing()
+            parameters = DisplayListingParameters::getListingParametersForDomainUseCache(domain)
             DisplayOperator::listing(parameters["domain"], parameters["monitor2"], parameters["overflow"], parameters["ns16s"])
         }
     end
