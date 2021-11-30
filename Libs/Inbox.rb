@@ -27,17 +27,26 @@ class Inbox
 
         # -------------------------------------
         # Lookup
-        if File.file?(location) then
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "next step (default)"])
-            if action == "open" then
+
+        loop {
+            if File.file?(location) then
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "exit", "next step (default)"])
+                if action.nil? then
+                    break
+                end
+                if action == "open" then
+                    system("open '#{location}'")
+                end
+                if action == "copy to desktop" then
+                    FileUtils.cp(location, "/Users/pascal/Desktop")
+                end
+                if action == "exit" then
+                    return
+                end
+            else
                 system("open '#{location}'")
             end
-            if action == "copy to desktop" then
-                FileUtils.cp(location, "/Users/pascal/Desktop")
-            end
-        else
-            system("open '#{location}'")
-        end
+        }
 
         # -------------------------------------
         # Dispatch
@@ -52,23 +61,7 @@ class Inbox
             description
         }
 
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["delete", "dispatch"])
-        return if action.nil?
-
-        if action == "delete" then
-            LucilleCore::removeFileSystemLocation(location)
-            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
-        end
-        
-        if action == "dispatch" then
-            target = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", ["todo"])
-            if target == "todo" then
-                domain = Domain::interactivelySelectDomain()
-                Nx50s::issueItemUsingLocation(location, domain)
-                LucilleCore::removeFileSystemLocation(location)
-                Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
-            end
-        end
+        domain = Inbox::dispatch(location)
 
         if domain.nil? then 
             domain = Domain::interactivelySelectDomain()
@@ -78,6 +71,15 @@ class Inbox
         timespan = time2 - time1
         puts "Putting #{timespan} seconds into #{account}"
         Bank::put(account, timespan)
+    end
+
+    # Inbox::dispatch(location)
+    def self.dispatch(location)
+        domain = Domain::interactivelySelectDomain()
+        Nx50s::issueItemUsingLocation(location, domain)
+        LucilleCore::removeFileSystemLocation(location)
+        Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
+        domain
     end
 
     # Inbox::ns16s()
@@ -107,7 +109,7 @@ class Inbox
                     "NS198"        => "ns16:inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
-                    "commands"     => [".."],
+                    "commands"     => ["..", ">> (dispatch)"],
                     "location"     => location
                 }
             }

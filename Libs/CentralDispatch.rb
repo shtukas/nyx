@@ -42,6 +42,10 @@ class CentralDispatch
             Inbox::run(object["location"])
         end
 
+        if object["NS198"] == "ns16:inbox1" and command == ">>" then
+            Inbox::dispatch(object["location"])
+        end
+
         if object["NS198"] == "ns16:Nx501" and command == ".." then
             Nx50s::run(object["Nx50"])
         end
