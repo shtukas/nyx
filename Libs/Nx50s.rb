@@ -111,7 +111,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => File.basename(location),
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "domain"      => Domain::interactivelySelectDomain(),
+            "domain"      => domain,
             "category2"   => Nx50s::makeNewCategory2Sequence()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
