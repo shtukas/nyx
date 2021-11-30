@@ -118,6 +118,21 @@ class Nx50s
         nx50
     end
 
+    # Nx50s::issueInboxItemUsingLocation(location, domain)
+    def self.issueInboxItemUsingLocation(location, domain)
+        uuid = SecureRandom.uuid
+        nx50 = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_f,
+            "description" => File.basename(location),
+            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
+            "domain"      => domain,
+            "category2"   => Nx50s::makeNewInboxCategory2(domain)
+        }
+        ObjectStore4::store(nx50, Nx50s::setuuid())
+        nx50
+    end
+
     # Nx50s::issueSpreadItem(location, description, unixtime)
     def self.issueSpreadItem(location, description, unixtime)
         uuid = SecureRandom.uuid
@@ -243,6 +258,17 @@ class Nx50s
 
     # Nx50s::makeNewCategory2()
     def self.makeNewCategory2()
+        corecategory = Nx50s::interactivelySelectCoreCategory()
+        if corecategory == "Dated" then
+            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
+        end
+        [corecategory]
+    end
+
+    # Nx50s::makeNewInboxCategory2(domain)
+    def self.makeNewInboxCategory2(domain)
+        return "Tail" if domain == "(entertainment)"
+        return "Tail" if domain == "(jedi)"
         corecategory = Nx50s::interactivelySelectCoreCategory()
         if corecategory == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
