@@ -35,15 +35,51 @@ class Listings
         packet["listing"]
     end
 
-    # Listings::expectation(listing)
-    def self.expectation(listing)
+    # Listings::listingDriver(listing)
+    def self.listingDriver(listing)
+        #{
+        #    "type"   => "expectation",
+        #    "target" => Float
+        #}
+        #{
+        #    "type"      => "circuit-breaker",
+        #    "hourly-rt" => Float
+        #}
+
         map = {
-            "(eva)"           => 1,
-            "(work)"          => 6,
-            "(jedi)"          => 2,
-            "(entertainment)" => 1
+            "(eva)" => {
+                "type"   => "circuit-breaker",
+                "threshold" => 0.4
+            },
+            "(work)" => {
+                "type"   => "expectation",
+                "target" => 6
+            },
+            "(jedi)" => {
+                "type"   => "expectation",
+                "target" => 2
+            },
+            "(entertainment)" => {
+                "type"   => "expectation",
+                "target" => 1
+            }
         }
         map[listing]
+    end
+
+    # Listings::listingToOrderingRatio(listing)
+    def self.listingToOrderingRatio(listing)
+        driver = Listings::listingDriver(listing)
+        if driver["type"] == "expectation" then
+            account = Listings::listingToBankAccount(listing)
+            target = driver["target"]
+            return BankExtended::stdRecoveredDailyTimeInHours(account).to_f/target
+        end
+        if driver["type"] == "circuit-breaker" then
+            account = Listings::listingToBankAccount(listing)
+            threshold = driver["threshold"]
+            return Beatrice::stdRecoveredHourlyTimeInHours(account).to_f/threshold
+        end
     end
 
     # Listings::getProgrammaticListing()
@@ -52,7 +88,7 @@ class Listings
             .map {|listing|
                 {
                     "listing" => listing,
-                    "ratio"  => BankExtended::stdRecoveredDailyTimeInHours(Listings::listingToBankAccount(listing)).to_f/Listings::expectation(listing)
+                    "ratio"   => Listings::listingToOrderingRatio(listing)
                 }
             }
             .sort{|p1, p2|
@@ -110,12 +146,19 @@ class Listings
                     "listing" => listing,
                     "rt"      => BankExtended::stdRecoveredDailyTimeInHours(account),
                     "today"   => Bank::valueAtDate(account, Utils::today()).to_f/3600,
-                    "ratio"   => BankExtended::stdRecoveredDailyTimeInHours(Listings::listingToBankAccount(listing)).to_f/Listings::expectation(listing)
+                    "ratio"   => Listings::listingToOrderingRatio(listing)
                 }
             }
             .sort{|p1, p2| p1["ratio"]<=>p2["ratio"] }
-            .map{|px|
-                "(#{listingToString.call(px["listing"])}: #{(100*px["ratio"]).to_i}% of #{Listings::expectation(px["listing"])} hours)"
+            .map{|px|               
+                (lambda{|listing, ratio, driver|
+                    if driver["type"] == "expectation" then
+                        return "(#{listingToString.call(listing)}: #{(100*ratio).to_i}% of #{driver["target"]} hours)"
+                    end
+                    if driver["type"] == "circuit-breaker" then
+                        return "(#{listingToString.call(listing)}: #{(100*ratio).to_i}% of rth #{driver["threshold"]})"
+                    end
+                }).call(px["listing"], px["ratio"], Listings::listingDriver(px["listing"]))
             }
             .join(" ")
     end
