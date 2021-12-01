@@ -88,15 +88,19 @@ class CentralDispatch
         if command == "eva" then
             Domain::setStoredDomainWithExpiry("(eva)", Time.new.to_i + 3600)
         end
+
         if command == "work" then
             Domain::setStoredDomainWithExpiry("(work)", Time.new.to_i + 3600)
         end
+
         if command == "jedi" then
             Domain::setStoredDomainWithExpiry("(jedi)", Time.new.to_i + 3600)
         end
+
         if command == "entertainment" then
             Domain::setStoredDomainWithExpiry("(entertainment)", Time.new.to_i + 3600)
         end
+
         if command == "nathalie" then
             KeyValueStore::destroy(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
         end

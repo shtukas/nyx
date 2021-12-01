@@ -99,9 +99,11 @@ class DisplayListingParameters
                 "parameters" => DisplayListingParameters::getListingParametersForDomain(domain)
             }
         }
-        nx77 = $nx77.clone
+        nx77 = KeyValueStore::getOrNull(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{domain}")
         if nx77.nil? then
             nx77 = computeNewNx77.call(domain)
+        else
+            nx77 = JSON.parse(nx77)
         end
         if (Time.new.to_f - nx77["unixtime"]) > 36400*2 then # We expire after 2 hours
             nx77 = computeNewNx77.call(domain)
@@ -111,9 +113,9 @@ class DisplayListingParameters
         end
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
             puts "[Nx77] removing uuid: #{uuid}"
-            nx77["parameters"]["ns16s"]  = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
+            nx77["parameters"]["ns16s"] = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
         end
-        $nx77 = nx77.clone
+        KeyValueStore::set(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{domain}", JSON.generate(nx77))
         nx77["parameters"]
     end
 end

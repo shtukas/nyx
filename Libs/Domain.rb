@@ -26,14 +26,9 @@ class Domain
         KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda286", JSON.generate(packet))
     end
 
-    # Domain::getStoredDomainWithExpiryOrNull()
-    def self.getStoredDomainWithExpiryOrNull()
-        KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
-    end
-
     # Domain::getStoredDomainOrNull()
     def self.getStoredDomainOrNull()
-        packet = Domain::getStoredDomainWithExpiryOrNull()
+        packet = KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
         return nil if packet.nil?
         packet = JSON.parse(packet)
         return nil if Time.new.to_i > packet["expiry"]
