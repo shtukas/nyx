@@ -204,16 +204,19 @@ class CentralDispatch
 
         if Interpreting::match("internet on", command) then
             InternetStatus::setInternetOn()
+            $Nx77RunTimeCacheKeyPrefix = SecureRandom.hex
         end
 
         if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
+            $Nx77RunTimeCacheKeyPrefix = SecureRandom.hex
         end
 
         if Interpreting::match("require internet", command) then
             ns16 = store.getDefault()
             return if ns16.nil?
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
+            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", ns16["uuid"])
         end
     end
 end

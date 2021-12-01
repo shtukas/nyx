@@ -6,6 +6,8 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
+$Nx77RunTimeCacheKeyPrefix = SecureRandom.hex
+
 Thread.new {
     loop {
         sleep 300

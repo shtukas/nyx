@@ -102,7 +102,7 @@ class DisplayListingParameters
 
     # DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
     def self.getTerminalDisplayParametersForListingUseCache(listing)
-        cacheKey = "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}:#{Utils::today()}:#{Utils::codeTrace()}"
+        cacheKey = "#{$Nx77RunTimeCacheKeyPrefix}:#{listing}"
         computeNewNx77 = lambda {|listing|
             {
                 "unixtime"   => Time.new.to_i,
@@ -111,17 +111,17 @@ class DisplayListingParameters
         }
         nx77 = KeyValueStore::getOrNull(nil, cacheKey)
         if nx77.nil? then
-            puts "Compute new Nx77"
+            puts "Recompute Nx77"
             nx77 = computeNewNx77.call(listing)
         else
             nx77 = JSON.parse(nx77)
         end
         if (Time.new.to_f - nx77["unixtime"]) > 36400*2 then # We expire after 2 hours
-            puts "Compute new Nx77"
+            puts "Recompute Nx77"
             nx77 = computeNewNx77.call(listing)
         end
         if nx77["parameters"]["ns16s"].empty? then
-            puts "Compute new Nx77"
+            puts "Recompute Nx77"
             nx77 = computeNewNx77.call(listing)
         end
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
