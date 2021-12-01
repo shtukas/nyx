@@ -15,7 +15,9 @@ class Waves
     def self.items()
         ObjectStore4::getSet(Waves::setuuid())
             .map{|wave|
-                wave["listing"] = wave["domain"] # we didn't migrate the data and just correct it on the fly
+                if wave["listing"].nil? and wave["domain"] then
+                    wave["listing"] = wave["domain"] # we didn't migrate the data and just correct it on the fly
+                end
                 wave
             }
             .map{|wave|

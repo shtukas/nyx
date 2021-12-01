@@ -179,7 +179,7 @@ class DisplayOperator
         if !monitor2.empty? then
             puts ""
             vspaceleft = vspaceleft - 1
-            puts "monitor:".yellow
+            puts "monitor:"
             monitor2.each{|ns16|
                 line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
                 puts line

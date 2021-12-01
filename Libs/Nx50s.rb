@@ -11,7 +11,9 @@ class Nx50s
     def self.nx50s()
         ObjectStore4::getSet(Nx50s::setuuid())
             .map{|nx50|
-                nx50["listing"] = nx50["domain"] # we didn't migrate the data and just correct it on the fly
+                if nx50["listing"].nil? and nx50["domain"] then
+                    nx50["listing"] = nx50["domain"] # we didn't migrate the data and just correct it on the fly
+                end
                 nx50
             }
             .map{|nx50|
@@ -111,7 +113,7 @@ class Nx50s
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => File.basename(location),
-            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
+            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "listing"     => listing,
             "category2"   => Nx50s::makeNewCategory2()
         }
@@ -126,7 +128,7 @@ class Nx50s
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
+            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "listing"     => listing,
             "category2"   => Nx50s::makeNewInboxCategory2(listing)
         }
@@ -141,7 +143,7 @@ class Nx50s
             "uuid"        => uuid,
             "unixtime"    => unixtime,
             "description" => description,
-            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
+            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "listing"     => "(entertainment)",
             "category2"   => ["Tail"]
         }

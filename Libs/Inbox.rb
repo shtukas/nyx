@@ -32,6 +32,7 @@ class Inbox
                 end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
+                    Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
                     return "DESTROYED"
                 end
                 if action == "exit" then
@@ -45,6 +46,7 @@ class Inbox
                 end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
+                    Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
                     return "DESTROYED"
                 end
                 if action == "exit" then
