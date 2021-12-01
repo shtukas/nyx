@@ -52,20 +52,29 @@ end
 $nx77 = nil
 
 class DisplayListingParameters
-
     # DisplayListingParameters::ns16sNonNx50s(listing)
     def self.ns16sNonNx50s(listing)
-        [
-            Anniversaries::ns16s(),
-            Calendar::ns16s(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            DrivesBackups::ns16s(),
-            Waves::ns16s(listing),
-            Inbox::ns16s()
-        ]
-            .flatten
-            .compact
+        if listing == "(eva)" then
+            ns16s = [
+                Anniversaries::ns16s(),
+                Calendar::ns16s(),
+                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
+                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+                DrivesBackups::ns16s(),
+                Waves::ns16s(listing),
+                Inbox::ns16s()
+            ]
+                .flatten
+                .compact
+        else
+            ns16s = [
+                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+                Waves::ns16s(listing)
+            ]
+                .flatten
+                .compact
+        end
+        ns16s
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
@@ -93,29 +102,33 @@ class DisplayListingParameters
 
     # DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
     def self.getTerminalDisplayParametersForListingUseCache(listing)
+        cacheKey = "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}:#{Utils::today()}:#{File.mtime(__FILE__).to_s}"
         computeNewNx77 = lambda {|listing|
             {
                 "unixtime"   => Time.new.to_i,
                 "parameters" => DisplayListingParameters::getTerminalDisplayParametersForListing(listing)
             }
         }
-        nx77 = KeyValueStore::getOrNull(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}")
+        nx77 = KeyValueStore::getOrNull(nil, cacheKey)
         if nx77.nil? then
+            puts "Compute new Nx77"
             nx77 = computeNewNx77.call(listing)
         else
             nx77 = JSON.parse(nx77)
         end
         if (Time.new.to_f - nx77["unixtime"]) > 36400*2 then # We expire after 2 hours
+            puts "Compute new Nx77"
             nx77 = computeNewNx77.call(listing)
         end
         if nx77["parameters"]["ns16s"].empty? then
+            puts "Compute new Nx77"
             nx77 = computeNewNx77.call(listing)
         end
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
             puts "[Nx77] removing uuid: #{uuid}"
             nx77["parameters"]["ns16s"] = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
         end
-        KeyValueStore::set(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}", JSON.generate(nx77))
+        KeyValueStore::set(nil, cacheKey, JSON.generate(nx77))
         nx77["parameters"]
     end
 end
