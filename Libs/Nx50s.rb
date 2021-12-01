@@ -53,9 +53,6 @@ class Nx50s
     end
 
     # --------------------------------------------------
-    # Unixtimes
-
-    # --------------------------------------------------
     # Makers
 
     # Nx50s::interactivelyCreateNewOrNull()
@@ -68,7 +65,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "listing"      => Listings::interactivelySelectListing(),
+            "listing"     => Listings::interactivelySelectListing(),
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -85,7 +82,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "listing"      => Listings::interactivelySelectListing(),
+            "listing"     => Listings::interactivelySelectListing(),
             "category2"   => lambda1.call()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -100,7 +97,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => line,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "listing"      => Listings::interactivelySelectListing(),
+            "listing"     => Listings::interactivelySelectListing(),
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -115,7 +112,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => File.basename(location),
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "listing"      => listing,
+            "listing"     => listing,
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -130,7 +127,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "listing"      => listing,
+            "listing"     => listing,
             "category2"   => Nx50s::makeNewInboxCategory2(listing)
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -145,7 +142,7 @@ class Nx50s
             "unixtime"    => unixtime,
             "description" => description,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "listing"      => "(entertainment)",
+            "listing"     => "(entertainment)",
             "category2"   => ["Tail"]
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -160,7 +157,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
-            "listing"      => "(eva)",
+            "listing"     => "(eva)",
             "category2"   => ["Tail"]
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -323,7 +320,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | update contents | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | update contents | redate | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -357,6 +354,17 @@ class Nx50s
             if Interpreting::match("update contents", command) then
                 nx50["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
                 ObjectStore4::store(nx50, Nx50s::setuuid())
+                next
+            end
+
+            if Interpreting::match("redate", command) then
+                if nx50["category2"][0] == "Dated" then
+                    nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
+                    ObjectStore4::store(nx50, Nx50s::setuuid())
+                else
+                    puts "You can only redate a dated item"
+                    LucilleCore::pressEnterToContinue()
+                end
                 next
             end
 
@@ -413,6 +421,14 @@ class Nx50s
 
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
+        getCommands = lambda{|nx50|
+            if nx50["category2"][0] == "Dated" then
+                return ["..", "redate", "done"]
+            end
+            ["..", "done"]
+        }
+
+
         uuid = nx50["uuid"]
         return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
@@ -420,7 +436,7 @@ class Nx50s
             "uuid"     => uuid,
             "NS198"    => "ns16:Nx501",
             "announce" => Nx50s::toStringForNS16(nx50, rt),
-            "commands" => ["..", "done"],
+            "commands" => getCommands.call(nx50),
             "Nx50"     => nx50,
             "rt"       => rt
         }

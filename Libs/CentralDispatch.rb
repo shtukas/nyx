@@ -50,6 +50,18 @@ class CentralDispatch
             Nx50s::run(object["Nx50"])
         end
 
+        if object["NS198"] == "ns16:Nx501" and command == "redate" then
+            nx50 = object["Nx50"]
+            if nx50["category2"][0] == "Dated" then
+                nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
+                ObjectStore4::store(nx50, Nx50s::setuuid())
+                Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", object["uuid"])
+            else
+                puts "You can only redate a dated item"
+                LucilleCore::pressEnterToContinue()
+            end
+        end
+
         if object["NS198"] == "ns16:Nx501" and command == "done" then
             nx50 = object["Nx50"]
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
