@@ -150,7 +150,7 @@ class DisplayOperator
         store = ItemStore.new()
 
         puts ""
-        puts "--> #{domain} #{Domain::dx()}".green
+        puts "--> #{domain} #{Listings::dx()}".green
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
@@ -252,7 +252,7 @@ class DisplayOperator
     # DisplayOperator::displayLoop()
     def self.displayLoop()
         loop {
-            domain = Domain::getDomainForListing()
+            domain = Listings::getListingForTerminalDisplay()
             parameters = DisplayListingParameters::getListingParametersForDomainUseCache(domain)
             DisplayOperator::listing(parameters["domain"], parameters["monitor2"], parameters["ns16s"])
         }

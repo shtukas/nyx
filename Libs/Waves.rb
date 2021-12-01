@@ -15,9 +15,9 @@ class Waves
     def self.items()
         ObjectStore4::getSet(Waves::setuuid())
             .map{|wave|
-                if !Domain::domains().include?(wave["domain"]) then
+                if !Listings::listings().include?(wave["domain"]) then
                     puts "Correcting domain for '#{Waves::toString(wave)}'"
-                    wave["domain"] = Domain::interactivelySelectDomain()
+                    wave["domain"] = Listings::interactivelySelectListing()
                     puts JSON.pretty_generate(wave)
                     ObjectStore4::store(wave, Waves::setuuid())
                 end
@@ -139,7 +139,7 @@ class Waves
         wave["repeatType"]       = schedule[0]
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
-        wave["domain"]           = Domain::interactivelySelectDomain()
+        wave["domain"]           = Listings::interactivelySelectListing()
 
         ObjectStore4::store(wave, Waves::setuuid())
         wave
@@ -188,7 +188,7 @@ class Waves
     def self.landing(wave)
         uuid = wave["uuid"]
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::domainToBankAccount(wave["domain"])])
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Listings::listingToBankAccount(wave["domain"])])
 
         loop {
 
@@ -259,7 +259,7 @@ class Waves
             end
 
             if Interpreting::match("domain", command) then
-                wave["domain"] = Domain::interactivelySelectDomain()
+                wave["domain"] = Listings::interactivelySelectListing()
                 ObjectStore4::store(wave, Waves::setuuid())
                 break
             end
@@ -303,7 +303,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Domain::domainToBankAccount(wave["domain"])])
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Listings::listingToBankAccount(wave["domain"])])
 
         Waves::accessContent(wave)
 

@@ -66,7 +66,7 @@ class Inbox
             description
         }
         description = locationToDescription.call(location)
-        domain = Domain::interactivelySelectDomain()
+        domain = Listings::interactivelySelectListing()
         Nx50s::issueInboxItemUsingLocation(location, domain, description)
         LucilleCore::removeFileSystemLocation(location)
         Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
@@ -78,7 +78,7 @@ class Inbox
         time1 = Time.new.to_f
 
         close = lambda{|time1, domain|
-            account = Domain::domainToBankAccount(domain)
+            account = Listings::listingToBankAccount(domain)
             time2 = Time.new.to_f
             timespan = time2 - time1
             puts "Putting #{timespan} seconds into #{account}"
@@ -87,7 +87,7 @@ class Inbox
 
         selectDomainInteractivelyOrDefaultIfSmallTime = lambda{|time1|
             return "(eva)" if (Time.new.to_f - time1) < 120
-            Domain::interactivelySelectDomain()
+            Listings::interactivelySelectListing()
         }
 
         system("clear")

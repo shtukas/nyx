@@ -11,9 +11,9 @@ class Nx50s
     def self.nx50s()
         ObjectStore4::getSet(Nx50s::setuuid())
             .map{|nx50|
-                if !Domain::domains().include?(nx50["domain"]) then
+                if !Listings::listings().include?(nx50["domain"]) then
                     puts "Correcting domain for '#{nx50}'"
-                    nx50["domain"] = Domain::interactivelySelectDomain()
+                    nx50["domain"] = Listings::interactivelySelectListing()
                     puts JSON.pretty_generate(nx50)
                     ObjectStore4::store(nx50, Nx50s::setuuid())
                 end
@@ -64,7 +64,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "domain"      => Domain::interactivelySelectDomain(),
+            "domain"      => Listings::interactivelySelectListing(),
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -81,7 +81,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "domain"      => Domain::interactivelySelectDomain(),
+            "domain"      => Listings::interactivelySelectListing(),
             "category2"   => lambda1.call()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -96,7 +96,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => line,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "domain"      => Domain::interactivelySelectDomain(),
+            "domain"      => Listings::interactivelySelectListing(),
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -285,7 +285,7 @@ class Nx50s
         itemToBankAccounts = lambda{|item|
             accounts = []
             accounts << item["uuid"]
-            accounts << Domain::domainToBankAccount(item["domain"])
+            accounts << Listings::listingToBankAccount(item["domain"])
             accounts.compact
         }
 
@@ -363,7 +363,7 @@ class Nx50s
             end
 
             if Interpreting::match("domain", command) then
-                nx50["domain"] = Domain::interactivelySelectDomain()
+                nx50["domain"] = Listings::interactivelySelectListing()
                 ObjectStore4::store(nx50, Nx50s::setuuid())
                 break
             end

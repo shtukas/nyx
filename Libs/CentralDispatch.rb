@@ -86,19 +86,19 @@ class CentralDispatch
     def self.operator4(command)
 
         if command == "eva" then
-            Domain::setStoredDomainWithExpiry("(eva)", Time.new.to_i + 3600)
+            Listings::setStoredListingWithExpiry("(eva)", Time.new.to_i + 3600)
         end
 
         if command == "work" then
-            Domain::setStoredDomainWithExpiry("(work)", Time.new.to_i + 3600)
+            Listings::setStoredListingWithExpiry("(work)", Time.new.to_i + 3600)
         end
 
         if command == "jedi" then
-            Domain::setStoredDomainWithExpiry("(jedi)", Time.new.to_i + 3600)
+            Listings::setStoredListingWithExpiry("(jedi)", Time.new.to_i + 3600)
         end
 
         if command == "entertainment" then
-            Domain::setStoredDomainWithExpiry("(entertainment)", Time.new.to_i + 3600)
+            Listings::setStoredListingWithExpiry("(entertainment)", Time.new.to_i + 3600)
         end
 
         if command == "nathalie" then
@@ -108,8 +108,8 @@ class CentralDispatch
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            domain = Domain::interactivelySelectDomain()
-            domainBankAccount = Domain::domainToBankAccount(domain)
+            domain = Listings::interactivelySelectListing()
+            domainBankAccount = Listings::listingToBankAccount(domain)
             NxBallsService::issue(SecureRandom.uuid, description, [domainBankAccount])
         end
 
@@ -155,7 +155,7 @@ class CentralDispatch
         end
 
         if Interpreting::match("waves", command) then
-            domain = Domain::interactivelySelectDomain()
+            domain = Listings::interactivelySelectListing()
             Waves::waves(domain)
         end
 
