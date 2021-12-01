@@ -203,6 +203,13 @@ class DisplayOperator
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
 
+        catalyst = IO.read("/Users/pascal/Desktop/Catalyst.txt").strip
+        if catalyst.size > 0 then
+            puts ""
+            puts "Catalyst.txt is not empty".green
+            vspaceleft = vspaceleft - 2
+        end
+
         puts ""
         puts "todo:"
         vspaceleft = vspaceleft - 2
