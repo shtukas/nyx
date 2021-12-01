@@ -25,8 +25,8 @@ end
 
 class Commands
 
-    # Commands::listingCommands()
-    def self.listingCommands()
+    # Commands::terminalDisplayCommand()
+    def self.terminalDisplayCommand()
         ".. | <n> | <datecode> | expose"
     end
 
@@ -53,15 +53,15 @@ $nx77 = nil
 
 class DisplayListingParameters
 
-    # DisplayListingParameters::ns16sNonNx50s(domain)
-    def self.ns16sNonNx50s(domain)
+    # DisplayListingParameters::ns16sNonNx50s(listing)
+    def self.ns16sNonNx50s(listing)
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             DrivesBackups::ns16s(),
-            Waves::ns16s(domain),
+            Waves::ns16s(listing),
             Inbox::ns16s()
         ]
             .flatten
@@ -80,50 +80,50 @@ class DisplayListingParameters
         }
     end
 
-    # DisplayListingParameters::getListingParametersForDomain(domain)
-    def self.getListingParametersForDomain(domain)
-        ns16sNonNx50s = DisplayListingParameters::ns16sNonNx50s(domain)
-        structure = Nx50s::structureForDomain(domain)
+    # DisplayListingParameters::getTerminalDisplayParametersForListing(listing)
+    def self.getTerminalDisplayParametersForListing(listing)
+        ns16sNonNx50s = DisplayListingParameters::ns16sNonNx50s(listing)
+        structure = Nx50s::structureForDomain(listing)
         {
-            "domain"   => domain,
+            "listing"  => listing,
             "monitor2" => structure["Monitor"],
             "ns16s"    => ns16sNonNx50s + structure["Dated"] + structure["Tail"]
         }
     end
 
-    # DisplayListingParameters::getListingParametersForDomainUseCache(domain)
-    def self.getListingParametersForDomainUseCache(domain)
-        computeNewNx77 = lambda {|domain|
+    # DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
+    def self.getTerminalDisplayParametersForListingUseCache(listing)
+        computeNewNx77 = lambda {|listing|
             {
                 "unixtime"   => Time.new.to_i,
-                "parameters" => DisplayListingParameters::getListingParametersForDomain(domain)
+                "parameters" => DisplayListingParameters::getTerminalDisplayParametersForListing(listing)
             }
         }
-        nx77 = KeyValueStore::getOrNull(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{domain}")
+        nx77 = KeyValueStore::getOrNull(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}")
         if nx77.nil? then
-            nx77 = computeNewNx77.call(domain)
+            nx77 = computeNewNx77.call(listing)
         else
             nx77 = JSON.parse(nx77)
         end
         if (Time.new.to_f - nx77["unixtime"]) > 36400*2 then # We expire after 2 hours
-            nx77 = computeNewNx77.call(domain)
+            nx77 = computeNewNx77.call(listing)
         end
         if nx77["parameters"]["ns16s"].empty? then
-            nx77 = computeNewNx77.call(domain)
+            nx77 = computeNewNx77.call(listing)
         end
         while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
             puts "[Nx77] removing uuid: #{uuid}"
             nx77["parameters"]["ns16s"] = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
         end
-        KeyValueStore::set(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{domain}", JSON.generate(nx77))
+        KeyValueStore::set(nil, "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}", JSON.generate(nx77))
         nx77["parameters"]
     end
 end
 
 class DisplayOperator
 
-    # DisplayOperator::listing(domain or null, monitor2, ns16s)
-    def self.listing(domain, monitor2, ns16s)
+    # DisplayOperator::listing(listing or null, monitor2, ns16s)
+    def self.listing(listing, monitor2, ns16s)
 
         collection = ns16s.clone
 
@@ -139,7 +139,7 @@ class DisplayOperator
         vspaceleft = Utils::screenHeight()-5
 
         infolines = [
-            "      " + Commands::listingCommands(),
+            "      " + Commands::terminalDisplayCommand(),
             "      " + Commands::makersCommands(),
             "      " + Commands::diversCommands(),
             "      internet on | internet off | require internet"
@@ -150,7 +150,7 @@ class DisplayOperator
         store = ItemStore.new()
 
         puts ""
-        puts "--> #{domain} #{Listings::dx()}".green
+        puts "--> #{listing} #{Listings::dx()}".green
         vspaceleft = vspaceleft - 2
 
         if !InternetStatus::internetIsActive() then
@@ -252,9 +252,9 @@ class DisplayOperator
     # DisplayOperator::displayLoop()
     def self.displayLoop()
         loop {
-            domain = Listings::getListingForTerminalDisplay()
-            parameters = DisplayListingParameters::getListingParametersForDomainUseCache(domain)
-            DisplayOperator::listing(parameters["domain"], parameters["monitor2"], parameters["ns16s"])
+            listing = Listings::getListingForTerminalDisplay()
+            parameters = DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
+            DisplayOperator::listing(parameters["listing"], parameters["monitor2"], parameters["ns16s"])
         }
     end
 end

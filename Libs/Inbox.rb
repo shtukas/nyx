@@ -66,19 +66,19 @@ class Inbox
             description
         }
         description = locationToDescription.call(location)
-        domain = Listings::interactivelySelectListing()
-        Nx50s::issueInboxItemUsingLocation(location, domain, description)
+        listing = Listings::interactivelySelectListing()
+        Nx50s::issueInboxItemUsingLocation(location, listing, description)
         LucilleCore::removeFileSystemLocation(location)
         Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", Inbox::getLocationUUID(location))
-        domain
+        listing
     end
 
     # Inbox::run(location)
     def self.run(location)
         time1 = Time.new.to_f
 
-        close = lambda{|time1, domain|
-            account = Listings::listingToBankAccount(domain)
+        close = lambda{|time1, listing|
+            account = Listings::listingToBankAccount(listing)
             time2 = Time.new.to_f
             timespan = time2 - time1
             puts "Putting #{timespan} seconds into #{account}"
@@ -101,8 +101,8 @@ class Inbox
         end
 
         if command == "DISPATCH" then
-            domain = Inbox::dispatch(location)
-            close.call(time1, domain)
+            listing = Inbox::dispatch(location)
+            close.call(time1, listing)
             return
         end
 
@@ -111,8 +111,8 @@ class Inbox
             return
         end
 
-        domain = Inbox::dispatch(location)
-        close.call(time1, domain)
+        listing = Inbox::dispatch(location)
+        close.call(time1, listing)
     end
 
     # Inbox::ns16s()

@@ -9,7 +9,7 @@ Wave {
     "repeatType"       : repeatType,
     "repeatValue"      : repeatValue,
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
-    "domain"           : String
+    "listing"          : Listing
 }
 
 repeatType                       repeatValue

@@ -11,9 +11,13 @@ class Nx50s
     def self.nx50s()
         ObjectStore4::getSet(Nx50s::setuuid())
             .map{|nx50|
-                if !Listings::listings().include?(nx50["domain"]) then
-                    puts "Correcting domain for '#{nx50}'"
-                    nx50["domain"] = Listings::interactivelySelectListing()
+                nx50["listing"] = nx50["domain"] # we didn't migrate the data and just correct it on the fly
+                nx50
+            }
+            .map{|nx50|
+                if !Listings::listings().include?(nx50["listing"]) then
+                    puts "Correcting listing for '#{nx50}'"
+                    nx50["listing"] = Listings::interactivelySelectListing()
                     puts JSON.pretty_generate(nx50)
                     ObjectStore4::store(nx50, Nx50s::setuuid())
                 end
@@ -42,10 +46,10 @@ class Nx50s
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
-    # Nx50s::nx50sForDomain(domain)
-    def self.nx50sForDomain(domain)
+    # Nx50s::nx50sForDomain(listing)
+    def self.nx50sForDomain(listing)
         Nx50s::nx50s()
-            .select{|atom| atom["domain"] == domain }
+            .select{|nx50| nx50["listing"] == listing }
     end
 
     # --------------------------------------------------
@@ -64,7 +68,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "domain"      => Listings::interactivelySelectListing(),
+            "listing"      => Listings::interactivelySelectListing(),
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -81,7 +85,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "domain"      => Listings::interactivelySelectListing(),
+            "listing"      => Listings::interactivelySelectListing(),
             "category2"   => lambda1.call()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -96,38 +100,38 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => line,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "domain"      => Listings::interactivelySelectListing(),
+            "listing"      => Listings::interactivelySelectListing(),
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
     end
 
-    # Nx50s::issueItemUsingLocation(location, domain)
-    def self.issueItemUsingLocation(location, domain)
+    # Nx50s::issueItemUsingLocation(location, listing)
+    def self.issueItemUsingLocation(location, listing)
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => File.basename(location),
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "domain"      => domain,
+            "listing"      => listing,
             "category2"   => Nx50s::makeNewCategory2()
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
     end
 
-    # Nx50s::issueInboxItemUsingLocation(location, domain, description)
-    def self.issueInboxItemUsingLocation(location, domain, description)
+    # Nx50s::issueInboxItemUsingLocation(location, listing, description)
+    def self.issueInboxItemUsingLocation(location, listing, description)
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "domain"      => domain,
-            "category2"   => Nx50s::makeNewInboxCategory2(domain)
+            "listing"      => listing,
+            "category2"   => Nx50s::makeNewInboxCategory2(listing)
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -141,7 +145,7 @@ class Nx50s
             "unixtime"    => unixtime,
             "description" => description,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "domain"      => "(entertainment)",
+            "listing"      => "(entertainment)",
             "category2"   => ["Tail"]
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -156,7 +160,7 @@ class Nx50s
             "unixtime"    => Time.new.to_f,
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
-            "domain"      => "(eva)",
+            "listing"      => "(eva)",
             "category2"   => ["Tail"]
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -179,12 +183,12 @@ class Nx50s
     # Nx50s::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
         if nx50["category2"][0] == "Monitor" then
-            return "#{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["domain"]}"
+            return "#{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["listing"]}"
         end
         if nx50["category2"][0] == "Dated" then
-            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["domain"]}"
+            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["listing"]}"
         end
-        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["domain"]}"
+        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["listing"]}"
     end
 
     # Nx50s::complete(nx50)
@@ -265,10 +269,10 @@ class Nx50s
         [corecategory]
     end
 
-    # Nx50s::makeNewInboxCategory2(domain)
-    def self.makeNewInboxCategory2(domain)
-        return ["Tail"] if domain == "(entertainment)"
-        return ["Tail"] if domain == "(jedi)"
+    # Nx50s::makeNewInboxCategory2(listing)
+    def self.makeNewInboxCategory2(listing)
+        return ["Tail"] if listing == "(entertainment)"
+        return ["Tail"] if listing == "(jedi)"
         corecategory = Nx50s::interactivelySelectCoreCategory()
         if corecategory == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
@@ -285,7 +289,7 @@ class Nx50s
         itemToBankAccounts = lambda{|item|
             accounts = []
             accounts << item["uuid"]
-            accounts << Listings::listingToBankAccount(item["domain"])
+            accounts << Listings::listingToBankAccount(item["listing"])
             accounts.compact
         }
 
@@ -305,7 +309,7 @@ class Nx50s
             puts "uuid: #{uuid}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
-            puts "Domain: #{nx50["domain"]}".yellow
+            puts "Domain: #{nx50["listing"]}".yellow
             puts "Category: #{nx50["category2"].join(", ")}".yellow
 
             puts CoreData5::atomPayloadToText(nx50["atom"])
@@ -319,7 +323,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | update contents | rotate | domain | category | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | update contents | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -362,8 +366,8 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("domain", command) then
-                nx50["domain"] = Listings::interactivelySelectListing()
+            if Interpreting::match("listing", command) then
+                nx50["listing"] = Listings::interactivelySelectListing()
                 ObjectStore4::store(nx50, Nx50s::setuuid())
                 break
             end
@@ -490,9 +494,9 @@ class Nx50s
         }
     end
 
-    # Nx50s::structureForDomain(domain)
-    def self.structureForDomain(domain)
-        Nx50s::structureGivenNx50s(Nx50s::nx50sForDomain(domain))
+    # Nx50s::structureForDomain(listing)
+    def self.structureForDomain(listing)
+        Nx50s::structureGivenNx50s(Nx50s::nx50sForDomain(listing))
     end
 
     # --------------------------------------------------

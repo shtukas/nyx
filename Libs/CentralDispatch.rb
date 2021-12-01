@@ -108,9 +108,9 @@ class CentralDispatch
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            domain = Listings::interactivelySelectListing()
-            domainBankAccount = Listings::listingToBankAccount(domain)
-            NxBallsService::issue(SecureRandom.uuid, description, [domainBankAccount])
+            listing = Listings::interactivelySelectListing()
+            account = Listings::listingToBankAccount(listing)
+            NxBallsService::issue(SecureRandom.uuid, description, [account])
         end
 
         if command == "monitor" then
@@ -155,8 +155,8 @@ class CentralDispatch
         end
 
         if Interpreting::match("waves", command) then
-            domain = Listings::interactivelySelectListing()
-            Waves::waves(domain)
+            listing = Listings::interactivelySelectListing()
+            Waves::waves(listing)
         end
 
         if Interpreting::match("Nx50s", command) then

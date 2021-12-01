@@ -3,7 +3,7 @@ Nx50 {
     "unixtime"    : unixtime
     "description" : String
     "atom"        : CoreData5.Atom
-    "domain"      : Domain
+    "listing"     : Listing
     "category2"   : 
                         ["Monitor"]
                         ["Dated", Date]
