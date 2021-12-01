@@ -193,7 +193,7 @@ class DisplayOperator
             puts "running:"
             vspaceleft = vspaceleft - 2
             running
-                .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
+                .sort{|t1, t2| (t1["unixtime"] || 0) <=> (t2["unixtime"] || 0) } # || 0 because we had some running while updating this
                 .each{|nxball|
                     delegate = {
                         "uuid"  => nxball["uuid"],

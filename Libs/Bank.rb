@@ -148,6 +148,7 @@ NxBallStatus
 NxBall {
     "uuid"        => String,
     "NS198"       => "NxBall.v1",
+    "unixtime"    => Float
     "description" => description,
     "status"      => NxBallStatus 
     "accounts"    => accounts
@@ -166,6 +167,7 @@ class NxBallsService
         nxball = {
             "uuid" => uuid,
             "NS198" => "NxBall.v2",
+            "unixtime" => Time.new.to_f,
             "description" => description,
             "status" => {
                 "type" => "running",
@@ -214,6 +216,7 @@ class NxBallsService
         nxball = {
             "uuid" => nxball["uuid"],
             "NS198" => "NxBall.v2",
+            "unixtime" => nxball["unixtime"],
             "description" => nxball["description"],
             "status" => {
                 "type" => "paused",
