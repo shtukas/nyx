@@ -45,13 +45,71 @@ class Nx50s
                 end
                 nx50
             }
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
 
     # Nx50s::nx50sForDomain(listing)
     def self.nx50sForDomain(listing)
         Nx50s::nx50s()
             .select{|nx50| nx50["listing"] == listing }
+    end
+
+    # --------------------------------------------------
+    # Ordinals
+
+    # Nx50s::nextOrdinal()
+    def self.nextOrdinal()
+        biggest = ([0] + Nx50s::nx50s().map{|nx50| nx50["ordinal"] }).max
+        (biggest + 1).floor
+    end
+
+    # Nx50s::interactivelyDecideNewOrdinalOrNull()
+    def self.interactivelyDecideNewOrdinalOrNull()
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["next", "fine selection near the top"])
+        return nil if action.nil?
+        if action == "next" then
+            return Nx50s::nextOrdinal()
+        end
+        if action == "fine selection near the top" then
+            Nx50s::nx50s()
+                .first(50)
+                .each{|nx50| 
+                    puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
+                }
+            return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
+        end
+        raise "5fe95417-192b-4256-a021-447ba02be4aa"
+    end
+
+    # Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
+    def self.interactivelyDecideNewOrdinalOrNull2(listing, category2)
+        if category2[0] == "Monitor" then
+            return Nx50s::nextOrdinal()
+        end
+        if category2[0] == "Dated" then
+            return Nx50s::nextOrdinal()
+        end
+        # By now we can attest that the category is "Tail"
+        if listing == "(jedi)" then
+            return Nx50s::nextOrdinal()
+        end
+        if listing == "(entertainment)" then
+            return Nx50s::nextOrdinal()
+        end
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["next", "fine selection near the top"])
+        return nil if action.nil?
+        if action == "next" then
+            return Nx50s::nextOrdinal()
+        end
+        if action == "fine selection near the top" then
+            Nx50s::nx50s()
+                .first(50)
+                .each{|nx50| 
+                    puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
+                }
+            return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
+        end
+        raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
 
     # --------------------------------------------------
@@ -62,13 +120,17 @@ class Nx50s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        listing = Listings::interactivelySelectListing()
+        category2 = Nx50s::makeNewCategory2()
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => Time.new.to_f,
+            "ordinal"     => ordinal,
             "description" => description,
-            "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "listing"     => Listings::interactivelySelectListing(),
-            "category2"   => Nx50s::makeNewCategory2()
+            "atom"        => atom,
+            "listing"     => listing,
+            "category2"   => category2
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -79,13 +141,16 @@ class Nx50s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
+        listing = Listings::interactivelySelectListing()
+        category2 = lambda1.call()
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => Time.new.to_f,
+            "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
-            "listing"     => Listings::interactivelySelectListing(),
-            "category2"   => lambda1.call()
+            "listing"     => listing,
+            "category2"   => category2
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -94,13 +159,16 @@ class Nx50s
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
         uuid = SecureRandom.uuid
+        listing = Listings::interactivelySelectListing()
+        category2 = Nx50s::makeNewCategory2()
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => Time.new.to_f,
+            "ordinal"     => ordinal,
             "description" => line,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "listing"     => Listings::interactivelySelectListing(),
-            "category2"   => Nx50s::makeNewCategory2()
+            "listing"     => listing,
+            "category2"   => category2
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -109,13 +177,15 @@ class Nx50s
     # Nx50s::issueItemUsingLocation(location, listing)
     def self.issueItemUsingLocation(location, listing)
         uuid = SecureRandom.uuid
+        category2 = Nx50s::makeNewCategory2()
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => Time.new.to_f,
+            "ordinal"     => ordinal,
             "description" => File.basename(location),
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "listing"     => listing,
-            "category2"   => Nx50s::makeNewCategory2()
+            "category2"   => category2
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
@@ -124,27 +194,29 @@ class Nx50s
     # Nx50s::issueInboxItemUsingLocation(location, listing, description)
     def self.issueInboxItemUsingLocation(location, listing, description)
         uuid = SecureRandom.uuid
+        category2 = Nx50s::makeNewInboxCategory2(listing)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => Time.new.to_f,
+            "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "listing"     => listing,
-            "category2"   => Nx50s::makeNewInboxCategory2(listing)
+            "category2"   => category2
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
         nx50
     end
 
-    # Nx50s::issueSpreadItem(location, description, unixtime)
-    def self.issueSpreadItem(location, description, unixtime)
+    # Nx50s::issueSpreadItem(location, description, listing, ordinal)
+    def self.issueSpreadItem(location, description, listing, ordinal)
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => unixtime,
+            "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-            "listing"     => "(entertainment)",
+            "listing"     => listing,
             "category2"   => ["Tail"]
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -156,7 +228,7 @@ class Nx50s
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
-            "unixtime"    => Time.new.to_f,
+            "ordinal"     => Nx50s::nextOrdinal(),
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
             "listing"     => "(eva)",
@@ -172,6 +244,11 @@ class Nx50s
     # Nx50s::toString(nx50)
     def self.toString(nx50)
         "[nx50] #{nx50["description"]} (#{nx50["atom"]["type"]})"
+    end
+
+    # Nx50s::toStringWithOrdinal(nx50)
+    def self.toStringWithOrdinal(nx50)
+        "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
     # Nx50s::toStringForNS19(nx50)
@@ -201,15 +278,19 @@ class Nx50s
         locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s Spread")
  
         if locations.size > 0 then
+
+            puts "Starting to import spread (first item: #{locations.first})"
+
+            listing = Listings::interactivelySelectListing()
  
-            unixtimes = Nx50s::items().map{|item| item["unixtime"] }
+            ordinals = Nx50s::items().map{|item| item["ordinal"] }
  
-            if unixtimes.size < 2 then
-                start1 = Time.new.to_f - 86400
-                end1   = Time.new.to_f
+            if ordinals.size < 2 then
+                start1 = ordinals.max + 1
+                end1   = ordinals.max + 1 + locations.size
             else
-                start1 = unixtimes.min
-                end1   = [unixtimes.max, Time.new.to_f].max
+                start1 = ordinals.min
+                end1   = ordinals.max + 1
             end
  
             spread = end1 - start1
@@ -218,16 +299,10 @@ class Nx50s
  
             cursor = start1
  
-            #puts "Nx50s Spread"
-            #puts "  start : #{Time.at(start1).to_s} (#{start1})"
-            #puts "  end   : #{Time.at(end1).to_s} (#{end1})"
-            #puts "  spread: #{spread}"
-            #puts "  step  : #{step}"
- 
             locations.each{|location|
                 cursor = cursor + step
-                puts "[quark] (#{Time.at(cursor).to_s}) #{location}"
-                Nx50s::issueSpreadItem(location, File.basename(location), cursor)
+                puts "[quark] (#{cursor}) #{location}"
+                Nx50s::issueSpreadItem(location, File.basename(location), listing, cursor)
                 LucilleCore::removeFileSystemLocation(location)
             }
         end
@@ -371,7 +446,7 @@ class Nx50s
             end
 
             if Interpreting::match("rotate", command) then
-                nx50["unixtime"] = Time.new.to_f
+                nx50["ordinal"] = Nx50s::nextOrdinal()
                 ObjectStore4::store(nx50, Nx50s::setuuid())
                 break
             end
@@ -483,7 +558,7 @@ class Nx50s
                 mapping
             }
 
-        dated = mapping.keys.sort.map{|date| mapping[date].sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] } }.flatten
+        dated = mapping.keys.sort.map{|date| mapping[date].sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] } }.flatten
 
         dated = dated
                     .map{|item| Nx50s::ns16OrNull(item) }

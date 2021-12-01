@@ -1,6 +1,6 @@
 Nx50 {
     "uuid"        : uuid
-    "unixtime"    : unixtime
+    "ordinal"     : Float
     "description" : String
     "atom"        : CoreData5.Atom
     "listing"     : Listing
