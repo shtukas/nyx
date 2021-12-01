@@ -48,8 +48,8 @@ class Nx50s
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
 
-    # Nx50s::nx50sForDomain(listing)
-    def self.nx50sForDomain(listing)
+    # Nx50s::nx50sForListing(listing)
+    def self.nx50sForListing(listing)
         Nx50s::nx50s()
             .select{|nx50| nx50["listing"] == listing }
     end
@@ -63,15 +63,15 @@ class Nx50s
         (biggest + 1).floor
     end
 
-    # Nx50s::interactivelyDecideNewOrdinalOrNull()
-    def self.interactivelyDecideNewOrdinalOrNull()
+    # Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
+    def self.interactivelyDecideNewOrdinalOrNull(listing)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["next", "fine selection near the top"])
         return nil if action.nil?
         if action == "next" then
             return Nx50s::nextOrdinal()
         end
         if action == "fine selection near the top" then
-            Nx50s::nx50s()
+            Nx50s::nx50sForListing(listing)
                 .first(50)
                 .each{|nx50| 
                     puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
@@ -102,7 +102,7 @@ class Nx50s
             return Nx50s::nextOrdinal()
         end
         if action == "fine selection near the top" then
-            Nx50s::nx50s()
+            Nx50s::nx50sForListing(listing)
                 .first(50)
                 .each{|nx50| 
                     puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
@@ -398,7 +398,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | update contents | redate | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | update contents | redate | ordinal |rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -446,6 +446,11 @@ class Nx50s
                 next
             end
 
+            if Interpreting::match("ordinal", command) then
+                nx50["ordinal"] = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                ObjectStore4::store(nx50, Nx50s::setuuid())
+                next
+            end
             if Interpreting::match("rotate", command) then
                 nx50["ordinal"] = Nx50s::nextOrdinal()
                 ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -590,7 +595,7 @@ class Nx50s
 
     # Nx50s::structureForDomain(listing)
     def self.structureForDomain(listing)
-        Nx50s::structureGivenNx50s(Nx50s::nx50sForDomain(listing))
+        Nx50s::structureGivenNx50s(Nx50s::nx50sForListing(listing))
     end
 
     # --------------------------------------------------

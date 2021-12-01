@@ -53,7 +53,7 @@ class Listings
             },
             "(work)" => {
                 "type"   => "expectation",
-                "target" => 6
+                "target" => 5
             },
             "(jedi)" => {
                 "type"   => "expectation",
