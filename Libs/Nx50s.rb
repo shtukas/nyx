@@ -381,6 +381,7 @@ class Nx50s
 
             puts "#{Nx50s::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
+            puts "ordinal: #{nx50["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "Domain: #{nx50["listing"]}".yellow
@@ -485,7 +486,9 @@ class Nx50s
         }
 
         NxBallsService::closeWithAsking(uuid)
-        Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", nx50["uuid"])
+        if BankExtended::stdRecoveredDailyTimeInHours(uuid) > 1 then
+            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", nx50["uuid"])
+        end
     end
 
     # Nx50s::itemIsOperational(item)
@@ -504,8 +507,6 @@ class Nx50s
             end
             ["..", "done"]
         }
-
-
         uuid = nx50["uuid"]
         return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)

@@ -255,6 +255,16 @@ class Utils
             .gsub("'", "")
     end
 
+    # Utils::codeTrace()
+    def self.codeTrace()
+        LucilleCore::locationsAtFolder(File.dirname(__FILE__))
+            .select{|filepath| filepath[-3, 3] == ".rb" }
+            .map{|filepath|
+                Digest::SHA1.hexdigest(IO.read(filepath))
+            }
+            .join(":")
+    end
+
     # ----------------------------------------------------
 
     # Utils::pecoStyleSelectionOrNull(lines)

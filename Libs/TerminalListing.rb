@@ -102,7 +102,7 @@ class DisplayListingParameters
 
     # DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
     def self.getTerminalDisplayParametersForListingUseCache(listing)
-        cacheKey = "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}:#{Utils::today()}:#{File.mtime(__FILE__).to_s}"
+        cacheKey = "d0a7cd44-2309-4263-8dd3-997ac657aebe:#{listing}:#{Utils::today()}:#{Utils::codeTrace()}"
         computeNewNx77 = lambda {|listing|
             {
                 "unixtime"   => Time.new.to_i,
