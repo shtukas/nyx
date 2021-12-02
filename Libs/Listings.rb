@@ -1,9 +1,6 @@
 
 # encoding: UTF-8
 
-$EvaX1 = 8
-$EvaX2 = 0.4
-
 class Listings
 
     # Listings::listings()
@@ -51,7 +48,9 @@ class Listings
 
         map = {
             "(eva)" => {
-                "type"   => "eva"
+                "type" => "eva",
+                "x1" => 8,
+                "x2" => 0.25
             },
             "(work)" => {
                 "type"   => "expectation",
@@ -59,7 +58,7 @@ class Listings
             },
             "(jedi)" => {
                 "type"   => "expectation",
-                "target" => 2
+                "target" => 1
             },
             "(entertainment)" => {
                 "type"   => "expectation",
@@ -76,8 +75,8 @@ class Listings
             # Driver eva if for listing (eva)
             # We have WAVES-UNITS-1-44F7-A64A-72D0205F8957 fed with units
             # In addition of the bank account "EVA-97F7F3341-4CD1-8B20-4A2466751408"
-            return 1 if Bank::valueOverTimespan("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 3600) > $EvaX1
-            return 1 if Beatrice::stdRecoveredHourlyTimeInHours(Listings::listingToBankAccount(listing)) > $EvaX2
+            return 1 if Bank::valueOverTimespan("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 3600) >= driver["x1"]
+            return 1 if Beatrice::stdRecoveredHourlyTimeInHours(Listings::listingToBankAccount(listing)) >= driver["x2"]
             return 0
         end
         if driver["type"] == "expectation" then
@@ -163,7 +162,7 @@ class Listings
                     if driver["type"] == "eva" then
                         v1 = Bank::valueOverTimespan("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 3600)
                         v2 = Beatrice::stdRecoveredHourlyTimeInHours(Listings::listingToBankAccount(listing))
-                        return "(#{listingToString.call(listing)}: #{v1} of #{$EvaX1} & #{v2.round(2)} of #{$EvaX2})"
+                        return "(#{listingToString.call(listing)}: #{v1} of #{driver["x1"]}, #{v2.round(2)} of #{driver["x2"]})"
                     end
                 }).call(px["listing"], px["ratio"], Listings::listingDriver(px["listing"]))
             }
