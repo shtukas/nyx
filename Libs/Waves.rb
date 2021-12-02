@@ -183,6 +183,7 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
+        return if wave["atom"]["type"] == "description-only"
         updated = CoreData5::accessWithOptionToEdit(wave["atom"])
         if updated then
             wave["atom"] = updated
