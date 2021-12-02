@@ -391,7 +391,7 @@ class Nx50s
             puts "Domain: #{nx50["listing"]}".yellow
             puts "Category: #{nx50["category2"].join(", ")}".yellow
 
-            if text = CoreData5::atomPayloadToText(nx50["atom"]) then
+            if text = CoreData5::atomPayloadToTextOrNull(nx50["atom"]) then
                 puts text
             end
 
