@@ -133,10 +133,10 @@ class DisplayListingParameters
     end
 end
 
-class DisplayOperator
+class TerminalDisplayOperator
 
-    # DisplayOperator::listing(listing or null, monitor2, ns16s)
-    def self.listing(listing, monitor2, ns16s)
+    # TerminalDisplayOperator::display(displayMode, listing or null, monitor2, ns16s)
+    def self.display(displayMode, listing, monitor2, ns16s)
 
         collection = ns16s.clone
 
@@ -147,9 +147,15 @@ class DisplayOperator
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
-        system("clear")
+        if displayMode == "SCREEN" then
+            system("clear")
+        end
 
-        vspaceleft = Utils::screenHeight()-5
+        if displayMode == "STREAM" then
+            puts "-" * (Utils::screenWidth()-1)
+        end
+
+        vspaceleft = Utils::screenHeight()-4
 
         infolines = [
             "      " + Commands::terminalDisplayCommand(),
@@ -162,86 +168,153 @@ class DisplayOperator
 
         store = ItemStore.new()
 
-        puts ""
-        puts "--> #{listing} #{Listings::dx()}".green
-        vspaceleft = vspaceleft - 2
-
-        if !InternetStatus::internetIsActive() then
+        if displayMode == "SCREEN" then
             puts ""
-            puts "INTERNET IS OFF".green
+            puts "--> #{listing} #{Listings::dx()}".green
             vspaceleft = vspaceleft - 2
         end
 
-        puts ""
-        puts "commands:"
-        puts infolines
+        if displayMode == "STREAM" then
+            puts "#{listing} #{Listings::dx()}".yellow
+        end
 
-        if !monitor2.empty? then
+        if displayMode == "SCREEN" then
+            if !InternetStatus::internetIsActive() then
+                puts ""
+                puts "INTERNET IS OFF".green
+                vspaceleft = vspaceleft - 2
+            end
+        end
+
+        if displayMode == "STREAM" then
+            if !InternetStatus::internetIsActive() then
+                puts "INTERNET IS OFF".green
+            end
+        end
+
+        if displayMode == "SCREEN" then
             puts ""
-            vspaceleft = vspaceleft - 1
-            puts "monitor:"
+            puts "commands:"
+            vspaceleft = vspaceleft - 2
+            puts infolines
+        end
+
+        if displayMode == "SCREEN" then
+            if !monitor2.empty? then
+                puts ""
+                vspaceleft = vspaceleft - 1
+                puts "monitor:"
+                monitor2.each{|ns16|
+                    line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+                    puts line
+                    vspaceleft = vspaceleft - Utils::verticalSize(line)
+                }
+            end
+        end
+
+        if displayMode == "STREAM" then
             monitor2.each{|ns16|
-                line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
+                puts "monitor: (#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
             }
         end
 
-        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
-        if running.size > 0 then
-            puts ""
-            puts "running:"
-            vspaceleft = vspaceleft - 2
-            running
-                .sort{|t1, t2| (t1["unixtime"] || 0) <=> (t2["unixtime"] || 0) } # || 0 because we had some running while updating this
+        if displayMode == "SCREEN" then
+            running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+            if running.size > 0 then
+                puts ""
+                puts "running:"
+                vspaceleft = vspaceleft - 2
+                running
+                    .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
+                    .each{|nxball|
+                        delegate = {
+                            "uuid"  => nxball["uuid"],
+                            "NS198" => "NxBallDelegate1" 
+                        }
+                        indx = store.register(delegate)
+                        announce = "(#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                        puts announce
+                        vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                    }
+            end
+            runningUUIDs = running.map{|item| item["uuid"] }
+            collection
+                .select{|ns16| runningUUIDs.include?(ns16["uuid"]) }
+                .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
+                .each{|ns16|
+                    indx = store.register(ns16)
+                    announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}"
+                    puts announce
+                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                }
+        end
+
+        if displayMode == "STREAM" then
+            BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
                 .each{|nxball|
                     delegate = {
                         "uuid"  => nxball["uuid"],
                         "NS198" => "NxBallDelegate1" 
                     }
                     indx = store.register(delegate)
-                    announce = "(#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                    puts "running: (#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                }
+        end
+
+        if displayMode == "SCREEN" then
+            catalyst = IO.read("/Users/pascal/Desktop/Catalyst.txt").strip
+            if catalyst.size > 0 then
+                puts ""
+                puts "Catalyst.txt is not empty".green
+                vspaceleft = vspaceleft - 2
+            end
+        end
+
+        if displayMode == "STREAM" then
+            if IO.read("/Users/pascal/Desktop/Catalyst.txt").strip.size > 0 then
+                puts "Catalyst.txt is not empty".green
+            end
+        end
+
+        if displayMode == "SCREEN" then
+            puts ""
+            puts "todo:"
+            vspaceleft = vspaceleft - 2
+            collection
+                .select{|ns16| !runningUUIDs.include?(ns16["uuid"]) }
+                .each{|ns16|
+                    indx = store.register(ns16)
+                    isDefaultItem = ((ns16["defaultable"].nil? or ns16["defaultable"]) and store.getDefault().nil?) # the default item is the first element, unless it's defaultable
+                    if isDefaultItem then
+                        store.registerDefault(ns16)
+                    end
+                    posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
+                    announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                    break if (!isDefaultItem and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
         end
-        runningUUIDs = running.map{|item| item["uuid"] }
-        collection
-            .select{|ns16| runningUUIDs.include?(ns16["uuid"]) }
-            .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
-            .each{|ns16|
-                indx = store.register(ns16)
-                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}"
-                puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
-            }
 
-        catalyst = IO.read("/Users/pascal/Desktop/Catalyst.txt").strip
-        if catalyst.size > 0 then
-            puts ""
-            puts "Catalyst.txt is not empty".green
-            vspaceleft = vspaceleft - 2
+        if displayMode == "STREAM" then
+            collection
+                .each{|ns16|
+                    indx = store.register(ns16)
+                    isDefaultItem = ((ns16["defaultable"].nil? or ns16["defaultable"]) and store.getDefault().nil?) # the default item is the first element, unless it's defaultable
+                    if isDefaultItem then
+                        store.registerDefault(ns16)
+                    end
+                    posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
+                    puts "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                    break if isDefaultItem
+                }
         end
 
-        puts ""
-        puts "todo:"
-        vspaceleft = vspaceleft - 2
-        collection
-            .select{|ns16| !runningUUIDs.include?(ns16["uuid"]) }
-            .each{|ns16|
-                indx = store.register(ns16)
-                isDefaultItem = ((ns16["defaultable"].nil? or ns16["defaultable"]) and store.getDefault().nil?) # the default item is the first element, unless it's defaultable
-                if isDefaultItem then
-                    store.registerDefault(ns16)
-                end
-                posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
-                announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
-                break if (!isDefaultItem and ((vspaceleft - Utils::verticalSize(announce)) < 0))
-                puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
-            }
+        if displayMode == "SCREEN" then
+            puts ""
+        end
 
-        puts ""
         command = LucilleCore::askQuestionAnswerAsString("> ")
 
         return if command == ""
@@ -261,20 +334,16 @@ class DisplayOperator
         end
 
         CentralDispatch::operator4(command)
-        CentralDispatch::operator5(store, command)
-
-        if store.getDefault() then
-            item = store.getDefault()
-            CentralDispatch::operator1(item, command)
-        end
+        CentralDispatch::operator5(store.getDefault(), command)
+        CentralDispatch::operator1(store.getDefault(), command)
     end
 
-    # DisplayOperator::displayLoop()
-    def self.displayLoop()
+    # TerminalDisplayOperator::displayLoop(displayMode)
+    def self.displayLoop(displayMode)
         loop {
             listing = Listings::getListingForTerminalDisplay()
             parameters = DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
-            DisplayOperator::listing(parameters["listing"], parameters["monitor2"], parameters["ns16s"])
+            TerminalDisplayOperator::display(displayMode, parameters["listing"], parameters["monitor2"], parameters["ns16s"])
         }
     end
 end

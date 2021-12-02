@@ -4,6 +4,8 @@ class CentralDispatch
     # CentralDispatch::operator1(object, command)
     def self.operator1(object, command)
 
+        return if object.nil?
+
         # puts "CentralDispatch, object: #{object}, command: #{command}"
 
         if object["NS198"] == "NxBallDelegate1" and command == ".." then
@@ -192,11 +194,10 @@ class CentralDispatch
         end
     end
 
-    # CentralDispatch::operator5(store, command)
-    def self.operator5(store, command)
+    # CentralDispatch::operator5(ns16, command)
+    def self.operator5(ns16, command)
 
         if Interpreting::match("expose", command) then
-            ns16 = store.getDefault()
             return if ns16.nil? 
             puts JSON.pretty_generate(ns16)
             LucilleCore::pressEnterToContinue()
@@ -213,7 +214,6 @@ class CentralDispatch
         end
 
         if Interpreting::match("require internet", command) then
-            ns16 = store.getDefault()
             return if ns16.nil?
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
             Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", ns16["uuid"])

@@ -367,7 +367,9 @@ class Nx50s
             accounts.compact
         }
 
-        system("clear")
+        if $CatalystDisplayMode == "SCREEN" then
+            system("clear")
+        end
 
         uuid = nx50["uuid"]
 
@@ -377,7 +379,9 @@ class Nx50s
 
         loop {
 
-            system("clear")
+            if $CatalystDisplayMode == "SCREEN" then
+                system("clear")
+            end
 
             puts "#{Nx50s::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
@@ -387,7 +391,9 @@ class Nx50s
             puts "Domain: #{nx50["listing"]}".yellow
             puts "Category: #{nx50["category2"].join(", ")}".yellow
 
-            puts CoreData5::atomPayloadToText(nx50["atom"])
+            if text = CoreData5::atomPayloadToText(nx50["atom"]) then
+                puts text
+            end
 
             note = StructuredTodoTexts::getNoteOrNull(nx50["uuid"])
             if note then
@@ -398,7 +404,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | update contents | redate | ordinal |rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | update contents | redate | ordinal | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

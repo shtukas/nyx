@@ -15,4 +15,8 @@ Thread.new {
     }
 }
 
-DisplayOperator::displayLoop()
+mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["screen", "stream"])
+exit if mode.nil?
+displayMode = mode.upcase
+$CatalystDisplayMode = displayMode
+TerminalDisplayOperator::displayLoop(displayMode)

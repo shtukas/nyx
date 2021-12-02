@@ -304,7 +304,9 @@ class Waves
 
     # Waves::run(wave)
     def self.run(wave)
-        system("clear")
+        if $CatalystDisplayMode == "SCREEN" then
+            system("clear")
+        end
         uuid = wave["uuid"]
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
