@@ -523,7 +523,7 @@ class Nx50s
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         ns16 = {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Nx501",
+            "NS198"    => "ns16:Nx50",
             "announce" => Nx50s::toStringForNS16(nx50, rt),
             "commands" => getCommands.call(nx50),
             "Nx50"     => nx50,

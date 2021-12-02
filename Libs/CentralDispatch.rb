@@ -1,6 +1,11 @@
 
 class CentralDispatch
 
+    # CentralDispatch::closeAnyNxBallWithThisID(uuid)
+    def self.closeAnyNxBallWithThisID(uuid)
+        NxBallsService::close(uuid, true)
+    end
+
     # CentralDispatch::operator1(object, command)
     def self.operator1(object, command)
 
@@ -38,6 +43,7 @@ class CentralDispatch
 
         if object["NS198"] == "ns16:wave1" and command == "done" then
             Waves::performDone(object["wave"])
+            CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
         end
 
         if object["NS198"] == "ns16:inbox1" and command == ".." then
@@ -48,11 +54,11 @@ class CentralDispatch
             Inbox::dispatch(object["location"])
         end
 
-        if object["NS198"] == "ns16:Nx501" and command == ".." then
+        if object["NS198"] == "ns16:Nx50" and command == ".." then
             Nx50s::run(object["Nx50"])
         end
 
-        if object["NS198"] == "ns16:Nx501" and command == "redate" then
+        if object["NS198"] == "ns16:Nx50" and command == "redate" then
             nx50 = object["Nx50"]
             if nx50["category2"][0] == "Dated" then
                 nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
@@ -64,10 +70,11 @@ class CentralDispatch
             end
         end
 
-        if object["NS198"] == "ns16:Nx501" and command == "done" then
+        if object["NS198"] == "ns16:Nx50" and command == "done" then
             nx50 = object["Nx50"]
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
                 Nx50s::complete(nx50)
+                CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
             end
         end
 
@@ -88,11 +95,6 @@ class CentralDispatch
 
         if object["NS198"] == "ns16:calendar1" and command == "done" then
             Calendar::moveToArchives(object["item"])
-        end
-
-        if object["NS198"] == "ns16:top1" and command == "done" then
-            puts object["announce"]
-            BTreeSets::destroy(nil, "213f801a-fd93-4839-a55b-8323520494bc", object["uuid"])
         end
     end
 
