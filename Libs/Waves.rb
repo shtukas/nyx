@@ -208,6 +208,7 @@ class Waves
             puts ""
 
             puts "uuid: #{wave["uuid"]}".yellow
+            puts "listing: #{wave["listing"]}".yellow
             puts "schedule: #{Waves::scheduleString(wave)}".yellow
             puts "last done: #{wave["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
