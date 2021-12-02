@@ -6,7 +6,7 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-$Nx77RunTimeCacheKeyPrefix = SecureRandom.hex
+$Nx77RunTimeCacheKey = SecureRandom.hex
 
 Thread.new {
     loop {
@@ -15,8 +15,4 @@ Thread.new {
     }
 }
 
-mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["screen", "stream"])
-exit if mode.nil?
-displayMode = mode.upcase
-$CatalystDisplayMode = displayMode
-TerminalDisplayOperator::displayLoop(displayMode)
+TerminalDisplayOperator::displayLoop()

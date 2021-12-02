@@ -157,7 +157,7 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "StructuredTodoTexts.rb"
 
-require_relative "TerminalListing.rb"
+require_relative "TerminalOperator.rb"
 
 require_relative "Utils.rb"
 

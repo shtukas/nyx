@@ -46,6 +46,14 @@ class CentralDispatch
             CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
         end
 
+        if object["NS198"] == "ns16:wave1" and command == ">entertainment" then
+            wave = object["wave"]
+            wave["listing"] = "(entertainment)"
+            ObjectStore4::store(wave, Waves::setuuid())
+            CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
+            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", object["uuid"])
+        end
+
         if object["NS198"] == "ns16:inbox1" and command == ".." then
             Inbox::run(object["location"])
         end
@@ -207,12 +215,12 @@ class CentralDispatch
 
         if Interpreting::match("internet on", command) then
             InternetStatus::setInternetOn()
-            $Nx77RunTimeCacheKeyPrefix = SecureRandom.hex
+            $Nx77RunTimeCacheKey = SecureRandom.hex
         end
 
         if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
-            $Nx77RunTimeCacheKeyPrefix = SecureRandom.hex
+            $Nx77RunTimeCacheKey = SecureRandom.hex
         end
 
         if Interpreting::match("require internet", command) then

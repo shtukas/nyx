@@ -580,7 +580,7 @@ class Nx50s
 
         tail = items
                 .reduce([]){|selection, item|  
-                    if selection.size < 100 and Nx50s::itemIsOperational(item) then
+                    if selection.size < 20 and Nx50s::itemIsOperational(item) then
                         selection << item
                     end
                     selection

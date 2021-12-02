@@ -49,10 +49,14 @@ class Commands
     end
 end
 
-$nx77 = nil
+class Nx77
 
-class DisplayListingParameters
-    # DisplayListingParameters::ns16sNonNx50s(listing)
+    # Nx77::nx77ExpiryInSeconds()
+    def self.nx77ExpiryInSeconds()
+        3600
+    end
+
+    # Nx77::ns16sNonNx50s(listing)
     def self.ns16sNonNx50s(listing)
         if listing == "(eva)" then
             ns16s = [
@@ -79,66 +83,48 @@ class DisplayListingParameters
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # DisplayListingParameters::removeDuplicates(ns16s)
-    def self.removeDuplicates(ns16s)
-        ns16s.reduce([]){|elements, ns16|
-            if elements.none?{|x| x["uuid"] == ns16["uuid"]} then
-                elements << ns16
-            end
-            elements
-        }
-    end
-
-    # DisplayListingParameters::getTerminalDisplayParametersForListing(listing)
-    def self.getTerminalDisplayParametersForListing(listing)
-        ns16sNonNx50s = DisplayListingParameters::ns16sNonNx50s(listing)
-        structure = Nx50s::structureForDomain(listing)
-        {
-            "listing"  => listing,
-            "monitor2" => structure["Monitor"],
-            "ns16s"    => ns16sNonNx50s + structure["Dated"] + structure["Tail"]
-        }
-    end
-
-    # DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
-    def self.getTerminalDisplayParametersForListingUseCache(listing)
-        cacheKey = "#{$Nx77RunTimeCacheKeyPrefix}:#{listing}"
-        computeNewNx77 = lambda {|listing|
-            {
-                "unixtime"   => Time.new.to_i,
-                "parameters" => DisplayListingParameters::getTerminalDisplayParametersForListing(listing)
+    # Nx77::makeNx76(listings, displayMode)
+    def self.makeNx76(listings, displayMode)
+        if displayMode == "SCREEN" then
+            listing = listings.first
+            ns16sNonNx50s = Nx77::ns16sNonNx50s(listing)
+            structure = Nx50s::structureForDomain(listing)
+            return {
+                "monitor2" => structure["Monitor"],
+                "ns16s"    => (ns16sNonNx50s + structure["Dated"] + structure["Tail"]).first(20)
             }
+        end
+        if displayMode == "STREAM" then
+            null = {
+                "monitor2" => [],
+                "ns16s"    => []
+            }
+            return listings.reduce(null){|built, listing|
+                ns16sNonNx50s = Nx77::ns16sNonNx50s(listing)
+                structure = Nx50s::structureForDomain(listing)
+                built["ns16s"] = built["ns16s"] + (ns16sNonNx50s + structure["Dated"] + structure["Tail"]).first(5)
+                built
+            }
+        end
+    end
+
+    # Nx77::getNx77(listings, displayMode, nx77)
+    def self.getNx77(listings, displayMode, nx77)
+        if nx77 and (Time.new.to_i - nx77["unixtime"]) < Nx77::nx77ExpiryInSeconds() and nx77["nx76"]["ns16s"].size > 0 then
+            return nx77
+        end
+        puts "Compute Nx77 from scratch..."
+        { # Nx77
+            "unixtime" => Time.new.to_i,
+            "nx76"     => Nx77::makeNx76(listings, displayMode)
         }
-        nx77 = KeyValueStore::getOrNull(nil, cacheKey)
-        if nx77.nil? then
-            puts "Recompute Nx77"
-            nx77 = computeNewNx77.call(listing)
-        else
-            nx77 = JSON.parse(nx77)
-        end
-        if (Time.new.to_f - nx77["unixtime"]) > 36400*2 then # We expire after 2 hours
-            puts "Recompute Nx77"
-            nx77 = computeNewNx77.call(listing)
-        end
-        if nx77["parameters"]["ns16s"].empty? then
-            puts "Recompute Nx77"
-            nx77 = computeNewNx77.call(listing)
-        end
-        while uuid = Mercury::dequeueFirstValueOrNull("A4EC3B4B-NATHALIE-COLLECTION-REMOVE") do
-            puts "[Nx77] removing uuid: #{uuid}"
-            nx77["parameters"]["ns16s"] = nx77["parameters"]["ns16s"].select{|ns16| ns16["uuid"] != uuid }
-        end
-        KeyValueStore::set(nil, cacheKey, JSON.generate(nx77))
-        nx77["parameters"]
     end
 end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(displayMode, listing or null, monitor2, ns16s)
-    def self.display(displayMode, listing, monitor2, ns16s)
-
-        collection = ns16s.clone
+    # TerminalDisplayOperator::display(displayMode, listings, monitor2, ns16s, nx77)
+    def self.display(displayMode, listings, monitor2, ns16s, nx77)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -147,9 +133,14 @@ class TerminalDisplayOperator
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
-        if displayMode == "SCREEN" then
-            system("clear")
-        end
+        removeNS16FromNx77 = lambda{|nx77, ns16|
+            nx77["nx76"]["ns16s"] = nx77["nx76"]["ns16s"].select{|x| x["uuid"] != ns16["uuid"] }
+            nx77
+        }
+
+        ns16Originals = ns16s.clone
+
+        system("clear")
 
         if displayMode == "STREAM" then
             puts "-" * (Utils::screenWidth()-1)
@@ -170,12 +161,12 @@ class TerminalDisplayOperator
 
         if displayMode == "SCREEN" then
             puts ""
-            puts "--> #{listing} #{Listings::dx()}".green
+            puts Listings::dx(listings).green
             vspaceleft = vspaceleft - 2
         end
 
         if displayMode == "STREAM" then
-            puts "#{listing} #{Listings::dx()}".yellow
+            puts Listings::dx(listings).yellow
         end
 
         if displayMode == "SCREEN" then
@@ -238,7 +229,7 @@ class TerminalDisplayOperator
                     }
             end
             runningUUIDs = running.map{|item| item["uuid"] }
-            collection
+            ns16Originals
                 .select{|ns16| runningUUIDs.include?(ns16["uuid"]) }
                 .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
                 .each{|ns16|
@@ -281,7 +272,7 @@ class TerminalDisplayOperator
             puts ""
             puts "todo:"
             vspaceleft = vspaceleft - 2
-            collection
+            ns16Originals
                 .select{|ns16| !runningUUIDs.include?(ns16["uuid"]) }
                 .each{|ns16|
                     indx = store.register(ns16)
@@ -298,7 +289,7 @@ class TerminalDisplayOperator
         end
 
         if displayMode == "STREAM" then
-            collection
+            ns16Originals
                 .each{|ns16|
                     indx = store.register(ns16)
                     isDefaultItem = ((ns16["defaultable"].nil? or ns16["defaultable"]) and store.getDefault().nil?) # the default item is the first element, unless it's defaultable
@@ -306,8 +297,8 @@ class TerminalDisplayOperator
                         store.registerDefault(ns16)
                     end
                     posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
-                    puts "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
-                    break if isDefaultItem
+                    announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                    puts announce
                 }
         end
 
@@ -317,38 +308,42 @@ class TerminalDisplayOperator
 
         command = LucilleCore::askQuestionAnswerAsString("> ")
 
-        return if command == ""
+        return nx77 if command == ""
 
         if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return
+                return removeNS16FromNx77.call(nx77, item)
             end
         end
 
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
-            return if item.nil?
+            return nx77 if item.nil?
             CentralDispatch::operator1(item, "..")
-            return
+            return removeNS16FromNx77.call(nx77, item)
         end
 
         CentralDispatch::operator4(command)
         CentralDispatch::operator5(store.getDefault(), command)
         CentralDispatch::operator1(store.getDefault(), command)
+
+        removeNS16FromNx77.call(nx77, store.getDefault())
     end
 
-    # TerminalDisplayOperator::displayLoop(displayMode)
-    def self.displayLoop(displayMode)
+    # TerminalDisplayOperator::displayLoop()
+    def self.displayLoop()
         initialCodeTrace = Utils::codeTrace()
+        nx77 = nil
         loop {
             if Utils::codeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
-            end 
-            listing = Listings::getListingForTerminalDisplay()
-            parameters = DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
-            TerminalDisplayOperator::display(displayMode, parameters["listing"], parameters["monitor2"], parameters["ns16s"])
+            end
+            displayMode = Listings::getStoredListingOrNull() ? "SCREEN" : "STREAM"
+            listings = Listings::getOrderedListingsForTerminalDisplay()
+            nx77 = Nx77::getNx77(listings, displayMode, nx77)
+            nx77 = TerminalDisplayOperator::display(displayMode, listings, nx77["nx76"]["monitor2"], nx77["nx76"]["ns16s"], nx77)
         }
     end
 end

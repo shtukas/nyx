@@ -3,6 +3,8 @@
 
 class Listings
 
+    # ----------------------------------------
+
     # Listings::listings()
     def self.listings()
         ["(eva)", "(work)", "(jedi)", "(entertainment)"]
@@ -10,12 +12,31 @@ class Listings
 
     # Listings::getActionAvailableListings()
     def self.getActionAvailableListings()
-        return (Listings::listings() - ["(work)"]) if Time.new.wday == 6
-        return (Listings::listings() - ["(work)"]) if Time.new.wday == 0
-        return (Listings::listings() - ["(work)"]) if Time.new.hour < 8
-        return (Listings::listings() - ["(work)"]) if Time.new.hour > 17
-        Listings::listings()
+        isSaturday = Time.new.wday == 6
+        isSunday = Time.new.wday == 0
+        isWeekDay = !isSaturday and !isSunday
+        isWeekDayBefore8AM = isWeekDay and (Time.new.hour < 8)
+        isWeekDayWorkTime = isWeekDay and (Time.new.hour >= 8) and (Time.new.hour < 18)
+        isWeekDayEvening = isWeekDay and (Time.new.hour >= 18)
+        if isSaturday then
+            return ["(eva)", "(jedi)", "(entertainment)"]
+        end
+        if isSunday then
+            return ["(eva)", "(jedi)", "(entertainment)"]
+        end
+        if isWeekDayBefore8AM then
+            return ["(eva)", "(entertainment)"]
+        end
+        if isWeekDayWorkTime then
+            return ["(work)", "(jedi)"]
+        end
+        if isWeekDayEvening then
+            return ["(eva)", "(jedi)", "(entertainment)"]
+        end
+        raise "eb120954-355c-4782-b478-7ea54113f7fe"
     end
+
+    # ----------------------------------------
 
     # Listings::setStoredListingWithExpiry(listing, expiryUnixtime)
     def self.setStoredListingWithExpiry(listing, expiryUnixtime)
@@ -35,6 +56,8 @@ class Listings
         packet["listing"]
     end
 
+    # ----------------------------------------
+
     # Listings::listingDriver(listing)
     def self.listingDriver(listing)
         #{
@@ -48,9 +71,7 @@ class Listings
 
         map = {
             "(eva)" => {
-                "type" => "eva",
-                "x1" => 8,
-                "x2" => 0.25
+                "type" => "eva"
             },
             "(work)" => {
                 "type"   => "expectation",
@@ -72,11 +93,7 @@ class Listings
     def self.listingToOrderingRatio(listing)
         driver = Listings::listingDriver(listing)
         if driver["type"] == "eva" then
-            # Driver eva if for listing (eva)
-            # We have WAVES-UNITS-1-44F7-A64A-72D0205F8957 fed with units
-            # In addition of the bank account "EVA-97F7F3341-4CD1-8B20-4A2466751408"
-            return 1 if Bank::valueOverTimespan("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 3600) >= driver["x1"]
-            return 1 if Beatrice::stdRecoveredHourlyTimeInHours(Listings::listingToBankAccount(listing)) >= driver["x2"]
+            return 1 if Bank::valueAtDate(Listings::listingToBankAccount("(eva)"), Utils::today()) >= 3600*2
             return 0
         end
         if driver["type"] == "expectation" then
@@ -86,8 +103,8 @@ class Listings
         end
     end
 
-    # Listings::getProgrammaticListing()
-    def self.getProgrammaticListing()
+    # Listings::getActionAvailableProgrammaticallyOrderedListingsPlus()
+    def self.getActionAvailableProgrammaticallyOrderedListingsPlus()
         Listings::getActionAvailableListings()
             .map {|listing|
                 {
@@ -98,15 +115,23 @@ class Listings
             .sort{|p1, p2|
                 p1["ratio"] <=> p2["ratio"]
             }
-            .first["listing"]
     end
 
-    # Listings::getListingForTerminalDisplay()
-    def self.getListingForTerminalDisplay()
-        listing = Listings::getStoredListingOrNull()
-        return listing if !listing.nil?
-        Listings::getProgrammaticListing()
+    # Listings::getActionAvailableProgrammaticallyOrderedListingsPlusExcudingOverflowed()
+    def self.getActionAvailableProgrammaticallyOrderedListingsPlusExcudingOverflowed()
+        Listings::getActionAvailableProgrammaticallyOrderedListingsPlus()
+            .select{|packet| packet["ratio"] < 1 }
     end
+
+    # Listings::getOrderedListingsForTerminalDisplay()
+    def self.getOrderedListingsForTerminalDisplay()
+        listing = Listings::getStoredListingOrNull()
+        return [listing] if !listing.nil?
+        Listings::getActionAvailableProgrammaticallyOrderedListingsPlusExcudingOverflowed()
+            .map{|packet| packet["listing"] }
+    end
+
+    # ----------------------------------------
 
     # Listings::listingToBankAccount(listing)
     def self.listingToBankAccount(listing)
@@ -138,12 +163,14 @@ class Listings
         entity
     end
 
-    # Listings::dx()
-    def self.dx()
+    # ----------------------------------------
+
+    # Listings::dx(listings)
+    def self.dx(listings)
         listingToString = lambda{|listing|
             listing.gsub("(", "").gsub(")", "")
         }
-        Listings::getActionAvailableListings()
+        listings
             .map{|listing|
                 account = Listings::listingToBankAccount(listing)
                 {
@@ -160,9 +187,7 @@ class Listings
                         return "(#{listingToString.call(listing)}: #{(100*ratio).to_i}% of #{driver["target"]} hours)"
                     end
                     if driver["type"] == "eva" then
-                        v1 = Bank::valueOverTimespan("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 3600)
-                        v2 = Beatrice::stdRecoveredHourlyTimeInHours(Listings::listingToBankAccount(listing))
-                        return "(#{listingToString.call(listing)}: #{v1} of #{driver["x1"]}, #{v2.round(2)} of #{driver["x2"]})"
+                        return "(#{listingToString.call(listing)})"
                     end
                 }).call(px["listing"], px["ratio"], Listings::listingDriver(px["listing"]))
             }
