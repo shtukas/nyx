@@ -340,7 +340,12 @@ class TerminalDisplayOperator
 
     # TerminalDisplayOperator::displayLoop(displayMode)
     def self.displayLoop(displayMode)
+        initialCodeTrace = Utils::codeTrace()
         loop {
+            if Utils::codeTrace() != initialCodeTrace then
+                puts "Code change detected"
+                break
+            end 
             listing = Listings::getListingForTerminalDisplay()
             parameters = DisplayListingParameters::getTerminalDisplayParametersForListingUseCache(listing)
             TerminalDisplayOperator::display(displayMode, parameters["listing"], parameters["monitor2"], parameters["ns16s"])
