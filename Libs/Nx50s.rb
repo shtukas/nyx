@@ -81,8 +81,8 @@ class Nx50s
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
 
-    # Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
-    def self.interactivelyDecideNewOrdinalOrNull2(listing, category2)
+    # Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
+    def self.interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         if category2[0] == "Monitor" then
             return Nx50s::nextOrdinal()
         end
@@ -90,26 +90,10 @@ class Nx50s
             return Nx50s::nextOrdinal()
         end
         # By now we can attest that the category is "Tail"
-        if listing == "(jedi)" then
-            return Nx50s::nextOrdinal()
-        end
         if listing == "(entertainment)" then
             return Nx50s::nextOrdinal()
         end
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["next", "fine selection near the top"])
-        return nil if action.nil?
-        if action == "next" then
-            return Nx50s::nextOrdinal()
-        end
-        if action == "fine selection near the top" then
-            Nx50s::nx50sForListing(listing)
-                .first(50)
-                .each{|nx50| 
-                    puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
-                }
-            return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
-        end
-        raise "5fe95417-192b-4256-a021-447ba02be4aa"
+        return Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
     end
 
     # --------------------------------------------------
@@ -123,7 +107,7 @@ class Nx50s
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "ordinal"     => ordinal,
@@ -143,7 +127,7 @@ class Nx50s
         uuid = SecureRandom.uuid
         listing = Listings::interactivelySelectListing()
         category2 = lambda1.call()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "ordinal"     => ordinal,
@@ -161,7 +145,7 @@ class Nx50s
         uuid = SecureRandom.uuid
         listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "ordinal"     => ordinal,
@@ -178,7 +162,7 @@ class Nx50s
     def self.issueItemUsingLocation(location, listing)
         uuid = SecureRandom.uuid
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "ordinal"     => ordinal,
@@ -195,7 +179,7 @@ class Nx50s
     def self.issueInboxItemUsingLocation(location, listing, description)
         uuid = SecureRandom.uuid
         category2 = Nx50s::makeNewInboxCategory2(listing)
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull2(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "ordinal"     => ordinal,
@@ -367,9 +351,7 @@ class Nx50s
             accounts.compact
         }
 
-        if $CatalystDisplayMode == "SCREEN" then
-            system("clear")
-        end
+        system("clear")
 
         uuid = nx50["uuid"]
 
@@ -379,16 +361,14 @@ class Nx50s
 
         loop {
 
-            if $CatalystDisplayMode == "SCREEN" then
-                system("clear")
-            end
+            system("clear")
 
             puts "#{Nx50s::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "ordinal: #{nx50["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
-            puts "Domain: #{nx50["listing"]}".yellow
+            puts "Listing: #{nx50["listing"]}".yellow
             puts "Category: #{nx50["category2"].join(", ")}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(nx50["atom"]) then
@@ -453,10 +433,13 @@ class Nx50s
             end
 
             if Interpreting::match("ordinal", command) then
-                nx50["ordinal"] = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(nx50["listing"])
+                next if ordinal.nil?
+                nx50["ordinal"] = ordinal
                 ObjectStore4::store(nx50, Nx50s::setuuid())
                 next
             end
+
             if Interpreting::match("rotate", command) then
                 nx50["ordinal"] = Nx50s::nextOrdinal()
                 ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -491,8 +474,11 @@ class Nx50s
             end
 
             if command == "gg" then
-                Nx50s::complete(nx50)
-                break
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                    Nx50s::complete(nx50)
+                    break
+                end
+                next
             end
         }
 
@@ -580,7 +566,7 @@ class Nx50s
 
         tail = items
                 .reduce([]){|selection, item|  
-                    if selection.size < 20 and Nx50s::itemIsOperational(item) then
+                    if selection.size < 100 and Nx50s::itemIsOperational(item) then
                         selection << item
                     end
                     selection

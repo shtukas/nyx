@@ -14,10 +14,10 @@ class Listings
     def self.getActionAvailableListings()
         isSaturday = Time.new.wday == 6
         isSunday = Time.new.wday == 0
-        isWeekDay = !isSaturday and !isSunday
-        isWeekDayBefore8AM = isWeekDay and (Time.new.hour < 8)
-        isWeekDayWorkTime = isWeekDay and (Time.new.hour >= 8) and (Time.new.hour < 18)
-        isWeekDayEvening = isWeekDay and (Time.new.hour >= 18)
+        isWeekDay = (!isSaturday and !isSunday)
+        isWeekDayBefore8AM = (isWeekDay and (Time.new.hour < 8))
+        isWeekDayWorkTime = (isWeekDay and (Time.new.hour >= 8) and (Time.new.hour < 18))
+        isWeekDayEvening = (isWeekDay and (Time.new.hour >= 18))
         if isSaturday then
             return ["(eva)", "(jedi)", "(entertainment)"]
         end
