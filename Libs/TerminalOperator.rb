@@ -110,11 +110,12 @@ class Nx77
 
     # Nx77::getNx77(listings, displayMode, nx77)
     def self.getNx77(listings, displayMode, nx77)
-        if nx77 and (Time.new.to_i - nx77["unixtime"]) < Nx77::nx77ExpiryInSeconds() and nx77["nx76"]["ns16s"].size > 0 then
+        if nx77 and nx77["listings"] == listings.join() and (Time.new.to_i - nx77["unixtime"]) < Nx77::nx77ExpiryInSeconds() and nx77["nx76"]["ns16s"].size > 0 then
             return nx77
         end
         puts "Compute Nx77 from scratch..."
         { # Nx77
+            "listings" => listings.join(),
             "unixtime" => Time.new.to_i,
             "nx76"     => Nx77::makeNx76(listings, displayMode)
         }

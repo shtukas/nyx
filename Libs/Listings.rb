@@ -93,7 +93,6 @@ class Listings
     def self.listingToOrderingRatio(listing)
         driver = Listings::listingDriver(listing)
         if driver["type"] == "eva" then
-            return 1 if Bank::valueAtDate(Listings::listingToBankAccount("(eva)"), Utils::today()) >= 3600*2
             return 0
         end
         if driver["type"] == "expectation" then
