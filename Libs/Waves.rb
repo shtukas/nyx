@@ -215,7 +215,7 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | description | update contents | recast schedule | listing | destroy | exit (xx)".yellow
+            puts "[item   ] access | done | <datecode> | note | description | atom | recast schedule | listing | destroy | exit (xx)".yellow
 
             puts Commands::makersAndDiversCommands().yellow
 
@@ -251,7 +251,7 @@ class Waves
                 next
             end
 
-            if Interpreting::match("update contents", command) then
+            if Interpreting::match("atom", command) then
                 wave["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
                 ObjectStore4::store(wave, Waves::setuuid())
                 next

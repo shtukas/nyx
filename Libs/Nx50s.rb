@@ -11,12 +11,6 @@ class Nx50s
     def self.nx50s()
         ObjectStore4::getSet(Nx50s::setuuid())
             .map{|nx50|
-                if nx50["listing"].nil? and nx50["domain"] then
-                    nx50["listing"] = nx50["domain"] # we didn't migrate the data and just correct it on the fly
-                end
-                nx50
-            }
-            .map{|nx50|
                 if !Listings::listings().include?(nx50["listing"]) then
                     puts "Correcting listing for '#{nx50}'"
                     nx50["listing"] = Listings::interactivelySelectListing()
@@ -29,16 +23,6 @@ class Nx50s
                 if nx50["category2"].nil? or !Nx50s::coreCategories().include?(nx50["category2"][0]) then
                     puts JSON.pretty_generate(nx50)
                     nx50["category2"] = ["Dated", Utils::today()]
-                    puts JSON.pretty_generate(nx50)
-                    LucilleCore::pressEnterToContinue()
-                    ObjectStore4::store(nx50, Nx50s::setuuid())
-                end
-                nx50
-            }
-            .map{|nx50|
-                if nx50["atom"].nil? then
-                    puts JSON.pretty_generate(nx50)
-                    nx50["atom"] = CoreData5::issueDescriptionOnlyAtom()
                     puts JSON.pretty_generate(nx50)
                     LucilleCore::pressEnterToContinue()
                     ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -97,6 +81,43 @@ class Nx50s
     end
 
     # --------------------------------------------------
+    # Categories
+
+    # Nx50s::coreCategories()
+    def self.coreCategories()
+        ["Monitor", "Dated", "Tail"]
+    end
+
+    # Nx50s::interactivelySelectCoreCategory()
+    def self.interactivelySelectCoreCategory()
+        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::coreCategories())
+        if !category.nil? then
+            return category
+        end
+        Nx50s::interactivelySelectCoreCategory()
+    end
+
+    # Nx50s::makeNewCategory2()
+    def self.makeNewCategory2()
+        corecategory = Nx50s::interactivelySelectCoreCategory()
+        if corecategory == "Dated" then
+            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
+        end
+        [corecategory]
+    end
+
+    # Nx50s::makeNewInboxCategory2(listing)
+    def self.makeNewInboxCategory2(listing)
+        return ["Tail"] if listing == "(entertainment)"
+        return ["Tail"] if listing == "(jedi)"
+        corecategory = Nx50s::interactivelySelectCoreCategory()
+        if corecategory == "Dated" then
+            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
+        end
+        [corecategory]
+    end
+
+    # --------------------------------------------------
     # Makers
 
     # Nx50s::interactivelyCreateNewOrNull()
@@ -110,6 +131,7 @@ class Nx50s
         ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => atom,
@@ -130,6 +152,7 @@ class Nx50s
         ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
@@ -148,6 +171,7 @@ class Nx50s
         ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => line,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
@@ -165,6 +189,7 @@ class Nx50s
         ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => File.basename(location),
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
@@ -182,6 +207,7 @@ class Nx50s
         ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
         nx50 = {
             "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
@@ -197,6 +223,7 @@ class Nx50s
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
@@ -212,6 +239,7 @@ class Nx50s
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
             "ordinal"     => Nx50s::nextOrdinal(),
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
@@ -223,7 +251,7 @@ class Nx50s
     end
 
     # --------------------------------------------------
-    # Operations
+    # toString
 
     # Nx50s::toString(nx50)
     def self.toString(nx50)
@@ -250,6 +278,9 @@ class Nx50s
         end
         "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["listing"]}"
     end
+
+    # --------------------------------------------------
+    # Operations
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
@@ -301,46 +332,6 @@ class Nx50s
         end
     end
 
-    # --------------------------------------------------
-    # Categories
-
-    # Nx50s::coreCategories()
-    def self.coreCategories()
-        ["Monitor", "Dated", "Tail"]
-    end
-
-    # Nx50s::interactivelySelectCoreCategory()
-    def self.interactivelySelectCoreCategory()
-        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::coreCategories())
-        if !category.nil? then
-            return category
-        end
-        Nx50s::interactivelySelectCoreCategory()
-    end
-
-    # Nx50s::makeNewCategory2()
-    def self.makeNewCategory2()
-        corecategory = Nx50s::interactivelySelectCoreCategory()
-        if corecategory == "Dated" then
-            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
-        end
-        [corecategory]
-    end
-
-    # Nx50s::makeNewInboxCategory2(listing)
-    def self.makeNewInboxCategory2(listing)
-        return ["Tail"] if listing == "(entertainment)"
-        return ["Tail"] if listing == "(jedi)"
-        corecategory = Nx50s::interactivelySelectCoreCategory()
-        if corecategory == "Dated" then
-            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
-        end
-        [corecategory]
-    end
-
-    # --------------------------------------------------
-    # nx16s
-
     # Nx50s::run(nx50)
     def self.run(nx50)
 
@@ -384,7 +375,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | update contents | redate | ordinal | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | atom | redate | ordinal | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -415,7 +406,7 @@ class Nx50s
                 next
             end
 
-            if Interpreting::match("update contents", command) then
+            if Interpreting::match("atom", command) then
                 nx50["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
                 ObjectStore4::store(nx50, Nx50s::setuuid())
                 next
@@ -487,6 +478,9 @@ class Nx50s
             Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", nx50["uuid"])
         end
     end
+
+    # --------------------------------------------------
+    # nx16s
 
     # Nx50s::itemIsOperational(item)
     def self.itemIsOperational(item)
