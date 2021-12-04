@@ -88,7 +88,7 @@ class Inbox
         }
 
         selectDomainInteractivelyOrDefaultIfSmallTime = lambda{|time1|
-            return "(eva)" if (Time.new.to_f - time1) < 120
+            return "EVA" if (Time.new.to_f - time1) < 120
             Listings::interactivelySelectListing()
         }
 

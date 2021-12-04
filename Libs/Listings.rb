@@ -4,14 +4,17 @@
 class Listings
 
     # ----------------------------------------
+    # Distributions
 
     # Listings::listings()
     def self.listings()
-        ["(eva)", "(work)", "(jedi)", "(entertainment)"]
+        ["EVA", "WORK", "JEDI", "ENTERTAINMENT"]
     end
 
-    # Listings::getActionAvailableListings()
-    def self.getActionAvailableListings()
+    # The distribution is (type1 current) (type2 # not current)
+
+    # Listings::listingsType1()
+    def self.listingsType1()
         isSaturday = Time.new.wday == 6
         isSunday = Time.new.wday == 0
         isWeekDay = (!isSaturday and !isSunday)
@@ -19,27 +22,66 @@ class Listings
         isWeekDayWorkTime = (isWeekDay and (Time.new.hour >= 8) and (Time.new.hour < 18))
         isWeekDayEvening = (isWeekDay and (Time.new.hour >= 18))
         if isSaturday then
-            return ["(eva)", "(jedi)", "(entertainment)"]
+            return ["EVA", "JEDI", "ENTERTAINMENT"]
         end
         if isSunday then
-            return ["(eva)", "(jedi)", "(entertainment)"]
+            return ["EVA", "JEDI", "ENTERTAINMENT"]
         end
         if isWeekDayBefore8AM then
-            return ["(eva)", "(entertainment)"]
+            return ["EVA", "ENTERTAINMENT"]
         end
         if isWeekDayWorkTime then
-            return ["(work)", "(jedi)"]
+            return ["WORK", "JEDI"]
         end
         if isWeekDayEvening then
-            return ["(eva)", "(jedi)", "(entertainment)"]
+            return ["EVA", "JEDI", "ENTERTAINMENT"]
         end
         raise "eb120954-355c-4782-b478-7ea54113f7fe"
     end
 
-    # ----------------------------------------
+    # Listings::applyRatioOrderingToListings(listings)
+    def self.applyRatioOrderingToListings(listings)
+        listings
+            .map {|listing|
+                driver = Listings::listingDriver(listing)
+                {
+                    "listing" => listing,
+                    "ratio"   => Listings::computeOrderingRatio(listing, driver)
+                }
+            }
+            .sort{|p1, p2|
+                p1["ratio"] <=> p2["ratio"]
+            }
+            .map{|packet| packet["listing"] }
+    end
 
-    # Listings::setStoredListingWithExpiry(listing, expiryUnixtime)
-    def self.setStoredListingWithExpiry(listing, expiryUnixtime)
+    # Listings::getOverrdingOrOrderedType1sForOrdinalDisplay(): Array[Listing]
+    def self.getOverrdingOrOrderedType1sForOrdinalDisplay()
+        listing = Listings::getOverrideListingOrNull()
+        return [listing] if !listing.nil?
+        Listings::applyRatioOrderingToListings(Listings::listingsType1())
+    end
+
+    # ----------------------------------------
+    # Banking
+
+    # Listings::listingToBankAccount(listing)
+    def self.listingToBankAccount(listing)
+        mapping = {
+            "EVA"           => "EVA-97F7F3341-4CD1-8B20-4A2466751408",
+            "WORK"          => "WORK-E4A9-4BCD-9824-1EEC4D648408",
+            "JEDI"          => "C87787F9-77E9-4518-BC41-DBCFB7775299",
+            "ENTERTAINMENT" => "C00F4D2B-DE5E-41A5-8791-8F486EC05ED7"
+        }
+        raise "[62e07265-cda5-45e1-9b90-7c88db751a1c: #{listing}]" if !mapping.keys.include?(listing)
+        mapping[listing]
+    end
+
+    # ----------------------------------------
+    # Override Listings
+
+    # Listings::setOverrideListing(listing, expiryUnixtime)
+    def self.setOverrideListing(listing, expiryUnixtime)
         packet = {
             "listing" => listing,
             "expiry" => expiryUnixtime
@@ -47,8 +89,8 @@ class Listings
         KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda286", JSON.generate(packet))
     end
 
-    # Listings::getStoredListingOrNull()
-    def self.getStoredListingOrNull()
+    # Listings::getOverrideListingOrNull()
+    def self.getOverrideListingOrNull()
         packet = KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
         return nil if packet.nil?
         packet = JSON.parse(packet)
@@ -57,6 +99,7 @@ class Listings
     end
 
     # ----------------------------------------
+    # Drivers and computations
 
     # Listings::listingDriver(listing)
     def self.listingDriver(listing)
@@ -70,18 +113,18 @@ class Listings
         #}
 
         map = {
-            "(eva)" => {
+            "EVA" => {
                 "type" => "eva"
             },
-            "(work)" => {
+            "WORK" => {
                 "type"   => "expectation",
                 "target" => 5
             },
-            "(jedi)" => {
+            "JEDI" => {
                 "type"   => "expectation",
                 "target" => 1
             },
-            "(entertainment)" => {
+            "ENTERTAINMENT" => {
                 "type"   => "expectation",
                 "target" => 1
             }
@@ -89,9 +132,8 @@ class Listings
         map[listing]
     end
 
-    # Listings::listingToOrderingRatio(listing)
-    def self.listingToOrderingRatio(listing)
-        driver = Listings::listingDriver(listing)
+    # Listings::computeOrderingRatio(listing, driver)
+    def self.computeOrderingRatio(listing, driver)
         if driver["type"] == "eva" then
             return 0
         end
@@ -104,11 +146,12 @@ class Listings
 
     # Listings::getActionAvailableProgrammaticallyOrderedListingsPlus()
     def self.getActionAvailableProgrammaticallyOrderedListingsPlus()
-        Listings::getActionAvailableListings()
+        Listings::listingsType1()
             .map {|listing|
+                driver = Listings::listingDriver(listing)
                 {
                     "listing" => listing,
-                    "ratio"   => Listings::listingToOrderingRatio(listing)
+                    "ratio"   => Listings::computeOrderingRatio(listing, driver)
                 }
             }
             .sort{|p1, p2|
@@ -116,33 +159,7 @@ class Listings
             }
     end
 
-    # Listings::getActionAvailableProgrammaticallyOrderedListingsPlusExcudingOverflowed()
-    def self.getActionAvailableProgrammaticallyOrderedListingsPlusExcudingOverflowed()
-        Listings::getActionAvailableProgrammaticallyOrderedListingsPlus()
-            .select{|packet| packet["ratio"] < 1 }
-    end
-
-    # Listings::getOrderedListingsForTerminalDisplay()
-    def self.getOrderedListingsForTerminalDisplay()
-        listing = Listings::getStoredListingOrNull()
-        return [listing] if !listing.nil?
-        Listings::getActionAvailableProgrammaticallyOrderedListingsPlusExcudingOverflowed()
-            .map{|packet| packet["listing"] }
-    end
-
     # ----------------------------------------
-
-    # Listings::listingToBankAccount(listing)
-    def self.listingToBankAccount(listing)
-        mapping = {
-            "(eva)"           => "EVA-97F7F3341-4CD1-8B20-4A2466751408",
-            "(work)"          => "WORK-E4A9-4BCD-9824-1EEC4D648408",
-            "(jedi)"          => "C87787F9-77E9-4518-BC41-DBCFB7775299",
-            "(entertainment)" => "C00F4D2B-DE5E-41A5-8791-8F486EC05ED7"
-        }
-        raise "[62e07265-cda5-45e1-9b90-7c88db751a1c: #{listing}]" if !mapping.keys.include?(listing)
-        mapping[listing]
-    end
 
     # Listings::interactivelySelectListing()
     def self.interactivelySelectListing()
@@ -164,32 +181,32 @@ class Listings
 
     # ----------------------------------------
 
+    # Listings::listingToMetricLine(listing, driver)
+    def self.listingToMetricLine(listing, driver)
+        if driver["type"] == "expectation" then
+            ratio = Listings::computeOrderingRatio(listing, driver)
+            return "#{listing.downcase}: #{(100*ratio).to_i}% of #{driver["target"]} hours"
+        end
+        if driver["type"] == "eva" then
+            return "#{listing.downcase}"
+        end
+    end
+
     # Listings::dx(listings)
     def self.dx(listings)
-        listingToString = lambda{|listing|
-            listing.gsub("(", "").gsub(")", "")
-        }
-        listings
-            .map{|listing|
-                account = Listings::listingToBankAccount(listing)
-                {
-                    "listing" => listing,
-                    "rt"      => BankExtended::stdRecoveredDailyTimeInHours(account),
-                    "today"   => Bank::valueAtDate(account, Utils::today()).to_f/3600,
-                    "ratio"   => Listings::listingToOrderingRatio(listing)
+        str = listings
+                .map{|listing|
+                    account = Listings::listingToBankAccount(listing)
+                    driver = Listings::listingDriver(listing)
+                    {
+                        "listing" => listing,
+                        "ratio"   => Listings::computeOrderingRatio(listing, driver),
+                        "driver"  => driver
+                    }
                 }
-            }
-            .sort{|p1, p2| p1["ratio"]<=>p2["ratio"] }
-            .map{|px|               
-                (lambda{|listing, ratio, driver|
-                    if driver["type"] == "expectation" then
-                        return "(#{listingToString.call(listing)}: #{(100*ratio).to_i}% of #{driver["target"]} hours)"
-                    end
-                    if driver["type"] == "eva" then
-                        return "(#{listingToString.call(listing)})"
-                    end
-                }).call(px["listing"], px["ratio"], Listings::listingDriver(px["listing"]))
-            }
-            .join(" ")
+                .sort{|p1, p2| p1["ratio"]<=>p2["ratio"] }
+                .map{|px| Listings::listingToMetricLine(px["listing"], px["driver"]) }
+                .join(", ")
+        "(#{str})"
     end
 end

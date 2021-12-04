@@ -74,7 +74,7 @@ class Nx50s
             return Nx50s::nextOrdinal()
         end
         # By now we can attest that the category is "Tail"
-        if listing == "(entertainment)" then
+        if listing == "ENTERTAINMENT" then
             return Nx50s::nextOrdinal()
         end
         return Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
@@ -108,8 +108,8 @@ class Nx50s
 
     # Nx50s::makeNewInboxCategory2(listing)
     def self.makeNewInboxCategory2(listing)
-        return ["Tail"] if listing == "(entertainment)"
-        return ["Tail"] if listing == "(jedi)"
+        return ["Tail"] if listing == "ENTERTAINMENT"
+        return ["Tail"] if listing == "JEDI"
         corecategory = Nx50s::interactivelySelectCoreCategory()
         if corecategory == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
@@ -147,6 +147,7 @@ class Nx50s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
         listing = Listings::interactivelySelectListing()
         category2 = lambda1.call()
         ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
@@ -155,7 +156,7 @@ class Nx50s
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
-            "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
+            "atom"        => atom,
             "listing"     => listing,
             "category2"   => category2
         }
@@ -243,7 +244,7 @@ class Nx50s
             "ordinal"     => Nx50s::nextOrdinal(),
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
-            "listing"     => "(eva)",
+            "listing"     => "EVA",
             "category2"   => ["Tail"]
         }
         ObjectStore4::store(nx50, Nx50s::setuuid())
@@ -346,7 +347,7 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        NxBallsService::issue(uuid, Nx50s::toString(nx50), itemToBankAccounts.call(nx50))
+        NxBallsService::issue(uuid, nx50["description"], itemToBankAccounts.call(nx50))
 
         didItOnce1 = false
 

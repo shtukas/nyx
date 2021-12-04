@@ -53,7 +53,7 @@ class Nx77
 
     # Nx77::ns16sNonNx50s(listing)
     def self.ns16sNonNx50s(listing)
-        if listing == "(eva)" then
+        if listing == "EVA" then
             ns16s = [
                 Anniversaries::ns16s(),
                 Calendar::ns16s(),
@@ -96,8 +96,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(listings, monitor2, ns16s)
-    def self.display(listings, monitor2, ns16s)
+    # TerminalDisplayOperator::display(dx, monitor2, ns16s)
+    def self.display(dx, monitor2, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -110,7 +110,7 @@ class TerminalDisplayOperator
 
         system("clear")
 
-        vspaceleft = Utils::screenHeight()-4
+        vspaceleft = Utils::screenHeight()-5
 
         infolines = [
             "      " + Commands::terminalDisplayCommand(),
@@ -127,13 +127,10 @@ class TerminalDisplayOperator
             listing.gsub("(", "").gsub(")", "")
         }
 
-        puts [
-                "#{Listings::dx(listings)}",
-                "(#{Listings::getActionAvailableProgrammaticallyOrderedListingsPlus().map{|packet| listingToString.call(packet["listing"]) }.join(", ")})",
-                "(#{(Listings::listings() + ["nathalie"]).map{|listing| listingToString.call(listing) }.join(", ")})"  
-             ]
-                .join(" ").green
-        vspaceleft = vspaceleft - 2
+        puts ""
+
+        puts dx.green
+        vspaceleft = vspaceleft - 1
 
         if !InternetStatus::internetIsActive() then
             puts ""
@@ -244,9 +241,17 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            listings = Listings::getOrderedListingsForTerminalDisplay()
-            nx76 = Nx77::makeNx76(listings)
-            TerminalDisplayOperator::display(listings, nx76["monitor2"], nx76["ns16s"])
+            listings1 = Listings::getOverrdingOrOrderedType1sForOrdinalDisplay()
+            listings2 = Listings::listings() - listings1
+
+            dx = [
+                "#{Listings::dx(listings1)}",
+                "(#{listings2.map{|listing| listing.downcase }.join(", ")})",
+                "[nathalie]"
+            ]
+                .join(" ")
+            nx76 = Nx77::makeNx76(listings1)
+            TerminalDisplayOperator::display(dx, nx76["monitor2"], nx76["ns16s"])
         }
     end
 end

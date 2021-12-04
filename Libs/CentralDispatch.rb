@@ -48,7 +48,7 @@ class CentralDispatch
 
         if object["NS198"] == "ns16:wave1" and command == ">entertainment" then
             wave = object["wave"]
-            wave["listing"] = "(entertainment)"
+            wave["listing"] = "ENTERTAINMENT"
             ObjectStore4::store(wave, Waves::setuuid())
             CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
             Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", object["uuid"])
@@ -110,19 +110,19 @@ class CentralDispatch
     def self.operator4(command)
 
         if command == "eva" then
-            Listings::setStoredListingWithExpiry("(eva)", Time.new.to_i + 3600)
+            Listings::setOverrideListing("EVA", Time.new.to_i + 3600)
         end
 
         if command == "work" then
-            Listings::setStoredListingWithExpiry("(work)", Time.new.to_i + 3600)
+            Listings::setOverrideListing("WORK", Time.new.to_i + 3600)
         end
 
         if command == "jedi" then
-            Listings::setStoredListingWithExpiry("(jedi)", Time.new.to_i + 3600)
+            Listings::setOverrideListing("JEDI", Time.new.to_i + 3600)
         end
 
         if command == "entertainment" then
-            Listings::setStoredListingWithExpiry("(entertainment)", Time.new.to_i + 3600)
+            Listings::setOverrideListing("ENTERTAINMENT", Time.new.to_i + 3600)
         end
 
         if command == "nathalie" then

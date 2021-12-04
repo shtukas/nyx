@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 class Waves
@@ -311,7 +310,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Listings::listingToBankAccount(wave["listing"])])
+        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Listings::listingToBankAccount(wave["listing"])])
 
         Waves::accessContent(wave)
 
