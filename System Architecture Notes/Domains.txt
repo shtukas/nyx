@@ -1,2 +1,2 @@
-Domain : "EVA" | "WORK" | "JEDI" | "ENTERTAINMENT"
-Domains are used by Waves and Nx50s (but not Anniversaries or Calendar)
+Listing : "EVA" | "WORK" | "JEDI" | "ENTERTAINMENT"
+Listings are used by Waves and Nx50s (but not Anniversaries or Calendar)

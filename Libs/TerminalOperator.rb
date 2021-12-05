@@ -37,7 +37,7 @@ class Commands
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "calendar | waves | ondates | Nx50s | anniversaries | search | nyx"
+        "calendar | waves | ondates | Nx50s | anniversaries | monitoring | search | nyx"
     end
 
     # Commands::makersAndDiversCommands()
@@ -86,7 +86,7 @@ class Nx77
         }
         return listings.reduce(null){|built, listing|
             ns16sNonNx50s = Nx77::ns16sNonNx50s(listing)
-            structure = Nx50s::structureForDomain(listing)
+            structure = Nx50s::structureForListing(listing)
             built["monitor2"] = built["monitor2"] + structure["Monitor"]
             built["ns16s"] = built["ns16s"] + ns16sNonNx50s + structure["Dated"] + structure["Tail"]
             built
@@ -241,16 +241,19 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
+            time1 = Time.new.to_f
             listings1 = Listings::getOverrdingOrOrderedType1sForOrdinalDisplay()
             listings2 = Listings::listings() - listings1
-
+            nx76 = Nx77::makeNx76(listings1)
+            time2 = Time.new.to_f
             dx = [
                 "#{Listings::dx(listings1)}",
                 "(#{listings2.map{|listing| listing.downcase }.join(", ")})",
-                "[nathalie]"
+                "[nathalie]",
+                "(#{(time2-time1).round(2)} seconds)"
             ]
                 .join(" ")
-            nx76 = Nx77::makeNx76(listings1)
+
             TerminalDisplayOperator::display(dx, nx76["monitor2"], nx76["ns16s"])
         }
     end

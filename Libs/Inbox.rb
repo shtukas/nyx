@@ -87,7 +87,7 @@ class Inbox
             Bank::put(account, timespan)
         }
 
-        selectDomainInteractivelyOrDefaultIfSmallTime = lambda{|time1|
+        selectListingInteractivelyOrDefaultIfSmallTime = lambda{|time1|
             return "EVA" if (Time.new.to_f - time1) < 120
             Listings::interactivelySelectListing()
         }
@@ -98,7 +98,7 @@ class Inbox
         command = Inbox::probe(location) # "EXIT" | "DISPATCH" | "DESTROYED"
 
         if command == "EXIT" then
-            close.call(time1, selectDomainInteractivelyOrDefaultIfSmallTime.call(time1))
+            close.call(time1, selectListingInteractivelyOrDefaultIfSmallTime.call(time1))
             return
         end
 
@@ -109,7 +109,7 @@ class Inbox
         end
 
         if command == "DESTROYED" then
-            close.call(time1, selectDomainInteractivelyOrDefaultIfSmallTime.call(time1))
+            close.call(time1, selectListingInteractivelyOrDefaultIfSmallTime.call(time1))
             return
         end
 

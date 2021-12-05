@@ -49,7 +49,7 @@ class Nx50s
 
     # Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
     def self.interactivelyDecideNewOrdinalOrNull(listing)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["next", "fine selection near the top"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "next"])
         return nil if action.nil?
         if action == "next" then
             return Nx50s::nextOrdinal()
@@ -272,12 +272,12 @@ class Nx50s
     # Nx50s::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
         if nx50["category2"][0] == "Monitor" then
-            return "#{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["listing"]}"
+            return "#{nx50["description"]} (#{nx50["atom"]["type"]}) (#{nx50["listing"].downcase})"
         end
         if nx50["category2"][0] == "Dated" then
-            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["listing"]}"
+            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]}) (#{nx50["listing"].downcase})"
         end
-        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]}) #{nx50["listing"]}"
+        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]}) (#{nx50["listing"].downcase})"
     end
 
     # --------------------------------------------------
@@ -580,8 +580,8 @@ class Nx50s
         }
     end
 
-    # Nx50s::structureForDomain(listing)
-    def self.structureForDomain(listing)
+    # Nx50s::structureForListing(listing)
+    def self.structureForListing(listing)
         Nx50s::structureGivenNx50s(Nx50s::nx50sForListing(listing))
     end
 

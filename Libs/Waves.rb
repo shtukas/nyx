@@ -30,8 +30,8 @@ class Waves
             }
     end
 
-    # Waves::itemsForDomain(listing)
-    def self.itemsForDomain(listing)
+    # Waves::itemsForListing(listing)
+    def self.itemsForListing(listing)
         Waves::items().select{|item| item["listing"] == listing }
     end
 
@@ -287,7 +287,7 @@ class Waves
 
     # Waves::selectWaveOrNull(listing)
     def self.selectWaveOrNull(listing)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::itemsForDomain(listing).sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::itemsForListing(listing).sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
     end
 
     # Waves::waves(listing)
@@ -336,7 +336,7 @@ class Waves
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:wave1",
-            "announce" => "#{Waves::toString(wave)} #{wave["listing"]}",
+            "announce" => "#{Waves::toString(wave)} (#{wave["listing"].downcase})",
             "commands" => ["..", "landing", "done"],
             "wave"     => wave
         }
