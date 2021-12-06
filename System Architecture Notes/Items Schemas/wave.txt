@@ -9,7 +9,8 @@ Wave {
     "repeatType"       : repeatType,
     "repeatValue"      : repeatValue,
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
-    "listing"          : Listing
+    "listing"          : Listing or null
+                         # If null then appears on all listings
 }
 
 repeatType                       repeatValue

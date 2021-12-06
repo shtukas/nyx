@@ -1,4 +1,4 @@
-# encoding: UTF-8
+
 
 class Waves
 
@@ -14,15 +14,10 @@ class Waves
     def self.items()
         ObjectStore4::getSet(Waves::setuuid())
             .map{|wave|
-                if wave["listing"].nil? and wave["domain"] then
-                    wave["listing"] = wave["domain"] # we didn't migrate the data and just correct it on the fly
-                end
-                wave
-            }
-            .map{|wave|
-                if !Listings::listings().include?(wave["listing"]) then
+                if !(Listings::listings() + [nil]).include?(wave["listing"]) then
+                    puts JSON.pretty_generate(wave)
                     puts "Correcting listing for '#{Waves::toString(wave)}'"
-                    wave["listing"] = Listings::interactivelySelectListing()
+                    wave["listing"] = Listings::interactivelySelectListingOrNull()
                     puts JSON.pretty_generate(wave)
                     ObjectStore4::store(wave, Waves::setuuid())
                 end
@@ -32,7 +27,7 @@ class Waves
 
     # Waves::itemsForListing(listing)
     def self.itemsForListing(listing)
-        Waves::items().select{|item| item["listing"] == listing }
+        Waves::items().select{|item| item["listing"].nil? or (item["listing"] == listing)}
     end
 
     # --------------------------------------------------
@@ -144,7 +139,7 @@ class Waves
         wave["repeatType"]       = schedule[0]
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
-        wave["listing"]          = Listings::interactivelySelectListing()
+        wave["listing"]          = Listings::interactivelySelectListingOrNull()
 
         ObjectStore4::store(wave, Waves::setuuid())
         wave
@@ -214,8 +209,6 @@ class Waves
 
             puts "[item   ] access | done | <datecode> | note | description | atom | recast schedule | listing | destroy | exit (xx)".yellow
 
-            puts Commands::makersAndDiversCommands().yellow
-
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
@@ -264,7 +257,8 @@ class Waves
             end
 
             if Interpreting::match("listing", command) then
-                wave["listing"] = Listings::interactivelySelectListing()
+                wave["listing"] = Listings::interactivelySelectListingOrNull()
+                puts JSON.pretty_generate(wave)
                 ObjectStore4::store(wave, Waves::setuuid())
                 break
             end

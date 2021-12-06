@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 class Listings
@@ -172,11 +171,11 @@ class Listings
 
     # Listings::interactivelySelectListingOrNull()
     def self.interactivelySelectListingOrNull()
-        entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", Listings::listings() + ["(null) # default"])
-        if entity == "(null) # default" then
+        listing = LucilleCore::selectEntityFromListOfEntitiesOrNull("listing", Listings::listings() + ["(null) # default"])
+        if listing == "(null) # default" then
             return nil
         end
-        entity
+        listing
     end
 
     # ----------------------------------------
