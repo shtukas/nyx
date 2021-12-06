@@ -76,7 +76,9 @@ class AFewNx50s
 
     # AFewNx50s::getSet()
     def self.getSet()
-        $AFewNx50s.map{|nx50| nx50.clone }
+        $AFewNx50s
+            .map{|nx50| nx50.clone }
+            .sort{|x1, x2| x1["ordinal"] <=> x2["ordinal"] }
     end
 
     # AFewNx50s::getSetForListing(listing)
