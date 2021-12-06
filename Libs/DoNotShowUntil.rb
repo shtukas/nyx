@@ -17,9 +17,6 @@ class DoNotShowUntil
         db.execute "insert into table1 (_key_, _value_) values (?,?)", [uid, unixtime]
         db.commit 
         db.close
-
-        Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", uid) # This removes for the Nathalie collection any item that has been pushed to the future
-
         nil
     end
 

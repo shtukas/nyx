@@ -30,7 +30,6 @@ class CentralDispatch
 
         if object["NS198"] == "ns16:fitness1" and command == ".." then
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
-            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", object["uuid"])
         end
 
         if object["NS198"] == "ns16:wave1" and command == ".." then
@@ -51,7 +50,6 @@ class CentralDispatch
             wave["listing"] = "ENTERTAINMENT"
             ObjectStore4::store(wave, Waves::setuuid())
             CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
-            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", object["uuid"])
         end
 
         if object["NS198"] == "ns16:inbox1" and command == ".." then
@@ -70,8 +68,7 @@ class CentralDispatch
             nx50 = object["Nx50"]
             if nx50["category2"][0] == "Dated" then
                 nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
-                ObjectStore4::store(nx50, Nx50s::setuuid())
-                Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", object["uuid"])
+                AFewNx50s::commit(nx50)
             else
                 puts "You can only redate a dated item"
                 LucilleCore::pressEnterToContinue()
@@ -184,7 +181,7 @@ class CentralDispatch
         end
 
         if Interpreting::match("Nx50s", command) then
-            nx50s = Nx50s::nx50s()
+            nx50s = AFewNx50s::getSet()
             if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
                 nx50s = nx50s.first(Utils::screenHeight()-1)
             end
@@ -197,7 +194,8 @@ class CentralDispatch
 
         if Interpreting::match("monitoring", command) then
             getMonitor = lambda{|listing|
-                Nx50s::nx50sForListing(listing).select{|item| item["category2"][0] == "Monitor" }
+                AFewNx50s::getSetForListing(listing)
+                    .select{|item| item["category2"][0] == "Monitor" }
             }
             Listings::listings().each{|listing|
                 next if getMonitor.call(listing).empty?
@@ -230,18 +228,15 @@ class CentralDispatch
 
         if Interpreting::match("internet on", command) then
             InternetStatus::setInternetOn()
-            $Nx77RunTimeCacheKey = SecureRandom.hex
         end
 
         if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
-            $Nx77RunTimeCacheKey = SecureRandom.hex
         end
 
         if Interpreting::match("require internet", command) then
             return if ns16.nil?
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
-            Mercury::postValue("A4EC3B4B-NATHALIE-COLLECTION-REMOVE", ns16["uuid"])
         end
     end
 end

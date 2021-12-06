@@ -6,7 +6,11 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-$Nx77RunTimeCacheKey = SecureRandom.hex
+AFewNx50s::initialise(false)
+
+Thread.new {
+    AFewNx50s::initialise(true)
+}
 
 Thread.new {
     loop {
