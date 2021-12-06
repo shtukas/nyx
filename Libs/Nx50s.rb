@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-$AFewNx50s = nil
+$AFewNx50s = []
 
 class AllTheNx50s
     # AllTheNx50s::setuuid()
