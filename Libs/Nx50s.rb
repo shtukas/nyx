@@ -94,8 +94,8 @@ class AFewNx50s
         KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186943", JSON.generate($AFewNx50s))
     end
 
-    # AFewNx50s::commit(nx50)
-    def self.destroy(ns50)
+    # AFewNx50s::destroy(nx50)
+    def self.destroy(nx50)
         ObjectStore4::removeObjectFromSet(AllTheNx50s::setuuid(), nx50["uuid"])
         $AFewNx50s = $AFewNx50s.reject{|x| x["uuid"] == nx50["uuid"] }
         KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186943", JSON.generate($AFewNx50s))
@@ -351,7 +351,7 @@ class Nx50s
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
-        AFewNx50s::commit(nx50)
+        AFewNx50s::destroy(nx50)
     end
 
     # Nx50s::importspread()
