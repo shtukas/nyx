@@ -78,26 +78,18 @@ class Nx77
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # Nx77::makeNx76(listings)
-    def self.makeNx76(listings)
-        null = {
-            "monitor2" => [],
-            "ns16s"    => []
-        }
-        return listings.reduce(null){|built, listing|
-            ns16sNonNx50s = Nx77::ns16sNonNx50s(listing)
-            structure = Nx50s::structureForListing(listing)
-            built["monitor2"] = built["monitor2"] + structure["Monitor"]
-            built["ns16s"] = built["ns16s"] + ns16sNonNx50s + structure["Dated"] + structure["Tail"]
-            built
-        }
+    # Nx77::makeNx76(listing)
+    def self.makeNx76(listing)
+        ns16sNonNx50s = Nx77::ns16sNonNx50s(listing)
+        structure = Nx50s::structureForListing(listing)
+        [structure["Monitor"], ns16sNonNx50s + structure["Dated"] + structure["Tail"]]
     end
 end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(dx, monitor2, ns16s)
-    def self.display(dx, monitor2, ns16s)
+    # TerminalDisplayOperator::display(listing, monitor2, ns16s)
+    def self.display(listing, monitor2, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -111,6 +103,10 @@ class TerminalDisplayOperator
         system("clear")
 
         vspaceleft = Utils::screenHeight()-5
+
+        puts ""
+        puts "(#{listing.downcase})".green
+        vspaceleft = vspaceleft - 2
 
         infolines = [
             "      " + Commands::terminalDisplayCommand(),
@@ -126,11 +122,6 @@ class TerminalDisplayOperator
         listingToString = lambda{|listing|
             listing.gsub("(", "").gsub(")", "")
         }
-
-        puts ""
-
-        puts dx.green
-        vspaceleft = vspaceleft - 1
 
         if !InternetStatus::internetIsActive() then
             puts ""
@@ -241,20 +232,9 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            time1 = Time.new.to_f
-            listings1 = Listings::getOverrdingOrOrderedType1sForOrdinalDisplay()
-            listings2 = Listings::listings() - listings1
-            nx76 = Nx77::makeNx76(listings1)
-            time2 = Time.new.to_f
-            dx = [
-                "#{Listings::dx(listings1)}",
-                "(#{listings2.map{|listing| listing.downcase }.join(", ")})",
-                "[nathalie]",
-                "(#{(time2-time1).round(2)} seconds)"
-            ]
-                .join(" ")
-
-            TerminalDisplayOperator::display(dx, nx76["monitor2"], nx76["ns16s"])
+            listing = Listings::getThisTimeListingsInPriorityOrder().first
+            monitor, ns16s = Nx77::makeNx76(listing)
+            TerminalDisplayOperator::display(listing, monitor, ns16s)
         }
     end
 end

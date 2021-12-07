@@ -10,10 +10,8 @@ class Listings
         ["EVA", "WORK", "JEDI", "ENTERTAINMENT"]
     end
 
-    # The distribution is (type1 current) (type2 # not current)
-
-    # Listings::listingsType1()
-    def self.listingsType1()
+    # Listings::listingsForThisTime()
+    def self.listingsForThisTime()
         isSaturday = Time.new.wday == 6
         isSunday = Time.new.wday == 0
         isWeekDay = (!isSaturday and !isSunday)
@@ -52,13 +50,6 @@ class Listings
                 p1["ratio"] <=> p2["ratio"]
             }
             .map{|packet| packet["listing"] }
-    end
-
-    # Listings::getOverrdingOrOrderedType1sForOrdinalDisplay(): Array[Listing]
-    def self.getOverrdingOrOrderedType1sForOrdinalDisplay()
-        listing = Listings::getOverrideListingOrNull()
-        return [listing] if !listing.nil?
-        Listings::applyRatioOrderingToListings(Listings::listingsType1())
     end
 
     # ----------------------------------------
@@ -143,9 +134,9 @@ class Listings
         end
     end
 
-    # Listings::getActionAvailableProgrammaticallyOrderedListingsPlus()
-    def self.getActionAvailableProgrammaticallyOrderedListingsPlus()
-        Listings::listingsType1()
+    # Listings::getThisTimeListingsInPriorityOrder()
+    def self.getThisTimeListingsInPriorityOrder()
+        Listings::listingsForThisTime()
             .map {|listing|
                 driver = Listings::listingDriver(listing)
                 {
@@ -156,6 +147,7 @@ class Listings
             .sort{|p1, p2|
                 p1["ratio"] <=> p2["ratio"]
             }
+            .map{|packet| packet["listing"] }
     end
 
     # ----------------------------------------
@@ -176,36 +168,5 @@ class Listings
             return nil
         end
         listing
-    end
-
-    # ----------------------------------------
-
-    # Listings::listingToMetricLine(listing, driver)
-    def self.listingToMetricLine(listing, driver)
-        if driver["type"] == "expectation" then
-            ratio = Listings::computeOrderingRatio(listing, driver)
-            return "#{listing.downcase}: #{(100*ratio).to_i}% of #{driver["target"]} hours"
-        end
-        if driver["type"] == "eva" then
-            return "#{listing.downcase}"
-        end
-    end
-
-    # Listings::dx(listings)
-    def self.dx(listings)
-        str = listings
-                .map{|listing|
-                    account = Listings::listingToBankAccount(listing)
-                    driver = Listings::listingDriver(listing)
-                    {
-                        "listing" => listing,
-                        "ratio"   => Listings::computeOrderingRatio(listing, driver),
-                        "driver"  => driver
-                    }
-                }
-                .sort{|p1, p2| p1["ratio"]<=>p2["ratio"] }
-                .map{|px| Listings::listingToMetricLine(px["listing"], px["driver"]) }
-                .join(", ")
-        "(#{str})"
     end
 end
