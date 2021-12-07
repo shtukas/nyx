@@ -131,21 +131,6 @@ class Nx50s
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
 
-    # Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
-    def self.interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
-        if category2[0] == "Monitor" then
-            return Nx50s::nextOrdinal()
-        end
-        if category2[0] == "Dated" then
-            return Nx50s::nextOrdinal()
-        end
-        # By now we can attest that the category is "Tail"
-        if listing == "ENTERTAINMENT" then
-            return Nx50s::nextOrdinal()
-        end
-        return Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
-    end
-
     # --------------------------------------------------
     # Categories
 
@@ -194,7 +179,7 @@ class Nx50s
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -216,7 +201,7 @@ class Nx50s
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         listing = Listings::interactivelySelectListing()
         category2 = lambda1.call()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -235,7 +220,7 @@ class Nx50s
         uuid = SecureRandom.uuid
         listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -253,7 +238,7 @@ class Nx50s
     def self.issueItemUsingLocation(location, listing)
         uuid = SecureRandom.uuid
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -271,7 +256,7 @@ class Nx50s
     def self.issueInboxItemUsingLocation(location, listing, description)
         uuid = SecureRandom.uuid
         category2 = Nx50s::makeNewInboxCategory2(listing)
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNullOptimised(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -504,7 +489,9 @@ class Nx50s
             end
 
             if Interpreting::match("listing", command) then
-                nx50["listing"] = Listings::interactivelySelectListing()
+                listing = Listings::interactivelySelectListing()
+                nx50["listing"] = listing
+                nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
                 AFewNx50s::commit(nx50)
                 break
             end
