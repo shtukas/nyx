@@ -113,8 +113,14 @@ class Nx50s
         (biggest + 1).floor
     end
 
-    # Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
-    def self.interactivelyDecideNewOrdinalOrNull(listing)
+    # Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+    def self.interactivelyDecideNewOrdinalOrNull(listing, category2)
+        if category2[0] == "Monitor" then
+            return Nx50s::nextOrdinal()
+        end
+        if category2[0] == "Dated" then
+            return Nx50s::nextOrdinal()
+        end
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "next"])
         return nil if action.nil?
         if action == "next" then
@@ -123,6 +129,7 @@ class Nx50s
         if action == "fine selection near the top" then
             AFewNx50s::getSetForListing(listing)
                 .first(50)
+                .select{|item| item["category2"][0] == category2[0] }
                 .each{|nx50| 
                     puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
                 }

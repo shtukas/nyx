@@ -3,37 +3,32 @@
 class Listings
 
     # ----------------------------------------
+    # Override Listings
+
+    # Listings::setOverrideListing(listing, expiryUnixtime)
+    def self.setOverrideListing(listing, expiryUnixtime)
+        packet = {
+            "listing" => listing,
+            "expiry" => expiryUnixtime
+        }
+        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda286", JSON.generate(packet))
+    end
+
+    # Listings::getOverrideListingOrNull()
+    def self.getOverrideListingOrNull()
+        packet = KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
+        return nil if packet.nil?
+        packet = JSON.parse(packet)
+        return nil if Time.new.to_i > packet["expiry"]
+        packet["listing"]
+    end
+
+    # ----------------------------------------
     # Distributions
 
     # Listings::listings()
     def self.listings()
         ["EVA", "WORK", "JEDI", "ENTERTAINMENT"]
-    end
-
-    # Listings::listingsForThisTime()
-    def self.listingsForThisTime()
-        isSaturday = Time.new.wday == 6
-        isSunday = Time.new.wday == 0
-        isWeekDay = (!isSaturday and !isSunday)
-        isWeekDayBefore8AM = (isWeekDay and (Time.new.hour < 8))
-        isWeekDayWorkTime = (isWeekDay and (Time.new.hour >= 8) and (Time.new.hour < 18))
-        isWeekDayEvening = (isWeekDay and (Time.new.hour >= 18))
-        if isSaturday then
-            return ["EVA", "JEDI", "ENTERTAINMENT"]
-        end
-        if isSunday then
-            return ["EVA", "JEDI", "ENTERTAINMENT"]
-        end
-        if isWeekDayBefore8AM then
-            return ["EVA", "ENTERTAINMENT"]
-        end
-        if isWeekDayWorkTime then
-            return ["WORK", "JEDI"]
-        end
-        if isWeekDayEvening then
-            return ["EVA", "JEDI", "ENTERTAINMENT"]
-        end
-        raise "eb120954-355c-4782-b478-7ea54113f7fe"
     end
 
     # Listings::applyRatioOrderingToListings(listings)
@@ -65,27 +60,6 @@ class Listings
         }
         raise "[62e07265-cda5-45e1-9b90-7c88db751a1c: #{listing}]" if !mapping.keys.include?(listing)
         mapping[listing]
-    end
-
-    # ----------------------------------------
-    # Override Listings
-
-    # Listings::setOverrideListing(listing, expiryUnixtime)
-    def self.setOverrideListing(listing, expiryUnixtime)
-        packet = {
-            "listing" => listing,
-            "expiry" => expiryUnixtime
-        }
-        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda286", JSON.generate(packet))
-    end
-
-    # Listings::getOverrideListingOrNull()
-    def self.getOverrideListingOrNull()
-        packet = KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
-        return nil if packet.nil?
-        packet = JSON.parse(packet)
-        return nil if Time.new.to_i > packet["expiry"]
-        packet["listing"]
     end
 
     # ----------------------------------------
@@ -136,7 +110,11 @@ class Listings
 
     # Listings::getThisTimeListingsInPriorityOrder()
     def self.getThisTimeListingsInPriorityOrder()
-        Listings::listingsForThisTime()
+        listing = Listings::getOverrideListingOrNull()
+        if listing then
+            return [listing]
+        end
+        Listings::listings()
             .map {|listing|
                 driver = Listings::listingDriver(listing)
                 {
@@ -168,5 +146,15 @@ class Listings
             return nil
         end
         listing
+    end
+
+    # Listings::dx()
+    def self.dx()
+        Listings::getThisTimeListingsInPriorityOrder()
+            .map{|listing|
+                account = Listings::listingToBankAccount(listing)
+                driver = Listings::listingDriver(listing)
+                "(#{listing.downcase}: rt: #{BankExtended::stdRecoveredDailyTimeInHours(account).round(2)}, r: #{Listings::computeOrderingRatio(listing, driver).round(2)})"
+            }.join(" ")
     end
 end

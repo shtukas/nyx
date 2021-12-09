@@ -139,8 +139,8 @@ require_relative "Calendar.rb"
 require_relative "CentralDispatch.rb"
 
 require_relative "DoNotShowUntil.rb"
-#    DoNotShowUntil::setUnixtime(uid, unixtime)
-#    DoNotShowUntil::isVisible(uid)
+# DoNotShowUntil::setUnixtime(uid, unixtime)
+# DoNotShowUntil::isVisible(uid)
 require_relative "DrivesBackups.rb"
 
 require_relative "Interpreting.rb"

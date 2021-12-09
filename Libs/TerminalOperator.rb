@@ -51,6 +51,63 @@ end
 
 class Nx77
 
+    # -------------------------------------------
+    # Utils
+
+    # Nx77::arraysToArray(arrays, buffer = [])
+    def self.arraysToArray(arrays, buffer = [])
+        if arrays.all?{|a| a.empty? } then
+            return buffer
+        end
+        arrays = arrays.map{|a|
+            if !a.empty? then
+                buffer << a.shift
+            end
+            a
+        }
+        Nx77::arraysToArray(arrays, buffer)
+    end
+
+    # Nx77::removeDuplicates(elements)
+    def self.removeDuplicates(elements)
+        elements.reduce([]){|selected, element|
+            if selected.none?{|x| x["uuid"] == element["uuid"] } then
+                selected << element
+            end
+            selected
+        }
+    end
+
+    # Nx77::getSkeleton(elements, vector)
+    def self.getSkeleton(elements, vector)
+        hour = Time.new.to_s[0, 13]
+        key = "b62f3326-b77f-4f25-aa41-d7734d63a4da:#{hour}:#{vector}"
+        skeleton = KeyValueStore::getOrNull(nil, key)
+        if skeleton then
+            return JSON.parse(skeleton)
+        end
+        skeleton = elements.map{|element| element["uuid"] }
+        KeyValueStore::set(nil, key, JSON.generate(skeleton))
+        skeleton
+    end
+
+    # Nx77::applySkeleton(skeleton, elements)
+    def self.applySkeleton(skeleton, elements)
+        a = skeleton
+                .map{|uuid| elements.select{|element| element["uuid"] == uuid }.first }
+                .compact
+        Nx77::removeDuplicates(a + elements)
+    end
+
+    # Nx77::reorganise(elements, vector)
+    def self.reorganise(elements, vector)
+        skeleton = Nx77::getSkeleton(elements, vector)
+        Nx77::applySkeleton(skeleton, elements)
+    end
+
+    # -------------------------------------------
+    # Data
+
     # Nx77::ns16sNonNx50s(listing)
     def self.ns16sNonNx50s(listing)
         if listing == "EVA" then
@@ -84,12 +141,26 @@ class Nx77
         structure = Nx50s::structureForListing(listing)
         [structure["Monitor"], ns16sNonNx50s + structure["Dated"] + structure["Tail"]]
     end
+
+    # Nx77::makeNx76FromListings(listings)
+    def self.makeNx76FromListings(listings)
+        monitors = []
+        ns16ss = []
+        listings.each{|listing|
+            monitor, ns16s = Nx77::makeNx76(listing)
+            monitors << monitor
+            ns16ss << ns16s
+        }
+        monitor = Nx77::reorganise(Nx77::removeDuplicates(Nx77::arraysToArray(monitors)), "8e05b829")
+        ns16s   = Nx77::reorganise(Nx77::removeDuplicates(Nx77::arraysToArray(ns16ss)),   "bb28d72c")
+        [ monitor , ns16s ]
+    end
 end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(listing, monitor2, ns16s)
-    def self.display(listing, monitor2, ns16s)
+    # TerminalDisplayOperator::display(monitor2, ns16s)
+    def self.display(monitor2, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -105,7 +176,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-5
 
         puts ""
-        puts "(#{listing.downcase})".green
+        puts Listings::dx().green
         vspaceleft = vspaceleft - 2
 
         infolines = [
@@ -232,9 +303,9 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            listing = Listings::getThisTimeListingsInPriorityOrder().first
-            monitor, ns16s = Nx77::makeNx76(listing)
-            TerminalDisplayOperator::display(listing, monitor, ns16s)
+            listings = Listings::getThisTimeListingsInPriorityOrder()
+            monitor, ns16s = Nx77::makeNx76FromListings(listings)
+            TerminalDisplayOperator::display(monitor, ns16s)
         }
     end
 end
