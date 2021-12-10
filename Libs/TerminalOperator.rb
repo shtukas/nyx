@@ -303,7 +303,7 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            listings = Listings::listingsInPriorityOrder()
+            listings = Listings::listingsForDisplay()
             monitor, ns16s = Nx77::makeNx76FromListings(listings)
             TerminalDisplayOperator::display(monitor, ns16s)
         }

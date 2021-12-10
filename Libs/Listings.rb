@@ -111,23 +111,31 @@ class Listings
         end
     end
 
-    # Listings::listingsInPriorityOrder()
-    def self.listingsInPriorityOrder()
-        listing = Listings::getOverrideListingOrNull()
-        if listing then
-            return [listing]
-        end
+    # Listings::listingsOrderedWithMetadata()
+    def self.listingsOrderedWithMetadata()
         Listings::listings()
             .map {|listing|
+                account = Listings::listingToBankAccount(listing)
                 driver = Listings::listingDriver(listing)
                 {
                     "listing" => listing,
+                    "rt"      => BankExtended::stdRecoveredDailyTimeInHours(account),
                     "ratio"   => Listings::computeOrderingRatio(listing, driver)
                 }
             }
             .sort{|p1, p2|
                 p1["ratio"] <=> p2["ratio"]
             }
+    end
+
+    # Listings::listingsForDisplay()
+    def self.listingsForDisplay()
+        listing = Listings::getOverrideListingOrNull()
+        if listing then
+            return [listing]
+        end
+        Listings::listingsOrderedWithMetadata()
+            .select{|packet| packet["ratio"] < 1}
             .map{|packet| packet["listing"] }
     end
 
@@ -156,22 +164,11 @@ class Listings
     # Listings::dx()
     def self.dx()
         packetToString = lambda {|packet|
-            "(#{packet["listing"].downcase}: #{packet["rt"].round(2)} / #{packet["ratio"].round(2)})"
+            str = "(#{packet["listing"].downcase}: rt: #{packet["rt"].round(2)}, #{(100*packet["ratio"]).round(2)}%)"
+            (packet["ratio"] < 1) ? str.green : str
         }
-        strs = Listings::listingsInPriorityOrder()
-            .map{|listing|
-                account = Listings::listingToBankAccount(listing)
-                driver = Listings::listingDriver(listing)
-                {
-                    "listing" => listing,
-                    "rt"      => BankExtended::stdRecoveredDailyTimeInHours(account),
-                    "ratio"   => Listings::computeOrderingRatio(listing, driver)
-                }
-            }
-        str1s, str2s = strs.partition{|packet| packet["ratio"] < 1}
-        [
-            str1s.map{|packet| packetToString.call(packet) }.join(" ").green,
-            str2s.map{|packet| packetToString.call(packet) }.join(" ")
-        ].join(" ")
+        Listings::listingsOrderedWithMetadata()
+            .map{|packet| packetToString.call(packet) }
+            .join(" ")
     end
 end
