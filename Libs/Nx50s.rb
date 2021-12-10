@@ -498,7 +498,7 @@ class Nx50s
             if Interpreting::match("listing", command) then
                 listing = Listings::interactivelySelectListing()
                 nx50["listing"] = listing
-                nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinalOrNull(listing)
+                nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, nx50["category2"])
                 AFewNx50s::commit(nx50)
                 break
             end
