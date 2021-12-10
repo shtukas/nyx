@@ -176,7 +176,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-5
 
         puts ""
-        puts Listings::dx().green
+        puts Listings::dx()
         vspaceleft = vspaceleft - 2
 
         infolines = [
@@ -303,7 +303,7 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            listings = Listings::getThisTimeListingsInPriorityOrder()
+            listings = Listings::listingsInPriorityOrder()
             monitor, ns16s = Nx77::makeNx76FromListings(listings)
             TerminalDisplayOperator::display(monitor, ns16s)
         }

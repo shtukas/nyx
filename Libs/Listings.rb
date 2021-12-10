@@ -68,17 +68,18 @@ class Listings
     # Listings::listingDriver(listing)
     def self.listingDriver(listing)
         #{
-        #    "type"   => "expectation",
-        #    "target" => Float
+        #    "type"   => "eva",
+        #    "target" => Float # hourly-rt
         #}
         #{
-        #    "type"      => "circuit-breaker",
-        #    "hourly-rt" => Float
+        #    "type"   => "expectation",
+        #    "target" => Float # rt
         #}
 
         map = {
             "EVA" => {
-                "type" => "eva"
+                "type" => "eva",
+                "target" => 0.5
             },
             "WORK" => {
                 "type"   => "expectation",
@@ -99,7 +100,9 @@ class Listings
     # Listings::computeOrderingRatio(listing, driver)
     def self.computeOrderingRatio(listing, driver)
         if driver["type"] == "eva" then
-            return 0
+            account = Listings::listingToBankAccount(listing)
+            target = driver["target"]
+            return Beatrice::stdRecoveredHourlyTimeInHours(account).to_f/target
         end
         if driver["type"] == "expectation" then
             account = Listings::listingToBankAccount(listing)
@@ -108,8 +111,8 @@ class Listings
         end
     end
 
-    # Listings::getThisTimeListingsInPriorityOrder()
-    def self.getThisTimeListingsInPriorityOrder()
+    # Listings::listingsInPriorityOrder()
+    def self.listingsInPriorityOrder()
         listing = Listings::getOverrideListingOrNull()
         if listing then
             return [listing]
@@ -148,13 +151,27 @@ class Listings
         listing
     end
 
+    # ----------------------------------------
+
     # Listings::dx()
     def self.dx()
-        Listings::getThisTimeListingsInPriorityOrder()
+        packetToString = lambda {|packet|
+            "(#{packet["listing"].downcase}: #{packet["rt"].round(2)} / #{packet["ratio"].round(2)})"
+        }
+        strs = Listings::listingsInPriorityOrder()
             .map{|listing|
                 account = Listings::listingToBankAccount(listing)
                 driver = Listings::listingDriver(listing)
-                "(#{listing.downcase}: rt: #{BankExtended::stdRecoveredDailyTimeInHours(account).round(2)}, r: #{Listings::computeOrderingRatio(listing, driver).round(2)})"
-            }.join(" ")
+                {
+                    "listing" => listing,
+                    "rt"      => BankExtended::stdRecoveredDailyTimeInHours(account),
+                    "ratio"   => Listings::computeOrderingRatio(listing, driver)
+                }
+            }
+        str1s, str2s = strs.partition{|packet| packet["ratio"] < 1}
+        [
+            str1s.map{|packet| packetToString.call(packet) }.join(" ").green,
+            str2s.map{|packet| packetToString.call(packet) }.join(" ")
+        ].join(" ")
     end
 end
