@@ -83,7 +83,8 @@ class Listings
             },
             "WORK" => {
                 "type"   => "expectation",
-                "target" => 5
+                "target" => 5,
+                "time-constraints" => "work"
             },
             "JEDI" => {
                 "type"   => "expectation",
@@ -105,6 +106,10 @@ class Listings
             return Beatrice::stdRecoveredHourlyTimeInHours(account).to_f/target
         end
         if driver["type"] == "expectation" then
+            if driver["time-constraints"] == "work" then
+                isWorkTime = ([1, 2, 3, 4, 5].include?(Time.new.wday) and Time.new.hour > 8 and Time.new.hour < 18)
+                return 1 if !isWorkTime
+            end
             account = Listings::listingToBankAccount(listing)
             target = driver["target"]
             return BankExtended::stdRecoveredDailyTimeInHours(account).to_f/target
