@@ -200,8 +200,8 @@ class Nx50s
         nx50
     end
 
-    # Nx50s::issueItemWithCategoryLambda(lambda1)
-    def self.issueItemWithCategoryLambda(lambda1)
+    # Nx50s::issueItemWithCategoryLambdaOrNull(lambda1)
+    def self.issueItemWithCategoryLambdaOrNull(lambda1)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid

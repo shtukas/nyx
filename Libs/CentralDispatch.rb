@@ -135,17 +135,20 @@ class CentralDispatch
         end
 
         if command == "monitor" then
-            nx50 = Nx50s::issueItemWithCategoryLambda(lambda{["Monitor"]})
+            nx50 = Nx50s::issueItemWithCategoryLambdaOrNull(lambda{["Monitor"]})
+            return if nx50.nil?
             puts JSON.pretty_generate(nx50)
         end
 
         if command == "today" then
-            nx50 = Nx50s::issueItemWithCategoryLambda(lambda{["Dated", Utils::today()]})
+            nx50 = Nx50s::issueItemWithCategoryLambdaOrNull(lambda{["Dated", Utils::today()]})
+            return if nx50.nil?
             puts JSON.pretty_generate(nx50)
         end
 
         if Interpreting::match("ondate", command) then
-            nx50 = Nx50s::issueItemWithCategoryLambda(lambda{["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]})
+            nx50 = Nx50s::issueItemWithCategoryLambdaOrNull(lambda{["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]})
+            return if nx50.nil?
             puts JSON.pretty_generate(nx50)
         end
 
