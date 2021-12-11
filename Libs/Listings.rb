@@ -31,22 +31,6 @@ class Listings
         ["EVA", "WORK", "JEDI", "ENTERTAINMENT"]
     end
 
-    # Listings::applyRatioOrderingToListings(listings)
-    def self.applyRatioOrderingToListings(listings)
-        listings
-            .map {|listing|
-                driver = Listings::listingDriver(listing)
-                {
-                    "listing" => listing,
-                    "ratio"   => Listings::computeOrderingRatio(listing, driver)
-                }
-            }
-            .sort{|p1, p2|
-                p1["ratio"] <=> p2["ratio"]
-            }
-            .map{|packet| packet["listing"] }
-    end
-
     # ----------------------------------------
     # Banking
 
@@ -98,8 +82,8 @@ class Listings
         map[listing]
     end
 
-    # Listings::computeOrderingRatio(listing, driver)
-    def self.computeOrderingRatio(listing, driver)
+    # Listings::computeRatioDefinedOrNull(listing, driver)
+    def self.computeRatioDefinedOrNull(listing, driver)
         if driver["type"] == "eva" then
             account = Listings::listingToBankAccount(listing)
             target = driver["target"]
@@ -108,7 +92,7 @@ class Listings
         if driver["type"] == "expectation" then
             if driver["time-constraints"] == "work" then
                 isWorkTime = ([1, 2, 3, 4, 5].include?(Time.new.wday) and Time.new.hour > 8 and Time.new.hour < 18)
-                return 1 if !isWorkTime
+                return nil if !isWorkTime
             end
             account = Listings::listingToBankAccount(listing)
             target = driver["target"]
@@ -116,32 +100,43 @@ class Listings
         end
     end
 
-    # Listings::listingsOrderedWithMetadata()
-    def self.listingsOrderedWithMetadata()
+    # Listings::listingsWithMetadata()
+    def self.listingsWithMetadata()
         Listings::listings()
             .map {|listing|
                 account = Listings::listingToBankAccount(listing)
                 driver = Listings::listingDriver(listing)
                 {
                     "listing" => listing,
+                    "driver"  => driver,
                     "rt"      => BankExtended::stdRecoveredDailyTimeInHours(account),
-                    "ratio"   => Listings::computeOrderingRatio(listing, driver)
+                    "ratio"   => Listings::computeRatioDefinedOrNull(listing, driver)
                 }
             }
+    end
+
+    # Listings::listingsWithDefinedRatioOrderedWithMetadata()
+    def self.listingsWithDefinedRatioOrderedWithMetadata()
+        Listings::listingsWithMetadata()
+            .select{|packet| packet["ratio"]}
             .sort{|p1, p2|
                 p1["ratio"] <=> p2["ratio"]
             }
     end
 
+    # Listings::listingsWithUndefinedRatioWithMetadata()
+    def self.listingsWithUndefinedRatioWithMetadata()
+        Listings::listingsWithMetadata()
+            .select{|packet| packet["ratio"].nil? }
+    end
+
     # Listings::listingsForDisplay()
     def self.listingsForDisplay()
         listing = Listings::getOverrideListingOrNull()
-        if listing then
-            return [listing]
-        end
-        Listings::listingsOrderedWithMetadata()
-            .select{|packet| packet["ratio"] < 1}
-            .map{|packet| packet["listing"] }
+        return [listing] if listing
+
+        listings = Listings::listingsWithDefinedRatioOrderedWithMetadata()
+                    .map{|packet| packet["listing"] }
     end
 
     # ----------------------------------------
@@ -168,12 +163,18 @@ class Listings
 
     # Listings::dx()
     def self.dx()
-        packetToString = lambda {|packet|
+        packetToString1 = lambda {|packet|
             str = "(#{packet["listing"].downcase}: rt: #{packet["rt"].round(2)}, #{(100*packet["ratio"]).round(2)}%)"
             (packet["ratio"] < 1) ? str.green : str
         }
-        Listings::listingsOrderedWithMetadata()
-            .map{|packet| packetToString.call(packet) }
-            .join(" ")
+        packetToString2 = lambda {|packet|
+            "(#{packet["listing"].downcase}: rt: #{packet["rt"].round(2)})"
+        }
+        [
+            Listings::listingsWithDefinedRatioOrderedWithMetadata()
+                .map{|packet| packetToString1.call(packet) },
+            Listings::listingsWithUndefinedRatioWithMetadata()
+                .map{|packet| packetToString2.call(packet) }
+        ].flatten.join(" ")
     end
 end
