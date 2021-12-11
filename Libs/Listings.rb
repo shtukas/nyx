@@ -135,8 +135,8 @@ class Listings
         listing = Listings::getOverrideListingOrNull()
         return [listing] if listing
 
-        listings = Listings::listingsWithDefinedRatioOrderedWithMetadata()
-                    .map{|packet| packet["listing"] }
+        Listings::listingsWithDefinedRatioOrderedWithMetadata()
+            .map{|packet| packet["listing"] }
     end
 
     # ----------------------------------------
