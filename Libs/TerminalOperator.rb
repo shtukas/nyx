@@ -104,7 +104,8 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-5
 
         puts ""
-        puts Listings::dx()
+        nx50sCount = KeyValueStore::getOrDefaultValue(nil, "DE7C7BBC-845D-4511-A671-6B3E03BB75AC", "0").to_i
+        puts "#{Listings::dx()} - Nx50: #{nx50sCount} items"
         vspaceleft = vspaceleft - 2
 
         infolines = [

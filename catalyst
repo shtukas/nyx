@@ -19,4 +19,11 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        sleep 1200
+        KeyValueStore::set(nil, "DE7C7BBC-845D-4511-A671-6B3E03BB75AC", AllTheNx50s::nx50s().size)
+    }
+}
+
 TerminalDisplayOperator::displayLoop()
