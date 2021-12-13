@@ -75,6 +75,14 @@ class CentralDispatch
             end
         end
 
+        if object["NS198"] == "ns16:Nx50" and command == "recategory" then
+            nx50 = object["Nx50"]
+            category2 = Nx50s::makeNewCategory2()
+            nx50["category2"] = category2
+            nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+            AFewNx50s::commit(nx50)
+        end
+
         if object["NS198"] == "ns16:Nx50" and command == "done" then
             nx50 = object["Nx50"]
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then

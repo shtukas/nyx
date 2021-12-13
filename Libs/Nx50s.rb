@@ -551,7 +551,7 @@ class Nx50s
     def self.ns16OrNull(nx50)
         getCommands = lambda{|nx50|
             if nx50["category2"][0] == "Dated" then
-                return ["..", "redate", "done"]
+                return ["..", "redate", "recategory", "done"]
             end
             ["..", "done"]
         }
