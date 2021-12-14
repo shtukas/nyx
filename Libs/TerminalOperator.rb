@@ -164,15 +164,6 @@ class TerminalDisplayOperator
                 }
         end
         runningUUIDs = running.map{|item| item["uuid"] }
-        ns16Originals
-            .select{|ns16| runningUUIDs.include?(ns16["uuid"]) }
-            .sort{|t1, t2| t1["uuid"]<=>t2["uuid"] }
-            .each{|ns16|
-                indx = store.register(ns16)
-                announce = "(#{"%3d" % indx}) #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, false)}"
-                puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
-            }
 
         catalyst = IO.read("/Users/pascal/Desktop/Catalyst.txt").strip
         if catalyst.size > 0 then
@@ -185,7 +176,6 @@ class TerminalDisplayOperator
         puts "todo:"
         vspaceleft = vspaceleft - 2
         ns16Originals
-            .select{|ns16| !runningUUIDs.include?(ns16["uuid"]) }
             .each{|ns16|
                 indx = store.register(ns16)
                 isDefaultItem = ((ns16["defaultable"].nil? or ns16["defaultable"]) and store.getDefault().nil?) # the default item is the first element, unless it's defaultable
@@ -194,6 +184,9 @@ class TerminalDisplayOperator
                 end
                 posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
                 announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                if runningUUIDs.include?(ns16["uuid"]) then
+                    announce = announce.green
+                end
                 break if (!isDefaultItem and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
