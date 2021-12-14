@@ -57,6 +57,7 @@ class AFewNx50s
         nx50s = []
         nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Monitor" }
         nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Dated" }
+        nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Monitor-Todo" }
         Listings::listings().each{|listing|
             nx50s = nx50s + (AllTheNx50s::nx50sForListing(listing)
                                 .select{|item| item["category2"][0] == "Tail" }
@@ -113,6 +114,14 @@ class Nx50s
         (biggest + 1).floor
     end
 
+    # Nx50s::nextMonitorTodoOrdinal()
+    def self.nextMonitorTodoOrdinal()
+        nx50s = AllTheNx50s::nx50s()
+                    .select{|nx50| nx50["category2"][0] == "Monitor-Todo" }
+        biggest = ([0] + nx50s.map{|nx50| nx50["ordinal"] }).max
+        (biggest + 1).floor
+    end
+
     # Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
     def self.interactivelyDecideNewOrdinalOrNull(listing, category2)
         if category2[0] == "Monitor" then
@@ -143,7 +152,7 @@ class Nx50s
 
     # Nx50s::coreCategories()
     def self.coreCategories()
-        ["Monitor", "Dated", "Tail"]
+        ["Monitor", "Monitor-Todo", "Dated", "Tail"]
     end
 
     # Nx50s::interactivelySelectCoreCategory()
@@ -482,7 +491,7 @@ class Nx50s
             end
 
             if Interpreting::match("ordinal", command) then
-                ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(nx50["listing"])
+                ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(nx50["listing"], nx50["category2"])
                 next if ordinal.nil?
                 nx50["ordinal"] = ordinal
                 AFewNx50s::commit(nx50)
@@ -505,6 +514,9 @@ class Nx50s
 
             if Interpreting::match("category", command) then
                 nx50["category2"] = Nx50s::makeNewCategory2()
+                if nx50["category2"][0] == "Monitor-Todo" then
+                    nx50["ordinal"] = Nx50s::nextMonitorTodoOrdinal()
+                end
                 puts JSON.pretty_generate(nx50)
                 AFewNx50s::commit(nx50)
                 next
@@ -580,9 +592,11 @@ class Nx50s
 
         # -- monitor ---------------------------
 
-        monitor, items = items.partition{|item| item["category2"][0] == "Monitor" }
+        monitor = items.select{|item| item["category2"][0] == "Monitor" or item["category2"][0] == "Monitor-Todo" } # We get Monitor and Monitor-Todo
+        items   = items.reject{|item| item["category2"][0] == "Monitor" } # We take everything except "Monitor"
 
         monitor = monitor
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                     .map{|item| Nx50s::ns16OrNull(item) }
                     .compact
 
