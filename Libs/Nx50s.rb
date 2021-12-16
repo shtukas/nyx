@@ -47,7 +47,7 @@ class AFewNx50s
     def self.initialise(useTheForce)
 
         if !useTheForce then
-            nx50s = KeyValueStore::getOrNull(nil, "dd8f1ecc-c688-4b78-a77e-555c67186943")
+            nx50s = KeyValueStore::getOrNull(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944")
             if nx50s then
                 $AFewNx50s = JSON.parse(nx50s)
                 return
@@ -72,7 +72,7 @@ class AFewNx50s
                                 })["Nx50s"]
         }
         $AFewNx50s = nx50s
-        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186943", JSON.generate($AFewNx50s))
+        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944", JSON.generate($AFewNx50s))
     end
 
     # AFewNx50s::getSet()
@@ -90,16 +90,21 @@ class AFewNx50s
 
     # AFewNx50s::commit(nx50)
     def self.commit(nx50)
+        if nx50["ordinal"].nil? then
+            puts "Incorrect Nx50 trying to be commited"
+            puts JSON.pretty_generate(nx50)
+            exit
+        end
         ObjectStore4::store(nx50, AllTheNx50s::setuuid())
         $AFewNx50s = ($AFewNx50s.reject{|x| x["uuid"] == nx50["uuid"] } + [ nx50.clone ])
-        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186943", JSON.generate($AFewNx50s))
+        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944", JSON.generate($AFewNx50s))
     end
 
     # AFewNx50s::destroy(nx50)
     def self.destroy(nx50)
         ObjectStore4::removeObjectFromSet(AllTheNx50s::setuuid(), nx50["uuid"])
         $AFewNx50s = $AFewNx50s.reject{|x| x["uuid"] == nx50["uuid"] }
-        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186943", JSON.generate($AFewNx50s))
+        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944", JSON.generate($AFewNx50s))
     end
 end
 
@@ -122,19 +127,29 @@ class Nx50s
         (biggest + 1).floor
     end
 
+    # Nx50s::ordinalWithinTheFirst10(listing)
+    def self.ordinalWithinTheFirst10(listing)
+        nx50s = AFewNx50s::getSetForListing(listing)
+        if nx50s.size < 10 then
+            return Nx50s::nextOrdinal()
+        end
+        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.first(10)
+        ordinals.min + rand*(ordinals.max-ordinals.min)
+    end
+
     # Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
     def self.interactivelyDecideNewOrdinalOrNull(listing, category2)
         if category2[0] == "Monitor" then
             return Nx50s::nextOrdinal()
         end
+        if category2[0] == "Monitor-Todo" then
+            return Nx50s::nextMonitorTodoOrdinal()
+        end
         if category2[0] == "Dated" then
             return Nx50s::nextOrdinal()
         end
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "next"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within the first 10", "next"])
         return nil if action.nil?
-        if action == "next" then
-            return Nx50s::nextOrdinal()
-        end
         if action == "fine selection near the top" then
             AFewNx50s::getSetForListing(listing)
                 .first(50)
@@ -143,6 +158,12 @@ class Nx50s
                     puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
+        end
+        if action == "random within the first 10" then
+            return Nx50s::ordinalWithinTheFirst10(listing)
+        end
+        if action == "next" then
+            return Nx50s::nextOrdinal()
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
@@ -513,10 +534,9 @@ class Nx50s
             end
 
             if Interpreting::match("category", command) then
-                nx50["category2"] = Nx50s::makeNewCategory2()
-                if nx50["category2"][0] == "Monitor-Todo" then
-                    nx50["ordinal"] = Nx50s::nextMonitorTodoOrdinal()
-                end
+                category2 = Nx50s::makeNewCategory2()
+                nx50["category2"] = category2
+                nx50["ordinal"]   = Nx50s::interactivelyDecideNewOrdinalOrNull(nx50["listing"], category2)
                 puts JSON.pretty_generate(nx50)
                 AFewNx50s::commit(nx50)
                 next
