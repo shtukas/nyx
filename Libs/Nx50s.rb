@@ -129,7 +129,7 @@ class Nx50s
 
     # Nx50s::ordinalWithinTheFirst10(listing)
     def self.ordinalWithinTheFirst10(listing)
-        nx50s = AFewNx50s::getSetForListing(listing)
+        nx50s = AllTheNx50s::nx50sForListing(listing)
         if nx50s.size < 10 then
             return Nx50s::nextOrdinal()
         end
@@ -151,7 +151,7 @@ class Nx50s
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within the first 10", "next"])
         return nil if action.nil?
         if action == "fine selection near the top" then
-            AFewNx50s::getSetForListing(listing)
+            AllTheNx50s::nx50sForListing(listing)
                 .first(50)
                 .select{|item| item["category2"][0] == category2[0] }
                 .each{|nx50| 
