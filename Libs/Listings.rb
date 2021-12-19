@@ -2,16 +2,10 @@
 
 class Listings
 
-    # ----------------------------------------
-    # Distributions
-
     # Listings::listings()
     def self.listings()
         ["EVA", "WORK", "JEDI", "ENTERTAINMENT"]
     end
-
-    # ----------------------------------------
-    # Banking
 
     # Listings::listingToBankAccount(listing)
     def self.listingToBankAccount(listing)
@@ -24,29 +18,6 @@ class Listings
         raise "[62e07265-cda5-45e1-9b90-7c88db751a1c: #{listing}]" if !mapping.keys.include?(listing)
         mapping[listing]
     end
-
-    # ----------------------------------------
-    # Drivers and computations
-
-    # Listings::computeRatioDefinedOrNull(listing, driver)
-    def self.computeRatioDefinedOrNull(listing, driver)
-        if driver["type"] == "eva" then
-            account = Listings::listingToBankAccount(listing)
-            target = driver["target"]
-            return Beatrice::stdRecoveredHourlyTimeInHours(account).to_f/target
-        end
-        if driver["type"] == "expectation" then
-            if driver["time-constraints"] == "work" then
-                isWorkTime = ([1, 2, 3, 4, 5].include?(Time.new.wday) and Time.new.hour > 8 and Time.new.hour < 18)
-                return nil if !isWorkTime
-            end
-            account = Listings::listingToBankAccount(listing)
-            target = driver["target"]
-            return BankExtended::stdRecoveredDailyTimeInHours(account).to_f/target
-        end
-    end
-
-    # ----------------------------------------
 
     # Listings::interactivelySelectListing()
     def self.interactivelySelectListing()
@@ -65,6 +36,4 @@ class Listings
         end
         listing
     end
-
-    # ----------------------------------------
 end
