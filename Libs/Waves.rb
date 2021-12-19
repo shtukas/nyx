@@ -13,21 +13,6 @@ class Waves
     # Waves::items()
     def self.items()
         ObjectStore4::getSet(Waves::setuuid())
-            .map{|wave|
-                if !(Listings::listings() + [nil]).include?(wave["listing"]) then
-                    puts JSON.pretty_generate(wave)
-                    puts "Correcting listing for '#{Waves::toString(wave)}'"
-                    wave["listing"] = Listings::interactivelySelectListingOrNull()
-                    puts JSON.pretty_generate(wave)
-                    ObjectStore4::store(wave, Waves::setuuid())
-                end
-                wave
-            }
-    end
-
-    # Waves::itemsForListing(listing)
-    def self.itemsForListing(listing)
-        Waves::items().select{|item| item["listing"].nil? or (item["listing"] == listing)}
     end
 
     # --------------------------------------------------
@@ -139,7 +124,6 @@ class Waves
         wave["repeatType"]       = schedule[0]
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
-        wave["listing"]          = Listings::interactivelySelectListingOrNull()
 
         ObjectStore4::store(wave, Waves::setuuid())
         wave
@@ -187,7 +171,7 @@ class Waves
     def self.landing(wave)
         uuid = wave["uuid"]
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Listings::listingToBankAccount(wave["listing"])])
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3"])
 
         loop {
 
@@ -200,14 +184,13 @@ class Waves
             puts ""
 
             puts "uuid: #{wave["uuid"]}".yellow
-            puts "listing: #{wave["listing"]}".yellow
             puts "schedule: #{Waves::scheduleString(wave)}".yellow
             puts "last done: #{wave["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | description | atom | recast schedule | listing | destroy | exit (xx)".yellow
+            puts "[item   ] access | done | <datecode> | note | description | atom | recast schedule | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -256,13 +239,6 @@ class Waves
                 next
             end
 
-            if Interpreting::match("listing", command) then
-                wave["listing"] = Listings::interactivelySelectListingOrNull()
-                puts JSON.pretty_generate(wave)
-                ObjectStore4::store(wave, Waves::setuuid())
-                break
-            end
-
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
                     ObjectStore4::removeObjectFromSet(Waves::setuuid(), wave["uuid"])
@@ -277,16 +253,16 @@ class Waves
     # -------------------------------------------------------------------------
     # Waves
 
-    # Waves::selectWaveOrNull(listing)
-    def self.selectWaveOrNull(listing)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::itemsForListing(listing).sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
+    # Waves::selectWaveOrNull()
+    def self.selectWaveOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", Waves::items().sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }, lambda {|wave| Waves::toString(wave) })
     end
 
-    # Waves::waves(listing)
-    def self.waves(listing)
+    # Waves::waves()
+    def self.waves()
         loop {
             system("clear")
-            wave = Waves::selectWaveOrNull(listing)
+            wave = Waves::selectWaveOrNull()
             return if wave.nil?
             Waves::landing(wave)
         }
@@ -302,7 +278,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3", Listings::listingToBankAccount(wave["listing"])])
+        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-TIME-75-42E8-85E2-F17E869DF4D3"])
 
         Waves::accessContent(wave)
 
@@ -328,7 +304,7 @@ class Waves
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:wave1",
-            "announce" => "#{Waves::toString(wave)} (#{wave["listing"].downcase})",
+            "announce" => Waves::toString(wave),
             "commands" => ["..", "landing", "done"],
             "wave"     => wave
         }
@@ -367,10 +343,9 @@ class Waves
         n1["uuid"] <=> n2["uuid"]
     end
 
-    # Waves::ns16s(listing)
-    def self.ns16s(listing)
+    # Waves::ns16s()
+    def self.ns16s()
         Waves::items()
-            .select{|item| item["listing"] == listing }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }

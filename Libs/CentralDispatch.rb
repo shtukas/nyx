@@ -167,8 +167,7 @@ class CentralDispatch
         end
 
         if Interpreting::match("waves", command) then
-            listing = Listings::interactivelySelectListing()
-            Waves::waves(listing)
+            Waves::waves()
         end
 
         if Interpreting::match("Nx50s", command) then
@@ -185,7 +184,7 @@ class CentralDispatch
 
         if Interpreting::match("monitoring", command) then
             getMonitor = lambda{|listing|
-                AFewNx50s::getSetForListing(listing)
+                AFewNx50s::getSet()
                     .select{|item| item["category2"][0] == "Monitor" }
             }
             Listings::listings().each{|listing|

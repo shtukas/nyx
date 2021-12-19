@@ -28,39 +28,6 @@ class Listings
     # ----------------------------------------
     # Drivers and computations
 
-    # Listings::listingDriver(listing)
-    def self.listingDriver(listing)
-        #{
-        #    "type"   => "eva",
-        #    "target" => Float # hourly-rt
-        #}
-        #{
-        #    "type"   => "expectation",
-        #    "target" => Float # rt
-        #}
-
-        map = {
-            "EVA" => {
-                "type" => "eva",
-                "target" => 0.5
-            },
-            "WORK" => {
-                "type"   => "expectation",
-                "target" => 5,
-                "time-constraints" => "work"
-            },
-            "JEDI" => {
-                "type"   => "expectation",
-                "target" => 1
-            },
-            "ENTERTAINMENT" => {
-                "type"   => "expectation",
-                "target" => 1
-            }
-        }
-        map[listing]
-    end
-
     # Listings::computeRatioDefinedOrNull(listing, driver)
     def self.computeRatioDefinedOrNull(listing, driver)
         if driver["type"] == "eva" then
@@ -77,42 +44,6 @@ class Listings
             target = driver["target"]
             return BankExtended::stdRecoveredDailyTimeInHours(account).to_f/target
         end
-    end
-
-    # Listings::listingsWithMetadata()
-    def self.listingsWithMetadata()
-        Listings::listings()
-            .map {|listing|
-                account = Listings::listingToBankAccount(listing)
-                driver = Listings::listingDriver(listing)
-                {
-                    "listing" => listing,
-                    "driver"  => driver,
-                    "rt"      => BankExtended::stdRecoveredDailyTimeInHours(account),
-                    "ratio"   => Listings::computeRatioDefinedOrNull(listing, driver)
-                }
-            }
-    end
-
-    # Listings::listingsWithDefinedRatioOrderedWithMetadata()
-    def self.listingsWithDefinedRatioOrderedWithMetadata()
-        Listings::listingsWithMetadata()
-            .select{|packet| packet["ratio"]}
-            .sort{|p1, p2|
-                p1["ratio"] <=> p2["ratio"]
-            }
-    end
-
-    # Listings::listingsWithUndefinedRatioWithMetadata()
-    def self.listingsWithUndefinedRatioWithMetadata()
-        Listings::listingsWithMetadata()
-            .select{|packet| packet["ratio"].nil? }
-    end
-
-    # Listings::listingsForDisplay()
-    def self.listingsForDisplay()
-        Listings::listingsWithDefinedRatioOrderedWithMetadata()
-            .map{|packet| packet["listing"] }
     end
 
     # ----------------------------------------
@@ -136,21 +67,4 @@ class Listings
     end
 
     # ----------------------------------------
-
-    # Listings::dx()
-    def self.dx()
-        packetToString1 = lambda {|packet|
-            str = "(#{packet["listing"].downcase}: rt: #{packet["rt"].round(2)}, #{(100*packet["ratio"]).round(2)}%)"
-            (packet["ratio"] < 1) ? str.green : str
-        }
-        packetToString2 = lambda {|packet|
-            "(#{packet["listing"].downcase}: rt: #{packet["rt"].round(2)})"
-        }
-        [
-            Listings::listingsWithDefinedRatioOrderedWithMetadata()
-                .map{|packet| packetToString1.call(packet) },
-            Listings::listingsWithUndefinedRatioWithMetadata()
-                .map{|packet| packetToString2.call(packet) }
-        ].flatten.join(" ")
-    end
 end

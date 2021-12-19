@@ -62,7 +62,7 @@ class AFewNx50s
             nx50s = nx50s + (AllTheNx50s::nx50sForListing(listing)
                                 .select{|item| item["category2"][0] == "Tail" }
                                 .reduce({"Nx50s"=>[], "counter"=>0}){|struct, nx50|
-                                    if struct["counter"] < 20 then
+                                    if struct["counter"] < 100 then
                                         struct["Nx50s"] << nx50
                                         if Nx50s::itemIsOperational(nx50) then
                                             struct["counter"] = struct["counter"] + 1
@@ -80,12 +80,6 @@ class AFewNx50s
         $AFewNx50s
             .map{|nx50| nx50.clone }
             .sort{|x1, x2| x1["ordinal"] <=> x2["ordinal"] }
-    end
-
-    # AFewNx50s::getSetForListing(listing)
-    def self.getSetForListing(listing)
-        AFewNx50s::getSet()
-            .select{|item| item["listing"] == listing }
     end
 
     # AFewNx50s::commit(nx50)
@@ -670,9 +664,9 @@ class Nx50s
         }
     end
 
-    # Nx50s::structureForListing(listing)
-    def self.structureForListing(listing)
-        Nx50s::structureGivenNx50s(AFewNx50s::getSetForListing(listing))
+    # Nx50s::structure()
+    def self.structure()
+        Nx50s::structureGivenNx50s(AFewNx50s::getSet())
     end
 
     # --------------------------------------------------

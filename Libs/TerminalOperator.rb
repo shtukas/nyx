@@ -50,37 +50,28 @@ class Commands
 end
 
 class Nx77
-    # Nx77::ns16sNonNx50s(listing)
-    def self.ns16sNonNx50s(listing)
-        if listing == "EVA" then
-            ns16s = [
-                Anniversaries::ns16s(),
-                Calendar::ns16s(),
-                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
-                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-                DrivesBackups::ns16s(),
-                Waves::ns16s(listing),
-                Inbox::ns16s()
-            ]
-                .flatten
-                .compact
-        else
-            ns16s = [
-                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-                Waves::ns16s(listing)
-            ]
-                .flatten
-                .compact
-        end
-        ns16s
+    # Nx77::ns16sNonNx50s()
+    def self.ns16sNonNx50s()
+        [
+            Anniversaries::ns16s(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            Calendar::ns16s(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            DrivesBackups::ns16s(),
+            Waves::ns16s(),
+            Inbox::ns16s()
+        ]
+            .flatten
+            .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # Nx77::makeNx76(listing)
-    def self.makeNx76(listing)
-        ns16sNonNx50s = Nx77::ns16sNonNx50s(listing)
-        structure = Nx50s::structureForListing(listing)
+    # Nx77::makeNx76()
+    def self.makeNx76()
+        ns16sNonNx50s = Nx77::ns16sNonNx50s()
+        structure = Nx50s::structure()
         [structure["Monitor"], ns16sNonNx50s + structure["Dated"] + structure["Tail"]]
     end
 end
@@ -105,7 +96,7 @@ class TerminalDisplayOperator
 
         puts ""
         nx50sCount = KeyValueStore::getOrDefaultValue(nil, "DE7C7BBC-845D-4511-A671-6B3E03BB75AC", "0").to_i
-        puts "#{Listings::dx()} - Nx50: #{nx50sCount} items"
+        puts "Nx50: #{nx50sCount} items"
         vspaceleft = vspaceleft - 2
 
         infolines = [
@@ -225,8 +216,7 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            listing = Listings::listingsForDisplay().first
-            monitor, ns16s = Nx77::makeNx76(listing)
+            monitor, ns16s = Nx77::makeNx76()
             TerminalDisplayOperator::display(monitor, ns16s)
         }
     end
