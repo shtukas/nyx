@@ -114,26 +114,6 @@ class CentralDispatch
     # CentralDispatch::operator4(command)
     def self.operator4(command)
 
-        if command == "eva" then
-            Listings::setOverrideListing("EVA", Time.new.to_i + 3600)
-        end
-
-        if command == "work" then
-            Listings::setOverrideListing("WORK", Time.new.to_i + 3600)
-        end
-
-        if command == "jedi" then
-            Listings::setOverrideListing("JEDI", Time.new.to_i + 3600)
-        end
-
-        if command == "entertainment" then
-            Listings::setOverrideListing("ENTERTAINMENT", Time.new.to_i + 3600)
-        end
-
-        if command == "nathalie" then
-            KeyValueStore::destroy(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
-        end
-
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""

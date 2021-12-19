@@ -3,27 +3,6 @@
 class Listings
 
     # ----------------------------------------
-    # Override Listings
-
-    # Listings::setOverrideListing(listing, expiryUnixtime)
-    def self.setOverrideListing(listing, expiryUnixtime)
-        packet = {
-            "listing" => listing,
-            "expiry" => expiryUnixtime
-        }
-        KeyValueStore::set(nil, "6992dae8-5b15-4266-a2c2-920358fda286", JSON.generate(packet))
-    end
-
-    # Listings::getOverrideListingOrNull()
-    def self.getOverrideListingOrNull()
-        packet = KeyValueStore::getOrNull(nil, "6992dae8-5b15-4266-a2c2-920358fda286")
-        return nil if packet.nil?
-        packet = JSON.parse(packet)
-        return nil if Time.new.to_i > packet["expiry"]
-        packet["listing"]
-    end
-
-    # ----------------------------------------
     # Distributions
 
     # Listings::listings()
@@ -132,9 +111,6 @@ class Listings
 
     # Listings::listingsForDisplay()
     def self.listingsForDisplay()
-        listing = Listings::getOverrideListingOrNull()
-        return [listing] if listing
-
         Listings::listingsWithDefinedRatioOrderedWithMetadata()
             .map{|packet| packet["listing"] }
     end
