@@ -107,7 +107,7 @@ class TerminalDisplayOperator
 
         system("clear")
 
-        vspaceleft = Utils::screenHeight()-5
+        vspaceleft = Utils::screenHeight()-4
 
         puts ""
         nx50sCount = KeyValueStore::getOrDefaultValue(nil, "DE7C7BBC-845D-4511-A671-6B3E03BB75AC", "0").to_i
