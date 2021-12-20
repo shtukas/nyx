@@ -301,10 +301,11 @@ class Waves
     # Waves::toNS16(wave)
     def self.toNS16(wave)
         getOrdinal = lambda {|uuid|
-            ordinal = KeyValueStore::getOrNull(nil, "5ee7c3ab-2042-41d6-8b49-a14090dd2336:#{uuid}")
+            ordinal = KeyValueStore::getOrNull(nil, "5ee7c3ab-2042-41d6-8b49-a14090dd2336:#{Utils::today()}:#{uuid}")
             return ordinal.to_f if ordinal
-            ordinal = rand
-            KeyValueStore::set(nil, "5ee7c3ab-2042-41d6-8b49-a14090dd2336:#{uuid}", ordinal)
+            bounds = Waves::isPriorityWave(wave) ? [1, 5] : [5, 10]
+            ordinal = Nx50s::ordinalBetweenN1thAndN2th(bounds[0], bounds[1])
+            KeyValueStore::set(nil, "5ee7c3ab-2042-41d6-8b49-a14090dd2336:#{Utils::today()}:#{uuid}", ordinal)
             ordinal
         }
         uuid = wave["uuid"]

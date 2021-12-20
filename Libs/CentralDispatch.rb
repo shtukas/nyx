@@ -182,22 +182,6 @@ class CentralDispatch
             }
         end
 
-        if Interpreting::match("monitoring", command) then
-            getMonitor = lambda{|listing|
-                AFewNx50s::getSet()
-                    .select{|item| item["category2"][0] == "Monitor" }
-            }
-            Listings::listings().each{|listing|
-                next if getMonitor.call(listing).empty?
-                puts "Reviewing #{listing}"
-                loop {
-                    nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", getMonitor.call(listing), lambda {|nx50| Nx50s::toString(nx50) })
-                    break if nx50.nil?
-                    Nx50s::run(nx50)
-                }
-            }
-        end
-
         if Interpreting::match("search", command) then
             Search::search()
         end

@@ -190,10 +190,17 @@ class Utils
         ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][Time.new.wday]
     end
 
-    # Utils::interactivelySelectADateOrNull()
-    def self.interactivelySelectADateOrNull()
+    # Utils::interactivelySelectAUnixtimeOrNull()
+    def self.interactivelySelectAUnixtimeOrNull()
         datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
         unixtime = Utils::codeToUnixtimeOrNull(datecode)
+        return nil if unixtime.nil?
+        unixtime
+    end
+
+    # Utils::interactivelySelectADateOrNull()
+    def self.interactivelySelectADateOrNull()
+        unixtime = Utils::interactivelySelectAUnixtimeOrNull()
         return nil if unixtime.nil?
         Time.at(unixtime).to_s[0, 10]
     end

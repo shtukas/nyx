@@ -121,13 +121,13 @@ class Nx50s
         (biggest + 1).floor
     end
 
-    # Nx50s::ordinalBetween10thAnd20th()
-    def self.ordinalBetween10thAnd20th()
+    # Nx50s::ordinalBetweenN1thAndN2th(n1, n2)
+    def self.ordinalBetweenN1thAndN2th(n1, n2)
         nx50s = AllTheNx50s::nx50s()
-        if nx50s.size < 12 then
+        if nx50s.size < n1+2 then
             return Nx50s::nextOrdinal()
         end
-        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(10).take(10)
+        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(n1).take(n2-n1)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 

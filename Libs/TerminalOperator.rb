@@ -37,7 +37,7 @@ class Commands
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "calendar | waves | ondates | Nx50s | anniversaries | monitoring | search | nyx"
+        "calendar | waves | ondates | Nx50s | anniversaries | search | nyx"
     end
 
     # Commands::makersAndDiversCommands()
