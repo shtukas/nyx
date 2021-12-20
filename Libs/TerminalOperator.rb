@@ -124,10 +124,6 @@ class TerminalDisplayOperator
 
         store = ItemStore.new()
 
-        listingToString = lambda{|listing|
-            listing.gsub("(", "").gsub(")", "")
-        }
-
         if !InternetStatus::internetIsActive() then
             puts ""
             puts "INTERNET IS OFF".green

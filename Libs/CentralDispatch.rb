@@ -45,19 +45,8 @@ class CentralDispatch
             CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
         end
 
-        if object["NS198"] == "ns16:wave1" and command == ">entertainment" then
-            wave = object["wave"]
-            wave["listing"] = "ENTERTAINMENT"
-            ObjectStore4::store(wave, Waves::setuuid())
-            CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
-        end
-
         if object["NS198"] == "ns16:inbox1" and command == ".." then
             Inbox::run(object["location"])
-        end
-
-        if object["NS198"] == "ns16:inbox1" and command == ">>" then
-            Inbox::dispatch(object["location"])
         end
 
         if object["NS198"] == "ns16:Nx50" and command == ".." then
@@ -79,7 +68,7 @@ class CentralDispatch
             nx50 = object["Nx50"]
             category2 = Nx50s::makeNewCategory2()
             nx50["category2"] = category2
-            nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
+            nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinal(category2)
             AFewNx50s::commit(nx50)
         end
 
@@ -117,9 +106,7 @@ class CentralDispatch
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            listing = Listings::interactivelySelectListing()
-            account = Listings::listingToBankAccount(listing)
-            NxBallsService::issue(SecureRandom.uuid, description, [account])
+            NxBallsService::issue(SecureRandom.uuid, description, [])
         end
 
         if command == "monitor" then

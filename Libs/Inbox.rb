@@ -16,13 +16,13 @@ class Inbox
         uuid
     end
 
-    # Inbox::probe(location) : "EXIT" | "POSTPONE" | "DISPATCH" | "DESTROYED"
+    # Inbox::probe(location) : "EXIT" | "POSTPONE" | "DESTROYED"
     def self.probe(location)
         loop {
             if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "dispatch (default)", "postpone", "destroy", "exit"])
-                if action.nil? or action == "dispatch (default)" then
-                    return "DISPATCH" 
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "postpone", "destroy", "exit (default)"])
+                if action.nil? or action == "exit (default)" then
+                    return "EXIT" 
                 end
                 if action == "open" then
                     system("open '#{location}'")
@@ -37,14 +37,11 @@ class Inbox
                     LucilleCore::removeFileSystemLocation(location)
                     return "DESTROYED"
                 end
-                if action == "exit" then
-                    return "EXIT"
-                end
             else
                 system("open '#{location}'")
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch (default)", "postpone", "destroy", "exit"])
-                if action.nil? or action == "dispatch (default)" then
-                    return "DISPATCH" 
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch (default)", "postpone", "destroy", "exit (default)"])
+                if action.nil? or action == "exit (default)" then
+                    return "EXIT" 
                 end
                 if action == "postpone" then
                     return "POSTPONE"
@@ -53,78 +50,21 @@ class Inbox
                     LucilleCore::removeFileSystemLocation(location)
                     return "DESTROYED"
                 end
-                if action == "exit" then
-                    return "EXIT"
-                end
             end
         }
-    end
-
-    # Inbox::dispatch(location)
-    def self.dispatch(location)
-        locationToDescription = lambda{|location|
-            description = File.basename(location)
-            puts "description: #{description}"
-            d = LucilleCore::askQuestionAnswerAsString("description (empty to ignore step) : ")
-            if d.size > 0 then
-                description = d
-            end
-            description
-        }
-        description = locationToDescription.call(location)
-        listing = Listings::interactivelySelectListing()
-        Nx50s::issueInboxItemUsingLocation(location, listing, description)
-        LucilleCore::removeFileSystemLocation(location)
-        listing
     end
 
     # Inbox::run(location)
     def self.run(location)
-        time1 = Time.new.to_f
-
-        close = lambda{|time1, listing|
-            account = Listings::listingToBankAccount(listing)
-            time2 = Time.new.to_f
-            timespan = time2 - time1
-            puts "Putting #{timespan} seconds into #{account}"
-            Bank::put(account, timespan)
-        }
-
-        selectListingInteractivelyOrDefaultIfSmallTime = lambda{|time1|
-            return "EVA" if (Time.new.to_f - time1) < 120
-            Listings::interactivelySelectListing()
-        }
-
         system("clear")
         puts location.green
-
-        command = Inbox::probe(location) # "EXIT" | "POSTPONE" | "DISPATCH" | "DESTROYED"
-
-        if command == "EXIT" then
-            close.call(time1, selectListingInteractivelyOrDefaultIfSmallTime.call(time1))
-            return
-        end
-
+        command = Inbox::probe(location) # "EXIT" | "POSTPONE" | "DESTROYED"
         if command == "POSTPONE" then
             if (unixtime = Utils::interactivelySelectAUnixtimeOrNull()) then
                 DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
                 return
             end
         end
-
-        if command == "DISPATCH" then
-            listing = Inbox::dispatch(location)
-            close.call(time1, listing)
-            return
-        end
-
-        if command == "DESTROYED" then
-            close.call(time1, selectListingInteractivelyOrDefaultIfSmallTime.call(time1))
-            return
-        end
-
-        listing = Inbox::dispatch(location)
-        close.call(time1, listing)
     end
 
     # Inbox::ns16s()

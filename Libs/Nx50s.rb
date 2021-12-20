@@ -12,15 +12,6 @@ class AllTheNx50s
     def self.nx50s()
         ObjectStore4::getSet(AllTheNx50s::setuuid())
             .map{|nx50|
-                if !Listings::listings().include?(nx50["listing"]) then
-                    puts "Correcting listing for '#{nx50}'"
-                    nx50["listing"] = Listings::interactivelySelectListing()
-                    puts JSON.pretty_generate(nx50)
-                    ObjectStore4::store(nx50, AllTheNx50s::setuuid())
-                end
-                nx50
-            }
-            .map{|nx50|
                 if nx50["category2"].nil? or !Nx50s::coreCategories().include?(nx50["category2"][0]) then
                     puts JSON.pretty_generate(nx50)
                     nx50["category2"] = ["Dated", Utils::today()]
@@ -32,13 +23,6 @@ class AllTheNx50s
             }
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
-
-    # AllTheNx50s::nx50sForListing(listing)
-    def self.nx50sForListing(listing)
-        AllTheNx50s::nx50s()
-            .select{|nx50| nx50["listing"] == listing }
-    end
-
 end
 
 class AFewNx50s
@@ -58,19 +42,17 @@ class AFewNx50s
         nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Monitor" }
         nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Dated" }
         nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Monitor-Todo" }
-        Listings::listings().each{|listing|
-            nx50s = nx50s + (AllTheNx50s::nx50sForListing(listing)
-                                .select{|item| item["category2"][0] == "Tail" }
-                                .reduce({"Nx50s"=>[], "counter"=>0}){|struct, nx50|
-                                    if struct["counter"] < 100 then
-                                        struct["Nx50s"] << nx50
-                                        if Nx50s::itemIsOperational(nx50) then
-                                            struct["counter"] = struct["counter"] + 1
-                                        end
+        nx50s = nx50s + (AllTheNx50s::nx50s()
+                            .select{|item| item["category2"][0] == "Tail" }
+                            .reduce({"Nx50s"=>[], "counter"=>0}){|struct, nx50|
+                                if struct["counter"] < 100 then
+                                    struct["Nx50s"] << nx50
+                                    if Nx50s::itemIsOperational(nx50) then
+                                        struct["counter"] = struct["counter"] + 1
                                     end
-                                    struct
-                                })["Nx50s"]
-        }
+                                end
+                                struct
+                            })["Nx50s"]
         $AFewNx50s = nx50s
         KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944", JSON.generate($AFewNx50s))
     end
@@ -131,18 +113,8 @@ class Nx50s
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
-    # Nx50s::ordinalBetween10thAnd20thAtListing(listing)
-    def self.ordinalBetween10thAnd20thAtListing(listing)
-        nx50s = AllTheNx50s::nx50sForListing(listing)
-        if nx50s.size < 12 then
-            return Nx50s::nextOrdinal()
-        end
-        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(10).take(10)
-        ordinals.min + rand*(ordinals.max-ordinals.min)
-    end
-
-    # Nx50s::interactivelyDecideNewOrdinal(listing, category2)
-    def self.interactivelyDecideNewOrdinal(listing, category2)
+    # Nx50s::interactivelyDecideNewOrdinal(category2)
+    def self.interactivelyDecideNewOrdinal(category2)
         if category2[0] == "Monitor" then
             return Nx50s::nextOrdinal()
         end
@@ -154,7 +126,7 @@ class Nx50s
         end
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
-            AllTheNx50s::nx50sForListing(listing)
+            AllTheNx50s::nx50s()
                 .first(50)
                 .select{|item| item["category2"][0] == category2[0] }
                 .each{|nx50| 
@@ -163,7 +135,7 @@ class Nx50s
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
         if action.nil? or action == "random within [10-20] (default)" then
-            return Nx50s::ordinalBetween10thAnd20thAtListing(listing)
+            return Nx50s::ordinalBetweenN1thAndN2th(10, 20)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
@@ -194,10 +166,8 @@ class Nx50s
         [corecategory]
     end
 
-    # Nx50s::makeNewInboxCategory2(listing)
-    def self.makeNewInboxCategory2(listing)
-        return ["Tail"] if listing == "ENTERTAINMENT"
-        return ["Tail"] if listing == "JEDI"
+    # Nx50s::makeNewInboxCategory2()
+    def self.makeNewInboxCategory2()
         corecategory = Nx50s::interactivelySelectCoreCategory()
         if corecategory == "Dated" then
             return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
@@ -214,16 +184,14 @@ class Nx50s
         return nil if description == ""
         uuid = SecureRandom.uuid
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => atom,
-            "listing"     => listing,
             "category2"   => category2
         }
         AFewNx50s::commit(nx50)
@@ -236,16 +204,14 @@ class Nx50s
         return nil if description == ""
         uuid = SecureRandom.uuid
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        listing = Listings::interactivelySelectListing()
         category2 = lambda1.call()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => atom,
-            "listing"     => listing,
             "category2"   => category2
         }
         AFewNx50s::commit(nx50)
@@ -255,60 +221,56 @@ class Nx50s
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
         uuid = SecureRandom.uuid
-        listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => line,
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "listing"     => listing,
             "category2"   => category2
         }
         AFewNx50s::commit(nx50)
         nx50
     end
 
-    # Nx50s::issueItemUsingLocation(location, listing)
-    def self.issueItemUsingLocation(location, listing)
+    # Nx50s::issueItemUsingLocation(location)
+    def self.issueItemUsingLocation(location)
         uuid = SecureRandom.uuid
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => File.basename(location),
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-            "listing"     => listing,
             "category2"   => category2
         }
         AFewNx50s::commit(nx50)
         nx50
     end
 
-    # Nx50s::issueInboxItemUsingLocation(location, listing, description)
-    def self.issueInboxItemUsingLocation(location, listing, description)
+    # Nx50s::issueInboxItemUsingLocation(location, description)
+    def self.issueInboxItemUsingLocation(location, description)
         uuid = SecureRandom.uuid
-        category2 = Nx50s::makeNewInboxCategory2(listing)
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
+        category2 = Nx50s::makeNewInboxCategory2()
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-            "listing"     => listing,
             "category2"   => category2
         }
         AFewNx50s::commit(nx50)
         nx50
     end
 
-    # Nx50s::issueSpreadItem(location, description, listing, ordinal)
-    def self.issueSpreadItem(location, description, listing, ordinal)
+    # Nx50s::issueSpreadItem(location, description, ordinal)
+    def self.issueSpreadItem(location, description, ordinal)
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
@@ -316,7 +278,6 @@ class Nx50s
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-            "listing"     => listing,
             "category2"   => ["Tail"]
         }
         AFewNx50s::commit(nx50)
@@ -326,14 +287,12 @@ class Nx50s
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
         uuid = SecureRandom.uuid
-        listing = "ENTERTAINMENT"
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
-            "ordinal"     => Nx50s::ordinalBetween10thAnd20thAtListing(listing),
+            "ordinal"     => Nx50s::ordinalBetweenN1thAndN2th(10, 50),
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
-            "listing"     => listing,
             "category2"   => ["Tail"]
         }
         AFewNx50s::commit(nx50)
@@ -361,12 +320,12 @@ class Nx50s
     # Nx50s::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
         if nx50["category2"][0] == "Monitor" then
-            return "#{nx50["description"]} (#{nx50["atom"]["type"]}) (#{nx50["listing"].downcase})"
+            return "#{nx50["description"]} (#{nx50["atom"]["type"]})"
         end
         if nx50["category2"][0] == "Dated" then
-            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]}) (#{nx50["listing"].downcase})"
+            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]})"
         end
-        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]}) (#{nx50["listing"].downcase})"
+        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
     # --------------------------------------------------
@@ -384,8 +343,6 @@ class Nx50s
         if locations.size > 0 then
 
             puts "Starting to import spread (first item: #{locations.first})"
-
-            listing = Listings::interactivelySelectListing()
  
             ordinals = Nx50s::items().map{|item| item["ordinal"] }
  
@@ -406,7 +363,7 @@ class Nx50s
             locations.each{|location|
                 cursor = cursor + step
                 puts "[quark] (#{cursor}) #{location}"
-                Nx50s::issueSpreadItem(location, File.basename(location), listing, cursor)
+                Nx50s::issueSpreadItem(location, File.basename(location), cursor)
                 LucilleCore::removeFileSystemLocation(location)
             }
         end
@@ -427,7 +384,6 @@ class Nx50s
         itemToBankAccounts = lambda{|item|
             accounts = []
             accounts << item["uuid"]
-            accounts << Listings::listingToBankAccount(item["listing"])
             accounts.compact
         }
 
@@ -448,7 +404,6 @@ class Nx50s
             puts "ordinal: #{nx50["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
-            puts "Listing: #{nx50["listing"]}".yellow
             puts "Category: #{nx50["category2"].join(", ")}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(nx50["atom"]) then
@@ -464,7 +419,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | atom | redate | ordinal | rotate | listing | category | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | atom | redate | ordinal | rotate | category | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -513,7 +468,7 @@ class Nx50s
             end
 
             if Interpreting::match("ordinal", command) then
-                ordinal = Nx50s::interactivelyDecideNewOrdinal(nx50["listing"], nx50["category2"])
+                ordinal = Nx50s::interactivelyDecideNewOrdinal(nx50["category2"])
                 nx50["ordinal"] = ordinal
                 AFewNx50s::commit(nx50)
                 next
@@ -525,18 +480,10 @@ class Nx50s
                 break
             end
 
-            if Interpreting::match("listing", command) then
-                listing = Listings::interactivelySelectListing()
-                nx50["listing"] = listing
-                nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinal(listing, nx50["category2"])
-                AFewNx50s::commit(nx50)
-                break
-            end
-
             if Interpreting::match("category", command) then
                 category2 = Nx50s::makeNewCategory2()
                 nx50["category2"] = category2
-                nx50["ordinal"]   = Nx50s::interactivelyDecideNewOrdinal(nx50["listing"], category2)
+                nx50["ordinal"]   = Nx50s::interactivelyDecideNewOrdinal(category2)
                 puts JSON.pretty_generate(nx50)
                 AFewNx50s::commit(nx50)
                 next
