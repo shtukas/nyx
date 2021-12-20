@@ -125,6 +125,14 @@ class Inbox
             unixtime
         }
 
+        getOrdinal = lambda {|location|
+            ordinal = KeyValueStore::getOrNull(nil, "c22e3e76-d3af-4b69-aa45-24e4a2d6ebec:#{location}")
+            return ordinal.to_f if ordinal
+            ordinal = Nx50s::ordinalBetween10And20()
+            KeyValueStore::set(nil, "c22e3e76-d3af-4b69-aa45-24e4a2d6ebec:#{location}", ordinal)
+            ordinal
+        }
+
         LucilleCore::locationsAtFolder(Inbox::repository())
             .map{|location|
                 if File.basename(location).include?("'") then
@@ -141,6 +149,7 @@ class Inbox
                     "NS198"        => "ns16:inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
+                    "ordinal"      => getOrdinal.call(location),
                     "commands"     => ["..", ">> (dispatch)"],
                     "location"     => location
                 }

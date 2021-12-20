@@ -121,8 +121,18 @@ class Nx50s
         (biggest + 1).floor
     end
 
-    # Nx50s::ordinalBetween10And20(listing)
-    def self.ordinalBetween10And20(listing)
+    # Nx50s::ordinalBetween10And20()
+    def self.ordinalBetween10And20()
+        nx50s = AllTheNx50s::nx50s()
+        if nx50s.size < 12 then
+            return Nx50s::nextOrdinal()
+        end
+        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(10).take(10)
+        ordinals.min + rand*(ordinals.max-ordinals.min)
+    end
+
+    # Nx50s::ordinalBetween10And20AtListing(listing)
+    def self.ordinalBetween10And20AtListing(listing)
         nx50s = AllTheNx50s::nx50sForListing(listing)
         if nx50s.size < 12 then
             return Nx50s::nextOrdinal()
@@ -153,7 +163,7 @@ class Nx50s
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
         if action.nil? or action == "random within [10-20] (defaul)" then
-            return Nx50s::ordinalBetween10And20(listing)
+            return Nx50s::ordinalBetween10And20AtListing(listing)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
@@ -320,7 +330,7 @@ class Nx50s
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
-            "ordinal"     => Nx50s::ordinalBetween10And20(listing),
+            "ordinal"     => Nx50s::ordinalBetween10And20AtListing(listing),
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
             "listing"     => listing,
