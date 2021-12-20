@@ -83,6 +83,14 @@ class Calendar
 
     # Calendar::ns16s()
     def self.ns16s()
+        getOrdinal = lambda {|uuid|
+            ordinal = KeyValueStore::getOrNull(nil, "3c350ed3-011a-4afe-adee-974b7894dc64:#{uuid}")
+            return ordinal.to_f if ordinal
+            ordinal = rand
+            KeyValueStore::set(nil, "3c350ed3-011a-4afe-adee-974b7894dc64:#{uuid}", ordinal)
+            ordinal
+        }
+
         Calendar::items()
             .select{|item| Calendar::itemIsForNS16s(item) }
             .map{|item|
@@ -92,7 +100,7 @@ class Calendar
                     "uuid"     => uuid,
                     "NS198"    => "ns16:calendar1",
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
-                    "ordinal"  => Ordinals::smallOrdinalForToday(uuid),
+                    "ordinal"  => getOrdinal.call(uuid),
                     "commands" => ["..", "done"],
                     "item"     => item
                 }

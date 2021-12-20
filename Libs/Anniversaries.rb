@@ -163,6 +163,14 @@ class Anniversaries
 
     # Anniversaries::ns16s()
     def self.ns16s()
+        getOrdinal = lambda {|uuid|
+            ordinal = KeyValueStore::getOrNull(nil, "94ee6963-cc8e-4735-b586-48a7e71dc967:#{uuid}")
+            return ordinal.to_f if ordinal
+            ordinal = rand
+            KeyValueStore::set(nil, "94ee6963-cc8e-4735-b586-48a7e71dc967:#{uuid}", ordinal)
+            ordinal
+        }
+
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
             .map{|anniversary|
@@ -170,7 +178,7 @@ class Anniversaries
                     "uuid"        => anniversary["uuid"],
                     "NS198"       => "ns16:anniversary1",
                     "announce"    => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "ordinal"     => Ordinals::smallOrdinalForToday(anniversary["uuid"]),
+                    "ordinal"     => getOrdinal.call(anniversary["uuid"]),
                     "commands"    => ["..", "done"],
                     "anniversary" => anniversary
                 }

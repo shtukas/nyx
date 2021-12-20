@@ -52,6 +52,14 @@ end
 class Nx77
     # Nx77::ns16sNonNx50s()
     def self.ns16sNonNx50s()
+        getOrdinal = lambda {|uuid|
+            ordinal = KeyValueStore::getOrNull(nil, "dc44e18a-2cfa-44a6-9a18-eb12cf255560:#{uuid}")
+            return ordinal.to_f if ordinal
+            ordinal = rand
+            KeyValueStore::set(nil, "dc44e18a-2cfa-44a6-9a18-eb12cf255560:#{uuid}", ordinal)
+            ordinal
+        }
+
         [
             Anniversaries::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
@@ -66,7 +74,7 @@ class Nx77
             .compact
             .map{|item| 
                 if item["ordinal"].nil? then
-                    item["ordinal"] = Ordinals::smallOrdinalForToday(item["uuid"])
+                    item["ordinal"] = getOrdinal.call(item["uuid"])
                 end
                 item
             }

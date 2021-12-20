@@ -128,7 +128,7 @@ class Inbox
         getOrdinal = lambda {|location|
             ordinal = KeyValueStore::getOrNull(nil, "c22e3e76-d3af-4b69-aa45-24e4a2d6ebec:#{location}")
             return ordinal.to_f if ordinal
-            ordinal = Nx50s::ordinalBetween10And20()
+            ordinal = Nx50s::ordinalBetween10thAnd20th()
             KeyValueStore::set(nil, "c22e3e76-d3af-4b69-aa45-24e4a2d6ebec:#{location}", ordinal)
             ordinal
         }

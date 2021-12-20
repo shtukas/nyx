@@ -300,12 +300,19 @@ class Waves
 
     # Waves::toNS16(wave)
     def self.toNS16(wave)
+        getOrdinal = lambda {|uuid|
+            ordinal = KeyValueStore::getOrNull(nil, "5ee7c3ab-2042-41d6-8b49-a14090dd2336:#{uuid}")
+            return ordinal.to_f if ordinal
+            ordinal = rand
+            KeyValueStore::set(nil, "5ee7c3ab-2042-41d6-8b49-a14090dd2336:#{uuid}", ordinal)
+            ordinal
+        }
         uuid = wave["uuid"]
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:wave1",
             "announce" => Waves::toString(wave),
-            "ordinal"  => Ordinals::smallOrdinalForToday(uuid),
+            "ordinal"  => getOrdinal.call(uuid),
             "commands" => ["..", "landing", "done"],
             "wave"     => wave
         }
