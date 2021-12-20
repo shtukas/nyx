@@ -16,16 +16,19 @@ class Inbox
         uuid
     end
 
-    # Inbox::probe(location) : "EXIT" | "DISPATCH" | "DESTROYED"
+    # Inbox::probe(location) : "EXIT" | "POSTPONE" | "DISPATCH" | "DESTROYED"
     def self.probe(location)
         loop {
             if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "dispatch (default)", "destroy", "exit"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "dispatch (default)", "postpone", "destroy", "exit"])
                 if action.nil? or action == "dispatch (default)" then
                     return "DISPATCH" 
                 end
                 if action == "open" then
                     system("open '#{location}'")
+                end
+                if action == "postpone" then
+                    return "POSTPONE"
                 end
                 if action == "copy to desktop" then
                     FileUtils.cp(location, "/Users/pascal/Desktop")
@@ -39,9 +42,12 @@ class Inbox
                 end
             else
                 system("open '#{location}'")
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch (default)", "destroy", "exit"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch (default)", "postpone", "destroy", "exit"])
                 if action.nil? or action == "dispatch (default)" then
                     return "DISPATCH" 
+                end
+                if action == "postpone" then
+                    return "POSTPONE"
                 end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
@@ -92,11 +98,18 @@ class Inbox
         system("clear")
         puts location.green
 
-        command = Inbox::probe(location) # "EXIT" | "DISPATCH" | "DESTROYED"
+        command = Inbox::probe(location) # "EXIT" | "POSTPONE" | "DISPATCH" | "DESTROYED"
 
         if command == "EXIT" then
             close.call(time1, selectListingInteractivelyOrDefaultIfSmallTime.call(time1))
             return
+        end
+
+        if command == "POSTPONE" then
+            if (unixtime = Utils::interactivelySelectAUnixtimeOrNull()) then
+                DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
+                return
+            end
         end
 
         if command == "DISPATCH" then
