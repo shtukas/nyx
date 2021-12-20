@@ -6,12 +6,6 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-AFewNx50s::initialise(false)
-
-Thread.new {
-    AFewNx50s::initialise(true)
-}
-
 Thread.new {
     loop {
         sleep 300
@@ -22,7 +16,7 @@ Thread.new {
 Thread.new {
     loop {
         sleep 1200
-        KeyValueStore::set(nil, "DE7C7BBC-845D-4511-A671-6B3E03BB75AC", AllTheNx50s::nx50s().size)
+        KeyValueStore::set(nil, "DE7C7BBC-845D-4511-A671-6B3E03BB75AC", Nx50s::nx50s().size)
     }
 }
 

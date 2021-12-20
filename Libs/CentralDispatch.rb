@@ -57,7 +57,7 @@ class CentralDispatch
             nx50 = object["Nx50"]
             if nx50["category2"][0] == "Dated" then
                 nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
-                AFewNx50s::commit(nx50)
+                Nx50s::commit(nx50)
             else
                 puts "You can only redate a dated item"
                 LucilleCore::pressEnterToContinue()
@@ -69,7 +69,7 @@ class CentralDispatch
             category2 = Nx50s::makeNewCategory2()
             nx50["category2"] = category2
             nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinal(category2)
-            AFewNx50s::commit(nx50)
+            Nx50s::commit(nx50)
         end
 
         if object["NS198"] == "ns16:Nx50" and command == "done" then
@@ -158,7 +158,7 @@ class CentralDispatch
         end
 
         if Interpreting::match("Nx50s", command) then
-            nx50s = AFewNx50s::getSet()
+            nx50s = Nx50s::nx50s()
             if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
                 nx50s = nx50s.first(Utils::screenHeight()-1)
             end

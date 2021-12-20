@@ -184,7 +184,7 @@ class TerminalDisplayOperator
                     store.registerDefault(ns16)
                 end
                 posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
-                announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                announce = "(#{"%6.3f" % ns16["ordinal"]}) #{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
                 if runningUUIDs.include?(ns16["uuid"]) then
                     announce = announce.green
                 end

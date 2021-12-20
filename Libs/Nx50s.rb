@@ -1,103 +1,55 @@
 # encoding: UTF-8
 
-$AFewNx50s = []
+class Nx50s
 
-class AllTheNx50s
-    # AllTheNx50s::setuuid()
+    # Nx50s::setuuid()
     def self.setuuid()
         "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
     end
 
-    # AllTheNx50s::nx50s()
+    # Nx50s::nx50s()
     def self.nx50s()
-        ObjectStore4::getSet(AllTheNx50s::setuuid())
+        ObjectStore4::getSet(Nx50s::setuuid())
             .map{|nx50|
                 if nx50["category2"].nil? or !Nx50s::coreCategories().include?(nx50["category2"][0]) then
                     puts JSON.pretty_generate(nx50)
                     nx50["category2"] = ["Dated", Utils::today()]
                     puts JSON.pretty_generate(nx50)
                     LucilleCore::pressEnterToContinue()
-                    ObjectStore4::store(nx50, AllTheNx50s::setuuid())
+                    ObjectStore4::store(nx50, Nx50s::setuuid())
                 end
                 nx50
             }
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
-end
 
-class AFewNx50s
-
-    # AFewNx50s::initialise(useTheForce)
-    def self.initialise(useTheForce)
-
-        if !useTheForce then
-            nx50s = KeyValueStore::getOrNull(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944")
-            if nx50s then
-                $AFewNx50s = JSON.parse(nx50s)
-                return
-            end
-        end
-
-        nx50s = []
-        nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Monitor" }
-        nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Dated" }
-        nx50s = nx50s + AllTheNx50s::nx50s().select{|item| item["category2"][0] == "Monitor-Todo" }
-        nx50s = nx50s + (AllTheNx50s::nx50s()
-                            .select{|item| item["category2"][0] == "Tail" }
-                            .reduce({"Nx50s"=>[], "counter"=>0}){|struct, nx50|
-                                if struct["counter"] < 100 then
-                                    struct["Nx50s"] << nx50
-                                    if Nx50s::itemIsOperational(nx50) then
-                                        struct["counter"] = struct["counter"] + 1
-                                    end
-                                end
-                                struct
-                            })["Nx50s"]
-        $AFewNx50s = nx50s
-        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944", JSON.generate($AFewNx50s))
-    end
-
-    # AFewNx50s::getSet()
-    def self.getSet()
-        $AFewNx50s
-            .map{|nx50| nx50.clone }
-            .sort{|x1, x2| x1["ordinal"] <=> x2["ordinal"] }
-    end
-
-    # AFewNx50s::commit(nx50)
+    # Nx50s::commit(nx50)
     def self.commit(nx50)
         if nx50["ordinal"].nil? then
             puts "Incorrect Nx50 trying to be commited"
             puts JSON.pretty_generate(nx50)
             exit
         end
-        ObjectStore4::store(nx50, AllTheNx50s::setuuid())
-        $AFewNx50s = ($AFewNx50s.reject{|x| x["uuid"] == nx50["uuid"] } + [ nx50.clone ])
-        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944", JSON.generate($AFewNx50s))
+        ObjectStore4::store(nx50, Nx50s::setuuid())
     end
 
-    # AFewNx50s::destroy(nx50)
+    # Nx50s::destroy(nx50)
     def self.destroy(nx50)
-        ObjectStore4::removeObjectFromSet(AllTheNx50s::setuuid(), nx50["uuid"])
-        $AFewNx50s = $AFewNx50s.reject{|x| x["uuid"] == nx50["uuid"] }
-        KeyValueStore::set(nil, "dd8f1ecc-c688-4b78-a77e-555c67186944", JSON.generate($AFewNx50s))
+        ObjectStore4::removeObjectFromSet(Nx50s::setuuid(), nx50["uuid"])
     end
-end
-
-class Nx50s
 
     # --------------------------------------------------
     # Ordinals
 
     # Nx50s::nextOrdinal()
     def self.nextOrdinal()
-        biggest = ([0] + AllTheNx50s::nx50s().map{|nx50| nx50["ordinal"] }).max
+        biggest = ([0] + Nx50s::nx50s().map{|nx50| nx50["ordinal"] }).max
         (biggest + 1).floor
     end
 
     # Nx50s::nextMonitorTodoOrdinal()
     def self.nextMonitorTodoOrdinal()
-        nx50s = AllTheNx50s::nx50s()
+        nx50s = Nx50s::nx50s()
                     .select{|nx50| nx50["category2"][0] == "Monitor-Todo" }
         biggest = ([0] + nx50s.map{|nx50| nx50["ordinal"] }).max
         (biggest + 1).floor
@@ -105,7 +57,7 @@ class Nx50s
 
     # Nx50s::ordinalBetweenN1thAndN2th(n1, n2)
     def self.ordinalBetweenN1thAndN2th(n1, n2)
-        nx50s = AllTheNx50s::nx50s()
+        nx50s = Nx50s::nx50s()
         if nx50s.size < n1+2 then
             return Nx50s::nextOrdinal()
         end
@@ -126,7 +78,7 @@ class Nx50s
         end
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
-            AllTheNx50s::nx50s()
+            Nx50s::nx50s()
                 .first(50)
                 .select{|item| item["category2"][0] == category2[0] }
                 .each{|nx50| 
@@ -194,7 +146,7 @@ class Nx50s
             "atom"        => atom,
             "category2"   => category2
         }
-        AFewNx50s::commit(nx50)
+        Nx50s::commit(nx50)
         nx50
     end
 
@@ -214,7 +166,7 @@ class Nx50s
             "atom"        => atom,
             "category2"   => category2
         }
-        AFewNx50s::commit(nx50)
+        Nx50s::commit(nx50)
         nx50
     end
 
@@ -231,7 +183,7 @@ class Nx50s
             "atom"        => CoreData5::issueDescriptionOnlyAtom(),
             "category2"   => category2
         }
-        AFewNx50s::commit(nx50)
+        Nx50s::commit(nx50)
         nx50
     end
 
@@ -248,7 +200,7 @@ class Nx50s
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "category2"   => category2
         }
-        AFewNx50s::commit(nx50)
+        Nx50s::commit(nx50)
         nx50
     end
 
@@ -265,7 +217,7 @@ class Nx50s
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "category2"   => category2
         }
-        AFewNx50s::commit(nx50)
+        Nx50s::commit(nx50)
         nx50
     end
 
@@ -280,7 +232,7 @@ class Nx50s
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
             "category2"   => ["Tail"]
         }
-        AFewNx50s::commit(nx50)
+        Nx50s::commit(nx50)
         nx50
     end
 
@@ -295,7 +247,7 @@ class Nx50s
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
             "category2"   => ["Tail"]
         }
-        AFewNx50s::commit(nx50)
+        Nx50s::commit(nx50)
         nx50
     end
 
@@ -333,7 +285,7 @@ class Nx50s
 
     # Nx50s::complete(nx50)
     def self.complete(nx50)
-        AFewNx50s::destroy(nx50)
+        Nx50s::destroy(nx50)
     end
 
     # Nx50s::importspread()
@@ -374,7 +326,7 @@ class Nx50s
         updated = CoreData5::accessWithOptionToEdit(nx50["atom"])
         if updated then
             nx50["atom"] = updated
-            AFewNx50s::commit(nx50)
+            Nx50s::commit(nx50)
         end
     end
 
@@ -446,20 +398,20 @@ class Nx50s
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
                 nx50["description"] = description
-                AFewNx50s::commit(nx50)
+                Nx50s::commit(nx50)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 nx50["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                AFewNx50s::commit(nx50)
+                Nx50s::commit(nx50)
                 next
             end
 
             if Interpreting::match("redate", command) then
                 if nx50["category2"][0] == "Dated" then
                     nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
-                    AFewNx50s::commit(nx50)
+                    Nx50s::commit(nx50)
                 else
                     puts "You can only redate a dated item"
                     LucilleCore::pressEnterToContinue()
@@ -470,13 +422,13 @@ class Nx50s
             if Interpreting::match("ordinal", command) then
                 ordinal = Nx50s::interactivelyDecideNewOrdinal(nx50["category2"])
                 nx50["ordinal"] = ordinal
-                AFewNx50s::commit(nx50)
+                Nx50s::commit(nx50)
                 next
             end
 
             if Interpreting::match("rotate", command) then
                 nx50["ordinal"] = Nx50s::nextOrdinal()
-                AFewNx50s::commit(nx50)
+                Nx50s::commit(nx50)
                 break
             end
 
@@ -485,7 +437,7 @@ class Nx50s
                 nx50["category2"] = category2
                 nx50["ordinal"]   = Nx50s::interactivelyDecideNewOrdinal(category2)
                 puts JSON.pretty_generate(nx50)
-                AFewNx50s::commit(nx50)
+                Nx50s::commit(nx50)
                 next
             end
 
@@ -620,14 +572,14 @@ class Nx50s
 
     # Nx50s::structure()
     def self.structure()
-        Nx50s::structureGivenNx50s(AFewNx50s::getSet())
+        Nx50s::structureGivenNx50s(Nx50s::nx50s())
     end
 
     # --------------------------------------------------
 
     # Nx50s::nx19s()
     def self.nx19s()
-        AllTheNx50s::nx50s().map{|item|
+        Nx50s::nx50s().map{|item|
             {
                 "uuid"     => item["uuid"],
                 "announce" => Nx50s::toStringForNS19(item),
