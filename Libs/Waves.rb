@@ -353,7 +353,9 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
+        isCircuitBreaker = (Beatrice::stdRecoveredHourlyTimeInHours("WAVES-TIME-75-42E8-85E2-F17E869DF4D3") > 0.25)
         Waves::items()
+            .select{|wave| Waves::isPriorityWave(wave) or !isCircuitBreaker }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }
