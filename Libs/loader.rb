@@ -151,6 +151,8 @@ require_relative "Listings.rb"
 
 require_relative "Nx50s.rb"
 
+require_relative "Ordinals.rb"
+
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"

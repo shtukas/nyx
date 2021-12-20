@@ -64,8 +64,15 @@ class Nx77
         ]
             .flatten
             .compact
+            .map{|item| 
+                if item["ordinal"].nil? then
+                    item["ordinal"] = Ordinals::smallOrdinalForToday(item["uuid"])
+                end
+                item
+            }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            .sort{|x1, x2| x1["ordinal"] <=> x2["ordinal"] }
     end
 
     # Nx77::makeNx76()

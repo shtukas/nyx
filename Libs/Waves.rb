@@ -305,6 +305,7 @@ class Waves
             "uuid"     => uuid,
             "NS198"    => "ns16:wave1",
             "announce" => Waves::toString(wave),
+            "ordinal"  => Ordinals::smallOrdinalForToday(uuid),
             "commands" => ["..", "landing", "done"],
             "wave"     => wave
         }

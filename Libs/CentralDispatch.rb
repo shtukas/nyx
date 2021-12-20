@@ -79,7 +79,7 @@ class CentralDispatch
             nx50 = object["Nx50"]
             category2 = Nx50s::makeNewCategory2()
             nx50["category2"] = category2
-            nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+            nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
             AFewNx50s::commit(nx50)
         end
 

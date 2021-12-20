@@ -4,7 +4,7 @@ Nx50 {
     "ordinal"     : Float
     "description" : String
     "atom"        : CoreData5.Atom
-    "listing"     : Listing
+    "listing"     : "EVA" | "WORK" | "JEDI" | "ENTERTAINMENT"
     "category2"   : 
                         ["Monitor"]
                         ["Dated", Date]

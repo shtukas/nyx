@@ -121,18 +121,18 @@ class Nx50s
         (biggest + 1).floor
     end
 
-    # Nx50s::ordinalWithinTheFirst10(listing)
-    def self.ordinalWithinTheFirst10(listing)
+    # Nx50s::ordinalBetween10And20(listing)
+    def self.ordinalBetween10And20(listing)
         nx50s = AllTheNx50s::nx50sForListing(listing)
-        if nx50s.size < 10 then
+        if nx50s.size < 12 then
             return Nx50s::nextOrdinal()
         end
-        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.first(10)
+        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(10).take(10)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
-    # Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
-    def self.interactivelyDecideNewOrdinalOrNull(listing, category2)
+    # Nx50s::interactivelyDecideNewOrdinal(listing, category2)
+    def self.interactivelyDecideNewOrdinal(listing, category2)
         if category2[0] == "Monitor" then
             return Nx50s::nextOrdinal()
         end
@@ -142,8 +142,7 @@ class Nx50s
         if category2[0] == "Dated" then
             return Nx50s::nextOrdinal()
         end
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within the first 10", "next"])
-        return nil if action.nil?
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (defaul)"])
         if action == "fine selection near the top" then
             AllTheNx50s::nx50sForListing(listing)
                 .first(50)
@@ -153,11 +152,8 @@ class Nx50s
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
-        if action == "random within the first 10" then
-            return Nx50s::ordinalWithinTheFirst10(listing)
-        end
-        if action == "next" then
-            return Nx50s::nextOrdinal()
+        if action.nil? or action == "random within [10-20] (defaul)" then
+            return Nx50s::ordinalBetween10And20(listing)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
@@ -210,7 +206,7 @@ class Nx50s
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -232,7 +228,7 @@ class Nx50s
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         listing = Listings::interactivelySelectListing()
         category2 = lambda1.call()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -251,7 +247,7 @@ class Nx50s
         uuid = SecureRandom.uuid
         listing = Listings::interactivelySelectListing()
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -269,7 +265,7 @@ class Nx50s
     def self.issueItemUsingLocation(location, listing)
         uuid = SecureRandom.uuid
         category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -287,7 +283,7 @@ class Nx50s
     def self.issueInboxItemUsingLocation(location, listing, description)
         uuid = SecureRandom.uuid
         category2 = Nx50s::makeNewInboxCategory2(listing)
-        ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal(listing, category2)
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -320,13 +316,14 @@ class Nx50s
     # Nx50s::issueViennaURL(url)
     def self.issueViennaURL(url)
         uuid = SecureRandom.uuid
+        listing = "ENTERTAINMENT"
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
-            "ordinal"     => Nx50s::nextOrdinal(),
+            "ordinal"     => Nx50s::ordinalBetween10And20(listing),
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
-            "listing"     => "EVA",
+            "listing"     => listing,
             "category2"   => ["Tail"]
         }
         AFewNx50s::commit(nx50)
@@ -506,8 +503,7 @@ class Nx50s
             end
 
             if Interpreting::match("ordinal", command) then
-                ordinal = Nx50s::interactivelyDecideNewOrdinalOrNull(nx50["listing"], nx50["category2"])
-                next if ordinal.nil?
+                ordinal = Nx50s::interactivelyDecideNewOrdinal(nx50["listing"], nx50["category2"])
                 nx50["ordinal"] = ordinal
                 AFewNx50s::commit(nx50)
                 next
@@ -522,7 +518,7 @@ class Nx50s
             if Interpreting::match("listing", command) then
                 listing = Listings::interactivelySelectListing()
                 nx50["listing"] = listing
-                nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinalOrNull(listing, nx50["category2"])
+                nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinal(listing, nx50["category2"])
                 AFewNx50s::commit(nx50)
                 break
             end
@@ -530,7 +526,7 @@ class Nx50s
             if Interpreting::match("category", command) then
                 category2 = Nx50s::makeNewCategory2()
                 nx50["category2"] = category2
-                nx50["ordinal"]   = Nx50s::interactivelyDecideNewOrdinalOrNull(nx50["listing"], category2)
+                nx50["ordinal"]   = Nx50s::interactivelyDecideNewOrdinal(nx50["listing"], category2)
                 puts JSON.pretty_generate(nx50)
                 AFewNx50s::commit(nx50)
                 next
@@ -589,6 +585,7 @@ class Nx50s
             "NS198"    => "ns16:Nx50",
             "announce" => Nx50s::toStringForNS16(nx50, rt),
             "commands" => getCommands.call(nx50),
+            "ordinal"  => nx50["ordinal"],
             "Nx50"     => nx50,
             "rt"       => rt
         }

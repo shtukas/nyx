@@ -92,6 +92,7 @@ class Calendar
                     "uuid"     => uuid,
                     "NS198"    => "ns16:calendar1",
                     "announce" => Calendar::toString(item).gsub("[calendar]", "[cale]"),
+                    "ordinal"  => Ordinals::smallOrdinalForToday(uuid),
                     "commands" => ["..", "done"],
                     "item"     => item
                 }

@@ -167,9 +167,10 @@ class Anniversaries
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
             .map{|anniversary|
                 {
-                    "uuid"  => anniversary["uuid"],
-                    "NS198" => "ns16:anniversary1",
+                    "uuid"        => anniversary["uuid"],
+                    "NS198"       => "ns16:anniversary1",
                     "announce"    => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
+                    "ordinal"     => Ordinals::smallOrdinalForToday(anniversary["uuid"]),
                     "commands"    => ["..", "done"],
                     "anniversary" => anniversary
                 }
