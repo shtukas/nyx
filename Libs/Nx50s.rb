@@ -152,7 +152,7 @@ class Nx50s
         if category2[0] == "Dated" then
             return Nx50s::nextOrdinal()
         end
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (defaul)"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
             AllTheNx50s::nx50sForListing(listing)
                 .first(50)
@@ -162,7 +162,7 @@ class Nx50s
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
-        if action.nil? or action == "random within [10-20] (defaul)" then
+        if action.nil? or action == "random within [10-20] (default)" then
             return Nx50s::ordinalBetween10thAnd20thAtListing(listing)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
