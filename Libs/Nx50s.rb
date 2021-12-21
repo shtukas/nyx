@@ -191,11 +191,6 @@ class Nx50s
     # --------------------------------------------------
     # Operations
 
-    # Nx50s::complete(nx50)
-    def self.complete(nx50)
-        Nx50s::destroy(nx50)
-    end
-
     # Nx50s::importspread()
     def self.importspread()
         locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s Spread")
@@ -336,7 +331,7 @@ class Nx50s
 
             if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                    Nx50s::complete(nx50)
+                    Nx50s::destroy(nx50["uuid"])
                     break
                 end
                 next
@@ -344,7 +339,7 @@ class Nx50s
 
             if command == "gg" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                    Nx50s::complete(nx50)
+                    Nx50s::destroy(nx50["uuid"])
                     break
                 end
                 next

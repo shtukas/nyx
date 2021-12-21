@@ -90,7 +90,7 @@ class CentralDispatch
         if object["NS198"] == "ns16:Nx50" and command == "done" then
             nx50 = object["Nx50"]
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                Nx50s::complete(nx50)
+                Nx50s::destroy(nx50["uuid"])
                 CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
             end
         end
