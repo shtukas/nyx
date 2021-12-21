@@ -16,9 +16,9 @@ class Mx51s
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx51)) }
     end
 
-    # Mx51s::destroy(mx51)
-    def self.destroy(mx51)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx51s/#{Digest::SHA1.hexdigest(mx51["uuid"])[0, 10]}.json"
+    # Mx51s::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx51s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -215,7 +215,7 @@ class Mx51s
 
             if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx51s::toString(mx51)}' ? ", true) then
-                    Mx51s::destroy(mx51)
+                    Mx51s::destroy(mx51["uuid"])
                     break
                 end
                 next
@@ -223,7 +223,7 @@ class Mx51s
 
             if command == "gg" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx51s::toString(mx51)}' ? ", true) then
-                    Mx51s::destroy(mx51)
+                    Mx51s::destroy(mx51["uuid"])
                     break
                 end
                 next
