@@ -2,6 +2,6 @@ Mx49 { # Dated
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String
-    "date"        : Date
+    "datetime"    : DateTime Iso8601 # We then project to the date
     "atom"        : CoreData5.Atom
 }

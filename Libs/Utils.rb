@@ -205,6 +205,13 @@ class Utils
         Time.at(unixtime).to_s[0, 10]
     end
 
+    # Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+    def self.interactivelySelectAUTCIso8601DateTimeOrNull()
+        unixtime = Utils::interactivelySelectAUnixtimeOrNull()
+        return nil if unixtime.nil?
+        Time.at(unixtime).utc.iso8601
+    end
+
     # Utils::verticalSize(displayStr)
     def self.verticalSize(displayStr)
         displayStr.lines.map{|line| line.size/Utils::screenWidth() + 1 }.inject(0, :+)

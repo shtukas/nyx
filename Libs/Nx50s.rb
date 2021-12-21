@@ -123,29 +123,13 @@ class Nx50s
         nx50
     end
 
-    # Nx50s::issueItemUsingLine(line)
-    def self.issueItemUsingLine(line)
+    # Nx50s::issueItemUsingInboxLocation(location)
+    def self.issueItemUsingInboxLocation(location)
         uuid = SecureRandom.uuid
-        ordinal = Nx50s::interactivelyDecideNewOrdinal()
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
-            "ordinal"     => ordinal,
-            "description" => line,
-            "atom"        => CoreData5::issueDescriptionOnlyAtom()
-        }
-        Nx50s::commit(nx50)
-        nx50
-    end
-
-    # Nx50s::issueItemUsingLocation(location)
-    def self.issueItemUsingLocation(location)
-        uuid = SecureRandom.uuid
-        ordinal = Nx50s::interactivelyDecideNewOrdinal()
-        nx50 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => ordinal,
+            "ordinal"     => Nx50s::ordinalBetweenN1thAndN2th(20, 30),
             "description" => File.basename(location),
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
         }

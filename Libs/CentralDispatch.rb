@@ -53,6 +53,12 @@ class CentralDispatch
             Inbox::run(object["location"])
         end
 
+        if object["NS198"] == "ns16:inbox1" and command == ">>" then
+            location = object["location"]
+            Nx50s::issueItemUsingInboxLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+        end
+
         if object["NS198"] == "ns16:Nx50" and command == ".." then
             Nx50s::run(object["Nx50"])
         end
@@ -61,10 +67,24 @@ class CentralDispatch
             Mx49s::run(object["Mx49"])
         end
 
+        if object["NS198"] == "ns16:Mx49" and command == "done" then
+            mx49 = object["Mx49"]
+            Mx49s::destroy(mx49)
+        end
+
         if object["NS198"] == "ns16:Mx49" and command == "redate" then
             mx49 = object["Mx49"]
-            mx49["date"] = (Utils::interactivelySelectADateOrNull() || Utils::today())
+            mx49["datetime"] = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
             Mx49s::commit(mx49)
+        end
+
+        if object["NS198"] == "ns16:Mx49" and command == ">>" then
+            mx49 = object["Mx49"]
+            nx50 = mx49.clone
+            nx50["uuid"] = SecureRandom.uuid
+            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
+            Nx50s::commit(nx50)
+            Mx49s::destroy(mx49)
         end
 
         if object["NS198"] == "ns16:Nx50" and command == "done" then

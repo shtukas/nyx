@@ -73,6 +73,20 @@ class Mx51s
         mx51
     end
 
+    # Mx51s::issueItemUsingInboxLocation(location)
+    def self.issueItemUsingInboxLocation(location)
+        uuid = SecureRandom.uuid
+        item = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
+            "ordinal"     => Mx51s::interactivelyDecideNewOrdinal(),
+            "description" => File.basename(location),
+            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
+        }
+        Mx51s::commit(item)
+        item
+    end
+
     # --------------------------------------------------
     # toString
 

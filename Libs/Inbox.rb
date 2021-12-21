@@ -16,35 +16,41 @@ class Inbox
         uuid
     end
 
-    # Inbox::probe(location) : "EXIT" | "POSTPONE" | "DESTROYED"
+    # Inbox::probe(location) : "EXIT" | ">Nx50s" | ">Mx51s" | "DESTROYED"
     def self.probe(location)
         loop {
             if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "postpone", "destroy", "exit (default)"])
-                if action.nil? or action == "exit (default)" then
-                    return "EXIT" 
-                end
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", ">> (dispatch to Nx50s)", ">> (dispatch to work Mx51s)", "destroy", "exit (default)"])
                 if action == "open" then
                     system("open '#{location}'")
                 end
-                if action == "postpone" then
-                    return "POSTPONE"
-                end
                 if action == "copy to desktop" then
                     FileUtils.cp(location, "/Users/pascal/Desktop")
+                end
+                if action == ">> (dispatch to Nx50s)" then
+                    return ">Nx50s"
+                end
+                if action == ">> (dispatch to work Mx51s)" then
+                    return ">Mx51s"
                 end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
                     return "DESTROYED"
                 end
-            else
-                system("open '#{location}'")
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch (default)", "postpone", "destroy", "exit (default)"])
                 if action.nil? or action == "exit (default)" then
                     return "EXIT" 
                 end
-                if action == "postpone" then
-                    return "POSTPONE"
+            else
+                system("open '#{location}'")
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch (default)", ">> (dispatch to Nx50s)", ">> (dispatch to work Mx51s)", "destroy", "exit (default)"])
+                if action.nil? or action == "exit (default)" then
+                    return "EXIT" 
+                end
+                if action == ">> (dispatch to Nx50s)" then
+                    return ">Nx50s"
+                end
+                if action == ">> (dispatch to work Mx51s)" then
+                    return ">Mx51s"
                 end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
@@ -58,12 +64,14 @@ class Inbox
     def self.run(location)
         system("clear")
         puts location.green
-        command = Inbox::probe(location) # "EXIT" | "POSTPONE" | "DESTROYED"
-        if command == "POSTPONE" then
-            if (unixtime = Utils::interactivelySelectAUnixtimeOrNull()) then
-                DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
-                return
-            end
+        command = Inbox::probe(location) # "EXIT" | ">Nx50s" | ">Mx51s" | "DESTROYED"
+        if command == ">Nx50s" then
+            Nx50s::issueItemUsingInboxLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+        end
+        if command == ">Mx51s" then
+            Mx51s::issueItemUsingInboxLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
         end
     end
 
@@ -94,7 +102,7 @@ class Inbox
                     "NS198"        => "ns16:inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
-                    "commands"     => ["..", ">> (dispatch)"],
+                    "commands"     => ["..", ">> (dispatch to Nx50s)"],
                     "location"     => location
                 }
             }

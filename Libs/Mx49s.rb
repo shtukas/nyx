@@ -30,14 +30,14 @@ class Mx49s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        date = Utils::interactivelySelectADateOrNull()
+        datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if date.nil?
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         mx49 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "date"        => date,
+            "datetime"    => datetime,
             "atom"        => atom
         }
         Mx49s::commit(mx49)
@@ -49,13 +49,13 @@ class Mx49s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        date = Utils::today()
+        datetime = Time.new.utc.iso8601
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         mx49 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "date"        => date,
+            "datetime"    => datetime,
             "atom"        => atom
         }
         Mx49s::commit(mx49)
@@ -192,19 +192,19 @@ class Mx49s
         uuid = mx49["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Mx48",
-            "announce" => "[#{mx49["date"]}] #{Mx49s::toString(mx49)}",
-            "commands" => ["..", "redate"],
-            "Mx48"     => mx49
+            "NS198"    => "ns16:Mx49",
+            "announce" => "[#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})",
+            "commands" => ["..", "done", "redate", ">> (dispatch to Nx50s)"],
+            "Mx49"     => mx49
         }
     end
 
     # Mx49s::ns16s()
     def self.ns16s()
         Mx49s::items()
-            .select{|item| true }
-            .sort{|i1, i2| i1["date"] <=> i2["date"] }
-            .map{|item| Mx49s::ns16(item) }
+            .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }
+            .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            .map{|mx49| Mx49s::ns16(mx49) }
     end
 
     # --------------------------------------------------
