@@ -4,9 +4,6 @@ Nx50 {
     "ordinal"     : Float
     "description" : String
     "atom"        : CoreData5.Atom
-    "category2"   : 
-                        ["Dated", Date]
-                        ["Tail"]
 }
 
 CoreData ObjectStore4 set: "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"

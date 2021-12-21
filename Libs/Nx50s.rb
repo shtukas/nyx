@@ -10,16 +10,6 @@ class Nx50s
     # Nx50s::nx50s()
     def self.nx50s()
         ObjectStore4::getSet(Nx50s::setuuid())
-            .map{|nx50|
-                if nx50["category2"].nil? or !Nx50s::coreCategories().include?(nx50["category2"][0]) then
-                    puts JSON.pretty_generate(nx50)
-                    nx50["category2"] = ["Dated", Utils::today()]
-                    puts JSON.pretty_generate(nx50)
-                    LucilleCore::pressEnterToContinue()
-                    ObjectStore4::store(nx50, Nx50s::setuuid())
-                end
-                nx50
-            }
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
     end
 
@@ -57,16 +47,12 @@ class Nx50s
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
-    # Nx50s::interactivelyDecideNewOrdinal(category2)
-    def self.interactivelyDecideNewOrdinal(category2)
-        if category2[0] == "Dated" then
-            return Nx50s::nextOrdinal()
-        end
+    # Nx50s::interactivelyDecideNewOrdinal()
+    def self.interactivelyDecideNewOrdinal()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
             Nx50s::nx50s()
                 .first(50)
-                .select{|item| item["category2"][0] == category2[0] }
                 .each{|nx50| 
                     puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
                 }
@@ -95,24 +81,6 @@ class Nx50s
         Nx50s::interactivelySelectCoreCategory()
     end
 
-    # Nx50s::makeNewCategory2()
-    def self.makeNewCategory2()
-        corecategory = Nx50s::interactivelySelectCoreCategory()
-        if corecategory == "Dated" then
-            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
-        end
-        [corecategory]
-    end
-
-    # Nx50s::makeNewInboxCategory2()
-    def self.makeNewInboxCategory2()
-        corecategory = Nx50s::interactivelySelectCoreCategory()
-        if corecategory == "Dated" then
-            return ["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]
-        end
-        [corecategory]
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -122,35 +90,13 @@ class Nx50s
         return nil if description == ""
         uuid = SecureRandom.uuid
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal()
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
-            "atom"        => atom,
-            "category2"   => category2
-        }
-        Nx50s::commit(nx50)
-        nx50
-    end
-
-    # Nx50s::issueItemWithCategoryLambdaOrNull(lambda1)
-    def self.issueItemWithCategoryLambdaOrNull(lambda1)
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        uuid = SecureRandom.uuid
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        category2 = lambda1.call()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
-        nx50 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => ordinal,
-            "description" => description,
-            "atom"        => atom,
-            "category2"   => category2
+            "atom"        => atom
         }
         Nx50s::commit(nx50)
         nx50
@@ -159,15 +105,13 @@ class Nx50s
     # Nx50s::issueItemUsingLine(line)
     def self.issueItemUsingLine(line)
         uuid = SecureRandom.uuid
-        category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal()
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => line,
-            "atom"        => CoreData5::issueDescriptionOnlyAtom(),
-            "category2"   => category2
+            "atom"        => CoreData5::issueDescriptionOnlyAtom()
         }
         Nx50s::commit(nx50)
         nx50
@@ -176,15 +120,13 @@ class Nx50s
     # Nx50s::issueItemUsingLocation(location)
     def self.issueItemUsingLocation(location)
         uuid = SecureRandom.uuid
-        category2 = Nx50s::makeNewCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal()
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => File.basename(location),
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-            "category2"   => category2
         }
         Nx50s::commit(nx50)
         nx50
@@ -193,15 +135,13 @@ class Nx50s
     # Nx50s::issueInboxItemUsingLocation(location, description)
     def self.issueInboxItemUsingLocation(location, description)
         uuid = SecureRandom.uuid
-        category2 = Nx50s::makeNewInboxCategory2()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal(category2)
+        ordinal = Nx50s::interactivelyDecideNewOrdinal()
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-            "category2"   => category2
         }
         Nx50s::commit(nx50)
         nx50
@@ -216,7 +156,6 @@ class Nx50s
             "ordinal"     => ordinal,
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-            "category2"   => ["Tail"]
         }
         Nx50s::commit(nx50)
         nx50
@@ -230,8 +169,7 @@ class Nx50s
             "unixtime"    => Time.new.to_i,
             "ordinal"     => Nx50s::ordinalBetweenN1thAndN2th(10, 50),
             "description" => url,
-            "atom"        => CoreData5::issueUrlAtomUsingUrl(url),
-            "category2"   => ["Tail"]
+            "atom"        => CoreData5::issueUrlAtomUsingUrl(url)
         }
         Nx50s::commit(nx50)
         nx50
@@ -257,9 +195,6 @@ class Nx50s
 
     # Nx50s::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        if nx50["category2"][0] == "Dated" then
-            return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]})"
-        end
         "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
@@ -339,7 +274,6 @@ class Nx50s
             puts "ordinal: #{nx50["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
-            puts "Category: #{nx50["category2"].join(", ")}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(nx50["atom"]) then
                 puts text
@@ -354,7 +288,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | atom | redate | ordinal | rotate | category | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | atom | ordinal | rotate | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -391,19 +325,8 @@ class Nx50s
                 next
             end
 
-            if Interpreting::match("redate", command) then
-                if nx50["category2"][0] == "Dated" then
-                    nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
-                    Nx50s::commit(nx50)
-                else
-                    puts "You can only redate a dated item"
-                    LucilleCore::pressEnterToContinue()
-                end
-                next
-            end
-
             if Interpreting::match("ordinal", command) then
-                ordinal = Nx50s::interactivelyDecideNewOrdinal(nx50["category2"])
+                ordinal = Nx50s::interactivelyDecideNewOrdinal()
                 nx50["ordinal"] = ordinal
                 Nx50s::commit(nx50)
                 next
@@ -413,15 +336,6 @@ class Nx50s
                 nx50["ordinal"] = Nx50s::nextOrdinal()
                 Nx50s::commit(nx50)
                 break
-            end
-
-            if Interpreting::match("category", command) then
-                category2 = Nx50s::makeNewCategory2()
-                nx50["category2"] = category2
-                nx50["ordinal"]   = Nx50s::interactivelyDecideNewOrdinal(category2)
-                puts JSON.pretty_generate(nx50)
-                Nx50s::commit(nx50)
-                next
             end
 
             if Interpreting::match("show json", command) then
@@ -487,52 +401,16 @@ class Nx50s
 
     # Nx50s::ns16s()
     def self.ns16s()
-        items = Nx50s::nx50s()
-
         Nx50s::importspread()
-
-        # -- dated ---------------------------
-
-        dated, items = items.partition{|item| item["category2"][0] == "Dated" }
-
-        dated = dated.select{|item| item["category2"][1] <= Utils::today()}
-
-        mapping = dated
-            .map{|atom|
-                if atom["date"].nil? then
-                    atom["date"] = Utils::today()
+        Nx50s::nx50s()
+            .reduce([]){|selection, item|  
+                if selection.size < 100 and Nx50s::itemIsOperational(item) then
+                    selection << item
                 end
-                atom
+                selection
             }
-            .reduce({}){|mapping, atom|
-                if mapping[atom["date"]].nil? then
-                    mapping[atom["date"]] = []
-                end
-                mapping[atom["date"]] << atom
-                mapping
-            }
-
-        dated = mapping.keys.sort.map{|date| mapping[date].sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] } }.flatten
-
-        dated = dated
-                    .map{|item| Nx50s::ns16OrNull(item) }
-                    .compact
-
-        # -- tail ---------------------------
-
-        tail = items
-                .reduce([]){|selection, item|  
-                    if selection.size < 100 and Nx50s::itemIsOperational(item) then
-                        selection << item
-                    end
-                    selection
-                }
-
-        tail = tail
-                .map{|item| Nx50s::ns16OrNull(item) }
-                .compact
-
-        dated + tail
+            .map{|item| Nx50s::ns16OrNull(item) }
+            .compact
     end
 
     # --------------------------------------------------
