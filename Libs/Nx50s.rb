@@ -2,22 +2,6 @@
 
 class Nx50s
 
-    # Nx50s::setuuid()
-    #def self.setuuid()
-    #    "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
-    #end
-
-    # Nx50s::nx50s()
-    #def self.nx50s()
-    #    ObjectStore4::getSet(Nx50s::setuuid())
-    #        .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
-    #end
-
-    # Nx50s::destroy(nx50)
-    #def self.destroy(nx50)
-    #    ObjectStore4::removeObjectFromSet(Nx50s::setuuid(), nx50["uuid"])
-    #end
-
     # Nx50s::databaseFilepath()
     def self.databaseFilepath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s.sqlite"

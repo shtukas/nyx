@@ -69,14 +69,6 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
-        getOrdinal = lambda {|uuid|
-            ordinal = KeyValueStore::getOrNull(nil, "dc44e18a-2cfa-44a6-9a18-eb12cf255560:#{uuid}")
-            return ordinal.to_f if ordinal
-            ordinal = rand
-            KeyValueStore::set(nil, "dc44e18a-2cfa-44a6-9a18-eb12cf255560:#{uuid}", ordinal)
-            ordinal
-        }
-
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
