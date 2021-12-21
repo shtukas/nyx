@@ -32,7 +32,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "start # unscheduled | monitor | today | ondate | todo | wave | anniversary"
+        "monitor | today | ondate | todo | wave | anniversary"
     end
 
     # Commands::diversCommands()
@@ -70,7 +70,7 @@ class NS16sOperator
             NS16sOperator::isWorkTime() ? nil : Waves::ns16s(),
             Inbox::ns16s(),
             Mx49s::ns16s(),
-            NS16sOperator::isWorkTime() ? Mx51s::ns16s() : nil, # Work Items
+            #NS16sOperator::isWorkTime() ? Mx51s::ns16s() : nil, # Work Items
             NS16sOperator::isWorkTime() ? nil : Nx50s::ns16s(), # Standard Todo Items
         ]
             .flatten
@@ -98,45 +98,23 @@ class TerminalDisplayOperator
 
         vspaceleft = Utils::screenHeight()-4
 
-        infolines = [
-            "      " + Commands::terminalDisplayCommand(),
-            "      " + Commands::makersCommands(),
-            "      " + Commands::diversCommands(),
-            "      internet on | internet off | require internet"
-        ].join("\n").yellow
-
-        vspaceleft = vspaceleft - Utils::verticalSize(infolines)
+        puts ""
 
         store = ItemStore.new()
 
         if !InternetStatus::internetIsActive() then
-            puts ""
             puts "INTERNET IS OFF".green
-            vspaceleft = vspaceleft - 2
-        end
-
-        puts ""
-        puts "commands:"
-        vspaceleft = vspaceleft - 2
-        puts infolines
-
-        if !monitor2.empty? then
-            puts ""
             vspaceleft = vspaceleft - 1
-            puts "monitor:"
-            monitor2.each{|ns16|
-                line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
         end
+
+        monitor2.each{|ns16|
+            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+            puts line
+            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        }
 
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
-        if running.size > 0 then
-            puts ""
-            puts "running:"
-            vspaceleft = vspaceleft - 2
-            running
+        running
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
                 .each{|nxball|
                     delegate = {
@@ -148,19 +126,14 @@ class TerminalDisplayOperator
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
-        end
         runningUUIDs = running.map{|item| item["uuid"] }
 
         catalyst = IO.read("/Users/pascal/Desktop/Catalyst.txt").strip
         if catalyst.size > 0 then
-            puts ""
             puts "Catalyst.txt is not empty".green
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - 1
         end
 
-        puts ""
-        puts "todo:"
-        vspaceleft = vspaceleft - 2
         ns16Originals
             .each{|ns16|
                 indx = store.register(ns16)

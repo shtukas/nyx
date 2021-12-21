@@ -169,6 +169,16 @@ class CentralDispatch
         if Interpreting::match("nyx", command) then
             system("/Users/pascal/Galaxy/Software/Nyx/nyx")
         end
+
+        if command == "commands" then
+            puts [
+                    "      " + Commands::terminalDisplayCommand(),
+                    "      " + Commands::makersCommands(),
+                    "      " + Commands::diversCommands(),
+                    "      internet on | internet off | require internet"
+                 ].join("\n").yellow
+            LucilleCore::pressEnterToContinue()
+        end
     end
 
     # CentralDispatch::operator5(ns16, command)
