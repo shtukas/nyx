@@ -49,7 +49,7 @@ class Mx49s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        date = Utils::Today()
+        date = Utils::today()
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         mx49 = {
             "uuid"        => uuid,

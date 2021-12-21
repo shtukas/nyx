@@ -1,0 +1,9 @@
+Nx50 { # Work Item (ordinals like Nx50s)
+    "uuid"        : uuid
+    "unixtime"    : Float
+    "ordinal"     : Float
+    "description" : String
+    "atom"        : CoreData5.Atom
+}
+
+CoreData ObjectStore4 set: "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"

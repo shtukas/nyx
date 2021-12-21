@@ -1,4 +1,4 @@
-Nx50 {
+Nx50 { # Standard Todo
     "uuid"        : uuid
     "unixtime"    : Float
     "ordinal"     : Float
