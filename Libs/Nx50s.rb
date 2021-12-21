@@ -115,21 +115,6 @@ class Nx50s
         nx50
     end
 
-    # Nx50s::issueInboxItemUsingLocation(location, description)
-    def self.issueInboxItemUsingLocation(location, description)
-        uuid = SecureRandom.uuid
-        ordinal = Nx50s::interactivelyDecideNewOrdinal()
-        nx50 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => ordinal,
-            "description" => description,
-            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
-        }
-        Nx50s::commit(nx50)
-        nx50
-    end
-
     # Nx50s::issueSpreadItem(location, description, ordinal)
     def self.issueSpreadItem(location, description, ordinal)
         uuid = SecureRandom.uuid
