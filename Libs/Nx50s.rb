@@ -65,23 +65,6 @@ class Nx50s
     end
 
     # --------------------------------------------------
-    # Categories
-
-    # Nx50s::coreCategories()
-    def self.coreCategories()
-        ["Dated", "Tail"]
-    end
-
-    # Nx50s::interactivelySelectCoreCategory()
-    def self.interactivelySelectCoreCategory()
-        category = LucilleCore::selectEntityFromListOfEntitiesOrNull("category", Nx50s::coreCategories())
-        if !category.nil? then
-            return category
-        end
-        Nx50s::interactivelySelectCoreCategory()
-    end
-
-    # --------------------------------------------------
     # Makers
 
     # Nx50s::interactivelyCreateNewOrNull()

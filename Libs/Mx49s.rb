@@ -44,6 +44,24 @@ class Mx49s
         mx49
     end
 
+    # Mx49s::interactivelyCreateNewTodayOrNull()
+    def self.interactivelyCreateNewTodayOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        uuid = SecureRandom.uuid
+        date = Utils::Today()
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        mx49 = {
+            "uuid"        => uuid,
+            "unixtime"    => Time.new.to_i,
+            "description" => description,
+            "date"        => date,
+            "atom"        => atom
+        }
+        Mx49s::commit(mx49)
+        mx49
+    end
+
     # --------------------------------------------------
     # toString
 

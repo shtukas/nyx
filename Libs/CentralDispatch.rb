@@ -108,16 +108,16 @@ class CentralDispatch
             Mx48s::interactivelyCreateNewOrNull()
         end
 
-        if command == "today" then
-            nx50 = Nx50s::issueItemWithCategoryLambdaOrNull(lambda{["Dated", Utils::today()]})
-            return if nx50.nil?
-            puts JSON.pretty_generate(nx50)
+        if Interpreting::match("ondate", command) then
+            item = Mx49s::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
         end
 
-        if Interpreting::match("ondate", command) then
-            nx50 = Nx50s::issueItemWithCategoryLambdaOrNull(lambda{["Dated", Utils::interactivelySelectADateOrNull() || Utils::today()]})
-            return if nx50.nil?
-            puts JSON.pretty_generate(nx50)
+        if command == "today" then
+            mx49 = Mx49s::interactivelyCreateNewTodayOrNull()
+            return if mx49.nil?
+            puts JSON.pretty_generate(mx49)
         end
 
         if command == "todo" then
