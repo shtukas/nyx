@@ -75,6 +75,23 @@ class CentralDispatch
             end
         end
 
+        if object["NS198"] == "ns16:Mx51" and command == "done" then
+            mx51 = object["Mx51"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx51s::toString(mx51)}' ? ", true) then
+                Mx51s::destroy(mx51)
+                CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
+            end
+        end
+
+        if object["NS198"] == "ns16:Mx51" and command == ">>" then
+            mx51 = object["Mx51"]
+            nx50 = mx51.clone
+            nx50["uuid"] = SecureRandom.uuid
+            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
+            Nx50s::commit(nx50)
+            Mx51s::destroy(mx51)
+        end
+
         if object["NS198"] == "ns16:anniversary1" and command == ".." then
             Anniversaries::run(object["anniversary"])
         end
