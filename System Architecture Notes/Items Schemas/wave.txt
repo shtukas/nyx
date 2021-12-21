@@ -29,4 +29,3 @@ repeatType                       repeatValue
 
 'every-this-day-of-the-month'    String, length 2, Day Number
 
-CoreData ObjectStore4 set: "catalyst:489e8f4a-8b09-456d-ad5c-64fa551b9534"

@@ -1,18 +1,27 @@
 
-
 class Waves
-
-    # Waves::setuuid()
-    def self.setuuid()
-        "catalyst:489e8f4a-8b09-456d-ad5c-64fa551b9534"
-    end
 
     # --------------------------------------------------
     # IO
 
     # Waves::items()
     def self.items()
-        ObjectStore4::getSet(Waves::setuuid())
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Waves")
+            .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
+            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    end
+
+    # Waves::commit(wave)
+    def self.commit(wave)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Waves/#{Digest::SHA1.hexdigest(wave["uuid"])[0, 10]}.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(wave)) }
+    end
+
+    # Waves::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Waves/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
+        return if !File.exists?(filepath)
+        FileUtils.rm(filepath)
     end
 
     # --------------------------------------------------
@@ -125,7 +134,7 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        ObjectStore4::store(wave, Waves::setuuid())
+        Waves::commit(wave)
         wave
     end
 
@@ -148,7 +157,7 @@ class Waves
 
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        ObjectStore4::store(wave, Waves::setuuid())
+        Waves::commit(wave)
 
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
@@ -163,7 +172,7 @@ class Waves
         updated = CoreData5::accessWithOptionToEdit(wave["atom"])
         if updated then
             wave["atom"] = updated
-            ObjectStore4::store(wave, Waves::setuuid())
+            Waves::commit(wave)
         end
     end
 
@@ -226,7 +235,7 @@ class Waves
 
             if Interpreting::match("atom", command) then
                 wave["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                ObjectStore4::store(wave, Waves::setuuid())
+                Waves::commit(wave)
                 next
             end
 
@@ -235,13 +244,13 @@ class Waves
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
-                ObjectStore4::store(wave, Waves::setuuid())
+                Waves::commit(wave)
                 next
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    ObjectStore4::removeObjectFromSet(Waves::setuuid(), wave["uuid"])
+                    Waves::destroy(wave["uuid"])
                     break
                 end
             end
