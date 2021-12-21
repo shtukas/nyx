@@ -59,14 +59,6 @@ class NS16sOperator
         true
     end
 
-    # NS16sOperator::isWorkCoreHours()
-    def self.isWorkCoreHours()
-        return false if (Time.new.wday == 6 or Time.new.wday == 0)
-        return false if Time.new.hour < 10
-        return false if Time.new.hour >= 16
-        true
-    end
-
     # NS16sOperator::ns16s()
     def self.ns16s()
         [
@@ -75,7 +67,7 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             DrivesBackups::ns16s(),
-            NS16sOperator::isWorkCoreHours() ? nil : Waves::ns16s(),
+            NS16sOperator::isWorkTime() ? nil : Waves::ns16s(),
             Inbox::ns16s(),
             Mx49s::ns16s(),
             NS16sOperator::isWorkTime() ? Mx51s::ns16s() : nil, # Work Items
@@ -105,11 +97,6 @@ class TerminalDisplayOperator
         system("clear")
 
         vspaceleft = Utils::screenHeight()-4
-
-        puts ""
-        nx50sCount = KeyValueStore::getOrDefaultValue(nil, "DE7C7BBC-845D-4511-A671-6B3E03BB75AC", "0").to_i
-        puts "Nx50: #{nx50sCount} items"
-        vspaceleft = vspaceleft - 2
 
         infolines = [
             "      " + Commands::terminalDisplayCommand(),
