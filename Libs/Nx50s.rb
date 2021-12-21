@@ -47,14 +47,6 @@ class Nx50s
         (biggest + 1).floor
     end
 
-    # Nx50s::nextMonitorTodoOrdinal()
-    def self.nextMonitorTodoOrdinal()
-        nx50s = Nx50s::nx50s()
-                    .select{|nx50| nx50["category2"][0] == "Monitor-Todo" }
-        biggest = ([0] + nx50s.map{|nx50| nx50["ordinal"] }).max
-        (biggest + 1).floor
-    end
-
     # Nx50s::ordinalBetweenN1thAndN2th(n1, n2)
     def self.ordinalBetweenN1thAndN2th(n1, n2)
         nx50s = Nx50s::nx50s()
@@ -67,12 +59,6 @@ class Nx50s
 
     # Nx50s::interactivelyDecideNewOrdinal(category2)
     def self.interactivelyDecideNewOrdinal(category2)
-        if category2[0] == "Monitor" then
-            return Nx50s::nextOrdinal()
-        end
-        if category2[0] == "Monitor-Todo" then
-            return Nx50s::nextMonitorTodoOrdinal()
-        end
         if category2[0] == "Dated" then
             return Nx50s::nextOrdinal()
         end
@@ -97,7 +83,7 @@ class Nx50s
 
     # Nx50s::coreCategories()
     def self.coreCategories()
-        ["Monitor", "Monitor-Todo", "Dated", "Tail"]
+        ["Dated", "Tail"]
     end
 
     # Nx50s::interactivelySelectCoreCategory()
@@ -271,9 +257,6 @@ class Nx50s
 
     # Nx50s::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        if nx50["category2"][0] == "Monitor" then
-            return "#{nx50["description"]} (#{nx50["atom"]["type"]})"
-        end
         if nx50["category2"][0] == "Dated" then
             return "[#{nx50["category2"][1]}] #{nx50["description"]} (#{nx50["atom"]["type"]})"
         end
@@ -505,20 +488,11 @@ class Nx50s
         ns16
     end
 
-    # Nx50s::structureGivenNx50s(items)
-    def self.structureGivenNx50s(items)
+    # Nx50s::ns16s()
+    def self.ns16s()
+        items = Nx50s::nx50s()
 
         Nx50s::importspread()
-
-        # -- monitor ---------------------------
-
-        monitor = items.select{|item| item["category2"][0] == "Monitor" or item["category2"][0] == "Monitor-Todo" } # We get Monitor and Monitor-Todo
-        items   = items.reject{|item| item["category2"][0] == "Monitor" } # We take everything except "Monitor"
-
-        monitor = monitor
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                    .map{|item| Nx50s::ns16OrNull(item) }
-                    .compact
 
         # -- dated ---------------------------
 
@@ -561,18 +535,7 @@ class Nx50s
                 .map{|item| Nx50s::ns16OrNull(item) }
                 .compact
 
-        # -- structure ---------------------------
-
-        {
-            "Monitor"  => monitor,
-            "Dated"    => dated,
-            "Tail"     => tail
-        }
-    end
-
-    # Nx50s::structure()
-    def self.structure()
-        Nx50s::structureGivenNx50s(Nx50s::nx50s())
+        dated + tail
     end
 
     # --------------------------------------------------

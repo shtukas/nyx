@@ -147,6 +147,8 @@ require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
+require_relative "Mx48s.rb"
+
 require_relative "Nx50s.rb"
 
 require_relative "ProgrammableBooleans.rb"

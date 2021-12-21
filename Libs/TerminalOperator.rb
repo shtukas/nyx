@@ -49,9 +49,10 @@ class Commands
     end
 end
 
-class Nx77
-    # Nx77::ns16sNonNx50s()
-    def self.ns16sNonNx50s()
+class NS16sOperator
+
+    # NS16sOperator::ns16s()
+    def self.ns16s()
         getOrdinal = lambda {|uuid|
             ordinal = KeyValueStore::getOrNull(nil, "dc44e18a-2cfa-44a6-9a18-eb12cf255560:#{uuid}")
             return ordinal.to_f if ordinal
@@ -67,7 +68,8 @@ class Nx77
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             DrivesBackups::ns16s(),
             Waves::ns16s(),
-            Inbox::ns16s()
+            Inbox::ns16s(),
+            Nx50s::ns16s(),
         ]
             .flatten
             .compact
@@ -80,13 +82,6 @@ class Nx77
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .sort{|x1, x2| x1["ordinal"] <=> x2["ordinal"] }
-    end
-
-    # Nx77::makeNx76()
-    def self.makeNx76()
-        ns16sNonNx50s = Nx77::ns16sNonNx50s()
-        structure = Nx50s::structure()
-        [structure["Monitor"], ns16sNonNx50s + structure["Dated"] + structure["Tail"]]
     end
 end
 
@@ -140,7 +135,7 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
             puts "monitor:"
             monitor2.each{|ns16|
-                line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx50"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+                line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
@@ -226,7 +221,8 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            monitor, ns16s = Nx77::makeNx76()
+            monitor = Mx48s::ns16s()
+            ns16s = NS16sOperator::ns16s()
             TerminalDisplayOperator::display(monitor, ns16s)
         }
     end

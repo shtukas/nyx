@@ -32,6 +32,10 @@ class CentralDispatch
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
         end
 
+        if object["NS198"] == "ns16:Mx48" and command == ".." then
+            Mx48s::run(object["Mx48"])
+        end
+
         if object["NS198"] == "ns16:wave1" and command == ".." then
             Waves::run(object["wave"])
         end
@@ -110,9 +114,7 @@ class CentralDispatch
         end
 
         if command == "monitor" then
-            nx50 = Nx50s::issueItemWithCategoryLambdaOrNull(lambda{["Monitor"]})
-            return if nx50.nil?
-            puts JSON.pretty_generate(nx50)
+            Mx48s::interactivelyCreateNewOrNull()
         end
 
         if command == "today" then
