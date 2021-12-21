@@ -1,6 +1,7 @@
-Mx48 { # Monitor
+Mx49 { # Dated
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String
+    "date"        : Date
     "atom"        : CoreData5.Atom
 }

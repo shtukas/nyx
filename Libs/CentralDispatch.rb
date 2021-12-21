@@ -57,23 +57,14 @@ class CentralDispatch
             Nx50s::run(object["Nx50"])
         end
 
-        if object["NS198"] == "ns16:Nx50" and command == "redate" then
-            nx50 = object["Nx50"]
-            if nx50["category2"][0] == "Dated" then
-                nx50["category2"][1] = (Utils::interactivelySelectADateOrNull() || Utils::today())
-                Nx50s::commit(nx50)
-            else
-                puts "You can only redate a dated item"
-                LucilleCore::pressEnterToContinue()
-            end
+        if object["NS198"] == "ns16:Mx49" and command == ".." then
+            Mx49s::run(object["Mx49"])
         end
 
-        if object["NS198"] == "ns16:Nx50" and command == "recategory" then
-            nx50 = object["Nx50"]
-            category2 = Nx50s::makeNewCategory2()
-            nx50["category2"] = category2
-            nx50["ordinal"] = Nx50s::interactivelyDecideNewOrdinal(category2)
-            Nx50s::commit(nx50)
+        if object["NS198"] == "ns16:Mx49" and command == "redate" then
+            mx49 = object["Mx49"]
+            mx49["date"] = (Utils::interactivelySelectADateOrNull() || Utils::today())
+            Mx49s::commit(mx49)
         end
 
         if object["NS198"] == "ns16:Nx50" and command == "done" then

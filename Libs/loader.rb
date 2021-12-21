@@ -148,6 +148,7 @@ require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
 require_relative "Mx48s.rb"
+require_relative "Mx49s.rb"
 
 require_relative "Nx50s.rb"
 

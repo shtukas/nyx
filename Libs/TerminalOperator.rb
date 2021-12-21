@@ -69,19 +69,13 @@ class NS16sOperator
             DrivesBackups::ns16s(),
             Waves::ns16s(),
             Inbox::ns16s(),
+            Mx49s::ns16s(),
             Nx50s::ns16s(),
         ]
             .flatten
             .compact
-            .map{|item| 
-                if item["ordinal"].nil? then
-                    item["ordinal"] = getOrdinal.call(item["uuid"])
-                end
-                item
-            }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .sort{|x1, x2| x1["ordinal"] <=> x2["ordinal"] }
     end
 end
 
@@ -179,7 +173,7 @@ class TerminalDisplayOperator
                     store.registerDefault(ns16)
                 end
                 posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
-                announce = "(#{"%6.3f" % ns16["ordinal"]}) #{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
                 if runningUUIDs.include?(ns16["uuid"]) then
                     announce = announce.green
                 end

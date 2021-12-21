@@ -84,7 +84,7 @@ class Mx48s
 
             system("clear")
 
-            puts "#{Mx48s::toString(mx48)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
+            puts Mx48s::toString(mx48).green
             puts "uuid: #{uuid}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(mx48["atom"]) then
@@ -166,8 +166,8 @@ class Mx48s
     # --------------------------------------------------
     # nx16s
 
-    # Mx48s::ns16OrNull(mx48)
-    def self.ns16OrNull(mx48)
+    # Mx48s::ns16(mx48)
+    def self.ns16(mx48)
         uuid = mx48["uuid"]
         {
             "uuid"     => uuid,
@@ -182,7 +182,7 @@ class Mx48s
     def self.ns16s()
         Mx48s::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .map{|item| Mx48s::ns16OrNull(item) }
+            .map{|item| Mx48s::ns16(item) }
     end
 
     # --------------------------------------------------
