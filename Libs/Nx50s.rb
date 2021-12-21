@@ -3,29 +3,84 @@
 class Nx50s
 
     # Nx50s::setuuid()
-    def self.setuuid()
-        "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
+    #def self.setuuid()
+    #    "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
+    #end
+
+    # Nx50s::nx50s()
+    #def self.nx50s()
+    #    ObjectStore4::getSet(Nx50s::setuuid())
+    #        .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+    #end
+
+    # Nx50s::destroy(nx50)
+    #def self.destroy(nx50)
+    #    ObjectStore4::removeObjectFromSet(Nx50s::setuuid(), nx50["uuid"])
+    #end
+
+    # Nx50s::databaseFilepath()
+    def self.databaseFilepath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s.sqlite"
     end
 
     # Nx50s::nx50s()
     def self.nx50s()
-        ObjectStore4::getSet(Nx50s::setuuid())
-            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _nx50s_ order by _ordinal_") do |row|
+            object = {
+                "uuid"        => row["_uuid_"],
+                "unixtime"    => row["_unixtime_"].to_f,
+                "ordinal"     => row["_ordinal_"].to_f,
+                "description" => row["_description_"],
+                "atom"        => JSON.parse(row["_atom_"])
+            }
+            answer << object
+        end
+        db.close
+        answer.uniq
+    end
+
+    # Nx50s::nx50sCardinal(n)
+    def self.nx50sCardinal(n)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute( "select * from _nx50s_ order by _ordinal_ limit ?", [n]) do |row|
+            object = {
+                "uuid"        => row["_uuid_"],
+                "unixtime"    => row["_unixtime_"].to_f,
+                "ordinal"     => row["_ordinal_"].to_f,
+                "description" => row["_description_"],
+                "atom"        => JSON.parse(row["_atom_"])
+            }
+            answer << object
+        end
+        db.close
+        answer.uniq
     end
 
     # Nx50s::commit(nx50)
     def self.commit(nx50)
-        if nx50["ordinal"].nil? then
-            puts "Incorrect Nx50 trying to be commited"
-            puts JSON.pretty_generate(nx50)
-            exit
-        end
-        ObjectStore4::store(nx50, Nx50s::setuuid())
+        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "insert into _nx50s_ (_uuid_, _unixtime_, _ordinal_, _description_, _atom_) values (?, ?, ?, ?, ?)", [nx50["uuid"], nx50["unixtime"], nx50["ordinal"], nx50["description"], JSON.generate(nx50["atom"])]
+        db.close
     end
 
-    # Nx50s::destroy(nx50)
-    def self.destroy(nx50)
-        ObjectStore4::removeObjectFromSet(Nx50s::setuuid(), nx50["uuid"])
+    # Nx50s::destroy(uuid)
+    def self.destroy(uuid)
+        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _nx50s_ where _uuid_=?", [uuid]
+        db.close
     end
 
     # --------------------------------------------------
@@ -39,7 +94,7 @@ class Nx50s
 
     # Nx50s::ordinalBetweenN1thAndN2th(n1, n2)
     def self.ordinalBetweenN1thAndN2th(n1, n2)
-        nx50s = Nx50s::nx50s()
+        nx50s = Nx50s::nx50sCardinal(n2)
         if nx50s.size < n1+2 then
             return Nx50s::nextOrdinal()
         end
@@ -51,8 +106,7 @@ class Nx50s
     def self.interactivelyDecideNewOrdinal()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
-            Nx50s::nx50s()
-                .first(50)
+            Nx50s::nx50sCardinal(50)
                 .each{|nx50| 
                     puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
                 }
@@ -370,13 +424,7 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         Nx50s::importspread()
-        Nx50s::nx50s()
-            .reduce([]){|selection, item|  
-                if selection.size < 100 and Nx50s::itemIsOperational(item) then
-                    selection << item
-                end
-                selection
-            }
+        Nx50s::nx50sCardinal(50)
             .map{|item| Nx50s::ns16OrNull(item) }
             .compact
     end

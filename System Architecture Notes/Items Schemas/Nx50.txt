@@ -1,3 +1,7 @@
+Nx50.sqlite3
+
+create table _nx50s_ (_uuid_ text, _unixtime_ real, _ordinal_ real, _description_ text, _atom_ text);
+
 Nx50 { # Standard Todo
     "uuid"        : uuid
     "unixtime"    : Float
@@ -5,5 +9,3 @@ Nx50 { # Standard Todo
     "description" : String
     "atom"        : CoreData5.Atom
 }
-
-CoreData ObjectStore4 set: "catalyst:70853e76-3665-4b2a-8f1e-2f899a93ac06"
