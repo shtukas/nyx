@@ -273,7 +273,7 @@ class Nx50s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | atom | ordinal | rotate | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | atom | ordinal | rotate | >> (transmute) | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -320,6 +320,14 @@ class Nx50s
             if Interpreting::match("rotate", command) then
                 nx50["ordinal"] = Nx50s::nextOrdinal()
                 Nx50s::commit(nx50)
+                break
+            end
+
+            if Interpreting::match(">>", command) then
+                CommandsOps::transmutation({
+                    "type" => "Nx50-transmutation",
+                    "nx50" => nx50
+                })
                 break
             end
 

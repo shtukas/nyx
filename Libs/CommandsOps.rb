@@ -284,6 +284,17 @@ class CommandsOps
             Mx49s::destroy(mx49["uuid"])
         end
 
+        if object["type"] == "Nx50-transmutation" then
+            nx50 = object["nx50"]
+            puts "We are currently defaulting to sending Nx50 to Mx51/work-item, you can modify the code to change that"
+            LucilleCore::pressEnterToContinue()
+            mx51 = nx50.clone
+            mx51["uuid"] = SecureRandom.uuid
+            mx51["ordinal"] = Mx51s::interactivelyDecideNewOrdinal()
+            Mx51s::commit(mx51)
+            Nx50s::destroy(nx50["uuid"])
+        end
+
         if object["type"] == "mx51-work-item-transmutation" then
             mx51 = object["mx51"]
             puts "We are currently defaulting to sending Mx51/work-item to Nx50, you can modify the code to change that"
