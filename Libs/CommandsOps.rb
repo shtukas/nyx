@@ -55,8 +55,10 @@ class CommandsOps
 
         if object["NS198"] == "ns16:inbox1" and command == ">>" then
             location = object["location"]
-            Nx50s::issueItemUsingInboxLocation(location)
-            LucilleCore::removeFileSystemLocation(location)
+            CommandsOps::transmutation({
+                "type"     => "inbox-transmutation",
+                "location" => location
+            })
         end
 
         if object["NS198"] == "ns16:Nx50" and command == ".." then
@@ -69,7 +71,7 @@ class CommandsOps
 
         if object["NS198"] == "ns16:Mx49" and command == "done" then
             mx49 = object["Mx49"]
-            Mx49s::destroy(mx49)
+            Mx49s::destroy(mx49["uuid"])
         end
 
         if object["NS198"] == "ns16:Mx49" and command == "redate" then
@@ -80,11 +82,10 @@ class CommandsOps
 
         if object["NS198"] == "ns16:Mx49" and command == ">>" then
             mx49 = object["Mx49"]
-            nx50 = mx49.clone
-            nx50["uuid"] = SecureRandom.uuid
-            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
-            Nx50s::commit(nx50)
-            Mx49s::destroy(mx49)
+            CommandsOps::transmutation({
+                "type" => "mx49-dated-transmutation",
+                "mx49" => mx49
+            })
         end
 
         if object["NS198"] == "ns16:Nx50" and command == "done" then
@@ -105,11 +106,10 @@ class CommandsOps
 
         if object["NS198"] == "ns16:Mx51" and command == ">>" then
             mx51 = object["Mx51"]
-            nx50 = mx51.clone
-            nx50["uuid"] = SecureRandom.uuid
-            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
-            Nx50s::commit(nx50)
-            Mx51s::destroy(mx51["uuid"])
+            CommandsOps::transmutation({
+                "type" => "mx51-work-item-transmutation",
+                "mx51" => mx51
+            })
         end
 
         if object["NS198"] == "ns16:anniversary1" and command == ".." then
@@ -227,6 +227,45 @@ class CommandsOps
 
         if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
+        end
+    end
+
+    # CommandsOps::transmutation(object)
+    def self.transmutation(object)
+
+        if object["type"] == "inbox-transmutation" then
+            location = object["location"]
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch to Nx50s", "dispatch to work Mx51s"])
+            if action == "dispatch to Nx50s" then
+                Nx50s::issueItemUsingInboxLocation(location)
+                LucilleCore::removeFileSystemLocation(location)
+            end
+            if action == "dispatch to work Mx51s" then
+                Mx51s::issueItemUsingInboxLocation(location)
+                LucilleCore::removeFileSystemLocation(location)
+            end
+        end
+
+        if object["type"] == "mx49-dated-transmutation" then
+            mx49 = object["mx49"]
+            puts "We are currently defaulting to sending Mx49/dated to Nx50, you can modify the code to change that"
+            LucilleCore::pressEnterToContinue()
+            nx50 = mx49.clone
+            nx50["uuid"] = SecureRandom.uuid
+            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
+            Nx50s::commit(nx50)
+            Mx49s::destroy(mx49["uuid"])
+        end
+
+        if object["type"] == "mx51-work-item-transmutation" then
+            mx51 = object["mx51"]
+            puts "We are currently defaulting to sending Mx51/work-item to Nx50, you can modify the code to change that"
+            LucilleCore::pressEnterToContinue()
+            nx50 = mx51.clone
+            nx50["uuid"] = SecureRandom.uuid
+            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
+            Nx50s::commit(nx50)
+            Mx51s::destroy(mx51["uuid"])
         end
     end
 end

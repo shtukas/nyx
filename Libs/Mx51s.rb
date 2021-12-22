@@ -244,7 +244,7 @@ class Mx51s
             "uuid"     => uuid,
             "NS198"    => "ns16:Mx51",
             "announce" => Mx51s::toString(mx51),
-            "commands" => ["..", "done", ">> (Dispatch to Nx50)"],
+            "commands" => ["..", "done", ">> (transmute)"],
             "ordinal"  => mx51["ordinal"],
             "Mx51"     => mx51,
         }

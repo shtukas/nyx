@@ -15,9 +15,9 @@ class Mx49s
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx49)) }
     end
 
-    # Mx49s::destroy(mx49)
-    def self.destroy(mx49)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx49s/#{Digest::SHA1.hexdigest(mx49["uuid"])[0, 10]}.json"
+    # Mx49s::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx49s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -77,11 +77,6 @@ class Mx49s
 
     # --------------------------------------------------
     # Operations
-
-    # Mx49s::complete(mx49)
-    def self.complete(mx49)
-        Mx49s::destroy(mx49)
-    end
 
     # Mx49s::accessContent(mx49)
     def self.accessContent(mx49)
@@ -166,7 +161,7 @@ class Mx49s
 
             if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx49s::toString(mx49)}' ? ", true) then
-                    Mx49s::complete(mx49)
+                    Mx49s::destroy(mx49["uuid"])
                     break
                 end
                 next
@@ -174,7 +169,7 @@ class Mx49s
 
             if command == "gg" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx49s::toString(mx49)}' ? ", true) then
-                    Mx49s::complete(mx49)
+                    Mx49s::destroy(mx49["uuid"])
                     break
                 end
                 next
@@ -194,7 +189,7 @@ class Mx49s
             "uuid"     => uuid,
             "NS198"    => "ns16:Mx49",
             "announce" => "[#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})",
-            "commands" => ["..", "done", "redate", ">> (dispatch to Nx50s)"],
+            "commands" => ["..", "done", "redate", ">> (transmute)"],
             "Mx49"     => mx49
         }
     end
