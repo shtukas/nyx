@@ -171,8 +171,13 @@ class TerminalDisplayOperator
             return
         end
 
+        if command == "expose" and (item = store.getDefault()) then
+            puts JSON.pretty_generate(item)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         CommandsOps::operator4(command)
-        CommandsOps::operator5(store.getDefault(), command)
         CommandsOps::operator1(store.getDefault(), command)
     end
 

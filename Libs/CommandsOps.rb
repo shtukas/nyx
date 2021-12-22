@@ -130,6 +130,10 @@ class CommandsOps
         if object["NS198"] == "ns16:calendar1" and command == "done" then
             Calendar::moveToArchives(object["item"])
         end
+
+        if Interpreting::match("require internet", command) then
+            InternetStatus::markIdAsRequiringInternet(object["uuid"])
+        end
     end
 
     # CommandsOps::operator4(command)
@@ -216,16 +220,6 @@ class CommandsOps
                  ].join("\n").yellow
             LucilleCore::pressEnterToContinue()
         end
-    end
-
-    # CommandsOps::operator5(ns16, command)
-    def self.operator5(ns16, command)
-
-        if Interpreting::match("expose", command) then
-            return if ns16.nil? 
-            puts JSON.pretty_generate(ns16)
-            LucilleCore::pressEnterToContinue()
-        end
 
         if Interpreting::match("internet on", command) then
             InternetStatus::setInternetOn()
@@ -233,11 +227,6 @@ class CommandsOps
 
         if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
-        end
-
-        if Interpreting::match("require internet", command) then
-            return if ns16.nil?
-            InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
         end
     end
 end
