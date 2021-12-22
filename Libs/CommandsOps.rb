@@ -96,6 +96,10 @@ class CommandsOps
             end
         end
 
+        if object["NS198"] == "ns16:Mx51" and command == ".." then
+            Mx51s::run(object["Mx51"])
+        end
+
         if object["NS198"] == "ns16:Mx51" and command == "done" then
             mx51 = object["Mx51"]
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx51s::toString(mx51)}' ? ", true) then
