@@ -92,8 +92,6 @@ class TerminalDisplayOperator
             " (commands: #{ns16["commands"].join(", ")})".yellow
         }
 
-        ns16Originals = ns16s.clone
-
         system("clear")
 
         vspaceleft = Utils::screenHeight()-4
@@ -134,15 +132,20 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
-        ns16Originals
+        ns16s
             .each{|ns16|
                 indx = store.register(ns16)
-                isDefaultItem = ((ns16["defaultable"].nil? or ns16["defaultable"]) and store.getDefault().nil?) # the default item is the first element, unless it's defaultable
+                isDefaultable = !KeyValueStore::flagIsTrue(nil, "NOT-DEFAULTABLE-4B2B-9856-95F8C25828FD:#{Utils::today()}:#{ns16["uuid"]}")
+                isDefaultItem = (isDefaultable and store.getDefault().nil?) # the default item is the first element, unless it's not defaultable
                 if isDefaultItem then
                     store.registerDefault(ns16)
                 end
+                announce = ns16["announce"]
+                if !isDefaultItem and store.getDefault().nil? then
+                    announce = announce.yellow
+                end
                 posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
-                announce = "#{posStr} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
+                announce = "#{posStr} #{announce}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
                 if runningUUIDs.include?(ns16["uuid"]) then
                     announce = announce.green
                 end
@@ -174,6 +177,11 @@ class TerminalDisplayOperator
         if command == "expose" and (item = store.getDefault()) then
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if command == "''" and (item = store.getDefault()) then
+            KeyValueStore::setFlagTrue(nil, "NOT-DEFAULTABLE-4B2B-9856-95F8C25828FD:#{Utils::today()}:#{item["uuid"]}")
             return
         end
 

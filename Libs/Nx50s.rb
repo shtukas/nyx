@@ -368,7 +368,7 @@ class Nx50s
         uuid = nx50["uuid"]
         return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        ns16 = {
+        {
             "uuid"     => uuid,
             "NS198"    => "ns16:Nx50",
             "announce" => Nx50s::toStringForNS16(nx50, rt),
@@ -377,11 +377,6 @@ class Nx50s
             "Nx50"     => nx50,
             "rt"       => rt
         }
-        if Bank::valueAtDate(uuid, Utils::today()) > 3600  then
-            ns16["announce"] = ns16["announce"].yellow
-            ns16["defaultable"] = false
-        end
-        ns16
     end
 
     # Nx50s::ns16s()
