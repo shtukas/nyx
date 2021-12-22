@@ -8,5 +8,5 @@ require_relative "Libs/loader.rb"
 
 puts Commands::makersAndDiversCommands().yellow
 command = LucilleCore::askQuestionAnswerAsString("> ")
-CentralDispatch::operator4(command)
+CommandsOps::operator4(command)
 

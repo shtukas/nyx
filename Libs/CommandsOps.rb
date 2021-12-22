@@ -1,17 +1,17 @@
 
-class CentralDispatch
+class CommandsOps
 
-    # CentralDispatch::closeAnyNxBallWithThisID(uuid)
+    # CommandsOps::closeAnyNxBallWithThisID(uuid)
     def self.closeAnyNxBallWithThisID(uuid)
         NxBallsService::close(uuid, true)
     end
 
-    # CentralDispatch::operator1(object, command)
+    # CommandsOps::operator1(object, command)
     def self.operator1(object, command)
 
         return if object.nil?
 
-        # puts "CentralDispatch, object: #{object}, command: #{command}"
+        # puts "CommandsOps, object: #{object}, command: #{command}"
 
         if object["NS198"] == "NxBallDelegate1" and command == ".." then
             uuid = object["uuid"]
@@ -46,7 +46,7 @@ class CentralDispatch
 
         if object["NS198"] == "ns16:wave1" and command == "done" then
             Waves::performDone(object["wave"])
-            CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
+            CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
         end
 
         if object["NS198"] == "ns16:inbox1" and command == ".." then
@@ -91,7 +91,7 @@ class CentralDispatch
             nx50 = object["Nx50"]
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
                 Nx50s::destroy(nx50["uuid"])
-                CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
             end
         end
 
@@ -99,7 +99,7 @@ class CentralDispatch
             mx51 = object["Mx51"]
             if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx51s::toString(mx51)}' ? ", true) then
                 Mx51s::destroy(mx51["uuid"])
-                CentralDispatch::closeAnyNxBallWithThisID(object["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
             end
         end
 
@@ -132,7 +132,7 @@ class CentralDispatch
         end
     end
 
-    # CentralDispatch::operator4(command)
+    # CommandsOps::operator4(command)
     def self.operator4(command)
 
         if command == "start" then
@@ -218,7 +218,7 @@ class CentralDispatch
         end
     end
 
-    # CentralDispatch::operator5(ns16, command)
+    # CommandsOps::operator5(ns16, command)
     def self.operator5(ns16, command)
 
         if Interpreting::match("expose", command) then

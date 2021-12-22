@@ -167,13 +167,13 @@ class TerminalDisplayOperator
         if (i = Interpreting::readAsIntegerOrNull(command)) then
             item = store.get(i)
             return if item.nil?
-            CentralDispatch::operator1(item, "..")
+            CommandsOps::operator1(item, "..")
             return
         end
 
-        CentralDispatch::operator4(command)
-        CentralDispatch::operator5(store.getDefault(), command)
-        CentralDispatch::operator1(store.getDefault(), command)
+        CommandsOps::operator4(command)
+        CommandsOps::operator5(store.getDefault(), command)
+        CommandsOps::operator1(store.getDefault(), command)
     end
 
     # TerminalDisplayOperator::displayLoop()
