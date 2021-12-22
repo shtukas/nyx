@@ -38,6 +38,7 @@ class Inbox
                 end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
+                    return
                 end
                 if action.nil? or action == "exit (default)" then
                     return
@@ -56,6 +57,7 @@ class Inbox
                 end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
+                    return
                 end
                 if action.nil? or action == "exit (default)" then
                     return
