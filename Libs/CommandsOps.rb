@@ -166,9 +166,17 @@ class CommandsOps
         end
 
         if command == "todo" then
-            item = Nx50s::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Nx50", "Nx51 (work item)"])
+            if type == "Nx50" then
+                item = Nx50s::interactivelyCreateNewOrNull()
+                return if item.nil?
+                puts JSON.pretty_generate(item)
+            end
+            if type == "Nx51 (work item)" then
+                item = Mx51s::interactivelyCreateNewOrNull()
+                return if item.nil?
+                puts JSON.pretty_generate(item)
+            end
         end
 
         if Interpreting::match("wave", command) then
@@ -195,16 +203,31 @@ class CommandsOps
             Waves::waves()
         end
 
-        if Interpreting::match("Nx50s", command) then
-            nx50s = Nx50s::nx50s()
-            if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
-                nx50s = nx50s.first(Utils::screenHeight()-1)
+        if Interpreting::match("todos", command) then
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Nx50s", "Nx51s (work items)"])
+            if type == "Nx50s" then
+                nx50s = Nx50s::nx50s()
+                if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
+                    nx50s = nx50s.first(Utils::screenHeight()-2)
+                end
+                loop {
+                    nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
+                    return if nx50.nil?
+                    Nx50s::run(nx50)
+                }
             end
-            loop {
-                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
-                return if nx50.nil?
-                Nx50s::run(nx50)
-            }
+            if type == "Nx51s (work items)" then
+                mx51s = Mx51s::items()
+                if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
+                    mx51s = mx51s.first(Utils::screenHeight()-2)
+                end
+                loop {
+                    mx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("mx51", mx51s, lambda {|mx51| Mx51s::toString(mx51) })
+                    return if mx51.nil?
+                    Mx51s::run(mx51)
+                }
+            end
+
         end
 
         if Interpreting::match("search", command) then

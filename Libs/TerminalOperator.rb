@@ -32,12 +32,12 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "monitor | today | ondate | todo | wave | anniversary"
+        "wave | anniversary | monitor | today | ondate | todo"
     end
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "calendar | waves | ondates | Nx50s | anniversaries | search | nyx"
+        "calendar | waves | anniversaries | ondates | todos | search | nyx"
     end
 
     # Commands::makersAndDiversCommands()

@@ -157,7 +157,7 @@ class Mx51s
             end
             didItOnce1 = true
 
-            puts "access | note | <datecode> | description | atom | ordinal | rotate | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | atom | ordinal | rotate | >> (transmute) | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -204,6 +204,14 @@ class Mx51s
             if Interpreting::match("rotate", command) then
                 mx51["ordinal"] = Mx51s::nextOrdinal()
                 Mx51s::commit(mx51)
+                break
+            end
+
+            if Interpreting::match(">>", command) then
+                CommandsOps::transmutation({
+                    "type" => "mx51-work-item-transmutation",
+                    "mx51" => mx51
+                })
                 break
             end
 
