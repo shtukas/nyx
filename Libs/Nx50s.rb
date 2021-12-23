@@ -370,17 +370,14 @@ class Nx50s
 
     # Nx50s::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
-        getCommands = lambda{|nx50|
-            ["..", "done"]
-        }
         uuid = nx50["uuid"]
         return nil if !Nx50s::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:Nx50",
-            "announce" => Nx50s::toStringForNS16(nx50, rt),
-            "commands" => getCommands.call(nx50),
+            "announce" => Nx50s::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
+            "commands" => ["..", "done"],
             "ordinal"  => nx50["ordinal"],
             "Nx50"     => nx50,
             "rt"       => rt
@@ -390,9 +387,17 @@ class Nx50s
     # Nx50s::ns16s()
     def self.ns16s()
         Nx50s::importspread()
-        Nx50s::nx50sCardinal(50)
+        ns16s = Nx50s::nx50sCardinal(50)
             .map{|item| Nx50s::ns16OrNull(item) }
             .compact
+
+        p1 = ns16s
+                .first(6)
+                .sort{|x1, x2|
+                    (x1["rt"] > 0 ? x1["rt"] : 0.25)  <=> (x2["rt"] > 0 ? x2["rt"] : 0.25)
+                }
+        p2 = ns16s.drop(6)
+        p1 + p2
     end
 
     # --------------------------------------------------
