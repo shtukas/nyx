@@ -172,7 +172,7 @@ class Mx48s
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:Mx48",
-            "announce" => Mx48s::toString(mx48),
+            "announce" => "#{mx48["description"]} (#{mx48["atom"]["type"]})",
             "commands" => [],
             "Mx48"     => mx48
         }
