@@ -1,0 +1,18 @@
+
+### CoreData5
+
+CoreData5.Atom.Type = "description-only" | "text" | "url" | "aion-point" | "unique-string" | "managed-folder" | "marble"
+
+CoreData5.Atom {
+    "uuid"        => String
+    "unixtime"    => Float
+    "type"        => CoreData5.Atom.Type
+    "payload"     => String
+}
+
+Note: A marble Atom is a reference to a marble file. The atom's payload is the uuid of the marble file.
+marble file
+    filename: nyx-marble.json
+    content {
+        "uuid" => String
+    }

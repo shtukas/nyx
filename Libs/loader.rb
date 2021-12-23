@@ -127,8 +127,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
-require "/Users/pascal/Galaxy/Software/CoreData/CoreData.rb"
-
 # ------------------------------------------------------------
 
 require_relative "Anniversaries.rb"
@@ -137,6 +135,8 @@ require_relative "Bank.rb"
 
 require_relative "Calendar.rb"
 require_relative "CommandsOps.rb"
+
+require_relative "CoreData.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
