@@ -268,6 +268,7 @@ class Mx51s
 
     # Mx51s::ns16s()
     def self.ns16s()
+        return [] if !NS16sOperator::isWorkTime()
         ns16s = Mx51s::items()
             .map{|item| Mx51s::ns16OrNull(item) }
             .compact

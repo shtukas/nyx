@@ -67,11 +67,11 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             DrivesBackups::ns16s(),
-            NS16sOperator::isWorkTime() ? nil : Waves::ns16s(),
+            Waves::ns16s(),
             Inbox::ns16s(),
             Mx49s::ns16s(),
-            NS16sOperator::isWorkTime() ? Mx51s::ns16s() : nil, # Work Items
-            NS16sOperator::isWorkTime() ? nil : Nx50s::ns16s(), # Standard Todo Items
+            Mx51s::ns16s(),
+            Nx50s::ns16s()
         ]
             .flatten
             .compact
