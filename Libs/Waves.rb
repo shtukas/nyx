@@ -329,46 +329,13 @@ class Waves
         }
     end
 
-    # Waves::waveOrderingPriority(wave)
-    def self.waveOrderingPriority(wave)
-        mapping = {
-            "sticky"                      => 5,
-            "every-this-day-of-the-month" => 4,
-            "every-this-day-of-the-week"  => 3,
-            "every-n-hours"               => 2,
-            "every-n-days"                => 1
-        }
-        mapping[wave["repeatType"]] || (raise "[error: 4a4038be-e071-4860] wave: #{wave}")
-    end
-
-    # Waves::ns16ToOrderingWeight(ns16)
-    def self.ns16ToOrderingWeight(ns16)
-        Waves::waveOrderingPriority(ns16["wave"])
-    end
-
-    # Waves::isPriorityWave(wave)
-    def self.isPriorityWave(wave)
-        Waves::waveOrderingPriority(wave) >= 3
-    end
-
-    # Waves::compareNS16s(n1, n2)
-    def self.compareNS16s(n1, n2)
-        if Waves::ns16ToOrderingWeight(n1) < Waves::ns16ToOrderingWeight(n2) then
-            return -1
-        end
-        if Waves::ns16ToOrderingWeight(n1) > Waves::ns16ToOrderingWeight(n2) then
-            return 1
-        end
-        n1["uuid"] <=> n2["uuid"]
-    end
-
     # Waves::ns16s()
     def self.ns16s()
         getPhase = lambda{|wave|
-            phase = KeyValueStore::getOrNull(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c")
+            phase = KeyValueStore::getOrNull(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c:#{Utils::today()}")
             return phase.to_f if phase
             phase = rand
-            KeyValueStore::set(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c", phase)
+            KeyValueStore::set(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c:#{Utils::today()}", phase)
             phase
         }
 
@@ -383,7 +350,6 @@ class Waves
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| Waves::compareNS16s(n1, n2) }
             .reverse
     end
 
