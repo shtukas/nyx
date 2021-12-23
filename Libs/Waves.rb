@@ -374,7 +374,7 @@ class Waves
 
         shouldPhaseShow = lambda{|wave|
             phase = getPhase.call(wave)
-            hourPhase = 6 + phase*12
+            hourPhase = 3 + phase*15
             Time.new.hour >= hourPhase
         }
 
