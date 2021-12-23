@@ -331,26 +331,79 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
-        getPhase = lambda{|wave|
-            phase = KeyValueStore::getOrNull(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c:#{Utils::today()}")
+        getPhase = lambda{|wave, stellarCoordinates|
+            phase = KeyValueStore::getOrNull(nil, "#{stellarCoordinates["uuid"]}:#{wave["uuid"]}")
             return phase.to_f if phase
             phase = rand
-            KeyValueStore::set(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c:#{Utils::today()}", phase)
+            KeyValueStore::set(nil, "#{stellarCoordinates["uuid"]}:#{wave["uuid"]}", phase)
             phase
         }
 
-        shouldPhaseShow = lambda{|wave|
-            phase = getPhase.call(wave)
-            hourPhase = 3 + phase*15
-            Time.new.hour >= hourPhase
+        shouldShow = lambda{|phase, stellarCoordinates|
+            Time.new.to_i >= stellarCoordinates["start"] + phase*(stellarCoordinates["end"]-stellarCoordinates["start"])
         }
 
-        Waves::items()
-            .select{|wave| wave["isPrority"] or shouldPhaseShow.call(wave) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
-            .map{|wave| Waves::toNS16(wave) }
-            .reverse
+        getStellarCoordinates = lambda {
+            coordinates = KeyValueStore::getOrNull(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed2d5c")
+            if coordinates then
+                return JSON.parse(coordinates)
+            end
+            coordinates = {
+                "uuid"  => SecureRandom.hex,
+                "start" => Time.new.to_i,
+                "end"   => Time.new.to_i+86400
+            }
+            KeyValueStore::set(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed2d5c", JSON.generate(coordinates))
+            coordinates 
+        }
+
+        getNewStellarCoordinates = lambda {
+            coordinates = {
+                "uuid"  => SecureRandom.hex,
+                "start" => Time.new.to_i,
+                "end"   => Time.new.to_i+86400
+            }
+            KeyValueStore::set(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed2d5c", JSON.generate(coordinates))
+            coordinates 
+        }
+
+        waves = Waves::items()
+                    .select{|wave| wave["isPrority"] }
+                    .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+                    .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+
+        if waves.size>0 then
+            return waves.map{|wave| Waves::toNS16(wave) }
+        end
+
+        waves = Waves::items()
+                    .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+                    .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+
+        if waves.size <= 6 then
+            return waves.map{|wave| Waves::toNS16(wave) }
+        end
+
+        stellarCoordinates = getStellarCoordinates.call()
+
+        waves = Waves::items()
+                    .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+                    .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+                    .select{|wave| shouldShow.call(getPhase.call(wave, stellarCoordinates), stellarCoordinates) }
+
+        if waves.size <= 6 then
+            return waves.map{|wave| Waves::toNS16(wave) }
+        end
+
+        stellarCoordinates = getNewStellarCoordinates.call()
+
+        waves = Waves::items()
+                    .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+                    .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+                    .select{|wave| shouldShow.call(getPhase.call(wave, stellarCoordinates), stellarCoordinates) }
+
+        waves.map{|wave| Waves::toNS16(wave) }
+
     end
 
     # Waves::nx19s()
