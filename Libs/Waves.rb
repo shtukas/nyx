@@ -354,7 +354,22 @@ class Waves
 
     # Waves::ns16s()
     def self.ns16s()
+        getPhase = lambda{|wave|
+            phase = KeyValueStore::getOrNull(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c")
+            return phase.to_f if phase
+            phase = rand
+            KeyValueStore::set(nil, "9a3eb7a2-d23b-466d-9e45-6cd4f5ed1d5c", phase)
+            phase
+        }
+
+        shouldPhaseShow = lambda{|wave|
+            phase = getPhase.call(wave)
+            hourPhase = 6 + phase*12
+            Time.new.hour >= hourPhase
+        }
+
         Waves::items()
+            .select{|wave| shouldPhaseShow.call(wave) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }
