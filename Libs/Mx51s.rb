@@ -260,8 +260,7 @@ class Mx51s
             "announce" => Mx51s::toStringForNS16(mx51, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "done", ">> (transmute)"],
             "ordinal"  => mx51["ordinal"],
-            "Mx51"     => mx51,
-            "rt"       => rt
+            "Mx51"     => mx51
         }
         ns16
     end
@@ -272,14 +271,6 @@ class Mx51s
         ns16s = Mx51s::items()
             .map{|item| Mx51s::ns16OrNull(item) }
             .compact
-
-        p1 = ns16s
-                .first(6)
-                .sort{|x1, x2|
-                    (x1["rt"] > 0 ? x1["rt"] : 0.25)  <=> (x2["rt"] > 0 ? x2["rt"] : 0.25)
-                }
-        p2 = ns16s.drop(6)
-        p1 + p2
     end
 
     # --------------------------------------------------
