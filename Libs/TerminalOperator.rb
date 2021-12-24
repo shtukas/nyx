@@ -37,7 +37,7 @@ class Commands
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "calendar | waves | anniversaries | ondates | todos | search | nyx"
+        "calendar | waves | anniversaries | ondates | todos | work on | work off | search | nyx"
     end
 
     # Commands::makersAndDiversCommands()
@@ -53,6 +53,14 @@ class NS16sOperator
 
     # NS16sOperator::isWorkTime()
     def self.isWorkTime()
+        instruction = KeyValueStore::getOrNull(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c")
+        if instruction then
+            instruction = JSON.parse(instruction)
+            if Time.new.to_i < instruction["expiryTime"] then
+                return true  if instruction["mode"] == "work-on"
+                return false if instruction["mode"] == "work-off"
+            end
+        end
         return false if (Time.new.wday == 6 or Time.new.wday == 0)
         return false if Time.new.hour < 8
         return false if Time.new.hour >= 17

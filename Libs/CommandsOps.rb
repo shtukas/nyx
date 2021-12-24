@@ -255,6 +255,23 @@ class CommandsOps
         if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
         end
+
+        if Interpreting::match("work on", command) then
+            instruction = {
+                "mode"       => "work-on",
+                "expiryTime" => Time.new.to_i + 3600*2
+            }
+            KeyValueStore::set(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c", JSON.generate(instruction))
+        end
+
+        if Interpreting::match("work off", command) then
+            instruction = {
+                "mode"       => "work-off",
+                "expiryTime" => Time.new.to_i + 3600*2
+            }
+            KeyValueStore::set(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c", JSON.generate(instruction))
+        end
+
     end
 
     # CommandsOps::transmutation(object)
