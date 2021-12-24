@@ -25,7 +25,7 @@ class Nx50s
             answer << object
         end
         db.close
-        answer.uniq
+        answer
     end
 
     # Nx50s::nx50sCardinal(n)
@@ -46,7 +46,7 @@ class Nx50s
             answer << object
         end
         db.close
-        answer.uniq
+        answer
     end
 
     # Nx50s::commit(nx50)
@@ -54,6 +54,7 @@ class Nx50s
         db = SQLite3::Database.new(Nx50s::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
+        db.execute "delete from _nx50s_ where _uuid_=?", [nx50["uuid"]]
         db.execute "insert into _nx50s_ (_uuid_, _unixtime_, _ordinal_, _description_, _atom_) values (?, ?, ?, ?, ?)", [nx50["uuid"], nx50["unixtime"], nx50["ordinal"], nx50["description"], JSON.generate(nx50["atom"])]
         db.close
     end

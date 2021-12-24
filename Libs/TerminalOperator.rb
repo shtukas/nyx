@@ -157,7 +157,7 @@ class TerminalDisplayOperator
                 if runningUUIDs.include?(ns16["uuid"]) then
                     announce = announce.green
                 end
-                break if (!isDefaultItem and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                break if (!isDefaultItem and store.getDefault() and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
