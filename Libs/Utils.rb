@@ -479,4 +479,43 @@ class Utils
             .select{|item| toString.call(item) == line }
             .first
     end
+
+
+    # ----------------------------------------------------
+
+    # Utils::fsck()
+    def self.fsck()
+        Anniversaries::anniversaries().each{|item|
+            puts Anniversaries::toString(item)
+        }
+        Calendar::items().each{|item|
+            puts Calendar::toString(item)
+        }
+        Waves::items().each{|item|
+            puts Waves::toString(item)
+            status = CoreData5::fsck(item["atom"])
+            raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{item["atom"]}]" if !status
+        }
+        Mx48s::items().each{|item|
+            puts Mx48s::toString(item)
+            status = CoreData5::fsck(item["atom"])
+            raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{item["atom"]}]" if !status
+        }
+        Mx49s::items().each{|item|
+            puts Mx49s::toString(item)
+            status = CoreData5::fsck(item["atom"])
+            raise "[error: d9154d97-9bf6-43bb-9517-12c8a9d34509, #{item}, #{item["atom"]}]" if !status
+        }
+        Mx51s::items().each{|item|
+            puts Mx51s::toString(item)
+            status = CoreData5::fsck(item["atom"])
+            raise "[error: f6d0341c-7636-4fe8-93dd-9d0968760f1f, #{item}, #{item["atom"]}]" if !status
+        }
+        Nx50s::nx50s().each{|item|
+            puts Nx50s::toString(item)
+            status = CoreData5::fsck(item["atom"])
+            raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{item["atom"]}]" if !status   
+        }
+    end
+
 end

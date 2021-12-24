@@ -23,9 +23,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class CoreData0Utils
 
-    # CoreData0Utils::foldersRepositoryPath()
-    def self.foldersRepositoryPath()
-        "/Users/pascal/Galaxy/DataBank/CoreData/Folders"
+    # CoreData0Utils::managedFoldersRepositoryPath()
+    def self.managedFoldersRepositoryPath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Managed-Folders"
     end
 
     # CoreData0Utils::filepathToContentHash(filepath)
@@ -63,7 +63,7 @@ class CoreData0Utils
     # CoreData0Utils::interactivelyMakeNewManagedFolderReturnName()
     def self.interactivelyMakeNewManagedFolderReturnName()
         foldername = CoreData0Utils::timeStringL22()
-        folderpath = "#{CoreData0Utils::foldersRepositoryPath()}/#{foldername}"
+        folderpath = "#{CoreData0Utils::managedFoldersRepositoryPath()}/#{foldername}"
         FileUtils.mkdir(folderpath)
         FileUtils.touch("#{folderpath}/01 README.txt")
         puts "opening core data folder #{folderpath}"
@@ -132,6 +132,7 @@ class CoreData0Utils
 
     # CoreData0Utils::moveFileToBinTimeline(location)
     def self.moveFileToBinTimeline(location)
+        return if !File.exists?(location)
         directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(directory)
         FileUtils.mv(location, directory)
@@ -321,7 +322,7 @@ class CoreData5
         end
         if atom["type"] == "managed-folder" then
             foldername = atom["payload"]
-            folderpath = "#{CoreData0Utils::foldersRepositoryPath()}/#{foldername}"
+            folderpath = "#{CoreData0Utils::managedFoldersRepositoryPath()}/#{foldername}"
             puts "opening core data folder #{folderpath}"
             system("open '#{folderpath}'")
             LucilleCore::pressEnterToContinue()
@@ -403,7 +404,7 @@ class CoreData5
         end
         if atom["type"] == "managed-folder" then
             foldername = atom["payload"]
-            return File.exists?("#{CoreData0Utils::foldersRepositoryPath()}/#{foldername}")
+            return File.exists?("#{CoreData0Utils::managedFoldersRepositoryPath()}/#{foldername}")
         end
         if atom["type"] == "unique-string" then
             # Technically we should be checking if the target exists, but that takes too long
@@ -499,14 +500,6 @@ class CoreData7BinaryBlobs
         "/Users/pascal/Galaxy/DataBank/Catalyst/DataRepository-Depth1"
     end
 
-    # CoreData7BinaryBlobs::getBlobOrNullOld(nhash)
-    def self.getBlobOrNullOld(nhash)
-        folderpath = "/Users/pascal/Galaxy/DataBank/CoreData/DataBlobs2/#{nhash[7, 2]}/#{nhash[9, 2]}"
-        filepath = "#{folderpath}/#{nhash}.data"
-        return nil if !File.exists?(filepath)
-        IO.read(filepath)
-    end
-
     # CoreData7BinaryBlobs::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
@@ -525,11 +518,6 @@ class CoreData7BinaryBlobs
         filepath = "#{folderpath}/#{nhash}.data"
         if File.exists?(filepath) then
             return IO.read(filepath)
-        end
-        blob = CoreData7BinaryBlobs::getBlobOrNullOld(nhash)
-        if blob then
-            CoreData7BinaryBlobs::putBlob(blob)
-            return blob
         end
         nil
     end
