@@ -312,10 +312,10 @@ class CoreData5
             return nil
         end
         if atom["type"] == "text" then
-            puts atom["payload"].strip
-            if LucilleCore::askQuestionAnswerAsBoolean("> edit ? ", false) then
-                text = CoreData0Utils::editTextSynchronously(atom["payload"])
-                atom["payload"] = text
+            text1 = atom["payload"]
+            text2 = CoreData0Utils::editTextSynchronously(text1)
+            if text1 != text2 then
+                atom["payload"] = text2
                 return atom
             end
             return nil
