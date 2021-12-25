@@ -105,6 +105,10 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
+        puts "(today: #{(Bank::valueAtDate("GLOBAL-4852-9FCE-C8D43B85A4AC", Utils::today()).to_f/3600).round(2)} hours, rt: #{BankExtended::stdRecoveredDailyTimeInHours("GLOBAL-4852-9FCE-C8D43B85A4AC").round(2)}, Nx50: #{Nx50s::nx50s().size} items)"
+        vspaceleft = vspaceleft - 2
+
+        puts ""
 
         store = ItemStore.new()
 

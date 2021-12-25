@@ -129,11 +129,16 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 # ------------------------------------------------------------
 
-require_relative "Anniversaries.rb"
+require_relative "Agents/Anniversaries.rb"
+require_relative "Agents/Calendar.rb"
+require_relative "Agents/Mx48s.rb"
+require_relative "Agents/Mx49s.rb"
+require_relative "Agents/Mx51s.rb"
+require_relative "Agents/Nx50s.rb"
+require_relative "Agents/Waves.rb"
 
 require_relative "Bank.rb"
 
-require_relative "Calendar.rb"
 require_relative "CommandsOps.rb"
 
 require_relative "CoreData.rb"
@@ -147,12 +152,6 @@ require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
-require_relative "Mx48s.rb"
-require_relative "Mx49s.rb"
-require_relative "Mx51s.rb"
-
-require_relative "Nx50s.rb"
-
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"
@@ -162,7 +161,5 @@ require_relative "StructuredTodoTexts.rb"
 require_relative "TerminalOperator.rb"
 
 require_relative "Utils.rb"
-
-require_relative "Waves.rb"
 
 # ------------------------------------------------------------

@@ -237,17 +237,11 @@ class Nx50s
     # Nx50s::run(nx50)
     def self.run(nx50)
 
-        itemToBankAccounts = lambda{|item|
-            accounts = []
-            accounts << item["uuid"]
-            accounts.compact
-        }
-
         system("clear")
 
         uuid = nx50["uuid"]
 
-        NxBallsService::issue(uuid, nx50["description"], itemToBankAccounts.call(nx50))
+        NxBallsService::issue(uuid, nx50["description"], [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
 
         didItOnce1 = false
 

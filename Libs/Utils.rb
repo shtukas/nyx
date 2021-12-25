@@ -271,12 +271,13 @@ class Utils
 
     # Utils::codeTrace()
     def self.codeTrace()
-        LucilleCore::locationsAtFolder(File.dirname(__FILE__))
-            .select{|filepath| filepath[-3, 3] == ".rb" }
-            .map{|filepath|
-                Digest::SHA1.hexdigest(IO.read(filepath))
-            }
-            .join(":")
+        trace = []
+        Find.find(File.dirname(__FILE__)) do |location|
+            next if !File.file?(location)
+            next if location[-3, 3] != ".rb"
+            trace << Digest::SHA1.hexdigest(IO.read(location))
+        end
+        Digest::SHA1.hexdigest(trace.join(":"))
     end
 
     # ----------------------------------------------------
@@ -517,5 +518,4 @@ class Utils
             raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{item["atom"]}]" if !status   
         }
     end
-
 end

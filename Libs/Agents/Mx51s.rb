@@ -125,17 +125,11 @@ class Mx51s
     # Mx51s::run(mx51)
     def self.run(mx51)
 
-        itemToBankAccounts = lambda{|item|
-            accounts = []
-            accounts << item["uuid"]
-            accounts.compact
-        }
-
         system("clear")
 
         uuid = mx51["uuid"]
 
-        NxBallsService::issue(uuid, mx51["description"], itemToBankAccounts.call(mx51))
+        NxBallsService::issue(uuid, mx51["description"], [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
 
         didItOnce1 = false
 

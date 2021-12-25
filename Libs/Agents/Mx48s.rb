@@ -1,4 +1,4 @@
-# encoding: UTF-8
+j# encoding: UTF-8
 
 class Mx48s
 
@@ -77,6 +77,8 @@ class Mx48s
         system("clear")
 
         uuid = mx48["uuid"]
+
+        NxBallsService::issue(uuid, Mx48s::toString(mx48), [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
 
         didItOnce1 = false
 
