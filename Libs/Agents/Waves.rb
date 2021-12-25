@@ -301,20 +301,28 @@ class Waves
 
         Waves::accessContent(wave)
 
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue"])
+        loop {
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue", "landing and back"])
 
-        if operation.nil? or operation == "done (default)" then
-            Waves::performDone(wave)
-            NxBallsService::close(uuid, true)
-        end
+            if operation.nil? or operation == "done (default)" then
+                Waves::performDone(wave)
+                NxBallsService::close(uuid, true)
+                break
+            end
 
-        if operation == "stop and exit" then
-            NxBallsService::close(uuid, true)
-        end
+            if operation == "stop and exit" then
+                NxBallsService::close(uuid, true)
+                break
+            end
 
-        if operation == "exit and continue" then
-            # nothing
-        end
+            if operation == "exit and continue" then
+                break
+            end
+
+            if operation == "landing and back" then
+                Waves::landing(wave)
+            end
+        }
     end
 
     # Waves::toNS16(wave)
