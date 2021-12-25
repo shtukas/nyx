@@ -131,8 +131,6 @@ class Mx51s
 
         NxBallsService::issue(uuid, mx51["description"], [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
 
-        didItOnce1 = false
-
         loop {
 
             system("clear")
@@ -151,10 +149,6 @@ class Mx51s
             if note then
                 puts "note:\n#{note}".green
             end
-            if mx51["atom"]["type"] != "description-only" and !didItOnce1 and LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
-                Mx51s::accessContent(mx51)
-            end
-            didItOnce1 = true
 
             puts "access | note | <datecode> | description | atom | ordinal | rotate | >> (transmute) | show json | destroy (gg) | exit (xx)".yellow
 

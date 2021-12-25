@@ -243,8 +243,6 @@ class Nx50s
 
         NxBallsService::issue(uuid, nx50["description"], [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
 
-        didItOnce1 = false
-
         loop {
 
             system("clear")
@@ -263,10 +261,6 @@ class Nx50s
             if note then
                 puts "note:\n#{note}".green
             end
-            if nx50["atom"]["type"] != "description-only" and !didItOnce1 and LucilleCore::askQuestionAnswerAsBoolean("> access ? ", true) then
-                Nx50s::accessContent(nx50)
-            end
-            didItOnce1 = true
 
             puts "access | note | <datecode> | description | atom | ordinal | rotate | >> (transmute) | show json | destroy (gg) | exit (xx)".yellow
 
