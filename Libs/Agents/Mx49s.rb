@@ -31,7 +31,7 @@ class Mx49s
         return nil if description == ""
         uuid = SecureRandom.uuid
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-        return nil if date.nil?
+        return nil if datetime.nil?
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         mx49 = {
             "uuid"        => uuid,

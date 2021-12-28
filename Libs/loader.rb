@@ -146,7 +146,6 @@ require_relative "CoreData.rb"
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
-require_relative "DrivesBackups.rb"
 
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
