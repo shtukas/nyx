@@ -165,8 +165,6 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-
-        Bank::put("WAVES-UNITS-1-44F7-A64A-72D0205F8957", 1)
     end
 
     # Waves::accessContent(wave)
@@ -297,7 +295,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-4316-4B5A-BB1F-199698BECF6A"])
+        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-4316-4B5A-BB1F-199698BECF6A", "GLOBAL-4852-9FCE-C8D43B85A4AC"])
 
         Waves::accessContent(wave)
 
@@ -411,7 +409,6 @@ class Waves
                     .select{|wave| shouldShow.call(getPhase.call(wave, stellarCoordinates), stellarCoordinates) }
 
         waves.map{|wave| Waves::toNS16(wave) }
-
     end
 
     # Waves::nx19s()
