@@ -146,7 +146,7 @@ class CommandsOps
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            NxBallsService::issue(SecureRandom.uuid, description, [])
+            NxBallsService::issue(SecureRandom.uuid, description, ["GLOBAL-4852-9FCE-C8D43B85A4AC"])
         end
 
         if command == "monitor" then
@@ -271,7 +271,6 @@ class CommandsOps
             }
             KeyValueStore::set(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c", JSON.generate(instruction))
         end
-
     end
 
     # CommandsOps::transmutation(object)
