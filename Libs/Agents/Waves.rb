@@ -178,7 +178,7 @@ class Waves
     def self.landing(wave)
         uuid = wave["uuid"]
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, TwentyTwo::evaAccount()])
+        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, TwentyTwo::getCachedAccountForObject(Waves::toString(wave), wave["uuid"])])
 
         loop {
 
@@ -285,7 +285,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, wave["description"], [uuid, TwentyTwo::evaAccount()])
+        NxBallsService::issue(uuid, wave["description"], [uuid, TwentyTwo::getCachedAccountForObject(Waves::toString(wave), wave["uuid"])])
 
         Waves::accessContent(wave)
 
