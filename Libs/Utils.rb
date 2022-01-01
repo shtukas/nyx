@@ -280,6 +280,14 @@ class Utils
         Digest::SHA1.hexdigest(trace.join(":"))
     end
 
+    # Utils::copyFileToBinTimeline(location)
+    def self.copyFileToBinTimeline(location)
+        return if !File.exists?(location)
+        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(directory)
+        FileUtils.cp(location, directory)
+    end
+
     # ----------------------------------------------------
 
     # Utils::pecoStyleSelectionOrNull(lines)

@@ -135,6 +135,11 @@ class CommandsOps
             Calendar::moveToArchives(object["item"])
         end
 
+        if object["NS198"] == "Catalyst.txt:NS16" and command == "done" then
+            Utils::copyFileToBinTimeline("/Users/pascal/Desktop/Catalyst.txt")
+            NS16sOperator::rewriteCatalystTxtFileWithoutThisLine(object["line"])
+        end
+
         if Interpreting::match("require internet", command) then
             InternetStatus::markIdAsRequiringInternet(object["uuid"])
         end
