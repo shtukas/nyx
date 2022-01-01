@@ -9,8 +9,6 @@ Wave {
     "repeatType"       : repeatType,
     "repeatValue"      : repeatValue,
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
-
-    "isPrority" : null | Boolean # Indicate whether the wave displays regardless of its phase. 
 }
 
 repeatType                       repeatValue

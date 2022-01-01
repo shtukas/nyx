@@ -134,8 +134,6 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        wave["isPriority"] = LucilleCore::askQuestionAnswerAsBoolean("is priority ? (displays regardless of its phase) : ")
-
         Waves::commit(wave)
         wave
     end
@@ -147,8 +145,7 @@ class Waves
     def self.toString(wave)
         lastDoneDateTime = wave["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        priority = wave["isPriority"] ? " (priority)" : ""
-        "[wave] #{wave["description"]} (#{Waves::scheduleString(wave)}) (#{ago})#{priority}"
+        "[wave] #{wave["description"]} (#{Waves::scheduleString(wave)}) (#{ago})"
     end
 
     # Waves::performDone(wave)
@@ -197,11 +194,10 @@ class Waves
             puts "schedule: #{Waves::scheduleString(wave)}".yellow
             puts "last done: #{wave["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
-            puts "Is priority: #{wave["isPrority"]}".yellow
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | description | atom | recast schedule | priority | destroy | exit (xx)".yellow
+            puts "[item   ] access | done | <datecode> | note | description | atom | recast schedule | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -246,12 +242,6 @@ class Waves
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
-                Waves::commit(wave)
-                next
-            end
-
-            if Interpreting::match("priority", command) then
-                wave["isPrority"] = LucilleCore::askQuestionAnswerAsBoolean("Is priority ? ")
                 Waves::commit(wave)
                 next
             end
