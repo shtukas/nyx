@@ -60,7 +60,8 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Waves::ns16s(),
             Inbox::ns16s(),
-            Mx49s::ns16s()
+            Mx49s::ns16s(),
+            TwentyTwo::ns16s()
         ]
             .flatten
             .compact
