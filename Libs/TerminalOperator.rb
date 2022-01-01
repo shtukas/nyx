@@ -122,8 +122,10 @@ class TerminalDisplayOperator
 
         catalyst = IO.read("/Users/pascal/Desktop/Catalyst.txt").strip
         if catalyst.size > 0 then
-            puts "Catalyst.txt is not empty".green
-            vspaceleft = vspaceleft - 1
+            catalyst.lines.each{|line|
+                puts "(catalyst.txt) #{line.strip.green}"
+                vspaceleft = vspaceleft - 1
+            }
         end
 
         ns16s
