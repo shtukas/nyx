@@ -158,6 +158,7 @@ require_relative "Search.rb"
 require_relative "StructuredTodoTexts.rb"
 
 require_relative "TerminalOperator.rb"
+require_relative "TwentyTwo.rb"
 
 require_relative "Utils.rb"
 

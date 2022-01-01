@@ -129,7 +129,7 @@ class Mx51s
 
         uuid = mx51["uuid"]
 
-        NxBallsService::issue(uuid, mx51["description"], [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
+        NxBallsService::issue(uuid, mx51["description"], [uuid, TwentyTwo::workAccount()])
 
         loop {
 
@@ -248,17 +248,25 @@ class Mx51s
             "announce" => Mx51s::toStringForNS16(mx51, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "done", ">> (transmute)"],
             "ordinal"  => mx51["ordinal"],
-            "Mx51"     => mx51
+            "Mx51"     => mx51,
+            "rt"       => rt
         }
         ns16
     end
 
     # Mx51s::ns16s()
     def self.ns16s()
-        return [] if !NS16sOperator::isWorkTime()
         ns16s = Mx51s::items()
-            .map{|item| Mx51s::ns16OrNull(item) }
-            .compact
+                    .map{|item| Mx51s::ns16OrNull(item) }
+                    .compact
+
+        p1 = ns16s
+                .first(6)
+                .sort{|x1, x2|
+                    (x1["rt"] > 0 ? x1["rt"] : 0.25)  <=> (x2["rt"] > 0 ? x2["rt"] : 0.25)
+                }
+        p2 = ns16s.drop(6)
+        p1 + p2
     end
 
     # --------------------------------------------------

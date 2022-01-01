@@ -94,7 +94,7 @@ class Mx49s
 
         uuid = mx49["uuid"]
 
-        NxBallsService::issue(uuid, Mx49s::toString(mx49), [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
+        NxBallsService::issue(uuid, Mx49s::toString(mx49), [uuid, TwentyTwo::getCachedAccountForObject(Mx49s::toString(mx49), mx49["uuid"])])
 
         loop {
 

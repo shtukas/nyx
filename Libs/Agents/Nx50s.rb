@@ -241,7 +241,7 @@ class Nx50s
 
         uuid = nx50["uuid"]
 
-        NxBallsService::issue(uuid, nx50["description"], [uuid, "GLOBAL-4852-9FCE-C8D43B85A4AC"])
+        NxBallsService::issue(uuid, nx50["description"], [uuid, TwentyTwo::evaAccount()])
 
         loop {
 

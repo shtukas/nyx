@@ -51,22 +51,6 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::isWorkTime()
-    def self.isWorkTime()
-        instruction = KeyValueStore::getOrNull(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c")
-        if instruction then
-            instruction = JSON.parse(instruction)
-            if Time.new.to_i < instruction["expiryTime"] then
-                return true  if instruction["mode"] == "work-on"
-                return false if instruction["mode"] == "work-off"
-            end
-        end
-        return false if (Time.new.wday == 6 or Time.new.wday == 0)
-        return false if Time.new.hour < 8
-        return false if Time.new.hour >= 17
-        true
-    end
-
     # NS16sOperator::ns16s()
     def self.ns16s()
         [
@@ -76,9 +60,7 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Waves::ns16s(),
             Inbox::ns16s(),
-            Mx49s::ns16s(),
-            Mx51s::ns16s(),
-            Nx50s::ns16s()
+            Mx49s::ns16s()
         ]
             .flatten
             .compact
@@ -104,7 +86,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        puts "(today: #{(Bank::valueAtDate("GLOBAL-4852-9FCE-C8D43B85A4AC", Utils::today()).to_f/3600).round(2)} hours, rt: #{BankExtended::stdRecoveredDailyTimeInHours("GLOBAL-4852-9FCE-C8D43B85A4AC").round(2)}, Nx50: #{Nx50s::nx50s().size} items)"
+        puts "#{TwentyTwo::dx()} (Nx50: #{Nx50s::nx50s().size} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""
@@ -146,8 +128,7 @@ class TerminalDisplayOperator
         ns16s
             .each{|ns16|
                 indx = store.register(ns16)
-                isDefaultable = !KeyValueStore::flagIsTrue(nil, "NOT-DEFAULTABLE-4B2B-9856-95F8C25828FD:#{Utils::today()}:#{ns16["uuid"]}")
-                isDefaultItem = (isDefaultable and store.getDefault().nil?) # the default item is the first element, unless it's not defaultable
+                isDefaultItem = store.getDefault().nil?
                 if isDefaultItem then
                     store.registerDefault(ns16)
                 end
@@ -188,11 +169,6 @@ class TerminalDisplayOperator
         if command == "expose" and (item = store.getDefault()) then
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if command == "''" and (item = store.getDefault()) then
-            KeyValueStore::setFlagTrue(nil, "NOT-DEFAULTABLE-4B2B-9856-95F8C25828FD:#{Utils::today()}:#{item["uuid"]}")
             return
         end
 
