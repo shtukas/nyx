@@ -73,6 +73,7 @@ class NS16sOperator
 
     # NS16sOperator::rewriteCatalystTxtFileWithoutThisLine(line)
     def self.rewriteCatalystTxtFileWithoutThisLine(line)
+        filepath = "/Users/pascal/Desktop/Catalyst.txt"
         contents = IO.read(filepath)
         contents = contents.lines.reject{|l| l.strip == line }.join()
         File.open(filepath, "w"){|f| f.write(contents) }
