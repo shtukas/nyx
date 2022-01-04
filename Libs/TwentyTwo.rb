@@ -39,12 +39,12 @@ class TwentyTwo
 
     # TwentyTwo::getCachedAccountForObject(announce, uuid)
     def self.getCachedAccountForObject(announce, uuid)
-        acccount = KeyValueStore::getOrNull(nil, "95e82e1b-44b0-4857-abe2-e99048ae4ccd:#{uuid}")
-        return account if acccount
+        account = KeyValueStore::getOrNull(nil, "95e82e1b-44b0-4857-abe2-e99048ae4ccd:#{uuid}")
+        return account if account
         puts "Deciding account for #{announce}"
-        acccount = TwentyTwo::selectAccount()
-        KeyValueStore::set(nil, "95e82e1b-44b0-4857-abe2-e99048ae4ccd:#{uuid}", acccount)
-        acccount
+        account = TwentyTwo::selectAccount()
+        KeyValueStore::set(nil, "95e82e1b-44b0-4857-abe2-e99048ae4ccd:#{uuid}", account)
+        account
     end
 
     # TwentyTwo::dx()
