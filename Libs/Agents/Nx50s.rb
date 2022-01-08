@@ -313,10 +313,7 @@ class Nx50s
             end
 
             if Interpreting::match(">>", command) then
-                CommandsOps::transmutation({
-                    "type" => "Nx50-transmutation",
-                    "nx50" => nx50
-                })
+                CommandsOps::transmutation2(nx50, "Nx50")
                 break
             end
 

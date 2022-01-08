@@ -55,10 +55,7 @@ class CommandsOps
 
         if object["NS198"] == "ns16:inbox1" and command == ">>" then
             location = object["location"]
-            CommandsOps::transmutation({
-                "type"     => "inbox-transmutation",
-                "location" => location
-            })
+            CommandsOps::transmutation2(location, "inbox")
         end
 
         if object["NS198"] == "ns16:Nx50" and command == ".." then
@@ -82,10 +79,7 @@ class CommandsOps
 
         if object["NS198"] == "ns16:Mx49" and command == ">>" then
             mx49 = object["Mx49"]
-            CommandsOps::transmutation({
-                "type" => "mx49-dated-transmutation",
-                "mx49" => mx49
-            })
+            CommandsOps::transmutation2(mx49, "Mx49")
         end
 
         if object["NS198"] == "ns16:Nx50" and command == "done" then
@@ -110,10 +104,7 @@ class CommandsOps
 
         if object["NS198"] == "ns16:Mx51" and command == ">>" then
             mx51 = object["Mx51"]
-            CommandsOps::transmutation({
-                "type" => "mx51-work-item-transmutation",
-                "mx51" => mx51
-            })
+            CommandsOps::transmutation2(mx51, "Mx51")
         end
 
         if object["NS198"] == "ns16:anniversary1" and command == ".." then
@@ -277,55 +268,45 @@ class CommandsOps
             }
             KeyValueStore::set(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c", JSON.generate(instruction))
         end
+
+        if Interpreting::match("exit", command) then
+            exit
+        end
     end
 
-    # CommandsOps::transmutation(object)
-    def self.transmutation(object)
+    # CommandsOps::transmutation1(object, source, target)
+    # source: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (monitor) | "inbox"
+    # target: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (monitor)
+    def self.transmutation1(object, source, target)
 
-        if object["type"] == "inbox-transmutation" then
-            location = object["location"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["dispatch to Nx50s", "dispatch to work Mx51s"])
-            if action == "dispatch to Nx50s" then
-                Nx50s::issueItemUsingInboxLocation(location)
-                LucilleCore::removeFileSystemLocation(location)
-            end
-            if action == "dispatch to work Mx51s" then
-                Mx51s::issueItemUsingInboxLocation(location)
-                LucilleCore::removeFileSystemLocation(location)
-            end
+        if source == "Mx51" and target == "Mx48" then
+            newItem = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "description" => object["description"],
+                "atom"        => object["atom"]
+            }
+            Mx48s::commit(newItem)
+            Mx51s::destroy(object["uuid"])
+            return
         end
 
-        if object["type"] == "mx49-dated-transmutation" then
-            mx49 = object["mx49"]
-            puts "We are currently defaulting to sending Mx49/dated to Nx50, you can modify the code to change that"
-            LucilleCore::pressEnterToContinue()
-            nx50 = mx49.clone
-            nx50["uuid"] = SecureRandom.uuid
-            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
-            Nx50s::commit(nx50)
-            Mx49s::destroy(mx49["uuid"])
-        end
+        puts "I do not yet know how to transmute from #{source} to #{target}"
+        LucilleCore::pressEnterToContinue()
+    end
 
-        if object["type"] == "Nx50-transmutation" then
-            nx50 = object["nx50"]
-            puts "We are currently defaulting to sending Nx50 to Mx51/work-item, you can modify the code to change that"
-            LucilleCore::pressEnterToContinue()
-            mx51 = nx50.clone
-            mx51["uuid"] = SecureRandom.uuid
-            mx51["ordinal"] = Mx51s::interactivelyDecideNewOrdinal()
-            Mx51s::commit(mx51)
-            Nx50s::destroy(nx50["uuid"])
-        end
+    # CommandsOps::interactivelyGetTransmutationTargetOrNull()
+    def self.interactivelyGetTransmutationTargetOrNull()
+        options = ["Mx49 (dated)", "Nx50", "Mx51", "Mx48 (monitor)"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
+        return nil if option.nil?
+        option[0, 4]
+    end
 
-        if object["type"] == "mx51-work-item-transmutation" then
-            mx51 = object["mx51"]
-            puts "We are currently defaulting to sending Mx51/work-item to Nx50, you can modify the code to change that"
-            LucilleCore::pressEnterToContinue()
-            nx50 = mx51.clone
-            nx50["uuid"] = SecureRandom.uuid
-            nx50["ordinal"] = Nx50s::ordinalBetweenN1thAndN2th(20, 30)
-            Nx50s::commit(nx50)
-            Mx51s::destroy(mx51["uuid"])
-        end
+    # CommandsOps::transmutation2(object, source)
+    def self.transmutation2(object, source)
+        target = CommandsOps::interactivelyGetTransmutationTargetOrNull()
+        return if target.nil?
+        CommandsOps::transmutation1(object, source, target)
     end
 end

@@ -30,10 +30,7 @@ class Inbox
                     FileUtils.cp(location, "/Users/pascal/Desktop")
                 end
                 if action == ">> (transmute)" then
-                    CommandsOps::transmutation({
-                        "type"     => "inbox-transmutation",
-                        "location" => location
-                    })
+                    CommandsOps::transmutation2(location, "inbox")
                     return
                 end
                 if action == "destroy" then
@@ -49,10 +46,7 @@ class Inbox
                     system("open '#{location}'")
                 end
                 if action == ">> (transmute)" then
-                    CommandsOps::transmutation({
-                        "type"     => "inbox-transmutation",
-                        "location" => location
-                    })
+                    CommandsOps::transmutation2(location, "inbox")
                     return
                 end
                 if action == "destroy" then

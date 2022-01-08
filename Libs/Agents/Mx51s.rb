@@ -201,10 +201,7 @@ class Mx51s
             end
 
             if Interpreting::match(">>", command) then
-                CommandsOps::transmutation({
-                    "type" => "mx51-work-item-transmutation",
-                    "mx51" => mx51
-                })
+                CommandsOps::transmutation2(mx51, "Mx51")
                 break
             end
 
