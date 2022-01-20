@@ -53,6 +53,21 @@ class NS16sOperator
 
     # NS16sOperator::ns16s()
     def self.ns16s()
+
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50s (Random)")
+            .map{|location|
+                puts "Importing Nx50s (Random): #{location}"
+                nx50 = {
+                    "uuid"        => SecureRandom.uuid,
+                    "unixtime"    => Time.new.to_i,
+                    "ordinal"     => Nx50s::ordinalBetweenN1thAndN2th(30, 50),
+                    "description" => File.basename(location),
+                    "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
+                }
+                Nx50s::commit(nx50)
+                LucilleCore::removeFileSystemLocation(location)
+            }
+
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
