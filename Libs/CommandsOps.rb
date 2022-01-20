@@ -126,9 +126,15 @@ class CommandsOps
             Calendar::moveToArchives(object["item"])
         end
 
+        if object["NS198"] == "Catalyst.txt:NS16" and command == ".." then
+            line = object["line"]
+            account = TwentyTwo::selectAccount()
+            NxBallsService::issue(SecureRandom.uuid, line, [account])
+        end
+
         if object["NS198"] == "Catalyst.txt:NS16" and command == "done" then
             Utils::copyFileToBinTimeline("/Users/pascal/Desktop/Catalyst.txt")
-            NS16sOperator::rewriteCatalystTxtFileWithoutThisLine(object["line"])
+            CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(object["line"])
         end
 
         if Interpreting::match("require internet", command) then

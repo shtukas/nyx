@@ -51,34 +51,6 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::catalystTxtNs16s()
-    def self.catalystTxtNs16s()
-        IO.read("/Users/pascal/Desktop/Catalyst.txt")
-            .strip
-            .lines
-            .select{|line| line.strip.size > 0 }
-            .take_while{|line| !line.include?("@excluded:") }
-            .map{|line|
-                line = line.strip
-                uuid = Digest::SHA1.hexdigest("216B44F4-61DF-4549-81C9-54673FF950EB:#{line}")
-                {
-                    "uuid"        => uuid,
-                    "NS198"       => "Catalyst.txt:NS16",
-                    "announce"    => "(catalyst.txt) #{line}",
-                    "commands"    => ["done"],
-                    "line"        => line
-                }
-            }
-    end
-
-    # NS16sOperator::rewriteCatalystTxtFileWithoutThisLine(line)
-    def self.rewriteCatalystTxtFileWithoutThisLine(line)
-        filepath = "/Users/pascal/Desktop/Catalyst.txt"
-        contents = IO.read(filepath)
-        contents = contents.lines.reject{|l| l.strip == line }.join()
-        File.open(filepath, "w"){|f| f.write(contents) }
-    end
-
     # NS16sOperator::ns16s()
     def self.ns16s()
         [
@@ -87,7 +59,7 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Waves::ns16s(),
-            NS16sOperator::catalystTxtNs16s(),
+            CatalystTxt::catalystTxtNs16s(),
             Inbox::ns16s(),
             Mx49s::ns16s(),
             TwentyTwo::ns16s()

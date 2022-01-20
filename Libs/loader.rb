@@ -131,6 +131,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require_relative "Agents/Anniversaries.rb"
 require_relative "Agents/Calendar.rb"
+require_relative "Agents/CatalystTxt.rb"
 require_relative "Agents/Mx48s.rb"
 require_relative "Agents/Mx49s.rb"
 require_relative "Agents/Mx51s.rb"
@@ -140,7 +141,6 @@ require_relative "Agents/Waves.rb"
 require_relative "Bank.rb"
 
 require_relative "CommandsOps.rb"
-
 require_relative "CoreData.rb"
 
 require_relative "DoNotShowUntil.rb"
