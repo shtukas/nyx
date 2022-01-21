@@ -346,19 +346,10 @@ class Waves
 
         return ns16s if !ns16s.empty?
 
-        ns16s = Waves::items()
+        Waves::items()
                     .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
                     .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
                     .map{|wave| Waves::toNS16(wave) }
-
-        if ns16s.size > 5 then
-            ns16s
-                .drop(2)
-                .each_with_index{|ns16, indx|
-                    DoNotShowUntil::setUnixtime(ns16["uuid"], Time.new.to_i + 3600*indx)
-                }
-            return ns16s.take(2)
-        end
     end
 
     # Waves::nx19s()
