@@ -285,6 +285,40 @@ class CommandsOps
     # target: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (monitor)
     def self.transmutation1(object, source, target)
 
+        if source == "inbox" and target == "Nx50" then
+            location = object
+            description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+            ordinal = Nx50s::interactivelyDecideNewOrdinal()
+            atom = CoreData5::issueAionPointAtomUsingLocation(location)
+            nx50 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "ordinal"     => ordinal,
+                "description" => description,
+                "atom"        => atom,
+            }
+            Nx50s::commit(nx50)
+            LucilleCore::removeFileSystemLocation(location)
+            return
+        end
+
+        if source == "inbox" and target == "Mx51" then
+            location = object
+            description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+            ordinal = Mx51s::interactivelyDecideNewOrdinal()
+            atom = CoreData5::issueAionPointAtomUsingLocation(location)
+            mx51 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "ordinal"     => ordinal,
+                "description" => description,
+                "atom"        => atom
+            }
+            Mx51s::commit(mx51)
+            LucilleCore::removeFileSystemLocation(location)
+            return
+        end
+
         if source == "Mx51" and target == "Mx48" then
             newItem = {
                 "uuid"        => SecureRandom.uuid,
@@ -297,7 +331,7 @@ class CommandsOps
             return
         end
 
-        puts "I do not yet know how to transmute from #{source} to #{target}"
+        puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
         LucilleCore::pressEnterToContinue()
     end
 

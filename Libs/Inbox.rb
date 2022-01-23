@@ -16,6 +16,21 @@ class Inbox
         uuid
     end
 
+    # Inbox::interactivelyDecideBestDescriptionForLocation(location)
+    def self.interactivelyDecideBestDescriptionForLocation(location)
+        description = File.basename(location)
+        b1 = LucilleCore::askQuestionAnswerAsBoolean("Do you want to run with description '#{description}' ? ", true)
+        return description if b1
+        description = nil
+        while description.nil? do
+            dx = LucilleCore::askQuestionAnswerAsString("description: ")
+            if dx.size > 0 then
+                description = dx
+            end
+        end
+        description
+    end
+
     # Inbox::run(location)
     def self.run(location)
         system("clear")
