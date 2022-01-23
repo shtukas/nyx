@@ -285,7 +285,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, wave["description"], [uuid, TwentyTwo::getCachedAccountForObject(Waves::toString(wave), wave["uuid"])])
+        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", TwentyTwo::getCachedAccountForObject(Waves::toString(wave))])
 
         Waves::accessContent(wave)
 
@@ -333,6 +333,11 @@ class Waves
         }
     end
 
+    # Waves::circuitBreaker()
+    def self.circuitBreaker()
+        Beatrice::stdRecoveredHourlyTimeInHours("WAVES-5B66-4E89-B919-4F4463725EAC") > 0.25
+    end
+
     # Waves::ns16s()
     def self.ns16s()
         # We return the priority ones according to the `Waves::isPriorityWave` definition of priority
@@ -345,6 +350,8 @@ class Waves
                     .map{|wave| Waves::toNS16(wave) }
 
         return ns16s if !ns16s.empty?
+
+        return [] if Waves::circuitBreaker()
 
         Waves::items()
                     .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
