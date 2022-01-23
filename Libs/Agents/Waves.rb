@@ -162,6 +162,9 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+
+        puts "Implement wave couner"
+        Bank::put("WAVE-COUNTER-401B-B157-E5FA30D52A2C", 1)
     end
 
     # Waves::accessContent(wave)
@@ -285,7 +288,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", TwentyTwo::getCachedAccountForObject(Waves::toString(wave))])
+        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", TwentyTwo::getCachedAccountForObject(Waves::toString(wave), uuid)])
 
         Waves::accessContent(wave)
 
@@ -335,7 +338,9 @@ class Waves
 
     # Waves::circuitBreaker()
     def self.circuitBreaker()
-        Beatrice::stdRecoveredHourlyTimeInHours("WAVES-5B66-4E89-B919-4F4463725EAC") > 0.25
+        return true if (Beatrice::stdRecoveredHourlyTimeInHours("WAVES-5B66-4E89-B919-4F4463725EAC") > 0.25)
+        return true if (Bank::valueOverTimespan("WAVE-COUNTER-401B-B157-E5FA30D52A2C", 3600) > 5)
+        false
     end
 
     # Waves::ns16s()
