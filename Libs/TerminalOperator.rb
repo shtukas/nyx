@@ -23,33 +23,30 @@ class ItemStore
     end
 end
 
-class Commands
-
-    # Commands::terminalDisplayCommand()
-    def self.terminalDisplayCommand()
-        ".. | <n> | <datecode> | expose"
-    end
-
-    # Commands::makersCommands()
-    def self.makersCommands()
-        "wave | anniversary | float | spaceship | today | ondate | todo"
-    end
-
-    # Commands::diversCommands()
-    def self.diversCommands()
-        "calendar | waves | anniversaries | ondates | todos | work on | work off | search | nyx"
-    end
-
-    # Commands::makersAndDiversCommands()
-    def self.makersAndDiversCommands()
-        [
-            Commands::makersCommands(),
-            Commands::diversCommands()
-        ].join(" | ")
-    end
-end
-
 class NS16sOperator
+
+    # NS16sOperator::getFocusUnixtimeSortingTime(uuid)
+    def self.getFocusUnixtimeSortingTime(uuid)
+        unixtime = KeyValueStore::getOrNull(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{uuid}")
+        return unixtime.to_f if unixtime
+        unixtime = Time.new.to_f
+        KeyValueStore::set(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{uuid}", unixtime)
+        unixtime
+    end
+
+    # NS16sOperator::focus()
+    def self.focus()
+        [
+            Mx49s::ns16s(),
+            Nx70s::ns16s(),
+            CatalystTxt::catalystTxtNs16s()
+        ]
+            .flatten
+            .compact
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            .sort{|i1, i2| NS16sOperator::getFocusUnixtimeSortingTime(i1["uuid"]) <=> NS16sOperator::getFocusUnixtimeSortingTime(i2["uuid"]) }
+    end
 
     # NS16sOperator::ns16s()
     def self.ns16s()
@@ -74,9 +71,7 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Waves::ns16s(),
-            CatalystTxt::catalystTxtNs16s(),
             Inbox::ns16s(),
-            Mx49s::ns16s(),
             TwentyTwo::ns16s()
         ]
             .flatten
@@ -88,8 +83,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(floats, spaceships, ns16s)
-    def self.display(floats, spaceships, ns16s)
+    # TerminalDisplayOperator::display(floats, spaceships, focus, ns16s)
+    def self.display(floats, spaceships, focus, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -131,6 +126,16 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
         if spaceships.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
+        focus.each{|ns16|
+            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) #{ns16["announce"]}"
+            puts line
+            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        }
+        if focus.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
         end
@@ -211,8 +216,9 @@ class TerminalDisplayOperator
             end
             floats = Mx48s::ns16s()
             spaceships = Nx60s::ns16s()
+            focus = NS16sOperator::focus()
             ns16s = NS16sOperator::ns16s()
-            TerminalDisplayOperator::display(floats, spaceships, ns16s)
+            TerminalDisplayOperator::display(floats, spaceships, focus, ns16s)
         }
     end
 end

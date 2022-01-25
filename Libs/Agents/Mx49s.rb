@@ -184,7 +184,7 @@ class Mx49s
         {
             "uuid"     => uuid,
             "NS198"    => "ns16:Mx49",
-            "announce" => "[#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})",
+            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})",
             "commands" => ["..", "done", "redate", ">> (transmute)"],
             "Mx49"     => mx49
         }

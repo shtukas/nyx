@@ -1,0 +1,6 @@
+Nx60 { # Drops
+    "uuid"        : uuid
+    "unixtime"    : Float
+    "description" : String
+    "atom"        : CoreData5.Atom
+}

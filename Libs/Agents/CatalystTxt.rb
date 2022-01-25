@@ -15,7 +15,7 @@ class CatalystTxt
                 {
                     "uuid"        => uuid,
                     "NS198"       => "Catalyst.txt:NS16",
-                    "announce"    => "(catalyst.txt) #{line}",
+                    "announce"    => "(ct.txt) #{line}",
                     "commands"    => [".." , "done"],
                     "line"        => line
                 }

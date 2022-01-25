@@ -1,4 +1,30 @@
 
+class Commands
+
+    # Commands::terminalDisplayCommand()
+    def self.terminalDisplayCommand()
+        ".. | <n> | <datecode> | expose"
+    end
+
+    # Commands::makersCommands()
+    def self.makersCommands()
+        "wave | anniversary | float | spaceship | drop | today | ondate | todo"
+    end
+
+    # Commands::diversCommands()
+    def self.diversCommands()
+        "calendar | waves | anniversaries | ondates | todos | work on | work off | search | nyx"
+    end
+
+    # Commands::makersAndDiversCommands()
+    def self.makersAndDiversCommands()
+        [
+            Commands::makersCommands(),
+            Commands::diversCommands()
+        ].join(" | ")
+    end
+end
+
 class CommandsOps
 
     # CommandsOps::closeAnyNxBallWithThisID(uuid)
@@ -158,6 +184,10 @@ class CommandsOps
 
         if command == "spaceship" then
             Nx60s::interactivelyCreateNewOrNull()
+        end
+
+        if command == "drop" then
+            Nx70s::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("ondate", command) then
