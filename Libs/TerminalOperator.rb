@@ -141,6 +141,25 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
+        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+        running
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
+                .each{|nxball|
+                    delegate = {
+                        "uuid"       => "84FF58F7-6607-4E32:#{nxball["uuid"]}",
+                        "NxBallUUID" => nxball["uuid"],
+                        "NS198"      => "NxBallDelegate1" 
+                    }
+                    store.register(delegate)
+                    line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                    puts line
+                    vspaceleft = vspaceleft - Utils::verticalSize(line)
+                }
+        if running.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
         waves.each{|ns16|
             store.register(ns16)
             line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
@@ -173,24 +192,6 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
         if spaceships.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
-        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
-        running
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
-                .each{|nxball|
-                    delegate = {
-                        "uuid"  => nxball["uuid"],
-                        "NS198" => "NxBallDelegate1" 
-                    }
-                    store.register(delegate)
-                    line = "(#{store.prefixString()}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
-                    puts line
-                    vspaceleft = vspaceleft - Utils::verticalSize(line)
-                }
-        if running.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
         end

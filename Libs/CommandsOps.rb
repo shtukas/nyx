@@ -165,7 +165,7 @@ class CommandsOps
         end
 
         if object["NS198"] == "NxBallDelegate1" and command == ".." then
-            uuid = object["uuid"]
+            uuid = object["NxBallUUID"]
 
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
             if action == "close" then
