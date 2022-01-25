@@ -168,7 +168,7 @@ class Anniversaries
             .map{|anniversary|
                 {
                     "uuid"        => anniversary["uuid"],
-                    "NS198"       => "ns16:anniversary1",
+                    "NS198"       => "NS16:Anniversary1",
                     "announce"    => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
                     "commands"    => ["..", "done"],
                     "anniversary" => anniversary

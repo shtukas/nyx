@@ -183,9 +183,9 @@ class Mx49s
         uuid = mx49["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Mx49",
+            "NS198"    => "NS16:Mx49",
             "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})",
-            "commands" => ["..", "done", "redate", ">> (transmute)"],
+            "commands" => ["..", "done", "redate", ">> (transmute)", "''"],
             "Mx49"     => mx49
         }
     end

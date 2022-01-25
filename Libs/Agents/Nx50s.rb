@@ -361,7 +361,7 @@ class Nx50s
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Nx50",
+            "NS198"    => "NS16:Nx50",
             "announce" => Nx50s::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "done"],
             "ordinal"  => nx50["ordinal"],

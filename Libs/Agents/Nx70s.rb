@@ -167,9 +167,9 @@ class Nx70s
         uuid = nx70["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Nx70",
+            "NS198"    => "NS16:Nx70",
             "announce" => "(drop) #{nx70["description"]} (#{nx70["atom"]["type"]})",
-            "commands" => [],
+            "commands" => ["..", "''"],
             "Nx70"     => nx70
         }
     end

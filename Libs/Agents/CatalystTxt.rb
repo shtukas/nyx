@@ -2,6 +2,11 @@
 
 class CatalystTxt
 
+    # CatalystTxt::lineToUuid(line)
+    def self.lineToUuid(line)
+        Digest::SHA1.hexdigest("216B44F4-61DF-4549-81C9-54673FF950EB:#{Utils::today()}:#{line}")
+    end
+
     # CatalystTxt::catalystTxtNs16s()
     def self.catalystTxtNs16s()
         IO.read("/Users/pascal/Desktop/Catalyst.txt")
@@ -11,12 +16,12 @@ class CatalystTxt
             .take_while{|line| !line.include?("@excluded:") }
             .map{|line|
                 line = line.strip
-                uuid = Digest::SHA1.hexdigest("216B44F4-61DF-4549-81C9-54673FF950EB:#{Utils::today()}:#{line}")
+                uuid = CatalystTxt::lineToUuid(line)
                 {
                     "uuid"        => uuid,
-                    "NS198"       => "Catalyst.txt:NS16",
+                    "NS198"       => "NS16:CatalystTxt",
                     "announce"    => "(ct.txt) #{line}",
-                    "commands"    => [".." , "done"],
+                    "commands"    => [".." , "done", "''"],
                     "line"        => line
                 }
             }

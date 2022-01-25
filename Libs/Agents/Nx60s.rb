@@ -162,14 +162,20 @@ class Nx60s
     # --------------------------------------------------
     # nx16s
 
+    # Nx60s::toStringForNS16(nx60, rt)
+    def self.toStringForNS16(nx60, rt)
+        "[ship] (#{"%4.2f" % rt}) #{nx60["description"]} (#{nx60["atom"]["type"]})"
+    end
+
     # Nx60s::ns16(nx60)
     def self.ns16(nx60)
         uuid = nx60["uuid"]
+        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Nx60",
-            "announce" => "#{nx60["description"]} (#{nx60["atom"]["type"]})",
-            "commands" => [],
+            "NS198"    => "NS16:Nx60",
+            "announce" => Nx60s::toStringForNS16(nx60, rt).gsub("(0.00)", "      "),
+            "commands" => ["..", "''"],
             "Nx60"     => nx60
         }
     end

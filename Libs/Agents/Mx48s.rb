@@ -165,9 +165,10 @@ class Mx48s
     # Mx48s::ns16(mx48)
     def self.ns16(mx48)
         uuid = mx48["uuid"]
+        ItemStoreOps::delistForDefault(uuid)
         {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Mx48",
+            "NS198"    => "NS16:Mx48",
             "announce" => "#{mx48["description"]} (#{mx48["atom"]["type"]})",
             "commands" => [],
             "Mx48"     => mx48

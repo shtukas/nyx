@@ -39,6 +39,131 @@ class CommandsOps
 
         # puts "CommandsOps, object: #{object}, command: #{command}"
 
+        if object["NS198"] == "NS16:Anniversary1" and command == ".." then
+            Anniversaries::run(object["anniversary"])
+        end
+
+        if object["NS198"] == "NS16:Anniversary1" and command == "done" then
+            anniversary = object["anniversary"]
+            puts Anniversaries::toString(anniversary).green
+            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+            Anniversaries::commitAnniversaryToDisk(anniversary)
+        end
+
+        if object["NS198"] == "NS16:Calendar1" and command == ".." then
+            Calendar::run(object["item"])
+        end
+
+        if object["NS198"] == "NS16:Calendar1" and command == "done" then
+            Calendar::moveToArchives(object["item"])
+        end
+
+        if object["NS198"] == "NS16:CatalystTxt" and command == ".." then
+            line = object["line"]
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
+            return if action.nil?
+            if action == "start" then
+                account = TwentyTwo::selectAccount()
+                NxBallsService::issue(SecureRandom.uuid, line, [account])
+            end
+            if action == "done" then
+                CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(line)
+            end
+        end
+
+        if object["NS198"] == "NS16:CatalystTxt" and command == "done" then
+            Utils::copyFileToBinTimeline("/Users/pascal/Desktop/Catalyst.txt")
+            CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(object["line"])
+        end
+
+        if object["NS198"] == "NS16:CatalystTxt" and command == "''" then
+            line = object["line"]
+            ItemStoreOps::delistForDefault(CatalystTxt::lineToUuid(line))
+        end
+
+        if object["NS198"] == "NS16:Fitness1" and command == ".." then
+            system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
+        end
+
+        if object["NS198"] == "NS16:Inbox1" and command == ".." then
+            Inbox::run(object["location"])
+        end
+
+        if object["NS198"] == "NS16:Inbox1" and command == ">>" then
+            location = object["location"]
+            CommandsOps::transmutation2(location, "inbox")
+        end
+
+        if object["NS198"] == "NS16:Wave1" and command == ".." then
+            Waves::run(object["wave"])
+        end
+
+        if object["NS198"] == "NS16:Wave1" and command == "landing" then
+            Waves::landing(object["wave"])
+        end
+
+        if object["NS198"] == "NS16:Wave1" and command == "done" then
+            Waves::performDone(object["wave"])
+            CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
+        end
+        if object["NS198"] == "NS16:Mx48" and command == ".." then
+            Mx48s::run(object["Mx48"])
+        end
+
+        if object["NS198"] == "NS16:Mx49" and command == ".." then
+            Mx49s::run(object["Mx49"])
+        end
+
+        if object["NS198"] == "NS16:Mx49" and command == "done" then
+            mx49 = object["Mx49"]
+            Mx49s::destroy(mx49["uuid"])
+        end
+
+        if object["NS198"] == "NS16:Mx49" and command == "redate" then
+            mx49 = object["Mx49"]
+            mx49["datetime"] = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
+            Mx49s::commit(mx49)
+        end
+
+        if object["NS198"] == "NS16:Mx49" and command == ">>" then
+            mx49 = object["Mx49"]
+            CommandsOps::transmutation2(mx49, "Mx49")
+        end
+
+        if object["NS198"] == "NS16:Mx49" and command == "''" then
+            mx49 = object["Mx49"]
+            ItemStoreOps::delistForDefault(mx49["uuid"])
+        end
+
+        if object["NS198"] == "NS16:Nx50" and command == ".." then
+            Nx50s::run(object["Nx50"])
+        end
+
+        if object["NS198"] == "NS16:Nx50" and command == "done" then
+            nx50 = object["Nx50"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                Nx50s::destroy(nx50["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
+            end
+        end
+
+        if object["NS198"] == "NS16:Mx51" and command == ".." then
+            Mx51s::run(object["Mx51"])
+        end
+
+        if object["NS198"] == "NS16:Mx51" and command == "done" then
+            mx51 = object["Mx51"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx51s::toString(mx51)}' ? ", true) then
+                Mx51s::destroy(mx51["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
+            end
+        end
+
+        if object["NS198"] == "NS16:Mx51" and command == ">>" then
+            mx51 = object["Mx51"]
+            CommandsOps::transmutation2(mx51, "Mx51")
+        end
+
         if object["NS198"] == "NxBallDelegate1" and command == ".." then
             uuid = object["uuid"]
 
@@ -54,133 +179,31 @@ class CommandsOps
             end
         end
 
-        if object["NS198"] == "ns16:fitness1" and command == ".." then
-            system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
+        if object["NS198"] == "NS16:Nx60" and command == ".." then
+            nx60 = object["Nx60"]
+            Nx70s::run(nx60)
         end
 
-        if object["NS198"] == "ns16:Mx48" and command == ".." then
-            Mx48s::run(object["Mx48"])
+        if object["NS198"] == "NS16:Nx60" and command == "''" then
+            nx60 = object["Nx60"]
+            ItemStoreOps::delistForDefault(nx60["uuid"])
         end
 
-        if object["NS198"] == "ns16:wave1" and command == ".." then
-            Waves::run(object["wave"])
-        end
-
-        if object["NS198"] == "ns16:wave1" and command == "landing" then
-            Waves::landing(object["wave"])
-        end
-
-        if object["NS198"] == "ns16:wave1" and command == "done" then
-            Waves::performDone(object["wave"])
-            CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-        end
-
-        if object["NS198"] == "ns16:inbox1" and command == ".." then
-            Inbox::run(object["location"])
-        end
-
-        if object["NS198"] == "ns16:inbox1" and command == ">>" then
-            location = object["location"]
-            CommandsOps::transmutation2(location, "inbox")
-        end
-
-        if object["NS198"] == "ns16:Nx50" and command == ".." then
-            Nx50s::run(object["Nx50"])
-        end
-
-        if object["NS198"] == "ns16:Mx49" and command == ".." then
-            Mx49s::run(object["Mx49"])
-        end
-
-        if object["NS198"] == "ns16:Mx49" and command == "done" then
-            mx49 = object["Mx49"]
-            Mx49s::destroy(mx49["uuid"])
-        end
-
-        if object["NS198"] == "ns16:Mx49" and command == "redate" then
-            mx49 = object["Mx49"]
-            mx49["datetime"] = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
-            Mx49s::commit(mx49)
-        end
-
-        if object["NS198"] == "ns16:Mx49" and command == ">>" then
-            mx49 = object["Mx49"]
-            CommandsOps::transmutation2(mx49, "Mx49")
-        end
-
-        if object["NS198"] == "ns16:Nx50" and command == "done" then
-            nx50 = object["Nx50"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                Nx50s::destroy(nx50["uuid"])
-                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-            end
-        end
-
-        if object["NS198"] == "ns16:Mx51" and command == ".." then
-            Mx51s::run(object["Mx51"])
-        end
-
-        if object["NS198"] == "ns16:Mx51" and command == "done" then
-            mx51 = object["Mx51"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx51s::toString(mx51)}' ? ", true) then
-                Mx51s::destroy(mx51["uuid"])
-                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-            end
-        end
-
-        if object["NS198"] == "ns16:Mx51" and command == ">>" then
-            mx51 = object["Mx51"]
-            CommandsOps::transmutation2(mx51, "Mx51")
-        end
-
-        if object["NS198"] == "ns16:anniversary1" and command == ".." then
-            Anniversaries::run(object["anniversary"])
-        end
-
-        if object["NS198"] == "ns16:anniversary1" and command == "done" then
-            anniversary = object["anniversary"]
-            puts Anniversaries::toString(anniversary).green
-            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-            Anniversaries::commitAnniversaryToDisk(anniversary)
-        end
-
-        if object["NS198"] == "ns16:calendar1" and command == ".." then
-            Calendar::run(object["item"])
-        end
-
-        if object["NS198"] == "ns16:calendar1" and command == "done" then
-            Calendar::moveToArchives(object["item"])
-        end
-
-        if object["NS198"] == "Catalyst.txt:NS16" and command == ".." then
-            line = object["line"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
-            return if action.nil?
-            if action == "start" then
-                account = TwentyTwo::selectAccount()
-                NxBallsService::issue(SecureRandom.uuid, line, [account])
-            end
-            if action == "done" then
-                CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(line)
-            end
-        end
-
-        if object["NS198"] == "ns16:Nx70" and command == ".." then
+        if object["NS198"] == "NS16:Nx70" and command == ".." then
             nx70 = object["Nx70"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
             return if action.nil?
-            if action == "start" then
-                account = TwentyTwo::selectAccount()
-                NxBallsService::issue(SecureRandom.uuid, nx70["description"], [account])
+            if action == "run" then
+                Nx70s::run(nx70)
             end
             if action == "done" then
                 Nx70s::destroy(nx70["uuid"])
             end
         end
 
-        if object["NS198"] == "Catalyst.txt:NS16" and command == "done" then
-            Utils::copyFileToBinTimeline("/Users/pascal/Desktop/Catalyst.txt")
-            CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(object["line"])
+        if object["NS198"] == "NS16:Nx70" and command == "''" then
+            nx70 = object["Nx70"]
+            ItemStoreOps::delistForDefault(nx70["uuid"])
         end
 
         if Interpreting::match("require internet", command) then

@@ -7,19 +7,39 @@ class ItemStore
         @items = []
         @defaultItem = nil
     end
+    def itemShouldBeDefault(item)
+        uuid = item["uuid"]
+        return false if KeyValueStore::flagIsTrue(nil, "6413c62b-d0d3-4fdc-a9d1-d00adae3a1ee:#{Utils::today()}:#{uuid}")
+        @defaultItem.nil?
+    end
     def register(item)
         cursor = @items.size
         @items << item
-        cursor 
+        if itemShouldBeDefault(item) then
+            @defaultItem = item
+        end
     end
-    def registerDefault(item)
-        @defaultItem = item
+    def latestEnteredItemIsDefault()
+        return false if @defaultItem.nil?
+        @items.last["uuid"] == @defaultItem["uuid"]
+    end
+    def prefixString()
+        indx = @items.size
+        latestEnteredItemIsDefault() ? "(-->)".green : "(#{"%3d" % indx})"
     end
     def get(indx)
         @items[indx].clone
     end
     def getDefault()
         @defaultItem.clone
+    end
+end
+
+class ItemStoreOps
+
+    # ItemStoreOps::delistForDefault(uuid)
+    def self.delistForDefault(uuid)
+        KeyValueStore::setFlagTrue(nil, "6413c62b-d0d3-4fdc-a9d1-d00adae3a1ee:#{Utils::today()}:#{uuid}")
     end
 end
 
@@ -70,7 +90,6 @@ class NS16sOperator
             Calendar::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Waves::ns16s(),
             Inbox::ns16s(),
             TwentyTwo::ns16s()
         ]
@@ -83,8 +102,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(floats, spaceships, focus, ns16s)
-    def self.display(floats, spaceships, focus, ns16s)
+    # TerminalDisplayOperator::display(floats, waves, spaceships, focus, ns16s)
+    def self.display(floats, waves, spaceships, focus, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -111,7 +130,8 @@ class TerminalDisplayOperator
         end
 
         floats.each{|ns16|
-            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+            store.register(ns16)
+            line = "#{store.prefixString()} [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -120,8 +140,20 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
+        waves.each{|ns16|
+            store.register(ns16)
+            line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
+            puts line
+            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        }
+        if waves.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
         focus.each{|ns16|
-            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) #{ns16["announce"]}"
+            store.register(ns16)
+            line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -131,7 +163,8 @@ class TerminalDisplayOperator
         end
 
         spaceships.each{|ns16|
-            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx60"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}"
+            store.register(ns16)
+            line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -148,8 +181,8 @@ class TerminalDisplayOperator
                         "uuid"  => nxball["uuid"],
                         "NS198" => "NxBallDelegate1" 
                     }
-                    indx = store.register(delegate)
-                    announce = "(#{"%3d" % indx}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                    store.register(delegate)
+                    announce = "(#{store.prefixString()}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
@@ -157,25 +190,16 @@ class TerminalDisplayOperator
             puts ""
             vspaceleft = vspaceleft - 1
         end
-        runningUUIDs = running.map{|item| item["uuid"] }
 
         ns16s
             .each{|ns16|
-                indx = store.register(ns16)
-                isDefaultItem = store.getDefault().nil?
-                if isDefaultItem then
-                    store.registerDefault(ns16)
-                end
+                store.register(ns16)
                 announce = ns16["announce"]
-                if !isDefaultItem and store.getDefault().nil? then
+                if store.latestEnteredItemIsDefault() then
                     announce = announce.yellow
                 end
-                posStr = isDefaultItem ? "(-->)".green : "(#{"%3d" % indx})"
-                announce = "#{posStr} #{announce}#{commandStrWithPrefix.call(ns16, isDefaultItem)}"
-                if runningUUIDs.include?(ns16["uuid"]) then
-                    announce = announce.green
-                end
-                break if (!isDefaultItem and store.getDefault() and ((vspaceleft - Utils::verticalSize(announce)) < 0))
+                announce = "#{store.prefixString()} #{announce}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
+                break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(announce)) < 0))
                 puts announce
                 vspaceleft = vspaceleft - Utils::verticalSize(announce)
             }
@@ -219,10 +243,11 @@ class TerminalDisplayOperator
                 break
             end
             floats = Mx48s::ns16s()
+            waves = Waves::ns16s()
             spaceships = Nx60s::ns16s()
             focus = NS16sOperator::focus()
             ns16s = NS16sOperator::ns16s()
-            TerminalDisplayOperator::display(floats, spaceships, focus, ns16s)
+            TerminalDisplayOperator::display(floats, waves, spaceships, focus, ns16s)
         }
     end
 end

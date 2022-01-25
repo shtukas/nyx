@@ -241,7 +241,7 @@ class Mx51s
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         ns16 = {
             "uuid"     => uuid,
-            "NS198"    => "ns16:Mx51",
+            "NS198"    => "NS16:Mx51",
             "announce" => Mx51s::toStringForNS16(mx51, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "done", ">> (transmute)"],
             "ordinal"  => mx51["ordinal"],
