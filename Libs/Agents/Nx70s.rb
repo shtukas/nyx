@@ -15,9 +15,9 @@ class Nx70s
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nx70)) }
     end
 
-    # Nx70s::destroy(nx70)
-    def self.destroy(nx70)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx70s/#{Digest::SHA1.hexdigest(nx70["uuid"])[0, 10]}.json"
+    # Nx70s::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx70s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -59,7 +59,7 @@ class Nx70s
 
     # Nx70s::complete(nx70)
     def self.complete(nx70)
-        Nx70s::destroy(nx70)
+        Nx70s::destroy(nx70["uuid"])
     end
 
     # Nx70s::accessContent(nx70)

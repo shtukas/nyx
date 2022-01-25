@@ -15,9 +15,9 @@ class Mx48s
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx48)) }
     end
 
-    # Mx48s::destroy(mx48)
-    def self.destroy(mx48)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx48s/#{Digest::SHA1.hexdigest(mx48["uuid"])[0, 10]}.json"
+    # Mx48s::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx48s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -59,7 +59,7 @@ class Mx48s
 
     # Mx48s::complete(mx48)
     def self.complete(mx48)
-        Mx48s::destroy(mx48)
+        Mx48s::destroy(mx48["uuid"])
     end
 
     # Mx48s::accessContent(mx48)

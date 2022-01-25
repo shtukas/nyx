@@ -15,9 +15,9 @@ class Nx60s
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nx60)) }
     end
 
-    # Nx60s::destroy(nx60)
-    def self.destroy(nx60)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx60s/#{Digest::SHA1.hexdigest(nx60["uuid"])[0, 10]}.json"
+    # Nx60s::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx60s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -59,7 +59,7 @@ class Nx60s
 
     # Nx60s::complete(nx60)
     def self.complete(nx60)
-        Nx60s::destroy(nx60)
+        Nx60s::destroy(nx60["uuid"])
     end
 
     # Nx60s::accessContent(nx60)

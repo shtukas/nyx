@@ -174,7 +174,7 @@ class CommandsOps
                 NxBallsService::issue(SecureRandom.uuid, nx70["description"], [account])
             end
             if action == "done" then
-                Nx70s::destroy(nx70)
+                Nx70s::destroy(nx70["uuid"])
             end
         end
 
@@ -384,6 +384,19 @@ class CommandsOps
                 "atom"        => mx49["atom"],
             }
             Nx50s::commit(nx50)
+            Mx49s::destroy(mx49["uuid"])
+            return
+        end
+
+        if source == "Mx49" and target == "Nx70" then
+            mx49 = object
+            nx70 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "description" => mx49["description"],
+                "atom"        => mx49["atom"],
+            }
+            Nx70s::commit(nx70)
             Mx49s::destroy(mx49["uuid"])
             return
         end

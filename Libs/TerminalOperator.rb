@@ -120,22 +120,22 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
-        spaceships.each{|ns16|
-            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx60"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}"
-            puts line
-            vspaceleft = vspaceleft - Utils::verticalSize(line)
-        }
-        if spaceships.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
         focus.each{|ns16|
             line = "(#{store.register(ns16).to_s.rjust(3, " ")}) #{ns16["announce"]}"
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
         if focus.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
+        spaceships.each{|ns16|
+            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx60"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}"
+            puts line
+            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        }
+        if spaceships.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
         end
