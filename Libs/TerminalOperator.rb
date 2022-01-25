@@ -24,7 +24,7 @@ class ItemStore
         @items.last["uuid"] == @defaultItem["uuid"]
     end
     def prefixString()
-        indx = @items.size
+        indx = @items.size-1
         latestEnteredItemIsDefault() ? "(-->)".green : "(#{"%3d" % indx})"
     end
     def get(indx)
@@ -132,6 +132,7 @@ class TerminalDisplayOperator
         floats.each{|ns16|
             store.register(ns16)
             line = "#{store.prefixString()} [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -143,6 +144,7 @@ class TerminalDisplayOperator
         waves.each{|ns16|
             store.register(ns16)
             line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
+            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -154,6 +156,7 @@ class TerminalDisplayOperator
         focus.each{|ns16|
             store.register(ns16)
             line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
+            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -165,6 +168,7 @@ class TerminalDisplayOperator
         spaceships.each{|ns16|
             store.register(ns16)
             line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
+            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -182,9 +186,9 @@ class TerminalDisplayOperator
                         "NS198" => "NxBallDelegate1" 
                     }
                     store.register(delegate)
-                    announce = "(#{store.prefixString()}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
-                    puts announce
-                    vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                    line = "(#{store.prefixString()}) #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+                    puts line
+                    vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
         if running.size>0 then
             puts ""
@@ -194,14 +198,14 @@ class TerminalDisplayOperator
         ns16s
             .each{|ns16|
                 store.register(ns16)
-                announce = ns16["announce"]
+                line = ns16["announce"]
                 if store.latestEnteredItemIsDefault() then
-                    announce = announce.yellow
+                    line = line.yellow
                 end
-                announce = "#{store.prefixString()} #{announce}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
-                break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(announce)) < 0))
-                puts announce
-                vspaceleft = vspaceleft - Utils::verticalSize(announce)
+                line = "#{store.prefixString()} #{line}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
+                break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
         puts ""

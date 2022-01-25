@@ -362,6 +362,7 @@ class Waves
                     .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
                     .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
                     .map{|wave| Waves::toNS16(wave) }
+                    .first(6)
     end
 
     # Waves::nx19s()
