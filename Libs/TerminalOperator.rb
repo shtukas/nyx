@@ -117,7 +117,8 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        puts "#{TwentyTwo::dx()} (Nx50: #{Nx50s::nx50s().size} items)"
+        cardinal = Mx49s::items().size + Nx50s::nx50s().size + Mx51s::items().size + Nx60s::items().size + Nx70s::items().size
+        puts "#{TwentyTwo::dx()} (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""
