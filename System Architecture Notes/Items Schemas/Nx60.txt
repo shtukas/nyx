@@ -1,4 +1,4 @@
-Mx48 { # Float
+Nx60 { # Spaceships (Floating Projects)
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String

@@ -152,8 +152,12 @@ class CommandsOps
             NxBallsService::issue(SecureRandom.uuid, description, [account])
         end
 
-        if command == "monitor" then
+        if command == "float" then
             Mx48s::interactivelyCreateNewOrNull()
+        end
+
+        if command == "spaceship" then
+            Nx60s::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("ondate", command) then
@@ -281,8 +285,8 @@ class CommandsOps
     end
 
     # CommandsOps::transmutation1(object, source, target)
-    # source: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (monitor) | "inbox"
-    # target: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (monitor)
+    # source: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (float) | "inbox"
+    # target: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (float)
     def self.transmutation1(object, source, target)
 
         if source == "inbox" and target == "Nx50" then
@@ -319,6 +323,21 @@ class CommandsOps
             return
         end
 
+        if source == "Mx49" and target == "Nx50" then
+            mx49 = object
+            ordinal = Nx50s::interactivelyDecideNewOrdinal()
+            nx50 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "ordinal"     => ordinal,
+                "description" => mx49["description"],
+                "atom"        => mx49["atom"],
+            }
+            Nx50s::commit(nx50)
+            Mx49s::destroy(mx49["uuid"])
+            return
+        end
+
         if source == "Mx51" and target == "Mx48" then
             newItem = {
                 "uuid"        => SecureRandom.uuid,
@@ -337,7 +356,7 @@ class CommandsOps
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["Mx49 (dated)", "Nx50", "Mx51", "Mx48 (monitor)"]
+        options = ["Mx49 (dated)", "Nx50", "Mx51", "Mx48 (float)"]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option[0, 4]

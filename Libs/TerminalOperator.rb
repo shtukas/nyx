@@ -32,7 +32,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | monitor | today | ondate | todo"
+        "wave | anniversary | float | spaceship | today | ondate | todo"
     end
 
     # Commands::diversCommands()
@@ -71,7 +71,7 @@ class NS16sOperator
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bin-monitor`),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Waves::ns16s(),
             CatalystTxt::catalystTxtNs16s(),
@@ -88,8 +88,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(monitor2, ns16s)
-    def self.display(monitor2, ns16s)
+    # TerminalDisplayOperator::display(floats, spaceships, ns16s)
+    def self.display(floats, spaceships, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -115,11 +115,25 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
-        monitor2.each{|ns16|
+        floats.each{|ns16|
             line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
+        if floats.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
+        spaceships.each{|ns16|
+            line = "(#{store.register(ns16).to_s.rjust(3, " ")}) [#{Time.at(ns16["Nx60"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}"
+            puts line
+            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        }
+        if spaceships.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
 
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
         running
@@ -195,9 +209,10 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            monitor = Mx48s::ns16s()
+            floats = Mx48s::ns16s()
+            spaceships = Nx60s::ns16s()
             ns16s = NS16sOperator::ns16s()
-            TerminalDisplayOperator::display(monitor, ns16s)
+            TerminalDisplayOperator::display(floats, spaceships, ns16s)
         }
     end
 end
