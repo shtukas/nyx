@@ -181,7 +181,7 @@ class CommandsOps
 
         if object["NS198"] == "NS16:Nx60" and command == ".." then
             nx60 = object["Nx60"]
-            Nx70s::run(nx60)
+            Nx60s::run(nx60)
         end
 
         if object["NS198"] == "NS16:Nx60" and command == "''" then
