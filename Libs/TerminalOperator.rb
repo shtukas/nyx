@@ -153,6 +153,10 @@ class TerminalDisplayOperator
                     puts announce
                     vspaceleft = vspaceleft - Utils::verticalSize(announce)
                 }
+        if running.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
         runningUUIDs = running.map{|item| item["uuid"] }
 
         ns16s
