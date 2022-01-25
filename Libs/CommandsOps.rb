@@ -154,8 +154,28 @@ class CommandsOps
 
         if object["NS198"] == "Catalyst.txt:NS16" and command == ".." then
             line = object["line"]
-            account = TwentyTwo::selectAccount()
-            NxBallsService::issue(SecureRandom.uuid, line, [account])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
+            return if action.nil?
+            if action == "start" then
+                account = TwentyTwo::selectAccount()
+                NxBallsService::issue(SecureRandom.uuid, line, [account])
+            end
+            if action == "done" then
+                CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(line)
+            end
+        end
+
+        if object["NS198"] == "ns16:Nx70" and command == ".." then
+            nx70 = object["Nx70"]
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
+            return if action.nil?
+            if action == "start" then
+                account = TwentyTwo::selectAccount()
+                NxBallsService::issue(SecureRandom.uuid, nx70["description"], [account])
+            end
+            if action == "done" then
+                Nx70s::destroy(nx70)
+            end
         end
 
         if object["NS198"] == "Catalyst.txt:NS16" and command == "done" then
