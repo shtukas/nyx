@@ -107,6 +107,7 @@ class Mx49s
 
             puts Mx49s::toString(mx49).green
             puts "uuid: #{uuid}".yellow
+            puts "date: #{mx49["datetime"][0, 10]}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(mx49["atom"]) then
                 puts text
@@ -117,20 +118,22 @@ class Mx49s
                 puts "note:\n#{note}".green
             end
 
-            puts "access | note | <datecode> | description | atom | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | date | description | atom | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
             break if command == "xx"
 
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
             if Interpreting::match("access", command) then
                 Mx49s::accessContent(mx49)
+                next
+            end
+
+            if Interpreting::match("date", command) then
+                datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+                mx49["datetime"] = datetime
+                Mx49s::commit(mx49)
                 next
             end
 
