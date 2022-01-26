@@ -94,18 +94,6 @@ class CommandsOps
             CommandsOps::transmutation2(location, "inbox")
         end
 
-        if object["NS198"] == "NS16:Wave1" and command == ".." then
-            Waves::run(object["wave"])
-        end
-
-        if object["NS198"] == "NS16:Wave1" and command == "landing" then
-            Waves::landing(object["wave"])
-        end
-
-        if object["NS198"] == "NS16:Wave1" and command == "done" then
-            Waves::performDone(object["wave"])
-            CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-        end
         if object["NS198"] == "NS16:Mx48" and command == ".." then
             Mx48s::run(object["Mx48"])
         end
@@ -133,18 +121,6 @@ class CommandsOps
         if object["NS198"] == "NS16:Mx49" and command == "''" then
             mx49 = object["Mx49"]
             ItemStoreOps::delistForDefault(mx49["uuid"])
-        end
-
-        if object["NS198"] == "NS16:Nx50" and command == ".." then
-            Nx50s::run(object["Nx50"])
-        end
-
-        if object["NS198"] == "NS16:Nx50" and command == "done" then
-            nx50 = object["Nx50"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                Nx50s::destroy(nx50["uuid"])
-                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-            end
         end
 
         if object["NS198"] == "NS16:Mx51" and command == ".." then
@@ -179,6 +155,18 @@ class CommandsOps
             end
         end
 
+        if object["NS198"] == "NS16:Nx50" and command == ".." then
+            Nx50s::run(object["Nx50"])
+        end
+
+        if object["NS198"] == "NS16:Nx50" and command == "done" then
+            nx50 = object["Nx50"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
+                Nx50s::destroy(nx50["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
+            end
+        end
+
         if object["NS198"] == "NS16:Nx60" and command == ".." then
             nx60 = object["Nx60"]
             Nx60s::run(nx60)
@@ -187,6 +175,11 @@ class CommandsOps
         if object["NS198"] == "NS16:Nx60" and command == "''" then
             nx60 = object["Nx60"]
             ItemStoreOps::delistForDefault(nx60["uuid"])
+        end
+
+        if object["NS198"] == "NS16:Nx60" and command == ">>" then
+            nx60 = object["Nx60"]
+            CommandsOps::transmutation2(nx60, "Nx60")
         end
 
         if object["NS198"] == "NS16:Nx70" and command == ".." then
@@ -209,6 +202,19 @@ class CommandsOps
         if object["NS198"] == "NS16:Nx70" and command == ">>" then
             nx70 = object["Nx70"]
             CommandsOps::transmutation2(nx70, "Nx70")
+        end
+
+        if object["NS198"] == "NS16:Wave1" and command == ".." then
+            Waves::run(object["wave"])
+        end
+
+        if object["NS198"] == "NS16:Wave1" and command == "landing" then
+            Waves::landing(object["wave"])
+        end
+
+        if object["NS198"] == "NS16:Wave1" and command == "done" then
+            Waves::performDone(object["wave"])
+            CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
         end
 
         if Interpreting::match("require internet", command) then
@@ -455,6 +461,20 @@ class CommandsOps
             }
             Mx48s::commit(newItem)
             Mx51s::destroy(object["uuid"])
+            return
+        end
+
+        if source == "Nx60" and target == "Mx48" then
+            nx60 = object
+            mx48 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "description" => nx60["description"],
+                "atom"        => nx60["atom"],
+                "domainx"     => nx60["domainx"]
+            }
+            Mx48s::commit(mx48)
+            Nx60s::destroy(nx60["uuid"])
             return
         end
 

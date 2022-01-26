@@ -183,7 +183,7 @@ class Nx60s
             "uuid"     => uuid,
             "NS198"    => "NS16:Nx60",
             "announce" => Nx60s::toStringForNS16(nx60, rt).gsub("(0.00)", "      "),
-            "commands" => ["..", "''"],
+            "commands" => ["..", "''", ">> (transmute)"],
             "Nx60"     => nx60,
             "rt"       => rt
         }
