@@ -35,7 +35,8 @@ class Nx60s
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "atom"        => atom
+            "atom"        => atom,
+            "domainx"     => DomainsX::interactivelySelectDomainX()
         }
         Nx60s::commit(nx60)
         nx60
@@ -78,7 +79,11 @@ class Nx60s
 
         uuid = nx60["uuid"]
 
-        NxBallsService::issue(uuid, Nx60s::toString(nx60), [uuid, TwentyTwo::getCachedAccountForObject(Nx60s::toString(nx60), nx60["uuid"])])
+        NxBallsService::issue(
+            uuid, 
+            Nx60s::toString(nx60), 
+            [uuid, DomainsX::domainXToAccountNumber(nx60["domainx"])]
+        )
 
         loop {
 
@@ -184,6 +189,15 @@ class Nx60s
     def self.ns16s()
         Nx60s::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .map{|item| Nx60s::ns16(item) }
+    end
+
+    # Nx60s::ns16sForDominant()
+    def self.ns16sForDominant()
+        dominant = DomainsX::dominantTT()
+        Nx60s::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .select{|item| item["domainx"] == dominant }
             .map{|item| Nx60s::ns16(item) }
     end
 

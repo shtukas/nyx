@@ -35,7 +35,8 @@ class Mx48s
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "atom"        => atom
+            "atom"        => atom,
+            "domainx"     => DomainsX::interactivelySelectDomainX()
         }
         Mx48s::commit(mx48)
         mx48
@@ -78,7 +79,11 @@ class Mx48s
 
         uuid = mx48["uuid"]
 
-        NxBallsService::issue(uuid, Mx48s::toString(mx48), [uuid, TwentyTwo::getCachedAccountForObject(Mx48s::toString(mx48), mx48["uuid"])])
+        NxBallsService::issue(
+            uuid, 
+            Mx48s::toString(mx48), 
+            [uuid, DomainsX::domainXToAccountNumber(mx48["domainx"])]
+        )
 
         loop {
 

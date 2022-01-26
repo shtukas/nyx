@@ -3,4 +3,5 @@ Nx60 { # Drops
     "unixtime"    : Float
     "description" : String
     "atom"        : CoreData5.Atom
+    "domainx"     : "eva" | "work"
 }

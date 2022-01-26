@@ -3,4 +3,5 @@ Nx60 { # Spaceships (Floating Projects)
     "unixtime"    : Float
     "description" : String
     "atom"        : CoreData5.Atom
+    "domainx"     : "eva" | "work"
 }

@@ -91,7 +91,7 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Inbox::ns16s(),
-            TwentyTwo::ns16s()
+            Todos::ns16s()
         ]
             .flatten
             .compact
@@ -118,7 +118,7 @@ class TerminalDisplayOperator
 
         puts ""
         cardinal = Mx49s::items().size + Nx50s::nx50s().size + Mx51s::items().size + Nx60s::items().size + Nx70s::items().size
-        puts "#{TwentyTwo::dx()} (cardinal: #{cardinal} items)"
+        puts "(dominant: #{DomainsX::dominantTT()}) #{DomainsX::dx()} (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""
@@ -250,7 +250,7 @@ class TerminalDisplayOperator
             end
             floats = Mx48s::ns16s()
             waves = Waves::ns16s()
-            spaceships = Nx60s::ns16s()
+            spaceships = Nx60s::ns16sForDominant()
             focus = NS16sOperator::focus()
             ns16s = NS16sOperator::ns16s()
             TerminalDisplayOperator::display(floats, waves, spaceships, focus, ns16s)

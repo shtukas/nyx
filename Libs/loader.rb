@@ -145,6 +145,7 @@ require_relative "Bank.rb"
 require_relative "CommandsOps.rb"
 require_relative "CoreData.rb"
 
+require_relative "DomainsX.rb"
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
@@ -160,7 +161,7 @@ require_relative "Search.rb"
 require_relative "StructuredTodoTexts.rb"
 
 require_relative "TerminalOperator.rb"
-require_relative "TwentyTwo.rb"
+require_relative "Todos.rb"
 
 require_relative "Utils.rb"
 

@@ -129,7 +129,7 @@ class Mx51s
 
         uuid = mx51["uuid"]
 
-        NxBallsService::issue(uuid, mx51["description"], [uuid, TwentyTwo::workAccount()])
+        NxBallsService::issue(uuid, mx51["description"], [uuid, DomainsX::workAccount()])
 
         loop {
 

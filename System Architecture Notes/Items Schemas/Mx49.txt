@@ -4,4 +4,5 @@ Mx49 { # Dated
     "description" : String
     "datetime"    : DateTime Iso8601 # We then project to the date
     "atom"        : CoreData5.Atom
+    "domainx"     : "eva" | "work"
 }

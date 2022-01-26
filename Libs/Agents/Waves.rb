@@ -134,6 +134,8 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
+        wave["domainx"] = DomainsX::interactivelySelectDomainX()
+
         Waves::commit(wave)
         wave
     end
@@ -181,7 +183,11 @@ class Waves
     def self.landing(wave)
         uuid = wave["uuid"]
 
-        NxBallsService::issue(uuid, Waves::toString(wave), [uuid, TwentyTwo::getCachedAccountForObject(Waves::toString(wave), wave["uuid"])])
+        NxBallsService::issue(
+            uuid, 
+            Waves::toString(wave), 
+            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", DomainsX::domainXToAccountNumber(wave["domainx"])]
+        )
 
         loop {
 
@@ -288,7 +294,11 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        NxBallsService::issue(uuid, wave["description"], [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", TwentyTwo::getCachedAccountForObject(Waves::toString(wave), uuid)])
+        NxBallsService::issue(
+            uuid, 
+            wave["description"], 
+            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", DomainsX::domainXToAccountNumber(wave["domainx"])]
+        )
 
         Waves::accessContent(wave)
 

@@ -35,7 +35,8 @@ class Nx70s
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
             "description" => description,
-            "atom"        => atom
+            "atom"        => atom,
+            "domainx"     => DomainsX::interactivelySelectDomainX()
         }
         Nx70s::commit(nx70)
         nx70
@@ -78,7 +79,11 @@ class Nx70s
 
         uuid = nx70["uuid"]
 
-        NxBallsService::issue(uuid, Nx70s::toString(nx70), [uuid, TwentyTwo::getCachedAccountForObject(Nx70s::toString(nx70), nx70["uuid"])])
+        NxBallsService::issue(
+            uuid, 
+            Nx70s::toString(nx70), 
+            [uuid, DomainsX::domainXToAccountNumber(nx70["domainx"])]
+        )
 
         loop {
 

@@ -63,7 +63,7 @@ class CommandsOps
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
             return if action.nil?
             if action == "start" then
-                account = TwentyTwo::selectAccount()
+                account = DomainsX::selectAccount()
                 NxBallsService::issue(SecureRandom.uuid, line, [account])
             end
             if action == "done" then
@@ -217,7 +217,7 @@ class CommandsOps
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            account = TwentyTwo::selectAccount()
+            account = DomainsX::selectAccount()
             NxBallsService::issue(SecureRandom.uuid, description, [account])
         end
 
