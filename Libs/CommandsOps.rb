@@ -409,9 +409,24 @@ class CommandsOps
                 "unixtime"    => Time.new.to_i,
                 "ordinal"     => ordinal,
                 "description" => mx49["description"],
-                "atom"        => mx49["atom"],
+                "atom"        => mx49["atom"]
             }
             Nx50s::commit(nx50)
+            Mx49s::destroy(mx49["uuid"])
+            return
+        end
+
+        if source == "Mx49" and target == "Nx60" then
+            mx49 = object
+            domainx = DomainsX::interactivelySelectDomainX()
+            nx60 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "description" => mx49["description"],
+                "atom"        => mx49["atom"],
+                "domainx"     => domainx
+            }
+            Nx60s::commit(nx60)
             Mx49s::destroy(mx49["uuid"])
             return
         end
@@ -463,7 +478,7 @@ class CommandsOps
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["Mx49 (dated)", "Nx50", "Mx51", "Mx48 (float)"]
+        options = ["Mx48 (float)", "Mx49 (dated)", "Nx60 (spaceship)", "Nx50", "Mx51", ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option[0, 4]
