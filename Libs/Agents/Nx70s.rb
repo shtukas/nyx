@@ -174,7 +174,7 @@ class Nx70s
             "uuid"     => uuid,
             "NS198"    => "NS16:Nx70",
             "announce" => "(drop) #{nx70["description"]} (#{nx70["atom"]["type"]})",
-            "commands" => ["..", "''"],
+            "commands" => ["..", "''", ">> (transmute)"],
             "Nx70"     => nx70
         }
     end

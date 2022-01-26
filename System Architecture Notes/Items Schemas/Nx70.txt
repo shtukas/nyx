@@ -1,4 +1,4 @@
-Nx60 { # Drops
+Nx70 { # Drops
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String

@@ -206,6 +206,11 @@ class CommandsOps
             ItemStoreOps::delistForDefault(nx70["uuid"])
         end
 
+        if object["NS198"] == "NS16:Nx70" and command == ">>" then
+            nx70 = object["Nx70"]
+            CommandsOps::transmutation2(nx70, "Nx70")
+        end
+
         if Interpreting::match("require internet", command) then
             InternetStatus::markIdAsRequiringInternet(object["uuid"])
         end
@@ -372,7 +377,7 @@ class CommandsOps
                 "unixtime"    => Time.new.to_i,
                 "ordinal"     => ordinal,
                 "description" => description,
-                "atom"        => atom,
+                "atom"        => atom
             }
             Nx50s::commit(nx50)
             LucilleCore::removeFileSystemLocation(location)
@@ -418,6 +423,7 @@ class CommandsOps
                 "unixtime"    => Time.new.to_i,
                 "description" => mx49["description"],
                 "atom"        => mx49["atom"],
+                "domainx"     => mx49["domainx"]
             }
             Nx70s::commit(nx70)
             Mx49s::destroy(mx49["uuid"])
@@ -429,10 +435,25 @@ class CommandsOps
                 "uuid"        => SecureRandom.uuid,
                 "unixtime"    => Time.new.to_i,
                 "description" => object["description"],
-                "atom"        => object["atom"]
+                "atom"        => object["atom"],
+                "domainx"     => "work"
             }
             Mx48s::commit(newItem)
             Mx51s::destroy(object["uuid"])
+            return
+        end
+
+        if source == "Nx70" and target == "Mx51" then
+            ordinal = Mx51s::interactivelyDecideNewOrdinal()
+            mx51 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "ordinal"     => ordinal,
+                "description" => object["description"],
+                "atom"        => object["atom"]
+            }
+            Mx51s::commit(mx51)
+            Nx70s::destroy(object["uuid"])
             return
         end
 
