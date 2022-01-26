@@ -192,17 +192,18 @@ class Nx60s
     # Nx60s::ns16s()
     def self.ns16s()
         Nx60s::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| Nx60s::ns16(item) }
-            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # Nx60s::ns16sForDominant()
     def self.ns16sForDominant()
-        dominant = DomainsX::dominant()
+        focus = DomainsX::focus()
         Nx60s::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| item["domainx"] == dominant }
+            .select{|item| item["domainx"] == focus }
             .map{|item| Nx60s::ns16(item) }
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # --------------------------------------------------

@@ -118,7 +118,7 @@ class TerminalDisplayOperator
 
         puts ""
         cardinal = Mx49s::items().size + Nx50s::nx50s().size + Mx51s::items().size + Nx60s::items().size + Nx70s::items().size
-        puts "(dominant: #{DomainsX::dominant()}) #{DomainsX::dx()} (cardinal: #{cardinal} items)"
+        puts "(focus: #{DomainsX::focus()}) #{DomainsX::dx()} (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""

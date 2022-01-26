@@ -55,8 +55,8 @@ class DomainsX
         end
     end
 
-    # DomainsX::dominant()
-    def self.dominant()
+    # DomainsX::focus()
+    def self.focus()
         [
             {
                 "name"    => "eva",
