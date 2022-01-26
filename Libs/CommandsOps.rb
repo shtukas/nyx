@@ -478,6 +478,22 @@ class CommandsOps
             return
         end
 
+        if source == "Nx60" and target == "Mx49" then
+            nx60 = object
+            datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            mx49 = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "description" => nx60["description"],
+                "datetime"    => datetime,
+                "atom"        => nx60["atom"],
+                "domainx"     => nx60["domainx"]
+            }
+            Mx49s::commit(mx49)
+            Nx60s::destroy(nx60["uuid"])
+            return
+        end
+
         if source == "Nx70" and target == "Mx51" then
             ordinal = Mx51s::interactivelyDecideNewOrdinal()
             mx51 = {
