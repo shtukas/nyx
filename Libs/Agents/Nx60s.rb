@@ -176,20 +176,24 @@ class Nx60s
     def self.ns16(nx60)
         uuid = nx60["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        if rt > 1 then
+            ItemStoreOps::delistForDefault(uuid)
+        end
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:Nx60",
             "announce" => Nx60s::toStringForNS16(nx60, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "''"],
-            "Nx60"     => nx60
+            "Nx60"     => nx60,
+            "rt"       => rt
         }
     end
 
     # Nx60s::ns16s()
     def self.ns16s()
         Nx60s::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| Nx60s::ns16(item) }
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # Nx60s::ns16sForDominant()
