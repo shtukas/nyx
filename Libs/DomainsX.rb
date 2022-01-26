@@ -55,8 +55,8 @@ class DomainsX
         end
     end
 
-    # DomainsX::dominantTT()
-    def self.dominantTT()
+    # DomainsX::dominant()
+    def self.dominant()
         [
             {
                 "name"    => "eva",

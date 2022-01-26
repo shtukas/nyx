@@ -194,7 +194,7 @@ class Nx60s
 
     # Nx60s::ns16sForDominant()
     def self.ns16sForDominant()
-        dominant = DomainsX::dominantTT()
+        dominant = DomainsX::dominant()
         Nx60s::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| item["domainx"] == dominant }

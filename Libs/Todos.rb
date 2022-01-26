@@ -5,7 +5,7 @@ class Todos
 
     # Todos::ns16s()
     def self.ns16s()
-        dominant = DomainsX::dominantTT()
+        dominant = DomainsX::dominant()
         if dominant == "eva" then
             return Nx50s::ns16s()
         end

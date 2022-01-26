@@ -7,8 +7,20 @@ class CatalystTxt
         Digest::SHA1.hexdigest("216B44F4-61DF-4549-81C9-54673FF950EB:#{Utils::today()}:#{line}")
     end
 
+    # CatalystTxt::getCachedDomainForLine(line)
+    def self.getCachedDomainForLine(line)
+        domain = KeyValueStore::getOrNull(nil, "f6985886-364d-48c1-aabd-70a16c81c6ab:#{line}")
+        return domain if domain
+        puts "mising domain for: #{line}"
+        domain = DomainsX::interactivelySelectDomainX()
+        KeyValueStore::set(nil, "f6985886-364d-48c1-aabd-70a16c81c6ab:#{line}", domain)
+        domain
+    end
+
     # CatalystTxt::catalystTxtNs16s()
     def self.catalystTxtNs16s()
+        dominant = DomainsX::dominant()
+
         IO.read("/Users/pascal/Desktop/Catalyst.txt")
             .strip
             .lines
@@ -16,15 +28,18 @@ class CatalystTxt
             .take_while{|line| !line.include?("@excluded:") }
             .map{|line|
                 line = line.strip
+                domainx = CatalystTxt::getCachedDomainForLine(line)
                 uuid = CatalystTxt::lineToUuid(line)
                 {
                     "uuid"        => uuid,
                     "NS198"       => "NS16:CatalystTxt",
                     "announce"    => "(ct.txt) #{line}",
                     "commands"    => [".." , "done", "''"],
-                    "line"        => line
+                    "line"        => line,
+                    "domainx"     => domainx
                 }
             }
+            .select{|ns16| ns16["domainx"] == dominant }
     end
 
     # CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(line)
