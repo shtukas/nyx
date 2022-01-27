@@ -1,23 +1,23 @@
 j# encoding: UTF-8
 
-class Mx48s
+class TxFloats
 
-    # Mx48s::items()
+    # TxFloats::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Mx48s")
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxFloats")
             .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # Mx48s::commit(mx48)
+    # TxFloats::commit(mx48)
     def self.commit(mx48)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx48s/#{Digest::SHA1.hexdigest(mx48["uuid"])[0, 10]}.json"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxFloats/#{Digest::SHA1.hexdigest(mx48["uuid"])[0, 10]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx48)) }
     end
 
-    # Mx48s::destroy(uuid)
+    # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx48s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxFloats/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -25,7 +25,7 @@ class Mx48s
     # --------------------------------------------------
     # Makers
 
-    # Mx48s::interactivelyCreateNewOrNull()
+    # TxFloats::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -38,19 +38,19 @@ class Mx48s
             "atom"        => atom,
             "domainx"     => DomainsX::interactivelySelectDomainX()
         }
-        Mx48s::commit(mx48)
+        TxFloats::commit(mx48)
         mx48
     end
 
     # --------------------------------------------------
     # toString
 
-    # Mx48s::toString(mx48)
+    # TxFloats::toString(mx48)
     def self.toString(mx48)
         "[mx48] #{mx48["description"]} (#{mx48["atom"]["type"]})"
     end
 
-    # Mx48s::toStringForNS19(mx48)
+    # TxFloats::toStringForNS19(mx48)
     def self.toStringForNS19(mx48)
         "[mx48] #{mx48["description"]}"
     end
@@ -58,21 +58,21 @@ class Mx48s
     # --------------------------------------------------
     # Operations
 
-    # Mx48s::complete(mx48)
+    # TxFloats::complete(mx48)
     def self.complete(mx48)
-        Mx48s::destroy(mx48["uuid"])
+        TxFloats::destroy(mx48["uuid"])
     end
 
-    # Mx48s::accessContent(mx48)
+    # TxFloats::accessContent(mx48)
     def self.accessContent(mx48)
         updated = CoreData5::accessWithOptionToEdit(mx48["atom"])
         if updated then
             mx48["atom"] = updated
-            Mx48s::commit(mx48)
+            TxFloats::commit(mx48)
         end
     end
 
-    # Mx48s::run(mx48)
+    # TxFloats::run(mx48)
     def self.run(mx48)
 
         system("clear")
@@ -81,7 +81,7 @@ class Mx48s
 
         NxBallsService::issue(
             uuid, 
-            Mx48s::toString(mx48), 
+            TxFloats::toString(mx48), 
             [uuid, DomainsX::domainXToAccountNumber(mx48["domainx"])]
         )
 
@@ -89,7 +89,7 @@ class Mx48s
 
             system("clear")
 
-            puts Mx48s::toString(mx48).green
+            puts TxFloats::toString(mx48).green
             puts "uuid: #{uuid}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(mx48["atom"]) then
@@ -114,7 +114,7 @@ class Mx48s
             end
 
             if Interpreting::match("access", command) then
-                Mx48s::accessContent(mx48)
+                TxFloats::accessContent(mx48)
                 next
             end
 
@@ -128,13 +128,13 @@ class Mx48s
                 description = Utils::editTextSynchronously(mx48["description"]).strip
                 next if description == ""
                 mx48["description"] = description
-                Mx48s::commit(mx48)
+                TxFloats::commit(mx48)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 mx48["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                Mx48s::commit(mx48)
+                TxFloats::commit(mx48)
                 next
             end
 
@@ -145,16 +145,16 @@ class Mx48s
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx48s::toString(mx48)}' ? ", true) then
-                    Mx48s::complete(mx48)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(mx48)}' ? ", true) then
+                    TxFloats::complete(mx48)
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx48s::toString(mx48)}' ? ", true) then
-                    Mx48s::complete(mx48)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(mx48)}' ? ", true) then
+                    TxFloats::complete(mx48)
                     break
                 end
                 next
@@ -167,35 +167,35 @@ class Mx48s
     # --------------------------------------------------
     # nx16s
 
-    # Mx48s::ns16(mx48)
+    # TxFloats::ns16(mx48)
     def self.ns16(mx48)
         uuid = mx48["uuid"]
         ItemStoreOps::delistForDefault(uuid)
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:Mx48",
+            "NS198"    => "NS16:TxFloat",
             "announce" => "#{mx48["description"]} (#{mx48["atom"]["type"]})",
             "commands" => [],
-            "Mx48"     => mx48
+            "TxFloat"     => mx48
         }
     end
 
-    # Mx48s::ns16s()
+    # TxFloats::ns16s()
     def self.ns16s()
-        Mx48s::items()
+        TxFloats::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .map{|item| Mx48s::ns16(item) }
+            .map{|item| TxFloats::ns16(item) }
     end
 
     # --------------------------------------------------
 
-    # Mx48s::nx19s()
+    # TxFloats::nx19s()
     def self.nx19s()
-        Mx48s::items().map{|item|
+        TxFloats::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Mx48s::toStringForNS19(item),
-                "lambda"   => lambda { Mx48s::run(item) }
+                "announce" => TxFloats::toStringForNS19(item),
+                "lambda"   => lambda { TxFloats::run(item) }
             }
         }
     end

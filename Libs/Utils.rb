@@ -505,8 +505,8 @@ class Utils
             status = CoreData5::fsck(item["atom"])
             raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{item["atom"]}]" if !status
         }
-        Mx48s::items().each{|item|
-            puts Mx48s::toString(item)
+        TxFloats::items().each{|item|
+            puts TxFloats::toString(item)
             status = CoreData5::fsck(item["atom"])
             raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{item["atom"]}]" if !status
         }

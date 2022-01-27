@@ -1,4 +1,4 @@
-Mx48 { # Float
+TxFloat { # Float
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String

@@ -132,7 +132,7 @@ class TerminalDisplayOperator
 
         floats.each{|ns16|
             store.register(ns16)
-            line = "#{store.prefixString()} [#{Time.at(ns16["Mx48"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+            line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
             break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
@@ -248,7 +248,7 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            floats = Mx48s::ns16s()
+            floats = TxFloats::ns16s()
             waves = Waves::ns16s()
             spaceships = Nx60s::ns16sForDominant()
             focus = NS16sOperator::focus()

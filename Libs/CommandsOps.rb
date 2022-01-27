@@ -13,7 +13,7 @@ class Commands
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "calendar | waves | anniversaries | ondates | todos | work on | work off | search | nyx"
+        "calendar | waves | anniversaries | ondates | todos | focus eva/work/null  | search | nyx"
     end
 
     # Commands::makersAndDiversCommands()
@@ -94,8 +94,8 @@ class CommandsOps
             CommandsOps::transmutation2(location, "inbox")
         end
 
-        if object["NS198"] == "NS16:Mx48" and command == ".." then
-            Mx48s::run(object["Mx48"])
+        if object["NS198"] == "NS16:TxFloat" and command == ".." then
+            TxFloats::run(object["TxFloat"])
         end
 
         if object["NS198"] == "NS16:Mx49" and command == ".." then
@@ -233,7 +233,7 @@ class CommandsOps
         end
 
         if command == "float" then
-            Mx48s::interactivelyCreateNewOrNull()
+            TxFloats::interactivelyCreateNewOrNull()
         end
 
         if command == "spaceship" then
@@ -347,20 +347,16 @@ class CommandsOps
             InternetStatus::setInternetOff()
         end
 
-        if Interpreting::match("work on", command) then
-            instruction = {
-                "mode"       => "work-on",
-                "expiryTime" => Time.new.to_i + 3600*2
-            }
-            KeyValueStore::set(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c", JSON.generate(instruction))
+        if Interpreting::match("focus eva", command) then
+            KeyValueStore::set(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}", "eva")
         end
 
-        if Interpreting::match("work off", command) then
-            instruction = {
-                "mode"       => "work-off",
-                "expiryTime" => Time.new.to_i + 3600*2
-            }
-            KeyValueStore::set(nil, "dcef329c-a1eb-4fc5-b151-e94460fe280c", JSON.generate(instruction))
+        if Interpreting::match("focus work", command) then
+            KeyValueStore::set(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}", "work")
+        end
+
+        if Interpreting::match("focus null", command) then
+            KeyValueStore::destroy(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}")
         end
 
         if Interpreting::match("exit", command) then
@@ -369,8 +365,8 @@ class CommandsOps
     end
 
     # CommandsOps::transmutation1(object, source, target)
-    # source: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (float) | "inbox"
-    # target: "Mx49" (dated) | "Nx50" | "Mx51" | "Mx48" (float)
+    # source: "Mx49" (dated) | "Nx50" | "Mx51" | "TxFloat" (float) | "inbox"
+    # target: "Mx49" (dated) | "Nx50" | "Mx51" | "TxFloat" (float)
     def self.transmutation1(object, source, target)
 
         if source == "inbox" and target == "Nx50" then
@@ -451,7 +447,7 @@ class CommandsOps
             return
         end
 
-        if source == "Mx51" and target == "Mx48" then
+        if source == "Mx51" and target == "TxFloat" then
             newItem = {
                 "uuid"        => SecureRandom.uuid,
                 "unixtime"    => Time.new.to_i,
@@ -459,12 +455,12 @@ class CommandsOps
                 "atom"        => object["atom"],
                 "domainx"     => "work"
             }
-            Mx48s::commit(newItem)
+            TxFloats::commit(newItem)
             Mx51s::destroy(object["uuid"])
             return
         end
 
-        if source == "Nx60" and target == "Mx48" then
+        if source == "Nx60" and target == "TxFloat" then
             nx60 = object
             mx48 = {
                 "uuid"        => SecureRandom.uuid,
@@ -473,7 +469,7 @@ class CommandsOps
                 "atom"        => nx60["atom"],
                 "domainx"     => nx60["domainx"]
             }
-            Mx48s::commit(mx48)
+            TxFloats::commit(mx48)
             Nx60s::destroy(nx60["uuid"])
             return
         end
@@ -514,10 +510,10 @@ class CommandsOps
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["Mx48 (float)", "Mx49 (dated)", "Nx60 (spaceship)", "Nx50", "Mx51", ]
+        options = ["TxFloat", "Mx49", "Nx60", "Nx50", "Mx51", ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
-        option[0, 4]
+        option
     end
 
     # CommandsOps::transmutation2(object, source)
