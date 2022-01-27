@@ -1,23 +1,23 @@
 j# encoding: UTF-8
 
-class Nx70s
+class TxDrops
 
-    # Nx70s::items()
+    # TxDrops::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Nx70s")
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxDrops")
             .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # Nx70s::commit(nx70)
+    # TxDrops::commit(nx70)
     def self.commit(nx70)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx70s/#{Digest::SHA1.hexdigest(nx70["uuid"])[0, 10]}.json"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDrops/#{Digest::SHA1.hexdigest(nx70["uuid"])[0, 10]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nx70)) }
     end
 
-    # Nx70s::destroy(uuid)
+    # TxDrops::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Nx70s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDrops/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -25,7 +25,7 @@ class Nx70s
     # --------------------------------------------------
     # Makers
 
-    # Nx70s::interactivelyCreateNewOrNull()
+    # TxDrops::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -38,19 +38,19 @@ class Nx70s
             "atom"        => atom,
             "domainx"     => DomainsX::interactivelySelectDomainX()
         }
-        Nx70s::commit(nx70)
+        TxDrops::commit(nx70)
         nx70
     end
 
     # --------------------------------------------------
     # toString
 
-    # Nx70s::toString(nx70)
+    # TxDrops::toString(nx70)
     def self.toString(nx70)
         "[nx70] #{nx70["description"]} (#{nx70["atom"]["type"]})"
     end
 
-    # Nx70s::toStringForNS19(nx70)
+    # TxDrops::toStringForNS19(nx70)
     def self.toStringForNS19(nx70)
         "[nx70] #{nx70["description"]}"
     end
@@ -58,21 +58,21 @@ class Nx70s
     # --------------------------------------------------
     # Operations
 
-    # Nx70s::complete(nx70)
+    # TxDrops::complete(nx70)
     def self.complete(nx70)
-        Nx70s::destroy(nx70["uuid"])
+        TxDrops::destroy(nx70["uuid"])
     end
 
-    # Nx70s::accessContent(nx70)
+    # TxDrops::accessContent(nx70)
     def self.accessContent(nx70)
         updated = CoreData5::accessWithOptionToEdit(nx70["atom"])
         if updated then
             nx70["atom"] = updated
-            Nx70s::commit(nx70)
+            TxDrops::commit(nx70)
         end
     end
 
-    # Nx70s::run(nx70)
+    # TxDrops::run(nx70)
     def self.run(nx70)
 
         system("clear")
@@ -81,7 +81,7 @@ class Nx70s
 
         NxBallsService::issue(
             uuid, 
-            Nx70s::toString(nx70), 
+            TxDrops::toString(nx70), 
             [uuid, DomainsX::domainXToAccountNumber(nx70["domainx"])]
         )
 
@@ -89,7 +89,7 @@ class Nx70s
 
             system("clear")
 
-            puts Nx70s::toString(nx70).green
+            puts TxDrops::toString(nx70).green
             puts "uuid: #{uuid}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(nx70["atom"]) then
@@ -114,7 +114,7 @@ class Nx70s
             end
 
             if Interpreting::match("access", command) then
-                Nx70s::accessContent(nx70)
+                TxDrops::accessContent(nx70)
                 next
             end
 
@@ -128,13 +128,13 @@ class Nx70s
                 description = Utils::editTextSynchronously(nx70["description"]).strip
                 next if description == ""
                 nx70["description"] = description
-                Nx70s::commit(nx70)
+                TxDrops::commit(nx70)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 nx70["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                Nx70s::commit(nx70)
+                TxDrops::commit(nx70)
                 next
             end
 
@@ -145,16 +145,16 @@ class Nx70s
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx70s::toString(nx70)}' ? ", true) then
-                    Nx70s::complete(nx70)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDrops::toString(nx70)}' ? ", true) then
+                    TxDrops::complete(nx70)
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx70s::toString(nx70)}' ? ", true) then
-                    Nx70s::complete(nx70)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDrops::toString(nx70)}' ? ", true) then
+                    TxDrops::complete(nx70)
                     break
                 end
                 next
@@ -167,34 +167,34 @@ class Nx70s
     # --------------------------------------------------
     # nx16s
 
-    # Nx70s::ns16(nx70)
+    # TxDrops::ns16(nx70)
     def self.ns16(nx70)
         uuid = nx70["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:Nx70",
+            "NS198"    => "NS16:TxDrop",
             "announce" => "(drop) #{nx70["description"]} (#{nx70["atom"]["type"]})",
             "commands" => ["..", "''", ">> (transmute)"],
-            "Nx70"     => nx70
+            "TxDrop"     => nx70
         }
     end
 
-    # Nx70s::ns16s()
+    # TxDrops::ns16s()
     def self.ns16s()
-        Nx70s::items()
+        TxDrops::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .map{|item| Nx70s::ns16(item) }
+            .map{|item| TxDrops::ns16(item) }
     end
 
     # --------------------------------------------------
 
-    # Nx70s::nx19s()
+    # TxDrops::nx19s()
     def self.nx19s()
-        Nx70s::items().map{|item|
+        TxDrops::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Nx70s::toStringForNS19(item),
-                "lambda"   => lambda { Nx70s::run(item) }
+                "announce" => TxDrops::toStringForNS19(item),
+                "lambda"   => lambda { TxDrops::run(item) }
             }
         }
     end

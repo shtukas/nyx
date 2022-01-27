@@ -1,4 +1,4 @@
-Nx70 { # Drops
+TxDrop { # Drops
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String

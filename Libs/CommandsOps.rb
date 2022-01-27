@@ -182,26 +182,26 @@ class CommandsOps
             CommandsOps::transmutation2(nx60, "Nx60")
         end
 
-        if object["NS198"] == "NS16:Nx70" and command == ".." then
-            nx70 = object["Nx70"]
+        if object["NS198"] == "NS16:TxDrop" and command == ".." then
+            nx70 = object["TxDrop"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
             return if action.nil?
             if action == "run" then
-                Nx70s::run(nx70)
+                TxDrops::run(nx70)
             end
             if action == "done" then
-                Nx70s::destroy(nx70["uuid"])
+                TxDrops::destroy(nx70["uuid"])
             end
         end
 
-        if object["NS198"] == "NS16:Nx70" and command == "''" then
-            nx70 = object["Nx70"]
+        if object["NS198"] == "NS16:TxDrop" and command == "''" then
+            nx70 = object["TxDrop"]
             ItemStoreOps::delistForDefault(nx70["uuid"])
         end
 
-        if object["NS198"] == "NS16:Nx70" and command == ">>" then
-            nx70 = object["Nx70"]
-            CommandsOps::transmutation2(nx70, "Nx70")
+        if object["NS198"] == "NS16:TxDrop" and command == ">>" then
+            nx70 = object["TxDrop"]
+            CommandsOps::transmutation2(nx70, "TxDrop")
         end
 
         if object["NS198"] == "NS16:Wave1" and command == ".." then
@@ -241,7 +241,7 @@ class CommandsOps
         end
 
         if command == "drop" then
-            Nx70s::interactivelyCreateNewOrNull()
+            TxDrops::interactivelyCreateNewOrNull()
         end
 
         if Interpreting::match("ondate", command) then
@@ -433,7 +433,7 @@ class CommandsOps
             return
         end
 
-        if source == "Mx49" and target == "Nx70" then
+        if source == "Mx49" and target == "TxDrop" then
             mx49 = object
             nx70 = {
                 "uuid"        => SecureRandom.uuid,
@@ -442,7 +442,7 @@ class CommandsOps
                 "atom"        => mx49["atom"],
                 "domainx"     => mx49["domainx"]
             }
-            Nx70s::commit(nx70)
+            TxDrops::commit(nx70)
             Mx49s::destroy(mx49["uuid"])
             return
         end
@@ -490,7 +490,7 @@ class CommandsOps
             return
         end
 
-        if source == "Nx70" and target == "Mx51" then
+        if source == "TxDrop" and target == "Mx51" then
             ordinal = Mx51s::interactivelyDecideNewOrdinal()
             mx51 = {
                 "uuid"        => SecureRandom.uuid,
@@ -500,7 +500,7 @@ class CommandsOps
                 "atom"        => object["atom"]
             }
             Mx51s::commit(mx51)
-            Nx70s::destroy(object["uuid"])
+            TxDrops::destroy(object["uuid"])
             return
         end
 

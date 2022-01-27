@@ -137,7 +137,7 @@ require_relative "Agents/Mx49s.rb"
 require_relative "Agents/Mx51s.rb"
 require_relative "Agents/Nx50s.rb"
 require_relative "Agents/Nx60s.rb"
-require_relative "Agents/Nx70s.rb"
+require_relative "Agents/TxDrops.rb"
 require_relative "Agents/Waves.rb"
 
 require_relative "Bank.rb"
