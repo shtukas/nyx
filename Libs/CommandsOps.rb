@@ -294,6 +294,10 @@ class CommandsOps
             Waves::waves()
         end
 
+        if Interpreting::match("ondates", command) then
+            TxDateds::dive()
+        end
+
         if Interpreting::match("todos", command) then
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodos", "Nx51s (work items)"])
             if type == "TxTodos" then

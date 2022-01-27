@@ -68,7 +68,7 @@ class TxDateds
 
     # TxDateds::toString(mx49)
     def self.toString(mx49)
-        "[date] #{mx49["description"]} (#{mx49["atom"]["type"]})"
+        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})"
     end
 
     # TxDateds::toStringForNS19(mx49)
@@ -181,6 +181,16 @@ class TxDateds
         }
 
         NxBallsService::closeWithAsking(uuid)
+    end
+
+    # TxDateds::dive()
+    def self.dive()
+        loop {
+            items = TxDateds::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxDateds::toString(item) })
+            break if item.nil?
+            TxDateds::run(item)
+        }
     end
 
     # --------------------------------------------------
