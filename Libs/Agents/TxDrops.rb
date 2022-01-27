@@ -91,6 +91,7 @@ class TxDrops
 
             puts TxDrops::toString(nx70).green
             puts "uuid: #{uuid}".yellow
+            puts "domainx: #{nx70["domainx"]}".yellow
 
             if text = CoreData5::atomPayloadToTextOrNull(nx70["atom"]) then
                 puts text
@@ -101,7 +102,7 @@ class TxDrops
                 puts "note:\n#{note}".green
             end
 
-            puts "access | note | <datecode> | description | atom | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | note | <datecode> | description | atom | show json | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -136,6 +137,11 @@ class TxDrops
                 nx70["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
                 TxDrops::commit(nx70)
                 next
+            end
+
+            if Interpreting::match("transmute", command) then
+                CommandsOps::transmutation2(nx70, "TxDrop")
+                break
             end
 
             if Interpreting::match("show json", command) then

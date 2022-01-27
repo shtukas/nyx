@@ -456,16 +456,31 @@ class CommandsOps
             return
         end
 
-        if source == "TxWorkItem" and target == "TxFloat" then
-            newItem = {
+        if source == "TxDrop" and target == "TxWorkItem" then
+            ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
+            mx51 = {
                 "uuid"        => SecureRandom.uuid,
                 "unixtime"    => Time.new.to_i,
+                "ordinal"     => ordinal,
+                "description" => object["description"],
+                "atom"        => object["atom"]
+            }
+            TxWorkItems::commit(mx51)
+            TxDrops::destroy(object["uuid"])
+            return
+        end
+
+        if source == "TxDrop" and target == "TxSpaceship" then
+            spaceship = {
+                "uuid"        => SecureRandom.uuid,
+                "unixtime"    => Time.new.to_i,
+                "ordinal"     => ordinal,
                 "description" => object["description"],
                 "atom"        => object["atom"],
-                "domainx"     => "work"
+                "domainx"     => object["domainx"]
             }
-            TxFloats::commit(newItem)
-            TxWorkItems::destroy(object["uuid"])
+            TxSpaceships::commit(spaceship)
+            TxDrops::destroy(object["uuid"])
             return
         end
 
@@ -499,17 +514,16 @@ class CommandsOps
             return
         end
 
-        if source == "TxDrop" and target == "TxWorkItem" then
-            ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-            mx51 = {
+        if source == "TxWorkItem" and target == "TxFloat" then
+            newItem = {
                 "uuid"        => SecureRandom.uuid,
                 "unixtime"    => Time.new.to_i,
-                "ordinal"     => ordinal,
                 "description" => object["description"],
-                "atom"        => object["atom"]
+                "atom"        => object["atom"],
+                "domainx"     => "work"
             }
-            TxWorkItems::commit(mx51)
-            TxDrops::destroy(object["uuid"])
+            TxFloats::commit(newItem)
+            TxWorkItems::destroy(object["uuid"])
             return
         end
 
