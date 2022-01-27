@@ -68,12 +68,12 @@ class TxDateds
 
     # TxDateds::toString(mx49)
     def self.toString(mx49)
-        "[mx49] #{mx49["description"]} (#{mx49["atom"]["type"]})"
+        "[date] #{mx49["description"]} (#{mx49["atom"]["type"]})"
     end
 
     # TxDateds::toStringForNS19(mx49)
     def self.toStringForNS19(mx49)
-        "[mx49] #{mx49["description"]}"
+        "[date] #{mx49["description"]}"
     end
 
     # --------------------------------------------------

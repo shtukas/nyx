@@ -1,8 +1,8 @@
-Nx50.sqlite3
+TxTodo.sqlite3
 
 create table _nx50s_ (_uuid_ text, _unixtime_ real, _ordinal_ real, _description_ text, _atom_ text);
 
-Nx50 { # Standard Todo
+TxTodo { # Standard Todo
     "uuid"        : uuid
     "unixtime"    : Float
     "ordinal"     : Float

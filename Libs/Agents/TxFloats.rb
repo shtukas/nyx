@@ -47,12 +47,12 @@ class TxFloats
 
     # TxFloats::toString(mx48)
     def self.toString(mx48)
-        "[mx48] #{mx48["description"]} (#{mx48["atom"]["type"]})"
+        "[floa] #{mx48["description"]} (#{mx48["atom"]["type"]})"
     end
 
     # TxFloats::toStringForNS19(mx48)
     def self.toStringForNS19(mx48)
-        "[mx48] #{mx48["description"]}"
+        "[floa] #{mx48["description"]}"
     end
 
     # --------------------------------------------------

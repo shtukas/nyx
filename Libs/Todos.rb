@@ -7,7 +7,7 @@ class Todos
     def self.ns16s()
         focus = DomainsX::focus()
         if focus == "eva" then
-            return Nx50s::ns16s()
+            return TxTodos::ns16s()
         end
         if focus == "work" then
             return TxWorkItems::ns16s()

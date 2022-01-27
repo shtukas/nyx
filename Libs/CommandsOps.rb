@@ -155,14 +155,14 @@ class CommandsOps
             end
         end
 
-        if object["NS198"] == "NS16:Nx50" and command == ".." then
-            Nx50s::run(object["Nx50"])
+        if object["NS198"] == "NS16:TxTodo" and command == ".." then
+            TxTodos::run(object["TxTodo"])
         end
 
-        if object["NS198"] == "NS16:Nx50" and command == "done" then
-            nx50 = object["Nx50"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                Nx50s::destroy(nx50["uuid"])
+        if object["NS198"] == "NS16:TxTodo" and command == "done" then
+            nx50 = object["TxTodo"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
+                TxTodos::destroy(nx50["uuid"])
                 CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
             end
         end
@@ -257,9 +257,9 @@ class CommandsOps
         end
 
         if command == "todo" then
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Nx50", "Nx51 (work item)"])
-            if type == "Nx50" then
-                item = Nx50s::interactivelyCreateNewOrNull()
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodo", "Nx51 (work item)"])
+            if type == "TxTodo" then
+                item = TxTodos::interactivelyCreateNewOrNull()
                 return if item.nil?
                 puts JSON.pretty_generate(item)
             end
@@ -295,16 +295,16 @@ class CommandsOps
         end
 
         if Interpreting::match("todos", command) then
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Nx50s", "Nx51s (work items)"])
-            if type == "Nx50s" then
-                nx50s = Nx50s::nx50s()
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodos", "Nx51s (work items)"])
+            if type == "TxTodos" then
+                nx50s = TxTodos::nx50s()
                 if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
                     nx50s = nx50s.first(Utils::screenHeight()-2)
                 end
                 loop {
-                    nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| Nx50s::toString(nx50) })
+                    nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
                     return if nx50.nil?
-                    Nx50s::run(nx50)
+                    TxTodos::run(nx50)
                 }
             end
             if type == "Nx51s (work items)" then
@@ -365,14 +365,14 @@ class CommandsOps
     end
 
     # CommandsOps::transmutation1(object, source, target)
-    # source: "TxDated" (dated) | "Nx50" | "TxWorkItem" | "TxFloat" (float) | "inbox"
-    # target: "TxDated" (dated) | "Nx50" | "TxWorkItem" | "TxFloat" (float)
+    # source: "TxDated" (dated) | "TxTodo" | "TxWorkItem" | "TxFloat" (float) | "inbox"
+    # target: "TxDated" (dated) | "TxTodo" | "TxWorkItem" | "TxFloat" (float)
     def self.transmutation1(object, source, target)
 
-        if source == "inbox" and target == "Nx50" then
+        if source == "inbox" and target == "TxTodo" then
             location = object
             description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-            ordinal = Nx50s::interactivelyDecideNewOrdinal()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal()
             atom = CoreData5::issueAionPointAtomUsingLocation(location)
             nx50 = {
                 "uuid"        => SecureRandom.uuid,
@@ -381,7 +381,7 @@ class CommandsOps
                 "description" => description,
                 "atom"        => atom
             }
-            Nx50s::commit(nx50)
+            TxTodos::commit(nx50)
             LucilleCore::removeFileSystemLocation(location)
             return
         end
@@ -403,9 +403,9 @@ class CommandsOps
             return
         end
 
-        if source == "TxDated" and target == "Nx50" then
+        if source == "TxDated" and target == "TxTodo" then
             mx49 = object
-            ordinal = Nx50s::interactivelyDecideNewOrdinal()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal()
             nx50 = {
                 "uuid"        => SecureRandom.uuid,
                 "unixtime"    => Time.new.to_i,
@@ -413,7 +413,7 @@ class CommandsOps
                 "description" => mx49["description"],
                 "atom"        => mx49["atom"]
             }
-            Nx50s::commit(nx50)
+            TxTodos::commit(nx50)
             TxDateds::destroy(mx49["uuid"])
             return
         end
@@ -510,7 +510,7 @@ class CommandsOps
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxDated", "TxSpaceship", "Nx50", "TxWorkItem", ]
+        options = ["TxFloat", "TxDated", "TxSpaceship", "TxTodo", "TxWorkItem", ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option

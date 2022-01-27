@@ -47,12 +47,12 @@ class TxDrops
 
     # TxDrops::toString(nx70)
     def self.toString(nx70)
-        "[nx70] #{nx70["description"]} (#{nx70["atom"]["type"]})"
+        "[drop] #{nx70["description"]} (#{nx70["atom"]["type"]})"
     end
 
     # TxDrops::toStringForNS19(nx70)
     def self.toStringForNS19(nx70)
-        "[nx70] #{nx70["description"]}"
+        "[drop] #{nx70["description"]}"
     end
 
     # --------------------------------------------------

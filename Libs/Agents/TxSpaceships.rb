@@ -47,12 +47,12 @@ class TxSpaceships
 
     # TxSpaceships::toString(nx60)
     def self.toString(nx60)
-        "[nx60] #{nx60["description"]} (#{nx60["atom"]["type"]})"
+        "[ship] #{nx60["description"]} (#{nx60["atom"]["type"]})"
     end
 
     # TxSpaceships::toStringForNS19(nx60)
     def self.toStringForNS19(nx60)
-        "[nx60] #{nx60["description"]}"
+        "[ship] #{nx60["description"]}"
     end
 
     # --------------------------------------------------

@@ -1,15 +1,15 @@
 # encoding: UTF-8
 
-class Nx50s
+class TxTodos
 
-    # Nx50s::databaseFilepath()
+    # TxTodos::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s.sqlite"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/TxTodos.sqlite"
     end
 
-    # Nx50s::nx50s()
+    # TxTodos::nx50s()
     def self.nx50s()
-        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db = SQLite3::Database.new(TxTodos::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -28,9 +28,9 @@ class Nx50s
         answer
     end
 
-    # Nx50s::nx50sCardinal(n)
+    # TxTodos::nx50sCardinal(n)
     def self.nx50sCardinal(n)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db = SQLite3::Database.new(TxTodos::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -49,9 +49,9 @@ class Nx50s
         answer
     end
 
-    # Nx50s::commit(nx50)
+    # TxTodos::commit(nx50)
     def self.commit(nx50)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db = SQLite3::Database.new(TxTodos::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _nx50s_ where _uuid_=?", [nx50["uuid"]]
@@ -59,9 +59,9 @@ class Nx50s
         db.close
     end
 
-    # Nx50s::destroy(uuid)
+    # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        db = SQLite3::Database.new(Nx50s::databaseFilepath())
+        db = SQLite3::Database.new(TxTodos::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _nx50s_ where _uuid_=?", [uuid]
@@ -71,34 +71,34 @@ class Nx50s
     # --------------------------------------------------
     # Ordinals
 
-    # Nx50s::nextOrdinal()
+    # TxTodos::nextOrdinal()
     def self.nextOrdinal()
-        biggest = ([0] + Nx50s::nx50s().map{|nx50| nx50["ordinal"] }).max
+        biggest = ([0] + TxTodos::nx50s().map{|nx50| nx50["ordinal"] }).max
         (biggest + 1).floor
     end
 
-    # Nx50s::ordinalBetweenN1thAndN2th(n1, n2)
+    # TxTodos::ordinalBetweenN1thAndN2th(n1, n2)
     def self.ordinalBetweenN1thAndN2th(n1, n2)
-        nx50s = Nx50s::nx50sCardinal(n2)
+        nx50s = TxTodos::nx50sCardinal(n2)
         if nx50s.size < n1+2 then
-            return Nx50s::nextOrdinal()
+            return TxTodos::nextOrdinal()
         end
         ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(n1).take(n2-n1)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
-    # Nx50s::interactivelyDecideNewOrdinal()
+    # TxTodos::interactivelyDecideNewOrdinal()
     def self.interactivelyDecideNewOrdinal()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
-            Nx50s::nx50sCardinal(50)
+            TxTodos::nx50sCardinal(50)
                 .each{|nx50| 
-                    puts "- #{Nx50s::toStringWithOrdinal(nx50)}"
+                    puts "- #{TxTodos::toStringWithOrdinal(nx50)}"
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
         if action.nil? or action == "random within [10-20] (default)" then
-            return Nx50s::ordinalBetweenN1thAndN2th(10, 20)
+            return TxTodos::ordinalBetweenN1thAndN2th(10, 20)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
@@ -106,13 +106,13 @@ class Nx50s
     # --------------------------------------------------
     # Makers
 
-    # Nx50s::interactivelyCreateNewOrNull()
+    # TxTodos::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        ordinal = Nx50s::interactivelyDecideNewOrdinal()
+        ordinal = TxTodos::interactivelyDecideNewOrdinal()
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
@@ -120,25 +120,25 @@ class Nx50s
             "description" => description,
             "atom"        => atom
         }
-        Nx50s::commit(nx50)
+        TxTodos::commit(nx50)
         nx50
     end
 
-    # Nx50s::issueItemUsingInboxLocation(location)
+    # TxTodos::issueItemUsingInboxLocation(location)
     def self.issueItemUsingInboxLocation(location)
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
-            "ordinal"     => Nx50s::ordinalBetweenN1thAndN2th(20, 30),
+            "ordinal"     => TxTodos::ordinalBetweenN1thAndN2th(20, 30),
             "description" => File.basename(location),
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
         }
-        Nx50s::commit(nx50)
+        TxTodos::commit(nx50)
         nx50
     end
 
-    # Nx50s::issueSpreadItem(location, description, ordinal)
+    # TxTodos::issueSpreadItem(location, description, ordinal)
     def self.issueSpreadItem(location, description, ordinal)
         uuid = SecureRandom.uuid
         nx50 = {
@@ -148,59 +148,59 @@ class Nx50s
             "description" => description,
             "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
         }
-        Nx50s::commit(nx50)
+        TxTodos::commit(nx50)
         nx50
     end
 
-    # Nx50s::issueViennaURL(url)
+    # TxTodos::issueViennaURL(url)
     def self.issueViennaURL(url)
         uuid = SecureRandom.uuid
         nx50 = {
             "uuid"        => uuid,
             "unixtime"    => Time.new.to_i,
-            "ordinal"     => Nx50s::ordinalBetweenN1thAndN2th(10, 50),
+            "ordinal"     => TxTodos::ordinalBetweenN1thAndN2th(10, 50),
             "description" => url,
             "atom"        => CoreData5::issueUrlAtomUsingUrl(url)
         }
-        Nx50s::commit(nx50)
+        TxTodos::commit(nx50)
         nx50
     end
 
     # --------------------------------------------------
     # toString
 
-    # Nx50s::toString(nx50)
+    # TxTodos::toString(nx50)
     def self.toString(nx50)
         "[nx50] #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
-    # Nx50s::toStringWithOrdinal(nx50)
+    # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
         "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
-    # Nx50s::toStringForNS19(nx50)
+    # TxTodos::toStringForNS19(nx50)
     def self.toStringForNS19(nx50)
         "[nx50] #{nx50["description"]}"
     end
 
-    # Nx50s::toStringForNS16(nx50, rt)
+    # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[Nx50] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # Nx50s::importspread()
+    # TxTodos::importspread()
     def self.importspread()
-        locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Nx50s Spread")
+        locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxTodos Spread")
  
         if locations.size > 0 then
 
             puts "Starting to import spread (first item: #{locations.first})"
  
-            ordinals = Nx50s::items().map{|item| item["ordinal"] }
+            ordinals = TxTodos::items().map{|item| item["ordinal"] }
  
             if ordinals.size < 2 then
                 start1 = ordinals.max + 1
@@ -219,22 +219,22 @@ class Nx50s
             locations.each{|location|
                 cursor = cursor + step
                 puts "[quark] (#{cursor}) #{location}"
-                Nx50s::issueSpreadItem(location, File.basename(location), cursor)
+                TxTodos::issueSpreadItem(location, File.basename(location), cursor)
                 LucilleCore::removeFileSystemLocation(location)
             }
         end
     end
 
-    # Nx50s::accessContent(nx50)
+    # TxTodos::accessContent(nx50)
     def self.accessContent(nx50)
         updated = CoreData5::accessWithOptionToEdit(nx50["atom"])
         if updated then
             nx50["atom"] = updated
-            Nx50s::commit(nx50)
+            TxTodos::commit(nx50)
         end
     end
 
-    # Nx50s::run(nx50)
+    # TxTodos::run(nx50)
     def self.run(nx50)
 
         system("clear")
@@ -247,7 +247,7 @@ class Nx50s
 
             system("clear")
 
-            puts "#{Nx50s::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
+            puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "ordinal: #{nx50["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
@@ -275,7 +275,7 @@ class Nx50s
             end
 
             if Interpreting::match("access", command) then
-                Nx50s::accessContent(nx50)
+                TxTodos::accessContent(nx50)
                 next
             end
 
@@ -289,31 +289,31 @@ class Nx50s
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
                 nx50["description"] = description
-                Nx50s::commit(nx50)
+                TxTodos::commit(nx50)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 nx50["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                Nx50s::commit(nx50)
+                TxTodos::commit(nx50)
                 next
             end
 
             if Interpreting::match("ordinal", command) then
-                ordinal = Nx50s::interactivelyDecideNewOrdinal()
+                ordinal = TxTodos::interactivelyDecideNewOrdinal()
                 nx50["ordinal"] = ordinal
-                Nx50s::commit(nx50)
+                TxTodos::commit(nx50)
                 next
             end
 
             if Interpreting::match("rotate", command) then
-                nx50["ordinal"] = Nx50s::nextOrdinal()
-                Nx50s::commit(nx50)
+                nx50["ordinal"] = TxTodos::nextOrdinal()
+                TxTodos::commit(nx50)
                 break
             end
 
             if Interpreting::match(">>", command) then
-                CommandsOps::transmutation2(nx50, "Nx50")
+                CommandsOps::transmutation2(nx50, "TxTodo")
                 break
             end
 
@@ -324,16 +324,16 @@ class Nx50s
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                    Nx50s::destroy(nx50["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
+                    TxTodos::destroy(nx50["uuid"])
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Nx50s::toString(nx50)}' ? ", true) then
-                    Nx50s::destroy(nx50["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
+                    TxTodos::destroy(nx50["uuid"])
                     break
                 end
                 next
@@ -346,7 +346,7 @@ class Nx50s
     # --------------------------------------------------
     # nx16s
 
-    # Nx50s::itemIsOperational(item)
+    # TxTodos::itemIsOperational(item)
     def self.itemIsOperational(item)
         uuid = item["uuid"]
         return false if !DoNotShowUntil::isVisible(uuid)
@@ -354,27 +354,27 @@ class Nx50s
         true
     end
 
-    # Nx50s::ns16OrNull(nx50)
+    # TxTodos::ns16OrNull(nx50)
     def self.ns16OrNull(nx50)
         uuid = nx50["uuid"]
-        return nil if !Nx50s::itemIsOperational(nx50)
+        return nil if !TxTodos::itemIsOperational(nx50)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:Nx50",
-            "announce" => Nx50s::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
+            "NS198"    => "NS16:TxTodo",
+            "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "done"],
             "ordinal"  => nx50["ordinal"],
-            "Nx50"     => nx50,
+            "TxTodo"     => nx50,
             "rt"       => rt
         }
     end
 
-    # Nx50s::ns16s()
+    # TxTodos::ns16s()
     def self.ns16s()
-        Nx50s::importspread()
-        ns16s = Nx50s::nx50sCardinal(50)
-            .map{|item| Nx50s::ns16OrNull(item) }
+        TxTodos::importspread()
+        ns16s = TxTodos::nx50sCardinal(50)
+            .map{|item| TxTodos::ns16OrNull(item) }
             .compact
 
         p1 = ns16s
@@ -388,13 +388,13 @@ class Nx50s
 
     # --------------------------------------------------
 
-    # Nx50s::nx19s()
+    # TxTodos::nx19s()
     def self.nx19s()
-        Nx50s::nx50s().map{|item|
+        TxTodos::nx50s().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Nx50s::toStringForNS19(item),
-                "lambda"   => lambda { Nx50s::run(item) }
+                "announce" => TxTodos::toStringForNS19(item),
+                "lambda"   => lambda { TxTodos::run(item) }
             }
         }
     end
