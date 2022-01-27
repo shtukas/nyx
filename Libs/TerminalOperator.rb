@@ -57,7 +57,7 @@ class NS16sOperator
     # NS16sOperator::focus()
     def self.focus()
         [
-            Mx49s::ns16s(),
+            TxDateds::ns16s(),
             TxDrops::ns16s(),
             CatalystTxt::catalystTxtNs16s()
         ]
@@ -117,7 +117,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = Mx49s::items().size + Nx50s::nx50s().size + Mx51s::items().size + Nx60s::items().size + TxDrops::items().size
+        cardinal = TxDateds::items().size + Nx50s::nx50s().size + Mx51s::items().size + Nx60s::items().size + TxDrops::items().size
         puts "(focus: #{DomainsX::focus()}) #{DomainsX::dx()} (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 

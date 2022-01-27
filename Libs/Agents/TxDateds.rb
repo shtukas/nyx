@@ -1,23 +1,23 @@
 # encoding: UTF-8
 
-class Mx49s
+class TxDateds
 
-    # Mx49s::items()
+    # TxDateds::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Mx49s")
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxDateds")
             .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
             .map{|filepath| JSON.parse(IO.read(filepath)) }
     end
 
-    # Mx49s::commit(mx49)
+    # TxDateds::commit(mx49)
     def self.commit(mx49)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx49s/#{Digest::SHA1.hexdigest(mx49["uuid"])[0, 10]}.json"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDateds/#{Digest::SHA1.hexdigest(mx49["uuid"])[0, 10]}.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx49)) }
     end
 
-    # Mx49s::destroy(uuid)
+    # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Mx49s/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDateds/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
@@ -25,7 +25,7 @@ class Mx49s
     # --------------------------------------------------
     # Makers
 
-    # Mx49s::interactivelyCreateNewOrNull()
+    # TxDateds::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -41,11 +41,11 @@ class Mx49s
             "atom"        => atom,
             "domainx"     => DomainsX::interactivelySelectDomainX()
         }
-        Mx49s::commit(mx49)
+        TxDateds::commit(mx49)
         mx49
     end
 
-    # Mx49s::interactivelyCreateNewTodayOrNull()
+    # TxDateds::interactivelyCreateNewTodayOrNull()
     def self.interactivelyCreateNewTodayOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -59,19 +59,19 @@ class Mx49s
             "datetime"    => datetime,
             "atom"        => atom
         }
-        Mx49s::commit(mx49)
+        TxDateds::commit(mx49)
         mx49
     end
 
     # --------------------------------------------------
     # toString
 
-    # Mx49s::toString(mx49)
+    # TxDateds::toString(mx49)
     def self.toString(mx49)
         "[mx49] #{mx49["description"]} (#{mx49["atom"]["type"]})"
     end
 
-    # Mx49s::toStringForNS19(mx49)
+    # TxDateds::toStringForNS19(mx49)
     def self.toStringForNS19(mx49)
         "[mx49] #{mx49["description"]}"
     end
@@ -79,16 +79,16 @@ class Mx49s
     # --------------------------------------------------
     # Operations
 
-    # Mx49s::accessContent(mx49)
+    # TxDateds::accessContent(mx49)
     def self.accessContent(mx49)
         updated = CoreData5::accessWithOptionToEdit(mx49["atom"])
         if updated then
             mx49["atom"] = updated
-            Mx49s::commit(mx49)
+            TxDateds::commit(mx49)
         end
     end
 
-    # Mx49s::run(mx49)
+    # TxDateds::run(mx49)
     def self.run(mx49)
 
         system("clear")
@@ -97,7 +97,7 @@ class Mx49s
 
         NxBallsService::issue(
             uuid, 
-            Mx49s::toString(mx49), 
+            TxDateds::toString(mx49), 
             [uuid, DomainsX::domainXToAccountNumber(mx49["domainx"])]
         )
 
@@ -105,7 +105,7 @@ class Mx49s
 
             system("clear")
 
-            puts Mx49s::toString(mx49).green
+            puts TxDateds::toString(mx49).green
             puts "uuid: #{uuid}".yellow
             puts "date: #{mx49["datetime"][0, 10]}".yellow
 
@@ -126,14 +126,14 @@ class Mx49s
             break if command == "xx"
 
             if Interpreting::match("access", command) then
-                Mx49s::accessContent(mx49)
+                TxDateds::accessContent(mx49)
                 next
             end
 
             if Interpreting::match("date", command) then
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 mx49["datetime"] = datetime
-                Mx49s::commit(mx49)
+                TxDateds::commit(mx49)
                 next
             end
 
@@ -147,13 +147,13 @@ class Mx49s
                 description = Utils::editTextSynchronously(mx49["description"]).strip
                 next if description == ""
                 mx49["description"] = description
-                Mx49s::commit(mx49)
+                TxDateds::commit(mx49)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 mx49["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                Mx49s::commit(mx49)
+                TxDateds::commit(mx49)
                 next
             end
 
@@ -164,16 +164,16 @@ class Mx49s
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx49s::toString(mx49)}' ? ", true) then
-                    Mx49s::destroy(mx49["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(mx49)}' ? ", true) then
+                    TxDateds::destroy(mx49["uuid"])
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{Mx49s::toString(mx49)}' ? ", true) then
-                    Mx49s::destroy(mx49["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(mx49)}' ? ", true) then
+                    TxDateds::destroy(mx49["uuid"])
                     break
                 end
                 next
@@ -186,35 +186,35 @@ class Mx49s
     # --------------------------------------------------
     # nx16s
 
-    # Mx49s::ns16(mx49)
+    # TxDateds::ns16(mx49)
     def self.ns16(mx49)
         uuid = mx49["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:Mx49",
+            "NS198"    => "NS16:TxDated",
             "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})",
             "commands" => ["..", "done", "redate", ">> (transmute)", "''"],
-            "Mx49"     => mx49
+            "TxDated"     => mx49
         }
     end
 
-    # Mx49s::ns16s()
+    # TxDateds::ns16s()
     def self.ns16s()
-        Mx49s::items()
+        TxDateds::items()
             .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            .map{|mx49| Mx49s::ns16(mx49) }
+            .map{|mx49| TxDateds::ns16(mx49) }
     end
 
     # --------------------------------------------------
 
-    # Mx49s::nx19s()
+    # TxDateds::nx19s()
     def self.nx19s()
-        Mx49s::items().map{|item|
+        TxDateds::items().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => Mx49s::toStringForNS19(item),
-                "lambda"   => lambda { Mx49s::run(item) }
+                "announce" => TxDateds::toStringForNS19(item),
+                "lambda"   => lambda { TxDateds::run(item) }
             }
         }
     end

@@ -98,28 +98,28 @@ class CommandsOps
             TxFloats::run(object["TxFloat"])
         end
 
-        if object["NS198"] == "NS16:Mx49" and command == ".." then
-            Mx49s::run(object["Mx49"])
+        if object["NS198"] == "NS16:TxDated" and command == ".." then
+            TxDateds::run(object["TxDated"])
         end
 
-        if object["NS198"] == "NS16:Mx49" and command == "done" then
-            mx49 = object["Mx49"]
-            Mx49s::destroy(mx49["uuid"])
+        if object["NS198"] == "NS16:TxDated" and command == "done" then
+            mx49 = object["TxDated"]
+            TxDateds::destroy(mx49["uuid"])
         end
 
-        if object["NS198"] == "NS16:Mx49" and command == "redate" then
-            mx49 = object["Mx49"]
+        if object["NS198"] == "NS16:TxDated" and command == "redate" then
+            mx49 = object["TxDated"]
             mx49["datetime"] = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
-            Mx49s::commit(mx49)
+            TxDateds::commit(mx49)
         end
 
-        if object["NS198"] == "NS16:Mx49" and command == ">>" then
-            mx49 = object["Mx49"]
-            CommandsOps::transmutation2(mx49, "Mx49")
+        if object["NS198"] == "NS16:TxDated" and command == ">>" then
+            mx49 = object["TxDated"]
+            CommandsOps::transmutation2(mx49, "TxDated")
         end
 
-        if object["NS198"] == "NS16:Mx49" and command == "''" then
-            mx49 = object["Mx49"]
+        if object["NS198"] == "NS16:TxDated" and command == "''" then
+            mx49 = object["TxDated"]
             ItemStoreOps::delistForDefault(mx49["uuid"])
         end
 
@@ -245,13 +245,13 @@ class CommandsOps
         end
 
         if Interpreting::match("ondate", command) then
-            item = Mx49s::interactivelyCreateNewOrNull()
+            item = TxDateds::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
         end
 
         if command == "today" then
-            mx49 = Mx49s::interactivelyCreateNewTodayOrNull()
+            mx49 = TxDateds::interactivelyCreateNewTodayOrNull()
             return if mx49.nil?
             puts JSON.pretty_generate(mx49)
         end
@@ -365,8 +365,8 @@ class CommandsOps
     end
 
     # CommandsOps::transmutation1(object, source, target)
-    # source: "Mx49" (dated) | "Nx50" | "Mx51" | "TxFloat" (float) | "inbox"
-    # target: "Mx49" (dated) | "Nx50" | "Mx51" | "TxFloat" (float)
+    # source: "TxDated" (dated) | "Nx50" | "Mx51" | "TxFloat" (float) | "inbox"
+    # target: "TxDated" (dated) | "Nx50" | "Mx51" | "TxFloat" (float)
     def self.transmutation1(object, source, target)
 
         if source == "inbox" and target == "Nx50" then
@@ -403,7 +403,7 @@ class CommandsOps
             return
         end
 
-        if source == "Mx49" and target == "Nx50" then
+        if source == "TxDated" and target == "Nx50" then
             mx49 = object
             ordinal = Nx50s::interactivelyDecideNewOrdinal()
             nx50 = {
@@ -414,11 +414,11 @@ class CommandsOps
                 "atom"        => mx49["atom"]
             }
             Nx50s::commit(nx50)
-            Mx49s::destroy(mx49["uuid"])
+            TxDateds::destroy(mx49["uuid"])
             return
         end
 
-        if source == "Mx49" and target == "Nx60" then
+        if source == "TxDated" and target == "Nx60" then
             mx49 = object
             domainx = DomainsX::interactivelySelectDomainX()
             nx60 = {
@@ -429,11 +429,11 @@ class CommandsOps
                 "domainx"     => domainx
             }
             Nx60s::commit(nx60)
-            Mx49s::destroy(mx49["uuid"])
+            TxDateds::destroy(mx49["uuid"])
             return
         end
 
-        if source == "Mx49" and target == "TxDrop" then
+        if source == "TxDated" and target == "TxDrop" then
             mx49 = object
             nx70 = {
                 "uuid"        => SecureRandom.uuid,
@@ -443,7 +443,7 @@ class CommandsOps
                 "domainx"     => mx49["domainx"]
             }
             TxDrops::commit(nx70)
-            Mx49s::destroy(mx49["uuid"])
+            TxDateds::destroy(mx49["uuid"])
             return
         end
 
@@ -474,7 +474,7 @@ class CommandsOps
             return
         end
 
-        if source == "Nx60" and target == "Mx49" then
+        if source == "Nx60" and target == "TxDated" then
             nx60 = object
             datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
             mx49 = {
@@ -485,7 +485,7 @@ class CommandsOps
                 "atom"        => nx60["atom"],
                 "domainx"     => nx60["domainx"]
             }
-            Mx49s::commit(mx49)
+            TxDateds::commit(mx49)
             Nx60s::destroy(nx60["uuid"])
             return
         end
@@ -510,7 +510,7 @@ class CommandsOps
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "Mx49", "Nx60", "Nx50", "Mx51", ]
+        options = ["TxFloat", "TxDated", "Nx60", "Nx50", "Mx51", ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option

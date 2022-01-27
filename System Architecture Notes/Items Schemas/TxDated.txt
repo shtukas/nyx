@@ -1,4 +1,4 @@
-Mx49 { # Dated
+TxDated { # Dated
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String
