@@ -45,8 +45,8 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::getFocusUnixtimeSortingTime(uuid)
-    def self.getFocusUnixtimeSortingTime(uuid)
+    # NS16sOperator::getListingUnixtime(uuid)
+    def self.getListingUnixtime(uuid)
         unixtime = KeyValueStore::getOrNull(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{uuid}")
         return unixtime.to_f if unixtime
         unixtime = Time.new.to_f
@@ -54,8 +54,8 @@ class NS16sOperator
         unixtime
     end
 
-    # NS16sOperator::focus()
-    def self.focus()
+    # NS16sOperator::section3()
+    def self.section3()
         [
             TxDateds::ns16s(),
             TxDrops::ns16s(),
@@ -65,7 +65,7 @@ class NS16sOperator
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .sort{|i1, i2| NS16sOperator::getFocusUnixtimeSortingTime(i1["uuid"]) <=> NS16sOperator::getFocusUnixtimeSortingTime(i2["uuid"]) }
+            .sort{|i1, i2| NS16sOperator::getListingUnixtime(i1["uuid"]) <=> NS16sOperator::getListingUnixtime(i2["uuid"]) }
     end
 
     # NS16sOperator::ns16s()
@@ -85,13 +85,31 @@ class NS16sOperator
                 LucilleCore::removeFileSystemLocation(location)
             }
 
+        focus = DomainsX::focusOrNull()
+
+        tx = 
+            if focus then
+                if focus == "eva" then
+                    TxTodos::ns16s()
+                else
+                    TxWorkItems::ns16s()
+                end
+            else
+                preference = DomainsX::preference()
+                if preference == "eva" then
+                    TxTodos::ns16s()
+                else
+                    TxWorkItems::ns16s()
+                end
+            end
+
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Inbox::ns16s(),
-            Todos::ns16s()
+            tx
         ]
             .flatten
             .compact
@@ -102,8 +120,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(floats, waves, spaceships, focus, ns16s)
-    def self.display(floats, waves, spaceships, focus, ns16s)
+    # TerminalDisplayOperator::display(floats, waves, section3, spaceships, ns16s)
+    def self.display(floats, waves, section3, spaceships, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -118,7 +136,9 @@ class TerminalDisplayOperator
 
         puts ""
         cardinal = TxDateds::items().size + TxTodos::nx50s().size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::items().size
-        puts "(focus: #{DomainsX::focus()}) #{DomainsX::dx()} (cardinal: #{cardinal} items)"
+        focus = DomainsX::focusOrNull()
+        focusStr = focus ? "(focus: #{DomainsX::focusOrNull()}) ".green : ""
+        puts "#{focusStr}#{DomainsX::dx()} (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""
@@ -173,14 +193,14 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
-        focus.each{|ns16|
+        section3.each{|ns16|
             store.register(ns16)
             line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
             break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
-        if focus.size>0 then
+        if section3.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
         end
@@ -249,11 +269,11 @@ class TerminalDisplayOperator
                 break
             end
             floats = TxFloats::ns16s()
-            waves = Waves::ns16s()
+            waves = Waves::ns16s().first(6)
+            section3 = NS16sOperator::section3()
             spaceships = TxSpaceships::ns16sForDominant()
-            focus = NS16sOperator::focus()
             ns16s = NS16sOperator::ns16s()
-            TerminalDisplayOperator::display(floats, waves, spaceships, focus, ns16s)
+            TerminalDisplayOperator::display(floats, waves, section3, spaceships, ns16s)
         }
     end
 end

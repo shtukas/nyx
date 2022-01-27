@@ -19,7 +19,7 @@ class CatalystTxt
 
     # CatalystTxt::catalystTxtNs16s()
     def self.catalystTxtNs16s()
-        focus = DomainsX::focus()
+        focus = DomainsX::focusOrNull()
 
         IO.read("/Users/pascal/Desktop/Catalyst.txt")
             .strip
@@ -39,7 +39,7 @@ class CatalystTxt
                     "domainx"     => domainx
                 }
             }
-            .select{|ns16| ns16["domainx"] == focus }
+            .select{|ns16| focus.nil? or (ns16["domainx"] == focus) }
     end
 
     # CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(line)

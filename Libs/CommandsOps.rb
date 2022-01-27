@@ -94,10 +94,6 @@ class CommandsOps
             CommandsOps::transmutation2(location, "inbox")
         end
 
-        if object["NS198"] == "NS16:TxFloat" and command == ".." then
-            TxFloats::run(object["TxFloat"])
-        end
-
         if object["NS198"] == "NS16:TxDated" and command == ".." then
             TxDateds::run(object["TxDated"])
         end
@@ -123,48 +119,35 @@ class CommandsOps
             ItemStoreOps::delistForDefault(mx49["uuid"])
         end
 
-        if object["NS198"] == "NS16:TxWorkItem" and command == ".." then
-            TxWorkItems::run(object["TxWorkItem"])
-        end
-
-        if object["NS198"] == "NS16:TxWorkItem" and command == "done" then
-            mx51 = object["TxWorkItem"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxWorkItems::toString(mx51)}' ? ", true) then
-                TxWorkItems::destroy(mx51["uuid"])
-                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
+        if object["NS198"] == "NS16:TxDrop" and command == ".." then
+            nx70 = object["TxDrop"]
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
+            return if action.nil?
+            if action == "run" then
+                TxDrops::run(nx70)
+            end
+            if action == "done" then
+                TxDrops::destroy(nx70["uuid"])
             end
         end
 
-        if object["NS198"] == "NS16:TxWorkItem" and command == ">>" then
-            mx51 = object["TxWorkItem"]
-            CommandsOps::transmutation2(mx51, "TxWorkItem")
+        if object["NS198"] == "NS16:TxDrop" and command == "done" then
+            nx70 = object["TxDrop"]
+            TxDrops::destroy(nx70["uuid"])
         end
 
-        if object["NS198"] == "NxBallDelegate1" and command == ".." then
-            uuid = object["NxBallUUID"]
-
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
-            if action == "close" then
-                NxBallsService::close(uuid, true)
-            end
-            if action == "pursue" then
-                NxBallsService::pursue(uuid)
-            end
-            if action == "pause" then
-                NxBallsService::pause(uuid)
-            end
+        if object["NS198"] == "NS16:TxDrop" and command == "''" then
+            nx70 = object["TxDrop"]
+            ItemStoreOps::delistForDefault(nx70["uuid"])
         end
 
-        if object["NS198"] == "NS16:TxTodo" and command == ".." then
-            TxTodos::run(object["TxTodo"])
+        if object["NS198"] == "NS16:TxDrop" and command == ">>" then
+            nx70 = object["TxDrop"]
+            CommandsOps::transmutation2(nx70, "TxDrop")
         end
 
-        if object["NS198"] == "NS16:TxTodo" and command == "done" then
-            nx50 = object["TxTodo"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
-                TxTodos::destroy(nx50["uuid"])
-                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-            end
+        if object["NS198"] == "NS16:TxFloat" and command == ".." then
+            TxFloats::run(object["TxFloat"])
         end
 
         if object["NS198"] == "NS16:TxSpaceship" and command == ".." then
@@ -182,26 +165,33 @@ class CommandsOps
             CommandsOps::transmutation2(nx60, "TxSpaceship")
         end
 
-        if object["NS198"] == "NS16:TxDrop" and command == ".." then
-            nx70 = object["TxDrop"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
-            return if action.nil?
-            if action == "run" then
-                TxDrops::run(nx70)
-            end
-            if action == "done" then
-                TxDrops::destroy(nx70["uuid"])
+        if object["NS198"] == "NS16:TxTodo" and command == ".." then
+            TxTodos::run(object["TxTodo"])
+        end
+
+        if object["NS198"] == "NS16:TxTodo" and command == "done" then
+            nx50 = object["TxTodo"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
+                TxTodos::destroy(nx50["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
             end
         end
 
-        if object["NS198"] == "NS16:TxDrop" and command == "''" then
-            nx70 = object["TxDrop"]
-            ItemStoreOps::delistForDefault(nx70["uuid"])
+        if object["NS198"] == "NS16:TxWorkItem" and command == ".." then
+            TxWorkItems::run(object["TxWorkItem"])
         end
 
-        if object["NS198"] == "NS16:TxDrop" and command == ">>" then
-            nx70 = object["TxDrop"]
-            CommandsOps::transmutation2(nx70, "TxDrop")
+        if object["NS198"] == "NS16:TxWorkItem" and command == "done" then
+            mx51 = object["TxWorkItem"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxWorkItems::toString(mx51)}' ? ", true) then
+                TxWorkItems::destroy(mx51["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
+            end
+        end
+
+        if object["NS198"] == "NS16:TxWorkItem" and command == ">>" then
+            mx51 = object["TxWorkItem"]
+            CommandsOps::transmutation2(mx51, "TxWorkItem")
         end
 
         if object["NS198"] == "NS16:Wave1" and command == ".." then
@@ -215,6 +205,21 @@ class CommandsOps
         if object["NS198"] == "NS16:Wave1" and command == "done" then
             Waves::performDone(object["wave"])
             CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
+        end
+
+        if object["NS198"] == "NxBallDelegate1" and command == ".." then
+            uuid = object["NxBallUUID"]
+
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
+            if action == "close" then
+                NxBallsService::close(uuid, true)
+            end
+            if action == "pursue" then
+                NxBallsService::pursue(uuid)
+            end
+            if action == "pause" then
+                NxBallsService::pause(uuid)
+            end
         end
 
         if Interpreting::match("require internet", command) then

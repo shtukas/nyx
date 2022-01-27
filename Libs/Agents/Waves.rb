@@ -368,11 +368,13 @@ class Waves
 
         return [] if Waves::circuitBreaker()
 
+        focus = DomainsX::focusOrNull()
+
         Waves::items()
                     .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
                     .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+                    .select{|wave| focus.nil? or (wave["domainx"] == focus) }
                     .map{|wave| Waves::toNS16(wave) }
-                    .first(6)
     end
 
     # Waves::nx19s()

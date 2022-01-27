@@ -55,11 +55,13 @@ class DomainsX
         end
     end
 
-    # DomainsX::focus()
-    def self.focus()
-        focus = KeyValueStore::getOrNull(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}")
-        return focus if focus
+    # DomainsX::focusOrNull()
+    def self.focusOrNull()
+        KeyValueStore::getOrNull(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}")
+    end
 
+    # DomainsX::preference()
+    def self.preference()
         [
             {
                 "name"    => "eva",

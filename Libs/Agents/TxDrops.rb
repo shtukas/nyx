@@ -174,14 +174,16 @@ class TxDrops
             "uuid"     => uuid,
             "NS198"    => "NS16:TxDrop",
             "announce" => "(drop) #{nx70["description"]} (#{nx70["atom"]["type"]})",
-            "commands" => ["..", "''", ">> (transmute)"],
-            "TxDrop"     => nx70
+            "commands" => ["..", "done", "''", ">> (transmute)"],
+            "TxDrop"   => nx70
         }
     end
 
     # TxDrops::ns16s()
     def self.ns16s()
+        focus = DomainsX::focusOrNull()
         TxDrops::items()
+            .select{|item| focus.nil? or (item["domainx"] == focus) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxDrops::ns16(item) }
     end

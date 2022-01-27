@@ -210,7 +210,9 @@ class TxDateds
 
     # TxDateds::ns16s()
     def self.ns16s()
+        focus = DomainsX::focusOrNull()
         TxDateds::items()
+            .select{|item| focus.nil? or (item["domainx"] == focus) }
             .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .map{|mx49| TxDateds::ns16(mx49) }
