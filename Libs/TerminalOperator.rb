@@ -117,7 +117,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = TxDateds::items().size + Nx50s::nx50s().size + TxWorkItems::items().size + Nx60s::items().size + TxDrops::items().size
+        cardinal = TxDateds::items().size + Nx50s::nx50s().size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::items().size
         puts "(focus: #{DomainsX::focus()}) #{DomainsX::dx()} (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
@@ -250,7 +250,7 @@ class TerminalDisplayOperator
             end
             floats = TxFloats::ns16s()
             waves = Waves::ns16s()
-            spaceships = Nx60s::ns16sForDominant()
+            spaceships = TxSpaceships::ns16sForDominant()
             focus = NS16sOperator::focus()
             ns16s = NS16sOperator::ns16s()
             TerminalDisplayOperator::display(floats, waves, spaceships, focus, ns16s)

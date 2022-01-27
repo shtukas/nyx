@@ -1,4 +1,4 @@
-Nx60 { # Spaceships (Floating Projects)
+TxSpaceship { # Spaceships (Floating Projects)
     "uuid"        : uuid
     "unixtime"    : Float
     "description" : String

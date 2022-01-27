@@ -167,19 +167,19 @@ class CommandsOps
             end
         end
 
-        if object["NS198"] == "NS16:Nx60" and command == ".." then
-            nx60 = object["Nx60"]
-            Nx60s::run(nx60)
+        if object["NS198"] == "NS16:TxSpaceship" and command == ".." then
+            nx60 = object["TxSpaceship"]
+            TxSpaceships::run(nx60)
         end
 
-        if object["NS198"] == "NS16:Nx60" and command == "''" then
-            nx60 = object["Nx60"]
+        if object["NS198"] == "NS16:TxSpaceship" and command == "''" then
+            nx60 = object["TxSpaceship"]
             ItemStoreOps::delistForDefault(nx60["uuid"])
         end
 
-        if object["NS198"] == "NS16:Nx60" and command == ">>" then
-            nx60 = object["Nx60"]
-            CommandsOps::transmutation2(nx60, "Nx60")
+        if object["NS198"] == "NS16:TxSpaceship" and command == ">>" then
+            nx60 = object["TxSpaceship"]
+            CommandsOps::transmutation2(nx60, "TxSpaceship")
         end
 
         if object["NS198"] == "NS16:TxDrop" and command == ".." then
@@ -237,7 +237,7 @@ class CommandsOps
         end
 
         if command == "spaceship" then
-            Nx60s::interactivelyCreateNewOrNull()
+            TxSpaceships::interactivelyCreateNewOrNull()
         end
 
         if command == "drop" then
@@ -418,7 +418,7 @@ class CommandsOps
             return
         end
 
-        if source == "TxDated" and target == "Nx60" then
+        if source == "TxDated" and target == "TxSpaceship" then
             mx49 = object
             domainx = DomainsX::interactivelySelectDomainX()
             nx60 = {
@@ -428,7 +428,7 @@ class CommandsOps
                 "atom"        => mx49["atom"],
                 "domainx"     => domainx
             }
-            Nx60s::commit(nx60)
+            TxSpaceships::commit(nx60)
             TxDateds::destroy(mx49["uuid"])
             return
         end
@@ -460,7 +460,7 @@ class CommandsOps
             return
         end
 
-        if source == "Nx60" and target == "TxFloat" then
+        if source == "TxSpaceship" and target == "TxFloat" then
             nx60 = object
             mx48 = {
                 "uuid"        => SecureRandom.uuid,
@@ -470,11 +470,11 @@ class CommandsOps
                 "domainx"     => nx60["domainx"]
             }
             TxFloats::commit(mx48)
-            Nx60s::destroy(nx60["uuid"])
+            TxSpaceships::destroy(nx60["uuid"])
             return
         end
 
-        if source == "Nx60" and target == "TxDated" then
+        if source == "TxSpaceship" and target == "TxDated" then
             nx60 = object
             datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
             mx49 = {
@@ -486,7 +486,7 @@ class CommandsOps
                 "domainx"     => nx60["domainx"]
             }
             TxDateds::commit(mx49)
-            Nx60s::destroy(nx60["uuid"])
+            TxSpaceships::destroy(nx60["uuid"])
             return
         end
 
@@ -510,7 +510,7 @@ class CommandsOps
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxDated", "Nx60", "Nx50", "TxWorkItem", ]
+        options = ["TxFloat", "TxDated", "TxSpaceship", "Nx50", "TxWorkItem", ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option
