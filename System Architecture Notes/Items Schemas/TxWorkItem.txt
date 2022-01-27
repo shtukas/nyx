@@ -1,4 +1,4 @@
-Mx51 { # Work Item
+TxWorkItem { # Work Item
     "uuid"        : uuid
     "unixtime"    : Float
     "ordinal"     : Float

@@ -117,7 +117,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = TxDateds::items().size + Nx50s::nx50s().size + Mx51s::items().size + Nx60s::items().size + TxDrops::items().size
+        cardinal = TxDateds::items().size + Nx50s::nx50s().size + TxWorkItems::items().size + Nx60s::items().size + TxDrops::items().size
         puts "(focus: #{DomainsX::focus()}) #{DomainsX::dx()} (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 

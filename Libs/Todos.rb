@@ -10,7 +10,7 @@ class Todos
             return Nx50s::ns16s()
         end
         if focus == "work" then
-            return Mx51s::ns16s()
+            return TxWorkItems::ns16s()
         end
         raise "c5588216-b70f-45b2-8af1"
     end
