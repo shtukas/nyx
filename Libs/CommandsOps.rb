@@ -262,13 +262,13 @@ class CommandsOps
         end
 
         if command == "todo" then
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodo", "Nx51 (work item)"])
+            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodo", "TxWorkItems"])
             if type == "TxTodo" then
                 item = TxTodos::interactivelyCreateNewOrNull()
                 return if item.nil?
                 puts JSON.pretty_generate(item)
             end
-            if type == "Nx51 (work item)" then
+            if type == "TxWorkItems" then
                 item = TxWorkItems::interactivelyCreateNewOrNull()
                 return if item.nil?
                 puts JSON.pretty_generate(item)
