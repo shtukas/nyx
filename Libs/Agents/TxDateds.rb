@@ -90,7 +90,7 @@ class TxDateds
         NxBallsService::issue(
             uuid, 
             TxDateds::toString(mx49), 
-            [uuid, DomainsX::domainXToAccountNumber(mx49["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(mx49["extras"]["domainx"])]
         )
 
         loop {

@@ -4,22 +4,12 @@ class TxFloats
 
     # TxFloats::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxFloats")
-            .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # TxFloats::commit(mx48)
-    def self.commit(mx48)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxFloats/#{Digest::SHA1.hexdigest(mx48["uuid"])[0, 10]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx48)) }
+        Librarian::classifierToMikus("CatalystTxFloat")
     end
 
     # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxFloats/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -29,17 +19,22 @@ class TxFloats
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
+
         uuid = SecureRandom.uuid
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        mx48 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "atom"        => atom,
-            "domainx"     => DomainsX::interactivelySelectDomainX()
+        domainx = DomainsX::interactivelySelectDomainX()
+
+        uuid           = SecureRandom.uuid
+
+        domainx        = DomainsX::interactivelySelectDomainX()
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystTxFloat"
+        extras = {
+            "domainx" => domainx
         }
-        TxFloats::commit(mx48)
-        mx48
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -65,11 +60,11 @@ class TxFloats
 
     # TxFloats::accessContent(mx48)
     def self.accessContent(mx48)
-        updated = CoreData5::accessWithOptionToEdit(mx48["atom"])
-        if updated then
-            mx48["atom"] = updated
-            TxFloats::commit(mx48)
+        atom = CoreData5::accessWithOptionToEdit(mx48["atom"])
+        if atom then
+            Librarian::updateMikuAtom(mx48["uuid"], atom)
         end
+        Librarian::getMikuOrNull(mx48["uuid"])
     end
 
     # TxFloats::run(mx48)
@@ -82,7 +77,7 @@ class TxFloats
         NxBallsService::issue(
             uuid, 
             TxFloats::toString(mx48), 
-            [uuid, DomainsX::domainXToAccountNumber(mx48["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(mx48["extras"]["domainx"])]
         )
 
         loop {
@@ -127,14 +122,14 @@ class TxFloats
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(mx48["description"]).strip
                 next if description == ""
-                mx48["description"] = description
-                TxFloats::commit(mx48)
+                mx48 = Librarian::updateMikuDescription(mx48["uuid"], description) 
                 next
             end
 
             if Interpreting::match("atom", command) then
-                mx48["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                TxFloats::commit(mx48)
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                next if atom.nil?
+                mx48 = Librarian::updateMikuAtom(mx48["uuid"], atom)
                 next
             end
 

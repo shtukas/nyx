@@ -490,14 +490,19 @@ class CommandsOps
 
         if source == "TxSpaceship" and target == "TxFloat" then
             nx60 = object
-            mx48 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "description" => nx60["description"],
-                "atom"        => nx60["atom"],
-                "domainx"     => nx60["domainx"]
+
+            uuid           = SecureRandom.uuid
+            description    = nx60["description"]
+            atom           = nx60["atom"]
+            unixtime       = Time.new.to_i
+            datetime       = Time.new.utc.iso8601
+            classification = "CatalystTxFloat"
+            extras = {
+                "domainx" => nx60["domainx"]
             }
-            TxFloats::commit(mx48)
+            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+            Librarian::getMikuOrNull(uuid)
+
             TxSpaceships::destroy(nx60["uuid"])
             return
         end
@@ -520,14 +525,18 @@ class CommandsOps
         end
 
         if source == "TxWorkItem" and target == "TxFloat" then
-            newItem = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "description" => object["description"],
-                "atom"        => object["atom"],
-                "domainx"     => "work"
+            uuid           = SecureRandom.uuid
+            description    = object["description"]
+            atom           = object["atom"]
+            unixtime       = Time.new.to_i
+            datetime       = Time.new.utc.iso8601
+            classification = "CatalystTxFloat"
+            extras = {
+                "domainx" => object["domainx"]
             }
-            TxFloats::commit(newItem)
+            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+            Librarian::getMikuOrNull(uuid)
+
             TxWorkItems::destroy(object["uuid"])
             return
         end

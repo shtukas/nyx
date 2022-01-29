@@ -72,7 +72,7 @@ class TxDrops
         NxBallsService::issue(
             uuid, 
             TxDrops::toString(nx70), 
-            [uuid, DomainsX::domainXToAccountNumber(nx70["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(nx70["extras"]["domainx"])]
         )
 
         loop {
