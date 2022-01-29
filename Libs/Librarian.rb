@@ -187,7 +187,7 @@ class Librarian
                 .first
         }
 
-        filepath = useTheForce.call()
+        filepath = useTheForce.call(uuid)
 
         return nil if filepath.nil?
 
