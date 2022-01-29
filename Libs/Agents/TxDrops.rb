@@ -2,24 +2,21 @@ j# encoding: UTF-8
 
 class TxDrops
 
-    # TxDrops::items()
-    def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxDrops")
-            .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
+    # TxDrops::mikuToTxDrop(miku)
+    def self.mikuToTxDrop(miku)
+        miku["domainx"] == miku["extras"]["domainx"]
+        miku
     end
 
-    # TxDrops::commit(nx70)
-    def self.commit(nx70)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDrops/#{Digest::SHA1.hexdigest(nx70["uuid"])[0, 10]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nx70)) }
+    # TxDrops::items()
+    def self.items()
+        Librarian::classifierToMikus("CatalystTxDrop")
+            .map{|miku| TxDrops::mikuToTxDrop(miku) }
     end
 
     # TxDrops::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDrops/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -29,17 +26,17 @@ class TxDrops
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid = SecureRandom.uuid
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        nx70 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "atom"        => atom,
-            "domainx"     => DomainsX::interactivelySelectDomainX()
+        uuid           = SecureRandom.uuid
+        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        domainx        = DomainsX::interactivelySelectDomainX()
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = ["CatalystTxDrop"]
+        extras = {
+            "domainx" => domainx
         }
-        TxDrops::commit(nx70)
-        nx70
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -65,11 +62,12 @@ class TxDrops
 
     # TxDrops::accessContent(nx70)
     def self.accessContent(nx70)
-        updated = CoreData5::accessWithOptionToEdit(nx70["atom"])
-        if updated then
-            nx70["atom"] = updated
-            TxDrops::commit(nx70)
+        atom = CoreData5::accessWithOptionToEdit(nx70["atom"])
+        if atom then
+            Librarian::updateMikuAtom(nx70["uuid"], atom)
         end
+        miku = Librarian::getMikuOrNull(nx70["uuid"])
+        TxDrops::mikuToTxDrop(miku)
     end
 
     # TxDrops::run(nx70)
@@ -115,7 +113,7 @@ class TxDrops
             end
 
             if Interpreting::match("access", command) then
-                TxDrops::accessContent(nx70)
+                nx70 = TxDrops::accessContent(nx70)
                 next
             end
 
@@ -128,14 +126,16 @@ class TxDrops
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(nx70["description"]).strip
                 next if description == ""
-                nx70["description"] = description
-                TxDrops::commit(nx70)
+                miku = Librarian::updateMikuDescription(nx70["uuid"], description) 
+                nx70 = TxDrops::mikuToTxDrop(miku)
                 next
             end
 
             if Interpreting::match("atom", command) then
-                nx70["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                TxDrops::commit(nx70)
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                next if atom.nil?
+                miku = Librarian::updateMikuAtom(nx70["uuid"], atom) 
+                nx70 = TxDrops::mikuToTxDrop(miku)
                 next
             end
 

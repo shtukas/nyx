@@ -281,6 +281,12 @@ class Librarian
         Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
+    # Librarian::destroy(uuid)
+    def self.destroy(uuid)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        FileUtils.rm(filepath)
+    end
+
     # ------------------------------------------------
     # Public Updates
     # ------------------------------------------------
@@ -331,8 +337,9 @@ class Librarian
 
     # Librarian::classifierToMikus(classifier)
     def self.classifierToMikus(classifier)
-        Librarian::classifierToFilepaths(classifier).map{|filepath|
-            Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        }
+        Librarian::classifierToFilepaths(classifier)
+            .map{|filepath|
+                Librarian::readMikuObjectFromMikuFileOrError(filepath)
+            }
     end
 end

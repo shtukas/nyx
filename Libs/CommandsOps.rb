@@ -443,16 +443,19 @@ class CommandsOps
         end
 
         if source == "TxDated" and target == "TxDrop" then
-            mx49 = object
-            nx70 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "description" => mx49["description"],
-                "atom"        => mx49["atom"],
-                "domainx"     => mx49["domainx"]
+
+            uuid           = SecureRandom.uuid
+            description    = object["description"]
+            unixtime       = object["unixtime"]
+            datetime       = Time.new.utc.iso8601
+            classification = ["CatalystTxDrop"]
+            atom           = object["atom"]
+            extras = {
+                "domainx" => object["domainx"]
             }
-            TxDrops::commit(nx70)
-            TxDateds::destroy(mx49["uuid"])
+            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+
+            TxDateds::destroy(object["uuid"])
             return
         end
 
