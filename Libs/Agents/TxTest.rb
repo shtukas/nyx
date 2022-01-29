@@ -3,7 +3,7 @@ class TxTest
 
     # TxTest::mikus()
     def self.mikus()
-        Librarian2::classifierToMikus("TxTest")
+        Librarian::classifierToMikus("TxTest")
     end
 
     # TxTest::ns16s()
