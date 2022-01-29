@@ -17,7 +17,7 @@ class TxWorkItems
 
     # TxWorkItems::nextOrdinal()
     def self.nextOrdinal()
-        biggest = ([0] + TxWorkItems::items().map{|mx51| mx51["ordinal"] }).max
+        biggest = ([0] + TxWorkItems::items().map{|mx51| mx51["extras"]["ordinal"] }).max
         (biggest + 1).floor
     end
 
@@ -27,7 +27,7 @@ class TxWorkItems
         if mx51s.size < n1+2 then
             return TxWorkItems::nextOrdinal()
         end
-        ordinals = mx51s.map{|mx51| mx51["ordinal"] }.sort.drop(n1).take(n2-n1)
+        ordinals = mx51s.map{|mx51| mx51["extras"]["ordinal"] }.sort.drop(n1).take(n2-n1)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
@@ -93,7 +93,7 @@ class TxWorkItems
 
     # TxWorkItems::toStringWithOrdinal(mx51)
     def self.toStringWithOrdinal(mx51)
-        "[work] (ord: #{mx51["ordinal"]}) #{mx51["description"]} (#{mx51["atom"]["type"]})"
+        "[work] (ord: #{mx51["extras"]["ordinal"]}) #{mx51["description"]} (#{mx51["atom"]["type"]})"
     end
 
     # TxWorkItems::toStringForNS19(mx51)
@@ -133,7 +133,7 @@ class TxWorkItems
 
             puts "#{TxWorkItems::toString(mx51)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "ordinal: #{mx51["ordinal"]}".yellow
+            puts "ordinal: #{mx51["extras"]["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(mx51["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
@@ -236,13 +236,13 @@ class TxWorkItems
         return nil if !DoNotShowUntil::isVisible(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         ns16 = {
-            "uuid"     => uuid,
-            "NS198"    => "NS16:TxWorkItem",
-            "announce" => TxWorkItems::toStringForNS16(mx51, rt).gsub("(0.00)", "      "),
-            "commands" => ["..", "done", ">> (transmute)"],
-            "ordinal"  => mx51["ordinal"],
-            "TxWorkItem"     => mx51,
-            "rt"       => rt
+            "uuid"       => uuid,
+            "NS198"      => "NS16:TxWorkItem",
+            "announce"   => TxWorkItems::toStringForNS16(mx51, rt).gsub("(0.00)", "      "),
+            "commands"   => ["..", "done", ">> (transmute)"],
+            "ordinal"    => mx51["extras"]["ordinal"],
+            "TxWorkItem" => mx51,
+            "rt"         => rt
         }
         ns16
     end

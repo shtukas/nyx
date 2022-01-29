@@ -2,70 +2,19 @@
 
 class TxTodos
 
-    # TxTodos::databaseFilepath()
-    def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/TxTodos.sqlite"
-    end
-
     # TxTodos::nx50s()
     def self.nx50s()
-        db = SQLite3::Database.new(TxTodos::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _nx50s_ order by _ordinal_") do |row|
-            object = {
-                "uuid"        => row["_uuid_"],
-                "unixtime"    => row["_unixtime_"].to_f,
-                "ordinal"     => row["_ordinal_"].to_f,
-                "description" => row["_description_"],
-                "atom"        => JSON.parse(row["_atom_"])
-            }
-            answer << object
-        end
-        db.close
-        answer
+        Librarian::classifierToMikus("CatalystTxTodo")
     end
 
     # TxTodos::nx50sCardinal(n)
     def self.nx50sCardinal(n)
-        db = SQLite3::Database.new(TxTodos::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute( "select * from _nx50s_ order by _ordinal_ limit ?", [n]) do |row|
-            object = {
-                "uuid"        => row["_uuid_"],
-                "unixtime"    => row["_unixtime_"].to_f,
-                "ordinal"     => row["_ordinal_"].to_f,
-                "description" => row["_description_"],
-                "atom"        => JSON.parse(row["_atom_"])
-            }
-            answer << object
-        end
-        db.close
-        answer
-    end
-
-    # TxTodos::commit(nx50)
-    def self.commit(nx50)
-        db = SQLite3::Database.new(TxTodos::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _nx50s_ where _uuid_=?", [nx50["uuid"]]
-        db.execute "insert into _nx50s_ (_uuid_, _unixtime_, _ordinal_, _description_, _atom_) values (?, ?, ?, ?, ?)", [nx50["uuid"], nx50["unixtime"], nx50["ordinal"], nx50["description"], JSON.generate(nx50["atom"])]
-        db.close
+        TxTodos::nx50s().first(n)
     end
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        db = SQLite3::Database.new(TxTodos::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _nx50s_ where _uuid_=?", [uuid]
-        db.close
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -73,7 +22,7 @@ class TxTodos
 
     # TxTodos::nextOrdinal()
     def self.nextOrdinal()
-        biggest = ([0] + TxTodos::nx50s().map{|nx50| nx50["ordinal"] }).max
+        biggest = ([0] + TxTodos::nx50s().map{|nx50| nx50["extras"]["ordinal"] }).max
         (biggest + 1).floor
     end
 
@@ -83,7 +32,7 @@ class TxTodos
         if nx50s.size < n1+2 then
             return TxTodos::nextOrdinal()
         end
-        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(n1).take(n2-n1)
+        ordinals = nx50s.map{|nx50| nx50["extras"]["ordinal"] }.sort.drop(n1).take(n2-n1)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
@@ -110,60 +59,80 @@ class TxTodos
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid = SecureRandom.uuid
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        ordinal = TxTodos::interactivelyDecideNewOrdinal()
-        nx50 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => ordinal,
-            "description" => description,
-            "atom"        => atom
+
+        uuid           = SecureRandom.uuid
+        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        ordinal        = TxTodos::interactivelyDecideNewOrdinal()
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystTxTodo"
+        extras = {
+            "ordinal" => ordinal
         }
-        TxTodos::commit(nx50)
-        nx50
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxTodos::issueItemUsingInboxLocation(location)
     def self.issueItemUsingInboxLocation(location)
-        uuid = SecureRandom.uuid
-        nx50 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => TxTodos::ordinalBetweenN1thAndN2th(20, 30),
-            "description" => File.basename(location),
-            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
+        uuid           = SecureRandom.uuid
+        description    = File.basename(location)
+        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        ordinal        = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystTxTodo"
+        extras = {
+            "ordinal" => ordinal
         }
-        TxTodos::commit(nx50)
-        nx50
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
+    end
+
+    # TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
+    def self.interactivelyIssueItemUsingInboxLocation2(location)
+        uuid           = SecureRandom.uuid
+        description    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        ordinal        = TxTodos::interactivelyDecideNewOrdinal()
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystTxTodo"
+        extras = {
+            "ordinal" => ordinal
+        }
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxTodos::issueSpreadItem(location, description, ordinal)
     def self.issueSpreadItem(location, description, ordinal)
-        uuid = SecureRandom.uuid
-        nx50 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => ordinal,
-            "description" => description,
-            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
+        uuid           = SecureRandom.uuid
+        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystTxTodo"
+        extras = {
+            "ordinal" => ordinal
         }
-        TxTodos::commit(nx50)
-        nx50
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxTodos::issueViennaURL(url)
     def self.issueViennaURL(url)
-        uuid = SecureRandom.uuid
-        nx50 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => TxTodos::ordinalBetweenN1thAndN2th(10, 50),
-            "description" => url,
-            "atom"        => CoreData5::issueUrlAtomUsingUrl(url)
+        uuid           = SecureRandom.uuid
+        description    = url
+        ordinal        = TxTodos::ordinalBetweenN1thAndN2th(10, 50)
+        atom           = CoreData5::issueUrlAtomUsingUrl(url)
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystTxTodo"
+        extras = {
+            "ordinal" => ordinal
         }
-        TxTodos::commit(nx50)
-        nx50
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -176,7 +145,7 @@ class TxTodos
 
     # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
-        "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        "[nx50] (ord: #{nx50["extras"]["ordinal"]}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -200,7 +169,7 @@ class TxTodos
 
             puts "Starting to import spread (first item: #{locations.first})"
  
-            ordinals = TxTodos::items().map{|item| item["ordinal"] }
+            ordinals = TxTodos::items().map{|item| item["extras"]["ordinal"] }
  
             if ordinals.size < 2 then
                 start1 = ordinals.max + 1
@@ -225,13 +194,13 @@ class TxTodos
         end
     end
 
-    # TxTodos::accessContent(nx50)
-    def self.accessContent(nx50)
-        updated = CoreData5::accessWithOptionToEdit(nx50["atom"])
-        if updated then
-            nx50["atom"] = updated
-            TxTodos::commit(nx50)
+    # TxTodos::accessContent(miku)
+    def self.accessContent(miku)
+        atom = CoreData5::accessWithOptionToEdit(miku["atom"])
+        if atom then
+            Librarian::updateMikuAtom(miku["uuid"], atom)
         end
+        Librarian::getMikuOrNull(miku["uuid"])
     end
 
     # TxTodos::run(nx50)
@@ -249,7 +218,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "ordinal: #{nx50["ordinal"]}".yellow
+            puts "ordinal: #{nx50["extras"]["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
@@ -288,27 +257,27 @@ class TxTodos
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
-                nx50["description"] = description
-                TxTodos::commit(nx50)
+                nx50 = Librarian::updateMikuDescription(nx50["uuid"], description) 
                 next
             end
 
             if Interpreting::match("atom", command) then
-                nx50["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                TxTodos::commit(nx50)
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                next if atom.nil?
+                nx50 = Librarian::updateMikuAtom(nx50["uuid"], atom)
                 next
             end
 
             if Interpreting::match("ordinal", command) then
                 ordinal = TxTodos::interactivelyDecideNewOrdinal()
-                nx50["ordinal"] = ordinal
-                TxTodos::commit(nx50)
+                nx50["extras"]["ordinal"] = ordinal
+                Librarian::updateMikuExtras(nx50["uuid"], nx50["extras"])
                 next
             end
 
             if Interpreting::match("rotate", command) then
-                nx50["ordinal"] = TxTodos::nextOrdinal()
-                TxTodos::commit(nx50)
+                nx50["extras"]["ordinal"] = TxTodos::nextOrdinal()
+                Librarian::updateMikuExtras(nx50["uuid"], nx50["extras"])
                 break
             end
 
@@ -364,8 +333,8 @@ class TxTodos
             "NS198"    => "NS16:TxTodo",
             "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "done"],
-            "ordinal"  => nx50["ordinal"],
-            "TxTodo"     => nx50,
+            "ordinal"  => nx50["extras"]["ordinal"],
+            "TxTodo"   => nx50,
             "rt"       => rt
         }
     end

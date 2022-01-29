@@ -74,14 +74,20 @@ class NS16sOperator
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/TxTodos (Random)")
             .map{|location|
                 puts "Importing TxTodos (Random): #{location}"
-                nx50 = {
-                    "uuid"        => SecureRandom.uuid,
-                    "unixtime"    => Time.new.to_i,
-                    "ordinal"     => TxTodos::ordinalBetweenN1thAndN2th(30, 50),
-                    "description" => File.basename(location),
-                    "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
+
+                uuid           = SecureRandom.uuid
+                description    = File.basename(location)
+                atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+                ordinal        = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
+                unixtime       = Time.new.to_i
+                datetime       = Time.new.utc.iso8601
+                classification = "CatalystTxTodo"
+                extras = {
+                    "ordinal" => ordinal
                 }
-                TxTodos::commit(nx50)
+                Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+                Librarian::getMikuOrNull(uuid)
+
                 LucilleCore::removeFileSystemLocation(location)
             }
 

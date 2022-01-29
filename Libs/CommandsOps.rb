@@ -380,17 +380,7 @@ class CommandsOps
 
         if source == "inbox" and target == "TxTodo" then
             location = object
-            description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-            ordinal = TxTodos::interactivelyDecideNewOrdinal()
-            atom = CoreData5::issueAionPointAtomUsingLocation(location)
-            nx50 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "ordinal"     => ordinal,
-                "description" => description,
-                "atom"        => atom
-            }
-            TxTodos::commit(nx50)
+            TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
             LucilleCore::removeFileSystemLocation(location)
             return
         end
@@ -403,17 +393,10 @@ class CommandsOps
         end
 
         if source == "TxDated" and target == "TxTodo" then
-            mx49 = object
             ordinal = TxTodos::interactivelyDecideNewOrdinal()
-            nx50 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "ordinal"     => ordinal,
-                "description" => mx49["description"],
-                "atom"        => mx49["atom"]
-            }
-            TxTodos::commit(nx50)
-            TxDateds::destroy(mx49["uuid"])
+            miku = Librarian::updateMikuClassification(object["uuid"], "CatalystTxTodo")
+            miku["extras"]["ordinal"] = ordinal
+            Librarian::updateMikuExtras(object["uuid"], miku["extras"])
             return
         end
 
