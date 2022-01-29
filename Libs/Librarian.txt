@@ -1,0 +1,38 @@
+
+- Librarian files, aka Miku files, are put in Galaxy/Librarian/Files/<index>/
+
+- Miku files are named <L22>.miku
+
+- Miku files are sqlite3 files with one table:
+    create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)
+
+TxClassifier: "CalendarItem" 
+                      "CatalystTxDated"
+                      "CatalystTxDrop"
+                      "CatalystTxFloat"
+                      "CatalystTxSpaceship"
+                      "CatalystTxTodo"
+                      "CatalystWorkItem"
+                      "CatalystWave"
+                      "PureData"
+                      "PublicEvent"
+                      "PascalPrivateLog"
+
+MTxNote {
+    uuid     : String
+    unixtime : Unixtime
+    text     : String
+}
+
+TxMiku {
+    "uuid"           : String
+    "filepath"       : String
+    "version"        : "20220128"
+    "description"    : String
+    "datetime"       : DateTime Iso8601
+    "classification" : Array[TxClassifier]
+    "atom"           : Atom
+    "notes"          : Array[MTxNote]
+}
+
+

@@ -135,7 +135,7 @@ require_relative "Agents/CatalystTxt.rb"
 require_relative "Agents/TxDrops.rb"
 require_relative "Agents/TxFloats.rb"
 require_relative "Agents/TxDateds.rb"
-require_relative "Agents/TxProton.rb"
+require_relative "Agents/TxTest.rb"
 require_relative "Agents/TxTodos.rb"
 require_relative "Agents/TxSpaceships.rb"
 require_relative "Agents/TxWorkItems.rb"
@@ -155,7 +155,7 @@ require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
-require_relative "Muon.rb"
+require_relative "Librarian.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
