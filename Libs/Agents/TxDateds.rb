@@ -24,7 +24,7 @@ class TxDateds
         return nil if datetime.nil?
 
         uuid           = SecureRandom.uuid
-        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx        = DomainsX::interactivelySelectDomainX()
         unixtime       = Time.new.to_i
 
@@ -42,7 +42,7 @@ class TxDateds
         return nil if description == ""
 
         uuid           = SecureRandom.uuid
-        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx        = DomainsX::interactivelySelectDomainX()
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
@@ -73,7 +73,7 @@ class TxDateds
 
     # TxDateds::accessContent(mx49)
     def self.accessContent(mx49)
-        atom = CoreData5::accessWithOptionToEdit(mx49["atom"])
+        atom = Atoms5::accessWithOptionToEdit(mx49["atom"])
         if atom then
             Librarian::updateMikuAtom(mx49["uuid"], atom)
         end
@@ -101,7 +101,7 @@ class TxDateds
             puts "uuid: #{uuid}".yellow
             puts "date: #{mx49["datetime"][0, 10]}".yellow
 
-            if text = CoreData5::atomPayloadToTextOrNull(mx49["atom"]) then
+            if text = Atoms5::atomPayloadToTextOrNull(mx49["atom"]) then
                 puts text
             end
 
@@ -143,7 +143,7 @@ class TxDateds
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 mx49 = Librarian::updateMikuAtom(mx49["uuid"], atom)
                 next

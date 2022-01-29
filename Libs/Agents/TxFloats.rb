@@ -21,7 +21,7 @@ class TxFloats
         return nil if description == ""
 
         uuid = SecureRandom.uuid
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx = DomainsX::interactivelySelectDomainX()
 
         uuid           = SecureRandom.uuid
@@ -60,7 +60,7 @@ class TxFloats
 
     # TxFloats::accessContent(mx48)
     def self.accessContent(mx48)
-        atom = CoreData5::accessWithOptionToEdit(mx48["atom"])
+        atom = Atoms5::accessWithOptionToEdit(mx48["atom"])
         if atom then
             Librarian::updateMikuAtom(mx48["uuid"], atom)
         end
@@ -87,7 +87,7 @@ class TxFloats
             puts TxFloats::toString(mx48).green
             puts "uuid: #{uuid}".yellow
 
-            if text = CoreData5::atomPayloadToTextOrNull(mx48["atom"]) then
+            if text = Atoms5::atomPayloadToTextOrNull(mx48["atom"]) then
                 puts text
             end
 
@@ -127,7 +127,7 @@ class TxFloats
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 mx48 = Librarian::updateMikuAtom(mx48["uuid"], atom)
                 next

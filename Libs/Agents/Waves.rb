@@ -124,7 +124,7 @@ class Waves
             "uuid"        => SecureRandom.uuid,
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "atom"        => CoreData5::interactivelyCreateNewAtomOrNull(),
+            "atom"        => Atoms5::interactivelyCreateNewAtomOrNull(),
         }
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
@@ -172,7 +172,7 @@ class Waves
     # Waves::accessContent(wave)
     def self.accessContent(wave)
         return if wave["atom"]["type"] == "description-only"
-        updated = CoreData5::accessWithOptionToEdit(wave["atom"])
+        updated = Atoms5::accessWithOptionToEdit(wave["atom"])
         if updated then
             wave["atom"] = updated
             Waves::commit(wave)
@@ -241,7 +241,7 @@ class Waves
             end
 
             if Interpreting::match("atom", command) then
-                wave["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
+                wave["atom"] = Atoms5::interactivelyCreateNewAtomOrNull()
                 Waves::commit(wave)
                 next
             end

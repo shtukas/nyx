@@ -21,24 +21,24 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 # -------------------------------------------------------------------------------
 
-class CoreData0Utils
+class Atoms0Utils
 
-    # CoreData0Utils::managedFoldersRepositoryPath()
+    # Atoms0Utils::managedFoldersRepositoryPath()
     def self.managedFoldersRepositoryPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/Managed-Folders"
     end
 
-    # CoreData0Utils::filepathToContentHash(filepath)
+    # Atoms0Utils::filepathToContentHash(filepath)
     def self.filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
-    # CoreData0Utils::openUrlUsingSafari(url)
+    # Atoms0Utils::openUrlUsingSafari(url)
     def self.openUrlUsingSafari(url)
         system("open -a Safari '#{url}'")
     end
 
-    # CoreData0Utils::editTextSynchronously(text)
+    # Atoms0Utils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = "#{SecureRandom.uuid}.txt"
         filepath = "/tmp/#{filename}"
@@ -49,21 +49,21 @@ class CoreData0Utils
         IO.read(filepath)
     end
 
-    # CoreData0Utils::timeStringL22()
+    # Atoms0Utils::timeStringL22()
     def self.timeStringL22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # CoreData0Utils::atlas(pattern)
+    # Atoms0Utils::atlas(pattern)
     def self.atlas(pattern)
         location = `/Users/pascal/Galaxy/LucilleOS/Binaries/atlas '#{pattern}'`.strip
         (location != "") ? location : nil
     end
 
-    # CoreData0Utils::interactivelyMakeNewManagedFolderReturnName()
+    # Atoms0Utils::interactivelyMakeNewManagedFolderReturnName()
     def self.interactivelyMakeNewManagedFolderReturnName()
-        foldername = CoreData0Utils::timeStringL22()
-        folderpath = "#{CoreData0Utils::managedFoldersRepositoryPath()}/#{foldername}"
+        foldername = Atoms0Utils::timeStringL22()
+        folderpath = "#{Atoms0Utils::managedFoldersRepositoryPath()}/#{foldername}"
         FileUtils.mkdir(folderpath)
         FileUtils.touch("#{folderpath}/01 README.txt")
         puts "opening core data folder #{folderpath}"
@@ -72,19 +72,19 @@ class CoreData0Utils
         foldername
     end
 
-    # CoreData0Utils::interactivelyDropNewMarbleFileOnDesktop() # Marble
+    # Atoms0Utils::interactivelyDropNewMarbleFileOnDesktop() # Marble
     def self.interactivelyDropNewMarbleFileOnDesktop()
         marble = {
             "uuid" => SecureRandom.uuid
         }
         filepath = "/Users/pascal/Desktop/nyx-marble.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(marble)) }
-        puts "CoreData2 marble generated on the Desktop, drop it at the right location"
+        puts "Atoms2 marble generated on the Desktop, drop it at the right location"
         LucilleCore::pressEnterToContinue()
         marble
     end
 
-    # CoreData0Utils::interactivelySelectDesktopLocationOrNull() 
+    # Atoms0Utils::interactivelySelectDesktopLocationOrNull() 
     def self.interactivelySelectDesktopLocationOrNull()
         entries = Dir.entries("/Users/pascal/Desktop").select{|filename| !filename.start_with?(".") }.sort
         locationNameOnDesktop = LucilleCore::selectEntityFromListOfEntitiesOrNull("locationname", entries)
@@ -92,13 +92,13 @@ class CoreData0Utils
         "/Users/pascal/Desktop/#{locationNameOnDesktop}"
     end
 
-    # CoreData0Utils::locationToAionRootNamedHash(location)
+    # Atoms0Utils::locationToAionRootNamedHash(location)
     def self.locationToAionRootNamedHash(location)
-        raise "[CoreData0Utils: error: a1ac8255-45ed-4347-a898-d306c49f230c, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        AionCore::commitLocationReturnHash(CoreData6AionElizabeth.new(), location)
+        raise "[Atoms0Utils: error: a1ac8255-45ed-4347-a898-d306c49f230c, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
+        AionCore::commitLocationReturnHash(Atoms6AionElizabeth.new(), location)
     end
 
-    # CoreData0Utils::marbleLocationOrNullUseTheForce(uuid)
+    # Atoms0Utils::marbleLocationOrNullUseTheForce(uuid)
     def self.marbleLocationOrNullUseTheForce(uuid)
         Find.find("/Users/pascal/Galaxy") do |path|
 
@@ -119,7 +119,7 @@ class CoreData0Utils
         end
     end
 
-    # CoreData0Utils::marbleLocationOrNullUsingCache(uuid)
+    # Atoms0Utils::marbleLocationOrNullUsingCache(uuid)
     def self.marbleLocationOrNullUsingCache(uuid)
         path = KeyValueStore::getOrNull(nil, "5d7f5599-0b2c-4f16-acc6-a8ead29c272f:#{uuid}")
         return nil if path.nil?
@@ -130,7 +130,7 @@ class CoreData0Utils
         path
     end
 
-    # CoreData0Utils::moveFileToBinTimeline(location)
+    # Atoms0Utils::moveFileToBinTimeline(location)
     def self.moveFileToBinTimeline(location)
         return if !File.exists?(location)
         directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
@@ -180,11 +180,11 @@ Atoms
 
 =end
 
-class CoreData5
+class Atoms5
 
     # -- Makers ---------------------------------------
 
-    # CoreData5::issueDescriptionOnlyAtom() # Atom
+    # Atoms5::issueDescriptionOnlyAtom() # Atom
     def self.issueDescriptionOnlyAtom()
         {
             "uuid"        => SecureRandom.uuid,
@@ -194,7 +194,7 @@ class CoreData5
         }
     end
 
-    # CoreData5::issueTextAtomUsingText(text) # Atom
+    # Atoms5::issueTextAtomUsingText(text) # Atom
     def self.issueTextAtomUsingText(text)
         {
             "uuid"        => SecureRandom.uuid,
@@ -204,7 +204,7 @@ class CoreData5
         }
     end
 
-    # CoreData5::issueUrlAtomUsingUrl(url) # Atom
+    # Atoms5::issueUrlAtomUsingUrl(url) # Atom
     def self.issueUrlAtomUsingUrl(url)
         {
             "uuid"        => SecureRandom.uuid,
@@ -214,11 +214,11 @@ class CoreData5
         }
     end
 
-    # CoreData5::issueAionPointAtomUsingLocation(location) # Atom
+    # Atoms5::issueAionPointAtomUsingLocation(location) # Atom
     def self.issueAionPointAtomUsingLocation(location)
-        raise "[CoreData5: error: 201d6b31-e08b-4e64-955c-807e717138d6]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = CoreData0Utils::locationToAionRootNamedHash(location)
-        CoreData0Utils::moveFileToBinTimeline(location)
+        raise "[Atoms5: error: 201d6b31-e08b-4e64-955c-807e717138d6]" if !File.exists?(location) # Caller needs to ensure file exists.
+        nhash = Atoms0Utils::locationToAionRootNamedHash(location)
+        Atoms0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
             "unixtime" => Time.new.to_f,
@@ -227,7 +227,7 @@ class CoreData5
         }
     end
 
-    # CoreData5::issueUniqueStringAtomUsingString(uniqueString) # Atom
+    # Atoms5::issueUniqueStringAtomUsingString(uniqueString) # Atom
     def self.issueUniqueStringAtomUsingString(uniqueString)
         {
             "uuid"        => SecureRandom.uuid,
@@ -237,9 +237,9 @@ class CoreData5
         }
     end
 
-    # CoreData5::issueFolderAtom() # Atom
+    # Atoms5::issueFolderAtom() # Atom
     def self.issueFolderAtom()
-        foldername = CoreData0Utils::interactivelyMakeNewManagedFolderReturnName()
+        foldername = Atoms0Utils::interactivelyMakeNewManagedFolderReturnName()
         {
             "uuid"        => SecureRandom.uuid,
             "unixtime"    => Time.new.to_f,
@@ -248,7 +248,7 @@ class CoreData5
         }
     end
 
-    # CoreData5::issueMarbleAtom(marbleId) # Atom
+    # Atoms5::issueMarbleAtom(marbleId) # Atom
     def self.issueMarbleAtom(marbleId)
         {
             "uuid"        => SecureRandom.uuid,
@@ -258,53 +258,53 @@ class CoreData5
         }
     end
 
-    # CoreData5::interactivelyCreateNewAtomOrNull()
+    # Atoms5::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "marble", "managed-folder", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
-            return CoreData5::issueDescriptionOnlyAtom()
+            return Atoms5::issueDescriptionOnlyAtom()
         end
 
         if type == "text" then
-            text = CoreData0Utils::editTextSynchronously("")
-            return CoreData5::issueTextAtomUsingText(text)
+            text = Atoms0Utils::editTextSynchronously("")
+            return Atoms5::issueTextAtomUsingText(text)
         end
 
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            return CoreData5::issueUrlAtomUsingUrl(url)
+            return Atoms5::issueUrlAtomUsingUrl(url)
         end
 
         if type == "aion-point" then
-            location = CoreData0Utils::interactivelySelectDesktopLocationOrNull()
+            location = Atoms0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return CoreData5::issueAionPointAtomUsingLocation(location)
+            return Atoms5::issueAionPointAtomUsingLocation(location)
         end
 
         if type == "marble" then
-            marble = CoreData0Utils::interactivelyDropNewMarbleFileOnDesktop()
-            return CoreData5::issueMarbleAtom(marble["uuid"])
+            marble = Atoms0Utils::interactivelyDropNewMarbleFileOnDesktop()
+            return Atoms5::issueMarbleAtom(marble["uuid"])
         end
 
         if type == "managed-folder" then
-            return CoreData5::issueFolderAtom()
+            return Atoms5::issueFolderAtom()
         end
 
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use '#{SecureRandom.hex(6)}' if need one): ")
             return nil if uniquestring == ""
-            return CoreData5::issueUniqueStringAtomUsingString(uniquestring)
+            return Atoms5::issueUniqueStringAtomUsingString(uniquestring)
         end
 
-        raise "[CoreData5] [D2BDF2BC-D0B8-4D76-B00F-9EBB328D4CF7, type: #{type}]"
+        raise "[Atoms5] [D2BDF2BC-D0B8-4D76-B00F-9EBB328D4CF7, type: #{type}]"
     end
 
     # -- Update ------------------------------------------
 
-    # CoreData5::accessWithOptionToEdit(atom): Atom or null
+    # Atoms5::accessWithOptionToEdit(atom): Atom or null
     def self.accessWithOptionToEdit(atom)
         if atom["type"] == "description-only" then
             puts "atom: description-only (atom payload is empty)"
@@ -313,7 +313,7 @@ class CoreData5
         end
         if atom["type"] == "text" then
             text1 = atom["payload"]
-            text2 = CoreData0Utils::editTextSynchronously(text1)
+            text2 = Atoms0Utils::editTextSynchronously(text1)
             if text1 != text2 then
                 atom["payload"] = text2
                 return atom
@@ -321,7 +321,7 @@ class CoreData5
             return nil
         end
         if atom["type"] == "url" then
-            CoreData0Utils::openUrlUsingSafari(atom["payload"])
+            Atoms0Utils::openUrlUsingSafari(atom["payload"])
             if LucilleCore::askQuestionAnswerAsBoolean("> edit url ? ", false) then
                 url = LucilleCore::askQuestionAnswerAsString("url (empty to abort) : ")
                 if url.size > 0 then
@@ -332,12 +332,12 @@ class CoreData5
             return nil
         end
         if atom["type"] == "aion-point" then
-            AionCore::exportHashAtFolder(CoreData6AionElizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(Atoms6AionElizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
-                location = CoreData0Utils::interactivelySelectDesktopLocationOrNull()
+                location = Atoms0Utils::interactivelySelectDesktopLocationOrNull()
                 return nil if location.nil?
-                nhash = CoreData0Utils::locationToAionRootNamedHash(location)
-                CoreData0Utils::moveFileToBinTimeline(location)
+                nhash = Atoms0Utils::locationToAionRootNamedHash(location)
+                Atoms0Utils::moveFileToBinTimeline(location)
                 atom["payload"] = nhash
                 return atom
             end
@@ -345,7 +345,7 @@ class CoreData5
         end
         if atom["type"] == "marble" then
             marbleId = atom["payload"]
-            location = CoreData0Utils::marbleLocationOrNullUsingCache(marbleId)
+            location = Atoms0Utils::marbleLocationOrNullUsingCache(marbleId)
             if location then
                 puts "found marble at: #{location}"
                 system("open '#{File.dirname(location)}'")
@@ -353,7 +353,7 @@ class CoreData5
             end
             puts "I could not find the location of the marble in the cache"
             return nil if !LucilleCore::askQuestionAnswerAsBoolean("Would you like me to use the Force ? ")
-            location = CoreData0Utils::marbleLocationOrNullUseTheForce(marbleId)
+            location = Atoms0Utils::marbleLocationOrNullUseTheForce(marbleId)
             if location then
                 puts "found marble at: #{location}"
                 system("open '#{File.dirname(location)}'")
@@ -363,7 +363,7 @@ class CoreData5
         end
         if atom["type"] == "managed-folder" then
             foldername = atom["payload"]
-            folderpath = "#{CoreData0Utils::managedFoldersRepositoryPath()}/#{foldername}"
+            folderpath = "#{Atoms0Utils::managedFoldersRepositoryPath()}/#{foldername}"
             puts "opening core data folder #{folderpath}"
             system("open '#{folderpath}'")
             LucilleCore::pressEnterToContinue()
@@ -372,14 +372,14 @@ class CoreData5
         if atom["type"] == "unique-string" then
             payload = atom["payload"]
             puts "unique string: #{payload}"
-            location = CoreData0Utils::atlas(payload)
+            location = Atoms0Utils::atlas(payload)
             if location then
                 puts "location: #{location}"
                 if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
                     system("open '#{location}'")
                 end
             else
-                puts "[CoreData5] Could not find location for unique string: #{payload}"
+                puts "[Atoms5] Could not find location for unique string: #{payload}"
                 LucilleCore::pressEnterToContinue()
             end
             return nil
@@ -389,12 +389,12 @@ class CoreData5
 
     # -- Data ------------------------------------------
 
-    # CoreData5::toString(atom)
+    # Atoms5::toString(atom)
     def self.toString(atom)
         "[atom] #{atom["type"]}"
     end
 
-    # CoreData5::atomPayloadToTextOrNull(atom)
+    # Atoms5::atomPayloadToTextOrNull(atom)
     def self.atomPayloadToTextOrNull(atom)
         if atom["type"] == "description-only" then
             return nil
@@ -424,7 +424,7 @@ class CoreData5
         raise "(1EDB15D2-9125-4947-924E-B24D5E67CAE3, atom: #{atom})"
     end
 
-    # CoreData5::fsck(atom) : Boolean
+    # Atoms5::fsck(atom) : Boolean
     def self.fsck(atom)
         puts JSON.pretty_generate(atom)
         if atom["type"] == "description-only" then
@@ -438,14 +438,14 @@ class CoreData5
         end
         if atom["type"] == "aion-point" then
             nhash = atom["payload"]
-            return AionFsck::structureCheckAionHash(CoreData6AionElizabeth.new(), nhash)
+            return AionFsck::structureCheckAionHash(Atoms6AionElizabeth.new(), nhash)
         end
         if atom["type"] == "marble" then
             return true
         end
         if atom["type"] == "managed-folder" then
             foldername = atom["payload"]
-            return File.exists?("#{CoreData0Utils::managedFoldersRepositoryPath()}/#{foldername}")
+            return File.exists?("#{Atoms0Utils::managedFoldersRepositoryPath()}/#{foldername}")
         end
         if atom["type"] == "unique-string" then
             # Technically we should be checking if the target exists, but that takes too long
@@ -504,14 +504,14 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-class CoreData6AionElizabeth
+class Atoms6AionElizabeth
 
     def initialize()
 
     end
 
     def commitBlob(blob)
-        CoreData7BinaryBlobs::putBlob(blob)
+        Atoms7BinaryBlobs::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -519,7 +519,7 @@ class CoreData6AionElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = CoreData7BinaryBlobs::getBlobOrNull(nhash)
+        blob = Atoms7BinaryBlobs::getBlobOrNull(nhash)
         raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
         blob
     end
@@ -534,17 +534,17 @@ class CoreData6AionElizabeth
     end
 end
 
-class CoreData7BinaryBlobs
+class Atoms7BinaryBlobs
 
-    # CoreData7BinaryBlobs::dataRepositoryPath()
+    # Atoms7BinaryBlobs::dataRepositoryPath()
     def self.dataRepositoryPath()
         "/Users/pascal/Galaxy/DataBank/Catalyst/DataRepository-Depth1"
     end
 
-    # CoreData7BinaryBlobs::putBlob(blob)
+    # Atoms7BinaryBlobs::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        folderpath = "#{CoreData7BinaryBlobs::dataRepositoryPath()}/#{nhash[7, 2]}"
+        folderpath = "#{Atoms7BinaryBlobs::dataRepositoryPath()}/#{nhash[7, 2]}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
@@ -553,9 +553,9 @@ class CoreData7BinaryBlobs
         nhash
     end
 
-    # CoreData7BinaryBlobs::getBlobOrNull(nhash)
+    # Atoms7BinaryBlobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        folderpath = "#{CoreData7BinaryBlobs::dataRepositoryPath()}/#{nhash[7, 2]}"
+        folderpath = "#{Atoms7BinaryBlobs::dataRepositoryPath()}/#{nhash[7, 2]}"
         filepath = "#{folderpath}/#{nhash}.data"
         if File.exists?(filepath) then
             return IO.read(filepath)

@@ -4,7 +4,7 @@ Wave {
     "unixtime"    : unixtime,
     "description" : description,
     
-    "atom"        : CoreData5.Atom
+    "atom"        : Atom
 
     "repeatType"       : repeatType,
     "repeatValue"      : repeatValue,

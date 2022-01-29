@@ -61,7 +61,7 @@ class TxTodos
         return nil if description == ""
 
         uuid           = SecureRandom.uuid
-        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
         ordinal        = TxTodos::interactivelyDecideNewOrdinal()
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
@@ -77,7 +77,7 @@ class TxTodos
     def self.issueItemUsingInboxLocation(location)
         uuid           = SecureRandom.uuid
         description    = File.basename(location)
-        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        atom           = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal        = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
@@ -93,7 +93,7 @@ class TxTodos
     def self.interactivelyIssueItemUsingInboxLocation2(location)
         uuid           = SecureRandom.uuid
         description    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        atom           = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal        = TxTodos::interactivelyDecideNewOrdinal()
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
@@ -108,7 +108,7 @@ class TxTodos
     # TxTodos::issueSpreadItem(location, description, ordinal)
     def self.issueSpreadItem(location, description, ordinal)
         uuid           = SecureRandom.uuid
-        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        atom           = Atoms5::issueAionPointAtomUsingLocation(location)
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
         classification = "CatalystTxTodo"
@@ -124,7 +124,7 @@ class TxTodos
         uuid           = SecureRandom.uuid
         description    = url
         ordinal        = TxTodos::ordinalBetweenN1thAndN2th(10, 50)
-        atom           = CoreData5::issueUrlAtomUsingUrl(url)
+        atom           = Atoms5::issueUrlAtomUsingUrl(url)
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
         classification = "CatalystTxTodo"
@@ -196,7 +196,7 @@ class TxTodos
 
     # TxTodos::accessContent(miku)
     def self.accessContent(miku)
-        atom = CoreData5::accessWithOptionToEdit(miku["atom"])
+        atom = Atoms5::accessWithOptionToEdit(miku["atom"])
         if atom then
             Librarian::updateMikuAtom(miku["uuid"], atom)
         end
@@ -222,7 +222,7 @@ class TxTodos
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            if text = CoreData5::atomPayloadToTextOrNull(nx50["atom"]) then
+            if text = Atoms5::atomPayloadToTextOrNull(nx50["atom"]) then
                 puts text
             end
 
@@ -262,7 +262,7 @@ class TxTodos
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 nx50 = Librarian::updateMikuAtom(nx50["uuid"], atom)
                 next

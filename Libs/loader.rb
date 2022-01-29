@@ -144,7 +144,7 @@ require_relative "Agents/Waves.rb"
 require_relative "Bank.rb"
 
 require_relative "CommandsOps.rb"
-require_relative "CoreData.rb"
+require_relative "Atoms.rb"
 
 require_relative "DomainsX.rb"
 require_relative "DoNotShowUntil.rb"

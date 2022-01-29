@@ -145,7 +145,7 @@ class Librarian
         unixtime       = Time.new.to_f
         datetime       = Time.new.utc.iso8601
         classification = Librarian::interactivelySelectOneClassifier()
-        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
 
         filepath = Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
 

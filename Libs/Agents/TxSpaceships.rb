@@ -19,10 +19,10 @@ class TxSpaceships
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx = DomainsX::interactivelySelectDomainX()
         uuid           = SecureRandom.uuid
-        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx        = DomainsX::interactivelySelectDomainX()
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
@@ -57,7 +57,7 @@ class TxSpaceships
 
     # TxSpaceships::accessContent(nx60)
     def self.accessContent(nx60)
-        atom = CoreData5::accessWithOptionToEdit(nx60["atom"])
+        atom = Atoms5::accessWithOptionToEdit(nx60["atom"])
         if atom then
             Librarian::updateMikuAtom(nx60["uuid"], atom)
         end
@@ -84,7 +84,7 @@ class TxSpaceships
             puts TxSpaceships::toString(nx60).green
             puts "uuid: #{uuid}".yellow
 
-            if text = CoreData5::atomPayloadToTextOrNull(nx60["atom"]) then
+            if text = Atoms5::atomPayloadToTextOrNull(nx60["atom"]) then
                 puts text
             end
 
@@ -124,7 +124,7 @@ class TxSpaceships
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 nx60 = Librarian::updateMikuAtom(nx60["uuid"], atom)
                 next

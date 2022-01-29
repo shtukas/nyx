@@ -77,7 +77,7 @@ class NS16sOperator
 
                 uuid           = SecureRandom.uuid
                 description    = File.basename(location)
-                atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+                atom           = Atoms5::issueAionPointAtomUsingLocation(location)
                 ordinal        = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
                 unixtime       = Time.new.to_i
                 datetime       = Time.new.utc.iso8601

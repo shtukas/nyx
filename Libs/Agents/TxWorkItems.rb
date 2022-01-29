@@ -49,7 +49,7 @@ class TxWorkItems
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Atoms5::interactivelyCreateNewAtomOrNull()
         ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
 
         uuid           = SecureRandom.uuid
@@ -67,7 +67,7 @@ class TxWorkItems
     def self.issueItemUsingInboxLocation(location)
 
         description    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        atom           = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal        = TxWorkItems::interactivelyDecideNewOrdinal()
 
         uuid           = SecureRandom.uuid
@@ -111,7 +111,7 @@ class TxWorkItems
 
     # TxWorkItems::accessContent(mx51)
     def self.accessContent(mx51)
-        atom = CoreData5::accessWithOptionToEdit(mx51["atom"])
+        atom = Atoms5::accessWithOptionToEdit(mx51["atom"])
         if atom then
             Librarian::updateMikuAtom(mx51["uuid"], atom)
         end
@@ -137,7 +137,7 @@ class TxWorkItems
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(mx51["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            if text = CoreData5::atomPayloadToTextOrNull(mx51["atom"]) then
+            if text = Atoms5::atomPayloadToTextOrNull(mx51["atom"]) then
                 puts text
             end
 
@@ -177,7 +177,7 @@ class TxWorkItems
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 mx51 = Librarian::updateMikuAtom(mx51["uuid"], atom)
                 next

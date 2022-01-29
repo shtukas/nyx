@@ -20,7 +20,7 @@ class TxDrops
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid           = SecureRandom.uuid
-        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx        = DomainsX::interactivelySelectDomainX()
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
@@ -55,7 +55,7 @@ class TxDrops
 
     # TxDrops::accessContent(nx70)
     def self.accessContent(nx70)
-        atom = CoreData5::accessWithOptionToEdit(nx70["atom"])
+        atom = Atoms5::accessWithOptionToEdit(nx70["atom"])
         if atom then
             Librarian::updateMikuAtom(nx70["uuid"], atom)
         end
@@ -83,7 +83,7 @@ class TxDrops
             puts "uuid: #{uuid}".yellow
             puts "domainx: #{nx70["domainx"]}".yellow
 
-            if text = CoreData5::atomPayloadToTextOrNull(nx70["atom"]) then
+            if text = Atoms5::atomPayloadToTextOrNull(nx70["atom"]) then
                 puts text
             end
 
@@ -123,7 +123,7 @@ class TxDrops
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 nx70 = Librarian::updateMikuAtom(nx70["uuid"], atom)
                 next

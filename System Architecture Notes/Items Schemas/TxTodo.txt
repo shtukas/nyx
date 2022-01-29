@@ -7,5 +7,5 @@ TxTodo { # Standard Todo
     "unixtime"    : Float
     "ordinal"     : Float
     "description" : String
-    "atom"        : CoreData5.Atom
+    "atom"        : Atom
 }
