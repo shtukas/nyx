@@ -1,6 +1,10 @@
 
 # encoding: UTF-8
 
+# --------------------------------------------------------------------------------------
+# This file is used both in Catalyst and Nyx. The Catalyst version is the master version
+# --------------------------------------------------------------------------------------
+
 require 'sqlite3'
 
 require 'fileutils'

@@ -1,6 +1,10 @@
 
 # encoding: UTF-8
 
+# --------------------------------------------------------------------------------------
+# This file is used both in Catalyst and Nyx. The Catalyst version is the master version
+# --------------------------------------------------------------------------------------
+
 require 'digest/sha1'
 # Digest::SHA1.hexdigest 'foo'
 # Digest::SHA1.file(myFile).hexdigest

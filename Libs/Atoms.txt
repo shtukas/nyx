@@ -1,5 +1,5 @@
 
-### Atoms5
+### Atoms
 
 AtomType = "description-only" | "text" | "url" | "aion-point" | "unique-string" | "managed-folder" | "marble"
 
