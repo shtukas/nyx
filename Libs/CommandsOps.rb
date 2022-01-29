@@ -428,34 +428,12 @@ class CommandsOps
         end
 
         if source == "TxDated" and target == "TxSpaceship" then
-            mx49 = object
-            domainx = DomainsX::interactivelySelectDomainX()
-            nx60 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "description" => mx49["description"],
-                "atom"        => mx49["atom"],
-                "domainx"     => domainx
-            }
-            TxSpaceships::commit(nx60)
-            TxDateds::destroy(mx49["uuid"])
+            Librarian::updateMikuClassification(object["uuid"], "CatalystTxSpaceship")
             return
         end
 
         if source == "TxDated" and target == "TxDrop" then
-
-            uuid           = SecureRandom.uuid
-            description    = object["description"]
-            unixtime       = object["unixtime"]
-            datetime       = Time.new.utc.iso8601
-            classification = "CatalystTxDrop"
-            atom           = object["atom"]
-            extras = {
-                "domainx" => object["domainx"]
-            }
-            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-
-            TxDateds::destroy(object["uuid"])
+            Librarian::updateMikuClassification(object["uuid"], "CatalystTxDrop")
             return
         end
 
@@ -474,53 +452,20 @@ class CommandsOps
         end
 
         if source == "TxDrop" and target == "TxSpaceship" then
-            miku = object
-            spaceship = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "ordinal"     => ordinal,
-                "description" => miku["description"],
-                "atom"        => miku["atom"],
-                "domainx"     => miku["extras"]["domainx"]
-            }
-            TxSpaceships::commit(spaceship)
-            TxDrops::destroy(object["uuid"])
+            Librarian::updateMikuClassification(object["uuid"], "CatalystTxSpaceship")
             return
         end
 
         if source == "TxSpaceship" and target == "TxFloat" then
-            nx60 = object
-
-            uuid           = SecureRandom.uuid
-            description    = nx60["description"]
-            atom           = nx60["atom"]
-            unixtime       = Time.new.to_i
-            datetime       = Time.new.utc.iso8601
-            classification = "CatalystTxFloat"
-            extras = {
-                "domainx" => nx60["domainx"]
-            }
-            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-            Librarian::getMikuOrNull(uuid)
-
-            TxSpaceships::destroy(nx60["uuid"])
+            Librarian::updateMikuClassification(object["uuid"], "CatalystTxFloat")
             return
         end
 
         if source == "TxSpaceship" and target == "TxDated" then
-            nx60 = object
             datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            uuid           = SecureRandom.uuid
-            description    = nx60["description"]
-            unixtime       = Time.new.to_i
-            classification = "CatalystTxDated"
-            atom           = nx60["atom"]
-            extras = {
-                "domainx" => nx60["domainx"]
-            }
-            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-
-            TxSpaceships::destroy(nx60["uuid"])
+            return if datetime.nil?
+            Librarian::updateMikuClassification(object["uuid"], "CatalystTxDated")
+            Librarian::updateMikuDatetime(object["uuid"], datetime)
             return
         end
 

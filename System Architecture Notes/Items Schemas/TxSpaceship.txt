@@ -1,7 +1,0 @@
-TxSpaceship { # Spaceships (Floating Projects)
-    "uuid"        : uuid
-    "unixtime"    : Float
-    "description" : String
-    "atom"        : CoreData5.Atom
-    "domainx"     : "eva" | "work"
-}

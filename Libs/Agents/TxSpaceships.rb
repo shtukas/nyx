@@ -4,22 +4,12 @@ class TxSpaceships
 
     # TxSpaceships::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxSpaceships")
-            .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # TxSpaceships::commit(nx60)
-    def self.commit(nx60)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxSpaceships/#{Digest::SHA1.hexdigest(nx60["uuid"])[0, 10]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(nx60)) }
+        Librarian::classifierToMikus("CatalystTxSpaceship")
     end
 
     # TxSpaceships::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxSpaceships/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -29,17 +19,19 @@ class TxSpaceships
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid = SecureRandom.uuid
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        nx60 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "atom"        => atom,
-            "domainx"     => DomainsX::interactivelySelectDomainX()
+        domainx = DomainsX::interactivelySelectDomainX()
+        uuid           = SecureRandom.uuid
+        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        domainx        = DomainsX::interactivelySelectDomainX()
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystTxSpaceship"
+        extras = {
+            "domainx" => domainx
         }
-        TxSpaceships::commit(nx60)
-        nx60
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -65,11 +57,11 @@ class TxSpaceships
 
     # TxSpaceships::accessContent(nx60)
     def self.accessContent(nx60)
-        updated = CoreData5::accessWithOptionToEdit(nx60["atom"])
-        if updated then
-            nx60["atom"] = updated
-            TxSpaceships::commit(nx60)
+        atom = CoreData5::accessWithOptionToEdit(nx60["atom"])
+        if atom then
+            Librarian::updateMikuAtom(nx60["uuid"], atom)
         end
+        Librarian::getMikuOrNull(nx60["uuid"])
     end
 
     # TxSpaceships::run(nx60)
@@ -82,7 +74,7 @@ class TxSpaceships
         NxBallsService::issue(
             uuid, 
             TxSpaceships::toString(nx60), 
-            [uuid, DomainsX::domainXToAccountNumber(nx60["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(nx60["extras"]["domainx"])]
         )
 
         loop {
@@ -127,14 +119,14 @@ class TxSpaceships
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(nx60["description"]).strip
                 next if description == ""
-                nx60["description"] = description
-                TxSpaceships::commit(nx60)
+                nx60 = Librarian::updateMikuDescription(nx60["uuid"], description) 
                 next
             end
 
             if Interpreting::match("atom", command) then
-                nx60["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                TxSpaceships::commit(nx60)
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                next if atom.nil?
+                nx60 = Librarian::updateMikuAtom(nx60["uuid"], atom)
                 next
             end
 
