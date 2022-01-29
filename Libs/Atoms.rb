@@ -25,7 +25,7 @@ class Atoms0Utils
 
     # Atoms0Utils::managedFoldersRepositoryPath()
     def self.managedFoldersRepositoryPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/Managed-Folders"
+        "/Users/pascal/Galaxy/Librarian/Managed-Folders"
     end
 
     # Atoms0Utils::filepathToContentHash(filepath)
@@ -95,7 +95,7 @@ class Atoms0Utils
     # Atoms0Utils::locationToAionRootNamedHash(location)
     def self.locationToAionRootNamedHash(location)
         raise "[Atoms0Utils: error: a1ac8255-45ed-4347-a898-d306c49f230c, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        AionCore::commitLocationReturnHash(Atoms6AionElizabeth.new(), location)
+        AionCore::commitLocationReturnHash(Atoms9AionElizabeth.new(), location)
     end
 
     # Atoms0Utils::marbleLocationOrNullUseTheForce(uuid)
@@ -332,7 +332,7 @@ class Atoms5
             return nil
         end
         if atom["type"] == "aion-point" then
-            AionCore::exportHashAtFolder(Atoms6AionElizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(Atoms9AionElizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
                 location = Atoms0Utils::interactivelySelectDesktopLocationOrNull()
                 return nil if location.nil?
@@ -438,7 +438,7 @@ class Atoms5
         end
         if atom["type"] == "aion-point" then
             nhash = atom["payload"]
-            return AionFsck::structureCheckAionHash(Atoms6AionElizabeth.new(), nhash)
+            return AionFsck::structureCheckAionHash(Atoms9AionElizabeth.new(), nhash)
         end
         if atom["type"] == "marble" then
             return true
@@ -452,6 +452,23 @@ class Atoms5
             return true
         end
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
+    end
+end
+
+class Atoms8Nx32Support
+
+    # Atoms8Nx32Support::commitFileReturnPartsHashs(filepath)
+    def self.commitFileReturnPartsHashs(filepath)
+        raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
+        raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
+        hashes = []
+        partSizeInBytes = 1024*1024 # 1 MegaBytes
+        f = File.open(filepath)
+        while ( blob = f.read(partSizeInBytes) ) do
+            hashes << Atoms10BlobService::putBlob(blob)
+        end
+        f.close()
+        hashes
     end
 end
 
@@ -504,14 +521,13 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-class Atoms6AionElizabeth
+class Atoms9AionElizabeth
 
     def initialize()
-
     end
 
     def commitBlob(blob)
-        Atoms7BinaryBlobs::putBlob(blob)
+        Atoms10BlobService::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -519,7 +535,7 @@ class Atoms6AionElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Atoms7BinaryBlobs::getBlobOrNull(nhash)
+        blob = Atoms10BlobService::getBlobOrNull(nhash)
         raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
         blob
     end
@@ -534,17 +550,22 @@ class Atoms6AionElizabeth
     end
 end
 
-class Atoms7BinaryBlobs
+class Atoms10BlobService
 
-    # Atoms7BinaryBlobs::dataRepositoryPath()
-    def self.dataRepositoryPath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/DataRepository-Depth1"
+    # Atoms10BlobService::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "/Users/pascal/Galaxy/Librarian/DataRepository-Depth1"
     end
 
-    # Atoms7BinaryBlobs::putBlob(blob)
+    # Atoms10BlobService::filepathToContentHash(filepath)
+    def self.filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    # Atoms10BlobService::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        folderpath = "#{Atoms7BinaryBlobs::dataRepositoryPath()}/#{nhash[7, 2]}"
+        folderpath = "#{Atoms10BlobService::repositoryFolderPath()}/#{nhash[7, 2]}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
@@ -553,13 +574,38 @@ class Atoms7BinaryBlobs
         nhash
     end
 
-    # Atoms7BinaryBlobs::getBlobOrNull(nhash)
+    # Atoms10BlobService::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        folderpath = "#{Atoms7BinaryBlobs::dataRepositoryPath()}/#{nhash[7, 2]}"
+        folderpath = "#{Atoms10BlobService::repositoryFolderPath()}/#{nhash[7, 2]}"
         filepath = "#{folderpath}/#{nhash}.data"
         if File.exists?(filepath) then
             return IO.read(filepath)
         end
+
+        folderpath = "/Users/pascal/Galaxy/DataBank/Catalyst/DataRepository-Depth1/#{nhash[7, 2]}"
+        filepath = "#{folderpath}/#{nhash}.data"
+        if File.exists?(filepath) then
+            folder0 = "#{Atoms10BlobService::repositoryFolderPath()}/#{nhash[7, 2]}"
+            if !File.exists?(folder0) then
+                FileUtils.mkpath(folder0)
+            end
+            file0 = "#{folder0}/#{nhash}.data"
+            FileUtils.mv(filepath, file0)
+            return IO.read(file0)
+        end
+
+        folderpath = "/Users/pascal/Galaxy/DataBank/Nyx/DataRepository-Depth1/#{nhash[7, 2]}"
+        filepath = "#{folderpath}/#{nhash}.data"
+        if File.exists?(filepath) then
+            folder0 = "#{Atoms10BlobService::repositoryFolderPath()}/#{nhash[7, 2]}"
+            if !File.exists?(folder0) then
+                FileUtils.mkpath(folder0)
+            end
+            file0 = "#{folder0}/#{nhash}.data"
+            FileUtils.mv(filepath, file0)
+            return IO.read(file0)
+        end
+
         nil
     end
 end
