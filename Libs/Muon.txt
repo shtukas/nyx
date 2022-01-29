@@ -1,0 +1,35 @@
+
+- Container (Muon) files are put in Galaxy/DataBank/Muon/MuonFiles/<index>/
+
+- Muon are named <L22>.muon
+
+- Muon files are sqlite3 files with one table:
+    create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)
+
+ClassificationType: "CalendarItem" 
+                    "CatalystTxDated"
+                    "CatalystTxDrop"
+                    "CatalystTxFloat"
+                    "CatalystTxSpaceship"
+                    "CatalystTxTodo"
+                    "CatalystWorkItem"
+                    "CatalystWave"
+                    "PureData"
+                    "PublicEvent"
+                    "PascalPrivateLog"
+
+Muon {
+    "uuid"           : String
+    "filepath"       : String
+    "version"        : "20220128"
+    "description"    : String
+    "datetime"       : DateTime Iso8601
+    "classification" : Array[ClassificationType]
+    "atom"           : Atom
+}
+
+MuonNote {
+    uuid     : String
+    unixtime : Unixtime
+    text     : String
+}
