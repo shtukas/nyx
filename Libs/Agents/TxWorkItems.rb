@@ -4,23 +4,12 @@ class TxWorkItems
 
     # TxWorkItems::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxWorkItems")
-            .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
-    end
-
-    # TxWorkItems::commit(mx51)
-    def self.commit(mx51)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxWorkItems/#{Digest::SHA1.hexdigest(mx51["uuid"])[0, 10]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx51)) }
+        Librarian::classifierToMikus("CatalystWorkItem")
     end
 
     # TxWorkItems::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxWorkItems/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -59,32 +48,39 @@ class TxWorkItems
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid = SecureRandom.uuid
+
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-        mx51 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => ordinal,
-            "description" => description,
-            "atom"        => atom
+
+        uuid           = SecureRandom.uuid
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystWorkItem"
+        extras = {
+            "ordinal" => ordinal
         }
-        TxWorkItems::commit(mx51)
-        mx51
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxWorkItems::issueItemUsingInboxLocation(location)
     def self.issueItemUsingInboxLocation(location)
-        uuid = SecureRandom.uuid
-        item = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "ordinal"     => TxWorkItems::interactivelyDecideNewOrdinal(),
-            "description" => File.basename(location),
-            "atom"        => CoreData5::issueAionPointAtomUsingLocation(location),
+
+        description    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+        atom           = CoreData5::issueAionPointAtomUsingLocation(location)
+        ordinal        = TxWorkItems::interactivelyDecideNewOrdinal()
+
+        uuid           = SecureRandom.uuid
+        description    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+        classification = "CatalystWorkItem"
+        extras         = {
+            "ordinal" => ordinal
         }
-        TxWorkItems::commit(item)
-        item
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
+
     end
 
     # --------------------------------------------------
@@ -115,11 +111,11 @@ class TxWorkItems
 
     # TxWorkItems::accessContent(mx51)
     def self.accessContent(mx51)
-        updated = CoreData5::accessWithOptionToEdit(mx51["atom"])
-        if updated then
-            mx51["atom"] = updated
-            TxWorkItems::commit(mx51)
+        atom = CoreData5::accessWithOptionToEdit(mx51["atom"])
+        if atom then
+            Librarian::updateMikuAtom(mx51["uuid"], atom)
         end
+        Librarian::getMikuOrNull(mx51["uuid"])
     end
 
     # TxWorkItems::run(mx51)
@@ -176,27 +172,27 @@ class TxWorkItems
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(mx51["description"]).strip
                 next if description == ""
-                mx51["description"] = description
-                TxWorkItems::commit(mx51)
+                mx51 = Librarian::updateMikuDescription(mx51["uuid"], description) 
                 next
             end
 
             if Interpreting::match("atom", command) then
-                mx51["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                TxWorkItems::commit(mx51)
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                next if atom.nil?
+                mx51 = Librarian::updateMikuAtom(mx51["uuid"], atom)
                 next
             end
 
             if Interpreting::match("ordinal", command) then
                 ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-                mx51["ordinal"] = ordinal
-                TxWorkItems::commit(mx51)
+                mx51["extras"]["ordinal"] = ordinal
+                Librarian::updateMikuExtras(mx51["uuid"], mx51["extras"])
                 next
             end
 
             if Interpreting::match("rotate", command) then
-                mx51["ordinal"] = TxWorkItems::nextOrdinal()
-                TxWorkItems::commit(mx51)
+                mx51["extras"]["ordinal"] = TxWorkItems::nextOrdinal()
+                Librarian::updateMikuExtras(mx51["uuid"], mx51["extras"])
                 break
             end
 

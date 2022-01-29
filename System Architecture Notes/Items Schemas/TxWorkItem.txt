@@ -1,7 +1,0 @@
-TxWorkItem { # Work Item
-    "uuid"        : uuid
-    "unixtime"    : Float
-    "ordinal"     : Float
-    "description" : String
-    "atom"        : CoreData5.Atom
-}

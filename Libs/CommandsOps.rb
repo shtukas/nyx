@@ -397,17 +397,7 @@ class CommandsOps
 
         if source == "inbox" and target == "TxWorkItem" then
             location = object
-            description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-            ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-            atom = CoreData5::issueAionPointAtomUsingLocation(location)
-            mx51 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "ordinal"     => ordinal,
-                "description" => description,
-                "atom"        => atom
-            }
-            TxWorkItems::commit(mx51)
+            TxWorkItems::issueItemUsingInboxLocation(location)
             LucilleCore::removeFileSystemLocation(location)
             return
         end
@@ -439,15 +429,9 @@ class CommandsOps
 
         if source == "TxDrop" and target == "TxWorkItem" then
             ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-            mx51 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "ordinal"     => ordinal,
-                "description" => object["description"],
-                "atom"        => object["atom"]
-            }
-            TxWorkItems::commit(mx51)
-            TxDrops::destroy(object["uuid"])
+            miku = Librarian::updateMikuClassification(object["uuid"], "CatalystWorkItem")
+            miku["extras"]["ordinal"] = ordinal
+            Librarian::updateMikuExtras(object["uuid"], miku["extras"])
             return
         end
 
@@ -470,19 +454,7 @@ class CommandsOps
         end
 
         if source == "TxWorkItem" and target == "TxFloat" then
-            uuid           = SecureRandom.uuid
-            description    = object["description"]
-            atom           = object["atom"]
-            unixtime       = Time.new.to_i
-            datetime       = Time.new.utc.iso8601
-            classification = "CatalystTxFloat"
-            extras = {
-                "domainx" => object["domainx"]
-            }
-            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-            Librarian::getMikuOrNull(uuid)
-
-            TxWorkItems::destroy(object["uuid"])
+            Librarian::updateMikuClassification(object["uuid"], "CatalystTxFloat")
             return
         end
 
