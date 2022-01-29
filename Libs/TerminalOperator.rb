@@ -86,7 +86,6 @@ class NS16sOperator
                     "ordinal" => ordinal
                 }
                 Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-                Librarian::getMikuOrNull(uuid)
 
                 LucilleCore::removeFileSystemLocation(location)
             }

@@ -168,3 +168,20 @@ require_relative "TerminalOperator.rb"
 require_relative "Utils.rb"
 
 # ------------------------------------------------------------
+
+$LibrarianInMemoryCacheHash = {} # Map[UUID, Miku]
+
+class LibrarianInMemoryCache
+
+    # LibrarianInMemoryCache::load()
+    def self.load()
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles").each{|filepath|
+            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+            $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
+        }
+    end
+end
+
+puts "Caching data into memory..."
+LibrarianInMemoryCache::load()
+

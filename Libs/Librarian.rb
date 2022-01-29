@@ -153,27 +153,47 @@ class Librarian
     end
 
     # Librarian::mikufilepaths()
-    def self.mikufilepaths()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
-    end
+    #def self.mikufilepaths()
+    #    LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+    #end
 
     # Librarian::classifierToFilepaths(classifier)
-    def self.classifierToFilepaths(classifier)
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
-            .select{|filepath|
-                miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-                miku["classification"] == classifier
-            }
-    end
+    #def self.classifierToFilepaths(classifier)
+    #    LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+    #        .select{|filepath|
+    #            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+    #            miku["classification"] == classifier
+    #        }
+    #end
 
     # Librarian::uuidToFilepathOrNull(uuid)
     def self.uuidToFilepathOrNull(uuid)
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
-            .select{|filepath|
-                miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-                miku["uuid"] == uuid
-            }
-            .first
+
+        filepath = KeyValueStore::getOrNull(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}")
+        if filepath and File.exists?(filepath) then
+            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+            if miku["uuid"] == uuid then
+                return filepath
+            end
+        end
+
+        useTheForce = lambda {|uuid|
+            puts "Using the Force to find filepath for uuid: #{uuid}"
+            LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+                .select{|filepath|
+                    miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+                    miku["uuid"] == uuid
+                }
+                .first
+        }
+
+        filepath = useTheForce.call()
+
+        return nil if filepath.nil?
+
+        KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}", filepath)
+
+        filepath
     end
 
     # ------------------------------------------------
@@ -275,7 +295,9 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuDescriptionAtFilepath(filepath, description)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
+        miku
     end
 
     # Librarian::updateMikuDatetime(uuid, datetime)  # Miku
@@ -283,7 +305,9 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuDatetimeAtFilepath(filepath, datetime)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
+        miku
     end
 
     # Librarian::updateMikuClassification(uuid, classification)  # Miku
@@ -291,7 +315,9 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuClassificationAtFilepath(filepath, classification)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
+        miku
     end
 
     # Librarian::updateMikuAtom(uuid, atom)  # Miku
@@ -299,7 +325,9 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuAtomAtFilepath(filepath, atom)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
+        miku
     end
 
     # Librarian::updateMikuExtras(uuid, extras)  # Miku
@@ -307,7 +335,9 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuExtrasAtFilepath(filepath, extras)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
+        miku
     end
 
     # ------------------------------------------------
@@ -316,9 +346,11 @@ class Librarian
 
     # Librarian::classifierToMikus(classifier)
     def self.classifierToMikus(classifier)
-        Librarian::classifierToFilepaths(classifier)
-            .map{|filepath|
-                Librarian::readMikuObjectFromMikuFileOrError(filepath)
-            }
+        #Librarian::classifierToFilepaths(classifier)
+        #    .map{|filepath|
+        #        Librarian::readMikuObjectFromMikuFileOrError(filepath)
+        #    }
+
+        $LibrarianInMemoryCacheHash.values.select{|miku| miku["classification"] == classifier }
     end
 end
