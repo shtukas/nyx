@@ -247,32 +247,36 @@ class Librarian
     # Public Updates
     # ------------------------------------------------
 
-    # Librarian::updateMikuDescription(uuid, description)
+    # Librarian::updateMikuDescription(uuid, description) # Miku
     def self.updateMikuDescription(uuid, description)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuDescriptionAtFilepath(filepath, description)
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
-    # Librarian::updateMikuDatetime(uuid, datetime)
+    # Librarian::updateMikuDatetime(uuid, datetime)  # Miku
     def self.updateMikuDatetime(uuid, datetime)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuDatetimeAtFilepath(filepath, datetime)
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
-    # Librarian::updateMikuClassification(uuid, classification)
+    # Librarian::updateMikuClassification(uuid, classification)  # Miku
     def self.updateMikuClassification(uuid, classification)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuClassificationAtFilepath(filepath, classification)
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
-    # Librarian::updateMikuAtom(uuid, atom)
+    # Librarian::updateMikuAtom(uuid, atom)  # Miku
     def self.updateMikuAtom(uuid, atom)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuAtomAtFilepath(filepath, atom)
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # ------------------------------------------------
