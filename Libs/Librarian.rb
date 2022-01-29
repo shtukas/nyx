@@ -82,10 +82,12 @@ class Librarian
         uuid           = nil
         version        = nil
         description    = nil
+        unixtime       = nil
         datetime       = nil
         classification = nil
         atom           = nil
         notes          = nil
+        extras         = nil
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -95,12 +97,19 @@ class Librarian
         db.execute("select * from _table1_ where _name_=?", ["uuid"]) do |row|
             uuid = row['_data_']
         end
+
         db.execute("select * from _table1_ where _name_=?", ["version"]) do |row|
             version = row['_data_']
         end
+
         db.execute("select * from _table1_ where _name_=?", ["description"]) do |row|
             description = row['_data_']
         end
+
+        db.execute("select * from _table1_ where _name_=?", ["unixtime"]) do |row|
+            unixtime = row['_data_']
+        end
+
         db.execute("select * from _table1_ where _name_=?", ["datetime"]) do |row|
             datetime = row['_data_']
         end
@@ -123,16 +132,22 @@ class Librarian
             }
         end
 
+        db.execute("select * from _table1_ where _name_=?", ["extras"]) do |row|
+            extras = JSON.parse(row['_data_'])
+        end
+
         db.close
 
         {
             "uuid"           => uuid,
             "version"        => version,
             "description"    => description,
+            "unixtime"       => unixtime,
             "datetime"       => datetime,
             "classification" => classification,
             "atom"           => atom,
-            "notes"          => notes
+            "notes"          => notes,
+            "extras"         => extras,
         }
     end
 
@@ -140,33 +155,38 @@ class Librarian
     def self.interactivelyCreateNewMikuOrNull()
         uuid           = SecureRandom.uuid
         description    = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        unixtime       = Time.new.to_f
         datetime       = Time.new.utc.iso8601
         classification = Librarian::interactivelySelectClassifierOrNull()
         atom           = CoreData5::interactivelyCreateNewAtomOrNull()
 
-        filepath = Librarian::spawnNewMikuFileOrError(uuid, description, datetime, classification, atom)
+        filepath = Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
 
         Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # Librarian::mikufilepaths()
     def self.mikufilepaths()
-        [
-            "/Users/pascal/Galaxy/Librarian/MikuFiles/20220129-165719-974378.miku"
-        ]
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
     end
 
     # Librarian::classifierToFilepaths(classifier)
     def self.classifierToFilepaths(classifier)
-        [
-            "/Users/pascal/Galaxy/Librarian/MikuFiles/20220129-165719-974378.miku"
-        ]
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+            .select{|filepath|
+                miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+                miku["classification"].include?(classifier)
+            }
     end
 
     # Librarian::uuidToFilepathOrNull(uuid)
     def self.uuidToFilepathOrNull(uuid)
-        raise "6629c6f9-3667-4ee5-8e74-af20c25cb2b6" if uuid != "686b4e1b-6128-47c9-8f87-c391d2b395f2"
-        "/Users/pascal/Galaxy/Librarian/MikuFiles/20220129-165719-974378.miku"
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+            .select{|filepath|
+                miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+                miku["uuid"] == uuid
+            }
+            .first
     end
 
     # ------------------------------------------------
@@ -204,12 +224,19 @@ class Librarian
         db.close
     end
 
+    # Librarian::updateMikuExtrasAtFilepath(filepath, extras)
+    def self.updateMikuExtrasAtFilepath(filepath, extras)
+        db = SQLite3::Database.new(filepath)
+        db.execute "update _table1_ set _data_=? where _name_=?", [JSON.generate(extras), "extras"]
+        db.close
+    end
+
     # ------------------------------------------------
     # Public Creation
     # ------------------------------------------------
 
-    # Librarian::spawnNewMikuFileOrError(uuid, description, datetime, classification, atom) # filepath
-    def self.spawnNewMikuFileOrError(uuid, description, datetime, classification, atom)
+    # Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras) # filepath
+    def self.spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
         # decide filename
         filename = Librarian::newMikuFilename()
 
@@ -225,9 +252,10 @@ class Librarian
         db.busy_handler { |count| true }
         db.execute "create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)", []
 
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "version", "20220128"]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", uuid]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "version", "20220128"]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", description]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", unixtime]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", datetime]
 
         classification.each{|classifier|
@@ -235,12 +263,22 @@ class Librarian
         }
 
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(atom)]
+
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "extras", JSON.generate(extras)]
+
         db.close
 
         # checks
 
         # return filepath
         filepath
+    end
+
+    # Librarian::getMikuOrNull(uuid)
+    def self.getMikuOrNull(uuid)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return nil if filepath.nil?
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # ------------------------------------------------
@@ -276,6 +314,14 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuAtomAtFilepath(filepath, atom)
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
+    end
+
+    # Librarian::updateMikuExtras(uuid, extras)  # Miku
+    def self.updateMikuExtras(uuid, extras)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return if filepath.nil?
+        Librarian::updateMikuExtrasAtFilepath(filepath, extras)
         Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 

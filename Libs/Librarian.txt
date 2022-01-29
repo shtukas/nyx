@@ -29,10 +29,12 @@ TxMiku {
     "filepath"       : String
     "version"        : "20220128"
     "description"    : String
-    "datetime"       : DateTime Iso8601
+    "unixtime"       : Float # Often the creation time, sometimes used for ordering
+    "datetime"       : DateTime Iso8601 # Contextual editable time
     "classification" : Array[TxClassifier]
     "atom"           : Atom
     "notes"          : Array[MTxNote]
+    "extras"         : Object # keys/values pairing for non standard attributes. 
 }
 
 
