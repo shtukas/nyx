@@ -105,8 +105,8 @@ class CommandsOps
 
         if object["NS198"] == "NS16:TxDated" and command == "redate" then
             mx49 = object["TxDated"]
-            mx49["datetime"] = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
-            TxDateds::commit(mx49)
+            datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
+            Librarian::updateMikuDatetime(mx49["uuid"], datetime)
         end
 
         if object["NS198"] == "NS16:TxDated" and command == ">>" then
@@ -474,13 +474,14 @@ class CommandsOps
         end
 
         if source == "TxDrop" and target == "TxSpaceship" then
+            miku = object
             spaceship = {
                 "uuid"        => SecureRandom.uuid,
                 "unixtime"    => Time.new.to_i,
                 "ordinal"     => ordinal,
-                "description" => object["description"],
-                "atom"        => object["atom"],
-                "domainx"     => object["domainx"]
+                "description" => miku["description"],
+                "atom"        => miku["atom"],
+                "domainx"     => miku["extras"]["domainx"]
             }
             TxSpaceships::commit(spaceship)
             TxDrops::destroy(object["uuid"])
@@ -504,15 +505,16 @@ class CommandsOps
         if source == "TxSpaceship" and target == "TxDated" then
             nx60 = object
             datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            mx49 = {
-                "uuid"        => SecureRandom.uuid,
-                "unixtime"    => Time.new.to_i,
-                "description" => nx60["description"],
-                "datetime"    => datetime,
-                "atom"        => nx60["atom"],
-                "domainx"     => nx60["domainx"]
+            uuid           = SecureRandom.uuid
+            description    = nx60["description"]
+            unixtime       = Time.new.to_i
+            classification = "CatalystTxDated"
+            atom           = nx60["atom"]
+            extras = {
+                "domainx" => nx60["domainx"]
             }
-            TxDateds::commit(mx49)
+            Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+
             TxSpaceships::destroy(nx60["uuid"])
             return
         end

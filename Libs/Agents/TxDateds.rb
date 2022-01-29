@@ -4,22 +4,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxDateds")
-            .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
-    end
-
-    # TxDateds::commit(mx49)
-    def self.commit(mx49)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDateds/#{Digest::SHA1.hexdigest(mx49["uuid"])[0, 10]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(mx49)) }
+        Librarian::classifierToMikus("CatalystTxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/TxDateds/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -29,38 +19,40 @@ class TxDateds
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid = SecureRandom.uuid
+
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        mx49 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "datetime"    => datetime,
-            "atom"        => atom,
-            "domainx"     => DomainsX::interactivelySelectDomainX()
+
+        uuid           = SecureRandom.uuid
+        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        domainx        = DomainsX::interactivelySelectDomainX()
+        unixtime       = Time.new.to_i
+
+        classification = "CatalystTxDated"
+        extras = {
+            "domainx" => domainx
         }
-        TxDateds::commit(mx49)
-        mx49
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxDateds::interactivelyCreateNewTodayOrNull()
     def self.interactivelyCreateNewTodayOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid = SecureRandom.uuid
-        datetime = Time.new.utc.iso8601
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
-        mx49 = {
-            "uuid"        => uuid,
-            "unixtime"    => Time.new.to_i,
-            "description" => description,
-            "datetime"    => datetime,
-            "atom"        => atom
+
+        uuid           = SecureRandom.uuid
+        atom           = CoreData5::interactivelyCreateNewAtomOrNull()
+        domainx        = DomainsX::interactivelySelectDomainX()
+        unixtime       = Time.new.to_i
+        datetime       = Time.new.utc.iso8601
+
+        classification = "CatalystTxDated"
+        extras = {
+            "domainx" => domainx
         }
-        TxDateds::commit(mx49)
-        mx49
+        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -81,11 +73,11 @@ class TxDateds
 
     # TxDateds::accessContent(mx49)
     def self.accessContent(mx49)
-        updated = CoreData5::accessWithOptionToEdit(mx49["atom"])
-        if updated then
-            mx49["atom"] = updated
-            TxDateds::commit(mx49)
+        atom = CoreData5::accessWithOptionToEdit(mx49["atom"])
+        if atom then
+            Librarian::updateMikuAtom(mx49["uuid"], atom)
         end
+        Librarian::getMikuOrNull(mx49["uuid"])
     end
 
     # TxDateds::run(mx49)
@@ -126,14 +118,14 @@ class TxDateds
             break if command == "xx"
 
             if Interpreting::match("access", command) then
-                TxDateds::accessContent(mx49)
+                mx49 = TxDateds::accessContent(mx49)
                 next
             end
 
             if Interpreting::match("date", command) then
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-                mx49["datetime"] = datetime
-                TxDateds::commit(mx49)
+                next if datetime.nil?
+                mx49 = Librarian::updateMikuDatetime(mx49["uuid"], datetime)
                 next
             end
 
@@ -146,14 +138,14 @@ class TxDateds
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(mx49["description"]).strip
                 next if description == ""
-                mx49["description"] = description
-                TxDateds::commit(mx49)
+                mx49 = Librarian::updateMikuDescription(mx49["uuid"], description)
                 next
             end
 
             if Interpreting::match("atom", command) then
-                mx49["atom"] = CoreData5::interactivelyCreateNewAtomOrNull()
-                TxDateds::commit(mx49)
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                next if atom.nil?
+                mx49 = Librarian::updateMikuAtom(mx49["uuid"], atom)
                 next
             end
 
@@ -212,7 +204,7 @@ class TxDateds
     def self.ns16s()
         focus = DomainsX::focusOrNull()
         TxDateds::items()
-            .select{|item| focus.nil? or (item["domainx"] == focus) }
+            .select{|item| focus.nil? or (item["extras"]["domainx"] == focus) }
             .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .map{|mx49| TxDateds::ns16(mx49) }
