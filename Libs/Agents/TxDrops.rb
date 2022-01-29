@@ -2,16 +2,9 @@ j# encoding: UTF-8
 
 class TxDrops
 
-    # TxDrops::mikuToTxDrop(miku)
-    def self.mikuToTxDrop(miku)
-        miku["domainx"] == miku["extras"]["domainx"]
-        miku
-    end
-
-    # TxDrops::items()
-    def self.items()
+    # TxDrops::mikus()
+    def self.mikus()
         Librarian::classifierToMikus("CatalystTxDrop")
-            .map{|miku| TxDrops::mikuToTxDrop(miku) }
     end
 
     # TxDrops::destroy(uuid)
@@ -66,8 +59,7 @@ class TxDrops
         if atom then
             Librarian::updateMikuAtom(nx70["uuid"], atom)
         end
-        miku = Librarian::getMikuOrNull(nx70["uuid"])
-        TxDrops::mikuToTxDrop(miku)
+        Librarian::getMikuOrNull(nx70["uuid"])
     end
 
     # TxDrops::run(nx70)
@@ -126,16 +118,14 @@ class TxDrops
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(nx70["description"]).strip
                 next if description == ""
-                miku = Librarian::updateMikuDescription(nx70["uuid"], description) 
-                nx70 = TxDrops::mikuToTxDrop(miku)
+                nx70 = Librarian::updateMikuDescription(nx70["uuid"], description) 
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = CoreData5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                miku = Librarian::updateMikuAtom(nx70["uuid"], atom) 
-                nx70 = TxDrops::mikuToTxDrop(miku)
+                nx70 = Librarian::updateMikuAtom(nx70["uuid"], atom)
                 next
             end
 
@@ -188,8 +178,8 @@ class TxDrops
     # TxDrops::ns16s()
     def self.ns16s()
         focus = DomainsX::focusOrNull()
-        TxDrops::items()
-            .select{|item| focus.nil? or (item["domainx"] == focus) }
+        TxDrops::mikus()
+            .select{|item| focus.nil? or (miku["extras"]["domainx"] == focus) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxDrops::ns16(item) }
     end
@@ -198,7 +188,7 @@ class TxDrops
 
     # TxDrops::nx19s()
     def self.nx19s()
-        TxDrops::items().map{|item|
+        TxDrops::mikus().map{|item|
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxDrops::toStringForNS19(item),
