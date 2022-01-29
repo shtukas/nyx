@@ -24,7 +24,7 @@ class TxDrops
         domainx        = DomainsX::interactivelySelectDomainX()
         unixtime       = Time.new.to_i
         datetime       = Time.new.utc.iso8601
-        classification = ["CatalystTxDrop"]
+        classification = "CatalystTxDrop"
         extras = {
             "domainx" => domainx
         }

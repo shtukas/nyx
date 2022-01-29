@@ -54,26 +54,14 @@ class Librarian
         ]
     end
 
-    # Librarian::interactivelySelectOneClassifierOrNull()
-    def self.interactivelySelectOneClassifierOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("classifier", Librarian::classifiers())
-    end
-
-    # Librarian::interactivelySelectClassifierOrNull()
-    def self.interactivelySelectClassifierOrNull()
-        classification = []
-        loop {
-            type = Librarian::interactivelySelectOneClassifierOrNull()
-            if type.nil? and classification.empty? then
-                next
-            end
-            break if type.nil?
-            classification << type
-            classification = classification.uniq
-            puts ""
-            puts "currently selected: #{classification.join(", ")}"
-        }
-        classification
+    # Librarian::interactivelySelectOneClassifier()
+    def self.interactivelySelectOneClassifier()
+        classifier = LucilleCore::selectEntityFromListOfEntitiesOrNull("classifier", Librarian::classifiers())
+        if classifier then
+            classifier 
+        else
+            Librarian::interactivelySelectOneClassifier()
+        end
     end
 
     # Librarian::readMikuObjectFromMikuFileOrError(filepath)
@@ -114,9 +102,8 @@ class Librarian
             datetime = row['_data_']
         end
 
-        classification = []
         db.execute("select * from _table1_ where _name_=?", ["classification"]) do |row|
-            classification << row['_data_']
+            classification = row['_data_']
         end
 
         db.execute("select * from _table1_ where _name_=?", ["atom"]) do |row|
@@ -157,7 +144,7 @@ class Librarian
         description    = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         unixtime       = Time.new.to_f
         datetime       = Time.new.utc.iso8601
-        classification = Librarian::interactivelySelectClassifierOrNull()
+        classification = Librarian::interactivelySelectOneClassifier()
         atom           = CoreData5::interactivelyCreateNewAtomOrNull()
 
         filepath = Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
@@ -175,7 +162,7 @@ class Librarian
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
             .select{|filepath|
                 miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-                miku["classification"].include?(classifier)
+                miku["classification"] == classifier
             }
     end
 
@@ -210,10 +197,7 @@ class Librarian
     # Librarian::updateMikuClassificationAtFilepath(filepath, classification)
     def self.updateMikuClassificationAtFilepath(filepath, classification)
         db = SQLite3::Database.new(filepath)
-        db.execute "delete from _table1_ where _name_=?", ["classification"]
-        classification.each{|classifier|
-            db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classifier]
-        }
+        db.execute "update _table1_ set _data_=? where _name_=?", [classification, "classification"]
         db.close
     end
 
@@ -257,13 +241,8 @@ class Librarian
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", description]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", unixtime]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", datetime]
-
-        classification.each{|classifier|
-            db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classifier]
-        }
-
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classification]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(atom)]
-
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "extras", JSON.generate(extras)]
 
         db.close

@@ -448,7 +448,7 @@ class CommandsOps
             description    = object["description"]
             unixtime       = object["unixtime"]
             datetime       = Time.new.utc.iso8601
-            classification = ["CatalystTxDrop"]
+            classification = "CatalystTxDrop"
             atom           = object["atom"]
             extras = {
                 "domainx" => object["domainx"]

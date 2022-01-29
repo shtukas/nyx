@@ -6,17 +6,18 @@
 - Miku files are sqlite3 files with one table:
     create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)
 
-TxClassifier: "CalendarItem" 
-                      "CatalystTxDated"
-                      "CatalystTxDrop"
-                      "CatalystTxFloat"
-                      "CatalystTxSpaceship"
-                      "CatalystTxTodo"
-                      "CatalystWorkItem"
-                      "CatalystWave"
-                      "PureData"
-                      "PublicEvent"
-                      "PascalPrivateLog"
+TxClassifier: 
+    "CalendarItem" 
+    "CatalystTxDated"
+    "CatalystTxDrop"
+    "CatalystTxFloat"
+    "CatalystTxSpaceship"
+    "CatalystTxTodo"
+    "CatalystWorkItem"
+    "CatalystWave"
+    "PureData"
+    "PublicEvent"
+    "PascalPrivateLog"
 
 MTxNote {
     uuid     : String
@@ -31,7 +32,7 @@ TxMiku {
     "description"    : String
     "unixtime"       : Float # Often the creation time, sometimes used for ordering
     "datetime"       : DateTime Iso8601 # Contextual editable time
-    "classification" : Array[TxClassifier]
+    "classification" : TxClassifier
     "atom"           : Atom
     "notes"          : Array[MTxNote]
     "extras"         : Object # keys/values pairing for non standard attributes. 
