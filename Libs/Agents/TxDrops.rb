@@ -2,9 +2,22 @@ j# encoding: UTF-8
 
 class TxDrops
 
+    # TxDrops::shapeX()
+    def self.shapeX()
+        [
+            ["uuid"           , "string"],
+            ["description"    , "string"],
+            ["unixtime"       , "float"],
+            ["datetime"       , "string"],
+            ["classification" , "string"],
+            ["atom"           , "json"],
+            ["domainx"        , "string"],
+        ]
+    end
+
     # TxDrops::mikus()
     def self.mikus()
-        Librarian::classifierToMikus("CatalystTxDrop")
+        Librarian::classifierToShapeXeds("TxDrop", TxDrops::shapeX())
     end
 
     # TxDrops::destroy(uuid)
@@ -19,17 +32,20 @@ class TxDrops
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        uuid           = SecureRandom.uuid
-        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
-        domainx        = DomainsX::interactivelySelectDomainX()
-        unixtime       = Time.new.to_i
-        datetime       = Time.new.utc.iso8601
-        classification = "CatalystTxDrop"
-        extras = {
-            "domainx" => domainx
-        }
-        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-        Librarian::getMikuOrNull(uuid)
+
+        uuid = SecureRandom.uuid
+
+        object = {}
+        object["uuid"]           = uuid
+        object["description"]    = description
+        object["unixtime"]       = Time.new.to_i
+        object["datetime"]       = Time.new.utc.iso8601
+        object["classification"] = "TxDrop"
+        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
+        object["domainx"]        = DomainsX::interactivelySelectDomainX()
+
+        Librarian::issueNewFileWithShapeX(object, TxDrops::shapeX())
+        Librarian::getShapeXed1OrNull(uuid, TxDrops::shapeX())
     end
 
     # --------------------------------------------------
@@ -63,7 +79,7 @@ class TxDrops
         NxBallsService::issue(
             uuid, 
             TxDrops::toString(nx70), 
-            [uuid, DomainsX::domainXToAccountNumber(nx70["extras"]["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(nx70["domainx"])]
         )
 
         loop {
@@ -96,7 +112,8 @@ class TxDrops
             end
 
             if Interpreting::match("access", command) then
-                nx70 = Librarian::accessMikuAtomReturnMiku(nx70)
+                Librarian::accessMikuAtom(nx70)
+                nx70 = Librarian::getShapeXed1OrNull(nx70["uuid"], TxDrops::shapeX())
                 next
             end
 
@@ -109,7 +126,8 @@ class TxDrops
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(nx70["description"]).strip
                 next if description == ""
-                nx70 = Librarian::updateMikuDescription(nx70["uuid"], description) 
+                nx70["description"] = description
+                Librarian::setValue(nx70["uuid"], "description", description)
                 next
             end
 
@@ -170,7 +188,7 @@ class TxDrops
     def self.ns16s()
         focus = DomainsX::focusOrNull()
         TxDrops::mikus()
-            .select{|item| focus.nil? or (miku["extras"]["domainx"] == focus) }
+            .select{|item| focus.nil? or (miku["domainx"] == focus) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxDrops::ns16(item) }
     end

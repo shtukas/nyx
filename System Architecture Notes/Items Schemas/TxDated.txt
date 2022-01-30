@@ -1,0 +1,20 @@
+
+TxDated = {
+  "uuid"           : String
+  "description"    : String
+  "unixtime"       : Float
+  "datetime"       : DateTime Iso8601
+  "classification" : TxClassifier # "TxDated"
+  "atom"           : Atom
+  "domainx"        : "eva" | "work"
+}
+
+shapeX = [
+    ["uuid"           , "string"],
+    ["description"    , "string"],
+    ["unixtime"       , "float"],
+    ["datetime"       , "string"],
+    ["classification" , "string"],
+    ["atom"           , "json"],
+    ["domainx"        , "string"],
+]

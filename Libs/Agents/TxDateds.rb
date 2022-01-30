@@ -2,9 +2,22 @@
 
 class TxDateds
 
+    # TxDateds::shapeX()
+    def self.shapeX()
+        [
+            ["uuid"           , "string"],
+            ["description"    , "string"],
+            ["unixtime"       , "float"],
+            ["datetime"       , "string"],
+            ["classification" , "string"],
+            ["atom"           , "json"],
+            ["domainx"        , "string"],
+        ]
+    end
+
     # TxDateds::items()
     def self.items()
-        Librarian::classifierToMikus("CatalystTxDated")
+        Librarian::classifierToShapeXeds("TxDated", TxDateds::shapeX())
     end
 
     # TxDateds::destroy(uuid)
@@ -23,17 +36,19 @@ class TxDateds
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
 
-        uuid           = SecureRandom.uuid
-        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
-        domainx        = DomainsX::interactivelySelectDomainX()
-        unixtime       = Time.new.to_i
+        uuid = SecureRandom.uuid
 
-        classification = "CatalystTxDated"
-        extras = {
-            "domainx" => domainx
-        }
-        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-        Librarian::getMikuOrNull(uuid)
+        object = {}
+        object["uuid"]           = uuid
+        object["description"]    = description
+        object["unixtime"]       = Time.new.to_i
+        object["datetime"]       = datetime
+        object["classification"] = "TxDated"
+        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
+        object["domainx"]        = DomainsX::interactivelySelectDomainX()
+
+        Librarian::issueNewFileWithShapeX(object, TxDateds::shapeX())
+        Librarian::getShapeXed1OrNull(uuid, TxDateds::shapeX())
     end
 
     # TxDateds::interactivelyCreateNewTodayOrNull()
@@ -41,18 +56,20 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        uuid           = SecureRandom.uuid
-        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
-        domainx        = DomainsX::interactivelySelectDomainX()
-        unixtime       = Time.new.to_i
-        datetime       = Time.new.utc.iso8601
+        uuid = SecureRandom.uuid
 
-        classification = "CatalystTxDated"
-        extras = {
-            "domainx" => domainx
-        }
-        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-        Librarian::getMikuOrNull(uuid)
+        object = {}
+        object["uuid"]           = uuid
+        object["description"]    = description
+        object["unixtime"]       = Time.new.to_i
+        object["datetime"]       = Time.new.utc.iso8601
+        object["classification"] = "TxDated"
+        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
+        object["domainx"]        = DomainsX::interactivelySelectDomainX()
+
+        Librarian::issueNewFileWithShapeX(object, TxDateds::shapeX())
+        Librarian::getShapeXed1OrNull(uuid, TxDateds::shapeX())
+
     end
 
     # --------------------------------------------------
@@ -81,7 +98,7 @@ class TxDateds
         NxBallsService::issue(
             uuid, 
             TxDateds::toString(mx49), 
-            [uuid, DomainsX::domainXToAccountNumber(mx49["extras"]["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(mx49["domainx"])]
         )
 
         loop {
@@ -109,14 +126,16 @@ class TxDateds
             break if command == "xx"
 
             if Interpreting::match("access", command) then
-                mx49 = Librarian::accessMikuAtomReturnMiku(mx49)
+                Librarian::accessMikuAtom(mx49)
+                mx49 = Librarian::getShapeXed1OrNull(mx49["uuid"], TxDateds::shapeX())
                 next
             end
 
             if Interpreting::match("date", command) then
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
-                mx49 = Librarian::updateMikuDatetime(mx49["uuid"], datetime)
+                mx49["datetime"] = datetime
+                Librarian::setValue(mx49["uuid"], "datetime", datetime)
                 next
             end
 
@@ -129,7 +148,8 @@ class TxDateds
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(mx49["description"]).strip
                 next if description == ""
-                mx49 = Librarian::updateMikuDescription(mx49["uuid"], description)
+                mx49["description"] = description
+                Librarian::setValue(mx49["uuid"], "description", description)
                 next
             end
 
@@ -195,7 +215,7 @@ class TxDateds
     def self.ns16s()
         focus = DomainsX::focusOrNull()
         TxDateds::items()
-            .select{|item| focus.nil? or (item["extras"]["domainx"] == focus) }
+            .select{|item| focus.nil? or (item["domainx"] == focus) }
             .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .map{|mx49| TxDateds::ns16(mx49) }

@@ -99,7 +99,6 @@ class LibrarianMikuAtomElizabeth
 
         return blob if blob
 
-        puts "[Looking for nhash: #{nhash}, at mikufilepath: #{@mikufilepath}, did not find it]"
         blob = Atoms10BlobService::getBlobOrNull(nhash)
         if blob then
             commitBlob(blob)
@@ -122,6 +121,70 @@ class LibrarianMikuAtomElizabeth
         rescue
             false
         end
+    end
+end
+
+class LibrarianUuidClassifierOrdinalIndex
+
+    # LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
+    def self.setRecord(uuid, classifier, ordinal)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/uuid-classifier-ordinal.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _index_ where _uuid_=?", [uuid]
+        db.execute "insert into _index_ (_uuid_, _classifier_, _ordinal_) values (?,?,?)", [uuid, classifier, ordinal]
+        db.commit 
+        db.close
+    end
+
+    # LibrarianUuidClassifierOrdinalIndex::deleteRecord(uuid)
+    def self.deleteRecord(uuid)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/uuid-classifier-ordinal.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _index_ where _uuid_=?", [uuid]
+        db.commit 
+        db.close
+    end
+
+    # LibrarianUuidClassifierOrdinalIndex::getUUIDs(classifier)
+    def self.getUUIDs(classifier)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/uuid-classifier-ordinal.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select * from _index_ where _classifier_=?", [classifier]) do |row|
+            uuids << row['_uuid_']
+        end
+        db.close
+        uuids
+    end
+
+    # LibrarianUuidClassifierOrdinalIndex::getUUIDsLimitByOrdinal(classifier, n)
+    def self.getUUIDsLimitByOrdinal(classifier, n)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/uuid-classifier-ordinal.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select * from _index_ where _classifier_=? order by _ordinal_ limit ?", [classifier, n]) do |row|
+            uuids << row['_uuid_']
+        end
+        db.close
+        uuids
+    end
+
+    # LibrarianUuidClassifierOrdinalIndex::batch()
+    def self.batch()
+        Librarian::mikufilepaths().each{|filepath|
+            uuid       = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
+            classifier = Librarian::getValueAtFilepathOrNull(filepath, "classification")
+            ordinal    = Librarian::getValueAtFilepathOrNull(filepath, "ordinal") || 0
+            LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
+        }
     end
 end
 
@@ -155,13 +218,13 @@ class Librarian
     def self.classifiers()
         [
             "CalendarItem",
-            "CatalystTxDated",
-            "CatalystTxDrop",
-            "CatalystTxFloat",
-            "CatalystTxSpaceship",
-            "CatalystTxTodo",
-            "CatalystWorkItem",
-            "CatalystWave",
+            "TxDated",
+            "TxDrop",
+            "TxFloat",
+            "TxSpaceship",
+            "TxTodo",
+            "TxWorkItem",
+            "Wave",
             "PureData",
             "PublicEvent",
             "PascalPrivateLog",
@@ -177,146 +240,6 @@ class Librarian
         else
             Librarian::interactivelySelectOneClassifier()
         end
-    end
-
-    # Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    def self.readMikuObjectFromMikuFileOrError(filepath)
-
-        uuid           = nil
-        version        = nil
-        description    = nil
-        unixtime       = nil
-        datetime       = nil
-        classification = nil
-        atom           = nil
-        notes          = nil
-        extras         = nil
-
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-
-        db.execute("select * from _table1_ where _name_=?", ["uuid"]) do |row|
-            uuid = row['_data_']
-        end
-
-        db.execute("select * from _table1_ where _name_=?", ["version"]) do |row|
-            version = row['_data_']
-        end
-
-        db.execute("select * from _table1_ where _name_=?", ["description"]) do |row|
-            description = row['_data_']
-        end
-
-        db.execute("select * from _table1_ where _name_=?", ["unixtime"]) do |row|
-            unixtime = row['_data_']
-        end
-
-        db.execute("select * from _table1_ where _name_=?", ["datetime"]) do |row|
-            datetime = row['_data_']
-        end
-
-        db.execute("select * from _table1_ where _name_=?", ["classification"]) do |row|
-            classification = row['_data_']
-        end
-
-        db.execute("select * from _table1_ where _name_=?", ["atom"]) do |row|
-            atom = JSON.parse(row['_data_'])
-        end
-
-        notes = []
-        db.execute("select * from _table1_ where _name_=? order by _unixtime_", ["note"]) do |row|
-            notes << {
-                "uuid"     => row["_recorduuid_"],
-                "unixtime" => row["_unixtime_"],
-                "text"     => row["_data_"]
-            }
-        end
-
-        db.execute("select * from _table1_ where _name_=?", ["extras"]) do |row|
-            extras = JSON.parse(row['_data_'])
-        end
-
-        db.close
-
-        {
-            "uuid"           => uuid,
-            "version"        => version,
-            "description"    => description,
-            "unixtime"       => unixtime,
-            "datetime"       => datetime,
-            "classification" => classification,
-            "atom"           => atom,
-            "notes"          => notes,
-            "extras"         => extras,
-        }
-    end
-
-    # Librarian::getShapeXedAtFilepath1(filepath, shapeX)
-    def self.getShapeXedAtFilepath1(filepath, shapeX)
-        object = {}
-
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-
-        shapeX.each{|shape|
-            value = nil
-            db.execute("select * from _table1_ where _name_=?", [shape[0]]) do |row|
-                value = row['_data_']
-                if shape[1] == "integer" then
-                    value = value.to_i
-                end
-                if shape[1] == "float" then
-                    value = value.to_f
-                end
-                if shape[1] == "json" then
-                    value = JSON.parse(value)
-                end
-            end
-            object[shape[0]] = value
-        }
-
-        db.close
-
-        object
-    end
-
-    # Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
-    def self.setShapeXedAtFilepath1(filepath, object, shapeX)
-
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-
-        shapeX.each{|shape|
-            keyname = shape[0]
-            value = object[keyname]
-            if shape[1] == "json" then
-                value = JSON.generate(value)
-            end
-            db.execute "delete from _table1_ where _name_=?", [keyname]
-            db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, keyname, value]
-        }
-
-        db.close
-    end
-
-    # Librarian::interactivelyCreateNewMikuOrNull()
-    def self.interactivelyCreateNewMikuOrNull()
-        uuid           = SecureRandom.uuid
-        description    = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        unixtime       = Time.new.to_f
-        datetime       = Time.new.utc.iso8601
-        classification = Librarian::interactivelySelectOneClassifier()
-        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
-
-        filepath = Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # Librarian::mikufilepaths()
@@ -351,8 +274,8 @@ class Librarian
 
         filepath = KeyValueStore::getOrNull(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}")
         if filepath and File.exists?(filepath) then
-            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-            if miku["uuid"] == uuid then
+            fileuuid = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
+            if fileuuid == uuid then
                 return filepath
             end
         end
@@ -361,8 +284,7 @@ class Librarian
             puts "Using the Force to find filepath for uuid: #{uuid}"
             LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
                 .select{|filepath|
-                    miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-                    miku["uuid"] == uuid
+                    Librarian::getValueAtFilepathOrNull(filepath, "uuid") == uuid
                 }
                 .first
         }
@@ -376,257 +298,197 @@ class Librarian
         filepath
     end
 
-    # Librarian::precomputeUuidToFilepathLookup()
-    def self.precomputeUuidToFilepathLookup()
+    # Librarian::batchPrecomputeUuidToFilepathLookup()
+    def self.batchPrecomputeUuidToFilepathLookup()
         Librarian::mikufilepaths().each{|filepath|
-            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-            uuid = miku["uuid"]
-            KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}", filepath)
+            fileuuid = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
+            KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{fileuuid}", filepath)
         }
     end
 
     # ------------------------------------------------
-    # Private Updates Files
+    # Private File Attributes IO
     # ------------------------------------------------
 
-    # Librarian::updateMikuDescriptionAtFilepath(filepath, description)
-    def self.updateMikuDescriptionAtFilepath(filepath, description)
+    # Librarian::getValueAtFilepathOrNull(filepath, key)
+    def self.getValueAtFilepathOrNull(filepath, key)
         db = SQLite3::Database.new(filepath)
-        db.execute "update _table1_ set _data_=? where _name_=?", [description, "description"]
-        db.close
-    end
-
-    # Librarian::updateMikuDatetimeAtFilepath(filepath, datetime)
-    def self.updateMikuDatetimeAtFilepath(filepath, datetime)
-        db = SQLite3::Database.new(filepath)
-        db.execute "update _table1_ set _data_=? where _name_=?", [datetime, "datetime"]
-        db.close
-    end
-
-    # Librarian::updateMikuClassificationAtFilepath(filepath, classification)
-    def self.updateMikuClassificationAtFilepath(filepath, classification)
-        db = SQLite3::Database.new(filepath)
-        db.execute "update _table1_ set _data_=? where _name_=?", [classification, "classification"]
-        db.close
-    end
-
-    # Librarian::updateMikuAtomAtFilepath(filepath, atom)
-    def self.updateMikuAtomAtFilepath(filepath, atom)
-        db = SQLite3::Database.new(filepath)
-        db.execute "update _table1_ set _data_=? where _name_=?", [JSON.generate(atom), "atom"]
-        db.close
-    end
-
-    # Librarian::updateMikuExtrasAtFilepath(filepath, extras)
-    def self.updateMikuExtrasAtFilepath(filepath, extras)
-        db = SQLite3::Database.new(filepath)
-        db.execute "update _table1_ set _data_=? where _name_=?", [JSON.generate(extras), "extras"]
-        db.close
-    end
-
-    # ------------------------------------------------
-    # Private Index Management
-    # ------------------------------------------------
-
-    # Librarian::updateIndexFile(uuid, classifier, ordinal)
-    def self.updateIndexFile(uuid, classifier, ordinal)
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/librarian-collections-index.sqlite3")
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _index_ where _uuid_=?", [uuid]
-        db.execute "insert into _index_ (_uuid_, _classifier_, _ordinal_) values (?,?,?)", [uuid, classifier, ordinal]
-        db.commit 
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _table1_ where _name_=?", [key]) do |row|
+            answer = row['_data_']
+        end
         db.close
+        answer
     end
 
-    # Librarian::batchUpdateIndexFile()
-    def self.batchUpdateIndexFile()
-        Librarian::mikufilepaths().each{|filepath|
-            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-            puts JSON.pretty_generate(miku)
-            uuid       = miku["uuid"]
-            classifier = miku["classification"]
-            ordinal    = miku["extras"]["ordinal"] || 0
-            Librarian::updateIndexFile(uuid, classifier, ordinal)
+    # Librarian::getShapeXedAtFilepath1(filepath, shapeX)
+    def self.getShapeXedAtFilepath1(filepath, shapeX)
+        object = {}
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+
+        shapeX.each{|shape|
+            value = nil
+            db.execute("select * from _table1_ where _name_=?", [shape[0]]) do |row|
+                value = row['_data_']
+                if shape[1] == "integer" then
+                    value = value.to_i
+                end
+                if shape[1] == "float" then
+                    value = value.to_f
+                end
+                if shape[1] == "json" then
+                    value = JSON.parse(value)
+                end
+            end
+            object[shape[0]] = value
         }
+
+        db.close
+
+        object
     end
 
-    # Librarian::getUUIDsforClassifier(classifier)
-    def self.getUUIDsforClassifier(classifier)
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/librarian-collections-index.sqlite3")
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        uuids = []
-        db.execute("select * from _index_ where _classifier_=?", [classifier]) do |row|
-            uuids << row['_uuid_']
-        end
+    # Librarian::setValueAtFilepath(filepath, key, value)
+    def self.setValueAtFilepath(filepath, key, value)
+        db = SQLite3::Database.new(filepath)
+        db.execute "delete from _table1_ where _name_=?", [key]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, key, value]
         db.close
-        uuids
+
+        if key == "classification" then
+            uuid       = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
+            classifier = Librarian::getValueAtFilepathOrNull(filepath, "classification")
+            ordinal    = Librarian::getValueAtFilepathOrNull(filepath, "ordinal") || 0
+            LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
+        end
+
+        if key == "ordinal" then
+            uuid       = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
+            classifier = Librarian::getValueAtFilepathOrNull(filepath, "classification")
+            ordinal    = Librarian::getValueAtFilepathOrNull(filepath, "ordinal") || 0
+            LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
+        end
     end
 
-    # Librarian::getUUIDSForClassifierLimitByOrdinal(classifier, n)
-    def self.getUUIDSForClassifierLimitByOrdinal(classifier, n)
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/librarian-collections-index.sqlite3")
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        uuids = []
-        db.execute("select * from _index_ where _classifier_=? order by _ordinal_ limit ?", [classifier, n]) do |row|
-            uuids << row['_uuid_']
-        end
-        db.close
-        uuids
+    # Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
+    def self.setShapeXedAtFilepath1(filepath, object, shapeX)
+        shapeX.each{|shape|
+            keyname = shape[0]
+            value   = object[keyname]
+            if shape[1] == "json" then
+                value = JSON.generate(value)
+            end
+            Librarian::setValueAtFilepath(filepath, keyname, value)
+        }
     end
 
     # ------------------------------------------------------------------------------------------------
 
     # ------------------------------------------------
-    # Public Creation
+    # Public Files Creation, Updates and Deletion
     # ------------------------------------------------
 
-    # Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classifier, atom, extras) # filepath
-    def self.spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classifier, atom, extras)
-        # decide filename
-        filename = Librarian::newMikuFilename()
+    # Librarian::issueNewFileWithShapeX(object, shapeX)
+    def self.issueNewFileWithShapeX(object, shapeX)
+        raise "(error: f54fb81a-58d1-4dda-a90f-bc777d3a2e81)" if object["uuid"].nil?
+        raise "(error: c079cd89-e443-49a2-8c9a-632daa681f77)" if object["description"].nil?
+        raise "(error: 5932e657-3343-4de8-addb-b41ef56ff50f)" if object["unixtime"].nil?
+        raise "(error: eab57eb4-ec84-494b-b3d0-1fcea88b0744)" if object["datetime"].nil?
+        raise "(error: 98091846-75b4-4b95-bad2-6f97797b46db)" if object["classification"].nil?
+        raise "(error: f22510fc-a7a6-452c-be0a-044e4ba2f24f)" if object["atom"].nil?
 
-        # decide filepath
+        filename = Librarian::newMikuFilename()
         filepath = "#{Librarian::MikuFilesFolderpath()}/#{filename}"
 
-
-        # create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)
-
-        # create file
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)", []
         db.execute "create table _datablobs_ (_nhash_ string primary key, _data_ blob)", []
-
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", uuid]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "version", "20220128"]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", description]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", unixtime]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", datetime]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classifier]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(atom)]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "extras", JSON.generate(extras)]
-
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", object["uuid"]]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", object["description"]]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", object["unixtime"]]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", object["datetime"]]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", object["classification"]]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(object["atom"])]
         db.close
 
-        # checks
+        # The object could come with more attributes than what is mandatory
+        Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
 
-        Librarian::updateIndexFile(uuid, classifier, extras["ordinal"] || 0)
+        # Caching the location of that file
+        KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{object["uuid"]}", filepath)
 
-        # return filepath
+        # Registering the (uuid, classifier, ordinal) tuple at the collection index
+        LibrarianUuidClassifierOrdinalIndex::setRecord(object["uuid"], object["classification"], object["ordinal"] || 0)
+
+        # Running Fsck on the file to bring atom aion-point datablobs into the file
+        Librarian::fsckFilepath(filepath)
+
         filepath
     end
 
-    # Librarian::getMikuOrNull(uuid)
-    def self.getMikuOrNull(uuid)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return nil if filepath.nil?
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    end
-
-    # Librarian::getShapeXed1OrNull(uuid, shapeX)
+    # Librarian::getShapeXed1OrNull(uuid, shapeX) # Object
     def self.getShapeXed1OrNull(uuid, shapeX)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return nil if filepath.nil?
         Librarian::getShapeXedAtFilepath1(filepath, shapeX)
     end
 
-    # Librarian::setShapeXed1OrError(uuid, object, shapeX)
-    def self.setShapeXed1OrError(uuid, object, shapeX)
+    # Librarian::setValue(uuid, key, value)
+    def self.setValue(uuid, key, value)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return nil if filepath.nil?
-        Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
+        return if filepath.nil?
+        Librarian::setValueAtFilepath(filepath, key, value)
+    end
+
+    # Librarian::getValueOrNull(filepath, key)
+    def self.getValueOrNull(filepath, key)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return if filepath.nil?
+        Librarian::getValueAtFilepathOrNull(filepath, key)
     end
 
     # Librarian::destroy(uuid)
     def self.destroy(uuid)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         FileUtils.rm(filepath)
+        LibrarianUuidClassifierOrdinalIndex::deleteRecord(uuid)
     end
 
     # ------------------------------------------------
-    # Public Updates
+    # Public Collections
     # ------------------------------------------------
 
-    # Librarian::updateMikuDescription(uuid, description) # Miku
-    def self.updateMikuDescription(uuid, description)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        Librarian::updateMikuDescriptionAtFilepath(filepath, description)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    end
-
-    # Librarian::updateMikuDatetime(uuid, datetime)  # Miku
-    def self.updateMikuDatetime(uuid, datetime)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        Librarian::updateMikuDatetimeAtFilepath(filepath, datetime)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    end
-
-    # Librarian::updateMikuClassification(uuid, classification)  # Miku
-    def self.updateMikuClassification(uuid, classification)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        Librarian::updateMikuClassificationAtFilepath(filepath, classification)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    end
-
-    # Librarian::updateMikuAtom(uuid, atom)  # Miku
-    def self.updateMikuAtom(uuid, atom)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        Librarian::updateMikuAtomAtFilepath(filepath, atom)
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    end
-
-    # Librarian::updateMikuExtras(uuid, extras)  # Miku
-    def self.updateMikuExtras(uuid, extras)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        Librarian::updateMikuExtrasAtFilepath(filepath, extras)
-        
-        # -----------------------------------------------------------
-        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        classifier = miku["classification"]
-        ordinal    = extras["ordinal"] || 0
-        Librarian::updateIndexFile(uuid, classifier, ordinal)
-        # -----------------------------------------------------------
-
-        Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    end
-
-    # ------------------------------------------------
-    # Public Mikus Collection Retrieval
-    # ------------------------------------------------
-
-    # Librarian::classifierToMikus(classifier)
-    def self.classifierToMikus(classifier)
-        Librarian::getUUIDsforClassifier(classifier)
+    # Librarian::classifierToShapeXeds(classifier, shapeX)
+    def self.classifierToShapeXeds(classifier, shapeX)
+        LibrarianUuidClassifierOrdinalIndex::getUUIDs(classifier)
             .map{|uuid|
                 filepath = Librarian::uuidToFilepathOrNull(uuid)
                 if filepath then
-                    Librarian::readMikuObjectFromMikuFileOrError(filepath)
+                    Librarian::getShapeXedAtFilepath1(filepath, shapeX)
                 else
+                    LibrarianUuidClassifierOrdinalIndex::deleteRecord(uuid)
                     nil
                 end
             }
             .compact
     end
 
-    # Librarian::classifierToMikusLimitByOrdinal(classifier, n)
-    def self.classifierToMikusLimitByOrdinal(classifier, n)
-        Librarian::getUUIDSForClassifierLimitByOrdinal(classifier, n)
+    # Librarian::classifierToShapeXedsLimitByOrdinal(classifier, shapeX, n)
+    def self.classifierToShapeXedsLimitByOrdinal(classifier, shapeX, n)
+        LibrarianUuidClassifierOrdinalIndex::getUUIDsLimitByOrdinal(classifier, n)
             .map{|uuid|
                 filepath = Librarian::uuidToFilepathOrNull(uuid)
                 if filepath then
-                    Librarian::readMikuObjectFromMikuFileOrError(filepath)
+                    Librarian::getShapeXedAtFilepath1(filepath, shapeX)
                 else
                     nil
                 end
@@ -638,9 +500,8 @@ class Librarian
     # Public Atom Access
     # ------------------------------------------------
 
-    # Librarian::accessMikuAtomWithOptionToEditSideEffectOptionalMikuMutation(miku)
-    def self.accessMikuAtomWithOptionToEditSideEffectOptionalMikuMutation(miku)
-        uuid = miku["uuid"]
+    # Librarian::accessMikuAtomWithOptionToEdit(uuid, atom)
+    def self.accessMikuAtomWithOptionToEdit(uuid, atom)
 
         mikufilepath = Librarian::uuidToFilepathOrNull(uuid)
 
@@ -653,19 +514,19 @@ class Librarian
             return
         end
 
-        atom = miku["atom"]
-
         if atom["type"] == "description-only" then
             puts "atom: description-only (atom payload is empty)"
             LucilleCore::pressEnterToContinue()
+            return
         end
         if atom["type"] == "text" then
             text1 = atom["payload"]
             text2 = Atoms0Utils::editTextSynchronously(text1)
             if text1 != text2 then
                 atom["payload"] = text2
-                Librarian::updateMikuAtomAtFilepath(mikufilepath, atom)
+                Librarian::setValueAtFilepath(mikufilepath, "atom", JSON.generate(atom))
             end
+            return
         end
         if atom["type"] == "url" then
             Atoms0Utils::openUrlUsingSafari(atom["payload"])
@@ -673,9 +534,10 @@ class Librarian
                 url = LucilleCore::askQuestionAnswerAsString("url (empty to abort) : ")
                 if url.size > 0 then
                     atom["payload"] = url
-                    Librarian::updateMikuAtomAtFilepath(mikufilepath, atom)
+                Librarian::setValueAtFilepath(mikufilepath, "atom", JSON.generate(atom))
                 end
             end
+            return
         end
         if atom["type"] == "aion-point" then
             AionCore::exportHashAtFolder(LibrarianMikuAtomElizabeth.new(mikufilepath), atom["payload"], "/Users/pascal/Desktop")
@@ -685,8 +547,9 @@ class Librarian
                 nhash = AionCore::commitLocationReturnHash(LibrarianMikuAtomElizabeth.new(mikufilepath), location)
                 Atoms0Utils::moveFileToBinTimeline(location)
                 atom["payload"] = nhash
-                Librarian::updateMikuAtomAtFilepath(mikufilepath, atom)
+                Librarian::setValueAtFilepath(mikufilepath, "atom", JSON.generate(atom))
             end
+            return
         end
         if atom["type"] == "marble" then
             marbleId = atom["payload"]
@@ -703,6 +566,7 @@ class Librarian
                 puts "found marble at: #{location}"
                 system("open '#{File.dirname(location)}'")
             end
+            return
         end
         if atom["type"] == "managed-folder" then
             foldername = atom["payload"]
@@ -710,6 +574,7 @@ class Librarian
             puts "opening core data folder #{folderpath}"
             system("open '#{folderpath}'")
             LucilleCore::pressEnterToContinue()
+            return
         end
         if atom["type"] == "unique-string" then
             payload = atom["payload"]
@@ -724,37 +589,22 @@ class Librarian
                 puts "[Atoms5] Could not find location for unique string: #{payload}"
                 LucilleCore::pressEnterToContinue()
             end
+            return
         end
         raise "(33f07691-5cd0-4674-b5e0-5b5ed3142c7a, uuid: #{uuid})"
     end
 
-    # Librarian::accessMikuAtomReturnMiku(miku) # miku
-    def self.accessMikuAtomReturnMiku(miku)
-        Librarian::accessMikuAtomWithOptionToEditSideEffectOptionalMikuMutation(miku)
-        Librarian::getMikuOrNull(miku["uuid"])
+    # Librarian::accessMikuAtom(miku)
+    def self.accessMikuAtom(miku)
+        Librarian::accessMikuAtomWithOptionToEdit(miku["uuid"], miku["atom"])
     end
 
     # ------------------------------------------------
     # Public fsck
     # ------------------------------------------------
 
-    # Librarian::fsckMiku(miku) : Boolean
-    def self.fsckMiku(miku)
-        uuid = miku["uuid"]
-
-        mikufilepath = Librarian::uuidToFilepathOrNull(uuid)
-
-        if mikufilepath.nil? then
-            puts "I am trying to fsck"
-            puts JSON.pretty_generate(miku)
-            puts "But can't find the file 🤔"
-            puts "Aborting operation"
-            LucilleCore::pressEnterToContinue()
-            return false
-        end
-
-        atom = miku["atom"]
-
+    # Librarian::fsckFileAtom(filepath, atom) : Boolean
+    def self.fsckFileAtom(mikufilepath, atom)
         if atom["type"] == "description-only" then
             return true
         end
@@ -782,19 +632,24 @@ class Librarian
         raise "(2b5f9252-cfc0-49e4-beee-9741072362c5: non recognised atom type: #{atom})"
     end
 
+    # Librarian::fsckFilepath(filepath)
+    def self.fsckFilepath(filepath)
+        atom = JSON.parse(Librarian::getValueAtFilepathOrNull(filepath, "atom"))
+        status = Librarian::fsckFileAtom(filepath, atom)
+        if !status then
+            puts "failing:".red
+            puts "filepath: #{filepath}".red
+            puts "atom: #{JSON.pretty_generate(atom)}".red
+            LucilleCore::pressEnterToContinue()
+        end
+        status
+    end
+
     # Librarian::fsck()
     def self.fsck()
         Librarian::mikufilepaths().each{|filepath|
             puts filepath
-            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-            status = Librarian::fsckMiku(miku)
-            if !status then
-                puts "failing:".red
-                puts "filepath: #{filepath}".red
-                puts "miku: #{JSON.pretty_generate(miku)}".red
-                puts "atom: #{JSON.pretty_generate(miku["atom"])}".red
-                LucilleCore::pressEnterToContinue()
-            end
+            Librarian::fsckFilepath(filepath)
         }
         puts "fsck completed".green
         LucilleCore::pressEnterToContinue()

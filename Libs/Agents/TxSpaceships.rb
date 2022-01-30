@@ -2,9 +2,22 @@ j# encoding: UTF-8
 
 class TxSpaceships
 
+    # TxSpaceships::shapeX()
+    def self.shapeX()
+        [
+            ["uuid"           , "string"],
+            ["description"    , "string"],
+            ["unixtime"       , "float"],
+            ["datetime"       , "string"],
+            ["classification" , "string"],
+            ["atom"           , "json"],
+            ["domainx"        , "string"],
+        ]
+    end
+
     # TxSpaceships::items()
     def self.items()
-        Librarian::classifierToMikus("CatalystTxSpaceship")
+        Librarian::classifierToShapeXeds("TxSpaceship", TxSpaceships::shapeX())
     end
 
     # TxSpaceships::destroy(uuid)
@@ -19,19 +32,20 @@ class TxSpaceships
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-        atom = Atoms5::interactivelyCreateNewAtomOrNull()
-        domainx = DomainsX::interactivelySelectDomainX()
-        uuid           = SecureRandom.uuid
-        atom           = Atoms5::interactivelyCreateNewAtomOrNull()
-        domainx        = DomainsX::interactivelySelectDomainX()
-        unixtime       = Time.new.to_i
-        datetime       = Time.new.utc.iso8601
-        classification = "CatalystTxSpaceship"
-        extras = {
-            "domainx" => domainx
-        }
-        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-        Librarian::getMikuOrNull(uuid)
+
+        uuid = SecureRandom.uuid
+
+        object = {}
+        object["uuid"]           = uuid
+        object["description"]    = description
+        object["unixtime"]       = Time.new.to_i
+        object["datetime"]       = Time.new.utc.iso8601
+        object["classification"] = "TxSpaceship"
+        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
+        object["domainx"]        = DomainsX::interactivelySelectDomainX()
+
+        Librarian::issueNewFileWithShapeX(object, TxSpaceships::shapeX())
+        Librarian::getShapeXed1OrNull(uuid, TxSpaceships::shapeX())
     end
 
     # --------------------------------------------------
@@ -65,7 +79,7 @@ class TxSpaceships
         NxBallsService::issue(
             uuid, 
             TxSpaceships::toString(nx60), 
-            [uuid, DomainsX::domainXToAccountNumber(nx60["extras"]["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(nx60["domainx"])]
         )
 
         loop {
@@ -97,7 +111,8 @@ class TxSpaceships
             end
 
             if Interpreting::match("access", command) then
-                nx60 = Librarian::accessMikuAtomReturnMiku(nx60)
+                Librarian::accessMikuAtom(nx60)
+                nx60 = Librarian::getShapeXed1OrNull(nx60["uuid"], TxSpaceships::shapeX())
                 next
             end
 
@@ -110,7 +125,8 @@ class TxSpaceships
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(nx60["description"]).strip
                 next if description == ""
-                nx60 = Librarian::updateMikuDescription(nx60["uuid"], description) 
+                nx60["description"] = description
+                Librarian::setValue(nx60["uuid"], "description", description)
                 next
             end
 

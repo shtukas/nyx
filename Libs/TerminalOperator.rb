@@ -75,17 +75,19 @@ class NS16sOperator
             .map{|location|
                 puts "Importing TxTodos (Random): #{location}"
 
-                uuid           = SecureRandom.uuid
-                description    = File.basename(location)
-                atom           = Atoms5::issueAionPointAtomUsingLocation(location)
-                ordinal        = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
-                unixtime       = Time.new.to_i
-                datetime       = Time.new.utc.iso8601
-                classification = "CatalystTxTodo"
-                extras = {
-                    "ordinal" => ordinal
-                }
-                Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+                uuid = SecureRandom.uuid
+
+                object = {}
+                object["uuid"]           = uuid
+                object["description"]    = File.basename(location)
+                object["unixtime"]       = Time.new.to_i
+                object["datetime"]       = Time.new.utc.iso8601
+                object["classification"] = "TxTodo"
+                object["atom"]           = Atoms5::issueAionPointAtomUsingLocation(location)
+                object["ordinal"]        = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
+
+                Librarian::issueNewFileWithShapeX(object, TxTodos::shapeX())
+                Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
 
                 LucilleCore::removeFileSystemLocation(location)
             }
@@ -140,7 +142,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = TxDateds::items().size + Librarian::getUUIDsforClassifier("CatalystTxTodo").size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
+        cardinal = TxDateds::items().size + LibrarianUuidClassifierOrdinalIndex::getUUIDs("TxTodo").size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
         focus = DomainsX::focusOrNull()
         focusStr = focus ? "(focus: #{DomainsX::focusOrNull()}) ".green : ""
         puts "#{focusStr}#{DomainsX::dx()} (cardinal: #{cardinal} items)"

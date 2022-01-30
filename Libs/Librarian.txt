@@ -7,18 +7,42 @@
     create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob) # attributes and other metadata
     create table _datablobs_ (_nhash_ string primary key, _data_ blob) # datablobs
 
-TxClassifier: 
+- At _table1_ we expect the following attributes:
+    "uuid"           : String
+    "description"    : String
+    "unixtime"       : Float # Often the creation time, sometimes used for ordering
+    "datetime"       : DateTime Iso8601 # Contextual editable time
+    "classification" : TxClassifier
+    "atom"           : Atom
+
+- The default function to create a new miku file is Librarian::issueNewFileWithShapeX(object, shapeX)
+  which expects at least the above attributes
+
+ShapeX:
+    shapeXItem = 
+        [keyname, "string"]
+        [keyname, "json"]
+        [keyname, "integer"]
+        [keyname, "float"]
+
+    shapeX = Array[shapeXItem]
+
+- TxClassifier: 
     "CalendarItem" 
-    "CatalystTxDated"
-    "CatalystTxDrop"
-    "CatalystTxFloat"
-    "CatalystTxSpaceship"
-    "CatalystTxTodo"
-    "CatalystWorkItem"
-    "CatalystWave"
+    "TxDated"
+    "TxDrop"
+    "TxFloat"
+    "TxSpaceship"
+    "TxTodo"
+    "TxWorkItem"
+    "Wave"
     "PureData"
     "PublicEvent"
     "PascalPrivateLog"
+
+- To retrieve collections of Miku files by TxClassifier we use an index defined by 
+  uuid-classifier-ordinal.sqlite3
+      create table _index_ (_uuid_ text, _classifier_ text, _ordinal_ float);
 
 MTxNote {
     uuid     : String
@@ -26,29 +50,4 @@ MTxNote {
     text     : String
 }
 
-TxMiku {
-    "uuid"           : String
-    "filepath"       : String
-    "version"        : "20220128"
-    "description"    : String
-    "unixtime"       : Float # Often the creation time, sometimes used for ordering
-    "datetime"       : DateTime Iso8601 # Contextual editable time
-    "classification" : TxClassifier
-    "atom"           : Atom
-    "notes"          : Array[MTxNote]
-    "extras"         : Object # keys/values pairing for non standard attributes. 
-}
-
-librarian-collections-index.sqlite3
-    create table _index_ (_uuid_ text, _classifier_ text, _ordinal_ float);
-
-
 ----------------------------------
-
-shapeXItem = 
-    [keyname, "string"]
-    [keyname, "json"]
-    [keyname, "integer"]
-    [keyname, "float"]
-
-shapeX = Array[shapeXItem]

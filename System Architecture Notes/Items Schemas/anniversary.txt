@@ -1,4 +1,6 @@
 
+# /Users/pascal/Galaxy/DataBank/Catalyst/Anniversaries
+
 Anniversary {
   "uuid"        : String,
   "unixtime"    : Float,
@@ -7,4 +9,3 @@ Anniversary {
   "repeatType"  : "weekly" | "monthly" | "yearly",
   "lastCelebrationDate" : Date
 }
-

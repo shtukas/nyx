@@ -106,7 +106,7 @@ class CommandsOps
         if object["NS198"] == "NS16:TxDated" and command == "redate" then
             mx49 = object["TxDated"]
             datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
-            Librarian::updateMikuDatetime(mx49["uuid"], datetime)
+            Librarian::setValue(mx49["uuid"], "datetime", datetime)
         end
 
         if object["NS198"] == "NS16:TxDated" and command == ">>" then
@@ -306,7 +306,7 @@ class CommandsOps
         if Interpreting::match("todos", command) then
             type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodos", "Nx51s (work items)"])
             if type == "TxTodos" then
-                nx50s = TxTodos::nx50s()
+                nx50s = TxTodos::items()
                 if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
                     nx50s = nx50s.first(Utils::screenHeight()-2)
                 end
@@ -394,50 +394,48 @@ class CommandsOps
 
         if source == "TxDated" and target == "TxTodo" then
             ordinal = TxTodos::interactivelyDecideNewOrdinal()
-            miku = Librarian::updateMikuClassification(object["uuid"], "CatalystTxTodo")
-            miku["extras"]["ordinal"] = ordinal
-            Librarian::updateMikuExtras(object["uuid"], miku["extras"])
+            Librarian::setValue(object["uuid"], "ordinal", ordinal)
+            Librarian::setValue(object["uuid"], "classification", "TxTodo")
             return
         end
 
         if source == "TxDated" and target == "TxSpaceship" then
-            Librarian::updateMikuClassification(object["uuid"], "CatalystTxSpaceship")
+            Librarian::setValue(object["uuid"], "classification", "TxSpaceship")
             return
         end
 
         if source == "TxDated" and target == "TxDrop" then
-            Librarian::updateMikuClassification(object["uuid"], "CatalystTxDrop")
+            Librarian::setValue(object["uuid"], "classification", "TxDrop")
             return
         end
 
         if source == "TxDrop" and target == "TxWorkItem" then
             ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-            miku = Librarian::updateMikuClassification(object["uuid"], "CatalystWorkItem")
-            miku["extras"]["ordinal"] = ordinal
-            Librarian::updateMikuExtras(object["uuid"], miku["extras"])
+            Librarian::setValue(object["uuid"], "ordinal", ordinal)
+            Librarian::setValue(object["uuid"], "classification", "TxWorkItem")
             return
         end
 
         if source == "TxDrop" and target == "TxSpaceship" then
-            Librarian::updateMikuClassification(object["uuid"], "CatalystTxSpaceship")
+            Librarian::setValue(object["uuid"], "classification", "TxSpaceship")
             return
         end
 
         if source == "TxSpaceship" and target == "TxFloat" then
-            Librarian::updateMikuClassification(object["uuid"], "CatalystTxFloat")
+            Librarian::setValue(object["uuid"], "classification", "TxFloat")
             return
         end
 
         if source == "TxSpaceship" and target == "TxDated" then
             datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
             return if datetime.nil?
-            Librarian::updateMikuClassification(object["uuid"], "CatalystTxDated")
-            Librarian::updateMikuDatetime(object["uuid"], datetime)
+            Librarian::setValue(object["uuid"], "datetime", datetime)
+            Librarian::setValue(object["uuid"], "classification", "TxDated")
             return
         end
 
         if source == "TxWorkItem" and target == "TxFloat" then
-            Librarian::updateMikuClassification(object["uuid"], "CatalystTxFloat")
+            Librarian::setValue(object["uuid"], "classification", "TxFloat")
             return
         end
 

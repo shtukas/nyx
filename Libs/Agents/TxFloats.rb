@@ -2,9 +2,22 @@ j# encoding: UTF-8
 
 class TxFloats
 
+    # TxFloats::shapeX()
+    def self.shapeX()
+        [
+            ["uuid"           , "string"],
+            ["description"    , "string"],
+            ["unixtime"       , "float"],
+            ["datetime"       , "string"],
+            ["classification" , "string"],
+            ["atom"           , "json"],
+            ["domainx"        , "string"],
+        ]
+    end
+
     # TxFloats::items()
     def self.items()
-        Librarian::classifierToMikus("CatalystTxFloat")
+        Librarian::classifierToShapeXeds("TxFloat", TxFloats::shapeX())
     end
 
     # TxFloats::destroy(uuid)
@@ -21,20 +34,18 @@ class TxFloats
         return nil if description == ""
 
         uuid = SecureRandom.uuid
-        atom = Atoms5::interactivelyCreateNewAtomOrNull()
-        domainx = DomainsX::interactivelySelectDomainX()
 
-        uuid           = SecureRandom.uuid
+        object = {}
+        object["uuid"]           = uuid
+        object["description"]    = description
+        object["unixtime"]       = Time.new.to_i
+        object["datetime"]       = Time.new.utc.iso8601
+        object["classification"] = "TxFloat"
+        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
+        object["domainx"]        = DomainsX::interactivelySelectDomainX()
 
-        domainx        = DomainsX::interactivelySelectDomainX()
-        unixtime       = Time.new.to_i
-        datetime       = Time.new.utc.iso8601
-        classification = "CatalystTxFloat"
-        extras = {
-            "domainx" => domainx
-        }
-        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-        Librarian::getMikuOrNull(uuid)
+        Librarian::issueNewFileWithShapeX(object, TxFloats::shapeX())
+        Librarian::getShapeXed1OrNull(uuid, TxFloats::shapeX())
     end
 
     # --------------------------------------------------
@@ -68,7 +79,7 @@ class TxFloats
         NxBallsService::issue(
             uuid, 
             TxFloats::toString(mx48), 
-            [uuid, DomainsX::domainXToAccountNumber(mx48["extras"]["domainx"])]
+            [uuid, DomainsX::domainXToAccountNumber(mx48["domainx"])]
         )
 
         loop {
@@ -100,7 +111,8 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                mx48 = Librarian::accessMikuAtomReturnMiku(mx48)
+                Librarian::accessMikuAtom(mx48)
+                mx48 = Librarian::getShapeXed1OrNull(mx48["uuid"], TxFloats::shapeX())
                 next
             end
 
@@ -113,7 +125,8 @@ class TxFloats
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(mx48["description"]).strip
                 next if description == ""
-                mx48 = Librarian::updateMikuDescription(mx48["uuid"], description) 
+                mx48["description"] = description
+                Librarian::setValue(mx48["uuid"], "description", description)
                 next
             end
 

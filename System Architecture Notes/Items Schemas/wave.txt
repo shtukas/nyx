@@ -1,4 +1,6 @@
 
+# /Users/pascal/Galaxy/DataBank/Catalyst/Waves
+
 Wave {
     "uuid"        : uuid,
     "unixtime"    : unixtime,

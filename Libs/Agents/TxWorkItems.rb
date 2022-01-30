@@ -2,9 +2,22 @@
 
 class TxWorkItems
 
+    # TxWorkItems::shapeX()
+    def self.shapeX()
+        [
+            ["uuid"           , "string"],
+            ["description"    , "string"],
+            ["unixtime"       , "float"],
+            ["datetime"       , "string"],
+            ["classification" , "string"],
+            ["atom"           , "json"],
+            ["ordinal"        , "float"],
+        ]
+    end
+
     # TxWorkItems::items()
     def self.items()
-        Librarian::classifierToMikus("CatalystWorkItem")
+        Librarian::classifierToShapeXeds("TxWorkItem", TxWorkItems::shapeX())
     end
 
     # TxWorkItems::destroy(uuid)
@@ -17,7 +30,7 @@ class TxWorkItems
 
     # TxWorkItems::nextOrdinal()
     def self.nextOrdinal()
-        biggest = ([0] + TxWorkItems::items().map{|mx51| mx51["extras"]["ordinal"] }).max
+        biggest = ([0] + TxWorkItems::items().map{|mx51| mx51["ordinal"] }).max
         (biggest + 1).floor
     end
 
@@ -27,7 +40,7 @@ class TxWorkItems
         if mx51s.size < n1+2 then
             return TxWorkItems::nextOrdinal()
         end
-        ordinals = mx51s.map{|mx51| mx51["extras"]["ordinal"] }.sort.drop(n1).take(n2-n1)
+        ordinals = mx51s.map{|mx51| mx51["ordinal"] }.sort.drop(n1).take(n2-n1)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
@@ -49,38 +62,36 @@ class TxWorkItems
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Atoms5::interactivelyCreateNewAtomOrNull()
-        ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
+        uuid = SecureRandom.uuid
 
-        uuid           = SecureRandom.uuid
-        unixtime       = Time.new.to_i
-        datetime       = Time.new.utc.iso8601
-        classification = "CatalystWorkItem"
-        extras = {
-            "ordinal" => ordinal
-        }
-        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-        Librarian::getMikuOrNull(uuid)
+        object = {}
+        object["uuid"]           = uuid
+        object["description"]    = description
+        object["unixtime"]       = Time.new.to_i
+        object["datetime"]       = Time.new.utc.iso8601
+        object["classification"] = "TxWorkItem"
+        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
+        object["ordinal"]        = TxWorkItems::interactivelyDecideNewOrdinal()
+
+        Librarian::issueNewFileWithShapeX(object, TxWorkItems::shapeX())
+        Librarian::getShapeXed1OrNull(uuid, TxWorkItems::shapeX())
     end
 
     # TxWorkItems::issueItemUsingInboxLocation(location)
     def self.issueItemUsingInboxLocation(location)
+        uuid = SecureRandom.uuid
 
-        description    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-        atom           = Atoms5::issueAionPointAtomUsingLocation(location)
-        ordinal        = TxWorkItems::interactivelyDecideNewOrdinal()
+        object = {}
+        object["uuid"]           = uuid
+        object["description"]    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+        object["unixtime"]       = Time.new.to_i
+        object["datetime"]       = Time.new.utc.iso8601
+        object["classification"] = "TxWorkItem"
+        object["atom"]           = Atoms5::issueAionPointAtomUsingLocation(location)
+        object["ordinal"]        = TxWorkItems::interactivelyDecideNewOrdinal()
 
-        uuid           = SecureRandom.uuid
-        description    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-        unixtime       = Time.new.to_i
-        datetime       = Time.new.utc.iso8601
-        classification = "CatalystWorkItem"
-        extras         = {
-            "ordinal" => ordinal
-        }
-        Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
-        Librarian::getMikuOrNull(uuid)
-
+        Librarian::issueNewFileWithShapeX(object, TxWorkItems::shapeX())
+        Librarian::getShapeXed1OrNull(uuid, TxWorkItems::shapeX())
     end
 
     # --------------------------------------------------
@@ -93,7 +104,7 @@ class TxWorkItems
 
     # TxWorkItems::toStringWithOrdinal(mx51)
     def self.toStringWithOrdinal(mx51)
-        "[work] (ord: #{mx51["extras"]["ordinal"]}) #{mx51["description"]} (#{mx51["atom"]["type"]})"
+        "[work] (ord: #{mx51["ordinal"]}) #{mx51["description"]} (#{mx51["atom"]["type"]})"
     end
 
     # TxWorkItems::toStringForNS19(mx51)
@@ -124,7 +135,7 @@ class TxWorkItems
 
             puts "#{TxWorkItems::toString(mx51)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "ordinal: #{mx51["extras"]["ordinal"]}".yellow
+            puts "ordinal: #{mx51["ordinal"]}".yellow
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(mx51["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
@@ -150,7 +161,8 @@ class TxWorkItems
             end
 
             if Interpreting::match("access", command) then
-                mx51 = Librarian::accessMikuAtomReturnMiku(mx51)
+                Librarian::accessMikuAtom(mx51)
+                mx51 = Librarian::getShapeXed1OrNull(mx51["uuid"], TxWorkItems::shapeX())
                 next
             end
 
@@ -162,8 +174,9 @@ class TxWorkItems
 
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(mx51["description"]).strip
-                next if description == ""
-                mx51 = Librarian::updateMikuDescription(mx51["uuid"], description) 
+                next if description == "" 
+                mx51["description"] = description
+                Librarian::setValue(mx51["uuid"], "description", description)
                 next
             end
 
@@ -176,13 +189,13 @@ class TxWorkItems
 
             if Interpreting::match("ordinal", command) then
                 ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-                mx51["extras"]["ordinal"] = ordinal
+                mx51["ordinal"] = ordinal
                 Librarian::updateMikuExtras(mx51["uuid"], mx51["extras"])
                 next
             end
 
             if Interpreting::match("rotate", command) then
-                mx51["extras"]["ordinal"] = TxWorkItems::nextOrdinal()
+                mx51["ordinal"] = TxWorkItems::nextOrdinal()
                 Librarian::updateMikuExtras(mx51["uuid"], mx51["extras"])
                 break
             end
@@ -231,7 +244,7 @@ class TxWorkItems
             "NS198"      => "NS16:TxWorkItem",
             "announce"   => TxWorkItems::toStringForNS16(mx51, rt).gsub("(0.00)", "      "),
             "commands"   => ["..", "done", ">> (transmute)"],
-            "ordinal"    => mx51["extras"]["ordinal"],
+            "ordinal"    => mx51["ordinal"],
             "TxWorkItem" => mx51,
             "rt"         => rt
         }

@@ -525,7 +525,7 @@ class Utils
             status = Atoms5::fsck(item["atom"])
             raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{item["atom"]}]" if !status
         }
-        TxTodos::nx50s().each{|item|
+        TxTodos::items().each{|item|
             puts TxTodos::toString(item)
             status = Atoms5::fsck(item["atom"])
             raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{item["atom"]}]" if !status   
