@@ -113,7 +113,6 @@ class NS16sOperator
             Calendar::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            TxTest::ns16s(),
             Inbox::ns16s(),
             tx
         ]

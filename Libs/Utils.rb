@@ -505,25 +505,36 @@ class Utils
             status = Atoms5::fsck(item["atom"])
             raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{item["atom"]}]" if !status
         }
-        TxFloats::items().each{|item|
-            puts TxFloats::toString(item)
-            status = Atoms5::fsck(item["atom"])
-            raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{item["atom"]}]" if !status
-        }
         TxDateds::items().each{|item|
             puts TxDateds::toString(item)
             status = Atoms5::fsck(item["atom"])
             raise "[error: d9154d97-9bf6-43bb-9517-12c8a9d34509, #{item}, #{item["atom"]}]" if !status
         }
-        TxWorkItems::items().each{|item|
-            puts TxWorkItems::toString(item)
+        TxDrops::mikus().each{|item|
+            puts TxDrops::toString(item)
             status = Atoms5::fsck(item["atom"])
-            raise "[error: f6d0341c-7636-4fe8-93dd-9d0968760f1f, #{item}, #{item["atom"]}]" if !status
+            raise "[error: 4b86d0a7-a7b1-487d-95ab-987864c949f6, #{item}, #{item["atom"]}]" if !status
+        }
+        TxFloats::items().each{|item|
+            puts TxFloats::toString(item)
+            status = Atoms5::fsck(item["atom"])
+            raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{item["atom"]}]" if !status
+        }
+        TxSpaceships::items().each{|item|
+            puts TxSpaceships::toString(item)
+            status = Atoms5::fsck(item["atom"])
+            raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{item["atom"]}]" if !status
         }
         TxTodos::nx50s().each{|item|
             puts TxTodos::toString(item)
             status = Atoms5::fsck(item["atom"])
             raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{item["atom"]}]" if !status   
         }
+        TxWorkItems::items().each{|item|
+            puts TxWorkItems::toString(item)
+            status = Atoms5::fsck(item["atom"])
+            raise "[error: f6d0341c-7636-4fe8-93dd-9d0968760f1f, #{item}, #{item["atom"]}]" if !status
+        }
+
     end
 end
