@@ -14,6 +14,117 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "1ac4eb69"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
+=begin
+
+The operator is an object that has meet the following signatures
+
+    .commitBlob(blob: BinaryData) : Hash
+    .filepathToContentHash(filepath) : Hash
+    .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
+    .datablobCheck(nhash: Hash): Boolean
+
+class Elizabeth
+
+    def initialize()
+
+    end
+
+    def commitBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        KeyValueStore::set(nil, nhash, blob)
+        nhash
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = KeyValueStore::getOrNull(nil, nhash)
+        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
+        blob
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
+    end
+
+end
+
+AionCore::commitLocationReturnHash(operator, location)
+AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
+
+AionFsck::structureCheckAionHash(operator, nhash)
+
+=end
+
+class LibrarianMikuAtomElizabeth
+
+    # create table _datablobs_ (_nhash_ string primary key, _data_ blob)
+
+    def initialize(mikufilepath)
+        @mikufilepath = mikufilepath
+    end
+
+    def commitBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        db = SQLite3::Database.new(@mikufilepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _datablobs_ where _nhash_=?", [nhash]
+        db.execute "insert into _datablobs_ (_nhash_, _data_) values (?,?)", [nhash, blob]
+        db.close
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = nil
+
+        db = SQLite3::Database.new(@mikufilepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _datablobs_ where _nhash_=?", [nhash]) do |row|
+            blob = row['_data_']
+        end
+        db.close
+
+        return blob if blob
+
+        puts "[Looking for nhash: #{nhash}, at mikufilepath: #{@mikufilepath}, did not find it]"
+        blob = Atoms10BlobService::getBlobOrNull(nhash)
+        if blob then
+            commitBlob(blob)
+            return blob
+        end
+
+        blob = Librarian::theGreatBlobFinder(nhash)
+        if blob then
+            commitBlob(blob)
+            return blob
+        end
+
+        raise "[Elizabeth error: 1c2f2aa8-9ead-47fa-b09f-4927a89d9687, looking for nhash: #{nhash}, at mikufilepath: #{@mikufilepath}, did not find it and did not find it in Atoms10BlobService either]"
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
+    end
+end
+
 class Librarian
 
     # ------------------------------------------------
@@ -159,6 +270,24 @@ class Librarian
     # Librarian::mikufilepaths()
     def self.mikufilepaths()
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+    end
+
+    # Librarian::theGreatBlobFinder(nhash)
+    def self.theGreatBlobFinder(nhash)
+        puts "The great blob finder: #{nhash}"
+        Librarian::mikufilepaths().each{|filepath|
+            blob = nil
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _datablobs_ where _nhash_=?", [nhash]) do |row|
+                blob = row['_data_']
+            end
+            db.close
+            return blob if blob
+        }
+        nil
     end
 
     # ------------------------------------------------
@@ -319,6 +448,7 @@ class Librarian
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)", []
+        db.execute "create table _datablobs_ (_nhash_ string primary key, _data_ blob)", []
 
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", uuid]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "version", "20220128"]
@@ -440,12 +570,165 @@ class Librarian
     # Public Atom Access
     # ------------------------------------------------
 
-    # Librarian::accessMikuAtom(miku) # miku
-    def self.accessMikuAtom(miku)
-        atom = Atoms5::accessWithOptionToEditOptionalUpdate(miku["atom"])
-        if atom then
-            Librarian::updateMikuAtom(miku["uuid"], atom)
+    # Librarian::accessMikuAtomWithOptionToEditSideEffectOptionalMikuMutation(miku)
+    def self.accessMikuAtomWithOptionToEditSideEffectOptionalMikuMutation(miku)
+        uuid = miku["uuid"]
+
+        mikufilepath = Librarian::uuidToFilepathOrNull(uuid)
+
+        if mikufilepath.nil? then
+            puts "I am trying to access miku/atom for"
+            puts JSON.pretty_generate(miku)
+            puts "But can't find the file 🤔"
+            puts "Aborting operation"
+            LucilleCore::pressEnterToContinue()
+            return
         end
+
+        atom = miku["atom"]
+
+        if atom["type"] == "description-only" then
+            puts "atom: description-only (atom payload is empty)"
+            LucilleCore::pressEnterToContinue()
+        end
+        if atom["type"] == "text" then
+            text1 = atom["payload"]
+            text2 = Atoms0Utils::editTextSynchronously(text1)
+            if text1 != text2 then
+                atom["payload"] = text2
+                Librarian::updateMikuAtomAtFilepath(mikufilepath, atom)
+            end
+        end
+        if atom["type"] == "url" then
+            Atoms0Utils::openUrlUsingSafari(atom["payload"])
+            if LucilleCore::askQuestionAnswerAsBoolean("> edit url ? ", false) then
+                url = LucilleCore::askQuestionAnswerAsString("url (empty to abort) : ")
+                if url.size > 0 then
+                    atom["payload"] = url
+                    Librarian::updateMikuAtomAtFilepath(mikufilepath, atom)
+                end
+            end
+        end
+        if atom["type"] == "aion-point" then
+            AionCore::exportHashAtFolder(LibrarianMikuAtomElizabeth.new(mikufilepath), atom["payload"], "/Users/pascal/Desktop")
+            if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
+                location = Atoms0Utils::interactivelySelectDesktopLocationOrNull()
+                return if location.nil?
+                nhash = AionCore::commitLocationReturnHash(LibrarianMikuAtomElizabeth.new(mikufilepath), location)
+                Atoms0Utils::moveFileToBinTimeline(location)
+                atom["payload"] = nhash
+                Librarian::updateMikuAtomAtFilepath(mikufilepath, atom)
+            end
+        end
+        if atom["type"] == "marble" then
+            marbleId = atom["payload"]
+            location = Atoms0Utils::marbleLocationOrNullUsingCache(marbleId)
+            if location then
+                puts "found marble at: #{location}"
+                system("open '#{File.dirname(location)}'")
+                return
+            end
+            puts "I could not find the location of the marble in the cache"
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Would you like me to use the Force ? ")
+            location = Atoms0Utils::marbleLocationOrNullUseTheForce(marbleId)
+            if location then
+                puts "found marble at: #{location}"
+                system("open '#{File.dirname(location)}'")
+            end
+        end
+        if atom["type"] == "managed-folder" then
+            foldername = atom["payload"]
+            folderpath = "#{Atoms0Utils::managedFoldersRepositoryPath()}/#{foldername}"
+            puts "opening core data folder #{folderpath}"
+            system("open '#{folderpath}'")
+            LucilleCore::pressEnterToContinue()
+        end
+        if atom["type"] == "unique-string" then
+            payload = atom["payload"]
+            puts "unique string: #{payload}"
+            location = Atoms0Utils::atlas(payload)
+            if location then
+                puts "location: #{location}"
+                if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
+                    system("open '#{location}'")
+                end
+            else
+                puts "[Atoms5] Could not find location for unique string: #{payload}"
+                LucilleCore::pressEnterToContinue()
+            end
+        end
+        raise "(33f07691-5cd0-4674-b5e0-5b5ed3142c7a, uuid: #{uuid})"
+    end
+
+    # Librarian::accessMikuAtomReturnMiku(miku) # miku
+    def self.accessMikuAtomReturnMiku(miku)
+        Librarian::accessMikuAtomWithOptionToEditSideEffectOptionalMikuMutation(miku)
         Librarian::getMikuOrNull(miku["uuid"])
+    end
+
+    # ------------------------------------------------
+    # Public fsck
+    # ------------------------------------------------
+
+    # Librarian::fsckMiku(miku) : Boolean
+    def self.fsckMiku(miku)
+        uuid = miku["uuid"]
+
+        mikufilepath = Librarian::uuidToFilepathOrNull(uuid)
+
+        if mikufilepath.nil? then
+            puts "I am trying to fsck"
+            puts JSON.pretty_generate(miku)
+            puts "But can't find the file 🤔"
+            puts "Aborting operation"
+            LucilleCore::pressEnterToContinue()
+            return false
+        end
+
+        atom = miku["atom"]
+
+        if atom["type"] == "description-only" then
+            return true
+        end
+        if atom["type"] == "text" then
+            return true
+        end
+        if atom["type"] == "url" then
+            return true
+        end
+        if atom["type"] == "aion-point" then
+            nhash = atom["payload"]
+            return AionFsck::structureCheckAionHash(LibrarianMikuAtomElizabeth.new(mikufilepath), nhash)
+        end
+        if atom["type"] == "marble" then
+            return true
+        end
+        if atom["type"] == "managed-folder" then
+            foldername = atom["payload"]
+            return File.exists?("#{Atoms0Utils::managedFoldersRepositoryPath()}/#{foldername}")
+        end
+        if atom["type"] == "unique-string" then
+            # Technically we should be checking if the target exists, but that takes too long
+            return true
+        end
+        raise "(2b5f9252-cfc0-49e4-beee-9741072362c5: non recognised atom type: #{atom})"
+    end
+
+    # Librarian::fsck()
+    def self.fsck()
+        Librarian::mikufilepaths().each{|filepath|
+            puts filepath
+            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+            status = Librarian::fsckMiku(miku)
+            if !status then
+                puts "failing:".red
+                puts "filepath: #{filepath}".red
+                puts "miku: #{JSON.pretty_generate(miku)}".red
+                puts "atom: #{JSON.pretty_generate(miku["atom"])}".red
+                LucilleCore::pressEnterToContinue()
+            end
+        }
+        puts "fsck completed".green
+        LucilleCore::pressEnterToContinue()
     end
 end

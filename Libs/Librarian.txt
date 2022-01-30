@@ -3,8 +3,9 @@
 
 - Miku files are named <L22>.miku
 
-- Miku files are sqlite3 files with one table:
-    create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)
+- Miku files are sqlite3 files with two tables:
+    create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob) # attributes and other metadata
+    create table _datablobs_ (_nhash_ string primary key, _data_ blob) # datablobs
 
 TxClassifier: 
     "CalendarItem" 

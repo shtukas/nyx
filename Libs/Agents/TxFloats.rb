@@ -100,7 +100,7 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                mx48 = Librarian::accessMikuAtom(mx48)
+                mx48 = Librarian::accessMikuAtomReturnMiku(mx48)
                 next
             end
 

@@ -593,6 +593,9 @@ class Atoms10BlobService
             return IO.read(file0)
         end
 
+        blob = Librarian::theGreatBlobFinder(nhash)
+        return blob if blob
+
         nil
     end
 end

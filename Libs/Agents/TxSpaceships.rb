@@ -97,7 +97,7 @@ class TxSpaceships
             end
 
             if Interpreting::match("access", command) then
-                nx60 = Librarian::accessMikuAtom(nx60)
+                nx60 = Librarian::accessMikuAtomReturnMiku(nx60)
                 next
             end
 

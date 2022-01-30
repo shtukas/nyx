@@ -96,7 +96,7 @@ class TxDrops
             end
 
             if Interpreting::match("access", command) then
-                nx70 = Librarian::accessMikuAtom(nx70)
+                nx70 = Librarian::accessMikuAtomReturnMiku(nx70)
                 next
             end
 

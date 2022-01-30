@@ -150,7 +150,7 @@ class TxWorkItems
             end
 
             if Interpreting::match("access", command) then
-                mx51 = Librarian::accessMikuAtom(mx51)
+                mx51 = Librarian::accessMikuAtomReturnMiku(mx51)
                 next
             end
 

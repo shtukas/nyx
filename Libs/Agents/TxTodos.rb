@@ -234,7 +234,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                nx50 = Librarian::accessMikuAtom(nx50)
+                nx50 = Librarian::accessMikuAtomReturnMiku(nx50)
                 next
             end
 

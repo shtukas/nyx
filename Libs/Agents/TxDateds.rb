@@ -109,7 +109,7 @@ class TxDateds
             break if command == "xx"
 
             if Interpreting::match("access", command) then
-                mx49 = Librarian::accessMikuAtom(mx49)
+                mx49 = Librarian::accessMikuAtomReturnMiku(mx49)
                 next
             end
 

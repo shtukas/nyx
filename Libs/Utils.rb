@@ -535,6 +535,5 @@ class Utils
             status = Atoms5::fsck(item["atom"])
             raise "[error: f6d0341c-7636-4fe8-93dd-9d0968760f1f, #{item}, #{item["atom"]}]" if !status
         }
-
     end
 end
