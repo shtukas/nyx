@@ -141,10 +141,11 @@ require_relative "Agents/TxSpaceships.rb"
 require_relative "Agents/TxWorkItems.rb"
 require_relative "Agents/Waves.rb"
 
+require_relative "Atoms.rb"
+
 require_relative "Bank.rb"
 
 require_relative "CommandsOps.rb"
-require_relative "Atoms.rb"
 
 require_relative "DomainsX.rb"
 require_relative "DoNotShowUntil.rb"
@@ -168,20 +169,3 @@ require_relative "TerminalOperator.rb"
 require_relative "Utils.rb"
 
 # ------------------------------------------------------------
-
-$LibrarianInMemoryCacheHash = {} # Map[UUID, Miku]
-
-class LibrarianInMemoryCache
-
-    # LibrarianInMemoryCache::load()
-    def self.load()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles").each{|filepath|
-            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-            $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
-        }
-    end
-end
-
-puts "Caching data into memory..."
-LibrarianInMemoryCache::load()
-

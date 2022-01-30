@@ -9,7 +9,7 @@ class TxTodos
 
     # TxTodos::nx50sCardinal(n)
     def self.nx50sCardinal(n)
-        TxTodos::nx50s().first(n)
+        Librarian::classifierToMikusLimitByOrdinal("CatalystTxTodo", 50)
     end
 
     # TxTodos::destroy(uuid)

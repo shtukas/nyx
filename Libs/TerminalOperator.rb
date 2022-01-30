@@ -141,7 +141,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = TxDateds::items().size + TxTodos::nx50s().size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
+        cardinal = TxDateds::items().size + Librarian::getUUIDsforClassifier("CatalystTxTodo").size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
         focus = DomainsX::focusOrNull()
         focusStr = focus ? "(focus: #{DomainsX::focusOrNull()}) ".green : ""
         puts "#{focusStr}#{DomainsX::dx()} (cardinal: #{cardinal} items)"

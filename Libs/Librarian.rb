@@ -157,18 +157,13 @@ class Librarian
     end
 
     # Librarian::mikufilepaths()
-    #def self.mikufilepaths()
-    #    LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
-    #end
+    def self.mikufilepaths()
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+    end
 
-    # Librarian::classifierToFilepaths(classifier)
-    #def self.classifierToFilepaths(classifier)
-    #    LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
-    #        .select{|filepath|
-    #            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-    #            miku["classification"] == classifier
-    #        }
-    #end
+    # ------------------------------------------------
+    # Private File Lookup Management
+    # ------------------------------------------------
 
     # Librarian::uuidToFilepathOrNull(uuid)
     def self.uuidToFilepathOrNull(uuid)
@@ -198,6 +193,15 @@ class Librarian
         KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}", filepath)
 
         filepath
+    end
+
+    # Librarian::precomputeUuidToFilepathLookup()
+    def self.precomputeUuidToFilepathLookup()
+        Librarian::mikufilepaths().each{|filepath|
+            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+            uuid = miku["uuid"]
+            KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}", filepath)
+        }
     end
 
     # ------------------------------------------------
@@ -240,11 +244,67 @@ class Librarian
     end
 
     # ------------------------------------------------
+    # Private Index Management
+    # ------------------------------------------------
+
+    # Librarian::updateIndexFile(uuid, classifier, ordinal)
+    def self.updateIndexFile(uuid, classifier, ordinal)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/librarian-collections-index.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _index_ where _uuid_=?", [uuid]
+        db.execute "insert into _index_ (_uuid_, _classifier_, _ordinal_) values (?,?,?)", [uuid, classifier, ordinal]
+        db.commit 
+        db.close
+    end
+
+    # Librarian::batchUpdateIndexFile()
+    def self.batchUpdateIndexFile()
+        Librarian::mikufilepaths().each{|filepath|
+            miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
+            puts JSON.pretty_generate(miku)
+            uuid       = miku["uuid"]
+            classifier = miku["classification"]
+            ordinal    = miku["extras"]["ordinal"] || 0
+            Librarian::updateIndexFile(uuid, classifier, ordinal)
+        }
+    end
+
+    # Librarian::getUUIDsforClassifier(classifier)
+    def self.getUUIDsforClassifier(classifier)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/librarian-collections-index.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select * from _index_ where _classifier_=?", [classifier]) do |row|
+            uuids << row['_uuid_']
+        end
+        db.close
+        uuids
+    end
+
+    # Librarian::getUUIDSForClassifierLimitByOrdinal(classifier, n)
+    def self.getUUIDSForClassifierLimitByOrdinal(classifier, n)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/Librarian/librarian-collections-index.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select * from _index_ where _classifier_=? order by _ordinal_ limit ?", [classifier, n]) do |row|
+            uuids << row['_uuid_']
+        end
+        db.close
+        uuids
+    end
+
+    # ------------------------------------------------
     # Public Creation
     # ------------------------------------------------
 
-    # Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras) # filepath
-    def self.spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classification, atom, extras)
+    # Librarian::spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classifier, atom, extras) # filepath
+    def self.spawnNewMikuFileOrError(uuid, description, unixtime, datetime, classifier, atom, extras)
         # decide filename
         filename = Librarian::newMikuFilename()
 
@@ -265,13 +325,15 @@ class Librarian
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", description]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", unixtime]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", datetime]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classification]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classifier]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(atom)]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "extras", JSON.generate(extras)]
 
         db.close
 
         # checks
+
+        Librarian::updateIndexFile(uuid, classifier, extras["ordinal"] || 0)
 
         # return filepath
         filepath
@@ -299,9 +361,7 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuDescriptionAtFilepath(filepath, description)
-        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
-        miku
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # Librarian::updateMikuDatetime(uuid, datetime)  # Miku
@@ -309,9 +369,7 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuDatetimeAtFilepath(filepath, datetime)
-        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
-        miku
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # Librarian::updateMikuClassification(uuid, classification)  # Miku
@@ -319,9 +377,7 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuClassificationAtFilepath(filepath, classification)
-        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
-        miku
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # Librarian::updateMikuAtom(uuid, atom)  # Miku
@@ -329,9 +385,7 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuAtomAtFilepath(filepath, atom)
-        miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
-        miku
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # Librarian::updateMikuExtras(uuid, extras)  # Miku
@@ -339,9 +393,15 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::updateMikuExtrasAtFilepath(filepath, extras)
+        
+        # -----------------------------------------------------------
         miku = Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        $LibrarianInMemoryCacheHash[miku["uuid"]] = miku
-        miku
+        classifier = miku["classification"]
+        ordinal    = extras["ordinal"] || 0
+        Librarian::updateIndexFile(uuid, classifier, ordinal)
+        # -----------------------------------------------------------
+
+        Librarian::readMikuObjectFromMikuFileOrError(filepath)
     end
 
     # ------------------------------------------------
@@ -350,11 +410,29 @@ class Librarian
 
     # Librarian::classifierToMikus(classifier)
     def self.classifierToMikus(classifier)
-        #Librarian::classifierToFilepaths(classifier)
-        #    .map{|filepath|
-        #        Librarian::readMikuObjectFromMikuFileOrError(filepath)
-        #    }
+        Librarian::getUUIDsforClassifier(classifier)
+            .map{|uuid|
+                filepath = Librarian::uuidToFilepathOrNull(uuid)
+                if filepath then
+                    Librarian::readMikuObjectFromMikuFileOrError(filepath)
+                else
+                    nil
+                end
+            }
+            .compact
+    end
 
-        $LibrarianInMemoryCacheHash.values.select{|miku| miku["classification"] == classifier }
+    # Librarian::classifierToMikusLimitByOrdinal(classifier, n)
+    def self.classifierToMikusLimitByOrdinal(classifier, n)
+        Librarian::getUUIDSForClassifierLimitByOrdinal(classifier, n)
+            .map{|uuid|
+                filepath = Librarian::uuidToFilepathOrNull(uuid)
+                if filepath then
+                    Librarian::readMikuObjectFromMikuFileOrError(filepath)
+                else
+                    nil
+                end
+            }
+            .compact
     end
 end

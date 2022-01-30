@@ -38,4 +38,6 @@ TxMiku {
     "extras"         : Object # keys/values pairing for non standard attributes. 
 }
 
+librarian-collections-index.sqlite3
+    create table _index_ (_uuid_ text, _classifier_ text, _ordinal_ float);
 
