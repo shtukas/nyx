@@ -439,6 +439,13 @@ class CommandsOps
             return
         end
 
+        if source == "TxWorkItem" and target == "TxTodo" then
+            ordinal = TxTodos::interactivelyDecideNewOrdinal()
+            Librarian::setValue(object["uuid"], "ordinal", ordinal)
+            Librarian::setValue(object["uuid"], "classification", "TxTodo")
+            return
+        end
+
         puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
         LucilleCore::pressEnterToContinue()
     end
