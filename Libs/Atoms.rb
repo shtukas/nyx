@@ -308,8 +308,8 @@ class Atoms5
 
     # -- Update ------------------------------------------
 
-    # Atoms5::accessWithOptionToEdit(atom): Atom or null
-    def self.accessWithOptionToEdit(atom)
+    # Atoms5::accessWithOptionToEditOptionalUpdate(atom): Atom or null
+    def self.accessWithOptionToEditOptionalUpdate(atom)
         if atom["type"] == "description-only" then
             puts "atom: description-only (atom payload is empty)"
             LucilleCore::pressEnterToContinue()

@@ -172,7 +172,7 @@ class Waves
     # Waves::accessContent(wave)
     def self.accessContent(wave)
         return if wave["atom"]["type"] == "description-only"
-        updated = Atoms5::accessWithOptionToEdit(wave["atom"])
+        updated = Atoms5::accessWithOptionToEditOptionalUpdate(wave["atom"])
         if updated then
             wave["atom"] = updated
             Waves::commit(wave)

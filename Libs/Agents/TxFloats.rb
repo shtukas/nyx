@@ -58,15 +58,6 @@ class TxFloats
         TxFloats::destroy(mx48["uuid"])
     end
 
-    # TxFloats::accessContent(mx48)
-    def self.accessContent(mx48)
-        atom = Atoms5::accessWithOptionToEdit(mx48["atom"])
-        if atom then
-            Librarian::updateMikuAtom(mx48["uuid"], atom)
-        end
-        Librarian::getMikuOrNull(mx48["uuid"])
-    end
-
     # TxFloats::run(mx48)
     def self.run(mx48)
 
@@ -109,7 +100,7 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                TxFloats::accessContent(mx48)
+                mx48 = Librarian::accessMikuAtom(mx48)
                 next
             end
 

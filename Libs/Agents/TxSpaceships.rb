@@ -55,15 +55,6 @@ class TxSpaceships
         TxSpaceships::destroy(nx60["uuid"])
     end
 
-    # TxSpaceships::accessContent(nx60)
-    def self.accessContent(nx60)
-        atom = Atoms5::accessWithOptionToEdit(nx60["atom"])
-        if atom then
-            Librarian::updateMikuAtom(nx60["uuid"], atom)
-        end
-        Librarian::getMikuOrNull(nx60["uuid"])
-    end
-
     # TxSpaceships::run(nx60)
     def self.run(nx60)
 
@@ -106,7 +97,7 @@ class TxSpaceships
             end
 
             if Interpreting::match("access", command) then
-                TxSpaceships::accessContent(nx60)
+                nx60 = Librarian::accessMikuAtom(nx60)
                 next
             end
 

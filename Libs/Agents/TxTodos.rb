@@ -193,15 +193,6 @@ class TxTodos
         end
     end
 
-    # TxTodos::accessContent(miku)
-    def self.accessContent(miku)
-        atom = Atoms5::accessWithOptionToEdit(miku["atom"])
-        if atom then
-            Librarian::updateMikuAtom(miku["uuid"], atom)
-        end
-        Librarian::getMikuOrNull(miku["uuid"])
-    end
-
     # TxTodos::run(nx50)
     def self.run(nx50)
 
@@ -243,7 +234,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                TxTodos::accessContent(nx50)
+                nx50 = Librarian::accessMikuAtom(nx50)
                 next
             end
 

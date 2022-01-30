@@ -53,15 +53,6 @@ class TxDrops
         TxDrops::destroy(nx70["uuid"])
     end
 
-    # TxDrops::accessContent(nx70)
-    def self.accessContent(nx70)
-        atom = Atoms5::accessWithOptionToEdit(nx70["atom"])
-        if atom then
-            Librarian::updateMikuAtom(nx70["uuid"], atom)
-        end
-        Librarian::getMikuOrNull(nx70["uuid"])
-    end
-
     # TxDrops::run(nx70)
     def self.run(nx70)
 
@@ -105,7 +96,7 @@ class TxDrops
             end
 
             if Interpreting::match("access", command) then
-                nx70 = TxDrops::accessContent(nx70)
+                nx70 = Librarian::accessMikuAtom(nx70)
                 next
             end
 

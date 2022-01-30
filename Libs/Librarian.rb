@@ -435,4 +435,17 @@ class Librarian
             }
             .compact
     end
+
+    # ------------------------------------------------
+    # Public Atom Access
+    # ------------------------------------------------
+
+    # Librarian::accessMikuAtom(miku) # miku
+    def self.accessMikuAtom(miku)
+        atom = Atoms5::accessWithOptionToEditOptionalUpdate(miku["atom"])
+        if atom then
+            Librarian::updateMikuAtom(miku["uuid"], atom)
+        end
+        Librarian::getMikuOrNull(miku["uuid"])
+    end
 end

@@ -109,15 +109,6 @@ class TxWorkItems
     # --------------------------------------------------
     # Operations
 
-    # TxWorkItems::accessContent(mx51)
-    def self.accessContent(mx51)
-        atom = Atoms5::accessWithOptionToEdit(mx51["atom"])
-        if atom then
-            Librarian::updateMikuAtom(mx51["uuid"], atom)
-        end
-        Librarian::getMikuOrNull(mx51["uuid"])
-    end
-
     # TxWorkItems::run(mx51)
     def self.run(mx51)
 
@@ -159,7 +150,7 @@ class TxWorkItems
             end
 
             if Interpreting::match("access", command) then
-                TxWorkItems::accessContent(mx51)
+                mx51 = Librarian::accessMikuAtom(mx51)
                 next
             end
 

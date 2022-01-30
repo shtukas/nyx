@@ -71,15 +71,6 @@ class TxDateds
     # --------------------------------------------------
     # Operations
 
-    # TxDateds::accessContent(mx49)
-    def self.accessContent(mx49)
-        atom = Atoms5::accessWithOptionToEdit(mx49["atom"])
-        if atom then
-            Librarian::updateMikuAtom(mx49["uuid"], atom)
-        end
-        Librarian::getMikuOrNull(mx49["uuid"])
-    end
-
     # TxDateds::run(mx49)
     def self.run(mx49)
 
@@ -118,7 +109,7 @@ class TxDateds
             break if command == "xx"
 
             if Interpreting::match("access", command) then
-                mx49 = TxDateds::accessContent(mx49)
+                mx49 = Librarian::accessMikuAtom(mx49)
                 next
             end
 
