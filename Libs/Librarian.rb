@@ -253,6 +253,58 @@ class Librarian
         }
     end
 
+    # Librarian::getShapeXedAtFilepath1(filepath, shapeX)
+    def self.getShapeXedAtFilepath1(filepath, shapeX)
+        object = {}
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+
+        shapeX.each{|shape|
+            value = nil
+            db.execute("select * from _table1_ where _name_=?", [shape[0]]) do |row|
+                value = row['_data_']
+                if shape[1] == "integer" then
+                    value = value.to_i
+                end
+                if shape[1] == "float" then
+                    value = value.to_f
+                end
+                if shape[1] == "json" then
+                    value = JSON.parse(value)
+                end
+            end
+            object[shape[0]] = value
+        }
+
+        db.close
+
+        object
+    end
+
+    # Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
+    def self.setShapeXedAtFilepath1(filepath, object, shapeX)
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+
+        shapeX.each{|shape|
+            keyname = shape[0]
+            value = object[keyname]
+            if shape[1] == "json" then
+                value = JSON.generate(value)
+            end
+            db.execute "delete from _table1_ where _name_=?", [keyname]
+            db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, keyname, value]
+        }
+
+        db.close
+    end
+
     # Librarian::interactivelyCreateNewMikuOrNull()
     def self.interactivelyCreateNewMikuOrNull()
         uuid           = SecureRandom.uuid
@@ -428,6 +480,8 @@ class Librarian
         uuids
     end
 
+    # ------------------------------------------------------------------------------------------------
+
     # ------------------------------------------------
     # Public Creation
     # ------------------------------------------------
@@ -474,6 +528,20 @@ class Librarian
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return nil if filepath.nil?
         Librarian::readMikuObjectFromMikuFileOrError(filepath)
+    end
+
+    # Librarian::getShapeXed1OrNull(uuid, shapeX)
+    def self.getShapeXed1OrNull(uuid, shapeX)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return nil if filepath.nil?
+        Librarian::getShapeXedAtFilepath1(filepath, shapeX)
+    end
+
+    # Librarian::setShapeXed1OrError(uuid, object, shapeX)
+    def self.setShapeXed1OrError(uuid, object, shapeX)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return nil if filepath.nil?
+        Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
     end
 
     # Librarian::destroy(uuid)
@@ -535,7 +603,7 @@ class Librarian
     end
 
     # ------------------------------------------------
-    # Public Collection Retrieval
+    # Public Mikus Collection Retrieval
     # ------------------------------------------------
 
     # Librarian::classifierToMikus(classifier)
