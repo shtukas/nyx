@@ -39,6 +39,10 @@ class CommandsOps
 
         # puts "CommandsOps, object: #{object}, command: #{command}"
 
+        if command == "''" then
+            ItemStoreOps::delistForDefault(object["uuid"])
+        end
+
         if object["NS198"] == "NS16:Anniversary1" and command == ".." then
             Anniversaries::run(object["anniversary"])
         end
@@ -136,11 +140,6 @@ class CommandsOps
             TxDrops::destroy(nx70["uuid"])
         end
 
-        if object["NS198"] == "NS16:TxDrop" and command == "''" then
-            nx70 = object["TxDrop"]
-            ItemStoreOps::delistForDefault(nx70["uuid"])
-        end
-
         if object["NS198"] == "NS16:TxDrop" and command == ">>" then
             nx70 = object["TxDrop"]
             CommandsOps::transmutation2(nx70, "TxDrop")
@@ -194,15 +193,15 @@ class CommandsOps
             CommandsOps::transmutation2(mx51, "TxWorkItem")
         end
 
-        if object["NS198"] == "NS16:Wave1" and command == ".." then
+        if object["NS198"] == "NS16:Wave" and command == ".." then
             Waves::run(object["wave"])
         end
 
-        if object["NS198"] == "NS16:Wave1" and command == "landing" then
+        if object["NS198"] == "NS16:Wave" and command == "landing" then
             Waves::landing(object["wave"])
         end
 
-        if object["NS198"] == "NS16:Wave1" and command == "done" then
+        if object["NS198"] == "NS16:Wave" and command == "done" then
             Waves::performDone(object["wave"])
             CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
         end

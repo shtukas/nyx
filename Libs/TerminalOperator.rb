@@ -269,17 +269,24 @@ class TerminalDisplayOperator
 
     # TerminalDisplayOperator::displayLoop()
     def self.displayLoop()
+
+        filter1 = lambda {|ns16s|
+            ns16s            
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+        }
+
         initialCodeTrace = Utils::codeTrace()
         loop {
             if Utils::codeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
-            floats = TxFloats::ns16s()
-            waves = Waves::ns16s().first(6)
-            section3 = NS16sOperator::section3()
-            spaceships = TxSpaceships::ns16sForDominant()
-            ns16s = NS16sOperator::ns16s()
+            floats     = filter1.call(TxFloats::ns16s())
+            waves      = filter1.call(Waves::ns16s()).first(6)
+            section3   = filter1.call(NS16sOperator::section3())
+            spaceships = filter1.call(TxSpaceships::ns16sForDominant())
+            ns16s      = NS16sOperator::ns16s()
             TerminalDisplayOperator::display(floats, waves, section3, spaceships, ns16s)
         }
     end
