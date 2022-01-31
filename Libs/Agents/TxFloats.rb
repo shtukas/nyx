@@ -88,6 +88,7 @@ class TxFloats
 
             puts TxFloats::toString(mx48).green
             puts "uuid: #{uuid}".yellow
+            puts "domain: #{mx48["domainx"]}".yellow
 
             if text = Atoms5::atomPayloadToTextOrNull(mx48["atom"]) then
                 puts text

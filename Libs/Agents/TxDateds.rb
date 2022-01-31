@@ -108,6 +108,7 @@ class TxDateds
             puts TxDateds::toString(mx49).green
             puts "uuid: #{uuid}".yellow
             puts "date: #{mx49["datetime"][0, 10]}".yellow
+            puts "domain: #{mx49["domainx"]}".yellow
 
             if text = Atoms5::atomPayloadToTextOrNull(mx49["atom"]) then
                 puts text

@@ -88,6 +88,7 @@ class TxSpaceships
 
             puts TxSpaceships::toString(nx60).green
             puts "uuid: #{uuid}".yellow
+            puts "domain: #{nx60["domainx"]}".yellow
 
             if text = Atoms5::atomPayloadToTextOrNull(nx60["atom"]) then
                 puts text
