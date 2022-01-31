@@ -188,7 +188,7 @@ class TxDrops
     def self.ns16s()
         focus = DomainsX::focusOrNull()
         TxDrops::mikus()
-            .select{|item| focus.nil? or (miku["domainx"] == focus) }
+            .select{|item| focus.nil? or (item["domainx"] == focus) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxDrops::ns16(item) }
     end
