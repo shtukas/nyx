@@ -51,7 +51,11 @@ class TxWorkItems
             .each{|mx51| 
                 puts "- #{TxWorkItems::toStringWithOrdinal(mx51)}"
             }
-        return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
+        ordinal = LucilleCore::askQuestionAnswerAsString("> ordinal ? : ")
+        if ordinal == "" then
+            return TxWorkItems::nextOrdinal()
+        end
+        ordinal.to_f
     end
 
     # --------------------------------------------------
