@@ -47,6 +47,7 @@ class TxWorkItems
     # TxWorkItems::interactivelyDecideNewOrdinal()
     def self.interactivelyDecideNewOrdinal()
         TxWorkItems::items()
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .first(50)
             .each{|mx51| 
                 puts "- #{TxWorkItems::toStringWithOrdinal(mx51)}"
