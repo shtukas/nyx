@@ -10,7 +10,7 @@ class Inbox
     # Inbox::getLocationUUID(location)
     def self.getLocationUUID(location)
         uuid = KeyValueStore::getOrNull(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
-        return uuid.to_f if uuid
+        return uuid if uuid
         uuid = SecureRandom.uuid
         KeyValueStore::set(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}", uuid)
         uuid
