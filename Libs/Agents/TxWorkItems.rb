@@ -145,10 +145,14 @@ class TxWorkItems
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             if text = Atoms5::atomPayloadToTextOrNull(mx51["atom"]) then
-                puts text
+                puts "text:\n#{text}"
             end
 
-            puts "access | <datecode> | description | atom | ordinal | rotate | >> (transmute) | show json | destroy (gg) | exit (xx)".yellow
+            Librarian::notes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
+
+            puts "access | <datecode> | description | atom | ordinal | rotate | >> (transmute) | note | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -178,6 +182,12 @@ class TxWorkItems
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 mx51 = Librarian::updateMikuAtom(mx51["uuid"], atom)
+                next
+            end
+
+            if Interpreting::match("note", command) then
+                text = Utils::editTextSynchronously("").strip
+                Librarian::addNote(mx51["uuid"], SecureRandom.uuid, Time.new.to_i, text)
                 next
             end
 

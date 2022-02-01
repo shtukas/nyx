@@ -111,10 +111,14 @@ class TxDateds
             puts "domain: #{mx49["domainx"]}".yellow
 
             if text = Atoms5::atomPayloadToTextOrNull(mx49["atom"]) then
-                puts text
+                puts "text:\n#{text}"
             end
 
-            puts "access | date | description | atom | show json | destroy (gg) | exit (xx)".yellow
+            Librarian::notes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
+
+            puts "access | date | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -147,6 +151,12 @@ class TxDateds
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 mx49 = Librarian::updateMikuAtom(mx49["uuid"], atom)
+                next
+            end
+
+            if Interpreting::match("note", command) then
+                text = Utils::editTextSynchronously("").strip
+                Librarian::addNote(mx49["uuid"], SecureRandom.uuid, Time.new.to_i, text)
                 next
             end
 

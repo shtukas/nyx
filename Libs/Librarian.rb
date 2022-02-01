@@ -412,6 +412,7 @@ class Librarian
         db.busy_handler { |count| true }
         db.execute "create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)", []
         db.execute "create table _datablobs_ (_nhash_ string primary key, _data_ blob)", []
+        db.execute "create table _notes_ (_uuid_ text primary key, _unixtime_ float, _text_ text)", []
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", object["uuid"]]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", object["description"]]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", object["unixtime"]]
@@ -597,6 +598,55 @@ class Librarian
     # Librarian::accessMikuAtom(miku)
     def self.accessMikuAtom(miku)
         Librarian::accessMikuAtomWithOptionToEdit(miku["uuid"], miku["atom"])
+    end
+
+    # ------------------------------------------------
+    # Notes
+    # ------------------------------------------------
+
+    # Librarian::notes(uuid)
+    def self.notes(uuid)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return [] if filepath.nil?
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        notes = []
+        # create table _notes_ (_uuid_ text primary key, _unixtime_ float, _text_ text)
+        db.execute("select * from _notes_ order by _unixtime_", []) do |row|
+            notes << {
+                "uuid"     => row['_uuid_'],
+                "unixtime" => row['_unixtime_'],
+                "text"     => row['_text_']
+            }
+        end
+        db.close
+        notes
+    end
+
+    # Librarian::addNote(mukiuuid, noteuuid, unixtime, text)
+    def self.addNote(mukiuuid, noteuuid, unixtime, text)
+        filepath = Librarian::uuidToFilepathOrNull(mukiuuid)
+        return [] if filepath.nil?
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        # create table _notes_ (_uuid_ text primary key, _unixtime_ float, _text_ text)
+        db.execute "insert into _notes_ (_uuid_, _unixtime_, _text_) values (?,?,?)", [noteuuid, unixtime, text]
+        db.close
+    end
+
+    # Librarian::deleteNote(mukiuuid, noteuuid)
+    def self.deleteNote(mukiuuid, noteuuid)
+        filepath = Librarian::uuidToFilepathOrNull(mukiuuid)
+        return if filepath.nil?
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _notes_ where _uuid_=?", [noteuuid]
+        db.close
     end
 
     # ------------------------------------------------

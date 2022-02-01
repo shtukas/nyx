@@ -91,10 +91,14 @@ class TxFloats
             puts "domain: #{mx48["domainx"]}".yellow
 
             if text = Atoms5::atomPayloadToTextOrNull(mx48["atom"]) then
-                puts text
+                puts "text:\n#{text}"
             end
 
-            puts "access | <datecode> | description | atom | show json | destroy (gg) | exit (xx)".yellow
+            Librarian::notes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
+
+            puts "access | <datecode> | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -124,6 +128,12 @@ class TxFloats
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 mx48 = Librarian::updateMikuAtom(mx48["uuid"], atom)
+                next
+            end
+
+            if Interpreting::match("note", command) then
+                text = Utils::editTextSynchronously("").strip
+                Librarian::addNote(mx48["uuid"], SecureRandom.uuid, Time.new.to_i, text)
                 next
             end
 

@@ -91,10 +91,14 @@ class TxDrops
             puts "domainx: #{nx70["domainx"]}".yellow
 
             if text = Atoms5::atomPayloadToTextOrNull(nx70["atom"]) then
-                puts text
+                puts "text:\n#{text}"
             end
 
-            puts "access | <datecode> | description | atom | show json | transmute | destroy (gg) | exit (xx)".yellow
+            Librarian::notes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
+
+            puts "access | <datecode> | description | atom | note | show json | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -124,6 +128,12 @@ class TxDrops
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 nx70 = Librarian::updateMikuAtom(nx70["uuid"], atom)
+                next
+            end
+
+            if Interpreting::match("note", command) then
+                text = Utils::editTextSynchronously("").strip
+                Librarian::addNote(nx70["uuid"], SecureRandom.uuid, Time.new.to_i, text)
                 next
             end
 
