@@ -66,36 +66,28 @@ class TxWorkItems
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
-        uuid = SecureRandom.uuid
-
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = description
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxWorkItem"
-        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
-        object["ordinal"]        = TxWorkItems::interactivelyDecideNewOrdinal()
-
-        Librarian::issueNewFileWithShapeX(object, TxWorkItems::shapeX())
+        uuid       = SecureRandom.uuid
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+        classifier = "TxWorkItem"
+        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        ordinal    = TxWorkItems::interactivelyDecideNewOrdinal()
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "ordinal", ordinal)
         Librarian::getShapeXed1OrNull(uuid, TxWorkItems::shapeX())
     end
 
     # TxWorkItems::issueItemUsingInboxLocation(location)
     def self.issueItemUsingInboxLocation(location)
-        uuid = SecureRandom.uuid
-
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxWorkItem"
-        object["atom"]           = Atoms5::issueAionPointAtomUsingLocation(location)
-        object["ordinal"]        = TxWorkItems::interactivelyDecideNewOrdinal()
-
-        Librarian::issueNewFileWithShapeX(object, TxWorkItems::shapeX())
+        uuid        = SecureRandom.uuid
+        description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+        classifier  = "TxWorkItem"
+        atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        ordinal     = TxWorkItems::interactivelyDecideNewOrdinal()
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "ordinal", ordinal)
         Librarian::getShapeXed1OrNull(uuid, TxWorkItems::shapeX())
     end
 

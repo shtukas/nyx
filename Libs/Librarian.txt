@@ -16,8 +16,8 @@
     "classification" : TxClassifier
     "atom"           : Atom
 
-- The default function to create a new miku file is Librarian::issueNewFileWithShapeX(object, shapeX)
-  which expects at least the above attributes
+- The default function to create a new miku file is 
+  Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
 
 ShapeX:
     shapeXItem = 

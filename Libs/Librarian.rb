@@ -394,14 +394,8 @@ class Librarian
     # Public Files Creation, Updates and Deletion
     # ------------------------------------------------
 
-    # Librarian::issueNewFileWithShapeX(object, shapeX)
-    def self.issueNewFileWithShapeX(object, shapeX)
-        raise "(error: f54fb81a-58d1-4dda-a90f-bc777d3a2e81)" if object["uuid"].nil?
-        raise "(error: c079cd89-e443-49a2-8c9a-632daa681f77)" if object["description"].nil?
-        raise "(error: 5932e657-3343-4de8-addb-b41ef56ff50f)" if object["unixtime"].nil?
-        raise "(error: eab57eb4-ec84-494b-b3d0-1fcea88b0744)" if object["datetime"].nil?
-        raise "(error: 98091846-75b4-4b95-bad2-6f97797b46db)" if object["classification"].nil?
-        raise "(error: f22510fc-a7a6-452c-be0a-044e4ba2f24f)" if object["atom"].nil?
+    # Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+    def self.issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
 
         filename = Librarian::newMikuFilename()
         filepath = "#{Librarian::MikuFilesFolderpath()}/#{filename}"
@@ -412,22 +406,19 @@ class Librarian
         db.execute "create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)", []
         db.execute "create table _datablobs_ (_nhash_ string primary key, _data_ blob)", []
         db.execute "create table _notes_ (_uuid_ text primary key, _unixtime_ float, _text_ text)", []
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", object["uuid"]]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", object["description"]]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", object["unixtime"]]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", object["datetime"]]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", object["classification"]]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(object["atom"])]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", uuid]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", description]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", unixtime]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", datetime]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classifier]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(atom)]
         db.close
 
-        # The object could come with more attributes than what is mandatory
-        Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
-
         # Caching the location of that file
-        KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{object["uuid"]}", filepath)
+        KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}", filepath)
 
         # Registering the (uuid, classifier, ordinal) tuple at the collection index
-        LibrarianUuidClassifierOrdinalIndex::setRecord(object["uuid"], object["classification"], object["ordinal"] || 0)
+        LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, 0)
 
         # Running Fsck on the file to bring atom aion-point datablobs into the file
         Librarian::fsckFilepath(filepath)

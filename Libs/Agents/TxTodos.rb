@@ -73,18 +73,16 @@ class TxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        uuid = SecureRandom.uuid
+        uuid       = SecureRandom.uuid
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+        classifier = "TxTodo"
+        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        ordinal    = TxTodos::interactivelyDecideNewOrdinal()
 
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = description
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxTodo"
-        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
-        object["ordinal"]        = TxTodos::interactivelyDecideNewOrdinal()
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "ordinal", ordinal)
 
-        Librarian::issueNewFileWithShapeX(object, TxTodos::shapeX())
         Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
     end
 
@@ -92,68 +90,63 @@ class TxTodos
     def self.issueItemUsingInboxLocation(location)
         uuid = SecureRandom.uuid
 
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = File.basename(location)
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxTodo"
-        object["atom"]           = Atoms5::issueAionPointAtomUsingLocation(location)
-        object["ordinal"]        = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
+        description = File.basename(location)
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+        classifier  = "TxTodo"
+        atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
-        Librarian::issueNewFileWithShapeX(object, TxTodos::shapeX())
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "ordinal", ordinal)
+
         Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
     end
 
     # TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
     def self.interactivelyIssueItemUsingInboxLocation2(location)
         uuid = SecureRandom.uuid
+        description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+        classifier  = "TxTodo"
+        atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        ordinal     = TxTodos::interactivelyDecideNewOrdinal()
 
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxTodo"
-        object["atom"]           = Atoms5::issueAionPointAtomUsingLocation(location)
-        object["ordinal"]        = TxTodos::interactivelyDecideNewOrdinal()
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "ordinal", ordinal)
 
-        Librarian::issueNewFileWithShapeX(object, TxTodos::shapeX())
         Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
-
     end
 
     # TxTodos::issueSpreadItem(location, description, ordinal)
     def self.issueSpreadItem(location, description, ordinal)
-        uuid = SecureRandom.uuid
+        uuid       = SecureRandom.uuid
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+        classifier = "TxTodo"
+        atom       = Atoms5::issueAionPointAtomUsingLocation(location)
+        ordinal    = ordinal
 
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = description
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxTodo"
-        object["atom"]           = Atoms5::issueAionPointAtomUsingLocation(location)
-        object["ordinal"]        = ordinal
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "ordinal", ordinal)
 
-        Librarian::issueNewFileWithShapeX(object, TxTodos::shapeX())
         Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
     end
 
     # TxTodos::issueViennaURL(url)
     def self.issueViennaURL(url)
-        uuid = SecureRandom.uuid
+        uuid        = SecureRandom.uuid
+        description = url
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+        classifier  = "TxTodo"
+        atom        = Atoms5::issueUrlAtomUsingUrl(url)
+        ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = url
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxTodo"
-        object["atom"]           = Atoms5::issueUrlAtomUsingUrl(url)
-        object["ordinal"]        = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "ordinal", ordinal)
 
-        Librarian::issueNewFileWithShapeX(object, TxTodos::shapeX())
         Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
     end
 

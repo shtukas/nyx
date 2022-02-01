@@ -75,19 +75,16 @@ class NS16sOperator
             .map{|location|
                 puts "Importing TxTodos (Random): #{location}"
 
-                uuid = SecureRandom.uuid
+                uuid        = SecureRandom.uuid
+                description = File.basename(location)
+                unixtime    = Time.new.to_i
+                datetime    = Time.new.utc.iso8601
+                classifier  = "TxTodo"
+                atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+                ordinal     = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
 
-                object = {}
-                object["uuid"]           = uuid
-                object["description"]    = File.basename(location)
-                object["unixtime"]       = Time.new.to_i
-                object["datetime"]       = Time.new.utc.iso8601
-                object["classification"] = "TxTodo"
-                object["atom"]           = Atoms5::issueAionPointAtomUsingLocation(location)
-                object["ordinal"]        = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
-
-                Librarian::issueNewFileWithShapeX(object, TxTodos::shapeX())
-                Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
+                Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+                Librarian::setValue(uuid, "ordinal", ordinal)
 
                 LucilleCore::removeFileSystemLocation(location)
             }

@@ -33,18 +33,16 @@ class TxSpaceships
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        uuid = SecureRandom.uuid
+        uuid       = SecureRandom.uuid
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+        classifier = "TxSpaceship"
+        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        domainx    = DomainsX::interactivelySelectDomainX()
 
-        object = {}
-        object["uuid"]           = uuid
-        object["description"]    = description
-        object["unixtime"]       = Time.new.to_i
-        object["datetime"]       = Time.new.utc.iso8601
-        object["classification"] = "TxSpaceship"
-        object["atom"]           = Atoms5::interactivelyCreateNewAtomOrNull()
-        object["domainx"]        = DomainsX::interactivelySelectDomainX()
+        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+        Librarian::setValue(uuid, "domainx", domainx)
 
-        Librarian::issueNewFileWithShapeX(object, TxSpaceships::shapeX())
         Librarian::getShapeXed1OrNull(uuid, TxSpaceships::shapeX())
     end
 
