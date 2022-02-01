@@ -274,8 +274,7 @@ class Librarian
 
         filepath = KeyValueStore::getOrNull(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}")
         if filepath and File.exists?(filepath) then
-            fileuuid = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
-            if fileuuid == uuid then
+            if Librarian::getValueAtFilepathOrNull(filepath, "uuid") == uuid then
                 return filepath
             end
         end
@@ -283,15 +282,15 @@ class Librarian
         useTheForce = lambda {|uuid|
             puts "Using the Force to find filepath for uuid: #{uuid}"
             LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
-                .select{|filepath|
-                    Librarian::getValueAtFilepathOrNull(filepath, "uuid") == uuid
-                }
+                .select{|filepath| Librarian::getValueAtFilepathOrNull(filepath, "uuid") == uuid }
                 .first
         }
 
         filepath = useTheForce.call(uuid)
 
-        return nil if filepath.nil?
+        if filepath.nil? then
+            return nil
+        end
 
         KeyValueStore::set(nil, "b3994c86-f2ed-485f-8423-6ff6f049382e:#{uuid}", filepath)
 
