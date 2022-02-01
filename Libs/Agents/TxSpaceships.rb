@@ -94,12 +94,7 @@ class TxSpaceships
                 puts text
             end
 
-            note = StructuredTodoTexts::getNoteOrNull(nx60["uuid"])
-            if note then
-                puts "note:\n#{note}".green
-            end
-
-            puts "access | note | <datecode> | description | atom | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -114,12 +109,6 @@ class TxSpaceships
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx60)
                 nx60 = Librarian::getShapeXed1OrNull(nx60["uuid"], TxSpaceships::shapeX())
-                next
-            end
-
-            if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx60["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
                 next
             end
 

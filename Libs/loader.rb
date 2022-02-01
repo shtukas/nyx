@@ -161,7 +161,6 @@ require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
-require_relative "StructuredTodoTexts.rb"
 
 require_relative "TerminalOperator.rb"
 

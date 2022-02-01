@@ -94,12 +94,7 @@ class TxFloats
                 puts text
             end
 
-            note = StructuredTodoTexts::getNoteOrNull(mx48["uuid"])
-            if note then
-                puts "note:\n#{note}".green
-            end
-
-            puts "access | note | <datecode> | description | atom | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -114,12 +109,6 @@ class TxFloats
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(mx48)
                 mx48 = Librarian::getShapeXed1OrNull(mx48["uuid"], TxFloats::shapeX())
-                next
-            end
-
-            if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(mx48["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
                 next
             end
 

@@ -114,12 +114,7 @@ class TxDateds
                 puts text
             end
 
-            note = StructuredTodoTexts::getNoteOrNull(mx49["uuid"])
-            if note then
-                puts "note:\n#{note}".green
-            end
-
-            puts "access | note | date | description | atom | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | date | description | atom | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -137,12 +132,6 @@ class TxDateds
                 next if datetime.nil?
                 mx49["datetime"] = datetime
                 Librarian::setValue(mx49["uuid"], "datetime", datetime)
-                next
-            end
-
-            if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(mx49["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
                 next
             end
 

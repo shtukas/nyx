@@ -195,8 +195,6 @@ class Waves
 
             puts "#{Waves::toString(wave)}".green
 
-            puts "note:\n#{StructuredTodoTexts::getNoteOrNull(wave["uuid"])}".green
-
             puts ""
 
             puts "uuid: #{wave["uuid"]}".yellow
@@ -206,7 +204,7 @@ class Waves
 
             puts ""
 
-            puts "[item   ] access | done | <datecode> | note | description | atom | recast schedule | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | atom | recast schedule | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -226,12 +224,6 @@ class Waves
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
-            end
-
-            if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(wave["uuid"]) || "")
-                StructuredTodoTexts::setNote(wave["uuid"], note)
-                next
             end
 
             if Interpreting::match("description", command) then

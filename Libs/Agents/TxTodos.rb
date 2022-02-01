@@ -239,12 +239,7 @@ class TxTodos
                 puts text
             end
 
-            note = StructuredTodoTexts::getNoteOrNull(nx50["uuid"])
-            if note then
-                puts "note:\n#{note}".green
-            end
-
-            puts "access | note | <datecode> | description | atom | ordinal | rotate | >> (transmute) | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | ordinal | rotate | >> (transmute) | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -259,12 +254,6 @@ class TxTodos
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx50)
                 nx50 = Librarian::getShapeXed1OrNull(nx50["uuid"], TxTodos::shapeX())
-                next
-            end
-
-            if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx50["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
                 next
             end
 

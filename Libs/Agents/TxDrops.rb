@@ -94,12 +94,7 @@ class TxDrops
                 puts text
             end
 
-            note = StructuredTodoTexts::getNoteOrNull(nx70["uuid"])
-            if note then
-                puts "note:\n#{note}".green
-            end
-
-            puts "access | note | <datecode> | description | atom | show json | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | show json | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -114,12 +109,6 @@ class TxDrops
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx70)
                 nx70 = Librarian::getShapeXed1OrNull(nx70["uuid"], TxDrops::shapeX())
-                next
-            end
-
-            if command == "note" then
-                note = Utils::editTextSynchronously(StructuredTodoTexts::getNoteOrNull(nx70["uuid"]) || "")
-                StructuredTodoTexts::setNote(uuid, note)
                 next
             end
 
