@@ -40,10 +40,9 @@ class TxFloats
         atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "domainx", domainx)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getShapeXed1OrNull(uuid, TxFloats::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -110,7 +109,7 @@ class TxFloats
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(mx48)
-                mx48 = Librarian::getShapeXed1OrNull(mx48["uuid"], TxFloats::shapeX())
+                mx48 = Librarian::getMikuFileOrNull(mx48["uuid"])
                 next
             end
 

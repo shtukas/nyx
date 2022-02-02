@@ -40,10 +40,9 @@ class TxSpaceships
         atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "domainx", domainx)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getShapeXed1OrNull(uuid, TxSpaceships::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -110,7 +109,7 @@ class TxSpaceships
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx60)
-                nx60 = Librarian::getShapeXed1OrNull(nx60["uuid"], TxSpaceships::shapeX())
+                nx60 = Librarian::getMikuFileOrNull(nx60["uuid"])
                 next
             end
 

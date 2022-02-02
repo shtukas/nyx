@@ -40,10 +40,9 @@ class TxDrops
         atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "domainx", domainx)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getShapeXed1OrNull(uuid, TxDrops::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -110,7 +109,7 @@ class TxDrops
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx70)
-                nx70 = Librarian::getShapeXed1OrNull(nx70["uuid"], TxDrops::shapeX())
+                nx70 = Librarian::getMikuFileOrNull(nx70["uuid"])
                 next
             end
 

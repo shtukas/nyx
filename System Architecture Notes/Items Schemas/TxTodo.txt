@@ -1,10 +1,11 @@
 
 TxSpaceship = {
   "uuid"           : String
+  "mikuType"       : "MxClassic"
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "classification" : TxClassifier # "TxTodo"
+  "classification" : TxClassifier "TxTodo"
   "atom"           : Atom
   "ordinal"        : Float
 }

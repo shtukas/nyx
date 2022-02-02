@@ -83,8 +83,7 @@ class NS16sOperator
                 atom        = Atoms5::issueAionPointAtomUsingLocation(location)
                 ordinal     = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
 
-                Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-                Librarian::setValue(uuid, "ordinal", ordinal)
+                Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
                 LucilleCore::removeFileSystemLocation(location)
             }

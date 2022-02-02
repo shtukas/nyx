@@ -407,8 +407,22 @@ class Librarian
     # Public Files Creation, Updates and Deletion
     # ------------------------------------------------
 
-    # Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-    def self.issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
+    # Librarian::setValue(uuid, key, value)
+    def self.setValue(uuid, key, value)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return if filepath.nil?
+        Librarian::setValueAtFilepath(filepath, key, value)
+    end
+
+    # Librarian::getValueOrNull(filepath, key)
+    def self.getValueOrNull(filepath, key)
+        filepath = Librarian::uuidToFilepathOrNull(uuid)
+        return if filepath.nil?
+        Librarian::getValueAtFilepathOrNull(filepath, key)
+    end
+
+    # Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, ordinal)
+    def self.issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, ordinal)
 
         filename = Librarian::newMikuFilename()
         filepath = Librarian::filenameToNewFilepath(filename)
@@ -417,14 +431,18 @@ class Librarian
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "create table _table1_ (_recorduuid_ text primary key, _unixtime_ float, _name_ string, _data_ blob)", []
-        db.execute "create table _datablobs_ (_nhash_ string primary key, _data_ blob)", []
-        db.execute "create table _notes_ (_uuid_ text primary key, _unixtime_ float, _text_ text)", []
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "mikuType", "MxClassic"]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "uuid", uuid]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "description", description]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "unixtime", unixtime]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "datetime", datetime]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "classification", classifier]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "atom", JSON.generate(atom)]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "domainx", domainx]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "ordinal", ordinal]
+
+        db.execute "create table _datablobs_ (_nhash_ string primary key, _data_ blob)", []
+        db.execute "create table _notes_ (_uuid_ text primary key, _unixtime_ float, _text_ text)", []
         db.close
 
         # Caching the location of that file
@@ -439,25 +457,30 @@ class Librarian
         filepath
     end
 
-    # Librarian::getShapeXed1OrNull(uuid, shapeX) # Object
-    def self.getShapeXed1OrNull(uuid, shapeX)
+    # Librarian::getMikuFileOrNull(uuid) # Object
+    def self.getMikuFileOrNull(uuid)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return nil if filepath.nil?
-        Librarian::getShapeXedAtFilepath1(filepath, shapeX)
-    end
 
-    # Librarian::setValue(uuid, key, value)
-    def self.setValue(uuid, key, value)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        Librarian::setValueAtFilepath(filepath, key, value)
-    end
+        miku = {}
+        miku["uuid"] = Librarian::getValueOrNull(filepath, "uuid")
 
-    # Librarian::getValueOrNull(filepath, key)
-    def self.getValueOrNull(filepath, key)
-        filepath = Librarian::uuidToFilepathOrNull(uuid)
-        return if filepath.nil?
-        Librarian::getValueAtFilepathOrNull(filepath, key)
+        mikuType = Librarian::getValueOrNull(filepath, "mikuType")
+
+        miku["mikuType"] = mikuType
+
+        if mikuType == "MxClassic" then
+            miku["description"]    = Librarian::getValueOrNull(filepath, "description")
+            miku["unixtime"]       = Librarian::getValueOrNull(filepath, "unixtime")
+            miku["datetime"]       = Librarian::getValueOrNull(filepath, "datetime")
+            miku["classification"] = Librarian::getValueOrNull(filepath, "classification")
+            miku["atom"]           = JSON.parse(Librarian::getValueOrNull(filepath, "atom"))
+            miku["ordinal"]        = Librarian::getValueOrNull(filepath, "ordinal")
+            miku["domainx"]        = Librarian::getValueOrNull(filepath, "domainx")
+            return miku
+        end
+
+        raise "(error: 143183d3-db8f)"
     end
 
     # Librarian::destroy(uuid)

@@ -72,9 +72,8 @@ class TxWorkItems
         classifier = "TxWorkItem"
         atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         ordinal    = TxWorkItems::interactivelyDecideNewOrdinal()
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "ordinal", ordinal)
-        Librarian::getShapeXed1OrNull(uuid, TxWorkItems::shapeX())
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "work", ordinal)
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # TxWorkItems::issueItemUsingInboxLocation(location)
@@ -86,9 +85,8 @@ class TxWorkItems
         classifier  = "TxWorkItem"
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal     = TxWorkItems::interactivelyDecideNewOrdinal()
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "ordinal", ordinal)
-        Librarian::getShapeXed1OrNull(uuid, TxWorkItems::shapeX())
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "work", ordinal)
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -158,7 +156,7 @@ class TxWorkItems
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(mx51)
-                mx51 = Librarian::getShapeXed1OrNull(mx51["uuid"], TxWorkItems::shapeX())
+                mx51 = Librarian::getMikuFileOrNull(mx51["uuid"])
                 next
             end
 

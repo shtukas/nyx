@@ -1,10 +1,11 @@
 
 TxFloat = {
   "uuid"           : String
+  "mikuType"       : "MxClassic"
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "classification" : TxClassifier # "TxFloat"
+  "classification" : TxClassifier "TxFloat"
   "atom"           : Atom
   "domainx"        : "eva" | "work"
 }

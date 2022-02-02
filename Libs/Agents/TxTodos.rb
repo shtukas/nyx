@@ -80,10 +80,9 @@ class TxTodos
         atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         ordinal    = TxTodos::interactivelyDecideNewOrdinal()
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "ordinal", ordinal)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # TxTodos::issueItemUsingInboxLocation(location)
@@ -97,10 +96,9 @@ class TxTodos
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "ordinal", ordinal)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
@@ -113,10 +111,9 @@ class TxTodos
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal     = TxTodos::interactivelyDecideNewOrdinal()
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "ordinal", ordinal)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # TxTodos::issueSpreadItem(location, description, ordinal)
@@ -128,10 +125,9 @@ class TxTodos
         atom       = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal    = ordinal
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "ordinal", ordinal)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # TxTodos::issueViennaURL(url)
@@ -144,10 +140,9 @@ class TxTodos
         atom        = Atoms5::issueUrlAtomUsingUrl(url)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
-        Librarian::issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
-        Librarian::setValue(uuid, "ordinal", ordinal)
+        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getShapeXed1OrNull(uuid, TxTodos::shapeX())
+        Librarian::getMikuFileOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -250,7 +245,7 @@ class TxTodos
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx50)
-                nx50 = Librarian::getShapeXed1OrNull(nx50["uuid"], TxTodos::shapeX())
+                nx50 = Librarian::getMikuFileOrNull(nx50["uuid"])
                 next
             end
 
