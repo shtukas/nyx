@@ -1,5 +1,5 @@
 
-- Librarian files, aka Miku files, are put in Galaxy/Librarian/Files/<index>/
+- Librarian files, aka Miku files, are put in Galaxy/Librarian/MikuFiles/<index>/
 
 - Miku files are named <L22>.miku
 

@@ -199,8 +199,8 @@ class Librarian
         "/Users/pascal/Galaxy/Librarian"
     end
 
-    # Librarian::MikuFilesFolderpath()
-    def self.MikuFilesFolderpath()
+    # Librarian::MikuFilesRootFolderpath()
+    def self.MikuFilesRootFolderpath()
         "#{Librarian::LibrarianRepositoryFolderpath()}/MikuFiles"
     end
 
@@ -212,6 +212,13 @@ class Librarian
     # Librarian::newMikuFilename()
     def self.newMikuFilename()
         "#{Librarian::timeStringL22()}.miku"
+    end
+
+    # Librarian::filenameToNewFilepath(filename)
+    def self.filenameToNewFilepath(filename)
+        folder1 = Librarian::MikuFilesRootFolderpath()
+        folder2 = LucilleCore::indexsubfolderpath2(folder1, 250)
+        "#{folder2}/#{filename}"
     end
 
     # Librarian::classifiers()
@@ -244,7 +251,13 @@ class Librarian
 
     # Librarian::mikufilepaths()
     def self.mikufilepaths()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+        Enumerator.new do |filepaths|
+            Find.find(Librarian::MikuFilesRootFolderpath()) do |location|
+                next if !File.file?(location)
+                next if location[-5, 5] != ".miku"
+                filepaths << location
+            end
+        end
     end
 
     # Librarian::theGreatBlobFinder(nhash)
@@ -281,7 +294,7 @@ class Librarian
 
         useTheForce = lambda {|uuid|
             puts "Using the Force to find filepath for uuid: #{uuid}"
-            LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/Librarian/MikuFiles")
+            Librarian::mikufilepaths()
                 .select{|filepath| Librarian::getValueAtFilepathOrNull(filepath, "uuid") == uuid }
                 .first
         }
@@ -398,7 +411,7 @@ class Librarian
     def self.issueNewFile2(uuid, description, unixtime, datetime, classifier, atom)
 
         filename = Librarian::newMikuFilename()
-        filepath = "#{Librarian::MikuFilesFolderpath()}/#{filename}"
+        filepath = Librarian::filenameToNewFilepath(filename)
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
