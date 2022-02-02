@@ -414,8 +414,8 @@ class Librarian
         Librarian::setValueAtFilepath(filepath, key, value)
     end
 
-    # Librarian::getValueOrNull(filepath, key)
-    def self.getValueOrNull(filepath, key)
+    # Librarian::getValueOrNull(uuid, key)
+    def self.getValueOrNull(uuid, key)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return if filepath.nil?
         Librarian::getValueAtFilepathOrNull(filepath, key)
@@ -463,20 +463,20 @@ class Librarian
         return nil if filepath.nil?
 
         miku = {}
-        miku["uuid"] = Librarian::getValueOrNull(filepath, "uuid")
+        miku["uuid"] = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
 
-        mikuType = Librarian::getValueOrNull(filepath, "mikuType")
+        mikuType = Librarian::getValueAtFilepathOrNull(filepath, "mikuType")
 
         miku["mikuType"] = mikuType
 
         if mikuType == "MxClassic" then
-            miku["description"]    = Librarian::getValueOrNull(filepath, "description")
-            miku["unixtime"]       = Librarian::getValueOrNull(filepath, "unixtime")
-            miku["datetime"]       = Librarian::getValueOrNull(filepath, "datetime")
-            miku["classification"] = Librarian::getValueOrNull(filepath, "classification")
-            miku["atom"]           = JSON.parse(Librarian::getValueOrNull(filepath, "atom"))
-            miku["ordinal"]        = Librarian::getValueOrNull(filepath, "ordinal")
-            miku["domainx"]        = Librarian::getValueOrNull(filepath, "domainx")
+            miku["description"]    = Librarian::getValueAtFilepathOrNull(filepath, "description")
+            miku["unixtime"]       = Librarian::getValueAtFilepathOrNull(filepath, "unixtime")
+            miku["datetime"]       = Librarian::getValueAtFilepathOrNull(filepath, "datetime")
+            miku["classification"] = Librarian::getValueAtFilepathOrNull(filepath, "classification")
+            miku["atom"]           = JSON.parse(Librarian::getValueAtFilepathOrNull(filepath, "atom"))
+            miku["ordinal"]        = Librarian::getValueAtFilepathOrNull(filepath, "ordinal")
+            miku["domainx"]        = Librarian::getValueAtFilepathOrNull(filepath, "domainx")
             return miku
         end
 
