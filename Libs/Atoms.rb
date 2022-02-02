@@ -1,4 +1,3 @@
-
 # encoding: UTF-8
 
 # --------------------------------------------------------------------------------------
@@ -148,24 +147,24 @@ end
 Atoms
 
 {
-    "uuid"        => SecureRandom.uuid,
-    "unixtime"    => Time.new.to_f,
-    "type"        => "description-only",
-    "payload"     => nil
+    "uuid"     => SecureRandom.uuid,
+    "unixtime" => Time.new.to_f,
+    "type"     => "description-only",
+    "payload"  => nil
 }
 
 {
-    "uuid"        => SecureRandom.uuid,
-    "unixtime"    => Time.new.to_f,
-    "type"        => "text",
-    "payload"     => text
+    "uuid"     => SecureRandom.uuid,
+    "unixtime" => Time.new.to_f,
+    "type"     => "text",
+    "payload"  => text
 }
 
 {
-    "uuid"        => SecureRandom.uuid,
-    "unixtime"    => Time.new.to_f,
-    "type"        => "url",
-    "payload"     => url
+    "uuid"     => SecureRandom.uuid,
+    "unixtime" => Time.new.to_f,
+    "type"     => "url",
+    "payload"  => url
 }
 
 {
@@ -176,10 +175,10 @@ Atoms
 }
 
 {
-    "uuid"        => SecureRandom.uuid,
-    "unixtime"    => Time.new.to_f,
-    "type"        => "unique-string",
-    "payload"     => uniqueString
+    "uuid"     => SecureRandom.uuid,
+    "unixtime" => Time.new.to_f,
+    "type"     => "unique-string",
+    "payload"  => uniqueString
 }
 
 =end

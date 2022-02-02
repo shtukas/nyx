@@ -185,6 +185,13 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
+        top = IO.read("/Users/pascal/Desktop/Top.txt").strip
+        if top.size > 0 then
+            puts top.green
+            puts ""
+            vspaceleft = vspaceleft - Utils::verticalSize(top) - 1
+        end
+
         waves.each{|ns16|
             store.register(ns16)
             line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
