@@ -229,6 +229,17 @@ class CommandsOps
     # CommandsOps::operator4(command)
     def self.operator4(command)
 
+        if command == "[]" then
+            filepath = "/Users/pascal/Desktop/Top.txt"
+            Utils::copyFileToBinTimeline(filepath)
+            Utils::applyNextTransformationToFile(filepath)
+            if LucilleCore::askQuestionAnswerAsBoolean("Want to log some time ? : ", true) then
+                time = LucilleCore::askQuestionAnswerAsString("Time in minutes: ").to_f
+                account = DomainsX::selectAccountOrNull()
+                Bank::put(account, time*60)
+            end
+        end
+
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""

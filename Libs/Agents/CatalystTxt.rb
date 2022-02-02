@@ -45,6 +45,7 @@ class CatalystTxt
     # CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(line)
     def self.rewriteCatalystTxtFileWithoutThisLine(line)
         filepath = "/Users/pascal/Desktop/Catalyst.txt"
+        Utils::copyFileToBinTimeline(filepath)
         contents = IO.read(filepath)
         contents = contents.lines.reject{|l| l.strip == line }.join()
         File.open(filepath, "w"){|f| f.write(contents) }
