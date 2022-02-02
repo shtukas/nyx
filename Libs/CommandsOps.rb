@@ -62,29 +62,6 @@ class CommandsOps
             Calendar::moveToArchives(object["item"])
         end
 
-        if object["NS198"] == "NS16:CatalystTxt" and command == ".." then
-            line = object["line"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
-            return if action.nil?
-            if action == "start" then
-                account = DomainsX::selectAccount()
-                NxBallsService::issue(SecureRandom.uuid, line, [account])
-            end
-            if action == "done" then
-                CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(line)
-            end
-        end
-
-        if object["NS198"] == "NS16:CatalystTxt" and command == "done" then
-            Utils::copyFileToBinTimeline("/Users/pascal/Desktop/Catalyst.txt")
-            CatalystTxt::rewriteCatalystTxtFileWithoutThisLine(object["line"])
-        end
-
-        if object["NS198"] == "NS16:CatalystTxt" and command == "''" then
-            line = object["line"]
-            ItemStoreOps::delistForDefault(CatalystTxt::lineToUuid(line))
-        end
-
         if object["NS198"] == "NS16:Fitness1" and command == ".." then
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
         end
@@ -96,6 +73,29 @@ class CommandsOps
         if object["NS198"] == "NS16:Inbox1" and command == ">>" then
             location = object["location"]
             CommandsOps::transmutation2(location, "inbox")
+        end
+
+        if object["NS198"] == "NS16:SxTopLines" and command == ".." then
+            line = object["line"]
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
+            return if action.nil?
+            if action == "start" then
+                account = DomainsX::selectAccount()
+                NxBallsService::issue(SecureRandom.uuid, line, [account])
+            end
+            if action == "done" then
+                SxTopLines::rewriteSxTopLinesFileWithoutThisLine(line)
+            end
+        end
+
+        if object["NS198"] == "NS16:SxTopLines" and command == "done" then
+            Utils::copyFileToBinTimeline("/Users/pascal/Desktop/Top&Lines.txt")
+            SxTopLines::rewriteSxTopLinesFileWithoutThisLine(object["line"])
+        end
+
+        if object["NS198"] == "NS16:SxTopLines" and command == "''" then
+            line = object["line"]
+            ItemStoreOps::delistForDefault(SxTopLines::lineToUuid(line))
         end
 
         if object["NS198"] == "NS16:TxDated" and command == ".." then
@@ -230,7 +230,7 @@ class CommandsOps
     def self.operator4(command)
 
         if command == "[]" then
-            filepath = "/Users/pascal/Desktop/Top.txt"
+            filepath = "/Users/pascal/Desktop/Top&Lines.txt"
             Utils::copyFileToBinTimeline(filepath)
             Utils::applyNextTransformationToFile(filepath)
             if LucilleCore::askQuestionAnswerAsBoolean("Want to log some time ? : ", true) then

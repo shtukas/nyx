@@ -59,7 +59,7 @@ class NS16sOperator
         [
             TxDateds::ns16s(),
             TxDrops::ns16s(),
-            CatalystTxt::catalystTxtNs16s()
+            SxTopLines::catalystTxtNs16s()
         ]
             .flatten
             .compact
@@ -185,8 +185,9 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
-        top = IO.read("/Users/pascal/Desktop/Top.txt").strip
+        top = IO.read("/Users/pascal/Desktop/Top&Lines.txt").strip
         if top.size > 0 then
+            top = top.lines.first(10).join().strip
             puts top.green
             puts ""
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 1
