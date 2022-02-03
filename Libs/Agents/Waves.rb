@@ -165,7 +165,7 @@ class Waves
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
 
-        puts "Implement wave couner"
+        puts "Wave counter"
         Bank::put("WAVE-COUNTER-401B-B157-E5FA30D52A2C", 1)
     end
 
