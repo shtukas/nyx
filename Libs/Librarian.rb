@@ -336,6 +336,28 @@ class Librarian
         answer
     end
 
+    # Librarian::setValueAtFilepath(filepath, key, value)
+    def self.setValueAtFilepath(filepath, key, value)
+        db = SQLite3::Database.new(filepath)
+        db.execute "delete from _table1_ where _name_=?", [key]
+        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, key, value]
+        db.close
+
+        if key == "classification" then
+            uuid       = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
+            classifier = Librarian::getValueAtFilepathOrNull(filepath, "classification")
+            ordinal    = Librarian::getValueAtFilepathOrNull(filepath, "ordinal") || 0
+            LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
+        end
+
+        if key == "ordinal" then
+            uuid       = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
+            classifier = Librarian::getValueAtFilepathOrNull(filepath, "classification")
+            ordinal    = Librarian::getValueAtFilepathOrNull(filepath, "ordinal") || 0
+            LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
+        end
+    end
+
     # Librarian::getShapeXedAtFilepath1(filepath, shapeX)
     def self.getShapeXedAtFilepath1(filepath, shapeX)
         object = {}
@@ -365,28 +387,6 @@ class Librarian
         db.close
 
         object
-    end
-
-    # Librarian::setValueAtFilepath(filepath, key, value)
-    def self.setValueAtFilepath(filepath, key, value)
-        db = SQLite3::Database.new(filepath)
-        db.execute "delete from _table1_ where _name_=?", [key]
-        db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, key, value]
-        db.close
-
-        if key == "classification" then
-            uuid       = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
-            classifier = Librarian::getValueAtFilepathOrNull(filepath, "classification")
-            ordinal    = Librarian::getValueAtFilepathOrNull(filepath, "ordinal") || 0
-            LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
-        end
-
-        if key == "ordinal" then
-            uuid       = Librarian::getValueAtFilepathOrNull(filepath, "uuid")
-            classifier = Librarian::getValueAtFilepathOrNull(filepath, "classification")
-            ordinal    = Librarian::getValueAtFilepathOrNull(filepath, "ordinal") || 0
-            LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
-        end
     end
 
     # Librarian::setShapeXedAtFilepath1(filepath, object, shapeX)
@@ -457,8 +457,8 @@ class Librarian
         filepath
     end
 
-    # Librarian::getMikuFileOrNull(uuid) # Object
-    def self.getMikuFileOrNull(uuid)
+    # Librarian::getMikuOrNull(uuid) # Object
+    def self.getMikuOrNull(uuid)
         filepath = Librarian::uuidToFilepathOrNull(uuid)
         return nil if filepath.nil?
 

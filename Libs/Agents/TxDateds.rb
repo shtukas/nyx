@@ -45,7 +45,7 @@ class TxDateds
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxDateds::interactivelyCreateNewTodayOrNull()
@@ -62,7 +62,7 @@ class TxDateds
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -120,7 +120,7 @@ class TxDateds
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(mx49)
-                mx49 = Librarian::getMikuFileOrNull(mx49["uuid"])
+                mx49 = Librarian::getMikuOrNull(mx49["uuid"])
                 next
             end
 
@@ -143,7 +143,8 @@ class TxDateds
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                mx49 = Librarian::updateMikuAtom(mx49["uuid"], atom)
+                Librarian::setValue(mx49["uuid"], "atom", JSON.generate(atom))
+                mx49["atom"] = atom
                 next
             end
 

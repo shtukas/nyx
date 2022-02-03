@@ -42,7 +42,7 @@ class TxFloats
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -109,7 +109,7 @@ class TxFloats
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(mx48)
-                mx48 = Librarian::getMikuFileOrNull(mx48["uuid"])
+                mx48 = Librarian::getMikuOrNull(mx48["uuid"])
                 next
             end
 
@@ -124,7 +124,8 @@ class TxFloats
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                mx48 = Librarian::updateMikuAtom(mx48["uuid"], atom)
+                Librarian::setValue(mx48["uuid"], "atom", JSON.generate(atom))
+                mx48["atom"] = atom
                 next
             end
 

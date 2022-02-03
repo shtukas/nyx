@@ -42,7 +42,7 @@ class TxSpaceships
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -109,7 +109,7 @@ class TxSpaceships
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx60)
-                nx60 = Librarian::getMikuFileOrNull(nx60["uuid"])
+                nx60 = Librarian::getMikuOrNull(nx60["uuid"])
                 next
             end
 
@@ -124,7 +124,8 @@ class TxSpaceships
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                nx60 = Librarian::updateMikuAtom(nx60["uuid"], atom)
+                Librarian::setValue(nx60["uuid"], "atom", JSON.generate(atom))
+                nx60["atom"] = atom
                 next
             end
 

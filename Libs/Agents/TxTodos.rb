@@ -82,7 +82,7 @@ class TxTodos
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxTodos::issueItemUsingInboxLocation(location)
@@ -98,7 +98,7 @@ class TxTodos
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
@@ -113,7 +113,7 @@ class TxTodos
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxTodos::issueSpreadItem(location, description, ordinal)
@@ -127,7 +127,7 @@ class TxTodos
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # TxTodos::issueViennaURL(url)
@@ -142,7 +142,7 @@ class TxTodos
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -245,7 +245,7 @@ class TxTodos
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx50)
-                nx50 = Librarian::getMikuFileOrNull(nx50["uuid"])
+                nx50 = Librarian::getMikuOrNull(nx50["uuid"])
                 next
             end
 
@@ -260,7 +260,8 @@ class TxTodos
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                nx50 = Librarian::updateMikuAtom(nx50["uuid"], atom)
+                Librarian::setValue(nx50["uuid"], "atom", JSON.generate(atom))
+                nx50["atom"] = atom
                 next
             end
 

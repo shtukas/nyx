@@ -42,7 +42,7 @@ class TxDrops
 
         Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
 
-        Librarian::getMikuFileOrNull(uuid)
+        Librarian::getMikuOrNull(uuid)
     end
 
     # --------------------------------------------------
@@ -109,7 +109,7 @@ class TxDrops
 
             if Interpreting::match("access", command) then
                 Librarian::accessMikuAtom(nx70)
-                nx70 = Librarian::getMikuFileOrNull(nx70["uuid"])
+                nx70 = Librarian::getMikuOrNull(nx70["uuid"])
                 next
             end
 
@@ -124,7 +124,8 @@ class TxDrops
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                nx70 = Librarian::updateMikuAtom(nx70["uuid"], atom)
+                Librarian::setValue(nx70["uuid"], "atom", JSON.generate(atom))
+                nx70["atom"] = atom
                 next
             end
 
