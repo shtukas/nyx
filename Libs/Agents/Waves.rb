@@ -6,22 +6,17 @@ class Waves
 
     # Waves::items()
     def self.items()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/Waves")
-            .select{|filepath| File.basename(filepath)[-5, 5] == ".json" }
-            .map{|filepath| JSON.parse(IO.read(filepath)) }
+        Librarian2Objects::objects()
     end
 
     # Waves::commit(wave)
     def self.commit(wave)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Waves/#{Digest::SHA1.hexdigest(wave["uuid"])[0, 10]}.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(wave)) }
+        Librarian2Objects::commit(wave)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Waves/#{Digest::SHA1.hexdigest(uuid)[0, 10]}.json"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+        Librarian2Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -352,10 +347,10 @@ class Waves
         # otherwise we manage the wave
 
         ns16s = Waves::items()
-                    .select{|wave| Waves::isPriorityWave(wave) }
-                    .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
-                    .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
-                    .map{|wave| Waves::toNS16(wave) }
+                .select{|wave| Waves::isPriorityWave(wave) }
+                .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+                .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+                .map{|wave| Waves::toNS16(wave) }
 
         return ns16s if !ns16s.empty?
 
@@ -364,10 +359,10 @@ class Waves
         focus = DomainsX::focusOrNull()
 
         Waves::items()
-                    .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
-                    .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
-                    .select{|wave| focus.nil? or (wave["domainx"] == focus) }
-                    .map{|wave| Waves::toNS16(wave) }
+            .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+            .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+            .select{|wave| focus.nil? or (wave["domainx"] == focus) }
+            .map{|wave| Waves::toNS16(wave) }
     end
 
     # Waves::nx19s()
