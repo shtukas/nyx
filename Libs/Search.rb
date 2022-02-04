@@ -5,11 +5,7 @@ class Search
 
     # Search::nx19s()
     def self.nx19s()
-        Anniversaries::nx19s() +
-        Calendar::nx19s() +
-        Inbox::nx19s() +
-        Waves::nx19s() +
-        TxTodos::nx19s()
+        Waves::nx19s()
     end
 
     # Search::existingUUIDS()
