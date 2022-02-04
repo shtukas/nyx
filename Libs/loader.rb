@@ -127,6 +127,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
+require "/Users/pascal/Galaxy/Software/Librarian2/Librarian2.rb"
+
 # ------------------------------------------------------------
 
 require_relative "Agents/Anniversaries.rb"
