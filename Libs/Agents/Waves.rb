@@ -6,12 +6,7 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Librarian2Objects::objects()
-    end
-
-    # Waves::commit(wave)
-    def self.commit(wave)
-        Librarian2Objects::commit(wave)
+        Librarian2Objects::getObjectsByMikuType("Wave")
     end
 
     # Waves::destroy(uuid)
@@ -115,12 +110,15 @@ class Waves
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
+        atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        Librarian2Objects::commit(atom)
+
         wave = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "atom"        => Atoms5::interactivelyCreateNewAtomOrNull(),
+            "atomuuid"    => atom["uuid"],
         }
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
@@ -132,7 +130,7 @@ class Waves
 
         wave["domainx"] = DomainsX::interactivelySelectDomainX()
 
-        Waves::commit(wave)
+        Librarian2Objects::commit(wave)
         wave
     end
 
@@ -155,7 +153,7 @@ class Waves
 
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Waves::commit(wave)
+        Librarian2Objects::commit(wave)
 
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
@@ -167,11 +165,15 @@ class Waves
 
     # Waves::accessContent(wave)
     def self.accessContent(wave)
-        return if wave["atom"]["type"] == "description-only"
-        updated = Atoms5::accessWithOptionToEditOptionalUpdate(wave["atom"])
-        if updated then
-            wave["atom"] = updated
-            Waves::commit(wave)
+        atomuuid = wave["atomuuid"]
+        atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+        return if atom.nil?
+        return if atom["type"] == "description-only"
+        atom = Atoms5::accessWithOptionToEditOptionalUpdate(atom)
+        if atom then
+            Librarian2Objects::commit(atom)
+            wave["atomuuid"] = atom["uuid"]
+            Librarian2Objects::commit(wave)
         end
     end
 
@@ -229,8 +231,11 @@ class Waves
             end
 
             if Interpreting::match("atom", command) then
-                wave["atom"] = Atoms5::interactivelyCreateNewAtomOrNull()
-                Waves::commit(wave)
+                atom = Atoms5::interactivelyCreateNewAtomOrNull()
+                next if atom.nil?
+                Librarian2Objects::commit(atom)
+                wave["atomuuid"] = atom["uuid"]
+                Librarian2Objects::commit(wave)
                 next
             end
 
@@ -239,7 +244,7 @@ class Waves
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
-                Waves::commit(wave)
+                Librarian2Objects::commit(wave)
                 next
             end
 
