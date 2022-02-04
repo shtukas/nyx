@@ -127,6 +127,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Atoms.rb"
+
 require "/Users/pascal/Galaxy/Software/Librarian2/Librarian2.rb"
 
 # ------------------------------------------------------------
@@ -141,8 +143,6 @@ require_relative "Agents/TxTodos.rb"
 require_relative "Agents/TxSpaceships.rb"
 require_relative "Agents/TxWorkItems.rb"
 require_relative "Agents/Waves.rb"
-
-require_relative "Atoms.rb"
 
 require_relative "Bank.rb"
 
