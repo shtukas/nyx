@@ -340,6 +340,7 @@ class Waves
 
     # Waves::circuitBreaker()
     def self.circuitBreaker()
+        return false if Time.new.hour >= 18
         return true if (Beatrice::stdRecoveredHourlyTimeInHours("WAVES-5B66-4E89-B919-4F4463725EAC") > 0.25)
         return true if (Bank::valueOverTimespan("WAVE-COUNTER-401B-B157-E5FA30D52A2C", 3600) > 5)
         false
