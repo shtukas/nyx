@@ -117,6 +117,7 @@ class Waves
 
         wave = {
             "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "atom"        => Atoms5::interactivelyCreateNewAtomOrNull(),
