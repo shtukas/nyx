@@ -54,8 +54,20 @@ class NS16sOperator
         unixtime
     end
 
-    # NS16sOperator::section3()
-    def self.section3()
+    # NS16sOperator::misc()
+    def self.misc()
+        [
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+        ]
+            .flatten
+            .compact
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    end
+
+    # NS16sOperator::firstComeFirstServedOnGoingDay()
+    def self.firstComeFirstServedOnGoingDay()
         [
             TxDateds::ns16s(),
             TxDrops::ns16s(),
@@ -66,6 +78,24 @@ class NS16sOperator
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .sort{|i1, i2| NS16sOperator::getListingUnixtime(i1["uuid"]) <=> NS16sOperator::getListingUnixtime(i2["uuid"]) }
+    end
+
+    # NS16sOperator::todosOrWorkItemsDrivenByFocus(focus)
+    def self.todosOrWorkItemsDrivenByFocus(focus)
+        if focus then
+            if focus == "eva" then
+                TxTodos::ns16s()
+            else
+                TxWorkItems::ns16s()
+            end
+        else
+            preference = DomainsX::preference()
+            if preference == "eva" then
+                TxTodos::ns16s()
+            else
+                TxWorkItems::ns16s()
+            end
+        end
     end
 
     # NS16sOperator::ns16s()
@@ -90,29 +120,15 @@ class NS16sOperator
 
         focus = DomainsX::focusOrNull()
 
-        tx = 
-            if focus then
-                if focus == "eva" then
-                    TxTodos::ns16s()
-                else
-                    TxWorkItems::ns16s()
-                end
-            else
-                preference = DomainsX::preference()
-                if preference == "eva" then
-                    TxTodos::ns16s()
-                else
-                    TxWorkItems::ns16s()
-                end
-            end
-
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            NS16sOperator::misc(),
+            Waves::ns16s(),
+            NS16sOperator::firstComeFirstServedOnGoingDay(),
             Inbox::ns16s(),
-            tx
+            TxSpaceships::ns16sForDominant(),
+            NS16sOperator::todosOrWorkItemsDrivenByFocus(focus)
         ]
             .flatten
             .compact
@@ -123,8 +139,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(floats, waves, section3, spaceships, ns16s)
-    def self.display(floats, waves, section3, spaceships, ns16s)
+    # TerminalDisplayOperator::display(floats, ns16s)
+    def self.display(floats, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -192,49 +208,10 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 1
         end
 
-        waves.each{|ns16|
-            store.register(ns16)
-            line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
-            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
-            puts line
-            vspaceleft = vspaceleft - Utils::verticalSize(line)
-        }
-        if waves.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
-        section3.each{|ns16|
-            store.register(ns16)
-            line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
-            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
-            puts line
-            vspaceleft = vspaceleft - Utils::verticalSize(line)
-        }
-        if section3.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
-        spaceships.each{|ns16|
-            store.register(ns16)
-            line = "#{store.prefixString()} #{ns16["announce"]}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
-            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
-            puts line
-            vspaceleft = vspaceleft - Utils::verticalSize(line)
-        }
-        if spaceships.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
         ns16s
             .each{|ns16|
                 store.register(ns16)
                 line = ns16["announce"]
-                if store.latestEnteredItemIsDefault() then
-                    line = line.yellow
-                end
                 line = "#{store.prefixString()} #{line}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
                 break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
                 puts line
@@ -286,12 +263,9 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
-            floats     = filter1.call(TxFloats::ns16s())
-            waves      = filter1.call(Waves::ns16s()).first(6)
-            section3   = filter1.call(NS16sOperator::section3())
-            spaceships = filter1.call(TxSpaceships::ns16sForDominant())
-            ns16s      = NS16sOperator::ns16s()
-            TerminalDisplayOperator::display(floats, waves, section3, spaceships, ns16s)
+            floats = filter1.call(TxFloats::ns16s())
+            ns16s  = NS16sOperator::ns16s()
+            TerminalDisplayOperator::display(floats, ns16s)
         }
     end
 end
