@@ -191,6 +191,7 @@ class Atoms5
     def self.issueDescriptionOnlyAtom()
         {
             "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "description-only",
             "payload"     => nil
@@ -201,6 +202,7 @@ class Atoms5
     def self.issueTextAtomUsingText(text)
         {
             "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "text",
             "payload"     => text
@@ -211,6 +213,7 @@ class Atoms5
     def self.issueUrlAtomUsingUrl(url)
         {
             "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "url",
             "payload"     => url
@@ -224,6 +227,7 @@ class Atoms5
         Atoms0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
+            "mikuType"    => "Atom",
             "unixtime" => Time.new.to_f,
             "type"     => "aion-point",
             "payload"  => nhash
@@ -234,6 +238,7 @@ class Atoms5
     def self.issueUniqueStringAtomUsingString(uniqueString)
         {
             "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "unique-string",
             "payload"     => uniqueString
@@ -245,6 +250,7 @@ class Atoms5
         foldername = Atoms0Utils::interactivelyMakeNewManagedFolderReturnName()
         {
             "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "managed-folder",
             "payload"     => foldername
@@ -255,6 +261,7 @@ class Atoms5
     def self.issueMarbleAtom(marbleId)
         {
             "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "marble",
             "payload"     => marbleId
