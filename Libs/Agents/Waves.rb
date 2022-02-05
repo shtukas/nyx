@@ -158,9 +158,6 @@ class Waves
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-
-        puts "Wave counter"
-        Bank::put("WAVE-COUNTER-401B-B157-E5FA30D52A2C", 1)
     end
 
     # Waves::accessContent(wave)
@@ -339,35 +336,27 @@ class Waves
         }
     end
 
-    # Waves::circuitBreaker()
-    def self.circuitBreaker()
-        return false if Time.new.hour >= 18
-        return true if (Beatrice::stdRecoveredHourlyTimeInHours("WAVES-5B66-4E89-B919-4F4463725EAC") > 0.25)
-        return true if (Bank::valueOverTimespan("WAVE-COUNTER-401B-B157-E5FA30D52A2C", 3600) > 5)
-        false
-    end
-
     # Waves::ns16s()
     def self.ns16s()
-        # We return the priority ones according to the `Waves::isPriorityWave` definition of priority
-        # otherwise we manage the wave
+        items1, items2 = Waves::items()
+            .partition{|wave| Waves::isPriorityWave(wave) }
 
-        ns16s = Waves::items()
-                .select{|wave| Waves::isPriorityWave(wave) }
-                .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
-                .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
-                .map{|wave| Waves::toNS16(wave) }
+        items2 = items2
+                .sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }
 
-        return ns16s if !ns16s.empty?
+        if items2.size > 5 then
+            cursor = Time.new.to_i + 1200
+            items2
+                .drop(5)
+                .each{|item|
+                    cursor = cursor + 1200
+                    DoNotShowUntil::setUnixtime(item["uuid"], cursor)
+                }
+        end
 
-        return [] if Waves::circuitBreaker()
-
-        focus = DomainsX::focusOrNull()
-
-        Waves::items()
+        (items1 + items2)
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
             .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
-            .select{|wave| focus.nil? or (wave["domainx"] == focus) }
             .map{|wave| Waves::toNS16(wave) }
     end
 
