@@ -14,116 +14,6 @@ require 'securerandom'
 # SecureRandom.hex(4) #=> "1ac4eb69"
 # SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
 
-=begin
-
-The operator is an object that has meet the following signatures
-
-    .commitBlob(blob: BinaryData) : Hash
-    .filepathToContentHash(filepath) : Hash
-    .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
-    .datablobCheck(nhash: Hash): Boolean
-
-class Elizabeth
-
-    def initialize()
-
-    end
-
-    def commitBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        KeyValueStore::set(nil, nhash, blob)
-        nhash
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = KeyValueStore::getOrNull(nil, nhash)
-        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
-        blob
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-
-end
-
-AionCore::commitLocationReturnHash(operator, location)
-AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
-
-AionFsck::structureCheckAionHash(operator, nhash)
-
-=end
-
-class LibrarianMikuAtomElizabeth
-
-    # create table _datablobs_ (_nhash_ string primary key, _data_ blob)
-
-    def initialize(mikufilepath)
-        @mikufilepath = mikufilepath
-    end
-
-    def commitBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        db = SQLite3::Database.new(@mikufilepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _datablobs_ where _nhash_=?", [nhash]
-        db.execute "insert into _datablobs_ (_nhash_, _data_) values (?,?)", [nhash, blob]
-        db.close
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = nil
-
-        db = SQLite3::Database.new(@mikufilepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from _datablobs_ where _nhash_=?", [nhash]) do |row|
-            blob = row['_data_']
-        end
-        db.close
-
-        return blob if blob
-
-        blob = Atoms10BlobService::getBlobOrNull(nhash)
-        if blob then
-            commitBlob(blob)
-            return blob
-        end
-
-        blob = Librarian::theGreatBlobFinder(nhash)
-        if blob then
-            commitBlob(blob)
-            return blob
-        end
-
-        raise "[Elizabeth error: 1c2f2aa8-9ead-47fa-b09f-4927a89d9687, looking for nhash: #{nhash}, at mikufilepath: #{@mikufilepath}, did not find it and did not find it in Atoms10BlobService either]"
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-end
-
 class LibrarianUuidClassifierOrdinalIndex
 
     # LibrarianUuidClassifierOrdinalIndex::setRecord(uuid, classifier, ordinal)
@@ -258,24 +148,6 @@ class Librarian
                 filepaths << location
             end
         end
-    end
-
-    # Librarian::theGreatBlobFinder(nhash)
-    def self.theGreatBlobFinder(nhash)
-        puts "The great blob finder: #{nhash}"
-        Librarian::mikufilepaths().each{|filepath|
-            blob = nil
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _datablobs_ where _nhash_=?", [nhash]) do |row|
-                blob = row['_data_']
-            end
-            db.close
-            return blob if blob
-        }
-        nil
     end
 
     # ------------------------------------------------
@@ -441,7 +313,6 @@ class Librarian
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "domainx", domainx]
         db.execute "insert into _table1_ (_recorduuid_, _unixtime_, _name_, _data_) values (?,?,?,?)", [SecureRandom.uuid, Time.new.to_f, "ordinal", ordinal]
 
-        db.execute "create table _datablobs_ (_nhash_ string primary key, _data_ blob)", []
         db.execute "create table _notes_ (_uuid_ text primary key, _unixtime_ float, _text_ text)", []
         db.close
 
@@ -567,11 +438,11 @@ class Librarian
             return
         end
         if atom["type"] == "aion-point" then
-            AionCore::exportHashAtFolder(LibrarianMikuAtomElizabeth.new(mikufilepath), atom["payload"], "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(Librarian2Elizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
                 location = Atoms0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                nhash = AionCore::commitLocationReturnHash(LibrarianMikuAtomElizabeth.new(mikufilepath), location)
+                nhash = AionCore::commitLocationReturnHash(Librarian2Elizabeth.new(), location)
                 Atoms0Utils::moveFileToBinTimeline(location)
                 atom["payload"] = nhash
                 Librarian::setValueAtFilepath(mikufilepath, "atom", JSON.generate(atom))
@@ -692,7 +563,7 @@ class Librarian
         end
         if atom["type"] == "aion-point" then
             nhash = atom["payload"]
-            return AionFsck::structureCheckAionHash(LibrarianMikuAtomElizabeth.new(mikufilepath), nhash)
+            return AionFsck::structureCheckAionHash(Librarian2Elizabeth.new(), nhash)
         end
         if atom["type"] == "marble" then
             return true

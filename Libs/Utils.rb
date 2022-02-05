@@ -502,8 +502,11 @@ class Utils
         }
         Waves::items().each{|item|
             puts Waves::toString(item)
-            status = Atoms5::fsck(item["atom"])
-            raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{item["atom"]}]" if !status
+            atomuuid = item["atomuuid"]
+            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            raise "[error: f9bac651-ecb4-48fd-ab61-2c076d424e23, #{item}]" if atom.nil?
+            status = Atoms5::fsck(atom)
+            raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{atom}]" if !status
         }
         TxDateds::items().each{|item|
             puts TxDateds::toString(item)
