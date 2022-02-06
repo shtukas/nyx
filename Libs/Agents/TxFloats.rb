@@ -48,7 +48,7 @@ class TxFloats
 
     # TxFloats::toString(mx48)
     def self.toString(mx48)
-        "[floa] #{mx48["description"]}"
+        "[floa] #{mx48["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx48["atomuuid"])}"
     end
 
     # TxFloats::toStringForNS19(mx48)
@@ -166,7 +166,7 @@ class TxFloats
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxFloat",
-            "announce" => "#{mx48["description"]}",
+            "announce" => "#{mx48["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx48["atomuuid"])}",
             "commands" => [],
             "TxFloat"     => mx48
         }

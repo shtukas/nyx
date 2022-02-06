@@ -48,7 +48,7 @@ class TxDrops
 
     # TxDrops::toString(nx70)
     def self.toString(nx70)
-        "[drop] #{nx70["description"]}"
+        "[drop] #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}"
     end
 
     # TxDrops::toStringForNS19(nx70)
@@ -170,7 +170,7 @@ class TxDrops
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxDrop",
-            "announce" => "(drop) #{nx70["description"]}",
+            "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
             "commands" => ["..", "done", "''", ">> (transmute)"],
             "TxDrop"   => nx70
         }

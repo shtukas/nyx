@@ -48,7 +48,12 @@ class TxSpaceships
 
     # TxSpaceships::toString(nx60)
     def self.toString(nx60)
-        "[ship] #{nx60["description"]}"
+        "[ship] #{nx60["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx60["atomuuid"])}"
+    end
+
+    # TxSpaceships::toStringForNS16(nx60, rt)
+    def self.toStringForNS16(nx60, rt)
+        "[ship] (#{"%4.2f" % rt}) #{nx60["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx60["atomuuid"])}"
     end
 
     # TxSpaceships::toStringForNS19(nx60)
@@ -158,11 +163,6 @@ class TxSpaceships
 
     # --------------------------------------------------
     # nx16s
-
-    # TxSpaceships::toStringForNS16(nx60, rt)
-    def self.toStringForNS16(nx60, rt)
-        "[ship] (#{"%4.2f" % rt}) #{nx60["description"]}"
-    end
 
     # TxSpaceships::ns16(nx60)
     def self.ns16(nx60)

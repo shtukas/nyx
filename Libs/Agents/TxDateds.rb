@@ -79,7 +79,7 @@ class TxDateds
 
     # TxDateds::toString(mx49)
     def self.toString(mx49)
-        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}"
+        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx49["atomuuid"])}"
     end
 
     # TxDateds::toStringForNS19(mx49)
@@ -205,7 +205,7 @@ class TxDateds
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxDated",
-            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}",
+            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx49["atomuuid"])}",
             "commands" => ["..", "done", "redate", ">> (transmute)", "''"],
             "TxDated"     => mx49
         }

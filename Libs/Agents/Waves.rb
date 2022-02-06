@@ -145,7 +145,7 @@ class Waves
     def self.toString(wave)
         lastDoneDateTime = wave["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] #{wave["description"]} (#{Waves::scheduleString(wave)}) (#{ago})"
+        "[wave] #{wave["description"]}#{AgentsUtils::atomTypeForToStrings(" ", wave["atomuuid"])} (#{Waves::scheduleString(wave)}) (#{ago})"
     end
 
     # Waves::performDone(wave)

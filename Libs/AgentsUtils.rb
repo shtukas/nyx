@@ -23,4 +23,11 @@ class AgentsUtils
         return if atom.nil?
         LibrarianObjects::commit(atom)
     end
+
+    # AgentsUtils::atomTypeForToStrings(prefix, atomuuid)
+    def self.atomTypeForToStrings(prefix, atomuuid)
+        atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
+        return "" if atom.nil?
+        "#{prefix}(#{atom["type"]})"
+    end
 end
