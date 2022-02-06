@@ -111,6 +111,11 @@ class Waves
         return nil if description == ""
 
         atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        return nil if atom.nil?
+
+        schedule = Waves::makeScheduleParametersInteractivelyOrNull()
+        return nil if schedule.nil?
+
         Librarian2Objects::commit(atom)
 
         wave = {
@@ -120,9 +125,6 @@ class Waves
             "description" => description,
             "atomuuid"    => atom["uuid"],
         }
-
-        schedule = Waves::makeScheduleParametersInteractivelyOrNull()
-        return nil if schedule.nil?
 
         wave["repeatType"]       = schedule[0]
         wave["repeatValue"]      = schedule[1]
@@ -160,20 +162,6 @@ class Waves
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
 
-    # Waves::accessContent(wave)
-    def self.accessContent(wave)
-        atomuuid = wave["atomuuid"]
-        atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
-        return if atom.nil?
-        return if atom["type"] == "description-only"
-        atom = Atoms5::accessWithOptionToEditOptionalUpdate(atom)
-        if atom then
-            Librarian2Objects::commit(atom)
-            wave["atomuuid"] = atom["uuid"]
-            Librarian2Objects::commit(wave)
-        end
-    end
-
     # Waves::landing(wave)
     def self.landing(wave)
         uuid = wave["uuid"]
@@ -207,7 +195,7 @@ class Waves
             break if command == "xx"
 
             if command == "access" then
-                Waves::accessContent(wave)
+                AgentsUtils::accessAtom(wave["atomuuid"])
                 next
             end
 
@@ -290,7 +278,7 @@ class Waves
             [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", DomainsX::domainXToAccountNumber(wave["domainx"])]
         )
 
-        Waves::accessContent(wave)
+        AgentsUtils::accessAtom(wave["atomuuid"])
 
         loop {
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue", "landing and back"])

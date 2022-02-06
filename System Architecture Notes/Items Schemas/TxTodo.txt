@@ -1,21 +1,11 @@
+This is a local copy of the same definition in the Librarian.
 
-TxSpaceship = {
+TxTodo = {
   "uuid"           : String
-  "mikuType"       : "MxClassic"
+  "mikuType"       : "TxTodo"
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "classification" : TxClassifier "TxTodo"
-  "atom"           : Atom
+  "atomuuid"       : UUID of an Atom
   "ordinal"        : Float
 }
-
-shapeX = [
-    ["uuid"           , "string"],
-    ["description"    , "string"],
-    ["unixtime"       , "float"],
-    ["datetime"       , "string"],
-    ["classification" , "string"],
-    ["atom"           , "json"],
-    ["ordinal"        , "float"],
-]

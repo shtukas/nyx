@@ -2,27 +2,14 @@ j# encoding: UTF-8
 
 class TxSpaceships
 
-    # TxSpaceships::shapeX()
-    def self.shapeX()
-        [
-            ["uuid"           , "string"],
-            ["description"    , "string"],
-            ["unixtime"       , "float"],
-            ["datetime"       , "string"],
-            ["classification" , "string"],
-            ["atom"           , "json"],
-            ["domainx"        , "string"],
-        ]
-    end
-
     # TxSpaceships::items()
     def self.items()
-        Librarian::classifierToShapeXeds("TxSpaceship", TxSpaceships::shapeX())
+        Librarian2Objects::getObjectsByMikuType("TxSpaceship")
     end
 
     # TxSpaceships::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian2Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -33,16 +20,25 @@ class TxSpaceships
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
+        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        return nil if atom.nil?
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        classifier = "TxSpaceship"
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxSpaceship",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "domainx"     => domainx
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # --------------------------------------------------
@@ -50,7 +46,7 @@ class TxSpaceships
 
     # TxSpaceships::toString(nx60)
     def self.toString(nx60)
-        "[ship] #{nx60["description"]} (#{nx60["atom"]["type"]})"
+        "[ship] #{nx60["description"]}"
     end
 
     # TxSpaceships::toStringForNS19(nx60)
@@ -87,13 +83,11 @@ class TxSpaceships
             puts "uuid: #{uuid}".yellow
             puts "domain: #{nx60["domainx"]}".yellow
 
-            if text = Atoms5::atomPayloadToTextOrNull(nx60["atom"]) then
-                puts "text:\n#{text}"
-            end
+            AgentsUtils::atomLandingPresentation(nx60["atomuuid"])
 
-            Librarian::notes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
+            #Librarian::notes(uuid).each{|note|
+            #    puts "note: #{note["text"]}"
+            #}
 
             puts "access | <datecode> | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
 
@@ -108,8 +102,7 @@ class TxSpaceships
             end
 
             if Interpreting::match("access", command) then
-                Librarian::accessMikuAtom(nx60)
-                nx60 = Librarian::getMikuOrNull(nx60["uuid"])
+                AgentsUtils::accessAtom(nx60["atomuuid"])
                 next
             end
 
@@ -117,22 +110,22 @@ class TxSpaceships
                 description = Utils::editTextSynchronously(nx60["description"]).strip
                 next if description == ""
                 nx60["description"] = description
-                Librarian::setValue(nx60["uuid"], "description", description)
+                Librarian2Objects::commit(nx60)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                Librarian::setValue(nx60["uuid"], "atom", JSON.generate(atom))
-                nx60["atom"] = atom
+                atom["uuid"] = nx60["atomuuid"]
+                Librarian2Objects::commit(nx60)
                 next
             end
 
             if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian::addNote(nx60["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                next
+                #text = Utils::editTextSynchronously("").strip
+                #Librarian::addNote(nx60["uuid"], SecureRandom.uuid, Time.new.to_i, text)
+                #next
             end
 
             if Interpreting::match("show json", command) then
@@ -166,7 +159,7 @@ class TxSpaceships
 
     # TxSpaceships::toStringForNS16(nx60, rt)
     def self.toStringForNS16(nx60, rt)
-        "[ship] (#{"%4.2f" % rt}) #{nx60["description"]} (#{nx60["atom"]["type"]})"
+        "[ship] (#{"%4.2f" % rt}) #{nx60["description"]}"
     end
 
     # TxSpaceships::ns16(nx60)

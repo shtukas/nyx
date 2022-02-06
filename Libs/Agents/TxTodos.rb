@@ -2,32 +2,19 @@
 
 class TxTodos
 
-    # TxTodos::shapeX()
-    def self.shapeX()
-        [
-            ["uuid"           , "string"],
-            ["description"    , "string"],
-            ["unixtime"       , "float"],
-            ["datetime"       , "string"],
-            ["classification" , "string"],
-            ["atom"           , "json"],
-            ["ordinal"        , "float"],
-        ]
-    end
-
     # TxTodos::items()
     def self.items()
-        Librarian::classifierToShapeXeds("TxTodo", TxTodos::shapeX())
+        Librarian2Objects::getObjectsByMikuType("TxTodo")
     end
 
     # TxTodos::itemsCardinal(n)
     def self.itemsCardinal(n)
-        Librarian::classifierToShapeXedsLimitByOrdinal("TxTodo", TxTodos::shapeX(), 50)
+        Librarian2Objects::getObjectsByMikuType("TxTodo").first(50)
     end
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian2Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -73,16 +60,25 @@ class TxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
+        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        return nil if atom.nil?
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        classifier = "TxTodo"
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         ordinal    = TxTodos::interactivelyDecideNewOrdinal()
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxTodo",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "ordinal"     => ordinal
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # TxTodos::issueItemUsingInboxLocation(location)
@@ -92,28 +88,42 @@ class TxTodos
         description = File.basename(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        classifier  = "TxTodo"
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxTodo",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "ordinal"     => ordinal
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
     def self.interactivelyIssueItemUsingInboxLocation2(location)
-        uuid = SecureRandom.uuid
+        uuid        = SecureRandom.uuid
         description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        classifier  = "TxTodo"
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal     = TxTodos::interactivelyDecideNewOrdinal()
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxTodo",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "ordinal"     => ordinal
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # TxTodos::issueSpreadItem(location, description, ordinal)
@@ -121,13 +131,20 @@ class TxTodos
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        classifier = "TxTodo"
         atom       = Atoms5::issueAionPointAtomUsingLocation(location)
         ordinal    = ordinal
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxTodo",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "ordinal"     => ordinal
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # TxTodos::issueViennaURL(url)
@@ -136,13 +153,20 @@ class TxTodos
         description = url
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        classifier  = "TxTodo"
         atom        = Atoms5::issueUrlAtomUsingUrl(url)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxTodo",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "ordinal"     => ordinal
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # --------------------------------------------------
@@ -150,12 +174,12 @@ class TxTodos
 
     # TxTodos::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        "[nx50] #{nx50["description"]}"
     end
 
     # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
-        "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]}"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -165,7 +189,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["atom"]["type"]})"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}"
     end
 
     # --------------------------------------------------
@@ -223,13 +247,11 @@ class TxTodos
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            if text = Atoms5::atomPayloadToTextOrNull(nx50["atom"]) then
-                puts "text:\n#{text}"
-            end
+            AgentsUtils::atomLandingPresentation(nx50["atomuuid"])
 
-            Librarian::notes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
+            #Librarian::notes(uuid).each{|note|
+            #    puts "note: #{note["text"]}"
+            #}
 
             puts "access | <datecode> | description | atom | ordinal | rotate | >> (transmute) | note | show json | destroy (gg) | exit (xx)".yellow
 
@@ -244,8 +266,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                Librarian::accessMikuAtom(nx50)
-                nx50 = Librarian::getMikuOrNull(nx50["uuid"])
+                AgentsUtils::accessAtom(nx50["atomuuid"])
                 next
             end
 
@@ -253,34 +274,34 @@ class TxTodos
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
                 nx50["description"] = description
-                Librarian::setValue(nx50["uuid"], "description", description)
+                Librarian2Objects::commit(nx50)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                Librarian::setValue(nx50["uuid"], "atom", JSON.generate(atom))
-                nx50["atom"] = atom
+                atom["uuid"] = nx50["atomuuid"]
+                Librarian2Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian::addNote(nx50["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                next
+                #text = Utils::editTextSynchronously("").strip
+                #Librarian::addNote(nx50["uuid"], SecureRandom.uuid, Time.new.to_i, text)
+                #next
             end
 
             if Interpreting::match("ordinal", command) then
                 ordinal = TxTodos::interactivelyDecideNewOrdinal()
                 nx50["ordinal"] = ordinal
-                Librarian::updateMikuExtras(nx50["uuid"], nx50["extras"])
+                Librarian2Objects::commit(nx50)
                 next
             end
 
             if Interpreting::match("rotate", command) then
                 nx50["ordinal"] = TxTodos::nextOrdinal()
-                Librarian::updateMikuExtras(nx50["uuid"], nx50["extras"])
+                Librarian2Objects::commit(nx50)
                 break
             end
 

@@ -2,27 +2,14 @@
 
 class TxDateds
 
-    # TxDateds::shapeX()
-    def self.shapeX()
-        [
-            ["uuid"           , "string"],
-            ["description"    , "string"],
-            ["unixtime"       , "float"],
-            ["datetime"       , "string"],
-            ["classification" , "string"],
-            ["atom"           , "json"],
-            ["domainx"        , "string"],
-        ]
-    end
-
     # TxDateds::items()
     def self.items()
-        Librarian::classifierToShapeXeds("TxDated", TxDateds::shapeX())
+        Librarian2Objects::getObjectsByMikuType("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian2Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -36,16 +23,25 @@ class TxDateds
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
 
+        atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        return nil if atom.nil?
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = datetime
-        classifier = "TxDated"
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxDated",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "domainx"     => domainx
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # TxDateds::interactivelyCreateNewTodayOrNull()
@@ -53,16 +49,25 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
+        atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        return nil if atom.nil?
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        classifier = "TxDated"
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxDated",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "domainx"     => domainx
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # --------------------------------------------------
@@ -70,7 +75,7 @@ class TxDateds
 
     # TxDateds::toString(mx49)
     def self.toString(mx49)
-        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})"
+        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}"
     end
 
     # TxDateds::toStringForNS19(mx49)
@@ -103,13 +108,11 @@ class TxDateds
             puts "date: #{mx49["datetime"][0, 10]}".yellow
             puts "domain: #{mx49["domainx"]}".yellow
 
-            if text = Atoms5::atomPayloadToTextOrNull(mx49["atom"]) then
-                puts "text:\n#{text}"
-            end
+            AgentsUtils::atomLandingPresentation(mx49["atomuuid"])
 
-            Librarian::notes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
+            #Librarian::notes(uuid).each{|note|
+            #    puts "note: #{note["text"]}"
+            #}
 
             puts "access | date | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
 
@@ -119,8 +122,7 @@ class TxDateds
             break if command == "xx"
 
             if Interpreting::match("access", command) then
-                Librarian::accessMikuAtom(mx49)
-                mx49 = Librarian::getMikuOrNull(mx49["uuid"])
+                AgentsUtils::accessAtom(mx49["atomuuid"])
                 next
             end
 
@@ -128,7 +130,7 @@ class TxDateds
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
                 mx49["datetime"] = datetime
-                Librarian::setValue(mx49["uuid"], "datetime", datetime)
+                Librarian2Objects::commit(mx49)
                 next
             end
 
@@ -136,22 +138,22 @@ class TxDateds
                 description = Utils::editTextSynchronously(mx49["description"]).strip
                 next if description == ""
                 mx49["description"] = description
-                Librarian::setValue(mx49["uuid"], "description", description)
+                Librarian2Objects::commit(mx49)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                Librarian::setValue(mx49["uuid"], "atom", JSON.generate(atom))
-                mx49["atom"] = atom
+                atom["uuid"] = mx49["atomuuid"]
+                Librarian2Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian::addNote(mx49["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                next
+            #    text = Utils::editTextSynchronously("").strip
+            #    Librarian::addNote(mx49["uuid"], SecureRandom.uuid, Time.new.to_i, text)
+            #    next
             end
 
             if Interpreting::match("show json", command) then
@@ -199,7 +201,7 @@ class TxDateds
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxDated",
-            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]} (#{mx49["atom"]["type"]})",
+            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}",
             "commands" => ["..", "done", "redate", ">> (transmute)", "''"],
             "TxDated"     => mx49
         }

@@ -109,11 +109,19 @@ class NS16sOperator
                 description = File.basename(location)
                 unixtime    = Time.new.to_i
                 datetime    = Time.new.utc.iso8601
-                classifier  = "TxTodo"
                 atom        = Atoms5::issueAionPointAtomUsingLocation(location)
                 ordinal     = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
 
-                Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, "eva", ordinal)
+                item = {
+                  "uuid"        => uuid,
+                  "mikuType"    => "TxTodo",
+                  "description" => description,
+                  "unixtime"    => unixtime,
+                  "datetime"    => datetime,
+                  "atomuuid"    => atom["uuid"],
+                  "ordinal"     => ordinal
+                }
+                Librarian2Objects::commit(item)
 
                 LucilleCore::removeFileSystemLocation(location)
             }
@@ -154,7 +162,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = TxDateds::items().size + LibrarianUuidClassifierOrdinalIndex::getUUIDs("TxTodo").size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
+        cardinal = TxDateds::items().size + TxTodos::items().size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
         focus = DomainsX::focusOrNull()
         focusStr = focus ? "(focus: #{DomainsX::focusOrNull()}) ".green : ""
         puts "#{focusStr}#{DomainsX::dx()} (cardinal: #{cardinal} items)"

@@ -110,7 +110,8 @@ class CommandsOps
         if object["NS198"] == "NS16:TxDated" and command == "redate" then
             mx49 = object["TxDated"]
             datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
-            Librarian::setValue(mx49["uuid"], "datetime", datetime)
+            mx49["datetime"] = datetime
+            Librarian2Objects::commit(mx49)
         end
 
         if object["NS198"] == "NS16:TxDated" and command == ">>" then
@@ -404,55 +405,64 @@ class CommandsOps
 
         if source == "TxDated" and target == "TxTodo" then
             ordinal = TxTodos::interactivelyDecideNewOrdinal()
-            Librarian::setValue(object["uuid"], "ordinal", ordinal)
-            Librarian::setValue(object["uuid"], "classification", "TxTodo")
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxTodo"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxSpaceship" then
-            Librarian::setValue(object["uuid"], "classification", "TxSpaceship")
+            object["mikuType"] = "TxSpaceship"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxDrop" then
-            Librarian::setValue(object["uuid"], "classification", "TxDrop")
+            object["mikuType"] = "TxDrop"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxDrop" and target == "TxWorkItem" then
             ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-            Librarian::setValue(object["uuid"], "ordinal", ordinal)
-            Librarian::setValue(object["uuid"], "classification", "TxWorkItem")
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxWorkItem"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxDrop" and target == "TxSpaceship" then
-            Librarian::setValue(object["uuid"], "classification", "TxSpaceship")
+            object["mikuType"] = "TxSpaceship"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxSpaceship" and target == "TxFloat" then
-            Librarian::setValue(object["uuid"], "classification", "TxFloat")
+            object["mikuType"] = "TxFloat"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxSpaceship" and target == "TxDated" then
             datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
             return if datetime.nil?
-            Librarian::setValue(object["uuid"], "datetime", datetime)
-            Librarian::setValue(object["uuid"], "classification", "TxDated")
+            object["datetime"] = datetime
+            object["mikuType"] = "TxDated"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxWorkItem" and target == "TxFloat" then
-            Librarian::setValue(object["uuid"], "classification", "TxFloat")
+            object["mikuType"] = "TxFloat"
+            Librarian2Objects::commit(object)
             return
         end
 
         if source == "TxWorkItem" and target == "TxTodo" then
             ordinal = TxTodos::interactivelyDecideNewOrdinal()
-            Librarian::setValue(object["uuid"], "ordinal", ordinal)
-            Librarian::setValue(object["uuid"], "classification", "TxTodo")
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxTodo"
+            Librarian2Objects::commit(object)
             return
         end
 

@@ -2,27 +2,14 @@ j# encoding: UTF-8
 
 class TxDrops
 
-    # TxDrops::shapeX()
-    def self.shapeX()
-        [
-            ["uuid"           , "string"],
-            ["description"    , "string"],
-            ["unixtime"       , "float"],
-            ["datetime"       , "string"],
-            ["classification" , "string"],
-            ["atom"           , "json"],
-            ["domainx"        , "string"],
-        ]
-    end
-
     # TxDrops::mikus()
     def self.mikus()
-        Librarian::classifierToShapeXeds("TxDrop", TxDrops::shapeX())
+        Librarian2Objects::getObjectsByMikuType("TxDrop")
     end
 
     # TxDrops::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian2Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -33,16 +20,25 @@ class TxDrops
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
+        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        return nil if atom.nil?
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        classifier = "TxDrop"
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxDrop",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "domainx"     => domainx
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # --------------------------------------------------
@@ -50,7 +46,7 @@ class TxDrops
 
     # TxDrops::toString(nx70)
     def self.toString(nx70)
-        "[drop] #{nx70["description"]} (#{nx70["atom"]["type"]})"
+        "[drop] #{nx70["description"]}"
     end
 
     # TxDrops::toStringForNS19(nx70)
@@ -87,13 +83,11 @@ class TxDrops
             puts "uuid: #{uuid}".yellow
             puts "domainx: #{nx70["domainx"]}".yellow
 
-            if text = Atoms5::atomPayloadToTextOrNull(nx70["atom"]) then
-                puts "text:\n#{text}"
-            end
+            AgentsUtils::atomLandingPresentation(nx70["atomuuid"])
 
-            Librarian::notes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
+            #Librarian::notes(uuid).each{|note|
+            #    puts "note: #{note["text"]}"
+            #}
 
             puts "access | <datecode> | description | atom | note | show json | transmute | destroy (gg) | exit (xx)".yellow
 
@@ -108,8 +102,7 @@ class TxDrops
             end
 
             if Interpreting::match("access", command) then
-                Librarian::accessMikuAtom(nx70)
-                nx70 = Librarian::getMikuOrNull(nx70["uuid"])
+                AgentsUtils::accessAtom(nx70["atomuuid"])
                 next
             end
 
@@ -117,22 +110,22 @@ class TxDrops
                 description = Utils::editTextSynchronously(nx70["description"]).strip
                 next if description == ""
                 nx70["description"] = description
-                Librarian::setValue(nx70["uuid"], "description", description)
+                Librarian2Objects::commit(nx70)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                Librarian::setValue(nx70["uuid"], "atom", JSON.generate(atom))
-                nx70["atom"] = atom
+                atom["uuid"] = nx70["atomuuid"]
+                Librarian2Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian::addNote(nx70["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                next
+                #text = Utils::editTextSynchronously("").strip
+                #Librarian::addNote(nx70["uuid"], SecureRandom.uuid, Time.new.to_i, text)
+                #next
             end
 
             if Interpreting::match("transmute", command) then
@@ -175,7 +168,7 @@ class TxDrops
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxDrop",
-            "announce" => "(drop) #{nx70["description"]} (#{nx70["atom"]["type"]})",
+            "announce" => "(drop) #{nx70["description"]}",
             "commands" => ["..", "done", "''", ">> (transmute)"],
             "TxDrop"   => nx70
         }

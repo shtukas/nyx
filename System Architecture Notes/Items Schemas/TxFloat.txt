@@ -1,21 +1,11 @@
+This is a local copy of the same definition in the Librarian.
 
 TxFloat = {
   "uuid"           : String
-  "mikuType"       : "MxClassic"
+  "mikuType"       : "TxFloat"
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "classification" : TxClassifier "TxFloat"
-  "atom"           : Atom
+  "atomuuid"       : UUID of an Atom
   "domainx"        : "eva" | "work"
 }
-
-shapeX = [
-    ["uuid"           , "string"],
-    ["description"    , "string"],
-    ["unixtime"       , "float"],
-    ["datetime"       , "string"],
-    ["classification" , "string"],
-    ["atom"           , "json"],
-    ["domainx"        , "string"],
-]

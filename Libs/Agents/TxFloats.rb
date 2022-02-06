@@ -2,27 +2,14 @@ j# encoding: UTF-8
 
 class TxFloats
 
-    # TxFloats::shapeX()
-    def self.shapeX()
-        [
-            ["uuid"           , "string"],
-            ["description"    , "string"],
-            ["unixtime"       , "float"],
-            ["datetime"       , "string"],
-            ["classification" , "string"],
-            ["atom"           , "json"],
-            ["domainx"        , "string"],
-        ]
-    end
-
     # TxFloats::items()
     def self.items()
-        Librarian::classifierToShapeXeds("TxFloat", TxFloats::shapeX())
+        Librarian2Objects::getObjectsByMikuType("TxFloat")
     end
 
     # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian2Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -33,16 +20,25 @@ class TxFloats
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
+        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        return nil if atom.nil?
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        classifier = "TxFloat"
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         domainx    = DomainsX::interactivelySelectDomainX()
 
-        Librarian::issueNewFileMxClassic(uuid, description, unixtime, datetime, classifier, atom, domainx, 0)
-
-        Librarian::getMikuOrNull(uuid)
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxFloat",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "atomuuid"    => atom["uuid"],
+          "domainx"     => domainx
+        }
+        Librarian2Objects::commit(item)
+        item
     end
 
     # --------------------------------------------------
@@ -50,7 +46,7 @@ class TxFloats
 
     # TxFloats::toString(mx48)
     def self.toString(mx48)
-        "[floa] #{mx48["description"]} (#{mx48["atom"]["type"]})"
+        "[floa] #{mx48["description"]}"
     end
 
     # TxFloats::toStringForNS19(mx48)
@@ -87,13 +83,11 @@ class TxFloats
             puts "uuid: #{uuid}".yellow
             puts "domain: #{mx48["domainx"]}".yellow
 
-            if text = Atoms5::atomPayloadToTextOrNull(mx48["atom"]) then
-                puts "text:\n#{text}"
-            end
+            AgentsUtils::atomLandingPresentation(mx48["atomuuid"])
 
-            Librarian::notes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
+            #Librarian::notes(uuid).each{|note|
+            #    puts "note: #{note["text"]}"
+            #}
 
             puts "access | <datecode> | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
 
@@ -108,8 +102,7 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                Librarian::accessMikuAtom(mx48)
-                mx48 = Librarian::getMikuOrNull(mx48["uuid"])
+                AgentsUtils::accessAtom(mx48["atomuuid"])
                 next
             end
 
@@ -117,22 +110,22 @@ class TxFloats
                 description = Utils::editTextSynchronously(mx48["description"]).strip
                 next if description == ""
                 mx48["description"] = description
-                Librarian::setValue(mx48["uuid"], "description", description)
+                Librarian2Objects::commit(mx48)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                Librarian::setValue(mx48["uuid"], "atom", JSON.generate(atom))
-                mx48["atom"] = atom
+                atom["uuid"] = mx48["atomuuid"]
+                Librarian2Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian::addNote(mx48["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                next
+                #text = Utils::editTextSynchronously("").strip
+                #Librarian::addNote(mx48["uuid"], SecureRandom.uuid, Time.new.to_i, text)
+                #next
             end
 
             if Interpreting::match("show json", command) then
@@ -171,7 +164,7 @@ class TxFloats
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxFloat",
-            "announce" => "#{mx48["description"]} (#{mx48["atom"]["type"]})",
+            "announce" => "#{mx48["description"]}",
             "commands" => [],
             "TxFloat"     => mx48
         }

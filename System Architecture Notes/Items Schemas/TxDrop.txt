@@ -1,21 +1,12 @@
+This is a local copy of the same definition in the Librarian.
 
 TxDrop = {
   "uuid"           : String
-  "mikuType"       : "MxClassic"
+  "mikuType"       : "TxDrop"
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "classification" : TxClassifier "TxDrop"
   "atom"           : Atom
   "domainx"        : "eva" | "work"
 }
 
-shapeX = [
-    ["uuid"           , "string"],
-    ["description"    , "string"],
-    ["unixtime"       , "float"],
-    ["datetime"       , "string"],
-    ["classification" , "string"],
-    ["atom"           , "json"],
-    ["domainx"        , "string"],
-]
