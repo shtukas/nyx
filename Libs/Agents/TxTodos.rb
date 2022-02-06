@@ -4,17 +4,17 @@ class TxTodos
 
     # TxTodos::items()
     def self.items()
-        Librarian2Objects::getObjectsByMikuType("TxTodo")
+        LibrarianObjects::getObjectsByMikuType("TxTodo")
     end
 
     # TxTodos::itemsCardinal(n)
     def self.itemsCardinal(n)
-        Librarian2Objects::getObjectsByMikuType("TxTodo").first(50)
+        LibrarianObjects::getObjectsByMikuType("TxTodo").first(50)
     end
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        Librarian2Objects::destroy(uuid)
+        LibrarianObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -77,7 +77,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -100,7 +100,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -122,7 +122,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -143,7 +143,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -165,7 +165,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -274,7 +274,7 @@ class TxTodos
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
                 nx50["description"] = description
-                Librarian2Objects::commit(nx50)
+                LibrarianObjects::commit(nx50)
                 next
             end
 
@@ -282,7 +282,7 @@ class TxTodos
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = nx50["atomuuid"]
-                Librarian2Objects::commit(atom)
+                LibrarianObjects::commit(atom)
                 next
             end
 
@@ -295,13 +295,13 @@ class TxTodos
             if Interpreting::match("ordinal", command) then
                 ordinal = TxTodos::interactivelyDecideNewOrdinal()
                 nx50["ordinal"] = ordinal
-                Librarian2Objects::commit(nx50)
+                LibrarianObjects::commit(nx50)
                 next
             end
 
             if Interpreting::match("rotate", command) then
                 nx50["ordinal"] = TxTodos::nextOrdinal()
-                Librarian2Objects::commit(nx50)
+                LibrarianObjects::commit(nx50)
                 break
             end
 

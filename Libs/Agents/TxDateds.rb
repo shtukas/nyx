@@ -4,12 +4,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        Librarian2Objects::getObjectsByMikuType("TxDated")
+        LibrarianObjects::getObjectsByMikuType("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Librarian2Objects::destroy(uuid)
+        LibrarianObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -40,7 +40,7 @@ class TxDateds
           "atomuuid"    => atom["uuid"],
           "domainx"     => domainx
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -66,7 +66,7 @@ class TxDateds
           "atomuuid"    => atom["uuid"],
           "domainx"     => domainx
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -130,7 +130,7 @@ class TxDateds
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
                 mx49["datetime"] = datetime
-                Librarian2Objects::commit(mx49)
+                LibrarianObjects::commit(mx49)
                 next
             end
 
@@ -138,7 +138,7 @@ class TxDateds
                 description = Utils::editTextSynchronously(mx49["description"]).strip
                 next if description == ""
                 mx49["description"] = description
-                Librarian2Objects::commit(mx49)
+                LibrarianObjects::commit(mx49)
                 next
             end
 
@@ -146,7 +146,7 @@ class TxDateds
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = mx49["atomuuid"]
-                Librarian2Objects::commit(atom)
+                LibrarianObjects::commit(atom)
                 next
             end
 

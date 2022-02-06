@@ -4,12 +4,12 @@ class TxSpaceships
 
     # TxSpaceships::items()
     def self.items()
-        Librarian2Objects::getObjectsByMikuType("TxSpaceship")
+        LibrarianObjects::getObjectsByMikuType("TxSpaceship")
     end
 
     # TxSpaceships::destroy(uuid)
     def self.destroy(uuid)
-        Librarian2Objects::destroy(uuid)
+        LibrarianObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -37,7 +37,7 @@ class TxSpaceships
           "atomuuid"    => atom["uuid"],
           "domainx"     => domainx
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -110,7 +110,7 @@ class TxSpaceships
                 description = Utils::editTextSynchronously(nx60["description"]).strip
                 next if description == ""
                 nx60["description"] = description
-                Librarian2Objects::commit(nx60)
+                LibrarianObjects::commit(nx60)
                 next
             end
 
@@ -118,7 +118,7 @@ class TxSpaceships
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = nx60["atomuuid"]
-                Librarian2Objects::commit(nx60)
+                LibrarianObjects::commit(nx60)
                 next
             end
 

@@ -4,12 +4,12 @@ class TxWorkItems
 
     # TxWorkItems::items()
     def self.items()
-        Librarian2Objects::getObjectsByMikuType("TxWorkItem")
+        LibrarianObjects::getObjectsByMikuType("TxWorkItem")
     end
 
     # TxWorkItems::destroy(uuid)
     def self.destroy(uuid)
-        Librarian2Objects::destroy(uuid)
+        LibrarianObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -70,7 +70,7 @@ class TxWorkItems
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -91,7 +91,7 @@ class TxWorkItems
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -167,7 +167,7 @@ class TxWorkItems
                 description = Utils::editTextSynchronously(mx51["description"]).strip
                 next if description == "" 
                 mx51["description"] = description
-                Librarian2Objects::commit(mx51)
+                LibrarianObjects::commit(mx51)
                 next
             end
 
@@ -175,7 +175,7 @@ class TxWorkItems
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = mx51["atomuuid"]
-                Librarian2Objects::commit(atom)
+                LibrarianObjects::commit(atom)
                 next
             end
 
@@ -188,13 +188,13 @@ class TxWorkItems
             if Interpreting::match("ordinal", command) then
                 ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
                 mx51["ordinal"] = ordinal
-                Librarian2Objects::commit(mx51)
+                LibrarianObjects::commit(mx51)
                 next
             end
 
             if Interpreting::match("rotate", command) then
                 mx51["ordinal"] = TxWorkItems::nextOrdinal()
-                Librarian2Objects::commit(mx51)
+                LibrarianObjects::commit(mx51)
                 break
             end
 

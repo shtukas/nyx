@@ -4,12 +4,12 @@ class TxDrops
 
     # TxDrops::mikus()
     def self.mikus()
-        Librarian2Objects::getObjectsByMikuType("TxDrop")
+        LibrarianObjects::getObjectsByMikuType("TxDrop")
     end
 
     # TxDrops::destroy(uuid)
     def self.destroy(uuid)
-        Librarian2Objects::destroy(uuid)
+        LibrarianObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -37,7 +37,7 @@ class TxDrops
           "atomuuid"    => atom["uuid"],
           "domainx"     => domainx
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -110,7 +110,7 @@ class TxDrops
                 description = Utils::editTextSynchronously(nx70["description"]).strip
                 next if description == ""
                 nx70["description"] = description
-                Librarian2Objects::commit(nx70)
+                LibrarianObjects::commit(nx70)
                 next
             end
 
@@ -118,7 +118,7 @@ class TxDrops
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = nx70["atomuuid"]
-                Librarian2Objects::commit(atom)
+                LibrarianObjects::commit(atom)
                 next
             end
 

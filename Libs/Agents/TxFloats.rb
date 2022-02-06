@@ -4,12 +4,12 @@ class TxFloats
 
     # TxFloats::items()
     def self.items()
-        Librarian2Objects::getObjectsByMikuType("TxFloat")
+        LibrarianObjects::getObjectsByMikuType("TxFloat")
     end
 
     # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        Librarian2Objects::destroy(uuid)
+        LibrarianObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -37,7 +37,7 @@ class TxFloats
           "atomuuid"    => atom["uuid"],
           "domainx"     => domainx
         }
-        Librarian2Objects::commit(item)
+        LibrarianObjects::commit(item)
         item
     end
 
@@ -110,7 +110,7 @@ class TxFloats
                 description = Utils::editTextSynchronously(mx48["description"]).strip
                 next if description == ""
                 mx48["description"] = description
-                Librarian2Objects::commit(mx48)
+                LibrarianObjects::commit(mx48)
                 next
             end
 
@@ -118,7 +118,7 @@ class TxFloats
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = mx48["atomuuid"]
-                Librarian2Objects::commit(atom)
+                LibrarianObjects::commit(atom)
                 next
             end
 

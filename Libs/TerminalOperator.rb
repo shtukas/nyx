@@ -121,7 +121,7 @@ class NS16sOperator
                   "atomuuid"    => atom["uuid"],
                   "ordinal"     => ordinal
                 }
-                Librarian2Objects::commit(item)
+                LibrarianObjects::commit(item)
 
                 LucilleCore::removeFileSystemLocation(location)
             }

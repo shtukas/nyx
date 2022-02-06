@@ -503,7 +503,7 @@ class Utils
         Waves::items().each{|item|
             puts Waves::toString(item)
             atomuuid = item["atomuuid"]
-            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
             raise "[error: 375b7330-ce92-456a-a348-989718a7726d, #{item}]" if atom.nil?
             status = Atoms5::fsck(atom)
             raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{atom}]" if !status
@@ -511,7 +511,7 @@ class Utils
         TxDateds::items().each{|item|
             puts TxDateds::toString(item)
             atomuuid = item["atomuuid"]
-            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
             raise "[error: 291a7dd7-dc6d-4ab0-af48-50e67b455cb8, #{item}]" if atom.nil?
             status = Atoms5::fsck(atom)
             raise "[error: d9154d97-9bf6-43bb-9517-12c8a9d34509, #{item}, #{atom}]" if !status
@@ -519,7 +519,7 @@ class Utils
         TxDrops::mikus().each{|item|
             puts TxDrops::toString(item)
             atomuuid = item["atomuuid"]
-            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
             raise "[error: e55d3f91-78d7-4819-a49a-e89be9b301bb, #{item}]" if atom.nil?
             status = Atoms5::fsck(atom)
             raise "[error: 4b86d0a7-a7b1-487d-95ab-987864c949f6, #{item}, #{atom}]" if !status
@@ -527,7 +527,7 @@ class Utils
         TxFloats::items().each{|item|
             puts TxFloats::toString(item)
             atomuuid = item["atomuuid"]
-            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
             raise "[error: f5e1688f-3c5a-4da6-a751-5bbb4280844d, #{item}]" if atom.nil?
             status = Atoms5::fsck(atom)
             raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{atom}]" if !status
@@ -535,7 +535,7 @@ class Utils
         TxSpaceships::items().each{|item|
             puts TxSpaceships::toString(item)
             atomuuid = item["atomuuid"]
-            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
             raise "[error: f1d1ec80-0cc3-4ca4-97c0-a52d06ecf049, #{item}]" if atom.nil?
             status = Atoms5::fsck(atom)
             raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{atom}]" if !status
@@ -543,7 +543,7 @@ class Utils
         TxTodos::items().each{|item|
             puts TxTodos::toString(item)
             atomuuid = item["atomuuid"]
-            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
             raise "[error: 04f4e88a-fe02-426f-bf4d-4d4c8794d16c, #{item}]" if atom.nil?
             status = Atoms5::fsck(atom)
             raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{atom}]" if !status   
@@ -551,7 +551,7 @@ class Utils
         TxWorkItems::items().each{|item|
             puts TxWorkItems::toString(item)
             atomuuid = item["atomuuid"]
-            atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
             raise "[error: c2a1eaab-b550-43e6-8d47-0859b47bf28d, #{item}]" if atom.nil?
             status = Atoms5::fsck(atom)
             raise "[error: f6d0341c-7636-4fe8-93dd-9d0968760f1f, #{item}, #{atom}]" if !status

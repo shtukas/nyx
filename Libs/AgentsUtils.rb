@@ -3,7 +3,7 @@ class AgentsUtils
 
     # AgentsUtils::atomLandingPresentation(atomuuid)
     def self.atomLandingPresentation(atomuuid)
-        atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+        atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
         if atom.nil? then
             puts "warning: I could not find the atom for this item (atomuuid: #{atomuuid})"
             LucilleCore::pressEnterToContinue()
@@ -16,11 +16,11 @@ class AgentsUtils
 
     # AgentsUtils::accessAtom(atomuuid)
     def self.accessAtom(atomuuid)
-        atom = Librarian2Objects::getObjectByUUIDOrNull(atomuuid)
+        atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
         return if atom.nil?
         return if atom["type"] == "description-only"
         atom = Atoms5::accessWithOptionToEditOptionalUpdate(atom)
         return if atom.nil?
-        Librarian2Objects::commit(atom)
+        LibrarianObjects::commit(atom)
     end
 end

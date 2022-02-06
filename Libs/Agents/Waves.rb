@@ -6,12 +6,12 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Librarian2Objects::getObjectsByMikuType("Wave")
+        LibrarianObjects::getObjectsByMikuType("Wave")
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Librarian2Objects::destroy(uuid)
+        LibrarianObjects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -116,7 +116,7 @@ class Waves
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
 
-        Librarian2Objects::commit(atom)
+        LibrarianObjects::commit(atom)
 
         wave = {
             "uuid"        => SecureRandom.uuid,
@@ -132,7 +132,7 @@ class Waves
 
         wave["domainx"] = DomainsX::interactivelySelectDomainX()
 
-        Librarian2Objects::commit(wave)
+        LibrarianObjects::commit(wave)
         wave
     end
 
@@ -155,7 +155,7 @@ class Waves
 
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Librarian2Objects::commit(wave)
+        LibrarianObjects::commit(wave)
 
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
@@ -218,9 +218,9 @@ class Waves
             if Interpreting::match("atom", command) then
                 atom = Atoms5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                Librarian2Objects::commit(atom)
+                LibrarianObjects::commit(atom)
                 wave["atomuuid"] = atom["uuid"]
-                Librarian2Objects::commit(wave)
+                LibrarianObjects::commit(wave)
                 next
             end
 
@@ -229,7 +229,7 @@ class Waves
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
-                Librarian2Objects::commit(wave)
+                LibrarianObjects::commit(wave)
                 next
             end
 

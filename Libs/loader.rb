@@ -127,9 +127,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
-require "/Users/pascal/Galaxy/Software/Librarian2/Atoms.rb"
+require "/Users/pascal/Galaxy/Software/Librarian/Atoms.rb"
 
-require "/Users/pascal/Galaxy/Software/Librarian2/Librarian2.rb"
+require "/Users/pascal/Galaxy/Software/Librarian/Librarian.rb"
 
 # ------------------------------------------------------------
 

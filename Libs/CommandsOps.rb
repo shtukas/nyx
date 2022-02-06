@@ -111,7 +111,7 @@ class CommandsOps
             mx49 = object["TxDated"]
             datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
             mx49["datetime"] = datetime
-            Librarian2Objects::commit(mx49)
+            LibrarianObjects::commit(mx49)
         end
 
         if object["NS198"] == "NS16:TxDated" and command == ">>" then
@@ -407,19 +407,19 @@ class CommandsOps
             ordinal = TxTodos::interactivelyDecideNewOrdinal()
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxSpaceship" then
             object["mikuType"] = "TxSpaceship"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxDrop" then
             object["mikuType"] = "TxDrop"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
@@ -427,19 +427,19 @@ class CommandsOps
             ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
             object["ordinal"] = ordinal
             object["mikuType"] = "TxWorkItem"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
         if source == "TxDrop" and target == "TxSpaceship" then
             object["mikuType"] = "TxSpaceship"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
         if source == "TxSpaceship" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
@@ -448,13 +448,13 @@ class CommandsOps
             return if datetime.nil?
             object["datetime"] = datetime
             object["mikuType"] = "TxDated"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
         if source == "TxWorkItem" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
@@ -462,7 +462,7 @@ class CommandsOps
             ordinal = TxTodos::interactivelyDecideNewOrdinal()
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            Librarian2Objects::commit(object)
+            LibrarianObjects::commit(object)
             return
         end
 
