@@ -57,6 +57,8 @@ class TxWorkItems
         atom = Atoms5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
+        LibrarianObjects::commit(atom)
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
@@ -81,6 +83,7 @@ class TxWorkItems
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        LibrarianObjects::commit(atom)
         ordinal     = TxWorkItems::interactivelyDecideNewOrdinal()
         item = {
           "uuid"        => uuid,

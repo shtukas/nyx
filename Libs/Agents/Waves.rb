@@ -113,6 +113,8 @@ class Waves
         atom = Atoms5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
+        LibrarianObjects::commit(atom)
+
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
 

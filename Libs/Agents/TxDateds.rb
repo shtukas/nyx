@@ -26,6 +26,8 @@ class TxDateds
         atom = Atoms5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
+        LibrarianObjects::commit(atom)
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = datetime
@@ -51,6 +53,8 @@ class TxDateds
 
         atom = Atoms5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
+
+        LibrarianObjects::commit(atom)
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i

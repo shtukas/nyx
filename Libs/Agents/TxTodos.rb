@@ -63,6 +63,8 @@ class TxTodos
         atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
+        LibrarianObjects::commit(atom)
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
@@ -89,6 +91,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        LibrarianObjects::commit(atom)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
         item = {
@@ -111,6 +114,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
         atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        LibrarianObjects::commit(atom)
         ordinal     = TxTodos::interactivelyDecideNewOrdinal()
 
         item = {
@@ -132,6 +136,7 @@ class TxTodos
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         atom       = Atoms5::issueAionPointAtomUsingLocation(location)
+        LibrarianObjects::commit(atom)
         ordinal    = ordinal
 
         item = {
@@ -154,6 +159,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
         atom        = Atoms5::issueUrlAtomUsingUrl(url)
+        LibrarianObjects::commit(atom)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
         item = {

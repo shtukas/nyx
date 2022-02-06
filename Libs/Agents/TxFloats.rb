@@ -23,6 +23,8 @@ class TxFloats
         atom       = Atoms5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
+        LibrarianObjects::commit(atom)
+
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
