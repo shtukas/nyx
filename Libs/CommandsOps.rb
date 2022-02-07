@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        ".. | <n> | <datecode> | expose"
+        ".. | <n> | <datecode> | delay | expose"
     end
 
     # Commands::makersCommands()
@@ -62,7 +62,7 @@ class CommandsOps
             Calendar::moveToArchives(object["item"])
         end
 
-        if object["NS198"] == "NS16:Fitness1" and command == ".." then
+        if object["NS198"] == "NS16:fitness1" and command == ".." then
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
         end
 

@@ -9,7 +9,7 @@ class TxTodos
 
     # TxTodos::itemsCardinal(n)
     def self.itemsCardinal(n)
-        LibrarianObjects::getObjectsByMikuType("TxTodo").first(50)
+        LibrarianObjects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
     end
 
     # TxTodos::destroy(uuid)

@@ -252,6 +252,17 @@ class TerminalDisplayOperator
             return
         end
 
+        if command == "delay" then
+            i = LucilleCore::askQuestionAnswerAsString("index ? : ").to_i
+            return if i == 0
+            item = store.get(i)
+            puts "item: #{item["announce"]}"
+            unixtime = Utils::interactivelySelectAUnixtimeOrNull()
+            return if unixtime.nil?
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            return
+        end
+
         CommandsOps::operator4(command)
         CommandsOps::operator1(store.getDefault(), command)
     end

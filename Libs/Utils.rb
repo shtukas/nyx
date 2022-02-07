@@ -192,7 +192,7 @@ class Utils
 
     # Utils::interactivelySelectAUnixtimeOrNull()
     def self.interactivelySelectAUnixtimeOrNull()
-        datecode = LucilleCore::askQuestionAnswerAsString("date code +<weekdayname>, +<integer>day(s), +YYYY-MM-DD (empty to abort): ")
+        datecode = LucilleCore::askQuestionAnswerAsString("date code: +today, +tomorrow, +<weekdayname>, +<integer>hours(s), +<integer>day(s), +<integer>@HH:MM, +YYYY-MM-DD (empty to abort): ")
         unixtime = Utils::codeToUnixtimeOrNull(datecode)
         return nil if unixtime.nil?
         unixtime
