@@ -74,7 +74,7 @@ class TxDrops
         NxBallsService::issue(
             uuid, 
             TxDrops::toString(nx70), 
-            [uuid, DomainsX::domainXToAccountNumber(nx70["domainx"])]
+            [uuid]
         )
 
         loop {
@@ -178,7 +178,7 @@ class TxDrops
 
     # TxDrops::ns16s()
     def self.ns16s()
-        focus = DomainsX::focusOrNull()
+        focus = DomainsX::focus()
         TxDrops::mikus()
             .select{|item| focus.nil? or (item["domainx"] == focus) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }

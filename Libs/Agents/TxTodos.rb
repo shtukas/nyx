@@ -241,7 +241,7 @@ class TxTodos
 
         uuid = nx50["uuid"]
 
-        NxBallsService::issue(uuid, nx50["description"], [uuid, DomainsX::evaAccount()])
+        NxBallsService::issue(uuid, nx50["description"], [uuid])
 
         loop {
 

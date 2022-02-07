@@ -100,7 +100,7 @@ class TxDateds
         NxBallsService::issue(
             uuid, 
             TxDateds::toString(mx49), 
-            [uuid, DomainsX::domainXToAccountNumber(mx49["domainx"])]
+            [uuid]
         )
 
         loop {
@@ -213,7 +213,7 @@ class TxDateds
 
     # TxDateds::ns16s()
     def self.ns16s()
-        focus = DomainsX::focusOrNull()
+        focus = DomainsX::focus()
         TxDateds::items()
             .select{|item| focus.nil? or (item["domainx"] == focus) }
             .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }

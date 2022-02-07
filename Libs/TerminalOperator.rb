@@ -80,21 +80,12 @@ class NS16sOperator
             .sort{|i1, i2| NS16sOperator::getListingUnixtime(i1["uuid"]) <=> NS16sOperator::getListingUnixtime(i2["uuid"]) }
     end
 
-    # NS16sOperator::todosOrWorkItemsDrivenByFocus(focus)
-    def self.todosOrWorkItemsDrivenByFocus(focus)
-        if focus then
-            if focus == "eva" then
-                TxTodos::ns16s()
-            else
-                TxWorkItems::ns16s()
-            end
+    # NS16sOperator::todosOrWorkItems(focus)
+    def self.todosOrWorkItems(focus)
+        if focus == "eva" then
+            TxTodos::ns16s()
         else
-            preference = DomainsX::preference()
-            if preference == "eva" then
-                TxTodos::ns16s()
-            else
-                TxWorkItems::ns16s()
-            end
+            TxWorkItems::ns16s()
         end
     end
 
@@ -126,7 +117,7 @@ class NS16sOperator
                 LucilleCore::removeFileSystemLocation(location)
             }
 
-        focus = DomainsX::focusOrNull()
+        focus = DomainsX::focus()
 
         [
             Anniversaries::ns16s(),
@@ -136,7 +127,7 @@ class NS16sOperator
             NS16sOperator::firstComeFirstServedOnGoingDay(),
             Inbox::ns16s(),
             TxSpaceships::ns16sForDominant(),
-            NS16sOperator::todosOrWorkItemsDrivenByFocus(focus)
+            NS16sOperator::todosOrWorkItems(focus)
         ]
             .flatten
             .compact
@@ -163,9 +154,8 @@ class TerminalDisplayOperator
 
         puts ""
         cardinal = TxDateds::items().size + TxTodos::items().size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
-        focus = DomainsX::focusOrNull()
-        focusStr = focus ? "(focus: #{DomainsX::focusOrNull()}) ".green : ""
-        puts "#{focusStr}#{DomainsX::dx()} (cardinal: #{cardinal} items)"
+        focus = DomainsX::focus()
+        puts "(focus: #{focus}) (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""

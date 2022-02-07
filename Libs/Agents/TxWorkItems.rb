@@ -131,7 +131,7 @@ class TxWorkItems
 
         uuid = mx51["uuid"]
 
-        NxBallsService::issue(uuid, mx51["description"], [uuid, DomainsX::workAccount()])
+        NxBallsService::issue(uuid, mx51["description"], [uuid])
 
         loop {
 

@@ -79,7 +79,7 @@ class TxSpaceships
         NxBallsService::issue(
             uuid, 
             TxSpaceships::toString(nx60), 
-            [uuid, DomainsX::domainXToAccountNumber(nx60["domainx"])]
+            [uuid]
         )
 
         loop {
@@ -195,7 +195,7 @@ class TxSpaceships
 
     # TxSpaceships::ns16sForDominant()
     def self.ns16sForDominant()
-        focus = DomainsX::focusOrNull()
+        focus = DomainsX::focus()
         TxSpaceships::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| focus.nil? or (item["domainx"] == focus) }

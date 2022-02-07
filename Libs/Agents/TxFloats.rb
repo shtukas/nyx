@@ -74,7 +74,7 @@ class TxFloats
         NxBallsService::issue(
             uuid, 
             TxFloats::toString(mx48), 
-            [uuid, DomainsX::domainXToAccountNumber(mx48["domainx"])]
+            [uuid]
         )
 
         loop {

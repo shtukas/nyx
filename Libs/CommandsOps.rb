@@ -80,8 +80,7 @@ class CommandsOps
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
             return if action.nil?
             if action == "start" then
-                account = DomainsX::selectAccount()
-                NxBallsService::issue(SecureRandom.uuid, line, [account])
+                NxBallsService::issue(SecureRandom.uuid, line, [])
             end
             if action == "done" then
                 SxTopLines::rewriteSxTopLinesFileWithoutThisLine(line)
@@ -244,8 +243,7 @@ class CommandsOps
         if command == "start" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return if description == ""
-            account = DomainsX::selectAccount()
-            NxBallsService::issue(SecureRandom.uuid, description, [account])
+            NxBallsService::issue(SecureRandom.uuid, description, [])
         end
 
         if command == "float" then
@@ -368,15 +366,15 @@ class CommandsOps
         end
 
         if Interpreting::match("focus eva", command) then
-            KeyValueStore::set(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}", "eva")
+            DomainsX::setOverridingFocus("eva")
         end
 
         if Interpreting::match("focus work", command) then
-            KeyValueStore::set(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}", "work")
+            DomainsX::setOverridingFocus("work")
         end
 
         if Interpreting::match("focus null", command) then
-            KeyValueStore::destroy(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}")
+            DomainsX::unsetOverridingFocus()
         end
 
         if Interpreting::match("exit", command) then

@@ -171,7 +171,7 @@ class Waves
         NxBallsService::issue(
             uuid, 
             Waves::toString(wave), 
-            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", DomainsX::domainXToAccountNumber(wave["domainx"])]
+            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC"]
         )
 
         loop {
@@ -277,7 +277,7 @@ class Waves
         NxBallsService::issue(
             uuid, 
             wave["description"], 
-            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC", DomainsX::domainXToAccountNumber(wave["domainx"])]
+            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC"]
         )
 
         AgentsUtils::accessAtom(wave["atomuuid"])
