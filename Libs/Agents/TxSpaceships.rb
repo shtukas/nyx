@@ -189,17 +189,8 @@ class TxSpaceships
     # TxSpaceships::ns16s()
     def self.ns16s()
         TxSpaceships::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxSpaceships::ns16(item) }
-    end
-
-    # TxSpaceships::ns16sForDominant()
-    def self.ns16sForDominant()
-        focus = DomainsX::focus()
-        TxSpaceships::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| focus.nil? or (item["domainx"] == focus) }
-            .map{|item| TxSpaceships::ns16(item) }
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # --------------------------------------------------

@@ -70,8 +70,7 @@ class NS16sOperator
     def self.firstComeFirstServedOnGoingDay()
         [
             TxDateds::ns16s(),
-            TxDrops::ns16s(),
-            SxTopLines::catalystTxtNs16s()
+            TxDrops::ns16s()
         ]
             .flatten
             .compact
@@ -126,7 +125,7 @@ class NS16sOperator
             Waves::ns16s(),
             NS16sOperator::firstComeFirstServedOnGoingDay(),
             Inbox::ns16s(),
-            TxSpaceships::ns16sForDominant(),
+            TxSpaceships::ns16s(),
             NS16sOperator::todosOrWorkItems(focus)
         ]
             .flatten
@@ -138,8 +137,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::display(floats, ns16s)
-    def self.display(floats, ns16s)
+    # TerminalDisplayOperator::display(focus, floats, ns16s)
+    def self.display(focus, floats, ns16s)
 
         commandStrWithPrefix = lambda{|ns16, isDefaultItem|
             return "" if !isDefaultItem
@@ -154,8 +153,7 @@ class TerminalDisplayOperator
 
         puts ""
         cardinal = TxDateds::items().size + TxTodos::items().size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
-        focus = DomainsX::focus()
-        puts "(focus: #{focus}) (cardinal: #{cardinal} items)"
+        puts "(focus: #{focus})".green + " (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""
@@ -198,7 +196,7 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
-        top = IO.read("/Users/pascal/Desktop/Top&Lines.txt").strip
+        top = Topping::getText(focus)
         if top.size > 0 then
             top = top.lines.first(10).join().strip
             puts top.green
@@ -247,13 +245,13 @@ class TerminalDisplayOperator
             return if i == 0
             item = store.get(i)
             puts "item: #{item["announce"]}"
-            unixtime = Utils::interactivelySelectAUnixtimeOrNull()
+            unixtime = Utils::interactivelySelectUnixtimeOrNull()
             return if unixtime.nil?
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
 
-        CommandsOps::operator4(command)
+        CommandsOps::operator4(command, focus)
         CommandsOps::operator1(store.getDefault(), command)
     end
 
@@ -272,9 +270,10 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
+            focus = DomainsX::focus()
             floats = filter1.call(TxFloats::ns16s())
             ns16s  = NS16sOperator::ns16s()
-            TerminalDisplayOperator::display(floats, ns16s)
+            TerminalDisplayOperator::display(focus, floats, ns16s)
         }
     end
 end

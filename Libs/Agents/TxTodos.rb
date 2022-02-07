@@ -188,14 +188,14 @@ class TxTodos
         "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
+    # TxTodos::toStringForNS16(nx50, rt)
+    def self.toStringForNS16(nx50, rt)
+        "[    ] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+    end
+
     # TxTodos::toStringForNS19(nx50)
     def self.toStringForNS19(nx50)
         "[nx50] #{nx50["description"]}"
-    end
-
-    # TxTodos::toStringForNS16(nx50, rt)
-    def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # --------------------------------------------------

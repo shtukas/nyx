@@ -111,14 +111,14 @@ class TxWorkItems
         "[work] (ord: #{mx51["ordinal"]}) #{mx51["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx51["atomuuid"])}"
     end
 
+    # TxWorkItems::toStringForNS16(mx51, rt)
+    def self.toStringForNS16(mx51, rt)
+        "[    ] (#{"%4.2f" % rt}) #{mx51["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx51["atomuuid"])}"
+    end
+
     # TxWorkItems::toStringForNS19(mx51)
     def self.toStringForNS19(mx51)
         "[work] #{mx51["description"]}"
-    end
-
-    # TxWorkItems::toStringForNS16(mx51, rt)
-    def self.toStringForNS16(mx51, rt)
-        "[work] (#{"%4.2f" % rt}) #{mx51["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx51["atomuuid"])}"
     end
 
     # --------------------------------------------------

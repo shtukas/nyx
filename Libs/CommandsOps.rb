@@ -75,28 +75,6 @@ class CommandsOps
             CommandsOps::transmutation2(location, "inbox")
         end
 
-        if object["NS198"] == "NS16:SxTopLines" and command == ".." then
-            line = object["line"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["start", "done"])
-            return if action.nil?
-            if action == "start" then
-                NxBallsService::issue(SecureRandom.uuid, line, [])
-            end
-            if action == "done" then
-                SxTopLines::rewriteSxTopLinesFileWithoutThisLine(line)
-            end
-        end
-
-        if object["NS198"] == "NS16:SxTopLines" and command == "done" then
-            Utils::copyFileToBinTimeline("/Users/pascal/Desktop/Top&Lines.txt")
-            SxTopLines::rewriteSxTopLinesFileWithoutThisLine(object["line"])
-        end
-
-        if object["NS198"] == "NS16:SxTopLines" and command == "''" then
-            line = object["line"]
-            ItemStoreOps::delistForDefault(SxTopLines::lineToUuid(line))
-        end
-
         if object["NS198"] == "NS16:TxDated" and command == ".." then
             TxDateds::run(object["TxDated"])
         end
@@ -226,18 +204,15 @@ class CommandsOps
         end
     end
 
-    # CommandsOps::operator4(command)
-    def self.operator4(command)
+    # CommandsOps::operator4(command, focus)
+    def self.operator4(command, focus)
 
         if command == "[]" then
-            filepath = "/Users/pascal/Desktop/Top&Lines.txt"
-            Utils::copyFileToBinTimeline(filepath)
-            Utils::applyNextTransformationToFile(filepath)
-            if LucilleCore::askQuestionAnswerAsBoolean("Want to log some time ? : ", true) then
-                time = LucilleCore::askQuestionAnswerAsString("Time in minutes: ").to_f
-                account = DomainsX::selectAccountOrNull()
-                Bank::put(account, time*60)
-            end
+            Topping::applyTransformation(focus)
+        end
+
+        if command == "top" then
+            Topping::top(focus)
         end
 
         if command == "start" then
@@ -366,11 +341,19 @@ class CommandsOps
         end
 
         if Interpreting::match("focus eva", command) then
-            DomainsX::setOverridingFocus("eva")
+            puts "Decide exiry time:"
+            sleep 1
+            unixtime = Utils::interactivelySelectUnixtimeOrNull()
+            return if unixtime.nil?
+            DomainsX::setOverridingFocus("eva", unixtime)
         end
 
         if Interpreting::match("focus work", command) then
-            DomainsX::setOverridingFocus("work")
+            puts "Decide exiry time:"
+            sleep 1
+            unixtime = Utils::interactivelySelectUnixtimeOrNull()
+            return if unixtime.nil?
+            DomainsX::setOverridingFocus("work", unixtime)
         end
 
         if Interpreting::match("focus null", command) then

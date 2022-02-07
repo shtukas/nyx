@@ -5,13 +5,6 @@
 
 class Utils
 
-    # Utils::applyNextTransformationToFile(filepath)
-    def self.applyNextTransformationToFile(filepath)
-        text = IO.read(filepath).strip
-        text = SectionsType0141::applyNextTransformationToText(text)
-        File.open(filepath, "w"){|f| f.puts(text) }
-    end
-
     # Utils::catalystDataCenterFolderpath()
     def self.catalystDataCenterFolderpath()
         "/Users/pascal/Galaxy/DataBank/Catalyst"
@@ -190,8 +183,8 @@ class Utils
         ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][Time.new.wday]
     end
 
-    # Utils::interactivelySelectAUnixtimeOrNull()
-    def self.interactivelySelectAUnixtimeOrNull()
+    # Utils::interactivelySelectUnixtimeOrNull()
+    def self.interactivelySelectUnixtimeOrNull()
         datecode = LucilleCore::askQuestionAnswerAsString("date code: +today, +tomorrow, +<weekdayname>, +<integer>hours(s), +<integer>day(s), +<integer>@HH:MM, +YYYY-MM-DD (empty to abort): ")
         unixtime = Utils::codeToUnixtimeOrNull(datecode)
         return nil if unixtime.nil?
@@ -200,14 +193,14 @@ class Utils
 
     # Utils::interactivelySelectADateOrNull()
     def self.interactivelySelectADateOrNull()
-        unixtime = Utils::interactivelySelectAUnixtimeOrNull()
+        unixtime = Utils::interactivelySelectUnixtimeOrNull()
         return nil if unixtime.nil?
         Time.at(unixtime).to_s[0, 10]
     end
 
     # Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
     def self.interactivelySelectAUTCIso8601DateTimeOrNull()
-        unixtime = Utils::interactivelySelectAUnixtimeOrNull()
+        unixtime = Utils::interactivelySelectUnixtimeOrNull()
         return nil if unixtime.nil?
         Time.at(unixtime).utc.iso8601
     end
@@ -286,6 +279,13 @@ class Utils
         directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(directory)
         FileUtils.cp(location, directory)
+    end
+
+    # Utils::dropTextAtBinTimeline(filename, text)
+    def self.dropTextAtBinTimeline(filename, text)
+        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(directory)
+        File.open("#{directory}/#{filename}", "w"){|f| f.puts(text) }
     end
 
     # ----------------------------------------------------

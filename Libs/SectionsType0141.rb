@@ -56,5 +56,12 @@ class SectionsType0141
             .join()
             .strip
     end
+
+    # SectionsType0141::applyNextTransformationToFile(filepath)
+    def self.applyNextTransformationToFile(filepath)
+        text = IO.read(filepath).strip
+        text = SectionsType0141::applyNextTransformationToText(text)
+        File.open(filepath, "w"){|f| f.puts(text) }
+    end
 end
 
