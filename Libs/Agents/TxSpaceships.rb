@@ -96,7 +96,7 @@ class TxSpaceships
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | transmute |show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -133,6 +133,11 @@ class TxSpaceships
                 #text = Utils::editTextSynchronously("").strip
                 #Librarian::addNote(nx60["uuid"], SecureRandom.uuid, Time.new.to_i, text)
                 #next
+            end
+
+            if Interpreting::match("transmute", command) then
+                CommandsOps::transmutation2(nx60, "TxSpaceship")
+                break
             end
 
             if Interpreting::match("show json", command) then

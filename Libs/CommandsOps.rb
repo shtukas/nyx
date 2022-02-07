@@ -8,7 +8,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | float | spaceship | drop | today | ondate | todo"
+        "wave | anniversary | float | ship | drop | today | ondate | todo"
     end
 
     # Commands::diversCommands()
@@ -252,7 +252,7 @@ class CommandsOps
             TxFloats::interactivelyCreateNewOrNull()
         end
 
-        if command == "spaceship" then
+        if command == "ship" then
             TxSpaceships::interactivelyCreateNewOrNull()
         end
 
