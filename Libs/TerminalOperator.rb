@@ -269,7 +269,7 @@ class TerminalDisplayOperator
                 break
             end
             focus = DomainsX::focus()
-            floats = TxFloats::ns16s()
+            floats = TxFloats::ns16s(focus)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             ns16s  = NS16sOperator::ns16s(focus)

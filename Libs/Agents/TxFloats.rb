@@ -172,9 +172,10 @@ class TxFloats
         }
     end
 
-    # TxFloats::ns16s()
-    def self.ns16s()
+    # TxFloats::ns16s(focus)
+    def self.ns16s(focus)
         TxFloats::items()
+            .select{|item| item["domainx"] == focus }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }
     end
