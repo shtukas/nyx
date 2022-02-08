@@ -283,25 +283,28 @@ class Waves
         AgentsUtils::accessAtom(wave["atomuuid"])
 
         loop {
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue", "landing and back"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue", "landing and back", "delay"])
 
             if operation.nil? or operation == "done (default)" then
                 Waves::performDone(wave)
                 NxBallsService::close(uuid, true)
                 break
             end
-
             if operation == "stop and exit" then
                 NxBallsService::close(uuid, true)
                 break
             end
-
             if operation == "exit and continue" then
                 break
             end
-
             if operation == "landing and back" then
                 Waves::landing(wave)
+            end
+            if operation == "delay" then
+                unixtime = Utils::interactivelySelectUnixtimeOrNull()
+                next if unixtime.nil?
+                DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+                break
             end
         }
     end
