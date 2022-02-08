@@ -186,9 +186,10 @@ class TxSpaceships
         }
     end
 
-    # TxSpaceships::ns16s()
-    def self.ns16s()
+    # TxSpaceships::ns16s(focus)
+    def self.ns16s(focus)
         TxSpaceships::items()
+            .select{|item| item["domainx"] == focus }
             .map{|item| TxSpaceships::ns16(item) }
             .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end

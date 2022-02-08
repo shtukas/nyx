@@ -88,8 +88,8 @@ class NS16sOperator
         end
     end
 
-    # NS16sOperator::ns16s()
-    def self.ns16s()
+    # NS16sOperator::ns16s(focus)
+    def self.ns16s(focus)
 
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/TxTodos (Random)")
             .map{|location|
@@ -116,8 +116,6 @@ class NS16sOperator
                 LucilleCore::removeFileSystemLocation(location)
             }
 
-        focus = DomainsX::focus()
-
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
@@ -125,7 +123,7 @@ class NS16sOperator
             Waves::ns16s(),
             NS16sOperator::firstComeFirstServedOnGoingDay(),
             Inbox::ns16s(),
-            TxSpaceships::ns16s(),
+            TxSpaceships::ns16s(focus),
             NS16sOperator::todosOrWorkItems(focus)
         ]
             .flatten
@@ -271,8 +269,10 @@ class TerminalDisplayOperator
                 break
             end
             focus = DomainsX::focus()
-            floats = filter1.call(TxFloats::ns16s())
-            ns16s  = NS16sOperator::ns16s()
+            floats = TxFloats::ns16s()
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                        .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            ns16s  = NS16sOperator::ns16s(focus)
             TerminalDisplayOperator::display(focus, floats, ns16s)
         }
     end
