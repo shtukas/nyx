@@ -341,19 +341,11 @@ class CommandsOps
         end
 
         if Interpreting::match("focus eva", command) then
-            puts "Decide exiry time:"
-            sleep 1
-            unixtime = Utils::interactivelySelectUnixtimeOrNull()
-            return if unixtime.nil?
-            DomainsX::setOverridingFocus("eva", unixtime)
+            DomainsX::interactivelyDecideUnixtimeAndSetOverridingFocusForDomain("eva")
         end
 
         if Interpreting::match("focus work", command) then
-            puts "Decide exiry time:"
-            sleep 1
-            unixtime = Utils::interactivelySelectUnixtimeOrNull()
-            return if unixtime.nil?
-            DomainsX::setOverridingFocus("work", unixtime)
+            DomainsX::interactivelyDecideUnixtimeAndSetOverridingFocusForDomain("work")
         end
 
         if Interpreting::match("focus null", command) then

@@ -20,6 +20,17 @@ class DomainsX
         KeyValueStore::set(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}", JSON.generate(nx14))
     end
 
+    # DomainsX::interactivelyDecideUnixtimeAndSetOverridingFocusForDomain(domainx)
+    def self.interactivelyDecideUnixtimeAndSetOverridingFocusForDomain(domainx)
+        puts "Decide exiry time (null for touch and go):"
+        sleep 1
+        unixtime = Utils::interactivelySelectUnixtimeOrNull()
+        if unixtime.nil? then
+            unixtime = Time.new.to_i + 10
+        end
+        DomainsX::setOverridingFocus(domainx, unixtime)
+    end
+
     # DomainsX::overridingFocusOrNull()
     def self.overridingFocusOrNull()
         nx14 = KeyValueStore::getOrNull(nil, "c68fc8de-81fd-4e76-b995-e171d0374661:#{Utils::today()}")
