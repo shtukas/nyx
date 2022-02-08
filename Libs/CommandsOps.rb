@@ -132,6 +132,11 @@ class CommandsOps
             TxSpaceships::run(nx60)
         end
 
+        if object["NS198"] == "NS16:TxSpaceship" and command == "done" then
+            nx60 = object["TxSpaceship"]
+            TxSpaceships::complete(nx60)
+        end
+
         if object["NS198"] == "NS16:TxSpaceship" and command == "''" then
             nx60 = object["TxSpaceship"]
             ItemStoreOps::delistForDefault(nx60["uuid"])

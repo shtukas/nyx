@@ -177,12 +177,12 @@ class TxSpaceships
             ItemStoreOps::delistForDefault(uuid)
         end
         {
-            "uuid"     => uuid,
-            "NS198"    => "NS16:TxSpaceship",
-            "announce" => TxSpaceships::toStringForNS16(nx60, rt).gsub("(0.00)", "      "),
-            "commands" => ["..", "''", ">> (transmute)"],
-            "TxSpaceship"     => nx60,
-            "rt"       => rt
+            "uuid"        => uuid,
+            "NS198"       => "NS16:TxSpaceship",
+            "announce"    => TxSpaceships::toStringForNS16(nx60, rt).gsub("(0.00)", "      "),
+            "commands"    => ["..", "done", "''", ">> (transmute)"],
+            "TxSpaceship" => nx60,
+            "rt"          => rt
         }
     end
 
