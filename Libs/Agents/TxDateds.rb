@@ -31,7 +31,6 @@ class TxDateds
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = datetime
-        domainx    = DomainsX::interactivelySelectDomainX()
 
         item = {
           "uuid"        => uuid,
@@ -40,7 +39,6 @@ class TxDateds
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "domainx"     => domainx
         }
         LibrarianObjects::commit(item)
         item
@@ -59,7 +57,6 @@ class TxDateds
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        domainx    = DomainsX::interactivelySelectDomainX()
 
         item = {
           "uuid"        => uuid,
@@ -67,8 +64,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
-          "domainx"     => domainx
+          "atomuuid"    => atom["uuid"]
         }
         LibrarianObjects::commit(item)
         item
@@ -110,7 +106,6 @@ class TxDateds
             puts TxDateds::toString(mx49).green
             puts "uuid: #{uuid}".yellow
             puts "date: #{mx49["datetime"][0, 10]}".yellow
-            puts "domain: #{mx49["domainx"]}".yellow
 
             AgentsUtils::atomLandingPresentation(mx49["atomuuid"])
 
@@ -213,9 +208,7 @@ class TxDateds
 
     # TxDateds::ns16s()
     def self.ns16s()
-        focus = DomainsX::focus()
         TxDateds::items()
-            .select{|item| focus.nil? or (item["domainx"] == focus) }
             .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .map{|mx49| TxDateds::ns16(mx49) }
