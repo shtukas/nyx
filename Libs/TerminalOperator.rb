@@ -66,11 +66,15 @@ class NS16sOperator
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # NS16sOperator::firstComeFirstServedOnGoingDay()
-    def self.firstComeFirstServedOnGoingDay()
+    # NS16sOperator::firstComeFirstServedOnGoingDay(focus)
+    def self.firstComeFirstServedOnGoingDay(focus)
         [
             TxDateds::ns16s(),
-            TxDrops::ns16s()
+            Waves::ns16s(),
+            TxDrops::ns16s(),
+            Inbox::ns16s(),
+            TxSpaceships::ns16s(focus),
+            NS16sOperator::todoNs16s(focus)
         ]
             .flatten
             .compact
@@ -79,10 +83,10 @@ class NS16sOperator
             .sort{|i1, i2| NS16sOperator::getListingUnixtime(i1["uuid"]) <=> NS16sOperator::getListingUnixtime(i2["uuid"]) }
     end
 
-    # NS16sOperator::todosOrWorkItems(focus)
-    def self.todosOrWorkItems(focus)
+    # NS16sOperator::todoNs16s(focus)
+    def self.todoNs16s(focus)
         if focus == "eva" then
-            TxTodos::ns16s()
+            TxTodos::ns16sManagementX()
         else
             TxWorkItems::ns16s()
         end
@@ -90,41 +94,11 @@ class NS16sOperator
 
     # NS16sOperator::ns16s(focus)
     def self.ns16s(focus)
-
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/TxTodos (Random)")
-            .map{|location|
-                puts "Importing TxTodos (Random): #{location}"
-
-                uuid        = SecureRandom.uuid
-                description = File.basename(location)
-                unixtime    = Time.new.to_i
-                datetime    = Time.new.utc.iso8601
-                atom        = CoreData5::issueAionPointAtomUsingLocation(location)
-                ordinal     = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
-
-                item = {
-                  "uuid"        => uuid,
-                  "mikuType"    => "TxTodo",
-                  "description" => description,
-                  "unixtime"    => unixtime,
-                  "datetime"    => datetime,
-                  "atomuuid"    => atom["uuid"],
-                  "ordinal"     => ordinal
-                }
-                LibrarianObjects::commit(item)
-
-                LucilleCore::removeFileSystemLocation(location)
-            }
-
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             NS16sOperator::misc(),
-            Waves::ns16s(),
-            NS16sOperator::firstComeFirstServedOnGoingDay(),
-            Inbox::ns16s(),
-            TxSpaceships::ns16s(focus),
-            NS16sOperator::todosOrWorkItems(focus)
+            NS16sOperator::firstComeFirstServedOnGoingDay(focus),
         ]
             .flatten
             .compact
@@ -268,6 +242,10 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
+
+            # Every loop maintenance
+            TxTodos::importTxTodosRandom()
+
             focus = DomainsX::focus()
             floats = TxFloats::ns16s(focus)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

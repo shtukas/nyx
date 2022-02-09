@@ -202,6 +202,7 @@ class TxTodos
     # Operations
 
     # TxTodos::importspread()
+    # We are not running this automatically, we do manual runs from nslog 
     def self.importspread()
         locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxTodos Spread")
  
@@ -232,6 +233,34 @@ class TxTodos
                 LucilleCore::removeFileSystemLocation(location)
             }
         end
+    end
+
+    # TxTodos::importTxTodosRandom()
+    def self.importTxTodosRandom()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/TxTodos (Random)")
+            .map{|location|
+                puts "Importing TxTodos (Random): #{location}"
+
+                uuid        = SecureRandom.uuid
+                description = File.basename(location)
+                unixtime    = Time.new.to_i
+                datetime    = Time.new.utc.iso8601
+                atom        = CoreData5::issueAionPointAtomUsingLocation(location)
+                ordinal     = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
+
+                item = {
+                  "uuid"        => uuid,
+                  "mikuType"    => "TxTodo",
+                  "description" => description,
+                  "unixtime"    => unixtime,
+                  "datetime"    => datetime,
+                  "atomuuid"    => atom["uuid"],
+                  "ordinal"     => ordinal
+                }
+                LibrarianObjects::commit(item)
+
+                LucilleCore::removeFileSystemLocation(location)
+            }
     end
 
     # TxTodos::run(nx50)
@@ -371,7 +400,6 @@ class TxTodos
 
     # TxTodos::ns16s()
     def self.ns16s()
-        TxTodos::importspread()
         ns16s = TxTodos::itemsCardinal(50)
             .map{|item| TxTodos::ns16OrNull(item) }
             .compact
@@ -383,6 +411,33 @@ class TxTodos
                 }
         p2 = ns16s.drop(6)
         p1 + p2
+    end
+
+    # TxTodos::ns16sManagementX()
+    def self.ns16sManagementX()
+
+        # Get the items for the day
+        items = KeyValueStore::getOrNull(nil, "27ba40c0-58d9-41a9-9eb8-f1421069575b:#{Utils::today()}")
+        if items then
+            items = JSON.parse(items)
+        else
+            items = TxTodos::ns16s().first(10)
+        end
+
+        # Those items are quite stable, but
+        # refresh in case a description was updated or something.
+        # We also want to remove the ones that have been deleted
+        items = items
+            .map{|item|
+                LibrarianObjects::getObjectByUUIDOrNull(item["uuid"])
+            }
+            .compact
+
+        KeyValueStore::set(nil, "27ba40c0-58d9-41a9-9eb8-f1421069575b:#{Utils::today()}", JSON.generate(items))
+
+        ns16s = items
+            .map{|item| TxTodos::ns16OrNull(item) }
+            .compact
     end
 
     # --------------------------------------------------
