@@ -54,7 +54,7 @@ class TxWorkItems
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
         LibrarianObjects::commit(atom)
@@ -82,7 +82,7 @@ class TxWorkItems
         description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        atom        = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
         ordinal     = TxWorkItems::interactivelyDecideNewOrdinal()
         item = {
@@ -175,7 +175,7 @@ class TxWorkItems
             end
 
             if Interpreting::match("atom", command) then
-                atom = Atoms5::interactivelyCreateNewAtomOrNull()
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = mx51["atomuuid"]
                 LibrarianObjects::commit(atom)

@@ -8,7 +8,7 @@ class AgentsUtils
             puts "warning: I could not find the atom for this item (atomuuid: #{atomuuid})"
             LucilleCore::pressEnterToContinue()
         else
-            if text = Atoms5::atomPayloadToTextOrNull(atom) then
+            if text = CoreData5::atomPayloadToTextOrNull(atom) then
                 puts "text:\n#{text}"
             end
         end
@@ -19,7 +19,7 @@ class AgentsUtils
         atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
         return if atom.nil?
         return if atom["type"] == "description-only"
-        atom = Atoms5::accessWithOptionToEditOptionalUpdate(atom)
+        atom = CoreData5::accessWithOptionToEditOptionalUpdate(atom)
         return if atom.nil?
         LibrarianObjects::commit(atom)
     end

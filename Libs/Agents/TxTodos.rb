@@ -60,7 +60,7 @@ class TxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        atom       = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
         LibrarianObjects::commit(atom)
@@ -90,7 +90,7 @@ class TxTodos
         description = File.basename(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        atom        = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
@@ -113,7 +113,7 @@ class TxTodos
         description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+        atom        = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
         ordinal     = TxTodos::interactivelyDecideNewOrdinal()
 
@@ -135,7 +135,7 @@ class TxTodos
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        atom       = Atoms5::issueAionPointAtomUsingLocation(location)
+        atom       = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
         ordinal    = ordinal
 
@@ -158,7 +158,7 @@ class TxTodos
         description = url
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Atoms5::issueUrlAtomUsingUrl(url)
+        atom        = CoreData5::issueUrlAtomUsingUrl(url)
         LibrarianObjects::commit(atom)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
 
@@ -285,7 +285,7 @@ class TxTodos
             end
 
             if Interpreting::match("atom", command) then
-                atom = Atoms5::interactivelyCreateNewAtomOrNull()
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = nx50["atomuuid"]
                 LibrarianObjects::commit(atom)

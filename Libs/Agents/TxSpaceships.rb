@@ -20,7 +20,7 @@ class TxSpaceships
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom       = Atoms5::interactivelyCreateNewAtomOrNull()
+        atom       = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
         LibrarianObjects::commit(atom)
@@ -122,7 +122,7 @@ class TxSpaceships
             end
 
             if Interpreting::match("atom", command) then
-                atom = Atoms5::interactivelyCreateNewAtomOrNull()
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = nx60["atomuuid"]
                 LibrarianObjects::commit(nx60)

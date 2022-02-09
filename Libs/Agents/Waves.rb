@@ -110,7 +110,7 @@ class Waves
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
         LibrarianObjects::commit(atom)
@@ -218,7 +218,7 @@ class Waves
             end
 
             if Interpreting::match("atom", command) then
-                atom = Atoms5::interactivelyCreateNewAtomOrNull()
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 LibrarianObjects::commit(atom)
                 wave["atomuuid"] = atom["uuid"]

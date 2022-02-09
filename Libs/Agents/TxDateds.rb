@@ -23,7 +23,7 @@ class TxDateds
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
 
-        atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
         LibrarianObjects::commit(atom)
@@ -51,7 +51,7 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Atoms5::interactivelyCreateNewAtomOrNull()
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
         LibrarianObjects::commit(atom)
@@ -147,7 +147,7 @@ class TxDateds
             end
 
             if Interpreting::match("atom", command) then
-                atom = Atoms5::interactivelyCreateNewAtomOrNull()
+                atom = CoreData5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = mx49["atomuuid"]
                 LibrarianObjects::commit(atom)

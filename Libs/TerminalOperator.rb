@@ -99,7 +99,7 @@ class NS16sOperator
                 description = File.basename(location)
                 unixtime    = Time.new.to_i
                 datetime    = Time.new.utc.iso8601
-                atom        = Atoms5::issueAionPointAtomUsingLocation(location)
+                atom        = CoreData5::issueAionPointAtomUsingLocation(location)
                 ordinal     = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
 
                 item = {
