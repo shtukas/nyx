@@ -7,15 +7,10 @@ class ItemStore
         @items = []
         @defaultItem = nil
     end
-    def itemShouldBeDefault(item)
-        uuid = item["uuid"]
-        return false if KeyValueStore::flagIsTrue(nil, "6413c62b-d0d3-4fdc-a9d1-d00adae3a1ee:#{Utils::today()}:#{uuid}")
-        @defaultItem.nil?
-    end
     def register(item)
         cursor = @items.size
         @items << item
-        if itemShouldBeDefault(item) then
+        if @defaultItem.nil? then
             @defaultItem = item
         end
     end
@@ -32,14 +27,6 @@ class ItemStore
     end
     def getDefault()
         @defaultItem.clone
-    end
-end
-
-class ItemStoreOps
-
-    # ItemStoreOps::delistForDefault(uuid)
-    def self.delistForDefault(uuid)
-        KeyValueStore::setFlagTrue(nil, "6413c62b-d0d3-4fdc-a9d1-d00adae3a1ee:#{Utils::today()}:#{uuid}")
     end
 end
 

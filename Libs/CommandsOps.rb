@@ -39,10 +39,6 @@ class CommandsOps
 
         # puts "CommandsOps, object: #{object}, command: #{command}"
 
-        if command == "''" then
-            ItemStoreOps::delistForDefault(object["uuid"])
-        end
-
         if object["NS198"] == "NS16:Anniversary1" and command == ".." then
             Anniversaries::run(object["anniversary"])
         end
@@ -96,11 +92,6 @@ class CommandsOps
             CommandsOps::transmutation2(mx49, "TxDated")
         end
 
-        if object["NS198"] == "NS16:TxDated" and command == "''" then
-            mx49 = object["TxDated"]
-            ItemStoreOps::delistForDefault(mx49["uuid"])
-        end
-
         if object["NS198"] == "NS16:TxDrop" and command == ".." then
             nx70 = object["TxDrop"]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
@@ -135,11 +126,6 @@ class CommandsOps
         if object["NS198"] == "NS16:TxSpaceship" and command == "done" then
             nx60 = object["TxSpaceship"]
             TxSpaceships::complete(nx60)
-        end
-
-        if object["NS198"] == "NS16:TxSpaceship" and command == "''" then
-            nx60 = object["TxSpaceship"]
-            ItemStoreOps::delistForDefault(nx60["uuid"])
         end
 
         if object["NS198"] == "NS16:TxSpaceship" and command == ">>" then

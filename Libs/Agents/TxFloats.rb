@@ -162,7 +162,6 @@ class TxFloats
     # TxFloats::ns16(mx48)
     def self.ns16(mx48)
         uuid = mx48["uuid"]
-        ItemStoreOps::delistForDefault(uuid)
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxFloat",

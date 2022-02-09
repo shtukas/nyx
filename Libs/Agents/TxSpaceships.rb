@@ -173,14 +173,11 @@ class TxSpaceships
     def self.ns16(nx60)
         uuid = nx60["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        if rt > 1 then
-            ItemStoreOps::delistForDefault(uuid)
-        end
         {
             "uuid"        => uuid,
             "NS198"       => "NS16:TxSpaceship",
             "announce"    => TxSpaceships::toStringForNS16(nx60, rt).gsub("(0.00)", "      "),
-            "commands"    => ["..", "done", "''", ">> (transmute)"],
+            "commands"    => ["..", "done", ">> (transmute)"],
             "TxSpaceship" => nx60,
             "rt"          => rt
         }

@@ -171,7 +171,7 @@ class TxDrops
             "uuid"     => uuid,
             "NS198"    => "NS16:TxDrop",
             "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
-            "commands" => ["..", "done", "''", ">> (transmute)"],
+            "commands" => ["..", "done", ">> (transmute)"],
             "TxDrop"   => nx70
         }
     end
