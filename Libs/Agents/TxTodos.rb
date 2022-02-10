@@ -273,7 +273,7 @@ class TxTodos
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | ordinal | rotate | >> (transmute) | note | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -325,7 +325,7 @@ class TxTodos
                 break
             end
 
-            if Interpreting::match(">>", command) then
+            if Interpreting::match("transmute", command) then
                 CommandsOps::transmutation2(nx50, "TxTodo")
                 break
             end
