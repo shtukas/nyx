@@ -7,7 +7,15 @@ class DomainsX
     # DomainsX::interactivelySelectDomainX()
     def self.interactivelySelectDomainX()
         domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work"])
-        return "eva" if domainx.nil?
+        return DomainsX::interactivelySelectDomainX() if domainx.nil?
+        domainx
+    end
+
+    # DomainsX::interactivelySelectDomainXOrNull()
+    def self.interactivelySelectDomainXOrNull()
+        domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work", "(null)"])
+        return DomainsX::interactivelySelectDomainXOrNull() if domainx.nil?
+        return nil if domainx == "(null)"
         domainx
     end
 

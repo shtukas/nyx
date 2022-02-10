@@ -25,10 +25,10 @@ class TxFloats
 
         LibrarianObjects::commit(atom)
 
-        uuid       = SecureRandom.uuid
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
-        domainx    = DomainsX::interactivelySelectDomainX()
+        uuid     = SecureRandom.uuid
+        unixtime = Time.new.to_i
+        datetime = Time.new.utc.iso8601
+        domainx  = DomainsX::interactivelySelectDomainXOrNull()
 
         item = {
           "uuid"        => uuid,
@@ -174,7 +174,7 @@ class TxFloats
     # TxFloats::ns16s(focus)
     def self.ns16s(focus)
         TxFloats::items()
-            .select{|item| item["domainx"] == focus }
+            .select{|item| item["domainx"].nil? or (item["domainx"] == focus) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }
     end
