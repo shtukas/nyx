@@ -20,12 +20,6 @@ class TxTodos
     # --------------------------------------------------
     # Ordinals
 
-    # TxTodos::previousOrdinal()
-    def self.previousOrdinal()
-        biggest = ([0] + TxTodos::items().map{|nx50| nx50["ordinal"] }).min
-        (biggest - 1).floor
-    end
-
     # TxTodos::nextOrdinal()
     def self.nextOrdinal()
         biggest = ([0] + TxTodos::items().map{|nx50| nx50["ordinal"] }).max
