@@ -111,12 +111,6 @@ class PersonalAssistante
         section3Uuids = (section3Uuids + section4.map{|ns16| ns16["uuid"] }).first(10)
         KeyValueStore::set(nil, PersonalAssistante::key(), JSON.generate(section3Uuids))
     end
-
-    # PersonalAssistante::removeUuidFromSection3(uuid)
-    def self.removeUuidFromSection3(uuid)
-        uuids = PersonalAssistante::getSection3Uuids() - [uuid]
-        KeyValueStore::set(nil, PersonalAssistante::key(), JSON.generate(uuids))
-    end
 end
 
 class TerminalDisplayOperator
