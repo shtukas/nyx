@@ -10,7 +10,7 @@ class ItemStore
     def register(item)
         cursor = @items.size
         @items << item
-        if @defaultItem.nil? then
+        if @defaultItem.nil? and item["NS198"] != "NS16:TxFloat" then
             @defaultItem = item
         end
     end
