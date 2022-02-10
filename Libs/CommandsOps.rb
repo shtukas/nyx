@@ -401,17 +401,25 @@ class CommandsOps
             return
         end
 
+        if source == "TxSpaceship" and target == "TxDated" then
+            datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            return if datetime.nil?
+            object["datetime"] = datetime
+            object["mikuType"] = "TxDated"
+            LibrarianObjects::commit(object)
+            return
+        end
+
         if source == "TxSpaceship" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
             LibrarianObjects::commit(object)
             return
         end
 
-        if source == "TxSpaceship" and target == "TxDated" then
-            datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            return if datetime.nil?
-            object["datetime"] = datetime
-            object["mikuType"] = "TxDated"
+        if source == "TxSpaceship" and target == "TxWorkItem" then
+            ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxWorkItem"
             LibrarianObjects::commit(object)
             return
         end

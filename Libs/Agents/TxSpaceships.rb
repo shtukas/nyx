@@ -96,7 +96,7 @@ class TxSpaceships
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | note | transmute |show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | transmute | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
