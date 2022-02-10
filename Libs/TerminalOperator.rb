@@ -6,11 +6,15 @@ class ItemStore
     def initialize() # : Integer
         @items = []
         @defaultItem = nil
+        @topIsActive = false
+    end
+    def setTopActive()
+        @topIsActive =  true
     end
     def register(item)
         cursor = @items.size
         @items << item
-        if @defaultItem.nil? and item["NS198"] != "NS16:TxFloat" then
+        if !@topIsActive and @defaultItem.nil? and item["NS198"] != "NS16:TxFloat" then
             @defaultItem = item
         end
     end
@@ -157,8 +161,10 @@ class TerminalDisplayOperator
 
         top = Topping::getText(focus)
         if top.size > 0 then
+            store.setTopActive()
             top = top.lines.first(10).join().strip
-            puts top.green
+            puts "(-->)".green
+            puts top
             puts ""
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 1
         end
