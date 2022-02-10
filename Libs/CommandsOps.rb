@@ -411,6 +411,7 @@ class CommandsOps
         end
 
         if source == "TxSpaceship" and target == "TxFloat" then
+            object["domainx"] = DomainsX::interactivelySelectDomainXOrNull()
             object["mikuType"] = "TxFloat"
             LibrarianObjects::commit(object)
             return
@@ -425,6 +426,7 @@ class CommandsOps
         end
 
         if source == "TxWorkItem" and target == "TxFloat" then
+            object["domainx"] = DomainsX::interactivelySelectDomainXOrNull()
             object["mikuType"] = "TxFloat"
             LibrarianObjects::commit(object)
             return
