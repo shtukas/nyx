@@ -34,6 +34,81 @@ class ItemStore
     end
 end
 
+class Ordinals
+
+    # Ordinals::getOrdinalForUUIDOrNull(uuid)
+    def self.getOrdinalForUUIDOrNull(uuid)
+        ordinal = KeyValueStore::getOrNull(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{Utils::today()}:#{uuid}")
+        return ordinal.to_f if ordinal
+        nil
+    end
+
+    # Ordinals::setOrdinalForUUID(uuid, ordinal)
+    def self.setOrdinalForUUID(uuid, ordinal)
+        KeyValueStore::set(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{Utils::today()}:#{uuid}", ordinal)
+    end
+
+    # Ordinals::prepareNS16s(ns16s, focus)
+    def self.prepareNS16s(ns16s, focus)
+        # This function ensures that all the items have an ordinal, ask for one if missing, add the attribute to the ns16, for display, and return them in ordinal order
+
+        if ns16s.any?{|ns16| Ordinals::getOrdinalForUUIDOrNull(ns16["uuid"]).nil? } then
+            # We display the ones with an ordinal and ask for one ordinal
+            p1, p2 = ns16s.partition{|ns16| !Ordinals::getOrdinalForUUIDOrNull(ns16["uuid"]).nil? } 
+            if p1.empty? then
+                Ordinals::setOrdinalForUUID(p2[0]["uuid"], 10)
+                return Ordinals::prepareNS16s(ns16s, focus)
+            end
+            system("clear")
+            puts ""
+            p1
+                .sort{|i1, i2| Ordinals::getOrdinalForUUIDOrNull(i1["uuid"]) <=> Ordinals::getOrdinalForUUIDOrNull(i2["uuid"]) }
+                .each{|ns16|
+                    puts "(#{Ordinals::getOrdinalForUUIDOrNull(ns16["uuid"])}) #{ns16["announce"]}"
+                }
+            puts ""
+            puts "-> #{p2[0]["announce"]}"
+            input = LucilleCore::askQuestionAnswerAsString("ordinal (default to next; accept commands: 'done', '..', 'not today'): ")
+
+            ordinal = nil
+
+            loop {
+                if input == "done" then
+                    CommandsOps::operator1(p2[0], "done")
+                    ordinal = 0
+                    break
+                end
+                if input == ".." then
+                    CommandsOps::operator1(p2[0], "..")
+                    ordinal = 0
+                    break
+                end
+                if input == "not today" then
+                    DoNotShowUntil::setUnixtime(p2[0]["uuid"], Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()))
+                    ordinal = 0
+                    break
+                end
+                if input.size > 0 then
+                    ordinal = input.to_f
+                    break
+                end
+                ordinal = p1.map{|ns16| Ordinals::getOrdinalForUUIDOrNull(ns16["uuid"]) }.max + 1
+                break
+            }
+
+            Ordinals::setOrdinalForUUID(p2[0]["uuid"], ordinal)
+            return Ordinals::prepareNS16s(NS16sOperator::firstComeFirstServedOnGoingDay(focus), focus)
+        end
+
+        ns16s
+            .map{|ns16|
+                ns16["terminal:ordinal"] = Ordinals::getOrdinalForUUIDOrNull(ns16["uuid"])
+                ns16
+            }
+            .sort{|i1, i2| i1["terminal:ordinal"] <=> i2["terminal:ordinal"] }
+    end
+end
+
 class NS16sOperator
 
     # NS16sOperator::getListingUnixtime(uuid)
@@ -71,7 +146,6 @@ class NS16sOperator
             .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .sort{|i1, i2| NS16sOperator::getListingUnixtime(i1["uuid"]) <=> NS16sOperator::getListingUnixtime(i2["uuid"]) }
     end
 
     # NS16sOperator::todoNs16s(focus)
@@ -89,7 +163,7 @@ class NS16sOperator
             Anniversaries::ns16s(),
             Calendar::ns16s(),
             NS16sOperator::misc(),
-            NS16sOperator::firstComeFirstServedOnGoingDay(focus),
+            Ordinals::prepareNS16s(NS16sOperator::firstComeFirstServedOnGoingDay(focus), focus),
         ]
             .flatten
             .compact
@@ -100,14 +174,20 @@ end
 
 class TerminalDisplayOperator
 
+    # TerminalDisplayOperator::commandStrWithPrefix(ns16, isDefaultItem)
+    def self.commandStrWithPrefix(ns16, isDefaultItem)
+        return "" if !isDefaultItem
+        return "" if ns16["commands"].nil?
+        return "" if ns16["commands"].empty?
+        " (commands: #{ns16["commands"].join(", ")})".yellow
+    end
+
     # TerminalDisplayOperator::display(focus, floats, ns16s)
     def self.display(focus, floats, ns16s)
 
-        commandStrWithPrefix = lambda{|ns16, isDefaultItem|
-            return "" if !isDefaultItem
-            return "" if ns16["commands"].nil?
-            return "" if ns16["commands"].empty?
-            " (commands: #{ns16["commands"].join(", ")})".yellow
+        ordinalStringWithPrefixOrEmpty = lambda{|ns16|
+            return "" if ns16["terminal:ordinal"].nil?
+            " (#{"%5.2f" % ns16["terminal:ordinal"]})"
         }
 
         system("clear")
@@ -173,7 +253,7 @@ class TerminalDisplayOperator
             .each{|ns16|
                 store.register(ns16)
                 line = ns16["announce"]
-                line = "#{store.prefixString()} #{line}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
+                line = "#{store.prefixString()}#{ordinalStringWithPrefixOrEmpty.call(ns16)} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 puts line + " (#{vspaceleft})"
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
