@@ -254,17 +254,36 @@ class TxWorkItems
 
     # TxWorkItems::ns16s()
     def self.ns16s()
-        ns16s = TxWorkItems::items()
-                    .map{|item| TxWorkItems::ns16OrNull(item) }
-                    .compact
+        TxWorkItems::items()
+            .map{|item| TxWorkItems::ns16OrNull(item) }
+            .compact
+    end
 
-        p1 = ns16s
-                .first(6)
-                .sort{|x1, x2|
-                    (x1["rt"] > 0 ? x1["rt"] : 0.25)  <=> (x2["rt"] > 0 ? x2["rt"] : 0.25)
-                }
-        p2 = ns16s.drop(6)
-        p1 + p2
+    # TxWorkItems::ns16sManagementX()
+    def self.ns16sManagementX()
+
+        # Get the items for the day
+        items = KeyValueStore::getOrNull(nil, "9cdfd3e5-61a2-4b21-9813-e2263a2bb4f1:#{Utils::today()}")
+        if items then
+            items = JSON.parse(items)
+        else
+            items = TxWorkItems::ns16s().first(10)
+        end
+
+        # Those items are quite stable, but
+        # refresh in case a description was updated or something.
+        # We also want to remove the ones that have been deleted
+        items = items
+            .map{|item|
+                LibrarianObjects::getObjectByUUIDOrNull(item["uuid"])
+            }
+            .compact
+
+        KeyValueStore::set(nil, "9cdfd3e5-61a2-4b21-9813-e2263a2bb4f1:#{Utils::today()}", JSON.generate(items))
+
+        ns16s = items
+            .map{|item| TxWorkItems::ns16OrNull(item) }
+            .compact
     end
 
     # --------------------------------------------------

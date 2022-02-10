@@ -79,7 +79,7 @@ class NS16sOperator
         if focus == "eva" then
             TxTodos::ns16sManagementX()
         else
-            TxWorkItems::ns16s()
+            TxWorkItems::ns16sManagementX()
         end
     end
 
@@ -166,7 +166,7 @@ class TerminalDisplayOperator
             puts "(-->)".green
             puts top
             puts ""
-            vspaceleft = vspaceleft - Utils::verticalSize(top) - 1
+            vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
 
         ns16s
@@ -174,8 +174,8 @@ class TerminalDisplayOperator
                 store.register(ns16)
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{line}#{commandStrWithPrefix.call(ns16, store.latestEnteredItemIsDefault())}"
-                break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
-                puts line
+                break if (vspaceleft - Utils::verticalSize(line)) < 0
+                puts line + " (#{vspaceleft})"
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
