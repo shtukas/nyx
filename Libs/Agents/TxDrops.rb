@@ -28,7 +28,6 @@ class TxDrops
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        domainx    = DomainsX::interactivelySelectDomainX()
 
         item = {
           "uuid"        => uuid,
@@ -36,8 +35,7 @@ class TxDrops
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
-          "domainx"     => domainx
+          "atomuuid"    => atom["uuid"]
         }
         LibrarianObjects::commit(item)
         item
@@ -83,7 +81,6 @@ class TxDrops
 
             puts TxDrops::toString(nx70).green
             puts "uuid: #{uuid}".yellow
-            puts "domainx: #{nx70["domainx"]}".yellow
 
             AgentsUtils::atomLandingPresentation(nx70["atomuuid"])
 
@@ -176,11 +173,23 @@ class TxDrops
         }
     end
 
+    # TxDrops::operationalNS16OrNull(nx70)
+    def self.operationalNS16OrNull(nx70)
+        uuid = nx70["uuid"]
+        return nil if !DoNotShowUntil::isVisible(uuid)
+        return nil if !InternetStatus::ns16ShouldShow(uuid)
+        {
+            "uuid"     => uuid,
+            "NS198"    => "NS16:TxDrop",
+            "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
+            "commands" => ["..", "done", ">> (transmute)"],
+            "TxDrop"   => nx70
+        }
+    end
+
     # TxDrops::ns16s()
     def self.ns16s()
-        focus = DomainsX::focus()
         TxDrops::mikus()
-            .select{|item| focus.nil? or (item["domainx"] == focus) }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxDrops::ns16(item) }
     end

@@ -18,7 +18,7 @@ class TxTodos
     end
 
     # --------------------------------------------------
-    # Ordinals
+    # PersonalAssistante 
 
     # TxTodos::nextOrdinal()
     def self.nextOrdinal()
@@ -172,7 +172,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[    ] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -359,19 +359,28 @@ class TxTodos
     # --------------------------------------------------
     # nx16s
 
-    # TxTodos::itemIsOperational(item)
-    def self.itemIsOperational(item)
-        uuid = item["uuid"]
-        return false if !DoNotShowUntil::isVisible(uuid)
-        return false if !InternetStatus::ns16ShouldShow(uuid)
-        true
+    # TxTodos::ns16(nx50)
+    def self.ns16(nx50)
+        uuid = nx50["uuid"]
+        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        {
+            "uuid"     => uuid,
+            "NS198"    => "NS16:TxTodo",
+            "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
+            "commands" => ["..", "done"],
+            "ordinal"  => nx50["ordinal"],
+            "TxTodo"   => nx50,
+            "rt"       => rt
+        }
     end
 
-    # TxTodos::ns16OrNull(nx50)
-    def self.ns16OrNull(nx50)
+    # TxTodos::personalAssistanteOperationalNS16OrNull(nx50)
+    def self.personalAssistanteOperationalNS16OrNull(nx50)
         uuid = nx50["uuid"]
-        return nil if !TxTodos::itemIsOperational(nx50)
+        return nil if !DoNotShowUntil::isVisible(uuid)
+        return nil if !InternetStatus::ns16ShouldShow(uuid)
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        return nil if rt > 1
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxTodo",
@@ -385,17 +394,8 @@ class TxTodos
 
     # TxTodos::ns16s()
     def self.ns16s()
-        ns16s = TxTodos::itemsCardinal(50)
-            .map{|item| TxTodos::ns16OrNull(item) }
-            .compact
-
-        p1 = ns16s
-                .first(6)
-                .sort{|x1, x2|
-                    (x1["rt"] > 0 ? x1["rt"] : 0.25)  <=> (x2["rt"] > 0 ? x2["rt"] : 0.25)
-                }
-        p2 = ns16s.drop(6)
-        p1 + p2
+        TxTodos::itemsCardinal(50)
+            .map{|item| TxTodos::ns16(item) }
     end
 
     # --------------------------------------------------

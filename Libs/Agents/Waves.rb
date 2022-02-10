@@ -132,8 +132,6 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        wave["domainx"] = DomainsX::interactivelySelectDomainX()
-
         LibrarianObjects::commit(wave)
         wave
     end
@@ -320,6 +318,20 @@ class Waves
     # Waves::toNS16(wave)
     def self.toNS16(wave)
         uuid = wave["uuid"]
+        {
+            "uuid"     => uuid,
+            "NS198"    => "NS16:Wave",
+            "announce" => Waves::toString(wave),
+            "commands" => ["..", "landing", "done"],
+            "wave"     => wave
+        }
+    end
+
+    # Waves::toOperationalNS16OrNull(wave)
+    def self.toOperationalNS16OrNull(wave)
+        uuid = wave["uuid"]
+        return nil if !DoNotShowUntil::isVisible(uuid)
+        return nil if !InternetStatus::ns16ShouldShow(uuid)
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:Wave",

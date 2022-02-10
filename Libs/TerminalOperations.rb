@@ -1,16 +1,17 @@
 # encoding: UTF-8
 
-# ------------------------------------------------------------------------------------------
-
 class ItemStore
+
     def initialize() # : Integer
         @items = []
         @defaultItem = nil
         @topIsActive = false
     end
+
     def setTopActive()
         @topIsActive =  true
     end
+
     def register(item)
         cursor = @items.size
         @items << item
@@ -18,66 +19,35 @@ class ItemStore
             @defaultItem = item
         end
     end
+
     def latestEnteredItemIsDefault()
         return false if @defaultItem.nil?
         @items.last["uuid"] == @defaultItem["uuid"]
     end
+
     def prefixString()
         indx = @items.size-1
         latestEnteredItemIsDefault() ? "(-->)".green : "(#{"%3d" % indx})"
     end
+
     def get(indx)
         @items[indx].clone
     end
+
     def getDefault()
         @defaultItem.clone
     end
 end
 
-class Ordinals
-
-    # Ordinals::getOrdinalForUUIDOrNull(uuid)
-    def self.getOrdinalForUUIDOrNull(uuid)
-        ordinal = KeyValueStore::getOrNull(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{Utils::today()}:#{uuid}")
-        return ordinal.to_f if ordinal
-        nil
-    end
-
-    # Ordinals::setOrdinalForUUID(uuid, ordinal)
-    def self.setOrdinalForUUID(uuid, ordinal)
-        KeyValueStore::set(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{Utils::today()}:#{uuid}", ordinal)
-    end
-end
-
 class NS16sOperator
 
-    # NS16sOperator::getListingUnixtime(uuid)
-    def self.getListingUnixtime(uuid)
-        unixtime = KeyValueStore::getOrNull(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{uuid}")
-        return unixtime.to_f if unixtime
-        unixtime = Time.new.to_f
-        KeyValueStore::set(nil, "d5c340ae-c9f1-4dfb-961b-71b4d152e271:#{uuid}", unixtime)
-        unixtime
-    end
-
-    # NS16sOperator::misc()
-    def self.misc()
-        [
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-        ]
-            .flatten
-            .compact
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-    end
-
-    # NS16sOperator::ns16s(focus)
-    def self.ns16s(focus)
+    # NS16sOperator::ns16s()
+    def self.ns16s()
         [
             Anniversaries::ns16s(),
             Calendar::ns16s(),
-            NS16sOperator::misc(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
             Waves::ns16s(),
             TxDrops::ns16s(),
@@ -85,9 +55,67 @@ class NS16sOperator
             TxTodos::ns16s()
         ]
             .flatten
-            .compact
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    end
+end
+
+class PersonalAssistante
+
+    # PersonalAssistante::key()
+    def self.key()
+        "b1439fa6-bf4f-9d55-401d-aa508358bba9:#{Utils::today()}"
+    end
+
+    # PersonalAssistante::getSection3Uuids()
+    def self.getSection3Uuids()
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistante::key(), "[]"))
+    end
+
+    # PersonalAssistante::getSection3()
+    def self.getSection3()
+        itemToNS16OrNull = lambda{|item|
+            if item["mikuType"] == "Wave" then
+                return Waves::toOperationalNS16OrNull(item)
+            end
+            if item["mikuType"] == "TxDrop" then
+                return TxDrops::operationalNS16OrNull(item)
+            end
+            if item["mikuType"] == "TxTodo" then
+                return TxTodos::personalAssistanteOperationalNS16OrNull(item)
+            end
+            raise "(error: 0f66839b-fa46-4f55-851e-ed3046d1798b) I don't know how to item: #{item}"
+        }
+
+        section3 = PersonalAssistante::getSection3Uuids()
+            .map{|uuid| LibrarianObjects::getObjectByUUIDOrNull(uuid) }
+            .compact
+            .map{|item| itemToNS16OrNull.call(item) }
+            .compact
+
+        KeyValueStore::set(nil, PersonalAssistante::key(), JSON.generate(section3.map{|ns16| ns16["uuid"] }))
+
+        section3
+    end
+
+    # PersonalAssistante::getSection4(section3, ns16s)
+    def self.getSection4(section3, ns16s)
+        section3_uuids = section3.map{|ns16| ns16["uuid"] }
+        ns16s.select{|ns16| !section3_uuids.include?(ns16["uuid"]) }
+    end
+
+    # PersonalAssistante::maintainSection3Size(section4)
+    def self.maintainSection3Size(section4)
+        section3Uuids = PersonalAssistante::getSection3Uuids()
+        return if section3Uuids.size > 10
+        section3Uuids = (section3Uuids + section4.map{|ns16| ns16["uuid"] }).first(10)
+        KeyValueStore::set(nil, PersonalAssistante::key(), JSON.generate(section3Uuids))
+    end
+
+    # PersonalAssistante::removeUuidFromSection3(uuid)
+    def self.removeUuidFromSection3(uuid)
+        uuids = PersonalAssistante::getSection3Uuids() - [uuid]
+        KeyValueStore::set(nil, PersonalAssistante::key(), JSON.generate(uuids))
     end
 end
 
@@ -101,11 +129,11 @@ class TerminalDisplayOperator
         " (commands: #{ns16["commands"].join(", ")})".yellow
     end
 
-    # TerminalDisplayOperator::display(focus, floats, ns16s)
-    def self.display(focus, floats, ns16s)
+    # TerminalDisplayOperator::display(floats, section3, section4)
+    def self.display(floats, section3, section4)
         system("clear")
 
-        vspaceleft = Utils::screenHeight()-4
+        vspaceleft = Utils::screenHeight()-3
 
         puts ""
         cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
@@ -152,7 +180,7 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
         end
 
-        top = Topping::getText(focus)
+        top = Topping::getText()
         if top.size > 0 then
             store.setTopActive()
             top = top.lines.first(10).join().strip
@@ -162,13 +190,26 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
 
-        ns16s
+        section3
             .each{|ns16|
                 store.register(ns16)
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
-                puts line + " (#{vspaceleft})"
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+
+        puts ""
+        vspaceleft = vspaceleft - 1
+
+        section4
+            .each{|ns16|
+                store.register(ns16)
+                line = ns16["announce"]
+                line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
+                break if (vspaceleft - Utils::verticalSize(line)) < 0
+                puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
@@ -209,7 +250,7 @@ class TerminalDisplayOperator
             return
         end
 
-        CommandsOps::operator4(command, focus)
+        CommandsOps::operator4(command)
         CommandsOps::operator1(store.getDefault(), command)
     end
 
@@ -231,13 +272,13 @@ class TerminalDisplayOperator
 
             # Every loop maintenance
             TxTodos::importTxTodosRandom()
-
-            focus = DomainsX::focus()
-            floats = TxFloats::ns16s(focus)
+            floats = TxFloats::ns16s()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            ns16s  = NS16sOperator::ns16s(focus)
-            TerminalDisplayOperator::display(focus, floats, ns16s)
+            section3 = PersonalAssistante::getSection3()
+            section4 = PersonalAssistante::getSection4(section3, NS16sOperator::ns16s())
+            PersonalAssistante::maintainSection3Size(section4)
+            TerminalDisplayOperator::display(floats, section3, section4)
         }
     end
 end

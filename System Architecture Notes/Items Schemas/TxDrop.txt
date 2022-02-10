@@ -7,6 +7,5 @@ TxDrop = {
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
   "atom"           : Atom
-  "domainx"        : "eva" | "work"
 }
 
