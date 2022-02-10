@@ -69,6 +69,7 @@ class TxTodos
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         ordinal    = TxTodos::interactivelyDecideNewOrdinal()
+        domainx    = DomainsX::interactivelySelectDomainX()
 
         item = {
           "uuid"        => uuid,
@@ -77,31 +78,8 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal
-        }
-        LibrarianObjects::commit(item)
-        item
-    end
-
-    # TxTodos::issueItemUsingInboxLocation(location)
-    def self.issueItemUsingInboxLocation(location)
-        uuid = SecureRandom.uuid
-
-        description = File.basename(location)
-        unixtime    = Time.new.to_i
-        datetime    = Time.new.utc.iso8601
-        atom        = CoreData5::issueAionPointAtomUsingLocation(location)
-        LibrarianObjects::commit(atom)
-        ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxTodo",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal
+          "ordinal"     => ordinal,
+          "domainx"     => domainx
         }
         LibrarianObjects::commit(item)
         item
@@ -116,6 +94,7 @@ class TxTodos
         atom        = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
         ordinal     = TxTodos::interactivelyDecideNewOrdinal()
+        domainx     = DomainsX::interactivelySelectDomainX()
 
         item = {
           "uuid"        => uuid,
@@ -124,7 +103,8 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal
+          "ordinal"     => ordinal,
+          "domainx"     => domainx
         }
         LibrarianObjects::commit(item)
         item
@@ -146,7 +126,8 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal
+          "ordinal"     => ordinal,
+          "domainx"     => "eva"
         }
         LibrarianObjects::commit(item)
         item
@@ -169,7 +150,8 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal
+          "ordinal"     => ordinal,
+          "domainx"     => "eva"
         }
         LibrarianObjects::commit(item)
         item
@@ -237,9 +219,9 @@ class TxTodos
 
     # TxTodos::importTxTodosRandom()
     def self.importTxTodosRandom()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/TxTodos (Random)")
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/TxTodos (Random) [eva]")
             .map{|location|
-                puts "Importing TxTodos (Random): #{location}"
+                puts "Importing TxTodos (Random) [eva]: #{location}"
 
                 uuid        = SecureRandom.uuid
                 description = File.basename(location)
@@ -255,7 +237,8 @@ class TxTodos
                   "unixtime"    => unixtime,
                   "datetime"    => datetime,
                   "atomuuid"    => atom["uuid"],
-                  "ordinal"     => ordinal
+                  "ordinal"     => ordinal,
+                  "domainx"     => "eva"
                 }
                 LibrarianObjects::commit(item)
 
@@ -278,7 +261,9 @@ class TxTodos
 
             puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
+            puts "domainx: #{nx50["domainx"]}".yellow
             puts "ordinal: #{nx50["ordinal"]}".yellow
+
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 

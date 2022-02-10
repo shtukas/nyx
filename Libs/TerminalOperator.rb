@@ -72,15 +72,6 @@ class NS16sOperator
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # NS16sOperator::todoNs16s(focus)
-    def self.todoNs16s(focus)
-        if focus == "eva" then
-            TxTodos::ns16s()
-        else
-            TxWorkItems::ns16s()
-        end
-    end
-
     # NS16sOperator::ns16s(focus)
     def self.ns16s(focus)
         [
@@ -91,7 +82,7 @@ class NS16sOperator
             Waves::ns16s(),
             TxDrops::ns16s(),
             Inbox::ns16s(),
-            NS16sOperator::todoNs16s(focus)
+            TxTodos::ns16s()
         ]
             .flatten
             .compact
@@ -117,8 +108,8 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = TxDateds::items().size + TxTodos::items().size + TxWorkItems::items().size + TxDrops::mikus().size
-        puts "(focus: #{focus})".green + " (cardinal: #{cardinal} items)"
+        cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
+        puts "(cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""

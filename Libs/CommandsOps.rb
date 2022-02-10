@@ -130,23 +130,6 @@ class CommandsOps
             end
         end
 
-        if object["NS198"] == "NS16:TxWorkItem" and command == ".." then
-            TxWorkItems::run(object["TxWorkItem"])
-        end
-
-        if object["NS198"] == "NS16:TxWorkItem" and command == "done" then
-            mx51 = object["TxWorkItem"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxWorkItems::toString(mx51)}' ? ", true) then
-                TxWorkItems::destroy(mx51["uuid"])
-                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-            end
-        end
-
-        if object["NS198"] == "NS16:TxWorkItem" and command == ">>" then
-            mx51 = object["TxWorkItem"]
-            CommandsOps::transmutation2(mx51, "TxWorkItem")
-        end
-
         if object["NS198"] == "NS16:Wave" and command == ".." then
             Waves::run(object["wave"])
         end
@@ -218,17 +201,9 @@ class CommandsOps
         end
 
         if command == "todo" then
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodo", "TxWorkItems"])
-            if type == "TxTodo" then
-                item = TxTodos::interactivelyCreateNewOrNull()
-                return if item.nil?
-                puts JSON.pretty_generate(item)
-            end
-            if type == "TxWorkItems" then
-                item = TxWorkItems::interactivelyCreateNewOrNull()
-                return if item.nil?
-                puts JSON.pretty_generate(item)
-            end
+            item = TxTodos::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("wave", command) then
@@ -260,30 +235,15 @@ class CommandsOps
         end
 
         if Interpreting::match("todos", command) then
-            type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["TxTodos", "Nx51s (work items)"])
-            if type == "TxTodos" then
-                nx50s = TxTodos::items()
-                if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
-                    nx50s = nx50s.first(Utils::screenHeight()-2)
-                end
-                loop {
-                    nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
-                    return if nx50.nil?
-                    TxTodos::run(nx50)
-                }
+            nx50s = TxTodos::items()
+            if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
+                nx50s = nx50s.first(Utils::screenHeight()-2)
             end
-            if type == "Nx51s (work items)" then
-                mx51s = TxWorkItems::items()
-                if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
-                    mx51s = mx51s.first(Utils::screenHeight()-2)
-                end
-                loop {
-                    mx51 = LucilleCore::selectEntityFromListOfEntitiesOrNull("mx51", mx51s, lambda {|mx51| TxWorkItems::toString(mx51) })
-                    return if mx51.nil?
-                    TxWorkItems::run(mx51)
-                }
-            end
-
+            loop {
+                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
+                return if nx50.nil?
+                TxTodos::run(nx50)
+            }
         end
 
         if Interpreting::match("search", command) then
@@ -330,20 +290,13 @@ class CommandsOps
     end
 
     # CommandsOps::transmutation1(object, source, target)
-    # source: "TxDated" (dated) | "TxTodo" | "TxWorkItem" | "TxFloat" (float) | "inbox"
-    # target: "TxDated" (dated) | "TxTodo" | "TxWorkItem" | "TxFloat" (float)
+    # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float) | "inbox"
+    # target: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
     def self.transmutation1(object, source, target)
 
         if source == "inbox" and target == "TxTodo" then
             location = object
             TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
-            LucilleCore::removeFileSystemLocation(location)
-            return
-        end
-
-        if source == "inbox" and target == "TxWorkItem" then
-            location = object
-            TxWorkItems::issueItemUsingInboxLocation(location)
             LucilleCore::removeFileSystemLocation(location)
             return
         end
@@ -362,36 +315,13 @@ class CommandsOps
             return
         end
 
-        if source == "TxDrop" and target == "TxWorkItem" then
-            ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-            object["ordinal"] = ordinal
-            object["mikuType"] = "TxWorkItem"
-            LibrarianObjects::commit(object)
-            return
-        end
-
-        if source == "TxWorkItem" and target == "TxFloat" then
-            object["domainx"] = DomainsX::interactivelySelectDomainXOrNull()
-            object["mikuType"] = "TxFloat"
-            LibrarianObjects::commit(object)
-            return
-        end
-
-        if source == "TxWorkItem" and target == "TxTodo" then
-            ordinal = TxTodos::interactivelyDecideNewOrdinal()
-            object["ordinal"] = ordinal
-            object["mikuType"] = "TxTodo"
-            LibrarianObjects::commit(object)
-            return
-        end
-
         puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
         LucilleCore::pressEnterToContinue()
     end
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxDated", "TxTodo", "TxWorkItem", ]
+        options = ["TxFloat", "TxDated", "TxTodo" ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option
