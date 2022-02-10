@@ -15,6 +15,12 @@ class TxWorkItems
     # --------------------------------------------------
     # Ordinals
 
+    # TxWorkItems::previousOrdinal()
+    def self.previousOrdinal()
+        biggest = ([0] + TxWorkItems::items().map{|mx51| mx51["ordinal"] }).min
+        (biggest - 1).floor
+    end
+
     # TxWorkItems::nextOrdinal()
     def self.nextOrdinal()
         biggest = ([0] + TxWorkItems::items().map{|mx51| mx51["ordinal"] }).max

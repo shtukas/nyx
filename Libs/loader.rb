@@ -140,7 +140,6 @@ require_relative "Agents/TxDrops.rb"
 require_relative "Agents/TxFloats.rb"
 require_relative "Agents/TxDateds.rb"
 require_relative "Agents/TxTodos.rb"
-require_relative "Agents/TxSpaceships.rb"
 require_relative "Agents/TxWorkItems.rb"
 require_relative "Agents/Waves.rb"
 

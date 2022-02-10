@@ -91,7 +91,6 @@ class NS16sOperator
             Waves::ns16s(),
             TxDrops::ns16s(),
             Inbox::ns16s(),
-            TxSpaceships::ns16s(focus),
             NS16sOperator::todoNs16s(focus)
         ]
             .flatten
@@ -118,7 +117,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-4
 
         puts ""
-        cardinal = TxDateds::items().size + TxTodos::items().size + TxWorkItems::items().size + TxSpaceships::items().size + TxDrops::mikus().size
+        cardinal = TxDateds::items().size + TxTodos::items().size + TxWorkItems::items().size + TxDrops::mikus().size
         puts "(focus: #{focus})".green + " (cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 

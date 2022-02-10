@@ -8,7 +8,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | float | ship | drop | today | ondate | todo"
+        "wave | anniversary | float | drop | today | ondate | todo"
     end
 
     # Commands::diversCommands()
@@ -118,21 +118,6 @@ class CommandsOps
             TxFloats::run(object["TxFloat"])
         end
 
-        if object["NS198"] == "NS16:TxSpaceship" and command == ".." then
-            nx60 = object["TxSpaceship"]
-            TxSpaceships::run(nx60)
-        end
-
-        if object["NS198"] == "NS16:TxSpaceship" and command == "done" then
-            nx60 = object["TxSpaceship"]
-            TxSpaceships::complete(nx60)
-        end
-
-        if object["NS198"] == "NS16:TxSpaceship" and command == ">>" then
-            nx60 = object["TxSpaceship"]
-            CommandsOps::transmutation2(nx60, "TxSpaceship")
-        end
-
         if object["NS198"] == "NS16:TxTodo" and command == ".." then
             TxTodos::run(object["TxTodo"])
         end
@@ -214,10 +199,6 @@ class CommandsOps
 
         if command == "float" then
             TxFloats::interactivelyCreateNewOrNull()
-        end
-
-        if command == "ship" then
-            TxSpaceships::interactivelyCreateNewOrNull()
         end
 
         if command == "drop" then
@@ -375,12 +356,6 @@ class CommandsOps
             return
         end
 
-        if source == "TxDated" and target == "TxSpaceship" then
-            object["mikuType"] = "TxSpaceship"
-            LibrarianObjects::commit(object)
-            return
-        end
-
         if source == "TxDated" and target == "TxDrop" then
             object["mikuType"] = "TxDrop"
             LibrarianObjects::commit(object)
@@ -388,36 +363,6 @@ class CommandsOps
         end
 
         if source == "TxDrop" and target == "TxWorkItem" then
-            ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
-            object["ordinal"] = ordinal
-            object["mikuType"] = "TxWorkItem"
-            LibrarianObjects::commit(object)
-            return
-        end
-
-        if source == "TxDrop" and target == "TxSpaceship" then
-            object["mikuType"] = "TxSpaceship"
-            LibrarianObjects::commit(object)
-            return
-        end
-
-        if source == "TxSpaceship" and target == "TxDated" then
-            datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            return if datetime.nil?
-            object["datetime"] = datetime
-            object["mikuType"] = "TxDated"
-            LibrarianObjects::commit(object)
-            return
-        end
-
-        if source == "TxSpaceship" and target == "TxFloat" then
-            object["domainx"] = DomainsX::interactivelySelectDomainXOrNull()
-            object["mikuType"] = "TxFloat"
-            LibrarianObjects::commit(object)
-            return
-        end
-
-        if source == "TxSpaceship" and target == "TxWorkItem" then
             ordinal = TxWorkItems::interactivelyDecideNewOrdinal()
             object["ordinal"] = ordinal
             object["mikuType"] = "TxWorkItem"
@@ -446,7 +391,7 @@ class CommandsOps
 
     # CommandsOps::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxDated", "TxSpaceship", "TxTodo", "TxWorkItem", ]
+        options = ["TxFloat", "TxDated", "TxTodo", "TxWorkItem", ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option

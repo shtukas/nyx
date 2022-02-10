@@ -532,14 +532,6 @@ class Utils
             status = CoreData5::fsck(atom)
             raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{atom}]" if !status
         }
-        TxSpaceships::items().each{|item|
-            puts TxSpaceships::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: f1d1ec80-0cc3-4ca4-97c0-a52d06ecf049, #{item}]" if atom.nil?
-            status = CoreData5::fsck(atom)
-            raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{atom}]" if !status
-        }
         TxTodos::items().each{|item|
             puts TxTodos::toString(item)
             atomuuid = item["atomuuid"]
