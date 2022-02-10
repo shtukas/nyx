@@ -75,9 +75,9 @@ class NS16sOperator
     # NS16sOperator::todoNs16s(focus)
     def self.todoNs16s(focus)
         if focus == "eva" then
-            TxTodos::ns16sManagementX()
+            TxTodos::ns16s()
         else
-            TxWorkItems::ns16sManagementX()
+            TxWorkItems::ns16s()
         end
     end
 

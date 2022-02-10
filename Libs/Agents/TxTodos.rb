@@ -413,33 +413,6 @@ class TxTodos
         p1 + p2
     end
 
-    # TxTodos::ns16sManagementX()
-    def self.ns16sManagementX()
-
-        # Get the items for the day
-        items = KeyValueStore::getOrNull(nil, "27ba40c0-58d9-41a9-9eb8-f1421069575b:#{Utils::today()}")
-        if items then
-            items = JSON.parse(items)
-        else
-            items = TxTodos::ns16s().first(10)
-        end
-
-        # Those items are quite stable, but
-        # refresh in case a description was updated or something.
-        # We also want to remove the ones that have been deleted
-        items = items
-            .map{|item|
-                LibrarianObjects::getObjectByUUIDOrNull(item["uuid"])
-            }
-            .compact
-
-        KeyValueStore::set(nil, "27ba40c0-58d9-41a9-9eb8-f1421069575b:#{Utils::today()}", JSON.generate(items))
-
-        ns16s = items
-            .map{|item| TxTodos::ns16OrNull(item) }
-            .compact
-    end
-
     # --------------------------------------------------
 
     # TxTodos::nx19s()
