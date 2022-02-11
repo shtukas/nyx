@@ -78,6 +78,9 @@ class PersonalAssistante
             if item["mikuType"] == "Wave" then
                 return Waves::toOperationalNS16OrNull(item)
             end
+            if item["mikuType"] == "TxDated" then
+                return TxDateds::ns16(item)
+            end
             if item["mikuType"] == "TxDrop" then
                 return TxDrops::operationalNS16OrNull(item)
             end
