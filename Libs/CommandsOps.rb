@@ -303,7 +303,9 @@ class CommandsOps
 
         if source == "TxDated" and target == "TxTodo" then
             ordinal = TxTodos::interactivelyDecideNewOrdinal()
+            domainx = DomainsX::interactivelySelectDomainX()
             object["ordinal"] = ordinal
+            object["domainx"] = domainx
             object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
             return
@@ -311,6 +313,26 @@ class CommandsOps
 
         if source == "TxDated" and target == "TxDrop" then
             object["mikuType"] = "TxDrop"
+            LibrarianObjects::commit(object)
+            return
+        end
+
+        if source == "TxDrop" and target == "TxTodo" then
+            ordinal = TxTodos::interactivelyDecideNewOrdinal()
+            domainx = DomainsX::interactivelySelectDomainX()
+            object["ordinal"] = ordinal
+            object["domainx"] = domainx
+            object["mikuType"] = "TxTodo"
+            LibrarianObjects::commit(object)
+            return
+        end
+
+        if source == "TxFloat" and target == "TxTodo" then
+            ordinal = TxTodos::interactivelyDecideNewOrdinal()
+            domainx = DomainsX::interactivelySelectDomainX()
+            object["ordinal"] = ordinal
+            object["domainx"] = domainx
+            object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
             return
         end
