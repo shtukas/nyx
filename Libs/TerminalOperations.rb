@@ -60,19 +60,19 @@ class NS16sOperator
     end
 end
 
-class PersonalAssistante
+class PersonalAssistant
 
-    # PersonalAssistante::key()
+    # PersonalAssistant::key()
     def self.key()
         "b1439fa6-bf4f-9d55-401d-aa508358bba9:#{Utils::today()}"
     end
 
-    # PersonalAssistante::getSection3Uuids()
+    # PersonalAssistant::getSection3Uuids()
     def self.getSection3Uuids()
-        JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistante::key(), "[]"))
+        JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
     end
 
-    # PersonalAssistante::getSection3()
+    # PersonalAssistant::getSection3()
     def self.getSection3()
         itemToNS16OrNull = lambda{|item|
             if item["mikuType"] == "Wave" then
@@ -90,29 +90,29 @@ class PersonalAssistante
             raise "(error: 0f66839b-fa46-4f55-851e-ed3046d1798b) I don't know how to item: #{item}"
         }
 
-        section3 = PersonalAssistante::getSection3Uuids()
+        section3 = PersonalAssistant::getSection3Uuids()
             .map{|uuid| LibrarianObjects::getObjectByUUIDOrNull(uuid) }
             .compact
             .map{|item| itemToNS16OrNull.call(item) }
             .compact
 
-        KeyValueStore::set(nil, PersonalAssistante::key(), JSON.generate(section3.map{|ns16| ns16["uuid"] }))
+        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3.map{|ns16| ns16["uuid"] }))
 
         section3
     end
 
-    # PersonalAssistante::getSection4(section3, ns16s)
+    # PersonalAssistant::getSection4(section3, ns16s)
     def self.getSection4(section3, ns16s)
         section3_uuids = section3.map{|ns16| ns16["uuid"] }
         ns16s.select{|ns16| !section3_uuids.include?(ns16["uuid"]) }
     end
 
-    # PersonalAssistante::maintainSection3Size(section4)
+    # PersonalAssistant::maintainSection3Size(section4)
     def self.maintainSection3Size(section4)
-        section3Uuids = PersonalAssistante::getSection3Uuids()
+        section3Uuids = PersonalAssistant::getSection3Uuids()
         return if section3Uuids.size > 10
         section3Uuids = (section3Uuids + section4.map{|ns16| ns16["uuid"] }).first(10)
-        KeyValueStore::set(nil, PersonalAssistante::key(), JSON.generate(section3Uuids))
+        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3Uuids))
     end
 end
 
@@ -272,9 +272,9 @@ class TerminalDisplayOperator
             floats = TxFloats::ns16s()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            section3 = PersonalAssistante::getSection3()
-            section4 = PersonalAssistante::getSection4(section3, NS16sOperator::ns16s())
-            PersonalAssistante::maintainSection3Size(section4)
+            section3 = PersonalAssistant::getSection3()
+            section4 = PersonalAssistant::getSection4(section3, NS16sOperator::ns16s())
+            PersonalAssistant::maintainSection3Size(section4)
             TerminalDisplayOperator::display(floats, section3, section4)
         }
     end

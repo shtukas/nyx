@@ -7,6 +7,11 @@ class TxTodos
         LibrarianObjects::getObjectsByMikuType("TxTodo")
     end
 
+    # TxTodos::itemsForDomainsX(domainx)
+    def self.itemsForDomainsX(domainx)
+        TxTodos::items().select{|item| item["domainx"] == domainx }
+    end
+
     # TxTodos::itemsCardinal(n)
     def self.itemsCardinal(n)
         LibrarianObjects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
@@ -18,7 +23,7 @@ class TxTodos
     end
 
     # --------------------------------------------------
-    # PersonalAssistante 
+    # Ordinals
 
     # TxTodos::nextOrdinal()
     def self.nextOrdinal()
