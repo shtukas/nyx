@@ -302,8 +302,8 @@ class CommandsOps
         end
 
         if source == "TxDated" and target == "TxTodo" then
-            ordinal = TxTodos::interactivelyDecideNewOrdinal()
             domainx = DomainsX::interactivelySelectDomainX()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
             object["ordinal"] = ordinal
             object["domainx"] = domainx
             object["mikuType"] = "TxTodo"
@@ -318,8 +318,8 @@ class CommandsOps
         end
 
         if source == "TxDrop" and target == "TxTodo" then
-            ordinal = TxTodos::interactivelyDecideNewOrdinal()
             domainx = DomainsX::interactivelySelectDomainX()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
             object["ordinal"] = ordinal
             object["domainx"] = domainx
             object["mikuType"] = "TxTodo"
@@ -328,8 +328,8 @@ class CommandsOps
         end
 
         if source == "TxFloat" and target == "TxTodo" then
-            ordinal = TxTodos::interactivelyDecideNewOrdinal()
             domainx = DomainsX::interactivelySelectDomainX()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
             object["ordinal"] = ordinal
             object["domainx"] = domainx
             object["mikuType"] = "TxTodo"

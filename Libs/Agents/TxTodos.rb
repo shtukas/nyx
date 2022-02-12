@@ -17,6 +17,11 @@ class TxTodos
         LibrarianObjects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
     end
 
+    # TxTodos::itemsForDomainsXWithCardinal(domainx, n)
+    def self.itemsForDomainsXWithCardinal(domainx, n)
+        TxTodos::itemsForDomainsX(domainx).first(n)
+    end
+
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
         LibrarianObjects::destroy(uuid)
@@ -25,34 +30,34 @@ class TxTodos
     # --------------------------------------------------
     # Ordinals
 
-    # TxTodos::nextOrdinal()
-    def self.nextOrdinal()
-        biggest = ([0] + TxTodos::items().map{|nx50| nx50["ordinal"] }).max
+    # TxTodos::nextOrdinal(domainx)
+    def self.nextOrdinal(domainx)
+        biggest = ([0] + TxTodos::itemsForDomainsX(domainx).map{|nx50| nx50["ordinal"] }).max
         (biggest + 1).floor
     end
 
-    # TxTodos::ordinalBetweenN1thAndN2th(n1, n2)
-    def self.ordinalBetweenN1thAndN2th(n1, n2)
-        nx50s = TxTodos::itemsCardinal(n2)
+    # TxTodos::ordinalBetweenN1thAndN2th(domainx, n1, n2)
+    def self.ordinalBetweenN1thAndN2th(domainx, n1, n2)
+        nx50s = TxTodos::itemsForDomainsXWithCardinal(domainx, n2)
         if nx50s.size < n1+2 then
-            return TxTodos::nextOrdinal()
+            return TxTodos::nextOrdinal(domainx)
         end
         ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(n1).take(n2-n1)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
-    # TxTodos::interactivelyDecideNewOrdinal()
-    def self.interactivelyDecideNewOrdinal()
+    # TxTodos::interactivelyDecideNewOrdinal(domainx)
+    def self.interactivelyDecideNewOrdinal(domainx)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
-            TxTodos::itemsCardinal(50)
+            TxTodos::itemsForDomainsXWithCardinal(domainx, 50)
                 .each{|nx50| 
                     puts "- #{TxTodos::toStringWithOrdinal(nx50)}"
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
         if action.nil? or action == "random within [10-20] (default)" then
-            return TxTodos::ordinalBetweenN1thAndN2th(10, 20)
+            return TxTodos::ordinalBetweenN1thAndN2th(domainx, 10, 20)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
@@ -73,8 +78,8 @@ class TxTodos
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        ordinal    = TxTodos::interactivelyDecideNewOrdinal()
         domainx    = DomainsX::interactivelySelectDomainX()
+        ordinal    = TxTodos::interactivelyDecideNewOrdinal(domainx)
 
         item = {
           "uuid"        => uuid,
@@ -98,8 +103,9 @@ class TxTodos
         datetime    = Time.new.utc.iso8601
         atom        = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
-        ordinal     = TxTodos::interactivelyDecideNewOrdinal()
+
         domainx     = DomainsX::interactivelySelectDomainX()
+        ordinal     = TxTodos::interactivelyDecideNewOrdinal(domainx)
 
         item = {
           "uuid"        => uuid,
@@ -146,7 +152,7 @@ class TxTodos
         datetime    = Time.new.utc.iso8601
         atom        = CoreData5::issueUrlAtomUsingUrl(url)
         LibrarianObjects::commit(atom)
-        ordinal     = TxTodos::ordinalBetweenN1thAndN2th(20, 30)
+        ordinal     = TxTodos::ordinalBetweenN1thAndN2th("eva", 20, 30)
 
         item = {
           "uuid"        => uuid,
@@ -233,7 +239,7 @@ class TxTodos
                 unixtime    = Time.new.to_i
                 datetime    = Time.new.utc.iso8601
                 atom        = CoreData5::issueAionPointAtomUsingLocation(location)
-                ordinal     = TxTodos::ordinalBetweenN1thAndN2th(30, 50)
+                ordinal     = TxTodos::ordinalBetweenN1thAndN2th("eva", 30, 50)
 
                 item = {
                   "uuid"        => uuid,
@@ -318,14 +324,19 @@ class TxTodos
             end
 
             if Interpreting::match("ordinal", command) then
-                ordinal = TxTodos::interactivelyDecideNewOrdinal()
+                domainx = DomainsX::interactivelySelectDomainX()
+                ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
+                nx50["domainx"] = domainx
                 nx50["ordinal"] = ordinal
                 LibrarianObjects::commit(nx50)
                 next
             end
 
             if Interpreting::match("rotate", command) then
-                nx50["ordinal"] = TxTodos::nextOrdinal()
+                domainx = DomainsX::interactivelySelectDomainX()
+                ordinal = TxTodos::nextOrdinal(domainx)
+                nx50["domainx"] = domainx
+                nx50["ordinal"] = ordinal
                 LibrarianObjects::commit(nx50)
                 break
             end
