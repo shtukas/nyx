@@ -183,7 +183,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{nx50["domainx"]})"
     end
 
     # TxTodos::toStringForNS19(nx50)
