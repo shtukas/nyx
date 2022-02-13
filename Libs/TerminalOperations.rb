@@ -64,41 +64,51 @@ class PersonalAssistant
 
     # PersonalAssistant::key()
     def self.key()
-        "b1439fa6-bf4f-9d55-401d-aa508358bbab"
+        "b1439fa6-bf4f-9d55-401d-aa508358bbac"
     end
 
-    # PersonalAssistant::getSection3()
-    def self.getSection3()
+    # PersonalAssistant::garbageCollectSecondArray(array1, array2)
+    def self.garbageCollectSecondArray(array1, array2)
+        uuids1 = array1.map{|ns16| ns16["uuid"] }
+        array2 = array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
+        [array1, array2]
+    end
+
+    # PersonalAssistant::getSection3(ns16s)
+    def self.getSection3(ns16s)
+        ns16sUuids = ns16s.map{|ns16| ns16["uuid"] }
+        getNS16ByUUIDOrNull = lambda{|uuid, ns16s|
+            ns16s.select{|ns16| ns16["uuid"] == uuid }.first
+        }
         section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+                    .select{|ns16| ns16sUuids.include?(ns16["uuid"]) }
+                    .map{|ns16| getNS16ByUUIDOrNull.call(ns16["uuid"], ns16s)}
+                    .compact
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
         KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
-        section3
+        PersonalAssistant::garbageCollectSecondArray(section3, ns16s)
     end
 
-    # PersonalAssistant::getSection4(section3, ns16s)
-    def self.getSection4(section3, ns16s)
-        section3_uuids = section3.map{|ns16| ns16["uuid"] }
-        ns16s.select{|ns16| !section3_uuids.include?(ns16["uuid"]) }
-    end
-
-    # PersonalAssistant::maintainSection3Size(section4)
-    def self.maintainSection3Size(section4)
-        section3 = PersonalAssistant::getSection3()
+    # PersonalAssistant::maintainSection3Size(section3, ns16s)
+    def self.maintainSection3Size(section3, ns16s)
         shouldBeInSection3L = lambda {|ns16|
             return true if (ns16["NS198"] == "NS16:Wave" and Waves::isPriorityWave(ns16["wave"]))
             return true if (ns16["NS198"] == "NS16:TxDrop")
             false
         }
-        shouldBeInSection3 = section4.select{|ns16| shouldBeInSection3L.call(ns16)}
+        shouldBeInSection3 = ns16s.select{|ns16| shouldBeInSection3L.call(ns16)}
         if shouldBeInSection3.size > 0 then
             section3 = section3 + shouldBeInSection3
             KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
-            return
+            section3, ns16s = PersonalAssistant::garbageCollectSecondArray(section3, ns16s)
         end
-        return if section3.size > 10
-        section3 = (section3 + section4).first(10)
-        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
+        if section3.size < 10 then
+            section3 = (section3 + ns16s).first(10)
+            KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
+            section3, ns16s = PersonalAssistant::garbageCollectSecondArray(section3, ns16s)
+        end
+        [section3, ns16s]
     end
 end
 
@@ -251,9 +261,9 @@ class TerminalDisplayOperator
             floats = TxFloats::ns16s()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            section3 = PersonalAssistant::getSection3()
-            section4 = PersonalAssistant::getSection4(section3, NS16sOperator::ns16s())
-            PersonalAssistant::maintainSection3Size(section4)
+            ns16s = NS16sOperator::ns16s()
+            section3, ns16s = PersonalAssistant::getSection3(ns16s)
+            section3, ns16s = PersonalAssistant::maintainSection3Size(section3, ns16s)
             TerminalDisplayOperator::display(floats, section3, [])
         }
     end
