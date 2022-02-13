@@ -277,6 +277,10 @@ class CommandsOps
             InternetStatus::setInternetOff()
         end
 
+        if Interpreting::match("rotate", command) then
+            PersonalAssistant::rotate()
+        end
+
         if Interpreting::match("exit", command) then
             exit
         end

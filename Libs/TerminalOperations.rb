@@ -95,6 +95,7 @@ class PersonalAssistant
         shouldBeInSection3L = lambda {|ns16|
             return true if (ns16["NS198"] == "NS16:Wave" and Waves::isPriorityWave(ns16["wave"]))
             return true if (ns16["NS198"] == "NS16:TxDrop")
+            return true if (ns16["NS198"] == "NS16:TxDated")
             false
         }
         shouldBeInSection3 = ns16s.select{|ns16| shouldBeInSection3L.call(ns16)}
@@ -109,6 +110,14 @@ class PersonalAssistant
             section3, ns16s = PersonalAssistant::garbageCollectSecondArray(section3, ns16s)
         end
         [section3, ns16s]
+    end
+
+    # PersonalAssistant::rotate()
+    def self.rotate()
+        section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
+        first = section3.shift
+        section3 = section3 + [first]
+        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
     end
 end
 
