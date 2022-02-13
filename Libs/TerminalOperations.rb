@@ -85,6 +85,17 @@ class PersonalAssistant
     # PersonalAssistant::maintainSection3Size(section4)
     def self.maintainSection3Size(section4)
         section3 = PersonalAssistant::getSection3()
+        shouldBeInSection3L = lambda {|ns16|
+            return true if (ns16["NS198"] == "NS16:Wave" and Waves::isPriorityWave(ns16["wave"]))
+            return true if (ns16["NS198"] == "NS16:TxDrop")
+            false
+        }
+        shouldBeInSection3 = section4.select{|ns16| shouldBeInSection3L.call(ns16)}
+        if shouldBeInSection3.size > 0 then
+            section3 = section3 + shouldBeInSection3
+            KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
+            return
+        end
         return if section3.size > 10
         section3 = (section3 + section4).first(10)
         KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
@@ -243,7 +254,7 @@ class TerminalDisplayOperator
             section3 = PersonalAssistant::getSection3()
             section4 = PersonalAssistant::getSection4(section3, NS16sOperator::ns16s())
             PersonalAssistant::maintainSection3Size(section4)
-            TerminalDisplayOperator::display(floats, section3, section4)
+            TerminalDisplayOperator::display(floats, section3, [])
         }
     end
 end
