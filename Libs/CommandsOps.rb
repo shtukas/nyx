@@ -158,6 +158,11 @@ class CommandsOps
             end
         end
 
+        if object["NS198"] == "NxBallDelegate1" and command == "done" then
+            uuid = object["NxBallUUID"]
+            NxBallsService::close(uuid, true)
+        end
+
         if Interpreting::match("require internet", command) then
             InternetStatus::markIdAsRequiringInternet(object["uuid"])
         end
