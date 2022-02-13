@@ -148,7 +148,6 @@ require_relative "Bank.rb"
 
 require_relative "CommandsOps.rb"
 
-require_relative "DomainsX.rb"
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)

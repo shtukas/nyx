@@ -62,6 +62,24 @@ class TxTodos
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
 
+    # TxTodos::interactivelySelectDomainX()
+    def self.interactivelySelectDomainX()
+        domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work"])
+        return TxTodos::interactivelySelectDomainX() if domainx.nil?
+        domainx
+    end
+
+    # --------------------------------------------------
+    # DomainsX
+
+    # TxTodos::interactivelySelectDomainXOrNull()
+    def self.interactivelySelectDomainXOrNull()
+        domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work", "(null)"])
+        return TxTodos::interactivelySelectDomainXOrNull() if domainx.nil?
+        return nil if domainx == "(null)"
+        domainx
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -78,7 +96,7 @@ class TxTodos
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        domainx    = DomainsX::interactivelySelectDomainX()
+        domainx    = TxTodos::interactivelySelectDomainX()
         ordinal    = TxTodos::interactivelyDecideNewOrdinal(domainx)
 
         item = {
@@ -104,7 +122,7 @@ class TxTodos
         atom        = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
 
-        domainx     = DomainsX::interactivelySelectDomainX()
+        domainx     = TxTodos::interactivelySelectDomainX()
         ordinal     = TxTodos::interactivelyDecideNewOrdinal(domainx)
 
         item = {
@@ -324,7 +342,7 @@ class TxTodos
             end
 
             if Interpreting::match("ordinal", command) then
-                domainx = DomainsX::interactivelySelectDomainX()
+                domainx = TxTodos::interactivelySelectDomainX()
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
                 nx50["domainx"] = domainx
                 nx50["ordinal"] = ordinal
@@ -333,7 +351,7 @@ class TxTodos
             end
 
             if Interpreting::match("rotate", command) then
-                domainx = DomainsX::interactivelySelectDomainX()
+                domainx = TxTodos::interactivelySelectDomainX()
                 ordinal = TxTodos::nextOrdinal(domainx)
                 nx50["domainx"] = domainx
                 nx50["ordinal"] = ordinal

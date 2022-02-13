@@ -13,7 +13,7 @@ class Commands
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "calendar | waves | anniversaries | ondates | todos | focus eva/work/null  | search | nyx"
+        "calendar | waves | anniversaries | ondates | todos | search | nyx"
     end
 
     # Commands::makersAndDiversCommands()
@@ -277,18 +277,6 @@ class CommandsOps
             InternetStatus::setInternetOff()
         end
 
-        if Interpreting::match("focus eva", command) then
-            DomainsX::interactivelyDecideUnixtimeAndSetOverridingFocusForDomain("eva")
-        end
-
-        if Interpreting::match("focus work", command) then
-            DomainsX::interactivelyDecideUnixtimeAndSetOverridingFocusForDomain("work")
-        end
-
-        if Interpreting::match("focus null", command) then
-            DomainsX::unsetOverridingFocus()
-        end
-
         if Interpreting::match("exit", command) then
             exit
         end
@@ -307,7 +295,7 @@ class CommandsOps
         end
 
         if source == "TxDated" and target == "TxTodo" then
-            domainx = DomainsX::interactivelySelectDomainX()
+            domainx = TxTodos::interactivelySelectDomainX()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
             object["ordinal"] = ordinal
             object["domainx"] = domainx
@@ -323,7 +311,7 @@ class CommandsOps
         end
 
         if source == "TxDrop" and target == "TxTodo" then
-            domainx = DomainsX::interactivelySelectDomainX()
+            domainx = TxTodos::interactivelySelectDomainX()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
             object["ordinal"] = ordinal
             object["domainx"] = domainx
@@ -333,7 +321,7 @@ class CommandsOps
         end
 
         if source == "TxFloat" and target == "TxTodo" then
-            domainx = DomainsX::interactivelySelectDomainX()
+            domainx = TxTodos::interactivelySelectDomainX()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
             object["ordinal"] = ordinal
             object["domainx"] = domainx
