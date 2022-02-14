@@ -82,11 +82,11 @@ class TxFloats
             puts TxFloats::toString(mx48).green
             puts "uuid: #{uuid}".yellow
 
-            AgentsUtils::atomLandingPresentation(mx48["atomuuid"])
+            LibrarianNotes::getObjectNotes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
 
-            #Librarian::notes(uuid).each{|note|
-            #    puts "note: #{note["text"]}"
-            #}
+            AgentsUtils::atomLandingPresentation(mx48["atomuuid"])
 
             puts "access | <datecode> | description | atom | note | transmute |show json | destroy (gg) | exit (xx)".yellow
 
@@ -122,9 +122,9 @@ class TxFloats
             end
 
             if Interpreting::match("note", command) then
-                #text = Utils::editTextSynchronously("").strip
-                #Librarian::addNote(mx48["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                #next
+                text = Utils::editTextSynchronously("").strip
+                LibrarianNotes::addNote(mx48["uuid"], text)
+                next
             end
 
             if Interpreting::match("transmute", command) then

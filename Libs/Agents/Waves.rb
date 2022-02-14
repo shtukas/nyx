@@ -185,9 +185,13 @@ class Waves
             puts "last done: #{wave["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
 
+            LibrarianNotes::getObjectNotes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
+
             puts ""
 
-            puts "access | done | <datecode> | description | atom | recast schedule | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | atom | note | recast schedule | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -221,6 +225,12 @@ class Waves
                 LibrarianObjects::commit(atom)
                 wave["atomuuid"] = atom["uuid"]
                 LibrarianObjects::commit(wave)
+                next
+            end
+
+            if Interpreting::match("note", command) then
+                text = Utils::editTextSynchronously("").strip
+                LibrarianNotes::addNote(wave["uuid"], text)
                 next
             end
 

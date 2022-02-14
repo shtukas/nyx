@@ -107,11 +107,11 @@ class TxDateds
             puts "uuid: #{uuid}".yellow
             puts "date: #{mx49["datetime"][0, 10]}".yellow
 
-            AgentsUtils::atomLandingPresentation(mx49["atomuuid"])
+            LibrarianNotes::getObjectNotes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
 
-            #Librarian::notes(uuid).each{|note|
-            #    puts "note: #{note["text"]}"
-            #}
+            AgentsUtils::atomLandingPresentation(mx49["atomuuid"])
 
             puts "access | date | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
 
@@ -150,9 +150,9 @@ class TxDateds
             end
 
             if Interpreting::match("note", command) then
-            #    text = Utils::editTextSynchronously("").strip
-            #    Librarian::addNote(mx49["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-            #    next
+                text = Utils::editTextSynchronously("").strip
+                LibrarianNotes::addNote(mx49["uuid"], text)
+                next
             end
 
             if Interpreting::match("show json", command) then

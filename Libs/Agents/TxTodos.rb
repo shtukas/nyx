@@ -296,6 +296,10 @@ class TxTodos
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
+            LibrarianNotes::getObjectNotes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
+
             AgentsUtils::atomLandingPresentation(nx50["atomuuid"])
 
             #Librarian::notes(uuid).each{|note|
@@ -336,9 +340,9 @@ class TxTodos
             end
 
             if Interpreting::match("note", command) then
-                #text = Utils::editTextSynchronously("").strip
-                #Librarian::addNote(nx50["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                #next
+                text = Utils::editTextSynchronously("").strip
+                LibrarianNotes::addNote(nx50["uuid"], text)
+                next
             end
 
             if Interpreting::match("ordinal", command) then

@@ -82,6 +82,10 @@ class TxDrops
             puts TxDrops::toString(nx70).green
             puts "uuid: #{uuid}".yellow
 
+            LibrarianNotes::getObjectNotes(uuid).each{|note|
+                puts "note: #{note["text"]}"
+            }
+
             AgentsUtils::atomLandingPresentation(nx70["atomuuid"])
 
             #Librarian::notes(uuid).each{|note|
@@ -122,9 +126,9 @@ class TxDrops
             end
 
             if Interpreting::match("note", command) then
-                #text = Utils::editTextSynchronously("").strip
-                #Librarian::addNote(nx70["uuid"], SecureRandom.uuid, Time.new.to_i, text)
-                #next
+                text = Utils::editTextSynchronously("").strip
+                LibrarianNotes::addNote(nx70["uuid"], text)
+                next
             end
 
             if Interpreting::match("transmute", command) then
