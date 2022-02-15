@@ -412,24 +412,6 @@ class TxTodos
         }
     end
 
-    # TxTodos::personalAssistanteOperationalNS16OrNull(nx50)
-    def self.personalAssistanteOperationalNS16OrNull(nx50)
-        uuid = nx50["uuid"]
-        return nil if !DoNotShowUntil::isVisible(uuid)
-        return nil if !InternetStatus::ns16ShouldShow(uuid)
-        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return nil if rt > 1
-        {
-            "uuid"     => uuid,
-            "NS198"    => "NS16:TxTodo",
-            "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
-            "commands" => ["..", "done"],
-            "ordinal"  => nx50["ordinal"],
-            "TxTodo"   => nx50,
-            "rt"       => rt
-        }
-    end
-
     # TxTodos::ns16s()
     def self.ns16s()
         TxTodos::itemsCardinal(50)

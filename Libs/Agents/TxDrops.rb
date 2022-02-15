@@ -81,6 +81,7 @@ class TxDrops
 
             puts TxDrops::toString(nx70).green
             puts "uuid: #{uuid}".yellow
+            puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             LibrarianNotes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
@@ -168,34 +169,28 @@ class TxDrops
     # TxDrops::ns16(nx70)
     def self.ns16(nx70)
         uuid = nx70["uuid"]
+        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxDrop",
             "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
             "commands" => ["..", "done", ">> (transmute)"],
-            "TxDrop"   => nx70
-        }
-    end
-
-    # TxDrops::operationalNS16OrNull(nx70)
-    def self.operationalNS16OrNull(nx70)
-        uuid = nx70["uuid"]
-        return nil if !DoNotShowUntil::isVisible(uuid)
-        return nil if !InternetStatus::ns16ShouldShow(uuid)
-        {
-            "uuid"     => uuid,
-            "NS198"    => "NS16:TxDrop",
-            "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
-            "commands" => ["..", "done", ">> (transmute)"],
-            "TxDrop"   => nx70
+            "TxDrop"   => nx70,
+            "rt"       => rt
         }
     end
 
     # TxDrops::ns16s()
     def self.ns16s()
         TxDrops::mikus()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxDrops::ns16(item) }
+    end
+
+    # TxDrops::ns16sOverflowing()
+    def self.ns16sOverflowing()
+        TxDrops::mikus()
+            .map{|item| TxDrops::ns16(item) }
+            .select{|ns16| ns16["rt"] > 1 }
     end
 
     # --------------------------------------------------

@@ -41,6 +41,17 @@ end
 
 class NS16sOperator
 
+    # NS16sOperator::ns16Overflowing()
+    def self.ns16Overflowing()
+        [
+            TxDrops::ns16sOverflowing(),
+            TxTodos::ns16sOverflowing()
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    end
+
     # NS16sOperator::ns16s1()
     def self.ns16s1()
         [
@@ -91,15 +102,17 @@ class PersonalAssistant
     # PersonalAssistant::garbageCollectSecondArray(array1, array2)
     def self.garbageCollectSecondArray(array1, array2)
         uuids1 = array1.map{|ns16| ns16["uuid"] }
-        array2 = array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
-        [array1, array2]
+        array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
     end
 
-    # PersonalAssistant::getSection3(ns16sp1, ns16sp2, section2)
-    def self.getSection3(ns16sp1, ns16sp2, section2)
+    # PersonalAssistant::getSection3(section2, ns16sp1, ns16sp2)
+    def self.getSection3(section2, ns16sp1, ns16sp2)
         lookup = lambda{|uuid, ns16s|
             ns16s.select{|ns16| ns16["uuid"] == uuid }.first
         }
+
+        ns16sp1 = PersonalAssistant::garbageCollectSecondArray(section2, ns16sp1)
+        ns16sp2 = PersonalAssistant::garbageCollectSecondArray(section2, ns16sp2)
 
         section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
 
@@ -132,9 +145,11 @@ class PersonalAssistant
         section3
     end
 
-    # PersonalAssistant::maintainSection3Size(section3, ns16sp2)
-    def self.maintainSection3Size(section3, ns16sp2)
-        return section3 if section3.size > 10
+    # PersonalAssistant::maintainSection3Size(section2, section3, ns16sp2)
+    def self.maintainSection3Size(section2, section3, ns16sp2)
+        section3 = PersonalAssistant::garbageCollectSecondArray(section2, section3)
+        return section3 if (section2+section3).size > 10
+        ns16sp2 = PersonalAssistant::garbageCollectSecondArray(section2+section3, ns16sp2)
         section3 = (section3 + ns16sp2).first(10)
         KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
         section3
@@ -308,10 +323,9 @@ class TerminalDisplayOperator
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = TxTodos::ns16sOverflowing()
-
-            section3 = PersonalAssistant::getSection3(NS16sOperator::ns16s1(), NS16sOperator::ns16s2(), section2)
-            section3 = PersonalAssistant::maintainSection3Size(section3, NS16sOperator::ns16s2())
+            section2 = NS16sOperator::ns16Overflowing()
+            section3 = PersonalAssistant::getSection3(section2, NS16sOperator::ns16s1(), NS16sOperator::ns16s2())
+            section3 = PersonalAssistant::maintainSection3Size(section2, section3, NS16sOperator::ns16s2())
             TerminalDisplayOperator::display(floats, section2, section3)
         }
     end
