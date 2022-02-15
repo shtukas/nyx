@@ -443,6 +443,13 @@ class TxTodos
             .select{|ns16| ns16["rt"] > 1 }
     end
 
+    # TxTodos::ns16sStarted()
+    def self.ns16sStarted()
+        TxTodos::itemsCardinal(50)
+            .map{|item| TxTodos::ns16(item) }
+            .select{|ns16| ns16["rt"] > 0 }
+    end
+
     # --------------------------------------------------
 
     # TxTodos::nx19s()

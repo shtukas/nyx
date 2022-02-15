@@ -51,6 +51,7 @@ class NS16sOperator
             TxDateds::ns16s(),
             Waves::ns16s(),
             TxDrops::ns16s(),
+            TxTodos::ns16sStarted()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -144,6 +145,14 @@ class PersonalAssistant
         section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
         first = section3.shift
         section3 = section3 + [first]
+        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
+    end
+
+    # PersonalAssistant::pushThisUuidToLast(uuid)
+    def self.pushThisUuidToLast(uuid)
+        section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
+        section3p1, section3p2 = section3.partition{|ns16| ns16["uuid"] != uuid } 
+        section3 = section3p1 + section3p2
         KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
     end
 end

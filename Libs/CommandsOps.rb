@@ -94,6 +94,7 @@ class CommandsOps
 
         if object["NS198"] == "NS16:TxDrop" and command == ".." then
             nx70 = object["TxDrop"]
+            puts nx70["description"].green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
             return if action.nil?
             if action == "run" then

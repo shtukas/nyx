@@ -248,6 +248,9 @@ class NxBallsService
             end
         end
         BTreeSets::destroy(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+
+        # We do this so that a todo that has been worked on is rotated at the bottom of section3 without specifically issuing that command.
+        PersonalAssistant::pushThisUuidToLast(uuid) 
     end
 
     # NxBallsService::closeWithAsking(uuid)
