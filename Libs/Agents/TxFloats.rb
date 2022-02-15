@@ -88,7 +88,7 @@ class TxFloats
 
             AgentsUtils::atomLandingPresentation(mx48["atomuuid"])
 
-            puts "access | <datecode> | description | atom | note | transmute |show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | transmute | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
