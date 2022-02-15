@@ -55,7 +55,7 @@ class CommandsOps
         end
 
         if object["NS198"] == "NS16:TxCalendarItem" and command == "done" then
-            puts "`done` on NS16:TxCalendarItem has not been implemented yet"
+            TxCalendarItems::destroy(object["item"]["uuid"])
         end
 
         if object["NS198"] == "NS16:fitness1" and command == ".." then

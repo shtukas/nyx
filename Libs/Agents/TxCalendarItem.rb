@@ -162,11 +162,11 @@ class TxCalendarItems
     def self.ns16(item)
         uuid = item["uuid"]
         {
-            "uuid"           => uuid,
-            "NS198"          => "NS16:TxCalendarItem",
-            "announce"       => "(calendar) [#{item["datetime"][0, 10]}] #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}",
-            "commands"       => ["..", "done", "redate", ">> (transmute)"],
-            "TxCalendarItem" => item
+            "uuid"     => uuid,
+            "NS198"    => "NS16:TxCalendarItem",
+            "announce" => "(calendar) [#{item["datetime"][0, 10]}] #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}",
+            "commands" => ["..", "done", "redate", ">> (transmute)"],
+            "item"     => item
         }
     end
 
