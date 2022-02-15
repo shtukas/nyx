@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        ".. | <datecode> | delay | expose | <n> | search | nyx"
+        ".. | <datecode> | delay | expose | <n> | start | search | nyx"
     end
 
     # Commands::makersCommands()

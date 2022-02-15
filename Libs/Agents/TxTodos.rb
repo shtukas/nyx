@@ -436,6 +436,13 @@ class TxTodos
             .map{|item| TxTodos::ns16(item) }
     end
 
+    # TxTodos::ns16sOverflowing()
+    def self.ns16sOverflowing()
+        TxTodos::itemsCardinal(50)
+            .map{|item| TxTodos::ns16(item) }
+            .select{|ns16| ns16["rt"] > 1 }
+    end
+
     # --------------------------------------------------
 
     # TxTodos::nx19s()

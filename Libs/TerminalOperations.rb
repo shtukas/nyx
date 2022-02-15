@@ -12,10 +12,10 @@ class ItemStore
         @topIsActive =  true
     end
 
-    def register(item)
+    def register(item, canBeDefault)
         cursor = @items.size
         @items << item
-        if !@topIsActive and @defaultItem.nil? and item["NS198"] != "NS16:TxFloat" then
+        if !@topIsActive and @defaultItem.nil? and canBeDefault then
             @defaultItem = item
         end
     end
@@ -94,8 +94,8 @@ class PersonalAssistant
         [array1, array2]
     end
 
-    # PersonalAssistant::getSection3(ns16sp1, ns16sp2)
-    def self.getSection3(ns16sp1, ns16sp2)
+    # PersonalAssistant::getSection3(ns16sp1, ns16sp2, section2)
+    def self.getSection3(ns16sp1, ns16sp2, section2)
         lookup = lambda{|uuid, ns16s|
             ns16s.select{|ns16| ns16["uuid"] == uuid }.first
         }
@@ -111,6 +111,11 @@ class PersonalAssistant
         section3 = section3
                         .map{|ns16| lookup.call(ns16["uuid"], ns16sp1+ns16sp2)}
                         .compact
+
+        # We remove those in section 2
+        section2Uuids = section2.map{|ns16| ns16["uuid"] }
+        section3 = section3
+                        .select{|ns16| !section2Uuids.include?(ns16["uuid"]) }
 
         # We remove those which should not be shown either for having been DoNotDisplayed or InternetStatued
         section3 = section3
@@ -153,8 +158,8 @@ class TerminalDisplayOperator
         " (commands: #{ns16["commands"].join(", ")})".yellow
     end
 
-    # TerminalDisplayOperator::display(floats, section3)
-    def self.display(floats, section3)
+    # TerminalDisplayOperator::display(floats, section2, section3)
+    def self.display(floats, section2, section3)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-3
@@ -175,18 +180,17 @@ class TerminalDisplayOperator
         end
 
         floats.each{|ns16|
-            store.register(ns16)
+            store.register(ns16, false)
             line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
-            break if (!store.latestEnteredItemIsDefault() and store.getDefault() and ((vspaceleft - Utils::verticalSize(line)) < 0))
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
-        if floats.size>0 then
+
+        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+        if running.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
         end
-
-        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
         running
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
                 .each{|nxball|
@@ -195,15 +199,25 @@ class TerminalDisplayOperator
                         "NxBallUUID" => nxball["uuid"],
                         "NS198"      => "NxBallDelegate1" 
                     }
-                    store.register(delegate)
+                    store.register(delegate, true)
                     line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
                     puts line
                     vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
-        if running.size>0 then
+
+        if section2.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
         end
+        section2
+            .each{|ns16|
+                store.register(ns16, false)
+                line = ns16["announce"]
+                line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
+                break if (vspaceleft - Utils::verticalSize(line)) < 0
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
 
         top = Topping::getText()
         if top.size > 0 then
@@ -215,9 +229,13 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
 
+        if section3.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
         section3
             .each{|ns16|
-                store.register(ns16)
+                store.register(ns16, true)
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
@@ -281,9 +299,11 @@ class TerminalDisplayOperator
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section3 = PersonalAssistant::getSection3(NS16sOperator::ns16s1(), NS16sOperator::ns16s2())
+            section2 = TxTodos::ns16sOverflowing()
+
+            section3 = PersonalAssistant::getSection3(NS16sOperator::ns16s1(), NS16sOperator::ns16s2(), section2)
             section3 = PersonalAssistant::maintainSection3Size(section3, NS16sOperator::ns16s2())
-            TerminalDisplayOperator::display(floats, section3)
+            TerminalDisplayOperator::display(floats, section2, section3)
         }
     end
 end
