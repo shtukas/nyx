@@ -30,7 +30,6 @@ class TxDateds
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
-        datetime   = datetime
 
         item = {
           "uuid"        => uuid,

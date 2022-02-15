@@ -3,17 +3,17 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        ".. | <n> | <datecode> | delay | expose"
+        ".. | <datecode> | delay | expose | <n> | search | nyx"
     end
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | float | drop | today | ondate | todo"
+        "wave | anniversary | calendaritem | float | drop | today | ondate | todo"
     end
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "calendar | waves | anniversaries | ondates | todos | search | nyx"
+        "waves | anniversaries | calendar | ondates | todos"
     end
 
     # Commands::makersAndDiversCommands()
@@ -50,12 +50,12 @@ class CommandsOps
             Anniversaries::commitAnniversaryToDisk(anniversary)
         end
 
-        if object["NS198"] == "NS16:Calendar1" and command == ".." then
-            Calendar::run(object["item"])
+        if object["NS198"] == "NS16:TxCalendarItem" and command == ".." then
+            TxCalendarItems::run(object["item"])
         end
 
-        if object["NS198"] == "NS16:Calendar1" and command == "done" then
-            Calendar::moveToArchives(object["item"])
+        if object["NS198"] == "NS16:TxCalendarItem" and command == "done" then
+            puts "`done` on NS16:TxCalendarItem has not been implemented yet"
         end
 
         if object["NS198"] == "NS16:fitness1" and command == ".." then
@@ -227,10 +227,6 @@ class CommandsOps
             Anniversaries::anniversariesDive()
         end
 
-        if Interpreting::match("calendar", command) then
-            Calendar::main()
-        end
-
         if Interpreting::match("waves", command) then
             Waves::waves()
         end
@@ -253,6 +249,14 @@ class CommandsOps
 
         if Interpreting::match("search", command) then
             Search::search()
+        end
+
+        if Interpreting::match("calendaritem", command) then
+            TxCalendarItems::interactivelyCreateNewOrNull()
+        end
+
+        if Interpreting::match("calendar", command) then
+            TxCalendarItems::dive()
         end
 
         if Interpreting::match("nyx", command) then

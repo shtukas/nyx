@@ -497,8 +497,12 @@ class Utils
         Anniversaries::anniversaries().each{|item|
             puts Anniversaries::toString(item)
         }
-        Calendar::items().each{|item|
-            puts Calendar::toString(item)
+        TxCalendarItems::items().each{|item|
+            atomuuid = item["atomuuid"]
+            atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
+            raise "[error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, #{item}]" if atom.nil?
+            status = CoreData5::fsck(atom)
+            raise "[error: 95cc8958-897f-4a44-b986-9780c71045fd, #{item}, #{atom}]" if !status
         }
         Waves::items().each{|item|
             puts Waves::toString(item)

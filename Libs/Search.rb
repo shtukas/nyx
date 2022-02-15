@@ -6,7 +6,7 @@ class Search
     # Search::nx19s()
     def self.nx19s()
         Anniversaries::nx19s() +
-        Calendar::nx19s() +
+        TxCalendarItems::nx19s() +
         TxDateds::nx19s() +
         TxDrops::nx19s() +
         TxFloats::nx19s() +

@@ -1,0 +1,10 @@
+
+This is a local copy of the same definition in the Librarian.
+
+TxCalendarItem {
+  "uuid"            : String
+  "mikuType"        : "TxCalendarItem"
+  "description"     : String
+  "datetime"        : DateTime Iso8601
+  "atomuuid"        : UUID of an Atom
+}
