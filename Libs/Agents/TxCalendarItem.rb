@@ -15,13 +15,22 @@ class TxCalendarItems
     # --------------------------------------------------
     # Makers
 
+    # TxCalendarItems::interactivelyDecideDateAndTime()
+    def self.interactivelyDecideDateAndTime()
+        date = LucilleCore::askQuestionAnswerAsString("date (YYYY-MM-DD): ")
+        time = LucilleCore::askQuestionAnswerAsString("time (HH:MM): ")
+        {
+            "date" => date,
+            "time" => time
+        }
+    end
+
     # TxCalendarItems::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-        return nil if datetime.nil?
+        dateAndTime = TxCalendarItems::interactivelyDecideDateAndTime()
 
         atom = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
@@ -34,7 +43,8 @@ class TxCalendarItems
           "uuid"        => uuid,
           "mikuType"    => "TxCalendarItem",
           "description" => description,
-          "datetime"    => datetime,
+          "date"        => dateAndTime["date"],
+          "time"        => dateAndTime["time"],
           "atomuuid"    => atom["uuid"],
         }
         LibrarianObjects::commit(item)
@@ -46,7 +56,7 @@ class TxCalendarItems
 
     # TxCalendarItems::toString(item)
     def self.toString(item)
-        "(calendar) [#{item["datetime"][0, 10]}] #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}"
+        "(calendar) [#{item["date"]}] (#{item["time"]}) #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}"
     end
 
     # TxCalendarItems::toStringForNS19(item)
@@ -70,7 +80,8 @@ class TxCalendarItems
 
             puts TxCalendarItems::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "date: #{item["datetime"][0, 10]}".yellow
+            puts "date: #{item["date"]}".yellow
+            puts "time: #{item["time"]}".yellow
 
             LibrarianNotes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
@@ -91,9 +102,9 @@ class TxCalendarItems
             end
 
             if Interpreting::match("datetime", command) then
-                datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-                next if datetime.nil?
-                item["datetime"] = datetime
+                dateAndTime = TxCalendarItems::interactivelyDecideDateAndTime()
+                item["date"] = dateAndTime["date"]
+                item["time"] = dateAndTime["time"]
                 LibrarianObjects::commit(item)
                 next
             end
@@ -148,7 +159,7 @@ class TxCalendarItems
     def self.dive()
         loop {
             system("clear")
-            items = TxCalendarItems::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            items = TxCalendarItems::items().sort{|i1, i2| "#{i1["date"]} #{i1["time"]}" <=> "#{i2["date"]} #{i2["time"]}" }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("calendar item", items, lambda{|item| TxCalendarItems::toString(item) })
             break if item.nil?
             TxCalendarItems::run(item)
@@ -164,7 +175,7 @@ class TxCalendarItems
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxCalendarItem",
-            "announce" => "(calendar) [#{item["datetime"][0, 10]}] #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}",
+            "announce" => "(calendar) [#{item["date"]}] (#{item["time"]}) #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}",
             "commands" => ["..", "done", "redate", ">> (transmute)"],
             "item"     => item
         }
@@ -173,8 +184,8 @@ class TxCalendarItems
     # TxCalendarItems::ns16s()
     def self.ns16s()
         TxCalendarItems::items()
-            .select{|item| item["datetime"][0, 10] <= Utils::today() }
-            .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            .select{|item| item["date"] <= Utils::today() }
+            .sort{|i1, i2| "#{i1["date"]} #{i1["time"]}" <=> "#{i2["date"]} #{i2["time"]}" }
             .map{|item| TxCalendarItems::ns16(item) }
     end
 
