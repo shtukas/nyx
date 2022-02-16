@@ -41,8 +41,8 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::ns16Overflowing()
-    def self.ns16Overflowing()
+    # NS16sOperator::getSection2()
+    def self.getSection2()
         [
             TxDrops::ns16sOverflowing(),
             TxTodos::ns16sOverflowing()
@@ -52,8 +52,8 @@ class NS16sOperator
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # NS16sOperator::ns16s1()
-    def self.ns16s1()
+    # NS16sOperator::section3p1()
+    def self.section3p1()
         [
             Anniversaries::ns16s(),
             TxCalendarItems::ns16s(),
@@ -69,8 +69,8 @@ class NS16sOperator
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # NS16sOperator::ns16s2()
-    def self.ns16s2()
+    # NS16sOperator::section3p2()
+    def self.section3p2()
         [
             Inbox::ns16s(),
             TxTodos::ns16s()
@@ -99,20 +99,17 @@ class PersonalAssistant
         }
     end
 
-    # PersonalAssistant::garbageCollectSecondArray(array1, array2)
-    def self.garbageCollectSecondArray(array1, array2)
+    # PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
+    def self.removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
         uuids1 = array1.map{|ns16| ns16["uuid"] }
         array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
     end
 
-    # PersonalAssistant::getSection3(section2, ns16sp1, ns16sp2)
-    def self.getSection3(section2, ns16sp1, ns16sp2)
+    # PersonalAssistant::getSection3(ns16sp1, ns16sp2)
+    def self.getSection3(ns16sp1, ns16sp2)
         lookup = lambda{|uuid, ns16s|
             ns16s.select{|ns16| ns16["uuid"] == uuid }.first
         }
-
-        ns16sp1 = PersonalAssistant::garbageCollectSecondArray(section2, ns16sp1)
-        ns16sp2 = PersonalAssistant::garbageCollectSecondArray(section2, ns16sp2)
 
         section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
 
@@ -125,11 +122,6 @@ class PersonalAssistant
         section3 = section3
                         .map{|ns16| lookup.call(ns16["uuid"], ns16sp1+ns16sp2)}
                         .compact
-
-        # We remove those in section 2
-        section2Uuids = section2.map{|ns16| ns16["uuid"] }
-        section3 = section3
-                        .select{|ns16| !section2Uuids.include?(ns16["uuid"]) }
 
         # We remove those which should not be shown either for having been DoNotDisplayed or InternetStatued
         section3 = section3
@@ -147,9 +139,8 @@ class PersonalAssistant
 
     # PersonalAssistant::maintainSection3Size(section2, section3, ns16sp2)
     def self.maintainSection3Size(section2, section3, ns16sp2)
-        section3 = PersonalAssistant::garbageCollectSecondArray(section2, section3)
-        return section3 if (section2+section3).size > 10
-        ns16sp2 = PersonalAssistant::garbageCollectSecondArray(section2+section3, ns16sp2)
+        return section3 if Time.new.hour >= 18
+        return section3 if (section2+section3).size >= 10
         section3 = (section3 + ns16sp2).first(10)
         KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
         section3
@@ -323,9 +314,17 @@ class TerminalDisplayOperator
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = NS16sOperator::ns16Overflowing()
-            section3 = PersonalAssistant::getSection3(section2, NS16sOperator::ns16s1(), NS16sOperator::ns16s2())
-            section3 = PersonalAssistant::maintainSection3Size(section2, section3, NS16sOperator::ns16s2())
+            section2 = NS16sOperator::getSection2()
+
+            s3p1 = NS16sOperator::section3p1()
+            s3p2 = NS16sOperator::section3p2()
+
+            section3 = PersonalAssistant::getSection3(s3p1, s3p2)
+            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+
+            s3p2 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2+section3, s3p2)
+
+            section3 = PersonalAssistant::maintainSection3Size(section2, section3, s3p2)
             TerminalDisplayOperator::display(floats, section2, section3)
         }
     end
