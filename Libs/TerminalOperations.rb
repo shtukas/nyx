@@ -101,15 +101,15 @@ class TerminalDisplayOperator
         " (commands: #{ns16["commands"].join(", ")})".yellow
     end
 
-    # TerminalDisplayOperator::display(floats, section2, section3)
-    def self.display(floats, section2, section3)
+    # TerminalDisplayOperator::display(universe, floats, section2, section3)
+    def self.display(universe, floats, section2, section3)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
         cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
-        puts "(cardinal: #{cardinal} items)"
+        puts "(universe: #{universe}, cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
         puts ""
@@ -238,6 +238,7 @@ class TerminalDisplayOperator
 
             # Every loop maintenance
             TxTodos::importTxTodosRandom()
+            universe = Multiverse::getFocus()
             floats = TxFloats::ns16s()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
@@ -245,7 +246,7 @@ class TerminalDisplayOperator
             section2 = NS16sOperator::section2()
             section3 = NS16sOperator::section3()
             section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
-            TerminalDisplayOperator::display(floats, section2, section3)
+            TerminalDisplayOperator::display(universe, floats, section2, section3)
         }
     end
 end

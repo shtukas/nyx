@@ -156,6 +156,7 @@ require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
+require_relative "Multiverse.rb"
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"

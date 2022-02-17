@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        ".. | <datecode> | delay | expose | <n> | start | search | nyx"
+        ".. | <datecode> | delay | expose | <n> | start | search | focus | nyx"
     end
 
     # Commands::makersCommands()
@@ -280,6 +280,10 @@ class CommandsOps
 
         if Interpreting::match("internet off", command) then
             InternetStatus::setInternetOff()
+        end
+
+        if Interpreting::match("focus", command) then
+            Multiverse::interactivelySetFocus()
         end
 
         if Interpreting::match("exit", command) then
