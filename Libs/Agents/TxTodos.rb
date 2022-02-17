@@ -7,9 +7,9 @@ class TxTodos
         LibrarianObjects::getObjectsByMikuType("TxTodo")
     end
 
-    # TxTodos::itemsForDomainsX(domainx)
-    def self.itemsForDomainsX(domainx)
-        TxTodos::items().select{|item| item["domainx"] == domainx }
+    # TxTodos::itemsForUniverse(universe)
+    def self.itemsForUniverse(universe)
+        TxTodos::items().select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
     end
 
     # TxTodos::itemsCardinal(n)
@@ -17,9 +17,9 @@ class TxTodos
         LibrarianObjects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
     end
 
-    # TxTodos::itemsForDomainsXWithCardinal(domainx, n)
-    def self.itemsForDomainsXWithCardinal(domainx, n)
-        TxTodos::itemsForDomainsX(domainx).first(n)
+    # TxTodos::itemsForUniverseWithCardinal(universe, n)
+    def self.itemsForUniverseWithCardinal(universe, n)
+        TxTodos::itemsForUniverse(universe).first(n)
     end
 
     # TxTodos::destroy(uuid)
@@ -30,46 +30,36 @@ class TxTodos
     # --------------------------------------------------
     # Ordinals
 
-    # TxTodos::nextOrdinal(domainx)
-    def self.nextOrdinal(domainx)
-        biggest = ([0] + TxTodos::itemsForDomainsX(domainx).map{|nx50| nx50["ordinal"] }).max
+    # TxTodos::nextOrdinal(universe)
+    def self.nextOrdinal(universe)
+        biggest = ([0] + TxTodos::itemsForUniverse(universe).map{|nx50| nx50["ordinal"] }).max
         (biggest + 1).floor
     end
 
-    # TxTodos::ordinalBetweenN1thAndN2th(domainx, n1, n2)
-    def self.ordinalBetweenN1thAndN2th(domainx, n1, n2)
-        nx50s = TxTodos::itemsForDomainsXWithCardinal(domainx, n2)
+    # TxTodos::ordinalBetweenN1thAndN2th(universe, n1, n2)
+    def self.ordinalBetweenN1thAndN2th(universe, n1, n2)
+        nx50s = TxTodos::itemsForUniverseWithCardinal(universe, n2)
         if nx50s.size < n1+2 then
-            return TxTodos::nextOrdinal(domainx)
+            return TxTodos::nextOrdinal(universe)
         end
         ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(n1).take(n2-n1)
         ordinals.min + rand*(ordinals.max-ordinals.min)
     end
 
-    # TxTodos::interactivelyDecideNewOrdinal(domainx)
-    def self.interactivelyDecideNewOrdinal(domainx)
+    # TxTodos::interactivelyDecideNewOrdinal(universe)
+    def self.interactivelyDecideNewOrdinal(universe)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
         if action == "fine selection near the top" then
-            TxTodos::itemsForDomainsXWithCardinal(domainx, 50)
+            TxTodos::itemsForUniverseWithCardinal(universe, 50)
                 .each{|nx50| 
                     puts "- #{TxTodos::toStringWithOrdinal(nx50)}"
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
         if action.nil? or action == "random within [10-20] (default)" then
-            return TxTodos::ordinalBetweenN1thAndN2th(domainx, 10, 20)
+            return TxTodos::ordinalBetweenN1thAndN2th(universe, 10, 20)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
-    end
-
-    # --------------------------------------------------
-    # DomainsX
-
-    # TxTodos::interactivelySelectDomainX()
-    def self.interactivelySelectDomainX()
-        domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work", "jedi"])
-        return TxTodos::interactivelySelectDomainX() if domainx.nil?
-        domainx
     end
 
     # --------------------------------------------------
@@ -88,8 +78,8 @@ class TxTodos
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        domainx    = TxTodos::interactivelySelectDomainX()
-        ordinal    = TxTodos::interactivelyDecideNewOrdinal(domainx)
+        universe   = Multiverse::interactivelySelectUniverse()
+        ordinal    = TxTodos::interactivelyDecideNewOrdinal(universe)
 
         item = {
           "uuid"        => uuid,
@@ -98,10 +88,10 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal,
-          "domainx"     => domainx
+          "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
+        Multiverse::setUniverse(uuid, universe)
         item
     end
 
@@ -114,8 +104,8 @@ class TxTodos
         atom        = CoreData5::issueAionPointAtomUsingLocation(location)
         LibrarianObjects::commit(atom)
 
-        domainx     = TxTodos::interactivelySelectDomainX()
-        ordinal     = TxTodos::interactivelyDecideNewOrdinal(domainx)
+        universe    = Multiverse::interactivelySelectUniverse()
+        ordinal     = TxTodos::interactivelyDecideNewOrdinal(universe)
 
         item = {
           "uuid"        => uuid,
@@ -124,10 +114,10 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal,
-          "domainx"     => domainx
+          "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
+        Multiverse::setUniverse(uuid, universe)
         item
     end
 
@@ -147,10 +137,10 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal,
-          "domainx"     => "eva"
+          "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
+        Multiverse::setUniverse(uuid, "eva")
         item
     end
 
@@ -171,10 +161,10 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal,
-          "domainx"     => "eva"
+          "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
+        Multiverse::setUniverse(uuid, "eva")
         item
     end
 
@@ -193,7 +183,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{nx50["domainx"]})"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{Multiverse::getUniverseOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -258,11 +248,11 @@ class TxTodos
                   "unixtime"    => unixtime,
                   "datetime"    => datetime,
                   "atomuuid"    => atom["uuid"],
-                  "ordinal"     => ordinal,
-                  "domainx"     => "eva"
+                  "ordinal"     => ordinal
                 }
                 LibrarianObjects::commit(item)
-
+                
+                Multiverse::setUniverse(uuid, "eva")
                 LucilleCore::removeFileSystemLocation(location)
             }
     end
@@ -282,7 +272,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "domainx: #{nx50["domainx"]}".yellow
+            puts "universe: #{Multiverse::getUniverseOrNull(uuid)}".yellow
             puts "ordinal: #{nx50["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
@@ -338,20 +328,20 @@ class TxTodos
             end
 
             if Interpreting::match("ordinal", command) then
-                domainx = TxTodos::interactivelySelectDomainX()
-                ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
-                nx50["domainx"] = domainx
+                universe = Multiverse::interactivelySelectUniverse()
+                ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 LibrarianObjects::commit(nx50)
+                Multiverse::setUniverse(nx50["uuid"], universe)
                 next
             end
 
             if Interpreting::match("rotate", command) then
-                domainx = TxTodos::interactivelySelectDomainX()
-                ordinal = TxTodos::nextOrdinal(domainx)
-                nx50["domainx"] = domainx
+                universe = Multiverse::interactivelySelectUniverse()
+                ordinal = TxTodos::nextOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 LibrarianObjects::commit(nx50)
+                Multiverse::setUniverse(nx50["uuid"], universe)
                 break
             end
 
@@ -404,15 +394,17 @@ class TxTodos
         }
     end
 
-    # TxTodos::ns16s()
-    def self.ns16s()
+    # TxTodos::ns16s(universe)
+    def self.ns16s(universe)
         TxTodos::itemsCardinal(50)
+            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
     end
 
-    # TxTodos::ns16sOverflowing()
-    def self.ns16sOverflowing()
+    # TxTodos::ns16sOverflowing(universe)
+    def self.ns16sOverflowing(universe)
         TxTodos::itemsCardinal(50)
+            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
             .select{|ns16| ns16["rt"] > 1 }
     end

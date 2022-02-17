@@ -36,29 +36,29 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::section2()
-    def self.section2()
+    # NS16sOperator::section2(universe)
+    def self.section2(universe)
         [
-            TxDrops::ns16sOverflowing(),
-            TxTodos::ns16sOverflowing()
+            TxDrops::ns16sOverflowing(universe),
+            TxTodos::ns16sOverflowing(universe)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # NS16sOperator::section3()
-    def self.section3()
+    # NS16sOperator::section3(universe)
+    def self.section3(universe)
         [
-            Anniversaries::ns16s(),
+            (universe == "lucille") ? Anniversaries::ns16s() : [],
             TxCalendarItems::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
-            Waves::ns16s(),
-            Inbox::ns16s(),
-            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(), TxDrops::ns16s()),
-            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(), TxTodos::ns16s())
+            (universe == "lucille") ? Waves::ns16s() : [],
+            (universe == "lucille") ? Inbox::ns16s() : [],
+            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(universe), TxDrops::ns16s(universe)),
+            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(universe), TxTodos::ns16s(universe))
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -107,16 +107,18 @@ class TerminalDisplayOperator
         puts "(universe: #{universe}, cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
 
-        puts ""
-        vspaceleft = vspaceleft - 1
-
         store = ItemStore.new()
 
         if !InternetStatus::internetIsActive() then
+            puts ""
             puts "INTERNET IS OFF".green
-            vspaceleft = vspaceleft - 1
+            vspaceleft = vspaceleft - 2
         end
 
+        if floats.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
         floats.each{|ns16|
             store.register(ns16, false)
             line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
@@ -232,12 +234,12 @@ class TerminalDisplayOperator
             # Every loop maintenance
             TxTodos::importTxTodosRandom()
             universe = Multiverse::getFocus()
-            floats = TxFloats::ns16s()
+            floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = NS16sOperator::section2()
-            section3 = NS16sOperator::section3()
+            section2 = NS16sOperator::section2(universe)
+            section3 = NS16sOperator::section3(universe)
             section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
             TerminalDisplayOperator::display(universe, floats, section2, section3)
         }

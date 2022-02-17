@@ -10,6 +10,7 @@ class Multiverse
 
     # Multiverse::setUniverse(uuid, universe)
     def self.setUniverse(uuid, universe)
+        raise "(error: incorrect universe: #{universe})" if !Multiverse::universes().include?(universe)
         KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid, universe)
     end
 
@@ -20,9 +21,14 @@ class Multiverse
         "eva"
     end
 
+    # Multiverse::universes()
+    def self.universes()
+        ["lucille", "eva", "kyoko", "work", "jedi"]
+    end
+
     # Multiverse::interactivelySelectUniverse()
     def self.interactivelySelectUniverse()
-        universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", ["eva", "kyoko", "work", "jedi"])
+        universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes())
         return Multiverse::interactivelySelectUniverse() if universe.nil?
         universe
     end
@@ -49,6 +55,5 @@ class Multiverse
     def self.interactivelySetFocus()
         universe = Multiverse::interactivelySelectUniverse()
         Multiverse::setFocus(universe)
-        puts "Focus set to #{universe}"
     end
 end

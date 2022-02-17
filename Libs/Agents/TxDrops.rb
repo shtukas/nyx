@@ -180,15 +180,17 @@ class TxDrops
         }
     end
 
-    # TxDrops::ns16s()
-    def self.ns16s()
+    # TxDrops::ns16s(universe)
+    def self.ns16s(universe)
         TxDrops::mikus()
+            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxDrops::ns16(item) }
     end
 
-    # TxDrops::ns16sOverflowing()
-    def self.ns16sOverflowing()
+    # TxDrops::ns16sOverflowing(universe)
+    def self.ns16sOverflowing(universe)
         TxDrops::mikus()
+            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxDrops::ns16(item) }
             .select{|ns16| ns16["rt"] > 1 }
     end

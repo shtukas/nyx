@@ -20,7 +20,7 @@ class TxFloats
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom       = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = CoreData5::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
         LibrarianObjects::commit(atom)
@@ -38,6 +38,7 @@ class TxFloats
           "atomuuid"    => atom["uuid"]
         }
         LibrarianObjects::commit(item)
+        Multiverse::interactivelySetUniverse(uuid)
         item
     end
 
@@ -173,9 +174,10 @@ class TxFloats
         }
     end
 
-    # TxFloats::ns16s()
-    def self.ns16s()
+    # TxFloats::ns16s(universe)
+    def self.ns16s(universe)
         TxFloats::items()
+            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }
     end

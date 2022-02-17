@@ -8,5 +8,4 @@ TxTodo = {
   "datetime"       : DateTime Iso8601
   "atomuuid"       : UUID of an Atom
   "ordinal"        : Float
-  "domainx"        : "eva" | "work" | "jedi"
 }

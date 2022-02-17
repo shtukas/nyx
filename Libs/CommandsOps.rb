@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        ".. | <datecode> | delay | expose | <n> | start | search | focus | nyx"
+        ".. | <datecode> | delay | expose | <n> | start | search | universe ( :: ) | nyx"
     end
 
     # Commands::makersCommands()
@@ -282,7 +282,7 @@ class CommandsOps
             InternetStatus::setInternetOff()
         end
 
-        if Interpreting::match("focus", command) then
+        if Interpreting::match("universe", command) or Interpreting::match("::", command) then
             Multiverse::interactivelySetFocus()
         end
 
@@ -304,12 +304,12 @@ class CommandsOps
         end
 
         if source == "TxDated" and target == "TxTodo" then
-            domainx = TxTodos::interactivelySelectDomainX()
-            ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
+            universe = Multiverse::interactivelySelectUniverse()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
-            object["domainx"] = domainx
             object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
+            Multiverse::setUniverse(object["uuid"], universe)
             return
         end
 
@@ -320,22 +320,22 @@ class CommandsOps
         end
 
         if source == "TxDrop" and target == "TxTodo" then
-            domainx = TxTodos::interactivelySelectDomainX()
-            ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
+            universe = Multiverse::interactivelySelectUniverse()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
-            object["domainx"] = domainx
             object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
+            Multiverse::setUniverse(object["uuid"], universe)
             return
         end
 
         if source == "TxFloat" and target == "TxTodo" then
-            domainx = TxTodos::interactivelySelectDomainX()
-            ordinal = TxTodos::interactivelyDecideNewOrdinal(domainx)
+            universe = Multiverse::interactivelySelectUniverse()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
-            object["domainx"] = domainx
             object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
+            Multiverse::setUniverse(object["uuid"], universe)
             return
         end
 
