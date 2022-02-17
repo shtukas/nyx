@@ -166,9 +166,9 @@ class TerminalDisplayOperator
         if top.size > 0 then
             store.setTopActive()
             top = top.lines.first(10).join().strip
+            puts ""
             puts "(-->)".green
             puts top
-            puts ""
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
 
