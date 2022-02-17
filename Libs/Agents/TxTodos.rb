@@ -62,21 +62,13 @@ class TxTodos
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
 
-    # TxTodos::interactivelySelectDomainX()
-    def self.interactivelySelectDomainX()
-        domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work"])
-        return TxTodos::interactivelySelectDomainX() if domainx.nil?
-        domainx
-    end
-
     # --------------------------------------------------
     # DomainsX
 
-    # TxTodos::interactivelySelectDomainXOrNull()
-    def self.interactivelySelectDomainXOrNull()
-        domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work", "(null)"])
-        return TxTodos::interactivelySelectDomainXOrNull() if domainx.nil?
-        return nil if domainx == "(null)"
+    # TxTodos::interactivelySelectDomainX()
+    def self.interactivelySelectDomainX()
+        domainx = LucilleCore::selectEntityFromListOfEntitiesOrNull("domainx", ["eva", "work", "jedi"])
+        return TxTodos::interactivelySelectDomainX() if domainx.nil?
         domainx
     end
 
