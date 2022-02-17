@@ -41,8 +41,8 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::getSection2()
-    def self.getSection2()
+    # NS16sOperator::section2()
+    def self.section2()
         [
             TxDrops::ns16sOverflowing(),
             TxTodos::ns16sOverflowing()
@@ -52,8 +52,8 @@ class NS16sOperator
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
-    # NS16sOperator::section3p1()
-    def self.section3p1()
+    # NS16sOperator::section3()
+    def self.section3()
         [
             Anniversaries::ns16s(),
             TxCalendarItems::ns16s(),
@@ -61,19 +61,9 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
             Waves::ns16s(),
-            TxDrops::ns16s(),
-            TxTodos::ns16sStarted()
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-    end
-
-    # NS16sOperator::section3p2()
-    def self.section3p2()
-        [
             Inbox::ns16s(),
-            TxTodos::ns16s()
+            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(), TxDrops::ns16s()),
+            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(), TxTodos::ns16s())
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -83,15 +73,10 @@ end
 
 class PersonalAssistant
 
-    # PersonalAssistant::key()
-    def self.key()
-        "b1439fa6-bf4f-9d55-401d-aa508358bbac"
-    end
-
-    # PersonalAssistant::removeDuplicatesOnUuidAttribute(array)
-    def self.removeDuplicatesOnUuidAttribute(array)
+    # PersonalAssistant::removeDuplicatesOnAttribute(array, attribute)
+    def self.removeDuplicatesOnAttribute(array, attribute)
         array.reduce([]){|selected, element|
-            if selected.none?{|x| x["uuid"] == element["uuid"] } then
+            if selected.none?{|x| x[attribute] == element[attribute] } then
                 selected + [element]
             else
                 selected
@@ -103,63 +88,6 @@ class PersonalAssistant
     def self.removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
         uuids1 = array1.map{|ns16| ns16["uuid"] }
         array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
-    end
-
-    # PersonalAssistant::getSection3(ns16sp1, ns16sp2)
-    def self.getSection3(ns16sp1, ns16sp2)
-        lookup = lambda{|uuid, ns16s|
-            ns16s.select{|ns16| ns16["uuid"] == uuid }.first
-        }
-
-        section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
-
-        # We select only the section3 elements with an alive uuid, meaning which actively appear either in ns16sp1 or ns16sp2
-        uuidsStillAlive = (ns16sp1+ns16sp2).map{|ns16| ns16["uuid"] }
-        section3 = section3
-                        .select{|ns16| uuidsStillAlive.include?(ns16["uuid"]) }
-
-        # We perform a look up to extract the latest version of those elements
-        section3 = section3
-                        .map{|ns16| lookup.call(ns16["uuid"], ns16sp1+ns16sp2)}
-                        .compact
-
-        # We remove those which should not be shown either for having been DoNotDisplayed or InternetStatued
-        section3 = section3
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                        .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-
-        # We make sure that we have all of ns16sp1
-        # We want the missing one to come last to implement the section ordering
-        section3 = PersonalAssistant::removeDuplicatesOnUuidAttribute(section3 + ns16sp1)
-
-        # We store the current version of section3 before returning it 
-        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
-        section3
-    end
-
-    # PersonalAssistant::maintainSection3Size(section2, section3, ns16sp2)
-    def self.maintainSection3Size(section2, section3, ns16sp2)
-        return section3 if Time.new.hour >= 18
-        return section3 if (section2+section3).size >= 10
-        section3 = (section3 + ns16sp2).first(10)
-        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
-        section3
-    end
-
-    # PersonalAssistant::rotate()
-    def self.rotate()
-        section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
-        first = section3.shift
-        section3 = section3 + [first]
-        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
-    end
-
-    # PersonalAssistant::pushThisUuidToLast(uuid)
-    def self.pushThisUuidToLast(uuid)
-        section3 = JSON.parse(KeyValueStore::getOrDefaultValue(nil, PersonalAssistant::key(), "[]"))
-        section3p1, section3p2 = section3.partition{|ns16| ns16["uuid"] != uuid } 
-        section3 = section3p1 + section3p2
-        KeyValueStore::set(nil, PersonalAssistant::key(), JSON.generate(section3))
     end
 end
 
@@ -314,17 +242,9 @@ class TerminalDisplayOperator
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = NS16sOperator::getSection2()
-
-            s3p1 = NS16sOperator::section3p1()
-            s3p2 = NS16sOperator::section3p2()
-
-            section3 = PersonalAssistant::getSection3(s3p1, s3p2)
+            section2 = NS16sOperator::section2()
+            section3 = NS16sOperator::section3()
             section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
-
-            s3p2 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2+section3, s3p2)
-
-            section3 = PersonalAssistant::maintainSection3Size(section2, section3, s3p2)
             TerminalDisplayOperator::display(floats, section2, section3)
         }
     end
