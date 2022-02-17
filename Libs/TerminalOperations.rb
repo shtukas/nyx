@@ -5,17 +5,12 @@ class ItemStore
     def initialize() # : Integer
         @items = []
         @defaultItem = nil
-        @topIsActive = false
-    end
-
-    def setTopActive()
-        @topIsActive =  true
     end
 
     def register(item, canBeDefault)
         cursor = @items.size
         @items << item
-        if !@topIsActive and @defaultItem.nil? and canBeDefault then
+        if @defaultItem.nil? and canBeDefault then
             @defaultItem = item
         end
     end
@@ -164,12 +159,10 @@ class TerminalDisplayOperator
 
         top = Topping::getText()
         if top.size > 0 then
-            store.setTopActive()
             top = top.lines.first(10).join().strip
             puts ""
-            puts "(-->)".green
             puts top
-            vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
+            vspaceleft = vspaceleft - Utils::verticalSize(top) - 1
         end
 
         if section3.size>0 then
