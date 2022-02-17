@@ -2,30 +2,38 @@
 
 class Topping
 
-    # Topping::getText()
-    def self.getText()
-        KeyValueStore::getOrNull(nil, "316B44F4-61DF-4549-81C9-54673FF950EB") || "" 
+    # The reason we are not just opening the files, is because those functions used to read and write 
+    # from KeyValueStore. We kept the same logic and the same functions (and just added universe as argument)
+
+    # Topping::getText(universe)
+    def self.getText(universe)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/tops/#{universe}.txt"
+        if !File.exists?(filepath) then
+            FileUtils.touch(filepath)
+        end
+        IO.read(filepath)
     end
 
-    # Topping::setText(text)
-    def self.setText(text)
-        KeyValueStore::set(nil, "316B44F4-61DF-4549-81C9-54673FF950EB", text.strip)
+    # Topping::setText(universe, text)
+    def self.setText(universe, text)
+        filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/tops/#{universe}.txt"
+        File.open(filepath, "w") {|f| f.puts(text.strip) }
     end
 
-    # Topping::applyTransformation()
-    def self.applyTransformation()
-        text = Topping::getText()
-        Utils::dropTextAtBinTimeline("Catalyst-Top.txt", text)
+    # Topping::applyTransformation(universe)
+    def self.applyTransformation(universe)
+        text = Topping::getText(universe)
+        Utils::dropTextAtBinTimeline("Catalyst-Top-#{universe}.txt", text)
         text = SectionsType0141::applyNextTransformationToText(text)
-        Topping::setText(text)
+        Topping::setText(universe, text)
     end
 
-    # Topping::top()
-    def self.top()
-        text = Topping::getText()
-        Utils::dropTextAtBinTimeline("Catalyst-Top.txt", text)
+    # Topping::top(universe)
+    def self.top(universe)
+        text = Topping::getText(universe)
+        Utils::dropTextAtBinTimeline("Catalyst-Top-#{universe}.txt", text)
         text = Utils::editTextSynchronously(text)
-        Topping::setText(text)
+        Topping::setText(universe, text)
     end
 end
 

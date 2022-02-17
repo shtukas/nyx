@@ -7,6 +7,7 @@ require_relative "Libs/loader.rb"
 # ----------------------------------------------------------------------------
 
 puts Commands::makersAndDiversCommands().yellow
+universe = Multiverse::interactivelySelectUniverse()
 command = LucilleCore::askQuestionAnswerAsString("> ")
-CommandsOps::operator4(command)
+CommandsOps::operator4(universe, command)
 

@@ -157,7 +157,7 @@ class TerminalDisplayOperator
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        top = Topping::getText()
+        top = Topping::getText(universe)
         if top.size > 0 then
             top = top.lines.first(10).join().strip
             puts ""
@@ -216,7 +216,7 @@ class TerminalDisplayOperator
             return
         end
 
-        CommandsOps::operator4(command)
+        CommandsOps::operator4(universe, command)
         CommandsOps::operator1(store.getDefault(), command)
     end
 

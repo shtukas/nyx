@@ -169,15 +169,15 @@ class CommandsOps
         end
     end
 
-    # CommandsOps::operator4(command)
-    def self.operator4(command)
+    # CommandsOps::operator4(universe, command)
+    def self.operator4(universe, command)
 
         if command == "[]" then
-            Topping::applyTransformation()
+            Topping::applyTransformation(universe)
         end
 
         if command == "top" then
-            Topping::top()
+            Topping::top(universe)
         end
 
         if command == "start" then
