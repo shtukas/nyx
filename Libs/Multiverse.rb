@@ -18,7 +18,7 @@ class Multiverse
     def self.getUniverseOrDefault(uuid)
         universe = Multiverse::getObjectUniverseOrNull(uuid)
         return universe if universe
-        "eva"
+        "lucille"
     end
 
     # Multiverse::universes()
@@ -48,7 +48,7 @@ class Multiverse
     def self.getFocus()
         universe = KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
         return universe if universe
-        "eva"
+        "lucille"
     end
 
     # Multiverse::interactivelySetFocus()

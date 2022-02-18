@@ -1,5 +1,46 @@
 # encoding: UTF-8
 
+class TxTodoLibrarian # This class should not be renamed unless also updated in LibrarianObjects
+
+    # TxTodoLibrarian::getTxTodoObjectsByUniverseLimitByOrdinal(universe, n)
+    def self.getTxTodoObjectsByUniverseLimitByOrdinal(universe, n)
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Catalyst/TxTdo-Objects.sqlite3")
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", ["TxTodo", universe, n]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # TxTodoLibrarian::commit(object)
+    def self.commit(object)
+
+        # We also make a last effort to help with a problem TxTodos in Catalyst had.
+
+        # Object.const_defined?('Multiverse') ensures that we are calling `LibrarianObjects::commit` 
+        # from within Catalyst.
+
+        # One would argue that this code should be in TxCode in Catalyst, but with transmutations 
+        # we could not guarantee that we knew all the places `LibrarianObjects::commit` is called from
+        # on a TxTodo.
+
+        # TxTdo-Objects.sqlite3
+        # CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ string, _ordinal_ float, _universe_ string);
+
+        ordinal = object["ordinal"] || 0
+        universe = Multiverse::getUniverseOrDefault(object["uuid"])
+
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Catalyst/TxTdo-Objects.sqlite3")
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, universe]
+        db.close
+    end
+end
+
 class TxTodos
 
     # TxTodos::items()
@@ -19,7 +60,7 @@ class TxTodos
 
     # TxTodos::itemsForUniverseWithCardinal(universe, n)
     def self.itemsForUniverseWithCardinal(universe, n)
-        TxTodos::itemsForUniverse(universe).first(n)
+        TxTodoLibrarian::getTxTodoObjectsByUniverseLimitByOrdinal(universe, n)
     end
 
     # TxTodos::destroy(uuid)
