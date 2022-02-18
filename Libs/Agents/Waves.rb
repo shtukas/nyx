@@ -351,23 +351,14 @@ class Waves
         }
     end
 
-    # Waves::ns16s()
-    def self.ns16s()
+    # Waves::ns16s(universe)
+    def self.ns16s(universe)
         items1, items2 = Waves::items()
+            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .partition{|wave| Waves::isPriorityWave(wave) }
 
         items2 = items2
                 .sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }
-
-        if items2.size > 5 then
-            cursor = Time.new.to_i + 1200
-            items2
-                .drop(5)
-                .each{|item|
-                    cursor = cursor + 1200
-                    DoNotShowUntil::setUnixtime(item["uuid"], cursor)
-                }
-        end
 
         (items1 + items2)
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }

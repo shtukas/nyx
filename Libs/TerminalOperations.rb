@@ -55,7 +55,7 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
-            (universe == "lucille") ? Waves::ns16s() : [],
+            Waves::ns16s(universe),
             (universe == "lucille") ? Inbox::ns16s() : [],
             PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(universe), TxDrops::ns16s(universe)),
             PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(universe), TxTodos::ns16s(universe))

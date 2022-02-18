@@ -121,6 +121,48 @@ class CommandsOps
         end
     end
 
+    # CommandsOps::done(universe, ns16)
+    def self.done(universe, ns16)
+        if ns16["NS198"] == "NS16:Anniversary1" then
+            anniversary = ns16["anniversary"]
+            puts Anniversaries::toString(anniversary).green
+            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+            Anniversaries::commitAnniversaryToDisk(anniversary)
+        end
+
+        if ns16["NS198"] == "NS16:TxCalendarItem" then
+            TxCalendarItems::destroy(ns16["item"]["uuid"])
+        end
+
+        if ns16["NS198"] == "NS16:TxDated" then
+            mx49 = ns16["TxDated"]
+            TxDateds::destroy(mx49["uuid"])
+        end
+
+        if ns16["NS198"] == "NS16:TxDrop" then
+            nx70 = ns16["TxDrop"]
+            TxDrops::destroy(nx70["uuid"])
+        end
+
+        if ns16["NS198"] == "NS16:TxTodo" then
+            nx50 = ns16["TxTodo"]
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
+                TxTodos::destroy(nx50["uuid"])
+                CommandsOps::closeAnyNxBallWithThisID(ns16["uuid"])
+            end
+        end
+
+        if ns16["NS198"] == "NS16:Wave" then
+            Waves::performDone(ns16["wave"])
+            CommandsOps::closeAnyNxBallWithThisID(ns16["uuid"])
+        end
+
+        if ns16["NS198"] == "NxBallDelegate1" then
+            uuid = ns16["NxBallUUID"]
+            NxBallsService::close(uuid, true)
+        end
+    end
+
     # CommandsOps::transmutation1(object, source, target)
     # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float) | "inbox"
     # target: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
@@ -242,9 +284,16 @@ class CommandsOps
         if command == "start" then
             CommandsOps::start(universe, ns16)
         end
+        if command == "done" then
+            CommandsOps::done(universe, ns16)
+        end
         if command == "universe" then
             if ns16["NS198"] == "NS16:TxTodo" then
                 item = ns16["TxTodo"]
+                Multiverse::interactivelySetObjectUniverse(item["uuid"])
+            end
+            if ns16["NS198"] == "NS16:Wave" then
+                item = ns16["wave"]
                 Multiverse::interactivelySetObjectUniverse(item["uuid"])
             end
         end
@@ -384,47 +433,8 @@ class CommandsOps
         end
 
         if command == "done" then
-
             ns16 = objectOpt
-
-            if ns16["NS198"] == "NS16:Anniversary1" then
-                anniversary = ns16["anniversary"]
-                puts Anniversaries::toString(anniversary).green
-                anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-                Anniversaries::commitAnniversaryToDisk(anniversary)
-            end
-
-            if ns16["NS198"] == "NS16:TxCalendarItem" then
-                TxCalendarItems::destroy(ns16["item"]["uuid"])
-            end
-
-            if ns16["NS198"] == "NS16:TxDated" then
-                mx49 = ns16["TxDated"]
-                TxDateds::destroy(mx49["uuid"])
-            end
-
-            if ns16["NS198"] == "NS16:TxDrop" then
-                nx70 = ns16["TxDrop"]
-                TxDrops::destroy(nx70["uuid"])
-            end
-
-            if ns16["NS198"] == "NS16:TxTodo" then
-                nx50 = ns16["TxTodo"]
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
-                    TxTodos::destroy(nx50["uuid"])
-                    CommandsOps::closeAnyNxBallWithThisID(ns16["uuid"])
-                end
-            end
-
-            if ns16["NS198"] == "NS16:Wave" then
-                Waves::performDone(ns16["wave"])
-                CommandsOps::closeAnyNxBallWithThisID(ns16["uuid"])
-            end
-
-            if ns16["NS198"] == "NxBallDelegate1" then
-                uuid = ns16["NxBallUUID"]
-                NxBallsService::close(uuid, true)
-            end
+            CommandsOps::done(universe, ns16)
         end
 
         if command == "transmute" then
