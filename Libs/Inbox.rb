@@ -37,14 +37,14 @@ class Inbox
         puts location.green
         loop {
             if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", ">> (transmute)", "destroy", "exit (default)"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "transmute", "destroy", "exit (default)"])
                 if action == "open" then
                     system("open '#{location}'")
                 end
                 if action == "copy to desktop" then
                     FileUtils.cp(location, "/Users/pascal/Desktop")
                 end
-                if action == ">> (transmute)" then
+                if action == "transmute" then
                     CommandsOps::transmutation2(location, "inbox")
                     return
                 end
@@ -56,11 +56,11 @@ class Inbox
                     return
                 end
             else
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", ">> (transmute)", "destroy", "exit (default)"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "transmute", "destroy", "exit (default)"])
                 if action == "open" then
                     system("open '#{location}'")
                 end
-                if action == ">> (transmute)" then
+                if action == "transmute" then
                     CommandsOps::transmutation2(location, "inbox")
                     return
                 end
@@ -102,7 +102,7 @@ class Inbox
                     "NS198"        => "NS16:Inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
-                    "commands"     => ["..", ">> (transmute)"],
+                    "commands"     => ["..", "transmute"],
                     "location"     => location
                 }
             }

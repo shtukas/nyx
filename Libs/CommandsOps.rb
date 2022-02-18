@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) | :: (switch universe) | nyx"
+        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) | >> (switch universe) | nyx"
     end
 
     # Commands::makersCommands()
@@ -413,7 +413,7 @@ class CommandsOps
             InternetStatus::setInternetOff()
         end
 
-        if command == "::" then
+        if command == ">>" then
             Multiverse::interactivelySetFocus()
         end
 
