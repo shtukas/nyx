@@ -160,7 +160,7 @@ class TerminalDisplayOperator
             }
 
         top = Topping::getText(universe)
-        if top.size > 0 then
+        if top.strip.size > 0 then
             puts ""
             puts "(-->)".green
             top = top.lines.first(10).join().strip.lines.map{|line| "      #{line}" }.join()
