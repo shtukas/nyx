@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        ".. | <datecode> | delay | expose | <n> | start | search | universe ( :: ) | nyx"
+        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) | :: (switch universe) | nyx"
     end
 
     # Commands::makersCommands()
@@ -32,68 +32,30 @@ class CommandsOps
         NxBallsService::close(uuid, true)
     end
 
-    # CommandsOps::operator1(object, command)
-    def self.operator1(object, command)
-
-        return if object.nil?
-
-        # puts "CommandsOps, object: #{object}, command: #{command}"
-
-        if object["NS198"] == "NS16:Anniversary1" and command == ".." then
-            Anniversaries::run(object["anniversary"])
+    # CommandsOps::doubleDot(universe, ns16)
+    def self.doubleDot(universe, ns16)
+        if ns16["NS198"] == "NS16:Anniversary1" then
+            Anniversaries::run(ns16["anniversary"])
         end
 
-        if object["NS198"] == "NS16:Anniversary1" and command == "done" then
-            anniversary = object["anniversary"]
-            puts Anniversaries::toString(anniversary).green
-            anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-            Anniversaries::commitAnniversaryToDisk(anniversary)
+        if ns16["NS198"] == "NS16:TxCalendarItem" then
+            TxCalendarItems::run(ns16["item"])
         end
 
-        if object["NS198"] == "NS16:TxCalendarItem" and command == ".." then
-            TxCalendarItems::run(object["item"])
-        end
-
-        if object["NS198"] == "NS16:TxCalendarItem" and command == "done" then
-            TxCalendarItems::destroy(object["item"]["uuid"])
-        end
-
-        if object["NS198"] == "NS16:fitness1" and command == ".." then
+        if ns16["NS198"] == "NS16:fitness1" then
             system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
         end
 
-        if object["NS198"] == "NS16:Inbox1" and command == ".." then
-            Inbox::run(object["location"])
+        if ns16["NS198"] == "NS16:Inbox1" then
+            Inbox::run(ns16["location"])
         end
 
-        if object["NS198"] == "NS16:Inbox1" and command == ">>" then
-            location = object["location"]
-            CommandsOps::transmutation2(location, "inbox")
+        if ns16["NS198"] == "NS16:TxDated" then
+            TxDateds::run(ns16["TxDated"])
         end
 
-        if object["NS198"] == "NS16:TxDated" and command == ".." then
-            TxDateds::run(object["TxDated"])
-        end
-
-        if object["NS198"] == "NS16:TxDated" and command == "done" then
-            mx49 = object["TxDated"]
-            TxDateds::destroy(mx49["uuid"])
-        end
-
-        if object["NS198"] == "NS16:TxDated" and command == "redate" then
-            mx49 = object["TxDated"]
-            datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
-            mx49["datetime"] = datetime
-            LibrarianObjects::commit(mx49)
-        end
-
-        if object["NS198"] == "NS16:TxDated" and command == ">>" then
-            mx49 = object["TxDated"]
-            CommandsOps::transmutation2(mx49, "TxDated")
-        end
-
-        if object["NS198"] == "NS16:TxDrop" and command == ".." then
-            nx70 = object["TxDrop"]
+        if ns16["NS198"] == "NS16:TxDrop" then
+            nx70 = ns16["TxDrop"]
             puts nx70["description"].green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
             return if action.nil?
@@ -105,47 +67,20 @@ class CommandsOps
             end
         end
 
-        if object["NS198"] == "NS16:TxDrop" and command == "done" then
-            nx70 = object["TxDrop"]
-            TxDrops::destroy(nx70["uuid"])
+        if ns16["NS198"] == "NS16:TxFloat" then
+            TxFloats::run(ns16["TxFloat"])
         end
 
-        if object["NS198"] == "NS16:TxDrop" and command == ">>" then
-            nx70 = object["TxDrop"]
-            CommandsOps::transmutation2(nx70, "TxDrop")
+        if ns16["NS198"] == "NS16:TxTodo" then
+            TxTodos::run(ns16["TxTodo"])
         end
 
-        if object["NS198"] == "NS16:TxFloat" and command == ".." then
-            TxFloats::run(object["TxFloat"])
+        if ns16["NS198"] == "NS16:Wave" then
+            Waves::run(ns16["wave"])
         end
 
-        if object["NS198"] == "NS16:TxTodo" and command == ".." then
-            TxTodos::run(object["TxTodo"])
-        end
-
-        if object["NS198"] == "NS16:TxTodo" and command == "done" then
-            nx50 = object["TxTodo"]
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
-                TxTodos::destroy(nx50["uuid"])
-                CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-            end
-        end
-
-        if object["NS198"] == "NS16:Wave" and command == ".." then
-            Waves::run(object["wave"])
-        end
-
-        if object["NS198"] == "NS16:Wave" and command == "landing" then
-            Waves::landing(object["wave"])
-        end
-
-        if object["NS198"] == "NS16:Wave" and command == "done" then
-            Waves::performDone(object["wave"])
-            CommandsOps::closeAnyNxBallWithThisID(object["uuid"])
-        end
-
-        if object["NS198"] == "NxBallDelegate1" and command == ".." then
-            uuid = object["NxBallUUID"]
+        if ns16["NS198"] == "NxBallDelegate1" then
+            uuid = ns16["NxBallUUID"]
 
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
             if action == "close" then
@@ -158,136 +93,31 @@ class CommandsOps
                 NxBallsService::pause(uuid)
             end
         end
+    end
 
-        if object["NS198"] == "NxBallDelegate1" and command == "done" then
-            uuid = object["NxBallUUID"]
-            NxBallsService::close(uuid, true)
+    # CommandsOps::transmute(universe, ns16)
+    def self.transmute(universe, ns16)
+        if ns16["NS198"] == "NS16:Inbox1" then
+            location = ns16["location"]
+            CommandsOps::transmutation2(location, "inbox")
         end
 
-        if Interpreting::match("require internet", command) then
-            InternetStatus::markIdAsRequiringInternet(object["uuid"])
+        if ns16["NS198"] == "NS16:TxDated" then
+            mx49 = ns16["TxDated"]
+            CommandsOps::transmutation2(mx49, "TxDated")
+        end
+
+        if ns16["NS198"] == "NS16:TxDrop" then
+            nx70 = ns16["TxDrop"]
+            CommandsOps::transmutation2(nx70, "TxDrop")
         end
     end
 
-    # CommandsOps::operator4(universe, command)
-    def self.operator4(universe, command)
-
-        if command == "[]" then
-            Topping::applyTransformation(universe)
-        end
-
-        if command == "top" then
-            Topping::top(universe)
-        end
-
-        if command == "start" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            NxBallsService::issue(SecureRandom.uuid, description, [])
-        end
-
-        if command == "float" then
-            TxFloats::interactivelyCreateNewOrNull()
-        end
-
-        if command == "drop" then
-            TxDrops::interactivelyCreateNewOrNull()
-        end
-
-        if Interpreting::match("ondate", command) then
-            item = TxDateds::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-        end
-
-        if command == "today" then
-            mx49 = TxDateds::interactivelyCreateNewTodayOrNull()
-            return if mx49.nil?
-            puts JSON.pretty_generate(mx49)
-        end
-
-        if command == "todo" then
-            item = TxTodos::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("wave", command) then
-            item = Waves::issueNewWaveInteractivelyOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("anniversary", command) then
-            item = Anniversaries::issueNewAnniversaryOrNullInteractively()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-        end
-
-        if Interpreting::match("anniversaries", command) then
-            Anniversaries::anniversariesDive()
-        end
-
-        if Interpreting::match("waves", command) then
-            Waves::waves()
-        end
-
-        if Interpreting::match("ondates", command) then
-            TxDateds::dive()
-        end
-
-        if Interpreting::match("todos", command) then
-            nx50s = TxTodos::items()
-            if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
-                nx50s = nx50s.first(Utils::screenHeight()-2)
-            end
-            loop {
-                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
-                return if nx50.nil?
-                TxTodos::run(nx50)
-            }
-        end
-
-        if Interpreting::match("search", command) then
-            Search::search()
-        end
-
-        if Interpreting::match("calendaritem", command) then
-            TxCalendarItems::interactivelyCreateNewOrNull()
-        end
-
-        if Interpreting::match("calendar", command) then
-            TxCalendarItems::dive()
-        end
-
-        if Interpreting::match("nyx", command) then
-            system("/Users/pascal/Galaxy/Software/Nyx/nyx")
-        end
-
-        if command == "commands" then
-            puts [
-                    "      " + Commands::terminalDisplayCommand(),
-                    "      " + Commands::makersCommands(),
-                    "      " + Commands::diversCommands(),
-                    "      internet on | internet off | require internet"
-                 ].join("\n").yellow
-            LucilleCore::pressEnterToContinue()
-        end
-
-        if Interpreting::match("internet on", command) then
-            InternetStatus::setInternetOn()
-        end
-
-        if Interpreting::match("internet off", command) then
-            InternetStatus::setInternetOff()
-        end
-
-        if Interpreting::match("universe", command) or Interpreting::match("::", command) then
-            Multiverse::interactivelySetFocus()
-        end
-
-        if Interpreting::match("exit", command) then
-            exit
+    # CommandsOps::start(universe, ns16)
+    def self.start(universe, ns16)
+        if ns16["NS198"] == "NS16:TxTodo" then
+            item = ns16["TxTodo"]
+            NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
         end
     end
 
@@ -309,7 +139,7 @@ class CommandsOps
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
-            Multiverse::setUniverse(object["uuid"], universe)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
@@ -325,7 +155,7 @@ class CommandsOps
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
-            Multiverse::setUniverse(object["uuid"], universe)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
@@ -335,7 +165,7 @@ class CommandsOps
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             LibrarianObjects::commit(object)
-            Multiverse::setUniverse(object["uuid"], universe)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
@@ -356,5 +186,272 @@ class CommandsOps
         target = CommandsOps::interactivelyGetTransmutationTargetOrNull()
         return if target.nil?
         CommandsOps::transmutation1(object, source, target)
+    end
+
+    # CommandsOps::inputParser(input, store)
+    def self.inputParser(input, store) # [command or null, ns16 or null]
+        # This function take an input from the prompt and 
+        # attempt to retrieve a command and optionaly an object (from the store)
+        # Note that the command can also be null if a command could not be extrated
+
+        outputForCommandAndOrdinal = lambda {|command, ordinal, store|
+            ordinal = ordinal.to_i
+            ns16 = store.get(ordinal)
+            if ns16 then
+                return [command, ns16]
+            else
+                return [nil, nil]
+            end
+        }
+
+        if Interpreting::match("expose *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("expose", ordinal, store)
+        end
+
+        if Interpreting::match(".. *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("..", ordinal, store)
+        end
+
+        if Interpreting::match("transmute *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("transmute", ordinal, store)
+        end
+
+        if Interpreting::match("start *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("start", ordinal, store)
+        end
+
+        [nil, nil]
+    end
+
+    # CommandsOps::operator5(universe, command, ns16)
+    def self.operator5(universe, command, ns16)
+        if command == "expose" then
+            puts JSON.pretty_generate(ns16)
+            LucilleCore::pressEnterToContinue()
+        end
+        if command == ".." then
+            CommandsOps::doubleDot(universe, ns16)
+        end
+        if command == "transmute" then
+            CommandsOps::transmute(universe, ns16)
+        end
+        if command == "start" then
+            CommandsOps::start(universe, ns16)
+        end
+        if command == "universe" then
+            if ns16["NS198"] == "NS16:TxTodo" then
+                item = ns16["TxTodo"]
+                Multiverse::interactivelySetObjectUniverse(item["uuid"])
+            end
+        end
+    end
+
+    # CommandsOps::operator4(universe, command)
+    def self.operator4(universe, command)
+
+        if command == "top" then
+            Topping::top(universe)
+            return
+        end
+
+        if command == "[]" then
+            Topping::applyTransformation(universe)
+        end
+
+        if command == "start" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
+            NxBallsService::issue(SecureRandom.uuid, description, [])
+        end
+
+        if command == "float" then
+            TxFloats::interactivelyCreateNewOrNull()
+        end
+
+        if command == "drop" then
+            TxDrops::interactivelyCreateNewOrNull()
+        end
+
+        if command == "ondate" then
+            item = TxDateds::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+        end
+
+        if command == "today" then
+            mx49 = TxDateds::interactivelyCreateNewTodayOrNull()
+            return if mx49.nil?
+            puts JSON.pretty_generate(mx49)
+        end
+
+        if command == "todo" then
+            item = TxTodos::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+        end
+
+        if command == "wave" then
+            item = Waves::issueNewWaveInteractivelyOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+        end
+
+        if command == "anniversary" then
+            item = Anniversaries::issueNewAnniversaryOrNullInteractively()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+        end
+
+        if command == "anniversaries" then
+            Anniversaries::anniversariesDive()
+        end
+
+        if command == "waves" then
+            Waves::waves()
+        end
+
+        if command == "ondates" then
+            TxDateds::dive()
+        end
+
+        if command == "todos" then
+            nx50s = TxTodos::items()
+            if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
+                nx50s = nx50s.first(Utils::screenHeight()-2)
+            end
+            loop {
+                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
+                return if nx50.nil?
+                TxTodos::run(nx50)
+            }
+        end
+
+        if command == "search" then
+            Search::search()
+        end
+
+        if command == "calendaritem" then
+            TxCalendarItems::interactivelyCreateNewOrNull()
+        end
+
+        if command == "calendar" then
+            TxCalendarItems::dive()
+        end
+
+        if command == "nyx" then
+            system("/Users/pascal/Galaxy/Software/Nyx/nyx")
+        end
+
+        if command == "commands" then
+            puts [
+                    "      " + Commands::terminalDisplayCommand(),
+                    "      " + Commands::makersCommands(),
+                    "      " + Commands::diversCommands(),
+                    "      internet on | internet off | require internet"
+                 ].join("\n").yellow
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if command == "internet on" then
+            InternetStatus::setInternetOn()
+        end
+
+        if command == "internet off" then
+            InternetStatus::setInternetOff()
+        end
+
+        if command == "::" then
+            Multiverse::interactivelySetFocus()
+        end
+
+        if command == "exit" then
+            exit
+        end
+    end
+
+    # CommandsOps::operator6(universe, command, objectOpt)
+    def self.operator6(universe, command, objectOpt)
+
+        return if command.nil?
+
+        if command == ".." then
+            ns16 = objectOpt
+            CommandsOps::doubleDot(universe, ns16)
+        end
+
+        if command == "done" then
+
+            ns16 = objectOpt
+
+            if ns16["NS198"] == "NS16:Anniversary1" then
+                anniversary = ns16["anniversary"]
+                puts Anniversaries::toString(anniversary).green
+                anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
+                Anniversaries::commitAnniversaryToDisk(anniversary)
+            end
+
+            if ns16["NS198"] == "NS16:TxCalendarItem" then
+                TxCalendarItems::destroy(ns16["item"]["uuid"])
+            end
+
+            if ns16["NS198"] == "NS16:TxDated" then
+                mx49 = ns16["TxDated"]
+                TxDateds::destroy(mx49["uuid"])
+            end
+
+            if ns16["NS198"] == "NS16:TxDrop" then
+                nx70 = ns16["TxDrop"]
+                TxDrops::destroy(nx70["uuid"])
+            end
+
+            if ns16["NS198"] == "NS16:TxTodo" then
+                nx50 = ns16["TxTodo"]
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
+                    TxTodos::destroy(nx50["uuid"])
+                    CommandsOps::closeAnyNxBallWithThisID(ns16["uuid"])
+                end
+            end
+
+            if ns16["NS198"] == "NS16:Wave" then
+                Waves::performDone(ns16["wave"])
+                CommandsOps::closeAnyNxBallWithThisID(ns16["uuid"])
+            end
+
+            if ns16["NS198"] == "NxBallDelegate1" then
+                uuid = ns16["NxBallUUID"]
+                NxBallsService::close(uuid, true)
+            end
+        end
+
+        if command == "transmute" then
+            CommandsOps::transmute(universe, ns16)
+        end
+
+        if command == "start" then
+            CommandsOps::start(universe, ns16)
+        end
+
+        if command == "redate" then
+            if ns16["NS198"] == "NS16:TxDated" then
+                mx49 = ns16["TxDated"]
+                datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
+                mx49["datetime"] = datetime
+                LibrarianObjects::commit(mx49)
+            end 
+        end
+
+        if command == "landing" then
+            if ns16["NS198"] == "NS16:Wave" and command == "landing" then
+                Waves::landing(ns16["wave"])
+            end
+        end
+
+        if command == "require internet" then
+            InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
+        end
     end
 end

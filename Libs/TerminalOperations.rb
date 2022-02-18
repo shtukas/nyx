@@ -161,10 +161,11 @@ class TerminalDisplayOperator
 
         top = Topping::getText(universe)
         if top.size > 0 then
-            top = top.lines.first(10).join().strip
             puts ""
+            puts "(-->)".green
+            top = top.lines.first(10).join().strip.lines.map{|line| "      #{line}" }.join()
             puts top
-            vspaceleft = vspaceleft - Utils::verticalSize(top) - 1
+            vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
 
         if section3.size>0 then
@@ -183,43 +184,21 @@ class TerminalDisplayOperator
 
         puts ""
 
-        command = LucilleCore::askQuestionAnswerAsString("> ")
+        input = LucilleCore::askQuestionAnswerAsString("> ")
 
-        return if command == ""
+        return if input == ""
 
-        if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+        if (unixtime = Utils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
         end
 
-        if (i = Interpreting::readAsIntegerOrNull(command)) then
-            item = store.get(i)
-            return if item.nil?
-            CommandsOps::operator1(item, "..")
-            return
-        end
-
-        if command == "expose" and (item = store.getDefault()) then
-            puts JSON.pretty_generate(item)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if command == "delay" then
-            i = LucilleCore::askQuestionAnswerAsString("index ? : ").to_i
-            return if i == 0
-            item = store.get(i)
-            puts "item: #{item["announce"]}"
-            unixtime = Utils::interactivelySelectUnixtimeOrNull()
-            return if unixtime.nil?
-            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            return
-        end
-
-        CommandsOps::operator4(universe, command)
-        CommandsOps::operator1(store.getDefault(), command)
+        CommandsOps::operator4(universe, input)
+        CommandsOps::operator5(universe, input, store.getDefault())
+        command, objectOpt = CommandsOps::inputParser(input, store)
+        CommandsOps::operator6(universe, command, objectOpt)
     end
 
     # TerminalDisplayOperator::displayLoop()

@@ -91,7 +91,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
-        Multiverse::setUniverse(uuid, universe)
+        Multiverse::setObjectUniverse(uuid, universe)
         item
     end
 
@@ -117,7 +117,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
-        Multiverse::setUniverse(uuid, universe)
+        Multiverse::setObjectUniverse(uuid, universe)
         item
     end
 
@@ -140,7 +140,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
-        Multiverse::setUniverse(uuid, "eva")
+        Multiverse::setObjectUniverse(uuid, "eva")
         item
     end
 
@@ -164,7 +164,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
-        Multiverse::setUniverse(uuid, "eva")
+        Multiverse::setObjectUniverse(uuid, "eva")
         item
     end
 
@@ -183,7 +183,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{Multiverse::getUniverseOrNull(nx50["uuid"])})"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{Multiverse::getObjectUniverseOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -252,7 +252,7 @@ class TxTodos
                 }
                 LibrarianObjects::commit(item)
                 
-                Multiverse::setUniverse(uuid, "eva")
+                Multiverse::setObjectUniverse(uuid, "eva")
                 LucilleCore::removeFileSystemLocation(location)
             }
     end
@@ -272,7 +272,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "universe: #{Multiverse::getUniverseOrNull(uuid)}".yellow
+            puts "universe: #{Multiverse::getObjectUniverseOrNull(uuid)}".yellow
             puts "ordinal: #{nx50["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
@@ -332,7 +332,7 @@ class TxTodos
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 LibrarianObjects::commit(nx50)
-                Multiverse::setUniverse(nx50["uuid"], universe)
+                Multiverse::setObjectUniverse(nx50["uuid"], universe)
                 next
             end
 
@@ -341,7 +341,7 @@ class TxTodos
                 ordinal = TxTodos::nextOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 LibrarianObjects::commit(nx50)
-                Multiverse::setUniverse(nx50["uuid"], universe)
+                Multiverse::setObjectUniverse(nx50["uuid"], universe)
                 break
             end
 

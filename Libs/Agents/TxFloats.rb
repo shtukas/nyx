@@ -38,7 +38,7 @@ class TxFloats
           "atomuuid"    => atom["uuid"]
         }
         LibrarianObjects::commit(item)
-        Multiverse::interactivelySetUniverse(uuid)
+        Multiverse::interactivelySetObjectUniverse(uuid)
         item
     end
 

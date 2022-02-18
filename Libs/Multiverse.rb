@@ -3,27 +3,27 @@
 
 class Multiverse
 
-    # Multiverse::getUniverseOrNull(uuid)
-    def self.getUniverseOrNull(uuid)
+    # Multiverse::getObjectUniverseOrNull(uuid)
+    def self.getObjectUniverseOrNull(uuid)
         KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
     end
 
-    # Multiverse::setUniverse(uuid, universe)
-    def self.setUniverse(uuid, universe)
+    # Multiverse::setObjectUniverse(uuid, universe)
+    def self.setObjectUniverse(uuid, universe)
         raise "(error: incorrect universe: #{universe})" if !Multiverse::universes().include?(universe)
         KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid, universe)
     end
 
     # Multiverse::getUniverseOrDefault(uuid)
     def self.getUniverseOrDefault(uuid)
-        universe = Multiverse::getUniverseOrNull(uuid)
+        universe = Multiverse::getObjectUniverseOrNull(uuid)
         return universe if universe
         "eva"
     end
 
     # Multiverse::universes()
     def self.universes()
-        ["lucille", "eva", "kyoko", "work", "jedi"]
+        ["lucille", "eva", "work", "jedi"]
     end
 
     # Multiverse::interactivelySelectUniverse()
@@ -33,10 +33,10 @@ class Multiverse
         universe
     end
 
-    # Multiverse::interactivelySetUniverse(uuid)
-    def self.interactivelySetUniverse(uuid)
+    # Multiverse::interactivelySetObjectUniverse(uuid)
+    def self.interactivelySetObjectUniverse(uuid)
         universe = Multiverse::interactivelySelectUniverse()
-        Multiverse::setUniverse(uuid, universe)
+        Multiverse::setObjectUniverse(uuid, universe)
     end
 
     # Multiverse::setFocus(universe)
