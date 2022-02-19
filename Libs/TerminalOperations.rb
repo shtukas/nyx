@@ -198,6 +198,7 @@ class TerminalDisplayOperator
         CommandsOps::operator4(universe, input)
         CommandsOps::operator5(universe, input, store.getDefault())
         command, objectOpt = CommandsOps::inputParser(input, store)
+        puts "parser: command:#{command}, objectOpt: #{objectOpt}"
         CommandsOps::operator6(universe, command, objectOpt)
     end
 

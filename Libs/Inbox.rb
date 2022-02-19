@@ -37,7 +37,7 @@ class Inbox
         puts location.green
         loop {
             if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "transmute", "destroy", "exit (default)"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "transmute", ">nyx", "destroy", "exit (default)"])
                 if action == "open" then
                     system("open '#{location}'")
                 end
@@ -48,6 +48,10 @@ class Inbox
                     CommandsOps::transmutation2(location, "inbox")
                     return
                 end
+                if action == ">nyx" then
+                    NyxAdapter::locationToNyx(location)
+                    return
+                end
                 if action == "destroy" then
                     LucilleCore::removeFileSystemLocation(location)
                     return
@@ -56,12 +60,16 @@ class Inbox
                     return
                 end
             else
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "transmute", "destroy", "exit (default)"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "transmute", ">nyx", "destroy", "exit (default)"])
                 if action == "open" then
                     system("open '#{location}'")
                 end
                 if action == "transmute" then
                     CommandsOps::transmutation2(location, "inbox")
+                    return
+                end
+                if action == ">nyx" then
+                    NyxAdapter::locationToNyx(location)
                     return
                 end
                 if action == "destroy" then

@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) | >> (switch universe) | nyx"
+        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) | >> (switch universe) | nyx | >nyx"
     end
 
     # Commands::makersCommands()
@@ -117,6 +117,10 @@ class CommandsOps
     def self.start(universe, ns16)
         if ns16["NS198"] == "NS16:TxTodo" then
             item = ns16["TxTodo"]
+            NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
+        end
+        if ns16["NS198"] == "NS16:Wave" then
+            item = ns16["wave"]
             NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
         end
     end
@@ -266,6 +270,11 @@ class CommandsOps
             return outputForCommandAndOrdinal.call("start", ordinal, store)
         end
 
+        if Interpreting::match("done *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("done", ordinal, store)
+        end
+
         [nil, nil]
     end
 
@@ -295,6 +304,22 @@ class CommandsOps
             if ns16["NS198"] == "NS16:Wave" then
                 item = ns16["wave"]
                 Multiverse::interactivelySetObjectUniverse(item["uuid"])
+            end
+        end
+        if command == ">nyx" then
+            
+            #Nx31 {
+            #    "uuid"        : uuid,
+            #    "mikuType"    : "Nx31"
+            #    "datetime"    : DateTime Iso 8601 UTC Zulu
+            #    "unixtime"    : unixtime
+            #    "description" : description
+            #    "atomuuid"    : UUID of an Atom
+            #}
+
+            if ns16["NS198"] == "NS16:Inbox1" then
+                location = ns16["location"]
+                NyxAdapter::locationToNyx(location)
             end
         end
     end
@@ -427,6 +452,12 @@ class CommandsOps
 
         return if command.nil?
 
+        if command == "expose" then
+            ns16 = objectOpt
+            puts JSON.pretty_generate(ns16)
+            LucilleCore::pressEnterToContinue()
+        end
+
         if command == ".." then
             ns16 = objectOpt
             CommandsOps::doubleDot(universe, ns16)
@@ -438,14 +469,17 @@ class CommandsOps
         end
 
         if command == "transmute" then
+            ns16 = objectOpt
             CommandsOps::transmute(universe, ns16)
         end
 
         if command == "start" then
+            ns16 = objectOpt
             CommandsOps::start(universe, ns16)
         end
 
         if command == "redate" then
+            ns16 = objectOpt
             if ns16["NS198"] == "NS16:TxDated" then
                 mx49 = ns16["TxDated"]
                 datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
@@ -455,12 +489,14 @@ class CommandsOps
         end
 
         if command == "landing" then
+            ns16 = objectOpt
             if ns16["NS198"] == "NS16:Wave" and command == "landing" then
                 Waves::landing(ns16["wave"])
             end
         end
 
         if command == "require internet" then
+            ns16 = objectOpt
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
         end
     end
