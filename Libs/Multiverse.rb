@@ -23,7 +23,7 @@ class Multiverse
 
     # Multiverse::universes()
     def self.universes()
-        ["lucille", "eva", "work", "jedi"]
+        ["lucille", "eva", "work", "jedi", "4708-UU"]
     end
 
     # Multiverse::interactivelySelectUniverse()
