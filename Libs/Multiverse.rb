@@ -57,3 +57,39 @@ class Multiverse
         Multiverse::setFocus(universe)
     end
 end
+
+class UniverseAccounting
+    # UniverseAccounting::universeToAccountNumber(universe)
+    def self.universeToAccountNumber(universe)
+        Digest::SHA1.hexdigest("DE9969F6-DE5C-4AB9-B03A-914C53FCE5BE:#{universe}")
+    end
+
+    # UniverseAccounting::addTimeToUniverse(universe, timespan)
+    def self.addTimeToUniverse(universe, timespan)
+        Bank::put(UniverseAccounting::universeToAccountNumber(universe), timespan)
+    end
+
+    # UniverseAccounting::universeRT(universe)
+    def self.universeRT(universe)
+        BankExtended::stdRecoveredDailyTimeInHours(UniverseAccounting::universeToAccountNumber(universe))
+    end
+
+    # UniverseAccounting::universeExpectationOrNull(universe)
+    def self.universeExpectationOrNull(universe)
+        map = {
+            "lucille" => nil,
+            "eva"     => 1.5,
+            "work"    => 6,
+            "jedi"    => 2,
+            "4708-UU" => 1
+        }
+        map[universe]
+    end
+
+    # UniverseAccounting::universeRatioOrNull(universe)
+    def self.universeRatioOrNull(universe)
+        expectation = UniverseAccounting::universeExpectationOrNull(universe)
+        return nil if expectation.nil?
+        UniverseAccounting::universeRT(universe).to_f/expectation
+    end
+end

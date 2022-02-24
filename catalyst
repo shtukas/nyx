@@ -8,8 +8,17 @@ require_relative "Libs/loader.rb"
 
 Thread.new {
     loop {
-        sleep 300
+        sleep 3600
         system("#{File.dirname(__FILE__)}/vienna-import")
+    }
+}
+
+Thread.new {
+    loop {
+        # We wait for 2 mins and then we add to the current universe
+        sleep 120
+        universe = Multiverse::getFocus()
+        UniverseAccounting::addTimeToUniverse(universe, 120)
     }
 }
 

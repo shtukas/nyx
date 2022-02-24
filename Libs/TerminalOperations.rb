@@ -103,6 +103,15 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
+        Multiverse::universes().each{|universe|
+            universeRatio = UniverseAccounting::universeRatioOrNull(universe)
+            next if universeRatio.nil?
+            next if universeRatio > 1
+            puts "#{universe.ljust(10)}: #{100 * UniverseAccounting::universeRT(universe).round(2)} %"
+            vspaceleft = vspaceleft - 1
+        }
+
+        puts ""
         cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
         puts "(universe: #{universe}, cardinal: #{cardinal} items)"
         vspaceleft = vspaceleft - 2
