@@ -103,13 +103,15 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        Multiverse::universes().each{|universe|
+        Multiverse::universes()
+        .select{|universe|
+            UniverseAccounting::universeExpectationOrNull(universe)
+        }
+        .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
+        .each{|universe|
             expectation = UniverseAccounting::universeExpectationOrNull(universe)
-            next if expectation.nil?
             universeRatio = UniverseAccounting::universeRatioOrNull(universe)
-            next if universeRatio.nil?
-            next if universeRatio > 1
-            puts "#{universe.ljust(10)}: #{"%5.2f" % (100 * UniverseAccounting::universeRT(universe))} % of #{"%.2f" % expectation} hours"
+            puts "#{universe.ljust(10)}: #{"%6.2f" % (100 * UniverseAccounting::universeRT(universe))} % of #{"%.2f" % expectation} hours"
             vspaceleft = vspaceleft - 1
         }
 
