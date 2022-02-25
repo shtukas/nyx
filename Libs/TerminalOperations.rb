@@ -104,10 +104,12 @@ class TerminalDisplayOperator
 
         puts ""
         Multiverse::universes().each{|universe|
+            expectation = UniverseAccounting::universeExpectationOrNull(universe)
+            next if expectation.nil?
             universeRatio = UniverseAccounting::universeRatioOrNull(universe)
             next if universeRatio.nil?
             next if universeRatio > 1
-            puts "#{universe.ljust(10)}: #{100 * UniverseAccounting::universeRT(universe).round(2)} %"
+            puts "#{universe.ljust(10)}: #{"%5.2f" % (100 * UniverseAccounting::universeRT(universe))} % of #{"%.2f" % expectation} hours"
             vspaceleft = vspaceleft - 1
         }
 

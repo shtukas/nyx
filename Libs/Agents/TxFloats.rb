@@ -89,7 +89,7 @@ class TxFloats
 
             AgentsUtils::atomLandingPresentation(mx48["atomuuid"])
 
-            puts "access | <datecode> | description | atom | note | transmute | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | universe | transmute | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -126,6 +126,11 @@ class TxFloats
                 text = Utils::editTextSynchronously("").strip
                 LibrarianNotes::addNote(mx48["uuid"], text)
                 next
+            end
+
+            if Interpreting::match("universe", command) then
+                Multiverse::interactivelySetObjectUniverse(mx48["uuid"])
+                break
             end
 
             if Interpreting::match("transmute", command) then

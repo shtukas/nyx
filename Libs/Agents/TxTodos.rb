@@ -89,7 +89,7 @@ class TxTodos
 
     # TxTodos::interactivelyDecideNewOrdinal(universe)
     def self.interactivelyDecideNewOrdinal(universe)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)", "next"])
         if action == "fine selection near the top" then
             TxTodos::itemsForUniverseWithCardinal(universe, 50)
                 .each{|nx50| 
@@ -97,8 +97,11 @@ class TxTodos
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
-        if action.nil? or action == "random within [10-20] (default)" then
+        if action == "random within [10-20] (default)" or action.nil? then
             return TxTodos::ordinalBetweenN1thAndN2th(universe, 10, 20)
+        end
+        if action == "next" then
+            return TxTodos::nextOrdinal(universe)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end

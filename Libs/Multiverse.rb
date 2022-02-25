@@ -23,7 +23,7 @@ class Multiverse
 
     # Multiverse::universes()
     def self.universes()
-        ["lucille", "eva", "work", "jedi", "4708-UU"]
+        ["lucille", "beach", "eva", "work", "jedi", "4708-UU"]
     end
 
     # Multiverse::interactivelySelectUniverse()
@@ -78,6 +78,7 @@ class UniverseAccounting
     def self.universeExpectationOrNull(universe)
         map = {
             "lucille" => nil,
+            "beach"   => 0.75,
             "eva"     => 1.5,
             "work"    => 6,
             "jedi"    => 2,

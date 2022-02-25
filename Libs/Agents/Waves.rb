@@ -307,6 +307,9 @@ class Waves
             end
             if operation == "landing and back" then
                 Waves::landing(wave)
+
+                # The next line handle if the landing resulted in a destruction of the object
+                break if LibrarianObjects::getObjectByUUIDOrNull(wave["uuid"]).nil?
             end
             if operation == "delay" then
                 unixtime = Utils::interactivelySelectUnixtimeOrNull()
@@ -332,21 +335,7 @@ class Waves
             "uuid"     => uuid,
             "NS198"    => "NS16:Wave",
             "announce" => Waves::toString(wave),
-            "commands" => ["..", "landing", "done"],
-            "wave"     => wave
-        }
-    end
-
-    # Waves::toOperationalNS16OrNull(wave)
-    def self.toOperationalNS16OrNull(wave)
-        uuid = wave["uuid"]
-        return nil if !DoNotShowUntil::isVisible(uuid)
-        return nil if !InternetStatus::ns16ShouldShow(uuid)
-        {
-            "uuid"     => uuid,
-            "NS198"    => "NS16:Wave",
-            "announce" => Waves::toString(wave),
-            "commands" => ["..", "landing", "done"],
+            "commands" => ["..", "done"],
             "wave"     => wave
         }
     end

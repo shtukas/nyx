@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) | >> (switch universe) | nyx | >nyx"
+        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) (<n>)  | >> (switch universe) | nyx | >nyx"
     end
 
     # Commands::makersCommands()
@@ -43,7 +43,7 @@ class CommandsOps
         end
 
         if ns16["NS198"] == "NS16:fitness1" then
-            system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
+            system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}")
         end
 
         if ns16["NS198"] == "NS16:Inbox1" then
@@ -275,6 +275,11 @@ class CommandsOps
             return outputForCommandAndOrdinal.call("done", ordinal, store)
         end
 
+        if Interpreting::match("universe *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("universe", ordinal, store)
+        end
+
         [nil, nil]
     end
 
@@ -300,11 +305,16 @@ class CommandsOps
             if ns16["NS198"] == "NS16:TxTodo" then
                 item = ns16["TxTodo"]
                 Multiverse::interactivelySetObjectUniverse(item["uuid"])
+                return
             end
             if ns16["NS198"] == "NS16:Wave" then
                 item = ns16["wave"]
                 Multiverse::interactivelySetObjectUniverse(item["uuid"])
+                return
             end
+            puts "I do not know how to set a universe for this object (fc593ecc-5079-46d1-a4f6-dcd9af82d0ed):"
+            puts JSON.pretty_generate(ns16)
+            LucilleCore::pressEnterToContinue()
         end
         if command == ">nyx" then
             
@@ -498,6 +508,18 @@ class CommandsOps
         if command == "require internet" then
             ns16 = objectOpt
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
+        end
+
+        if command == "universe" then
+            ns16 = objectOpt
+            if ns16["NS198"] == "NS16:TxFloat" then
+                item = ns16["TxFloat"]
+                Multiverse::interactivelySetObjectUniverse(item["uuid"])
+                return
+            end
+            puts "I do not know how to set a universe for this object (1623a9d7-3ad4-465b-886d-1febbcc32036):"
+            puts JSON.pretty_generate(ns16)
+            LucilleCore::pressEnterToContinue()
         end
     end
 end

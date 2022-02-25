@@ -37,12 +37,18 @@ class Inbox
         puts location.green
         loop {
             if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "transmute", ">nyx", "destroy", "exit (default)"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "datecode", "transmute", ">nyx", "destroy", "exit (default)"])
                 if action == "open" then
                     system("open '#{location}'")
                 end
                 if action == "copy to desktop" then
                     FileUtils.cp(location, "/Users/pascal/Desktop")
+                end
+                if action == "datecode" then
+                    unixtime = Utils::interactivelySelectUnixtimeOrNull()
+                    next if unixtime.nil?
+                    DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
+                    return
                 end
                 if action == "transmute" then
                     CommandsOps::transmutation2(location, "inbox")
@@ -60,9 +66,15 @@ class Inbox
                     return
                 end
             else
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "transmute", ">nyx", "destroy", "exit (default)"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "datecode", "transmute", ">nyx", "destroy", "exit (default)"])
                 if action == "open" then
                     system("open '#{location}'")
+                end
+                if action == "datecode" then
+                    unixtime = Utils::interactivelySelectUnixtimeOrNull()
+                    next if unixtime.nil?
+                    DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
+                    return
                 end
                 if action == "transmute" then
                     CommandsOps::transmutation2(location, "inbox")
