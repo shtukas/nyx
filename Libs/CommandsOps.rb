@@ -192,6 +192,14 @@ class CommandsOps
         if source == "TxDated" and target == "TxDrop" then
             object["mikuType"] = "TxDrop"
             LibrarianObjects::commit(object)
+            Multiverse::interactivelySetObjectUniverse(object["uuid"])
+            return
+        end
+
+        if source == "TxDated" and target == "TxFloat" then
+            object["mikuType"] = "TxFloat"
+            LibrarianObjects::commit(object)
+            Multiverse::interactivelySetObjectUniverse(object["uuid"])
             return
         end
 
@@ -200,6 +208,15 @@ class CommandsOps
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
+            LibrarianObjects::commit(object)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
+            return
+        end
+
+        if source == "TxFloat" and target == "TxDated" then
+            universe = Multiverse::interactivelySelectUniverse()
+            object["mikuType"] = "TxDated"
+            object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
             LibrarianObjects::commit(object)
             Multiverse::setObjectUniverse(object["uuid"], universe)
             return
