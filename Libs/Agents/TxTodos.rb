@@ -66,6 +66,10 @@ class TxTodos
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
         LibrarianObjects::destroy(uuid)
+
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Catalyst/TxTdo-Objects.sqlite3")
+        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+        db.close
     end
 
     # --------------------------------------------------
@@ -184,7 +188,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
-        Multiverse::setObjectUniverse(uuid, "eva")
+        Multiverse::setObjectUniverse(uuid, "xstream")
         item
     end
 
@@ -196,7 +200,7 @@ class TxTodos
         datetime    = Time.new.utc.iso8601
         atom        = CoreData5::issueUrlAtomUsingUrl(url)
         LibrarianObjects::commit(atom)
-        ordinal     = TxTodos::ordinalBetweenN1thAndN2th("eva", 20, 30)
+        ordinal     = TxTodos::ordinalBetweenN1thAndN2th("xstream", 20, 30)
 
         item = {
           "uuid"        => uuid,
@@ -208,7 +212,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         LibrarianObjects::commit(item)
-        Multiverse::setObjectUniverse(uuid, "eva")
+        Multiverse::setObjectUniverse(uuid, "xstream")
         item
     end
 
@@ -272,35 +276,6 @@ class TxTodos
         end
     end
 
-    # TxTodos::importTxTodosRandom()
-    def self.importTxTodosRandom()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/TxTodos (Random) [eva]")
-            .map{|location|
-                puts "Importing TxTodos (Random) [eva]: #{location}"
-
-                uuid        = SecureRandom.uuid
-                description = File.basename(location)
-                unixtime    = Time.new.to_i
-                datetime    = Time.new.utc.iso8601
-                atom        = CoreData5::issueAionPointAtomUsingLocation(location)
-                ordinal     = TxTodos::ordinalBetweenN1thAndN2th("eva", 30, 50)
-
-                item = {
-                  "uuid"        => uuid,
-                  "mikuType"    => "TxTodo",
-                  "description" => description,
-                  "unixtime"    => unixtime,
-                  "datetime"    => datetime,
-                  "atomuuid"    => atom["uuid"],
-                  "ordinal"     => ordinal
-                }
-                LibrarianObjects::commit(item)
-                
-                Multiverse::setObjectUniverse(uuid, "eva")
-                LucilleCore::removeFileSystemLocation(location)
-            }
-    end
-
     # TxTodos::run(nx50)
     def self.run(nx50)
 
@@ -332,7 +307,7 @@ class TxTodos
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -414,6 +389,11 @@ class TxTodos
                     break
                 end
                 next
+            end
+
+            if command == ">nyx" then
+                NyxAdapter::nx50ToNyx(nx50)
+                break
             end
         }
 

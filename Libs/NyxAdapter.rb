@@ -36,4 +36,15 @@ class NyxAdapter
 
         system("/Users/pascal/Galaxy/Software/Nyx/binaries/nyx-landing #{uuid}")
     end
+
+    # NyxAdapter::nx50ToNyx(nx50)
+    def self.nx50ToNyx(nx50)
+        nx31 = nx50.clone
+        uuid = SecureRandom.uuid
+        nx31["uuid"]     = uuid
+        nx31["mikuType"] = "Nx31"
+        LibrarianObjects::commit(nx31)
+        system("/Users/pascal/Galaxy/Software/Nyx/binaries/nyx-landing #{uuid}")
+        TxTodos::destroy(nx50["uuid"])
+    end
 end

@@ -23,7 +23,7 @@ class Multiverse
 
     # Multiverse::universes()
     def self.universes()
-        ["lucille", "beach", "eva", "work", "jedi", "4708-UU"]
+        ["lucille", "beach", "xstream", "work", "jedi", "4708-UU"]
     end
 
     # Multiverse::interactivelySelectUniverse()
@@ -61,7 +61,15 @@ end
 class UniverseAccounting
     # UniverseAccounting::universeToAccountNumber(universe)
     def self.universeToAccountNumber(universe)
-        Digest::SHA1.hexdigest("DE9969F6-DE5C-4AB9-B03A-914C53FCE5BE:#{universe}")
+        map = {
+            "lucille" => "3b1a6d37-2c9c-4b75-bfca-be1fab1520d4",
+            "beach"   => "12f07bbd-2831-4e7f-9e77-e7153e48805e",
+            "xstream" => "0ee588ae-386f-40ab-a900-c3fe52b5ad59",
+            "work"    => "acde7d70-2450-4d9d-a15b-13a427ac4023",
+            "jedi"    => "ab282514-739b-4180-8064-8b800227fa5c",
+            "4708-UU" => "49837f68-fd03-4de0-9593-0194cfac4054"
+        }
+        map[universe]
     end
 
     # UniverseAccounting::addTimeToUniverse(universe, timespan)
@@ -79,7 +87,7 @@ class UniverseAccounting
         map = {
             "lucille" => nil,
             "beach"   => 0.75,
-            "eva"     => 1.5,
+            "xstream" => 1.5,
             "work"    => 6,
             "jedi"    => 2,
             "4708-UU" => 1

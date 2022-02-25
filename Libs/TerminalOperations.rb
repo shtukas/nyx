@@ -103,22 +103,26 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
+        cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
+        puts "(universe: #{universe}, cardinal: #{cardinal} items)"
+        vspaceleft = vspaceleft - 2
+
+        puts ""
         Multiverse::universes()
         .select{|universe|
             UniverseAccounting::universeExpectationOrNull(universe)
         }
         .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
-        .each{|universe|
-            expectation = UniverseAccounting::universeExpectationOrNull(universe)
-            universeRatio = UniverseAccounting::universeRatioOrNull(universe)
-            puts "#{universe.ljust(10)}: #{"%6.2f" % (100 * UniverseAccounting::universeRT(universe))} % of #{"%.2f" % expectation} hours"
+        .each{|uni|
+            expectation = UniverseAccounting::universeExpectationOrNull(uni)
+            uniRatio = UniverseAccounting::universeRatioOrNull(uni)
+            line = "#{uni.ljust(10)}: #{"%6.2f" % (100 * UniverseAccounting::universeRT(uni))} % of #{"%.2f" % expectation} hours"
+            if uni == universe then
+                line = line.green
+            end
+            puts line
             vspaceleft = vspaceleft - 1
         }
-
-        puts ""
-        cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
-        puts "(universe: #{universe}, cardinal: #{cardinal} items)"
-        vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 
@@ -224,8 +228,6 @@ class TerminalDisplayOperator
                 break
             end
 
-            # Every loop maintenance
-            TxTodos::importTxTodosRandom()
             universe = Multiverse::getFocus()
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
