@@ -5,7 +5,11 @@ class Multiverse
 
     # Multiverse::getObjectUniverseOrNull(uuid)
     def self.getObjectUniverseOrNull(uuid)
-        KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
+        universe = KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
+        if universe == "eva" then
+            universe = "xstream"
+        end
+        universe
     end
 
     # Multiverse::setObjectUniverse(uuid, universe)

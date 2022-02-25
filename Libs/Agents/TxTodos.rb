@@ -307,7 +307,7 @@ class TxTodos
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -344,6 +344,11 @@ class TxTodos
                 text = Utils::editTextSynchronously("").strip
                 LibrarianNotes::addNote(nx50["uuid"], text)
                 next
+            end
+
+            if Interpreting::match("universe", command) then
+                Multiverse::interactivelySetObjectUniverse(nx50["uuid"])
+                break
             end
 
             if Interpreting::match("ordinal", command) then

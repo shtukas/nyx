@@ -45,34 +45,34 @@ class TxFloats
     # --------------------------------------------------
     # toString
 
-    # TxFloats::toString(mx48)
-    def self.toString(mx48)
-        "[floa] #{mx48["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx48["atomuuid"])}"
+    # TxFloats::toString(float)
+    def self.toString(float)
+        "[floa] #{float["description"]}#{AgentsUtils::atomTypeForToStrings(" ", float["atomuuid"])}"
     end
 
-    # TxFloats::toStringForNS19(mx48)
-    def self.toStringForNS19(mx48)
-        "[floa] #{mx48["description"]}"
+    # TxFloats::toStringForNS19(float)
+    def self.toStringForNS19(float)
+        "[floa] #{float["description"]}"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # TxFloats::complete(mx48)
-    def self.complete(mx48)
-        TxFloats::destroy(mx48["uuid"])
+    # TxFloats::complete(float)
+    def self.complete(float)
+        TxFloats::destroy(float["uuid"])
     end
 
-    # TxFloats::run(mx48)
-    def self.run(mx48)
+    # TxFloats::run(float)
+    def self.run(float)
 
         system("clear")
 
-        uuid = mx48["uuid"]
+        uuid = float["uuid"]
 
         NxBallsService::issue(
             uuid, 
-            TxFloats::toString(mx48), 
+            TxFloats::toString(float), 
             [uuid]
         )
 
@@ -80,16 +80,16 @@ class TxFloats
 
             system("clear")
 
-            puts TxFloats::toString(mx48).green
+            puts TxFloats::toString(float).green
             puts "uuid: #{uuid}".yellow
 
             LibrarianNotes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
-            AgentsUtils::atomLandingPresentation(mx48["atomuuid"])
+            AgentsUtils::atomLandingPresentation(float["atomuuid"])
 
-            puts "access | <datecode> | description | atom | note | universe | transmute | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -102,62 +102,67 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                AgentsUtils::accessAtom(mx48["atomuuid"])
+                AgentsUtils::accessAtom(float["atomuuid"])
                 next
             end
 
             if Interpreting::match("description", command) then
-                description = Utils::editTextSynchronously(mx48["description"]).strip
+                description = Utils::editTextSynchronously(float["description"]).strip
                 next if description == ""
-                mx48["description"] = description
-                LibrarianObjects::commit(mx48)
+                float["description"] = description
+                LibrarianObjects::commit(float)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = CoreData5::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = mx48["atomuuid"]
+                atom["uuid"] = float["atomuuid"]
                 LibrarianObjects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                LibrarianNotes::addNote(mx48["uuid"], text)
+                LibrarianNotes::addNote(float["uuid"], text)
                 next
             end
 
             if Interpreting::match("universe", command) then
-                Multiverse::interactivelySetObjectUniverse(mx48["uuid"])
+                Multiverse::interactivelySetObjectUniverse(float["uuid"])
                 break
             end
 
             if Interpreting::match("transmute", command) then
-                CommandsOps::transmutation2(mx48, "TxFloat")
+                CommandsOps::transmutation2(float, "TxFloat")
                 break
             end
 
             if Interpreting::match("show json", command) then
-                puts JSON.pretty_generate(mx48)
+                puts JSON.pretty_generate(float)
                 LucilleCore::pressEnterToContinue()
                 break
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(mx48)}' ? ", true) then
-                    TxFloats::complete(mx48)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(float)}' ? ", true) then
+                    TxFloats::complete(float)
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(mx48)}' ? ", true) then
-                    TxFloats::complete(mx48)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(float)}' ? ", true) then
+                    TxFloats::complete(float)
                     break
                 end
                 next
+            end
+
+            if command == ">nyx" then
+                NyxAdapter::floatToNyx(float)
+                break
             end
         }
 
@@ -167,15 +172,15 @@ class TxFloats
     # --------------------------------------------------
     # nx16s
 
-    # TxFloats::ns16(mx48)
-    def self.ns16(mx48)
-        uuid = mx48["uuid"]
+    # TxFloats::ns16(float)
+    def self.ns16(float)
+        uuid = float["uuid"]
         {
             "uuid"     => uuid,
             "NS198"    => "NS16:TxFloat",
-            "announce" => "#{mx48["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx48["atomuuid"])}",
+            "announce" => "#{float["description"]}#{AgentsUtils::atomTypeForToStrings(" ", float["atomuuid"])}",
             "commands" => [],
-            "TxFloat"     => mx48
+            "TxFloat"     => float
         }
     end
 
