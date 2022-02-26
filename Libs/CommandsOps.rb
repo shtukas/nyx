@@ -469,6 +469,10 @@ class CommandsOps
             Multiverse::interactivelySetFocus()
         end
 
+        if command == ">>>" then
+            UniverseAccounting::autoFocus()
+        end
+
         if command == "exit" then
             exit
         end

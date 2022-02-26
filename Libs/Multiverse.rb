@@ -105,4 +105,15 @@ class UniverseAccounting
         return nil if expectation.nil?
         UniverseAccounting::universeRT(universe).to_f/expectation
     end
+
+    # UniverseAccounting::autoFocus()
+    def self.autoFocus()
+        universe = Multiverse::universes()
+            .select{|universe|
+                UniverseAccounting::universeExpectationOrNull(universe)
+            }
+            .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
+            .first
+        Multiverse::setFocus(universe)
+    end
 end
