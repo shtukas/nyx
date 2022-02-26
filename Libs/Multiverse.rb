@@ -42,27 +42,32 @@ class Multiverse
         universe = Multiverse::interactivelySelectUniverse()
         Multiverse::setObjectUniverse(uuid, universe)
     end
+end
 
-    # Multiverse::setFocus(universe)
-    def self.setFocus(universe)
+class StoredUniverse
+
+    # StoredUniverse::setStoredFocusUniverse(universe)
+    def self.setStoredFocusUniverse(universe)
         KeyValueStore::set(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
     end
 
-    # Multiverse::getFocus()
-    def self.getFocus()
+    # StoredUniverse::getStoredFocusUniverse()
+    def self.getStoredFocusUniverse()
         universe = KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
         return universe if universe
         "lucille"
     end
 
-    # Multiverse::interactivelySetFocus()
-    def self.interactivelySetFocus()
+    # StoredUniverse::interactivelySetStoredFocus()
+    def self.interactivelySetStoredFocus()
         universe = Multiverse::interactivelySelectUniverse()
-        Multiverse::setFocus(universe)
+        StoredUniverse::setStoredFocusUniverse(universe)
     end
+
 end
 
 class UniverseAccounting
+
     # UniverseAccounting::universeToAccountNumber(universe)
     def self.universeToAccountNumber(universe)
         map = {
@@ -104,14 +109,38 @@ class UniverseAccounting
         UniverseAccounting::universeRT(universe).to_f/expectation
     end
 
-    # UniverseAccounting::autoFocus()
-    def self.autoFocus()
-        universe = Multiverse::universes()
+    # UniverseAccounting::getLowestRTUniverse()
+    def self.getLowestRTUniverse()
+        Multiverse::universes()
             .select{|universe|
                 UniverseAccounting::universeExpectationOrNull(universe)
             }
             .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
             .first
-        Multiverse::setFocus(universe)
+    end
+end
+
+class UniverseOperator
+
+    # UniverseOperator::getUniverseTransitionMode()
+    # USE-STORED
+    def self.getUniverseTransitionMode()
+        mode = KeyValueStore::getOrNull(nil, "f0fb2b0b-8478-4885-8acf-45b715c44c9b")
+        return mode if mode
+        "USE-STORED"
+    end
+
+    # UniverseOperator::getUniverseForDisplay()
+    def self.getUniverseForDisplay()
+        mode = UniverseOperator::getUniverseTransitionMode()
+        if mode == "USE-STORED" then
+            return StoredUniverse::getStoredFocusUniverse()
+        end
+        raise "1cd5718e-5bc5-4a18-8358-5f6bebc3d4cb"
+    end
+
+    # UniverseOperator::switchUniverseTransitionMode()
+    def self.switchUniverseTransitionMode()
+
     end
 end

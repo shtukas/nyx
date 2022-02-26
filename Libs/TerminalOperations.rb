@@ -228,7 +228,7 @@ class TerminalDisplayOperator
                 break
             end
 
-            universe = Multiverse::getFocus()
+            universe = StoredUniverse::getStoredFocusUniverse()
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }

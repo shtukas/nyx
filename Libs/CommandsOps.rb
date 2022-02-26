@@ -3,7 +3,7 @@ class Commands
 
     # Commands::terminalDisplayCommand()
     def self.terminalDisplayCommand()
-        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | universe (set the universe of the dafault item) (<n>)  | >> (switch universe) | nyx | >nyx"
+        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
     end
 
     # Commands::makersCommands()
@@ -452,7 +452,8 @@ class CommandsOps
                     "      " + Commands::terminalDisplayCommand(),
                     "      " + Commands::makersCommands(),
                     "      " + Commands::diversCommands(),
-                    "      internet on | internet off | require internet"
+                    "      internet on | internet off | require internet",
+                    "      universe (set the universe of the dafault item) (<n>)  | >> (switch universe) | >>> (switch universe transition mode)"
                  ].join("\n").yellow
             LucilleCore::pressEnterToContinue()
         end
@@ -466,11 +467,11 @@ class CommandsOps
         end
 
         if command == ">>" then
-            Multiverse::interactivelySetFocus()
+            StoredUniverse::interactivelySetStoredFocus()
         end
 
         if command == ">>>" then
-            UniverseAccounting::autoFocus()
+            UniverseOperator::switchUniverseTransitionMode()
         end
 
         if command == "exit" then
