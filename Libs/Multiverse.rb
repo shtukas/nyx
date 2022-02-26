@@ -94,7 +94,7 @@ class UniverseAccounting
     def self.universeExpectationOrNull(universe)
         map = {
             "lucille" => nil,
-            "beach"   => 0.75,
+            "beach"   => 1,
             "xstream" => 1.5,
             "work"    => 6,
             "jedi"    => 2
@@ -109,14 +109,11 @@ class UniverseAccounting
         UniverseAccounting::universeRT(universe).to_f/expectation
     end
 
-    # UniverseAccounting::getLowestRTUniverse()
-    def self.getLowestRTUniverse()
+    # UniverseAccounting::getExpectationUniversesInRatioOrder()
+    def self.getExpectationUniversesInRatioOrder()
         Multiverse::universes()
-            .select{|universe|
-                UniverseAccounting::universeExpectationOrNull(universe)
-            }
+            .select{|universe| UniverseAccounting::universeExpectationOrNull(universe) }
             .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
-            .first
     end
 end
 

@@ -108,15 +108,11 @@ class TerminalDisplayOperator
         vspaceleft = vspaceleft - 2
 
         puts ""
-        Multiverse::universes()
-            .select{|universe|
-                UniverseAccounting::universeExpectationOrNull(universe)
-            }
-            .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
+        UniverseAccounting::getExpectationUniversesInRatioOrder()
             .each{|uni|
                 expectation = UniverseAccounting::universeExpectationOrNull(uni)
                 uniRatio = UniverseAccounting::universeRatioOrNull(uni)
-                line = "#{uni.ljust(10)}: #{"%6.2f" % (100 * UniverseAccounting::universeRT(uni))} % of #{"%.2f" % expectation} hours"
+                line = "#{uni.ljust(10)}: #{"%6.2f" % (100 * uniRatio)} % of #{"%.2f" % expectation} hours"
                 if uni == universe then
                     line = line.green
                 end
