@@ -1,0 +1,12 @@
+This is a copy of the corresponding file in the Librarian.
+
+Nx31s are the original Nyx nodes (data carriers)
+
+Nx31 {
+    "uuid"        : uuid
+    "mikuType"    : "Nx31"
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "unixtime"    : unixtime
+    "description" : description
+    "atomuuid"    : UUID of an Atom
+}

@@ -1,0 +1,13 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader2.rb"
+
+# ----------------------------------------------------------------------------
+
+# This is call from `lucille`
+
+entity = Nx31::interactivelyCreateNewOrNull()
+exit if entity.nil?
+Nx31::landing(entity)

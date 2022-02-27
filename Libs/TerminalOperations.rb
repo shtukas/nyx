@@ -235,4 +235,8 @@ class TerminalDisplayOperator
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }
     end
+
+    def self.todoDisplayLoop()
+        #
+    end
 end

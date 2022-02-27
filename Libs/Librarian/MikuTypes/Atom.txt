@@ -1,0 +1,57 @@
+CoreData are content definitions
+
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "description-only"
+    "payload"  : nil
+}
+
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "text"
+    "payload"  : text
+}
+
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "url"
+    "payload"  : url
+}
+
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "aion-point"
+    "payload"  : nhash
+}
+
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "unique-string"
+    "payload"  : uniqueString
+}
+
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "marble"
+    "payload"  : marbleId
+}
+
+Note: A marble Atom is a reference to a marble file. The atom's payload is the uuid of the marble file.
+
+marble file:
+    filename: nyx-marble.json
+    content {
+        "uuid" => String
+    }

@@ -129,9 +129,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require "/Users/pascal/Galaxy/Software/Librarian/CoreData.rb"
 
-require "/Users/pascal/Galaxy/Software/Librarian/Librarian.rb"
-
 # ------------------------------------------------------------
+
+require_relative "Librarian/Librarian.rb"
 
 require_relative "Agents/Anniversaries.rb"
 require_relative "Agents/Topping.rb"

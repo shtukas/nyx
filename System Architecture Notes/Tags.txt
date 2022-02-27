@@ -1,0 +1,12 @@
+
+Tags are small pieces of text associated to a Nyx Entities. They are not entities themselves 
+
+Tag {
+    "uuid"      : String
+    "unixtime"  : String
+    "owneruuid" : String # uuid of the Entity that this tag is attached to
+    "payload"   : String
+}
+
+tags.sqlite3
+create table _tags_ (_uuid_ text, _unixtime_ text, _owneruuid_ text, _payload_ text);

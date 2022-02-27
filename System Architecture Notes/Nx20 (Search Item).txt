@@ -1,0 +1,5 @@
+Nx20 
+{
+    "announce" : String
+    "payload"  : Permanode
+}

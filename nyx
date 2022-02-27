@@ -1,0 +1,53 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader2.rb"
+
+# ----------------------------------------------------------------------------
+
+def mainLoop()
+    loop {
+        system("clear")
+        operations = [
+            "search (interactive)",
+            "search (fragment)",
+            "new entity",
+            "fsck",
+            "special ops"
+        ]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+        return if operation.nil?
+        if operation == "search (interactive)" then
+            Search2::searchInteractiveView()
+        end
+        if operation == "search (fragment)" then
+            Search2::searchPerFragmentMainInterface()
+        end
+        if operation == "new entity" then
+            point = Nx31::interactivelyCreateNewOrNull()
+            exit if point.nil?
+            Nx31::landing(point)
+        end
+        if operation == "fsck" then
+            Nx31::fsck()
+        end
+        if operation == "special ops" then
+            specialOps = [
+                "listing per date fragment"
+            ]
+            op = LucilleCore::selectEntityFromListOfEntitiesOrNull("op", specialOps)
+            if op == "listing per date fragment" then
+                fragment = LucilleCore::askQuestionAnswerAsString("fragment: ")
+                items = Nx31::selectItemsByDateFragment(fragment)
+                loop {
+                    item = NyxNetwork::selectEntityFromGivenEntitiesOrNull(items)
+                    break if item.nil?
+                    Nx31::landing(item)
+                }
+            end
+        end
+    }
+end
+
+mainLoop()

@@ -1,0 +1,9 @@
+TxTodo = {
+  "uuid"           : String
+  "mikuType"       : "TxTodo"
+  "description"    : String
+  "unixtime"       : Float
+  "datetime"       : DateTime Iso8601
+  "atomuuid"       : UUID of an Atom
+  "ordinal"        : Float
+}
