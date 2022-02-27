@@ -62,8 +62,8 @@ class StoredUniverse
     def self.interactivelySetStoredFocus()
         universe = Multiverse::interactivelySelectUniverse()
         StoredUniverse::setStoredFocusUniverse(universe)
+        UniverseDispatch::setDispatchMode("USE-STORED")
     end
-
 end
 
 class UniverseAccounting
@@ -115,29 +115,79 @@ class UniverseAccounting
             .select{|universe| UniverseAccounting::universeExpectationOrNull(universe) }
             .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
     end
+
+    # UniverseAccounting::getExpectationUniversesInRatioOrder2(universes)
+    def self.getExpectationUniversesInRatioOrder2(universes)
+        universes
+            .select{|universe| UniverseAccounting::universeExpectationOrNull(universe) }
+            .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
+    end
 end
 
-class UniverseOperator
+class UniverseDispatch
 
-    # UniverseOperator::getUniverseTransitionMode()
-    # USE-STORED
-    def self.getUniverseTransitionMode()
-        mode = KeyValueStore::getOrNull(nil, "f0fb2b0b-8478-4885-8acf-45b715c44c9b")
-        return mode if mode
-        "USE-STORED"
+    # UniverseDispatch::setDispatchMode(mode)
+    def self.setDispatchMode(mode)
+        KeyValueStore::set(nil, "f0fb2b0b-8478-4885-8acf-45b715c44c9b", mode)
     end
 
-    # UniverseOperator::getUniverseForDisplay()
-    def self.getUniverseForDisplay()
-        mode = UniverseOperator::getUniverseTransitionMode()
+    # UniverseDispatch::getDispatchMode()
+    # USE-STORED
+    # INTELLIGENT (lucille and then the smallest rt)
+    # INTELLIGENT-NO-WORK
+    # INTELLIGENT-WORK
+    def self.getDispatchMode()
+        mode = KeyValueStore::getOrNull(nil, "f0fb2b0b-8478-4885-8acf-45b715c44c9b")
+        return mode if mode
+        "INTELLIGENT"
+    end
+
+    # UniverseDispatch::getDispatchUniverse()
+    def self.getDispatchUniverse()
+        mode = UniverseDispatch::getDispatchMode()
         if mode == "USE-STORED" then
             return StoredUniverse::getStoredFocusUniverse()
+        end
+        if mode == "INTELLIGENT" then
+            universe = "lucille"
+            section2 = NS16sOperator::section2(universe)
+            section3 = NS16sOperator::section3(universe)
+            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+            if !(section2+section3).empty? then
+                return universe
+            end
+            return UniverseAccounting::getExpectationUniversesInRatioOrder().first
+        end
+        if mode == "INTELLIGENT-NO-WORK" then
+            universe = "lucille"
+            section2 = NS16sOperator::section2(universe)
+            section3 = NS16sOperator::section3(universe)
+            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+            if !(section2+section3).empty? then
+                return universe
+            end
+            universes = ["lucille", "beach", "xstream", "jedi"]
+            return UniverseAccounting::getExpectationUniversesInRatioOrder2(universes).first
+        end
+        if mode == "INTELLIGENT-WORK" then
+            universe = "lucille"
+            section2 = NS16sOperator::section2(universe)
+            section3 = NS16sOperator::section3(universe)
+            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+            if !(section2+section3).empty? then
+                return universe
+            end
+            universes = ["lucille", "work"]
+            return UniverseAccounting::getExpectationUniversesInRatioOrder2(universes).first
         end
         raise "1cd5718e-5bc5-4a18-8358-5f6bebc3d4cb"
     end
 
-    # UniverseOperator::switchUniverseTransitionMode()
-    def self.switchUniverseTransitionMode()
-
+    # UniverseDispatch::interactivelyChooseDispatchMode()
+    def self.interactivelyChooseDispatchMode()
+        options = ["USE-STORED", "INTELLIGENT", "INTELLIGENT-NO-WORK", "INTELLIGENT-WORK"]
+        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
+        return if mode.nil?
+        UniverseDispatch::setDispatchMode(mode)
     end
 end

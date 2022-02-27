@@ -471,7 +471,7 @@ class CommandsOps
         end
 
         if command == ">>>" then
-            UniverseOperator::switchUniverseTransitionMode()
+            UniverseDispatch::interactivelyChooseDispatchMode()
         end
 
         if command == "exit" then

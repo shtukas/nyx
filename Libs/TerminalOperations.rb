@@ -103,11 +103,6 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
-        puts "(universe: #{universe}, cardinal: #{cardinal} items)"
-        vspaceleft = vspaceleft - 2
-
-        puts ""
         UniverseAccounting::getExpectationUniversesInRatioOrder()
             .each{|uni|
                 expectation = UniverseAccounting::universeExpectationOrNull(uni)
@@ -119,6 +114,11 @@ class TerminalDisplayOperator
                 puts line
                 vspaceleft = vspaceleft - 1
             }
+
+        puts ""
+        cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
+        puts "(#{UniverseDispatch::getDispatchMode()}) (universe: #{universe}, cardinal: #{cardinal} items)"
+        vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 
@@ -224,7 +224,7 @@ class TerminalDisplayOperator
                 break
             end
 
-            universe = StoredUniverse::getStoredFocusUniverse()
+            universe = UniverseDispatch::getDispatchUniverse()
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
