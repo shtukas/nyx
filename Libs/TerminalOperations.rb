@@ -175,8 +175,8 @@ class TerminalDisplayOperator
         top = Topping::getText(universe)
         if top.strip.size > 0 then
             puts ""
-            puts "(-->)".green
-            top = top.lines.first(10).join().strip.lines.map{|line| "      #{line}" }.join()
+            puts "(-->) (top)".green
+            top = top.lines.first(10).join()
             puts top
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
