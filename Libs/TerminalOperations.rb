@@ -96,8 +96,8 @@ class TerminalDisplayOperator
         " (commands: #{ns16["commands"].join(", ")})".yellow
     end
 
-    # TerminalDisplayOperator::display(universe, floats, section2, section3)
-    def self.display(universe, floats, section2, section3)
+    # TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
+    def self.standardDisplay(universe, floats, section2, section3)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-3
@@ -215,8 +215,8 @@ class TerminalDisplayOperator
         CommandsOps::operator6(universe, command, objectOpt)
     end
 
-    # TerminalDisplayOperator::displayLoop()
-    def self.displayLoop()
+    # TerminalDisplayOperator::standardDisplayLoop()
+    def self.standardDisplayLoop()
         initialCodeTrace = Utils::codeTrace()
         loop {
             if Utils::codeTrace() != initialCodeTrace then
@@ -232,7 +232,7 @@ class TerminalDisplayOperator
             section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
             section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
-            TerminalDisplayOperator::display(universe, floats, section2, section3)
+            TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }
     end
 end

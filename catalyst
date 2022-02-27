@@ -22,4 +22,4 @@ Thread.new {
     }
 }
 
-TerminalDisplayOperator::displayLoop()
+TerminalDisplayOperator::standardDisplayLoop()
