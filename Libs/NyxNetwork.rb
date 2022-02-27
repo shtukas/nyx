@@ -67,4 +67,41 @@ class NyxNetwork
                 selected
             }
     end
+
+
+    # -----------------------------------------------------
+    # Special Circumstances
+
+    # NyxNetwork::mirrorLinksTagsNotes(node1, node2)
+    def self.mirrorLinksTagsNotes(node1, node2)
+        Links::entities(node1["uuid"]).each{|nx31|
+            puts "linking '#{Nx31::toString(nx31)}' to '#{Nx31::toStringWithTrace4(node2)}'"
+            Links::link(nx31["uuid"], node2["uuid"])
+        }
+
+        Links::entities(node2["uuid"]).each{|nx31|
+            puts "linking '#{Nx31::toString(nx31)}' to '#{Nx31::toStringWithTrace4(node1)}'"
+            Links::link(nx31["uuid"], node1["uuid"])
+        }
+
+        Tags::tagsForOwner(node1["uuid"]).each{|tag|
+            puts "tagging '#{tag["payload"]}' to '#{Nx31::toStringWithTrace4(node2)}'"
+            Tags::insert(SecureRandom.uuid, node2["uuid"], tag["payload"])
+        }
+
+        Tags::tagsForOwner(node2["uuid"]).each{|tag|
+            puts "tagging '#{tag["payload"]}' to '#{Nx31::toStringWithTrace4(node1)}'"
+            Tags::insert(SecureRandom.uuid, node1["uuid"], tag["payload"])
+        }
+
+        LibrarianNotes::getObjectNotes(node1["uuid"]).each{|note|
+            puts "note: #{note["text"]} to '#{Nx31::toStringWithTrace4(node2)}'"
+            LibrarianNotes::addNote(node2["uuid"], note["text"])
+        }
+
+        LibrarianNotes::getObjectNotes(node2["uuid"]).each{|note|
+            puts "note: #{note["text"]} to '#{Nx31::toStringWithTrace4(node1)}'"
+            LibrarianNotes::addNote(node1["uuid"], note["text"])
+        }
+    end
 end
