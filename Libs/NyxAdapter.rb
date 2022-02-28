@@ -34,7 +34,7 @@ class NyxAdapter
 
         # THe Nx31 has been created, we just need to land on it for linkings
 
-        system("/Users/pascal/Galaxy/Software/Nyx/binaries/nyx-landing #{uuid}")
+        system("/Users/pascal/Galaxy/Software/Catalyst/binaries/nyx-landing #{uuid}")
     end
 
     # NyxAdapter::nx50ToNyx(nx50)
@@ -44,7 +44,7 @@ class NyxAdapter
         nx31["uuid"]     = uuid
         nx31["mikuType"] = "Nx31"
         LibrarianObjects::commit(nx31)
-        system("/Users/pascal/Galaxy/Software/Nyx/binaries/nyx-landing #{uuid}")
+        system("/Users/pascal/Galaxy/Software/Catalyst/binaries/nyx-landing #{uuid}")
         TxTodos::destroy(nx50["uuid"])
     end
 
@@ -55,7 +55,7 @@ class NyxAdapter
         nx31["uuid"]     = uuid
         nx31["mikuType"] = "Nx31"
         LibrarianObjects::commit(nx31)
-        system("/Users/pascal/Galaxy/Software/Nyx/binaries/nyx-landing #{uuid}")
+        system("/Users/pascal/Galaxy/Software/Catalyst/binaries/nyx-landing #{uuid}")
         TxFloats::destroy(float["uuid"])
     end
 end
