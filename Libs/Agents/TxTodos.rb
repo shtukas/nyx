@@ -17,8 +17,19 @@ class TxTodos
         LibrarianObjects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
     end
 
-    # TxTodos::itemsForUniverseWithCardinal(universe, n)
-    def self.itemsForUniverseWithCardinal(universe, n)
+    # TxTodos::itemsForUniverseWithCardinal(universe, n, useOptimization = false)
+    def self.itemsForUniverseWithCardinal(universe, n, useOptimization = false)
+        if useOptimization then
+            hourx = Time.new.to_s[0, 13]
+            uuids = KeyValueStore::getOrNull(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}")
+            if uuids.nil? then
+                uuids = TxTodos::itemsForUniverse(universe).first(n).map{|item| item["uuid"] }
+                KeyValueStore::set(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}", JSON.generate(uuids))
+            else
+                uuids = JSON.parse(uuids)
+            end
+            return uuids.map{|uuid| LibrarianObjects::getObjectByUUIDOrNull(uuid) }.compact
+        end
         TxTodos::itemsForUniverse(universe).first(n)
     end
 
@@ -380,14 +391,14 @@ class TxTodos
 
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
-        TxTodos::itemsForUniverseWithCardinal(universe, 50)
+        TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
             .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
     end
 
     # TxTodos::ns16sOverflowing(universe)
     def self.ns16sOverflowing(universe)
-        TxTodos::itemsForUniverseWithCardinal(universe, 50)
+        TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
             .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
             .select{|ns16| ns16["rt"] > 1 }
