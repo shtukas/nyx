@@ -146,25 +146,39 @@ require_relative "AgentsUtils"
 
 require_relative "Bank.rb"
 
+require_relative "Config.rb"
+
 require_relative "CommandsOps.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 
+require_relative "Galaxy.rb"
+
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
+require_relative "Links.rb"
+
+
 require_relative "Multiverse.rb"
+
+require_relative "Nx31.rb"
+require_relative "NyxNetwork.rb"
 require_relative "NyxAdapter.rb"
+
 require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
+require_relative "Search2.rb"
 
+require_relative "Tags.rb"
 require_relative "TerminalOperations.rb"
 
 require_relative "Utils.rb"
+require_relative "Utils2.rb"
 
 # ------------------------------------------------------------
