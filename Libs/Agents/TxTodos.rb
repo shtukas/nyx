@@ -4,7 +4,7 @@ class TxTodos
 
     # TxTodos::items()
     def self.items()
-        LibrarianObjects::getObjectsByMikuType("TxTodo")
+        Librarian6Objects::getObjectsByMikuType("TxTodo")
     end
 
     # TxTodos::itemsForUniverse(universe)
@@ -14,28 +14,28 @@ class TxTodos
 
     # TxTodos::itemsCardinal(n)
     def self.itemsCardinal(n)
-        LibrarianObjects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
+        Librarian6Objects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
     end
 
     # TxTodos::itemsForUniverseWithCardinal(universe, n, useOptimization = false)
     def self.itemsForUniverseWithCardinal(universe, n, useOptimization = false)
         if useOptimization then
             hourx = Time.new.to_s[0, 13]
-            uuids = KeyValueStore::getOrNull(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}")
+            uuids = KeyValueStore::getOrNull(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}:#{$GENERAL_SYSTEM_RUN_ID}")
             if uuids.nil? then
                 uuids = TxTodos::itemsForUniverse(universe).first(n).map{|item| item["uuid"] }
-                KeyValueStore::set(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}", JSON.generate(uuids))
+                KeyValueStore::set(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}:#{$GENERAL_SYSTEM_RUN_ID}", JSON.generate(uuids))
             else
                 uuids = JSON.parse(uuids)
             end
-            return uuids.map{|uuid| LibrarianObjects::getObjectByUUIDOrNull(uuid) }.compact
+            return uuids.map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }.compact
         end
         TxTodos::itemsForUniverse(universe).first(n)
     end
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        LibrarianObjects::destroy(uuid)
+        Librarian6Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -84,10 +84,10 @@ class TxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom       = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom       = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -104,7 +104,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         Multiverse::setObjectUniverse(uuid, universe)
         item
     end
@@ -115,8 +115,8 @@ class TxTodos
         description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = CoreData5::issueAionPointAtomUsingLocation(location)
-        LibrarianObjects::commit(atom)
+        atom        = Librarian5Atoms::issueAionPointAtomUsingLocation(location)
+        Librarian6Objects::commit(atom)
 
         universe    = Multiverse::interactivelySelectUniverse()
         ordinal     = TxTodos::interactivelyDecideNewOrdinal(universe)
@@ -130,7 +130,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         Multiverse::setObjectUniverse(uuid, universe)
         item
     end
@@ -140,8 +140,8 @@ class TxTodos
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        atom       = CoreData5::issueAionPointAtomUsingLocation(location)
-        LibrarianObjects::commit(atom)
+        atom       = Librarian5Atoms::issueAionPointAtomUsingLocation(location)
+        Librarian6Objects::commit(atom)
         ordinal    = ordinal
 
         item = {
@@ -153,7 +153,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         Multiverse::setObjectUniverse(uuid, "xstream")
         item
     end
@@ -164,8 +164,8 @@ class TxTodos
         description = url
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = CoreData5::issueUrlAtomUsingUrl(url)
-        LibrarianObjects::commit(atom)
+        atom        = Librarian5Atoms::issueUrlAtomUsingUrl(url)
+        Librarian6Objects::commit(atom)
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th("xstream", 20, 30)
 
         item = {
@@ -177,7 +177,7 @@ class TxTodos
           "atomuuid"    => atom["uuid"],
           "ordinal"     => ordinal
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         Multiverse::setObjectUniverse(uuid, "xstream")
         item
     end
@@ -263,7 +263,7 @@ class TxTodos
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            LibrarianNotes::getObjectNotes(uuid).each{|note|
+            Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
@@ -294,21 +294,21 @@ class TxTodos
                 description = Utils::editTextSynchronously(nx50["description"]).strip
                 next if description == ""
                 nx50["description"] = description
-                LibrarianObjects::commit(nx50)
+                Librarian6Objects::commit(nx50)
                 next
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = nx50["atomuuid"]
-                LibrarianObjects::commit(atom)
+                Librarian6Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                LibrarianNotes::addNote(nx50["uuid"], text)
+                Librarian7Notes::addNote(nx50["uuid"], text)
                 next
             end
 
@@ -321,7 +321,7 @@ class TxTodos
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 nx50["ordinal"] = ordinal
-                LibrarianObjects::commit(nx50)
+                Librarian6Objects::commit(nx50)
                 Multiverse::setObjectUniverse(nx50["uuid"], universe)
                 next
             end
@@ -330,7 +330,7 @@ class TxTodos
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::nextOrdinal(universe)
                 nx50["ordinal"] = ordinal
-                LibrarianObjects::commit(nx50)
+                Librarian6Objects::commit(nx50)
                 Multiverse::setObjectUniverse(nx50["uuid"], universe)
                 break
             end

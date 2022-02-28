@@ -184,21 +184,21 @@ class CommandsOps
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            LibrarianObjects::commit(object)
+            Librarian6Objects::commit(object)
             Multiverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
         if source == "TxDated" and target == "TxDrop" then
             object["mikuType"] = "TxDrop"
-            LibrarianObjects::commit(object)
+            Librarian6Objects::commit(object)
             Multiverse::interactivelySetObjectUniverse(object["uuid"])
             return
         end
 
         if source == "TxDated" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
-            LibrarianObjects::commit(object)
+            Librarian6Objects::commit(object)
             Multiverse::interactivelySetObjectUniverse(object["uuid"])
             return
         end
@@ -208,7 +208,7 @@ class CommandsOps
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            LibrarianObjects::commit(object)
+            Librarian6Objects::commit(object)
             Multiverse::setObjectUniverse(object["uuid"], universe)
             return
         end
@@ -217,7 +217,7 @@ class CommandsOps
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxDated"
             object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            LibrarianObjects::commit(object)
+            Librarian6Objects::commit(object)
             Multiverse::setObjectUniverse(object["uuid"], universe)
             return
         end
@@ -227,7 +227,7 @@ class CommandsOps
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            LibrarianObjects::commit(object)
+            Librarian6Objects::commit(object)
             Multiverse::setObjectUniverse(object["uuid"], universe)
             return
         end
@@ -516,7 +516,7 @@ class CommandsOps
                 mx49 = ns16["TxDated"]
                 datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
                 mx49["datetime"] = datetime
-                LibrarianObjects::commit(mx49)
+                Librarian6Objects::commit(mx49)
             end 
         end
 

@@ -4,12 +4,12 @@ class TxDrops
 
     # TxDrops::mikus()
     def self.mikus()
-        LibrarianObjects::getObjectsByMikuType("TxDrop")
+        Librarian6Objects::getObjectsByMikuType("TxDrop")
     end
 
     # TxDrops::destroy(uuid)
     def self.destroy(uuid)
-        LibrarianObjects::destroy(uuid)
+        Librarian6Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -20,10 +20,10 @@ class TxDrops
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom       = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom       = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -37,7 +37,7 @@ class TxDrops
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"]
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         item
     end
 
@@ -83,7 +83,7 @@ class TxDrops
             puts "uuid: #{uuid}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            LibrarianNotes::getObjectNotes(uuid).each{|note|
+            Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
@@ -114,21 +114,21 @@ class TxDrops
                 description = Utils::editTextSynchronously(nx70["description"]).strip
                 next if description == ""
                 nx70["description"] = description
-                LibrarianObjects::commit(nx70)
+                Librarian6Objects::commit(nx70)
                 next
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = nx70["atomuuid"]
-                LibrarianObjects::commit(atom)
+                Librarian6Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                LibrarianNotes::addNote(nx70["uuid"], text)
+                Librarian7Notes::addNote(nx70["uuid"], text)
                 next
             end
 

@@ -4,12 +4,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        LibrarianObjects::getObjectsByMikuType("TxDated")
+        Librarian6Objects::getObjectsByMikuType("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        LibrarianObjects::destroy(uuid)
+        Librarian6Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -23,10 +23,10 @@ class TxDateds
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
 
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -39,7 +39,7 @@ class TxDateds
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"],
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         item
     end
 
@@ -48,10 +48,10 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -65,7 +65,7 @@ class TxDateds
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"]
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         item
     end
 
@@ -106,7 +106,7 @@ class TxDateds
             puts "uuid: #{uuid}".yellow
             puts "date: #{mx49["datetime"][0, 10]}".yellow
 
-            LibrarianNotes::getObjectNotes(uuid).each{|note|
+            Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
@@ -128,7 +128,7 @@ class TxDateds
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
                 mx49["datetime"] = datetime
-                LibrarianObjects::commit(mx49)
+                Librarian6Objects::commit(mx49)
                 next
             end
 
@@ -136,21 +136,21 @@ class TxDateds
                 description = Utils::editTextSynchronously(mx49["description"]).strip
                 next if description == ""
                 mx49["description"] = description
-                LibrarianObjects::commit(mx49)
+                Librarian6Objects::commit(mx49)
                 next
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = mx49["atomuuid"]
-                LibrarianObjects::commit(atom)
+                Librarian6Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                LibrarianNotes::addNote(mx49["uuid"], text)
+                Librarian7Notes::addNote(mx49["uuid"], text)
                 next
             end
 

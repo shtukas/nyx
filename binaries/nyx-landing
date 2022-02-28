@@ -8,7 +8,7 @@ require_relative "../Libs/loader2.rb"
 
 uuid = ARGV[0]
 exit if uuid.nil?
-object = LibrarianObjects::getObjectByUUIDOrNull(uuid)
+object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
 if object["mikuType"] != "Nx31" then
     puts "Found an object but it's not a Nx31"
     exit

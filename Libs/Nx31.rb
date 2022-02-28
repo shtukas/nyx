@@ -8,17 +8,17 @@ class Nx31
 
     # Nx31::mikus()
     def self.mikus()
-        LibrarianObjects::getObjectsByMikuType("Nx31")
+        Librarian6Objects::getObjectsByMikuType("Nx31")
     end
 
     # Nx31::getOrNull(uuid): null or Nx31
     def self.getOrNull(uuid)
-        LibrarianObjects::getObjectByUUIDOrNull(uuid)
+        Librarian6Objects::getObjectByUUIDOrNull(uuid)
     end
 
     # Nx31::destroy(uuid)
     def self.destroy(uuid)
-        LibrarianObjects::destroy(uuid)
+        Librarian6Objects::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -29,10 +29,10 @@ class Nx31
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -46,7 +46,7 @@ class Nx31
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"]
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         item
     end
 
@@ -130,12 +130,12 @@ class Nx31
 
     # Nx31::atomLandingPresentation(atomuuid)
     def self.atomLandingPresentation(atomuuid)
-        atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         if atom.nil? then
             puts "warning: I could not find the atom for this item (atomuuid: #{atomuuid})"
             LucilleCore::pressEnterToContinue()
         else
-            if text = CoreData5::atomPayloadToTextOrNull(atom) then
+            if text = Librarian5Atoms::atomPayloadToTextOrNull(atom) then
                 puts "text:\n#{text}"
             end
         end
@@ -143,12 +143,12 @@ class Nx31
 
     # Nx31::accessAtom(atomuuid)
     def self.accessAtom(atomuuid)
-        atom = LibrarianObjects::getObjectByUUIDOrNull(atomuuid)
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         return if atom.nil?
         return if atom["type"] == "description-only"
-        atom = CoreData5::accessWithOptionToEditOptionalUpdate(atom)
+        atom = Librarian5Atoms::accessWithOptionToEditOptionalUpdate(atom)
         return if atom.nil?
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
     end
 
     # Nx31::landing(miku)
@@ -179,10 +179,10 @@ class Nx31
             puts "uuid: #{miku["uuid"]}".yellow
             puts "datetime: #{miku["datetime"]}".yellow
             puts "atomuuid: #{miku["atomuuid"]}".yellow
-            atom = LibrarianObjects::getObjectByUUIDOrNull(miku["atomuuid"])
+            atom = Librarian6Objects::getObjectByUUIDOrNull(miku["atomuuid"])
             puts "atom: #{atom}".yellow
 
-            LibrarianNotes::getObjectNotes(miku["uuid"]).each{|note|
+            Librarian7Notes::getObjectNotes(miku["uuid"]).each{|note|
                 puts "note: #{note["text"]}"
             }
 
@@ -213,7 +213,7 @@ class Nx31
                 next if description == ""
                 description = Nx31::normaliseDescription(description)
                 miku["description"] = description
-                LibrarianObjects::commit(miku)
+                Librarian6Objects::commit(miku)
                 next
             end
 
@@ -221,20 +221,20 @@ class Nx31
                 datetime = Utils2::editTextSynchronously(miku["datetime"]).strip
                 next if !Utils2::isDateTime_UTC_ISO8601(datetime)
                 miku["datetime"] = datetime
-                LibrarianObjects::commit(miku) 
+                Librarian6Objects::commit(miku) 
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = miku["atomuuid"]
-                LibrarianObjects::commit(atom)
+                Librarian6Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils2::editTextSynchronously("").strip
-                LibrarianNotes::addNote(miku["uuid"], text)
+                Librarian7Notes::addNote(miku["uuid"], text)
                 next
             end
 
@@ -402,7 +402,7 @@ class Nx31
             LucilleCore::locationsAtFolder(exportLocationData["location"]).each{|location|
                 LucilleCore::removeFileSystemLocation(location)
             }
-            AionCore::exportHashAtFolder(LibrarianElizabeth.new(), miku["atom"]["payload"], exportLocationData["location"])
+            AionCore::exportHashAtFolder(Librarian4Elizabeth.new(), miku["atom"]["payload"], exportLocationData["location"])
             return
         end
 
@@ -478,6 +478,6 @@ class Nx31
 
     # Nx31::fsckNx31(miku)
     def self.fsckNx31(miku)
-        CoreData5::fsck(miku["atom"])
+        Librarian5Atoms::fsck(miku["atom"])
     end    
 end

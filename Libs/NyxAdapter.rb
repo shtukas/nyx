@@ -9,11 +9,11 @@ class NyxAdapter
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return if description == ""
 
-        atom = CoreData5::issueAionPointAtomUsingLocation(location)
+        atom = Librarian5Atoms::issueAionPointAtomUsingLocation(location)
 
         puts JSON.pretty_generate(atom)
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -30,7 +30,7 @@ class NyxAdapter
 
         puts JSON.pretty_generate(item)
 
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
 
         # THe Nx31 has been created, we just need to land on it for linkings
 
@@ -43,7 +43,7 @@ class NyxAdapter
         uuid = SecureRandom.uuid
         nx31["uuid"]     = uuid
         nx31["mikuType"] = "Nx31"
-        LibrarianObjects::commit(nx31)
+        Librarian6Objects::commit(nx31)
         system("/Users/pascal/Galaxy/Software/Catalyst/binaries/nyx-landing #{uuid}")
         TxTodos::destroy(nx50["uuid"])
     end
@@ -54,7 +54,7 @@ class NyxAdapter
         uuid = SecureRandom.uuid
         nx31["uuid"]     = uuid
         nx31["mikuType"] = "Nx31"
-        LibrarianObjects::commit(nx31)
+        Librarian6Objects::commit(nx31)
         system("/Users/pascal/Galaxy/Software/Catalyst/binaries/nyx-landing #{uuid}")
         TxFloats::destroy(float["uuid"])
     end

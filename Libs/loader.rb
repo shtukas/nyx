@@ -127,9 +127,9 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
-require "/Users/pascal/Galaxy/Software/Librarian/CoreData.rb"
-
 # ------------------------------------------------------------
+
+$GENERAL_SYSTEM_RUN_ID = SecureRandom.hex
 
 require_relative "Librarian/Librarian.rb"
 

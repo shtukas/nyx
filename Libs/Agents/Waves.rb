@@ -6,12 +6,12 @@ class Waves
 
     # Waves::items()
     def self.items()
-        LibrarianObjects::getObjectsByMikuType("Wave")
+        Librarian6Objects::getObjectsByMikuType("Wave")
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        LibrarianObjects::destroy(uuid)
+        Librarian6Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -110,15 +110,15 @@ class Waves
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         wave = {
             "uuid"        => SecureRandom.uuid,
@@ -132,7 +132,7 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        LibrarianObjects::commit(wave)
+        Librarian6Objects::commit(wave)
         wave
     end
 
@@ -155,7 +155,7 @@ class Waves
 
         puts "done-ing: #{Waves::toString(wave)}"
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        LibrarianObjects::commit(wave)
+        Librarian6Objects::commit(wave)
 
         unixtime = Waves::waveToDoNotShowUnixtime(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
@@ -185,7 +185,7 @@ class Waves
             puts "last done: #{wave["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
 
-            LibrarianNotes::getObjectNotes(uuid).each{|note|
+            Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
@@ -220,17 +220,17 @@ class Waves
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                LibrarianObjects::commit(atom)
+                Librarian6Objects::commit(atom)
                 wave["atomuuid"] = atom["uuid"]
-                LibrarianObjects::commit(wave)
+                Librarian6Objects::commit(wave)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                LibrarianNotes::addNote(wave["uuid"], text)
+                Librarian7Notes::addNote(wave["uuid"], text)
                 next
             end
 
@@ -239,7 +239,7 @@ class Waves
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
-                LibrarianObjects::commit(wave)
+                Librarian6Objects::commit(wave)
                 next
             end
 
@@ -309,7 +309,7 @@ class Waves
                 Waves::landing(wave)
 
                 # The next line handle if the landing resulted in a destruction of the object
-                break if LibrarianObjects::getObjectByUUIDOrNull(wave["uuid"]).nil?
+                break if Librarian6Objects::getObjectByUUIDOrNull(wave["uuid"]).nil?
             end
             if operation == "delay" then
                 unixtime = Utils::interactivelySelectUnixtimeOrNull()

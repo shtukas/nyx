@@ -4,12 +4,12 @@ class TxCalendarItems
 
     # TxCalendarItems::items()
     def self.items()
-        LibrarianObjects::getObjectsByMikuType("TxCalendarItem")
+        Librarian6Objects::getObjectsByMikuType("TxCalendarItem")
     end
 
     # TxCalendarItems::destroy(uuid)
     def self.destroy(uuid)
-        LibrarianObjects::destroy(uuid)
+        Librarian6Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -32,10 +32,10 @@ class TxCalendarItems
 
         dateAndTime = TxCalendarItems::interactivelyDecideDateAndTime()
 
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid = SecureRandom.uuid
 
@@ -47,7 +47,7 @@ class TxCalendarItems
           "time"        => dateAndTime["time"],
           "atomuuid"    => atom["uuid"],
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         item
     end
 
@@ -83,7 +83,7 @@ class TxCalendarItems
             puts "date: #{item["date"]}".yellow
             puts "time: #{item["time"]}".yellow
 
-            LibrarianNotes::getObjectNotes(uuid).each{|note|
+            Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
@@ -105,7 +105,7 @@ class TxCalendarItems
                 dateAndTime = TxCalendarItems::interactivelyDecideDateAndTime()
                 item["date"] = dateAndTime["date"]
                 item["time"] = dateAndTime["time"]
-                LibrarianObjects::commit(item)
+                Librarian6Objects::commit(item)
                 next
             end
 
@@ -113,21 +113,21 @@ class TxCalendarItems
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                LibrarianObjects::commit(item)
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = item["atomuuid"]
-                LibrarianObjects::commit(atom)
+                Librarian6Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                LibrarianNotes::addNote(item["uuid"], text)
+                Librarian7Notes::addNote(item["uuid"], text)
                 next
             end
 

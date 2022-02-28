@@ -1,4 +1,4 @@
-CoreData are content definitions
+Atoms are content definitions
 
 {
     "uuid"     : String

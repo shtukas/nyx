@@ -4,12 +4,12 @@ class TxFloats
 
     # TxFloats::items()
     def self.items()
-        LibrarianObjects::getObjectsByMikuType("TxFloat")
+        Librarian6Objects::getObjectsByMikuType("TxFloat")
     end
 
     # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        LibrarianObjects::destroy(uuid)
+        Librarian6Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -20,10 +20,10 @@ class TxFloats
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = CoreData5::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
         return nil if atom.nil?
 
-        LibrarianObjects::commit(atom)
+        Librarian6Objects::commit(atom)
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -37,7 +37,7 @@ class TxFloats
           "datetime"    => datetime,
           "atomuuid"    => atom["uuid"]
         }
-        LibrarianObjects::commit(item)
+        Librarian6Objects::commit(item)
         Multiverse::interactivelySetObjectUniverse(uuid)
         item
     end
@@ -83,7 +83,7 @@ class TxFloats
             puts TxFloats::toString(float).green
             puts "uuid: #{uuid}".yellow
 
-            LibrarianNotes::getObjectNotes(uuid).each{|note|
+            Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
@@ -110,21 +110,21 @@ class TxFloats
                 description = Utils::editTextSynchronously(float["description"]).strip
                 next if description == ""
                 float["description"] = description
-                LibrarianObjects::commit(float)
+                Librarian6Objects::commit(float)
                 next
             end
 
             if Interpreting::match("atom", command) then
-                atom = CoreData5::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 atom["uuid"] = float["atomuuid"]
-                LibrarianObjects::commit(atom)
+                Librarian6Objects::commit(atom)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                LibrarianNotes::addNote(float["uuid"], text)
+                Librarian7Notes::addNote(float["uuid"], text)
                 next
             end
 

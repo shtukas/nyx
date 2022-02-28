@@ -69,8 +69,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 
-require "/Users/pascal/Galaxy/Software/Librarian/CoreData.rb"
-
 # ------------------------------------------------------------
 
 require_relative "Librarian/Librarian.rb"

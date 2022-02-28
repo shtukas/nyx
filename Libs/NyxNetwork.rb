@@ -94,14 +94,14 @@ class NyxNetwork
             Tags::insert(SecureRandom.uuid, node1["uuid"], tag["payload"])
         }
 
-        LibrarianNotes::getObjectNotes(node1["uuid"]).each{|note|
+        Librarian7Notes::getObjectNotes(node1["uuid"]).each{|note|
             puts "note: #{note["text"]} to '#{Nx31::toStringWithTrace4(node2)}'"
-            LibrarianNotes::addNote(node2["uuid"], note["text"])
+            Librarian7Notes::addNote(node2["uuid"], note["text"])
         }
 
-        LibrarianNotes::getObjectNotes(node2["uuid"]).each{|note|
+        Librarian7Notes::getObjectNotes(node2["uuid"]).each{|note|
             puts "note: #{note["text"]} to '#{Nx31::toStringWithTrace4(node1)}'"
-            LibrarianNotes::addNote(node1["uuid"], note["text"])
+            Librarian7Notes::addNote(node1["uuid"], note["text"])
         }
     end
 end
