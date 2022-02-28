@@ -191,7 +191,7 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | atom | note | recast schedule | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | atom | note | schedule | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -234,7 +234,7 @@ class Waves
                 next
             end
 
-            if Interpreting::match("recast schedule", command) then
+            if Interpreting::match("schedule", command) then
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
                 wave["repeatType"] = schedule[0]
