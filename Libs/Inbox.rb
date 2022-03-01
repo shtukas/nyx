@@ -119,7 +119,7 @@ class Inbox
                 announce = "[inbx] #{File.basename(location)}"
                 {
                     "uuid"         => Inbox::getLocationUUID(location),
-                    "NS198"        => "NS16:Inbox1",
+                    "mikuType"     => "NS16:Inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
                     "commands"     => ["..", "transmute"],

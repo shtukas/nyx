@@ -1,9 +1,0 @@
-NxBall
-
-The name comes from jungling balls :)
-
-NxBall {
-    startUnixtime  : Float
-    cursorUnixtime : Float
-    bankAccounts   : Array[String]
-}

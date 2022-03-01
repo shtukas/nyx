@@ -248,7 +248,7 @@ class Librarian5Atoms
     def self.issueDescriptionOnlyAtom()
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
+            "mikuType" => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "description-only",
             "payload"     => nil
@@ -259,7 +259,7 @@ class Librarian5Atoms
     def self.issueTextAtomUsingText(text)
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
+            "mikuType" => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "text",
             "payload"     => text
@@ -270,7 +270,7 @@ class Librarian5Atoms
     def self.issueUrlAtomUsingUrl(url)
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
+            "mikuType" => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "url",
             "payload"     => url
@@ -284,7 +284,7 @@ class Librarian5Atoms
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
-            "mikuType"    => "Atom",
+            "mikuType" => "Atom",
             "unixtime" => Time.new.to_f,
             "type"     => "aion-point",
             "payload"  => nhash
@@ -295,7 +295,7 @@ class Librarian5Atoms
     def self.issueUniqueStringAtomUsingString(uniqueString)
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
+            "mikuType" => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "unique-string",
             "payload"     => uniqueString
@@ -306,7 +306,7 @@ class Librarian5Atoms
     def self.issueMarbleAtom(marbleId)
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
+            "mikuType" => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "marble",
             "payload"     => marbleId

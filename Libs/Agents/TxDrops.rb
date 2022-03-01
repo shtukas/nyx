@@ -172,7 +172,7 @@ class TxDrops
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:TxDrop",
+            "mikuType" => "NS16:TxDrop",
             "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
             "commands" => ["..", "done", "transmute"],
             "TxDrop"   => nx70,

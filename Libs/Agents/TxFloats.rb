@@ -177,7 +177,7 @@ class TxFloats
         uuid = float["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:TxFloat",
+            "mikuType" => "NS16:TxFloat",
             "announce" => "#{float["description"]}#{AgentsUtils::atomTypeForToStrings(" ", float["atomuuid"])}",
             "commands" => [],
             "TxFloat"     => float

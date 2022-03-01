@@ -133,29 +133,6 @@ class Beatrice
     end
 end
 
-=begin
-
-NxBallStatus 
-    {
-        "type" : "running",
-        "startUnixtime"  => start,
-        "cursorUnixtime" => start,
-    }
-    {
-        "type" : "paused",
-    }
-
-NxBall {
-    "uuid"        => String,
-    "NS198"       => "NxBall.v1",
-    "unixtime"    => Float
-    "description" => description,
-    "status"      => NxBallStatus 
-    "accounts"    => accounts
-}
-
-=end
-
 class NxBallsService
 
     # Operations
@@ -166,7 +143,7 @@ class NxBallsService
         start = Time.new.to_f
         nxball = {
             "uuid" => uuid,
-            "NS198" => "NxBall.v2",
+            "mikuType" => "NxBall.v2",
             "unixtime" => Time.new.to_f,
             "description" => description,
             "status" => {
@@ -215,7 +192,7 @@ class NxBallsService
         NxBallsService::close(uuid, true)
         nxball = {
             "uuid" => nxball["uuid"],
-            "NS198" => "NxBall.v2",
+            "mikuType" => "NxBall.v2",
             "unixtime" => nxball["unixtime"],
             "description" => nxball["description"],
             "status" => {

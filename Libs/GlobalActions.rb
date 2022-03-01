@@ -10,32 +10,32 @@ class GlobalActions
 
         if command == ".." then
             ns16 = object
-            if ns16["NS198"] == "NS16:Anniversary1" then
+            if ns16["mikuType"] == "NS16:Anniversary1" then
                 Anniversaries::run(ns16["anniversary"])
                 return
             end
 
-            if ns16["NS198"] == "NS16:TxCalendarItem" then
+            if ns16["mikuType"] == "NS16:TxCalendarItem" then
                 TxCalendarItems::run(ns16["item"])
                 return
             end
 
-            if ns16["NS198"] == "NS16:fitness1" then
+            if ns16["mikuType"] == "NS16:fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}")
                 return
             end
 
-            if ns16["NS198"] == "NS16:Inbox1" then
+            if ns16["mikuType"] == "NS16:Inbox1" then
                 Inbox::run(ns16["location"])
                 return
             end
 
-            if ns16["NS198"] == "NS16:TxDated" then
+            if ns16["mikuType"] == "NS16:TxDated" then
                 TxDateds::run(ns16["TxDated"])
                 return
             end
 
-            if ns16["NS198"] == "NS16:TxDrop" then
+            if ns16["mikuType"] == "NS16:TxDrop" then
                 nx70 = ns16["TxDrop"]
                 puts nx70["description"].green
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
@@ -49,22 +49,22 @@ class GlobalActions
                 return
             end
 
-            if ns16["NS198"] == "NS16:TxFloat" then
+            if ns16["mikuType"] == "NS16:TxFloat" then
                 TxFloats::run(ns16["TxFloat"])
                 return
             end
 
-            if ns16["NS198"] == "NS16:TxTodo" then
+            if ns16["mikuType"] == "NS16:TxTodo" then
                 TxTodos::run(ns16["TxTodo"])
                 return
             end
 
-            if ns16["NS198"] == "NS16:Wave" then
+            if ns16["mikuType"] == "NS16:Wave" then
                 Waves::run(ns16["wave"])
                 return
             end
 
-            if ns16["NS198"] == "NxBallDelegate1" then
+            if ns16["mikuType"] == "NxBallDelegate1" then
                 uuid = ns16["NxBallUUID"]
 
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
@@ -89,7 +89,7 @@ class GlobalActions
 
         if command == "landing" then
             ns16 = object
-            if ns16["NS198"] == "NS16:Wave" and command == "landing" then
+            if ns16["mikuType"] == "NS16:Wave" and command == "landing" then
                 Waves::landing(ns16["wave"])
                 return
             end
@@ -97,7 +97,7 @@ class GlobalActions
 
         if command == "redate" then
             ns16 = object
-            if ns16["NS198"] == "NS16:TxDated" then
+            if ns16["mikuType"] == "NS16:TxDated" then
                 mx49 = ns16["TxDated"]
                 datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
                 mx49["datetime"] = datetime
@@ -146,19 +146,19 @@ class GlobalActions
 
         if command == "transmute" then
             ns16 = object
-            if ns16["NS198"] == "NS16:Inbox1" then
+            if ns16["mikuType"] == "NS16:Inbox1" then
                 location = ns16["location"]
                 TerminalUtils::transmutation2(location, "inbox")
                 return
             end
 
-            if ns16["NS198"] == "NS16:TxDated" then
+            if ns16["mikuType"] == "NS16:TxDated" then
                 mx49 = ns16["TxDated"]
                 TerminalUtils::transmutation2(mx49, "TxDated")
                 return
             end
 
-            if ns16["NS198"] == "NS16:TxDrop" then
+            if ns16["mikuType"] == "NS16:TxDrop" then
                 nx70 = ns16["TxDrop"]
                 TerminalUtils::transmutation2(nx70, "TxDrop")
                 return
@@ -167,7 +167,7 @@ class GlobalActions
 
         if command == "universe" then
             ns16 = object
-            if ns16["NS198"] == "NS16:TxFloat" then
+            if ns16["mikuType"] == "NS16:TxFloat" then
                 item = ns16["TxFloat"]
                 Multiverse::interactivelySetObjectUniverse(item["uuid"])
                 return
@@ -324,7 +324,7 @@ class GlobalActions
             #    "atomuuid"    : UUID of an Atom
             #}
 
-            if ns16["NS198"] == "NS16:Inbox1" then
+            if ns16["mikuType"] == "NS16:Inbox1" then
                 location = ns16["location"]
                 NyxAdapter::locationToNyx(location)
             end

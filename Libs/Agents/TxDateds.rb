@@ -59,7 +59,7 @@ class TxDateds
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxDated",
+          "mikuType" => "TxDated",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
@@ -204,7 +204,7 @@ class TxDateds
         uuid = mx49["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:TxDated",
+            "mikuType" => "NS16:TxDated",
             "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx49["atomuuid"])}",
             "commands" => ["..", "done", "redate", "transmute"],
             "TxDated"     => mx49

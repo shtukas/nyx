@@ -7,10 +7,15 @@ class Multiverse
     def self.getObjectUniverseOrNull(uuid)
         universe = KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
         if universe == "eva" then
-            universe = "xstream"
+            puts "updating outdated universe attribution from eva to backlog"
+            universe = "backlog"
+            Multiverse::setObjectUniverse(uuid, "backlog")
+
         end
         if universe == "xstream" then
+            puts "updating outdated universe attribution from xstream to backlog"
             universe = "backlog"
+            Multiverse::setObjectUniverse(uuid, "backlog")
         end
         universe
     end

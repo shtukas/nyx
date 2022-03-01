@@ -174,7 +174,7 @@ class TxCalendarItems
         uuid = item["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:TxCalendarItem",
+            "mikuType" => "NS16:TxCalendarItem",
             "announce" => "(calendar) [#{item["date"]}] (#{item["time"]}) #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}",
             "commands" => ["..", "done", "redate", "transmute"],
             "item"     => item

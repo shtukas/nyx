@@ -380,7 +380,7 @@ class TxTodos
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:TxTodo",
+            "mikuType" => "NS16:TxTodo",
             "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
             "commands" => ["..", "done"],
             "ordinal"  => nx50["ordinal"],

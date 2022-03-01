@@ -349,7 +349,7 @@ class TerminalDisplayOperator
                     delegate = {
                         "uuid"       => "84FF58F7-6607-4E32:#{nxball["uuid"]}",
                         "NxBallUUID" => nxball["uuid"],
-                        "NS198"      => "NxBallDelegate1" 
+                        "mikuType"      => "NxBallDelegate1" 
                     }
                     store.register(delegate, true)
                     line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green

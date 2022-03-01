@@ -333,7 +333,7 @@ class Waves
         uuid = wave["uuid"]
         {
             "uuid"     => uuid,
-            "NS198"    => "NS16:Wave",
+            "mikuType" => "NS16:Wave",
             "announce" => Waves::toString(wave),
             "commands" => ["..", "done"],
             "wave"     => wave
