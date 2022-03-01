@@ -152,7 +152,7 @@ class UniverseDispatch
             universe = "lucille"
             section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
-            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+            section3 = TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
             if !(section2+section3).empty? then
                 return universe
             end
@@ -162,7 +162,7 @@ class UniverseDispatch
             universe = "lucille"
             section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
-            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+            section3 = TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
             if !(section2+section3).empty? then
                 return universe
             end
@@ -173,7 +173,7 @@ class UniverseDispatch
             universe = "lucille"
             section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
-            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+            section3 = TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
             if !(section2+section3).empty? then
                 return universe
             end

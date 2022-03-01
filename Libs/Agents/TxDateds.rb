@@ -169,7 +169,7 @@ class TxDateds
             end
 
             if command == "transmute" then
-                CommandsOps::transmutation2(mx49, "TxDated")
+                TerminalUtils::transmutation2(mx49, "TxDated")
                 break
             end
 

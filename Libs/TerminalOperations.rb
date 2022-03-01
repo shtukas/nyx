@@ -1,5 +1,214 @@
 # encoding: UTF-8
 
+class TerminalUtils
+
+    # TerminalUtils::removeDuplicatesOnAttribute(array, attribute)
+    def self.removeDuplicatesOnAttribute(array, attribute)
+        array.reduce([]){|selected, element|
+            if selected.none?{|x| x[attribute] == element[attribute] } then
+                selected + [element]
+            else
+                selected
+            end
+        }
+    end
+
+    # TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
+    def self.removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
+        uuids1 = array1.map{|ns16| ns16["uuid"] }
+        array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
+    end
+
+    # TerminalUtils::inputParser(input, store)
+    def self.inputParser(input, store) # [command or null, ns16 or null]
+        # This function take an input from the prompt and 
+        # attempt to retrieve a command and optionaly an object (from the store)
+        # Note that the command can also be null if a command could not be extrated
+
+        outputForCommandAndOrdinal = lambda {|command, ordinal, store|
+            ordinal = ordinal.to_i
+            ns16 = store.get(ordinal)
+            if ns16 then
+                return [command, ns16]
+            else
+                return [nil, nil]
+            end
+        }
+
+        if Interpreting::match("expose", input) then
+            return ["expose", store.getDefault()]
+        end
+
+        if Interpreting::match("expose *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("expose", ordinal, store)
+        end
+
+        if Interpreting::match("..", input) then
+            return ["..", store.getDefault()]
+        end
+
+        if Interpreting::match(".. *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("..", ordinal, store)
+        end
+
+        if Interpreting::match("transmute", input) then
+            return ["transmute", store.getDefault()]
+        end
+
+        if Interpreting::match("transmute *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("transmute", ordinal, store)
+        end
+
+        if Interpreting::match("start", input) then
+            return ["start", store.getDefault()]
+        end
+
+        if Interpreting::match("start *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("start", ordinal, store)
+        end
+
+        if Interpreting::match("done", input) then
+            return ["done", store.getDefault()]
+        end
+
+        if Interpreting::match("done *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("done", ordinal, store)
+        end
+
+        if Interpreting::match("universe", input) then
+            return ["universe", store.getDefault()]
+        end
+
+        if Interpreting::match("universe *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("universe", ordinal, store)
+        end
+
+        if Interpreting::match("universe", input) then
+            return ["universe", store.getDefault()]
+        end
+
+        if Interpreting::match("stop", input) then
+            return ["stop", store.getDefault()]
+        end
+
+        if Interpreting::match("stop *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("stop", ordinal, store)
+        end
+
+        [nil, nil]
+    end
+
+
+    # TerminalUtils::transmutation1(object, source, target)
+    # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float) | "inbox"
+    # target: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
+    def self.transmutation1(object, source, target)
+
+        if source == "inbox" and target == "TxTodo" then
+            location = object
+            TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
+            LucilleCore::removeFileSystemLocation(location)
+            return
+        end
+
+        if source == "TxDated" and target == "TxTodo" then
+            universe = Multiverse::interactivelySelectUniverse()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxTodo"
+            Librarian6Objects::commit(object)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
+            return
+        end
+
+        if source == "TxDated" and target == "TxDrop" then
+            object["mikuType"] = "TxDrop"
+            Librarian6Objects::commit(object)
+            Multiverse::interactivelySetObjectUniverse(object["uuid"])
+            return
+        end
+
+        if source == "TxDated" and target == "TxFloat" then
+            object["mikuType"] = "TxFloat"
+            Librarian6Objects::commit(object)
+            Multiverse::interactivelySetObjectUniverse(object["uuid"])
+            return
+        end
+
+        if source == "TxDrop" and target == "TxTodo" then
+            universe = Multiverse::interactivelySelectUniverse()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxTodo"
+            Librarian6Objects::commit(object)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
+            return
+        end
+
+        if source == "TxFloat" and target == "TxDated" then
+            universe = Multiverse::interactivelySelectUniverse()
+            object["mikuType"] = "TxDated"
+            object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            Librarian6Objects::commit(object)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
+            return
+        end
+
+        if source == "TxFloat" and target == "TxTodo" then
+            universe = Multiverse::interactivelySelectUniverse()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxTodo"
+            Librarian6Objects::commit(object)
+            Multiverse::setObjectUniverse(object["uuid"], universe)
+            return
+        end
+
+        puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # TerminalUtils::transmutation2(object, source)
+    def self.transmutation2(object, source)
+        target = TerminalUtils::interactivelyGetTransmutationTargetOrNull()
+        return if target.nil?
+        TerminalUtils::transmutation1(object, source, target)
+    end
+
+    # TerminalUtils::interactivelyGetTransmutationTargetOrNull()
+    def self.interactivelyGetTransmutationTargetOrNull()
+        options = ["TxFloat", "TxDated", "TxTodo" ]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
+        return nil if option.nil?
+        option
+    end
+end
+
+class Commands
+
+    # Commands::terminalDisplayCommand()
+    def self.terminalDisplayCommand()
+        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
+    end
+
+    # Commands::makersCommands()
+    def self.makersCommands()
+        "wave | anniversary | calendaritem | float | drop | today | ondate | todo"
+    end
+
+    # Commands::diversCommands()
+    def self.diversCommands()
+        "waves | anniversaries | calendar | ondates | todos"
+    end
+end
+
 class ItemStore
 
     def initialize() # : Integer
@@ -57,8 +266,8 @@ class NS16sOperator
             TxDateds::ns16s(),
             Waves::ns16s(universe),
             (universe == "lucille") ? Inbox::ns16s() : [],
-            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(universe), TxDrops::ns16s(universe)),
-            PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(universe), TxTodos::ns16s(universe))
+            TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(universe), TxDrops::ns16s(universe)),
+            TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(universe), TxTodos::ns16s(universe))
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -66,27 +275,12 @@ class NS16sOperator
     end
 end
 
-class PersonalAssistant
-
-    # PersonalAssistant::removeDuplicatesOnAttribute(array, attribute)
-    def self.removeDuplicatesOnAttribute(array, attribute)
-        array.reduce([]){|selected, element|
-            if selected.none?{|x| x[attribute] == element[attribute] } then
-                selected + [element]
-            else
-                selected
-            end
-        }
-    end
-
-    # PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
-    def self.removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
-        uuids1 = array1.map{|ns16| ns16["uuid"] }
-        array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
-    end
-end
-
 class TerminalDisplayOperator
+
+    # TerminalDisplayOperator::ns16HasStarted(ns16)
+    def self.ns16HasStarted(ns16)
+        !BTreeSets::getOrNull(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"]).nil?
+    end
 
     # TerminalDisplayOperator::commandStrWithPrefix(ns16, isDefaultItem)
     def self.commandStrWithPrefix(ns16, isDefaultItem)
@@ -181,9 +375,6 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
 
-        # Special commands
-        vspaceleft = vspaceleft - 2
-
         if section3.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -194,16 +385,13 @@ class TerminalDisplayOperator
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
-                if ListingUniversals::ns16HasStarted(ns16) then
+                if TerminalDisplayOperator::ns16HasStarted(ns16) then
                     line = line.green
                 end
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
-        puts ""
-
-        puts "start1 * | stop1 *".yellow
         puts ""
 
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -217,11 +405,9 @@ class TerminalDisplayOperator
             end
         end
 
-        CommandsOps::operator4(universe, input) # General Commands (no item related)
-        CommandsOps::operator5(universe, input, store.getDefault()) # Commands applied to the default item
-        command, objectOpt = CommandsOps::inputParser(input, store)
+        command, objectOpt = TerminalUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-        CommandsOps::operator6(universe, command, objectOpt) # Commands applied to targeted elements
+        GlobalActions::action(command, objectOpt)
     end
 
     # TerminalDisplayOperator::standardDisplayLoop()
@@ -240,7 +426,7 @@ class TerminalDisplayOperator
 
             section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
-            section3 = PersonalAssistant::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
+            section3 = TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }
     end

@@ -6,8 +6,14 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-puts Commands::makersAndDiversCommands().yellow
-universe = Multiverse::interactivelySelectUniverse()
-command = LucilleCore::askQuestionAnswerAsString("> ")
-CommandsOps::operator4(universe, command)
+puts [
+    Commands::makersCommands(),
+    Commands::diversCommands()
+].join(" | ").yellow
+
+input = LucilleCore::askQuestionAnswerAsString("> ")
+
+command, objectOpt = TerminalUtils::inputParser(input, nil)
+#puts "parser: command:#{command}, objectOpt: #{objectOpt}"
+GlobalActions::action(command, objectOpt)
 
