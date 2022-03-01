@@ -339,6 +339,6 @@ class GlobalActions
         end
 
         puts "I do not know how to do action (command: #{command}, object: #{object})"
-        exit
+        LucilleCore::pressEnterToContinue()
     end
 end
