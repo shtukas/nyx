@@ -191,10 +191,16 @@ class TerminalDisplayOperator
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
+                if ListingUniversals::ns16HasStarted(ns16) then
+                    line = line.green
+                end
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
+        puts ""
+
+        puts "start1 * | stop1 *".yellow
         puts ""
 
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -208,11 +214,11 @@ class TerminalDisplayOperator
             end
         end
 
-        CommandsOps::operator4(universe, input)
-        CommandsOps::operator5(universe, input, store.getDefault())
+        CommandsOps::operator4(universe, input) # General Commands (no item related)
+        CommandsOps::operator5(universe, input, store.getDefault()) # Commands applied to the default item
         command, objectOpt = CommandsOps::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-        CommandsOps::operator6(universe, command, objectOpt)
+        CommandsOps::operator6(universe, command, objectOpt) # Commands applied to targeted elements
     end
 
     # TerminalDisplayOperator::standardDisplayLoop()

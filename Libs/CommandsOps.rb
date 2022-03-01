@@ -297,6 +297,16 @@ class CommandsOps
             return outputForCommandAndOrdinal.call("universe", ordinal, store)
         end
 
+        if Interpreting::match("start1 *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("start1", ordinal, store)
+        end
+
+        if Interpreting::match("stop1 *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("stop1", ordinal, store)
+        end
+
         [nil, nil]
     end
 
@@ -543,5 +553,88 @@ class CommandsOps
             puts JSON.pretty_generate(ns16)
             LucilleCore::pressEnterToContinue()
         end
+
+        if command == "start1" then
+            ns16 = objectOpt
+            ListingUniversals::startNS16(ns16)
+        end
+
+        if command == "stop1" then
+            ns16 = objectOpt
+            ListingUniversals::stopNS16(ns16)
+        end
+    end
+end
+
+class ListingUniversals
+
+    # -----------------------------------------------------------------------------------
+
+    # ListingUniversals::startNS16(ns16)
+    def self.startNS16(ns16)
+        # We starts the ns16 by adding it to the set.
+        BTreeSets::set(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"], ns16)
+    end
+
+    # ListingUniversals::ns16HasStarted(ns16)
+    def self.ns16HasStarted(ns16)
+        !BTreeSets::getOrNull(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"]).nil?
+    end
+
+    # ListingUniversals::stopNS16(ns16)
+    def self.stopNS16(ns16)
+        BTreeSets::destroy(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"])
+    end
+
+    # ListingUniversals::accessNS16(ns16)
+    def self.accessNS16(ns16)
+        #
+    end
+
+    # ListingUniversals::pauseNS16(ns16)
+    def self.pauseNS16(ns16)
+
+    end
+
+    # ListingUniversals::resumeNS16(ns16)
+    def self.resumeNS16(ns16)
+
+    end
+
+    # ListingUniversals::doneNS16(ns16)
+    def self.doneNS16(ns16)
+        #
+    end
+
+    # -----------------------------------------------------------------------------------
+
+    # ListingUniversals::startItem(ns16)
+    def self.startItem(ns16)
+
+    end
+
+    # ListingUniversals::stopItem(ns16)
+    def self.stopItem(ns16)
+
+    end
+
+    # ListingUniversals::accessItem(ns16)
+    def self.accessItem(ns16)
+
+    end
+
+    # ListingUniversals::pauseItem(ns16)
+    def self.pauseItem(ns16)
+
+    end
+
+    # ListingUniversals::resumeItem(ns16)
+    def self.resumeItem(ns16)
+
+    end
+
+    # ListingUniversals::doneItem(ns16)
+    def self.doneItem(ns16)
+
     end
 end
