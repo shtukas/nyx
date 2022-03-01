@@ -570,10 +570,22 @@ class ListingUniversals
 
     # -----------------------------------------------------------------------------------
 
+    # Nx16RunningParameters {
+    #     "uuid" : String
+    #     "ns16" : NS16
+    #     "startUnixtime" : Float
+    # }
+
     # ListingUniversals::startNS16(ns16)
     def self.startNS16(ns16)
+        data = {
+            "uuid"          => ns16["uuid"],
+            "ns16"          => ns16,
+            "startUnixtime" => Time.new.to_f
+        }
+
         # We starts the ns16 by adding it to the set.
-        BTreeSets::set(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"], ns16)
+        BTreeSets::set(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", data["uuid"], data)
     end
 
     # ListingUniversals::ns16HasStarted(ns16)
@@ -583,6 +595,19 @@ class ListingUniversals
 
     # ListingUniversals::stopNS16(ns16)
     def self.stopNS16(ns16)
+        data = BTreeSets::getOrNull(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"])
+        return if data.nil?
+
+        timespan = Time.new.to_f - data["startUnixtime"]
+
+        # Now adding the timespan to the element uuid
+        # In this code we assume that the uuid to receive the time is the ns16 uuid, because the ns16 uuid is often the item uuid
+        # TODO: NS16s should provide a set of uuids to send the time to, one of which should be the universe account number 
+        Bank::put(ns16["uuid"], timespan)
+
+        # For the moment we send all the time to xstream
+        Bank::put(UniverseAccounting::universeToAccountNumber("xstream"), timespan)
+
         BTreeSets::destroy(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"])
     end
 
