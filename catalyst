@@ -17,7 +17,7 @@ Thread.new {
     loop {
         # We wait for 2 mins and then we add to the current universe
         sleep 120
-        universe = StoredUniverse::getStoredFocusUniverse()
+        universe = StoredUniverse::getUniverse()
         UniverseAccounting::addTimeToUniverse(universe, 120)
     }
 }

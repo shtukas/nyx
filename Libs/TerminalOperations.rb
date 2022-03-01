@@ -102,9 +102,16 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
         end
 
+        if Interpreting::match("[]", input) then
+            return ["[]", nil]
+        end
+
+        if Interpreting::match(">>", input) then
+            return [">>", nil]
+        end
+
         [nil, nil]
     end
-
 
     # TerminalUtils::transmutation1(object, source, target)
     # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float) | "inbox"
@@ -297,22 +304,20 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        UniverseAccounting::getExpectationUniversesInRatioOrder()
-            .each{|uni|
+        puts UniverseAccounting::getExpectationUniversesInRatioOrder()
+            .map{|uni|
                 expectation = UniverseAccounting::universeExpectationOrNull(uni)
                 uniRatio = UniverseAccounting::universeRatioOrNull(uni)
-                line = "#{uni.ljust(10)}: #{"%6.2f" % (100 * uniRatio)} % of #{"%.2f" % expectation} hours"
+                line = "(#{uni}: #{(100 * uniRatio).round(2)} % of #{"%.2f" % expectation} hours)"
                 if uni == universe then
                     line = line.green
                 end
-                puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
+                line
+            }.join(" ")
 
-        puts ""
-        cardinal = TxDateds::items().size + TxTodos::items().size + TxDrops::mikus().size
-        puts "(#{UniverseDispatch::getDispatchMode()}) (universe: #{universe}, cardinal: #{cardinal} items)"
-        vspaceleft = vspaceleft - 2
+        puts "(universe: #{universe})"
+        vspaceleft = vspaceleft - 1
 
         store = ItemStore.new()
 
@@ -419,7 +424,7 @@ class TerminalDisplayOperator
                 break
             end
 
-            universe = UniverseDispatch::getDispatchUniverse()
+            universe = StoredUniverse::getUniverse()
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }

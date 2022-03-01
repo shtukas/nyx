@@ -7,7 +7,6 @@ class GlobalActions
         # All objects sent to this are expected to have an mikyType attribute
 
         return if command.nil?
-        return if object.nil?
 
         if command == ".." then
             ns16 = object
@@ -138,8 +137,8 @@ class GlobalActions
             # TODO: NS16s should provide a set of uuids to send the time to, one of which should be the universe account number 
             Bank::put(ns16["uuid"], timespan)
 
-            # For the moment we send all the time to xstream
-            Bank::put(UniverseAccounting::universeToAccountNumber("xstream"), timespan)
+            # For the moment we send all the time to backlog
+            Bank::put(UniverseAccounting::universeToAccountNumber("backlog"), timespan)
 
             BTreeSets::destroy(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"])
             return
@@ -176,11 +175,13 @@ class GlobalActions
         end
 
         if command == "top" then
+            universe = StoredUniverse::getUniverse()
             Topping::top(universe)
             return
         end
 
         if command == "[]" then
+            universe = StoredUniverse::getUniverse()
             Topping::applyTransformation(universe)
             return
         end
@@ -291,7 +292,7 @@ class GlobalActions
                     "      " + Commands::makersCommands(),
                     "      " + Commands::diversCommands(),
                     "      internet on | internet off | require internet",
-                    "      universe (set the universe of the dafault item) (<n>)  | >> (switch universe) | >>> (switch universe transition mode)"
+                    "      universe (set the universe of the dafault item) (<n>)  | >> (switch universe)"
                  ].join("\n").yellow
             LucilleCore::pressEnterToContinue()
             return
@@ -308,12 +309,7 @@ class GlobalActions
         end
 
         if command == ">>" then
-            StoredUniverse::interactivelySetStoredFocus()
-            return
-        end
-
-        if command == ">>>" then
-            UniverseDispatch::interactivelyChooseDispatchMode()
+            StoredUniverse::interactivelySetUniverse()
             return
         end
 

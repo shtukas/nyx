@@ -154,7 +154,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        Multiverse::setObjectUniverse(uuid, "xstream")
+        Multiverse::setObjectUniverse(uuid, "backlog")
         item
     end
 
@@ -166,7 +166,7 @@ class TxTodos
         datetime    = Time.new.utc.iso8601
         atom        = Librarian5Atoms::issueUrlAtomUsingUrl(url)
         Librarian6Objects::commit(atom)
-        ordinal     = TxTodos::ordinalBetweenN1thAndN2th("xstream", 20, 30)
+        ordinal     = TxTodos::ordinalBetweenN1thAndN2th("backlog", 20, 30)
 
         item = {
           "uuid"        => uuid,
@@ -178,7 +178,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        Multiverse::setObjectUniverse(uuid, "xstream")
+        Multiverse::setObjectUniverse(uuid, "backlog")
         item
     end
 
