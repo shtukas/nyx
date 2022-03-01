@@ -112,7 +112,7 @@ class TerminalDisplayOperator
                     line = line.green
                 end
                 puts line
-                vspaceleft = vspaceleft - 1
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
             }
 
         puts ""
@@ -180,6 +180,9 @@ class TerminalDisplayOperator
             puts top
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
+
+        # Special commands
+        vspaceleft = vspaceleft - 2
 
         if section3.size>0 then
             puts ""
