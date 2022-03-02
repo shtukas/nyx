@@ -369,7 +369,7 @@ class Librarian5Atoms
         if type == "gluon" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            gluonId = SecureRandom.hex
+            gluonId = SecureRandom.uuid
             return Librarian5Atoms::issueGluonAtomUsingLocation(gluonId, location)
         end
 
