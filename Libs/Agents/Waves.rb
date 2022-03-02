@@ -166,12 +166,6 @@ class Waves
     def self.landing(wave)
         uuid = wave["uuid"]
 
-        NxBallsService::issue(
-            uuid, 
-            Waves::toString(wave), 
-            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC"]
-        )
-
         loop {
 
             system("clear")
@@ -250,8 +244,6 @@ class Waves
                 end
             end
         }
-
-        NxBallsService::closeWithAsking(uuid)
     end
 
     # -------------------------------------------------------------------------
@@ -275,18 +267,12 @@ class Waves
     # -------------------------------------------------------------------------
     # NS16
 
-    # Waves::run(wave)
-    def self.run(wave)
+    # Waves::access(wave)
+    def self.access(wave)
         system("clear")
         uuid = wave["uuid"]
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
-
-        NxBallsService::issue(
-            uuid, 
-            wave["description"], 
-            [uuid, "WAVES-5B66-4E89-B919-4F4463725EAC"]
-        )
 
         AgentsUtils::accessAtom(wave["atomuuid"])
 

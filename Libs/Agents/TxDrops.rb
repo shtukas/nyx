@@ -62,18 +62,12 @@ class TxDrops
         TxDrops::destroy(nx70["uuid"])
     end
 
-    # TxDrops::run(nx70)
-    def self.run(nx70)
+    # TxDrops::access(nx70)
+    def self.access(nx70)
 
         system("clear")
 
         uuid = nx70["uuid"]
-
-        NxBallsService::issue(
-            uuid, 
-            TxDrops::toString(nx70), 
-            [uuid]
-        )
 
         loop {
 
@@ -159,8 +153,6 @@ class TxDrops
                 next
             end
         }
-
-        NxBallsService::closeWithAsking(uuid)
     end
 
     # --------------------------------------------------
@@ -203,7 +195,7 @@ class TxDrops
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxDrops::toStringForNS19(item),
-                "lambda"   => lambda { TxDrops::run(item) }
+                "lambda"   => lambda { TxDrops::access(item) }
             }
         }
     end

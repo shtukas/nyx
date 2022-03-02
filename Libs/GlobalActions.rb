@@ -8,40 +8,41 @@ class GlobalActions
 
         return if command.nil?
 
-        if command == ".." then
-            ns16 = object
-            if ns16["mikuType"] == "NS16:Anniversary1" then
-                Anniversaries::run(ns16["anniversary"])
+        if command == "access" then
+
+            if object["mikuType"] == "NS16:Anniversary1" then
+                Anniversaries::access(object["anniversary"])
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxCalendarItem" then
-                TxCalendarItems::run(ns16["item"])
+            if object["mikuType"] == "NS16:TxCalendarItem" then
+                TxCalendarItems::access(object["item"])
                 return
             end
 
-            if ns16["mikuType"] == "NS16:fitness1" then
-                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{ns16["fitness-domain"]}")
+            if object["mikuType"] == "NS16:fitness1" then
+                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
                 return
             end
 
-            if ns16["mikuType"] == "NS16:Inbox1" then
-                Inbox::run(ns16["location"])
+            if object["mikuType"] == "NS16:Inbox1" then
+                Inbox::access(object["location"])
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxDated" then
-                TxDateds::run(ns16["TxDated"])
+            if object["mikuType"] == "NS16:TxDated" then
+                dated = object["TxDated"]
+                TxDateds::access(dated)
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxDrop" then
-                nx70 = ns16["TxDrop"]
+            if object["mikuType"] == "NS16:TxDrop" then
+                nx70 = object["TxDrop"]
                 puts nx70["description"].green
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
                 return if action.nil?
                 if action == "run" then
-                    TxDrops::run(nx70)
+                    TxDrops::access(nx70)
                 end
                 if action == "done" then
                     TxDrops::destroy(nx70["uuid"])
@@ -49,23 +50,23 @@ class GlobalActions
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxFloat" then
-                TxFloats::run(ns16["TxFloat"])
+            if object["mikuType"] == "NS16:TxFloat" then
+                TxFloats::access(object["TxFloat"])
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxTodo" then
-                TxTodos::run(ns16["TxTodo"])
+            if object["mikuType"] == "NS16:TxTodo" then
+                TxTodos::access(object["TxTodo"])
                 return
             end
 
-            if ns16["mikuType"] == "NS16:Wave" then
-                Waves::run(ns16["wave"])
+            if object["mikuType"] == "NS16:Wave" then
+                Waves::access(object["wave"])
                 return
             end
 
-            if ns16["mikuType"] == "NxBallDelegate1" then
-                uuid = ns16["NxBallUUID"]
+            if object["mikuType"] == "NxBallDelegate1" then
+                uuid = object["NxBallUUID"]
 
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
                 if action == "close" then
@@ -79,6 +80,13 @@ class GlobalActions
                 end
                 return
             end
+        end
+
+        if command == ".." then
+            # Double Dot typically peforms start and access
+            GlobalActions::action("start", object)
+            GlobalActions::action("access", object)
+            return
         end
 
         if command == "expose" then
@@ -186,13 +194,6 @@ class GlobalActions
             return
         end
 
-        if command == "start" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            NxBallsService::issue(SecureRandom.uuid, description, [])
-            return
-        end
-
         if command == "float" then
             TxFloats::interactivelyCreateNewOrNull()
             return
@@ -261,7 +262,7 @@ class GlobalActions
             loop {
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
                 return if nx50.nil?
-                TxTodos::run(nx50)
+                TxTodos::access(nx50)
             }
             return
         end
@@ -334,7 +335,7 @@ class GlobalActions
             exit
         end
 
-        puts "I do not know how to do action (command: #{command}, object: #{object})"
+        puts "I do not know how to do action (command: #{command}, object: #{JSON.pretty_generate(object)})"
         LucilleCore::pressEnterToContinue()
     end
 end

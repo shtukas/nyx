@@ -31,8 +31,8 @@ class Inbox
         description
     end
 
-    # Inbox::run(location)
-    def self.run(location)
+    # Inbox::access(location)
+    def self.access(location)
         system("clear")
         puts location.green
         loop {
@@ -135,7 +135,7 @@ class Inbox
             {
                 "uuid"     => item["uuid"],
                 "announce" => item["announce"],
-                "lambda"   => lambda { Inbox::run(item) }
+                "lambda"   => lambda { Inbox::access(item) }
             }
         }
     end

@@ -242,14 +242,12 @@ class TxTodos
         end
     end
 
-    # TxTodos::run(nx50)
-    def self.run(nx50)
+    # TxTodos::access(nx50)
+    def self.access(nx50)
 
         system("clear")
 
         uuid = nx50["uuid"]
-
-        NxBallsService::issue(uuid, nx50["description"], [uuid])
 
         loop {
 
@@ -367,8 +365,6 @@ class TxTodos
                 break
             end
         }
-
-        NxBallsService::closeWithAsking(uuid)
     end
 
     # --------------------------------------------------
@@ -412,7 +408,7 @@ class TxTodos
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxTodos::toStringForNS19(item),
-                "lambda"   => lambda { TxTodos::run(item) }
+                "lambda"   => lambda { TxTodos::access(item) }
             }
         }
     end

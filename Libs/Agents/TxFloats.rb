@@ -63,18 +63,12 @@ class TxFloats
         TxFloats::destroy(float["uuid"])
     end
 
-    # TxFloats::run(float)
-    def self.run(float)
+    # TxFloats::access(float)
+    def self.access(float)
 
         system("clear")
 
         uuid = float["uuid"]
-
-        NxBallsService::issue(
-            uuid, 
-            TxFloats::toString(float), 
-            [uuid]
-        )
 
         loop {
 
@@ -165,8 +159,6 @@ class TxFloats
                 break
             end
         }
-
-        NxBallsService::closeWithAsking(uuid)
     end
 
     # --------------------------------------------------
@@ -200,7 +192,7 @@ class TxFloats
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxFloats::toStringForNS19(item),
-                "lambda"   => lambda { TxFloats::run(item) }
+                "lambda"   => lambda { TxFloats::access(item) }
             }
         }
     end

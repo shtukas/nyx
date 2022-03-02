@@ -67,8 +67,8 @@ class TxCalendarItems
     # --------------------------------------------------
     # Operations
 
-    # TxCalendarItems::run(item)
-    def self.run(item)
+    # TxCalendarItems::access(item)
+    def self.access(item)
 
         system("clear")
 
@@ -162,7 +162,7 @@ class TxCalendarItems
             items = TxCalendarItems::items().sort{|i1, i2| "#{i1["date"]} #{i1["time"]}" <=> "#{i2["date"]} #{i2["time"]}" }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("calendar item", items, lambda{|item| TxCalendarItems::toString(item) })
             break if item.nil?
-            TxCalendarItems::run(item)
+            TxCalendarItems::access(item)
         }
     end
 
@@ -197,7 +197,7 @@ class TxCalendarItems
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxCalendarItems::toStringForNS19(item),
-                "lambda"   => lambda { TxCalendarItems::run(item) }
+                "lambda"   => lambda { TxCalendarItems::access(item) }
             }
         }
     end

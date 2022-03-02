@@ -64,7 +64,7 @@ class Anniversaries
         end
     end
 
-    # Anniversaries::runTests()
+    # Anniversaries::accessTests()
     def self.runTests()
         raise "72118532-21b3-4897-a6d1-7c21458b4624" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-11-25", 1) != "2020-12-25"
         raise "279b1ee3-728e-4883-9a4d-abf3b9a494d7" if Anniversaries::datePlusNMonthAnniversaryStyle("2020-12-25", 1) != "2021-01-25"
@@ -152,8 +152,8 @@ class Anniversaries
         "[anniversary] [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
     end
 
-    # Anniversaries::run(anniversary)
-    def self.run(anniversary)
+    # Anniversaries::access(anniversary)
+    def self.access(anniversary)
         puts Anniversaries::toString(anniversary).green
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
             anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]

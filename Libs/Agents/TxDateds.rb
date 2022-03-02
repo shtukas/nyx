@@ -85,18 +85,12 @@ class TxDateds
     # --------------------------------------------------
     # Operations
 
-    # TxDateds::run(mx49)
-    def self.run(mx49)
+    # TxDateds::access(mx49)
+    def self.access(mx49)
 
         system("clear")
 
         uuid = mx49["uuid"]
-
-        NxBallsService::issue(
-            uuid, 
-            TxDateds::toString(mx49), 
-            [uuid]
-        )
 
         loop {
 
@@ -181,8 +175,6 @@ class TxDateds
                 next
             end
         }
-
-        NxBallsService::closeWithAsking(uuid)
     end
 
     # TxDateds::dive()
@@ -192,7 +184,7 @@ class TxDateds
             items = TxDateds::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxDateds::toString(item) })
             break if item.nil?
-            TxDateds::run(item)
+            TxDateds::access(item)
         }
     end
 
@@ -227,7 +219,7 @@ class TxDateds
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxDateds::toStringForNS19(item),
-                "lambda"   => lambda { TxDateds::run(item) }
+                "lambda"   => lambda { TxDateds::access(item) }
             }
         }
     end
