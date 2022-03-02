@@ -92,6 +92,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
         end
 
+        if Interpreting::match("top", input) then
+            return ["top", store.getDefault()]
+        end
+
         if Interpreting::match("transmute", input) then
             return ["transmute", store.getDefault()]
         end
