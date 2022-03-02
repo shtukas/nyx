@@ -324,11 +324,6 @@ class TerminalDisplayOperator
                 line
             }.join(" ")
 
-        if universe then
-            puts "(universe: #{universe})"
-            vspaceleft = vspaceleft - 1
-        end
-
         store = ItemStore.new()
 
         if !InternetStatus::internetIsActive() then
@@ -398,7 +393,7 @@ class TerminalDisplayOperator
             .each{|ns16|
                 store.register(ns16, true)
                 line = ns16["announce"]
-                line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
+                line = "#{store.prefixString()} #{ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]).ljust(7)} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 if TerminalDisplayOperator::ns16HasStarted(ns16) then
                     line = line.green
@@ -444,9 +439,5 @@ class TerminalDisplayOperator
             section3 = TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }
-    end
-
-    def self.todoDisplayLoop()
-        #
     end
 end
