@@ -19,9 +19,7 @@ class AgentsUtils
         atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         return if atom.nil?
         return if atom["type"] == "description-only"
-        atom = Librarian5Atoms::accessWithOptionToEditOptionalUpdate(atom)
-        return if atom.nil?
-        Librarian6Objects::commit(atom)
+        Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
     end
 
     # AgentsUtils::atomTypeForToStrings(prefix, atomuuid)

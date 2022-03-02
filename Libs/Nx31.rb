@@ -146,9 +146,7 @@ class Nx31
         atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         return if atom.nil?
         return if atom["type"] == "description-only"
-        atom = Librarian5Atoms::accessWithOptionToEditOptionalUpdate(atom)
-        return if atom.nil?
-        Librarian6Objects::commit(atom)
+        Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
     end
 
     # Nx31::landing(miku)
@@ -307,124 +305,6 @@ class Nx31
                 "type"     => "Nx31",
                 "payload"  => nx31
             }
-        }
-    end
-
-    # ------------------------------------------------
-    # FS Sync
-
-    # Nx31::decideMikuExportLocationType(miku)
-    def self.decideMikuExportLocationType(miku)
-        if miku["atom"]["type"] == "text" then
-            return "file"
-        end
-        if miku["atom"]["type"] == "url" then
-            return "file"
-        end
-        if miku["atom"]["type"] == "aion-point" then
-            return "directory"
-        end
-        raise "(36388ada-1e41-42c6-b562-fb3277d9a92c: #{miku})"
-    end
-
-    # Nx31::decideMikuExportLocationFileExtentionOrNull(miku)
-    def self.decideMikuExportLocationFileExtentionOrNull(miku)
-        if miku["atom"]["type"] == "text" then
-            return ".txt"
-        end
-        if miku["atom"]["type"] == "url" then
-            return ".txt"
-        end
-        if miku["atom"]["type"] == "aion-point" then
-            return nil
-        end
-        raise "(0b3443f9-9641-4b4c-b869-e27bbee9995a: #{miku})"
-    end
-
-    # Nx31::decideMikuExportLocationName(miku)
-    def self.decideMikuExportLocationName(miku)
-        fileextention = Nx31::decideMikuExportLocationFileExtentionOrNull(miku)
-        "(#{miku["datetime"][0, 10]}) #{Utils2::sanitiseStringForFilenaming(miku["description"])}#{fileextention ? fileextention : ""}"
-    end
-
-    # Nx31::decideExportLocationData(miku, parentDirectory)
-    def self.decideExportLocationData(miku, parentDirectory)
-        location = "#{parentDirectory}/#{Nx31::decideMikuExportLocationName(miku)}"
-        type = Nx31::decideMikuExportLocationType(miku)
-        {
-            "location" => location,
-            "type"     => type
-        }
-        #{
-        #    "location" => String,
-        #    "type"     => "directory" | "file"
-        #}
-    end
-
-    # Nx31::projectMikuAtParentDirectory(miku, parentDirectory)
-    def self.projectMikuAtParentDirectory(miku, parentDirectory)
-        exportLocationData = Nx31::decideExportLocationData(miku, parentDirectory)
-        if exportLocationData["type"] == "directory" then
-            if File.exists?(exportLocationData["location"]) and File.file?(exportLocationData["location"]) then
-                puts "I am exporting miku: #{Nx31::toString(miku)}"
-                puts "export location: '#{exportLocationData["location"]}' should be a directory, but it currently exists as a file"
-                puts "Exiting"
-                exit
-            end
-        end
-
-        if exportLocationData["type"] == "file" then
-            if File.exists?(exportLocationData["location"]) and File.directory?(exportLocationData["location"]) then
-                puts "I am exporting miku: #{Nx31::toString(miku)}"
-                puts "export location: '#{exportLocationData["location"]}' should be a file, but it currently exists as a directory"
-                puts "Exiting"
-                exit
-            end
-        end
-
-        if exportLocationData["type"] == "directory" then
-            if !File.exists?(exportLocationData["location"]) then
-                FileUtils.mkdir(exportLocationData["location"])
-            end
-        end
-
-        if miku["atom"]["type"] == "text" then
-            File.open(exportLocationData["location"], "w"){|f| f.write(miku["atom"]["payload"]) }
-            return
-        end
-
-        if miku["atom"]["type"] == "url" then
-            File.open(exportLocationData["location"], "w"){|f| f.write(miku["atom"]["payload"]) }
-            return
-        end
-
-        if miku["atom"]["type"] == "aion-point" then
-            LucilleCore::locationsAtFolder(exportLocationData["location"]).each{|location|
-                LucilleCore::removeFileSystemLocation(location)
-            }
-            AionCore::exportHashAtFolder(Librarian4Elizabeth.new(), miku["atom"]["payload"], exportLocationData["location"])
-            return
-        end
-
-        puts "I do not know how to export miku: #{miku}"
-        raise "d3b99651-969c-4801-8549-73e9ad52013c"
-    end
-
-    # Nx31::projectMikuLinkedElementsAtDirectory(miku, directory)
-    def self.projectMikuLinkedElementsAtDirectory(miku, directory)
-
-        expectedLocations = Links::entities(miku["uuid"])
-            .map{|px| Nx31::decideExportLocationData(px, directory) }
-            .map{|data| data["location"] }
-
-        existingLocations = LucilleCore::locationsAtFolder(directory)
-
-        (existingLocations - expectedLocations).each{|location|
-            LucilleCore::removeFileSystemLocation(location)
-        }
-
-        Links::entities(miku["uuid"]).each{|px|
-            Nx31::projectMikuAtParentDirectory(px, directory)
         }
     end
 

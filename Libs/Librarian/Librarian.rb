@@ -80,10 +80,22 @@ class Librarian0Utils
         "/Users/pascal/Desktop/#{locationNameOnDesktop}"
     end
 
-    # Librarian0Utils::locationToAionRootNamedHash(location)
-    def self.locationToAionRootNamedHash(location)
+    # Librarian0Utils::locationToAionPointRootNamedHash(location)
+    def self.locationToAionPointRootNamedHash(location)
         raise "[Librarian0Utils: error: a1ac8255-45ed-4347-a898-d306c49f230c, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
         AionCore::commitLocationReturnHash(Librarian4Elizabeth.new(), location)
+    end
+
+    # Librarian0Utils::gluonIdToFilepath(gluonId)
+    def self.gluonIdToFilepath(gluonId)
+        "/Users/pascal/Galaxy/DataBank/Librarian/Data/GluonFiles/#{gluonId}.sqlite3"
+    end
+
+    # Librarian0Utils::locationToGluonRootNamedHash(gluonId, location)
+    def self.locationToGluonRootNamedHash(gluonId, location)
+        raise "[Librarian0Utils: error: f3f9e10f-d9e6-4e12-bf35-12954231ae18, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
+        filepath = Librarian0Utils::gluonIdToFilepath(gluonId)
+        AionCore::commitLocationReturnHash(Librarian11GluonElizabeth.new(filepath), location)
     end
 
     # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
@@ -280,13 +292,28 @@ class Librarian5Atoms
     # Librarian5Atoms::issueAionPointAtomUsingLocation(location) # Atom
     def self.issueAionPointAtomUsingLocation(location)
         raise "[Librarian: error: 201d6b31-e08b-4e64-955c-807e717138d6]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = Librarian0Utils::locationToAionRootNamedHash(location)
+        nhash = Librarian0Utils::locationToAionPointRootNamedHash(location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "Atom",
             "unixtime" => Time.new.to_f,
             "type"     => "aion-point",
+            "payload"  => nhash
+        }
+    end
+
+    # Librarian5Atoms::issueGluonAtomUsingLocation(gluonId, location) # Atom
+    def self.issueGluonAtomUsingLocation(gluonId, location)
+        raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
+        nhash = Librarian0Utils::locationToGluonRootNamedHash(gluonId, location)
+        Librarian0Utils::moveFileToBinTimeline(location)
+        {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "Atom",
+            "unixtime" => Time.new.to_f,
+            "type"     => "gluon",
+            "gluonId"  => gluonId,
             "payload"  => nhash
         }
     end
@@ -316,7 +343,7 @@ class Librarian5Atoms
     # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "marble", "unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point (deprecated)", "gluon", "marble", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
             return Librarian5Atoms::issueDescriptionOnlyAtom()
@@ -333,10 +360,17 @@ class Librarian5Atoms
             return Librarian5Atoms::issueUrlAtomUsingUrl(url)
         end
 
-        if type == "aion-point" then
+        if type == "aion-point (deprecated)" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return Librarian5Atoms::issueAionPointAtomUsingLocation(location)
+        end
+
+        if type == "gluon" then
+            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
+            return nil if location.nil?
+            gluonId = SecureRandom.hex
+            return Librarian5Atoms::issueGluonAtomUsingLocation(gluonId, location)
         end
 
         if type == "marble" then
@@ -407,7 +441,7 @@ class Librarian5Atoms
                 if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
                     puts "I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
-                    Librarian5Atoms::accessWithOptionToEditOptionalUpdate(atom)
+                    Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
                     return
                 end
             }
@@ -417,23 +451,19 @@ class Librarian5Atoms
         return nil
     end
 
-    # Librarian5Atoms::accessWithOptionToEditOptionalUpdate(atom): Atom or null
-    # If returns an atom, it's the same atom, mutated, not a new one. 
-    # In particular, the uuid is the same
-    def self.accessWithOptionToEditOptionalUpdate(atom)
+    # Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
+    def self.accessWithOptionToEditOptionalAutoMutation(atom)
         if atom["type"] == "description-only" then
             puts "atom: description-only (atom payload is empty)"
             LucilleCore::pressEnterToContinue()
-            return nil
         end
         if atom["type"] == "text" then
             text1 = atom["payload"]
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
                 atom["payload"] = text2
-                return atom
+                Librarian6Objects::commit(atom)
             end
-            return nil
         end
         if atom["type"] == "url" then
             Librarian0Utils::openUrlUsingSafari(atom["payload"])
@@ -441,69 +471,37 @@ class Librarian5Atoms
                 url = LucilleCore::askQuestionAnswerAsString("url (empty to abort) : ")
                 if url.size > 0 then
                     atom["payload"] = url
-                    return atom
+                    Librarian6Objects::commit(atom)
                 end
             end
-            return nil
         end
         if atom["type"] == "aion-point" then
-
-            # -----------------------------------------------
-            # Version 1
-
-            # In the original version we export on the desktop and ask if we want to edit the aion point
-            # which is essence means making a new one.
-
-            #AionCore::exportHashAtFolder(Librarian4Elizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
-            #if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
-            #    location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
-            #    return nil if location.nil?
-            #    nhash = Librarian0Utils::locationToAionRootNamedHash(location)
-            #    Librarian0Utils::moveFileToBinTimeline(location)
-            #    atom["payload"] = nhash
-            #    return atom
-            #end
-
-            exportFolderPath = lambda {|atom|
-                uuid = atom["uuid"]
-                f1 = Digest::SHA1.hexdigest(uuid)[0, 10]
-                "/Users/pascal/Galaxy/Librarian/AionPoints-Exported/#{f1}"
-            }
-
-            # -----------------------------------------------
-            # Version 2
-
-            # In the updated version we check if there is an already exported version.
-            #     If there is one we open that
-            #     If there isn't one we make it and open the folder
-
-            exportFolder = exportFolderPath.call(atom)
-
-            if File.exists?(exportFolder) then
-                system("open '#{exportFolder}'")
-                return
+            AionCore::exportHashAtFolder(Librarian4Elizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
+            if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
+                location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
+                return nil if location.nil?
+                nhash = Librarian0Utils::locationToAionPointRootNamedHash(location)
+                Librarian0Utils::moveFileToBinTimeline(location)
+                atom["payload"] = nhash
+                Librarian6Objects::commit(atom)
             end
-
-            FileUtils.mkdir(exportFolder)
-
-            AionCore::exportHashAtFolder(Librarian4Elizabeth.new(), atom["payload"], exportFolder)
-
-            nyxExportManifest = {
-                "exportUnixtime" => Time.new.to_i,
-                "atom"           => atom
-            }
-
-            nyxExportManifestFilepath = "#{exportFolder}/nyx-export-manifest.json"
-            File.open(nyxExportManifestFilepath, "w"){|f| f.puts(JSON.pretty_generate(nyxExportManifest)) }
-
-            system("open '#{exportFolder}'")
-
-            return nil
+        end
+        if atom["type"] == "gluon" then
+            gluonId = atom["gluonId"]
+            filepath = Librarian0Utils::gluonIdToFilepath(gluonId)
+            AionCore::exportHashAtFolder(Librarian11GluonElizabeth.new(filepath), atom["payload"], "/Users/pascal/Desktop")
+            if LucilleCore::askQuestionAnswerAsBoolean("> edit gluon ? ", false) then
+                location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
+                return if location.nil?
+                nhash = Librarian0Utils::locationToGluonRootNamedHash(gluonId, location)
+                Librarian0Utils::moveFileToBinTimeline(location)
+                atom["payload"] = nhash
+                Librarian6Objects::commit(atom)
+            end
         end
         if atom["type"] == "marble" then
             marbleId = atom["payload"]
             Librarian5Atoms::findAndAccessMarble(marbleId)
-            return nil
         end
         if atom["type"] == "unique-string" then
             payload = atom["payload"]
@@ -518,9 +516,7 @@ class Librarian5Atoms
                 puts "[Librarian] Could not find location for unique string: #{payload}"
                 LucilleCore::pressEnterToContinue()
             end
-            return nil
         end
-        raise "(503e9474-bb0c-4eba-8270-850d99d8238b, uuid: #{uuid})"
     end
 
     # -- Data ------------------------------------------
@@ -548,6 +544,9 @@ class Librarian5Atoms
         if atom["type"] == "aion-point" then
             return "Atom (aion-point): #{atom["payload"]}"
         end
+        if atom["type"] == "gluon" then
+            return "Atom (gluon): #{atom["payload"]}"
+        end
         if atom["type"] == "marble" then
             return "Atom (marble): #{atom["payload"]}"
         end
@@ -572,6 +571,12 @@ class Librarian5Atoms
         if atom["type"] == "aion-point" then
             nhash = atom["payload"]
             return AionFsck::structureCheckAionHash(Librarian4Elizabeth.new(), nhash)
+        end
+        if atom["type"] == "gluon" then
+            gluonId = atom["gluonId"]
+            filepath = Librarian0Utils::gluonIdToFilepath(gluonId)
+            nhash = atom["payload"]
+            return AionFsck::structureCheckAionHash(Librarian11GluonElizabeth.new(filepath), nhash)
         end
         if atom["type"] == "marble" then
             return true
@@ -773,6 +778,75 @@ class Librarian9NonStandardOps
         end
         f.close()
         hashes
+    end
+end
+
+class Librarian11GluonElizabeth
+
+    # @filepath
+
+    def initialize(filepath)
+        @filepath = filepath
+    end
+
+    def commitBlob(blob)
+
+        filepath = @filepath
+
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "create table _data_ (_key_ string, _blob_ blob)", []
+            db.close
+        end
+
+        raise "a57bb88e-d792-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(filepath)
+
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _data_ where _key_=?", [nhash]
+        db.execute "insert into _data_ (_key_, _blob_) values (?,?)", [nhash, blob]
+        db.commit 
+        db.close
+        nhash
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+
+        filepath = @filepath
+
+        raise "71fadc7b-0aec-4ece-a0e7-b881cc5b3ca9" if !File.exists?(filepath)
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
+            blob = row['_blob_']
+        end
+        db.close
+        return blob if blob
+
+        raise "[Error: 3CCC5678-E1FE-4729-B72B-C7E5D7951983, nhash: #{nhash}]"
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
     end
 end
 

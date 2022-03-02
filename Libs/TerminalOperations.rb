@@ -96,6 +96,10 @@ class TerminalUtils
             return ["top", store.getDefault()]
         end
 
+        if Interpreting::match("todo", input) then
+            return ["todo", store.getDefault()]
+        end
+
         if Interpreting::match("transmute", input) then
             return ["transmute", store.getDefault()]
         end
