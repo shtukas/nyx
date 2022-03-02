@@ -329,7 +329,7 @@ class Waves
     # Waves::ns16s(universe)
     def self.ns16s(universe)
         items1, items2 = Waves::items()
-            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
+            .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
             .partition{|wave| Waves::isPriorityWave(wave) }
 
         items2 = items2

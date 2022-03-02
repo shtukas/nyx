@@ -9,7 +9,7 @@ class TxTodos
 
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        TxTodos::items().select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
+        TxTodos::items().select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
     end
 
     # TxTodos::itemsCardinal(n)
@@ -105,7 +105,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        Multiverse::setObjectUniverse(uuid, universe)
+        ObjectUniverse::setObjectUniverse(uuid, universe)
         item
     end
 
@@ -131,7 +131,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        Multiverse::setObjectUniverse(uuid, universe)
+        ObjectUniverse::setObjectUniverse(uuid, universe)
         item
     end
 
@@ -154,7 +154,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        Multiverse::setObjectUniverse(uuid, "backlog")
+        ObjectUniverse::setObjectUniverse(uuid, "backlog")
         item
     end
 
@@ -178,7 +178,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        Multiverse::setObjectUniverse(uuid, "backlog")
+        ObjectUniverse::setObjectUniverse(uuid, "backlog")
         item
     end
 
@@ -197,7 +197,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{Multiverse::getObjectUniverseOrNull(nx50["uuid"])})"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverse::getObjectUniverseOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -255,7 +255,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "universe: #{Multiverse::getObjectUniverseOrNull(uuid)}".yellow
+            puts "universe: #{ObjectUniverse::getObjectUniverseOrNull(uuid)}".yellow
             puts "ordinal: #{nx50["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
@@ -311,7 +311,7 @@ class TxTodos
             end
 
             if Interpreting::match("universe", command) then
-                Multiverse::interactivelySetObjectUniverse(nx50["uuid"])
+                ObjectUniverse::interactivelySetObjectUniverse(nx50["uuid"])
                 break
             end
 
@@ -320,7 +320,7 @@ class TxTodos
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 Librarian6Objects::commit(nx50)
-                Multiverse::setObjectUniverse(nx50["uuid"], universe)
+                ObjectUniverse::setObjectUniverse(nx50["uuid"], universe)
                 next
             end
 
@@ -329,7 +329,7 @@ class TxTodos
                 ordinal = TxTodos::nextOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 Librarian6Objects::commit(nx50)
-                Multiverse::setObjectUniverse(nx50["uuid"], universe)
+                ObjectUniverse::setObjectUniverse(nx50["uuid"], universe)
                 break
             end
 
@@ -388,14 +388,20 @@ class TxTodos
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
         TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
-            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
+            .select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
     end
 
     # TxTodos::ns16sOverflowing(universe)
     def self.ns16sOverflowing(universe)
-        TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
-            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
+        items =
+            if universe then
+                TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
+            else
+                TxTodos::itemsCardinal(100)
+            end
+        items
+            .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
             .select{|ns16| ns16["rt"] > 1 }
     end

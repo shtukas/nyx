@@ -165,6 +165,7 @@ require_relative "Links.rb"
 require_relative "Multiverse.rb"
 
 require_relative "Nx31.rb"
+require_relative "NxBallsService.rb"
 require_relative "NyxNetwork.rb"
 require_relative "NyxAdapter.rb"
 

@@ -135,21 +135,21 @@ class TerminalUtils
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             Librarian6Objects::commit(object)
-            Multiverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
         if source == "TxDated" and target == "TxDrop" then
             object["mikuType"] = "TxDrop"
             Librarian6Objects::commit(object)
-            Multiverse::interactivelySetObjectUniverse(object["uuid"])
+            ObjectUniverse::interactivelySetObjectUniverse(object["uuid"])
             return
         end
 
         if source == "TxDated" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
             Librarian6Objects::commit(object)
-            Multiverse::interactivelySetObjectUniverse(object["uuid"])
+            ObjectUniverse::interactivelySetObjectUniverse(object["uuid"])
             return
         end
 
@@ -159,7 +159,7 @@ class TerminalUtils
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             Librarian6Objects::commit(object)
-            Multiverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
@@ -168,7 +168,7 @@ class TerminalUtils
             object["mikuType"] = "TxDated"
             object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
             Librarian6Objects::commit(object)
-            Multiverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
@@ -178,7 +178,7 @@ class TerminalUtils
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             Librarian6Objects::commit(object)
-            Multiverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
             return
         end
 
@@ -290,7 +290,7 @@ class TerminalDisplayOperator
 
     # TerminalDisplayOperator::ns16HasStarted(ns16)
     def self.ns16HasStarted(ns16)
-        !BTreeSets::getOrNull(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"]).nil?
+        NxBallsService::isRunning(ns16["uuid"])
     end
 
     # TerminalDisplayOperator::commandStrWithPrefix(ns16, isDefaultItem)
@@ -320,8 +320,10 @@ class TerminalDisplayOperator
                 line
             }.join(" ")
 
-        puts "(universe: #{universe})"
-        vspaceleft = vspaceleft - 1
+        if universe then
+            puts "(universe: #{universe})"
+            vspaceleft = vspaceleft - 1
+        end
 
         store = ItemStore.new()
 
@@ -342,25 +344,6 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
 
-        running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
-        if running.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-        running
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
-                .each{|nxball|
-                    delegate = {
-                        "uuid"       => "84FF58F7-6607-4E32:#{nxball["uuid"]}",
-                        "NxBallUUID" => nxball["uuid"],
-                        "mikuType"      => "NxBallDelegate1" 
-                    }
-                    store.register(delegate, true)
-                    line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
-                    puts line
-                    vspaceleft = vspaceleft - Utils::verticalSize(line)
-                }
-
         if section2.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -376,7 +359,7 @@ class TerminalDisplayOperator
             }
 
         top = Topping::getText(universe)
-        if top.strip.size > 0 then
+        if top and top.strip.size > 0 then
             puts ""
             puts "(-->) (top)".green
             top = top.lines.first(10).join()
@@ -428,7 +411,7 @@ class TerminalDisplayOperator
                 break
             end
 
-            universe = StoredUniverse::getUniverse()
+            universe = StoredUniverse::getUniversePossiblyNull()
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }

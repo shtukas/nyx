@@ -3,39 +3,14 @@
 
 class Multiverse
 
-    # Multiverse::getObjectUniverseOrNull(uuid)
-    def self.getObjectUniverseOrNull(uuid)
-        universe = KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
-        if universe == "eva" then
-            puts "updating outdated universe attribution from eva to backlog"
-            universe = "backlog"
-            Multiverse::setObjectUniverse(uuid, "backlog")
-
-        end
-        if universe == "xstream" then
-            puts "updating outdated universe attribution from xstream to backlog"
-            universe = "backlog"
-            Multiverse::setObjectUniverse(uuid, "backlog")
-        end
-        universe
-    end
-
-    # Multiverse::setObjectUniverse(uuid, universe)
-    def self.setObjectUniverse(uuid, universe)
-        raise "(error: incorrect universe: #{universe})" if !Multiverse::universes().include?(universe)
-        KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid, universe)
-    end
-
-    # Multiverse::getUniverseOrDefault(uuid)
-    def self.getUniverseOrDefault(uuid)
-        universe = Multiverse::getObjectUniverseOrNull(uuid)
-        return universe if universe
-        "lucille"
-    end
-
     # Multiverse::universes()
     def self.universes()
         ["lucille", "beach", "backlog", "work", "jedi"]
+    end
+
+    # Multiverse::interactivelySelectUniverseOrNull()
+    def self.interactivelySelectUniverseOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes())
     end
 
     # Multiverse::interactivelySelectUniverse()
@@ -45,10 +20,48 @@ class Multiverse
         universe
     end
 
-    # Multiverse::interactivelySetObjectUniverse(uuid)
+end
+
+class ObjectUniverse
+
+    # ObjectUniverse::getObjectUniverseOrNull(uuid)
+    def self.getObjectUniverseOrNull(uuid)
+        universe = KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
+        if universe == "eva" then
+            puts "updating outdated universe attribution from eva to backlog"
+            universe = "backlog"
+            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+        end
+        if universe == "xstream" then
+            puts "updating outdated universe attribution from xstream to backlog"
+            universe = "backlog"
+            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+        end
+        universe
+    end
+
+    # ObjectUniverse::getObjectUniverseOrDefault(uuid)
+    def self.getObjectUniverseOrDefault(uuid)
+        universe = ObjectUniverse::getObjectUniverseOrNull(uuid)
+        if universe.nil? then
+            universe = "lucille"
+        end
+        if !Multiverse::universes().include?(universe) then
+            universe = "lucille"
+        end
+        universe
+    end
+
+    # ObjectUniverse::setObjectUniverse(uuid, universe)
+    def self.setObjectUniverse(uuid, universe)
+        raise "(error: incorrect universe: #{universe})" if !Multiverse::universes().include?(universe)
+        KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid, universe)
+    end
+
+    # ObjectUniverse::interactivelySetObjectUniverse(uuid)
     def self.interactivelySetObjectUniverse(uuid)
         universe = Multiverse::interactivelySelectUniverse()
-        Multiverse::setObjectUniverse(uuid, universe)
+        ObjectUniverse::setObjectUniverse(uuid, universe)
     end
 end
 
@@ -66,9 +79,18 @@ class StoredUniverse
         "lucille"
     end
 
-    # StoredUniverse::interactivelySetUniverse()
-    def self.interactivelySetUniverse()
-        universe = Multiverse::interactivelySelectUniverse()
+    # StoredUniverse::getUniversePossiblyNull()
+    def self.getUniversePossiblyNull()
+        KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
+    end
+
+    # StoredUniverse::interactivelySetUniversePossiblyNullUniverse()
+    def self.interactivelySetUniversePossiblyNullUniverse()
+        universe = Multiverse::interactivelySelectUniverseOrNull()
+        if universe.nil? then
+            KeyValueStore::destroy(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
+            return
+        end
         StoredUniverse::setUniverse(universe)
     end
 end

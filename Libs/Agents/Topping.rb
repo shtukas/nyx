@@ -7,6 +7,7 @@ class Topping
 
     # Topping::getText(universe)
     def self.getText(universe)
+        return nil if universe.nil?
         filepath = "/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/tops/#{universe}.txt"
         if !File.exists?(filepath) then
             FileUtils.touch(filepath)

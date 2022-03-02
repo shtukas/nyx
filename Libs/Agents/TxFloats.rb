@@ -38,7 +38,7 @@ class TxFloats
           "atomuuid"    => atom["uuid"]
         }
         Librarian6Objects::commit(item)
-        Multiverse::interactivelySetObjectUniverse(uuid)
+        ObjectUniverse::interactivelySetObjectUniverse(uuid)
         item
     end
 
@@ -123,7 +123,7 @@ class TxFloats
             end
 
             if Interpreting::match("universe", command) then
-                Multiverse::interactivelySetObjectUniverse(float["uuid"])
+                ObjectUniverse::interactivelySetObjectUniverse(float["uuid"])
                 break
             end
 
@@ -178,8 +178,9 @@ class TxFloats
 
     # TxFloats::ns16s(universe)
     def self.ns16s(universe)
+        return [] if universe.nil?
         TxFloats::items()
-            .select{|item| Multiverse::getUniverseOrDefault(item["uuid"]) == universe }
+            .select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }
     end

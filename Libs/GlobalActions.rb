@@ -22,7 +22,7 @@ class GlobalActions
         end
 
         if command == ">>" then
-            StoredUniverse::interactivelySetUniverse()
+            StoredUniverse::interactivelySetUniversePossiblyNullUniverse()
             return
         end
 
@@ -108,22 +108,6 @@ class GlobalActions
 
             if object["mikuType"] == "NS16:Wave" then
                 Waves::access(object["wave"])
-                return
-            end
-
-            if object["mikuType"] == "NxBallDelegate1" then
-                uuid = object["NxBallUUID"]
-
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["close", "pursue", "pause"])
-                if action == "close" then
-                    NxBallsService::close(uuid, true)
-                end
-                if action == "pursue" then
-                    NxBallsService::pursue(uuid)
-                end
-                if action == "pause" then
-                    NxBallsService::pause(uuid)
-                end
                 return
             end
         end
@@ -249,33 +233,14 @@ class GlobalActions
 
         if command == "start" then
             ns16 = object
-            data = {
-                "uuid"          => ns16["uuid"],
-                "ns16"          => ns16,
-                "startUnixtime" => Time.new.to_f
-            }
-
-            # We starts the ns16 by adding it to the set.
-            BTreeSets::set(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", data["uuid"], data)
+            universeAccountNumber = UniverseAccounting::universeToAccountNumber(ObjectUniverse::getObjectUniverseOrDefault(ns16["uuid"]))
+            NxBallsService::issue(ns16["uuid"], ns16["announce"], [ns16["uuid"], universeAccountNumber])
             return
         end
 
         if command == "stop" then
             ns16 = object
-            data = BTreeSets::getOrNull(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"])
-            return if data.nil?
-
-            timespan = Time.new.to_f - data["startUnixtime"]
-
-            # Now adding the timespan to the element uuid
-            # In this code we assume that the uuid to receive the time is the ns16 uuid, because the ns16 uuid is often the item uuid
-            # TODO: NS16s should provide a set of uuids to send the time to, one of which should be the universe account number 
-            Bank::put(ns16["uuid"], timespan)
-
-            # For the moment we send all the time to backlog
-            Bank::put(UniverseAccounting::universeToAccountNumber("backlog"), timespan)
-
-            BTreeSets::destroy(nil, "2d51b69f-ece7-4d85-b27e-39770c470401", ns16["uuid"])
+            NxBallsService::close(ns16["uuid"], true)
             return
         end
 
@@ -337,7 +302,7 @@ class GlobalActions
             ns16 = object
             if ns16["mikuType"] == "NS16:TxFloat" then
                 item = ns16["TxFloat"]
-                Multiverse::interactivelySetObjectUniverse(item["uuid"])
+                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
                 return
             end
         end
