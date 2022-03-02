@@ -387,8 +387,15 @@ class TxTodos
 
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
-        TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
-            .select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
+        items =
+            if universe then
+                TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
+            else
+                TxTodos::itemsCardinal(100)
+            end
+
+        items
+            .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
     end
 

@@ -12,6 +12,7 @@ class GlobalActions
             # Double Dot typically peforms start and access
             GlobalActions::action("start", object)
             GlobalActions::action("access", object)
+            GlobalActions::action("stop", object)
             return
         end
 

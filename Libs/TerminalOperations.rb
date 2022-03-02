@@ -276,7 +276,7 @@ class NS16sOperator
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
             Waves::ns16s(universe),
-            (universe == "lucille") ? Inbox::ns16s() : [],
+            (universe.nil? or universe == "lucille") ? Inbox::ns16s() : [],
             TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(universe), TxDrops::ns16s(universe)),
             TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(universe), TxTodos::ns16s(universe))
         ]
@@ -343,6 +343,25 @@ class TerminalDisplayOperator
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
+
+        #running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+        #if running.size>0 then
+        #    puts ""
+        #    vspaceleft = vspaceleft - 1
+        #end
+        #running
+        #        .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
+        #        .each{|nxball|
+        #            delegate = {
+        #                "uuid"       => "84FF58F7-6607-4E32:#{nxball["uuid"]}",
+        #                "NxBallUUID" => nxball["uuid"],
+        #                "mikuType"      => "NxBallDelegate1" 
+        #            }
+        #            store.register(delegate, true)
+        #            line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::runningStringOrEmptyString("", nxball["uuid"], "")})".green
+        #            puts line
+        #            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        #        }
 
         if section2.size>0 then
             puts ""
