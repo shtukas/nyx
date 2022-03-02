@@ -35,13 +35,12 @@ class TerminalUtils
             end
         }
 
-        if Interpreting::match("expose", input) then
-            return ["expose", store.getDefault()]
+        if Interpreting::match("[]", input) then
+            return ["[]", nil]
         end
 
-        if Interpreting::match("expose *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            return outputForCommandAndOrdinal.call("expose", ordinal, store)
+        if Interpreting::match(">>", input) then
+            return [">>", nil]
         end
 
         if Interpreting::match("..", input) then
@@ -53,22 +52,8 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("..", ordinal, store)
         end
 
-        if Interpreting::match("transmute", input) then
-            return ["transmute", store.getDefault()]
-        end
-
-        if Interpreting::match("transmute *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            return outputForCommandAndOrdinal.call("transmute", ordinal, store)
-        end
-
-        if Interpreting::match("start", input) then
-            return ["start", store.getDefault()]
-        end
-
-        if Interpreting::match("start *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            return outputForCommandAndOrdinal.call("start", ordinal, store)
+        if Interpreting::match(">todo", input) then
+            return [">todo", store.getDefault()]
         end
 
         if Interpreting::match("done", input) then
@@ -80,17 +65,22 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("done", ordinal, store)
         end
 
-        if Interpreting::match("universe", input) then
-            return ["universe", store.getDefault()]
+        if Interpreting::match("expose", input) then
+            return ["expose", store.getDefault()]
         end
 
-        if Interpreting::match("universe *", input) then
+        if Interpreting::match("expose *", input) then
             _, ordinal = Interpreting::tokenizer(input)
-            return outputForCommandAndOrdinal.call("universe", ordinal, store)
+            return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
-        if Interpreting::match("universe", input) then
-            return ["universe", store.getDefault()]
+        if Interpreting::match("start", input) then
+            return ["start", store.getDefault()]
+        end
+
+        if Interpreting::match("start *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("start", ordinal, store)
         end
 
         if Interpreting::match("stop", input) then
@@ -102,12 +92,22 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
         end
 
-        if Interpreting::match("[]", input) then
-            return ["[]", nil]
+        if Interpreting::match("transmute", input) then
+            return ["transmute", store.getDefault()]
         end
 
-        if Interpreting::match(">>", input) then
-            return [">>", nil]
+        if Interpreting::match("transmute *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("transmute", ordinal, store)
+        end
+
+        if Interpreting::match("universe", input) then
+            return ["universe", store.getDefault()]
+        end
+
+        if Interpreting::match("universe *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("universe", ordinal, store)
         end
 
         [nil, nil]

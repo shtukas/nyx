@@ -40,6 +40,17 @@ class GlobalActions
             if ns16["mikuType"] == "NS16:Inbox1" then
                 location = ns16["location"]
                 NyxAdapter::locationToNyx(location)
+                return
+            end
+        end
+
+        if command == ">todo" then
+            ns16 = object
+            if ns16["mikuType"] == "NS16:Inbox1" then
+                location = ns16["location"]
+                TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
+                LucilleCore::removeFileSystemLocation(location)
+                return
             end
         end
 
