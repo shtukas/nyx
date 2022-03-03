@@ -12,6 +12,12 @@ class GlobalActions
             # Double Dot typically peforms start and access
             GlobalActions::action("start", object)
             GlobalActions::action("access", object)
+
+            # We do not perform "stop" on a wave
+            # NxBall Management will have been done by access itself.
+            if object["mikuType"] == "NS16:Wave" then
+                return
+            end
             GlobalActions::action("stop", object)
             return
         end
@@ -108,7 +114,16 @@ class GlobalActions
             end
 
             if object["mikuType"] == "NS16:Wave" then
-                Waves::access(object["wave"])
+                code = Waves::access(object["wave"])
+                # "ebdc6546-8879" # Continue
+                # "8a2aeb48-780d" # Close NxBall
+                if code == "ebdc6546-8879" then
+                    return
+                end
+                if code == "8a2aeb48-780d" then
+                    NxBallsService::close(object["uuid"], true)
+                    return 
+                end
                 return
             end
         end

@@ -267,7 +267,9 @@ class Waves
     # -------------------------------------------------------------------------
     # NS16
 
-    # Waves::access(wave)
+    # Waves::access(wave) # Code
+    # "ebdc6546-8879" # Continue
+    # "8a2aeb48-780d" # Close NxBall
     def self.access(wave)
         system("clear")
         uuid = wave["uuid"]
@@ -282,26 +284,30 @@ class Waves
             if operation.nil? or operation == "done (default)" then
                 Waves::performDone(wave)
                 NxBallsService::close(uuid, true)
-                break
+                return "8a2aeb48-780d" # Close NxBall
             end
             if operation == "stop and exit" then
                 NxBallsService::close(uuid, true)
-                break
+                return "8a2aeb48-780d" # Close NxBall
             end
             if operation == "exit and continue" then
-                break
+                return "ebdc6546-8879" # Continue
             end
             if operation == "landing and back" then
                 Waves::landing(wave)
-
                 # The next line handle if the landing resulted in a destruction of the object
-                break if Librarian6Objects::getObjectByUUIDOrNull(wave["uuid"]).nil?
+                if Librarian6Objects::getObjectByUUIDOrNull(wave["uuid"]).nil? then
+                    NxBallsService::close(uuid, true)
+                    return "8a2aeb48-780d" # Close NxBall
+                end
             end
             if operation == "delay" then
                 unixtime = Utils::interactivelySelectUnixtimeOrNull()
-                next if unixtime.nil?
-                DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
-                break
+                if unixtime.nil? then
+                    DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+                    NxBallsService::close(uuid, true)
+                    return "8a2aeb48-780d" # Close NxBall
+                end
             end
         }
     end
