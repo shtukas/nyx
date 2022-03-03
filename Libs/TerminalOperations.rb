@@ -363,8 +363,7 @@ class TerminalDisplayOperator
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
                 .each{|nxball|
                     delegate = {
-                        "uuid"       => "84FF58F7-6607-4E32:#{nxball["uuid"]}",
-                        "NxBallUUID" => nxball["uuid"],
+                        "uuid"       => nxball["uuid"],
                         "mikuType"   => "NxBallNS16Delegate1" 
                     }
                     store.register(delegate, true)

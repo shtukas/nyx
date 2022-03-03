@@ -164,7 +164,7 @@ class GlobalActions
 
         if command == "done" then
             if object["mikuType"] == "NxBallNS16Delegate1" then
-                NxBallsService::close(object["NxBallUUID"], true)
+                NxBallsService::close(object["uuid"], true)
                 return
             end
             if object["mikuType"] == "NS16:TxDated" then
