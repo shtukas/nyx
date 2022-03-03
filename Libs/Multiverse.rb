@@ -36,6 +36,10 @@ class ObjectUniverse
             universe = "backlog"
             ObjectUniverse::setObjectUniverse(uuid, "backlog")
         end
+        if !Multiverse::universes().include?(universe) then
+            universe = "lucille"
+            ObjectUniverse::setObjectUniverse(uuid, "lucille")
+        end
         universe
     end
 
