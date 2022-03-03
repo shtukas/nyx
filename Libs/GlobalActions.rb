@@ -153,6 +153,11 @@ class GlobalActions
                 Waves::performDone(wave)
                 return
             end
+           if object["mikuType"] == "NS16:TxDated" then
+                item = object["TxDated"]
+                TxDateds::destroy(item["uuid"])
+                return
+            end
         end
 
         if command == "drop" then
