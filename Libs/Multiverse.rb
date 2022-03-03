@@ -5,7 +5,7 @@ class Multiverse
 
     # Multiverse::universes()
     def self.universes()
-        ["lucille", "beach", "backlog", "work", "jedi"]
+        ["lucille", "beach", "backlog", "work"]
     end
 
     # Multiverse::interactivelySelectUniverseOrNull()
@@ -33,6 +33,11 @@ class ObjectUniverse
         end
         if universe == "xstream" then
             puts "updating outdated universe attribution from xstream to backlog"
+            universe = "backlog"
+            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+        end
+        if universe == "jedi" then
+            puts "updating outdated universe attribution from jedi to backlog"
             universe = "backlog"
             ObjectUniverse::setObjectUniverse(uuid, "backlog")
         end
@@ -113,8 +118,7 @@ class UniverseAccounting
             "lucille" => "3b1a6d37-2c9c-4b75-bfca-be1fab1520d4",
             "beach"   => "12f07bbd-2831-4e7f-9e77-e7153e48805e",
             "backlog" => "0ee588ae-386f-40ab-a900-c3fe52b5ad59",
-            "work"    => "acde7d70-2450-4d9d-a15b-13a427ac4023",
-            "jedi"    => "ab282514-739b-4180-8064-8b800227fa5c"
+            "work"    => "acde7d70-2450-4d9d-a15b-13a427ac4023"
         }
         map[universe]
     end
@@ -134,9 +138,8 @@ class UniverseAccounting
         map = {
             "lucille" => nil,
             "beach"   => 1,
-            "backlog" => 1.5,
+            "backlog" => 3,
             "work"    => 6,
-            "jedi"    => 2
         }
         map[universe]
     end
