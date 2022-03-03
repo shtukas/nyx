@@ -148,14 +148,34 @@ class GlobalActions
         end
 
         if command == "done" then
-           if object["mikuType"] == "NS16:Wave" then
+            if object["mikuType"] == "NS16:Wave" then
                 wave = object["wave"]
                 Waves::performDone(wave)
                 return
             end
-           if object["mikuType"] == "NS16:TxDated" then
+            if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
-                TxDateds::destroy(item["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
+                    TxDateds::destroy(item["uuid"])
+                end
+                return
+            end
+            if object["mikuType"] == "NS16:TxTodo" then
+                item = object["TxTodo"]
+                if NxBallsService::isRunning(item["uuid"]) then
+                    action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["stop running NxBall", "destroy item"])
+                    return if action.nil?
+                    if action == "stop running NxBall" then
+                        NxBallsService::close(item["uuid"], true)
+                        return
+                    end
+                    if action == "destroy item" then
+                        # We go through the next section
+                    end
+                end
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
+                    TxTodos::destroy(item["uuid"])
+                end
                 return
             end
         end
