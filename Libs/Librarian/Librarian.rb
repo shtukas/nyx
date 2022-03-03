@@ -648,7 +648,7 @@ class Librarian6Objects
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _objects_", []) do |row|
+        db.execute("select * from _objects_ order by _ordinal_", []) do |row|
             answer << JSON.parse(row['_object_'])
         end
         db.close
@@ -662,7 +662,7 @@ class Librarian6Objects
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
+        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
             answer << JSON.parse(row['_object_'])
         end
         db.close
