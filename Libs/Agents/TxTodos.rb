@@ -7,29 +7,18 @@ class TxTodos
         Librarian6Objects::getObjectsByMikuType("TxTodo")
     end
 
-    # TxTodos::itemsForUniverse(universe)
-    def self.itemsForUniverse(universe)
-        TxTodos::items().select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
-    end
-
     # TxTodos::itemsCardinal(n)
     def self.itemsCardinal(n)
         Librarian6Objects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
     end
 
-    # TxTodos::itemsForUniverseWithCardinal(universe, n, useOptimization = false)
-    def self.itemsForUniverseWithCardinal(universe, n, useOptimization = false)
-        if useOptimization then
-            hourx = Time.new.to_s[0, 13]
-            uuids = KeyValueStore::getOrNull(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}:#{$GENERAL_SYSTEM_RUN_ID}")
-            if uuids.nil? then
-                uuids = TxTodos::itemsForUniverse(universe).first(n).map{|item| item["uuid"] }
-                KeyValueStore::set(nil, "779d61c8-8b92-5f2e-addb-057aaad1c65e:#{universe}:#{n}:#{hourx}:#{$GENERAL_SYSTEM_RUN_ID}", JSON.generate(uuids))
-            else
-                uuids = JSON.parse(uuids)
-            end
-            return uuids.map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }.compact
-        end
+    # TxTodos::itemsForUniverse(universe)
+    def self.itemsForUniverse(universe)
+        TxTodos::items().select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
+    end
+
+    # TxTodos::itemsForUniverseWithCardinal(universe, n)
+    def self.itemsForUniverseWithCardinal(universe, n)
         TxTodos::itemsForUniverse(universe).first(n)
     end
 
@@ -389,7 +378,7 @@ class TxTodos
     def self.ns16s(universe)
         items =
             if universe then
-                TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
+                TxTodos::itemsForUniverseWithCardinal(universe, 50)
             else
                 TxTodos::itemsCardinal(100)
             end
@@ -403,7 +392,7 @@ class TxTodos
     def self.ns16sOverflowing(universe)
         items =
             if universe then
-                TxTodos::itemsForUniverseWithCardinal(universe, 50, useOptimization = true)
+                TxTodos::itemsForUniverseWithCardinal(universe, 50)
             else
                 TxTodos::itemsCardinal(100)
             end
