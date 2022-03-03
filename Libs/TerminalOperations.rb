@@ -74,6 +74,15 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
+        if Interpreting::match("pursue", input) then
+            return ["pursue", store.getDefault()]
+        end
+
+        if Interpreting::match("pursue *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("pursue", ordinal, store)
+        end
+
         if Interpreting::match("start", input) then
             return ["start", store.getDefault()]
         end
@@ -370,8 +379,11 @@ class TerminalDisplayOperator
             .each{|ns16|
                 store.register(ns16, false)
                 line = ns16["announce"]
-                line = "#{store.prefixString()} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
+                line = "#{store.prefixString()} #{(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]) || "").ljust(7)} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
+                if TerminalDisplayOperator::ns16HasStarted(ns16) then
+                    line = line.green
+                end
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
             }

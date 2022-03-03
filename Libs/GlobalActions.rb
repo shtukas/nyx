@@ -215,6 +215,12 @@ class GlobalActions
             return
         end
 
+        if command == "pursue" then
+            ns16 = object
+            NxBallsService::pursue(ns16["uuid"])
+            return
+        end
+
         if command == "redate" then
             ns16 = object
             if ns16["mikuType"] == "NS16:TxDated" then
