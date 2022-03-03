@@ -29,7 +29,7 @@ class GlobalActions
         end
 
         if command == ">>" then
-            StoredUniverse::interactivelySetUniversePossiblyNullUniverse()
+            StoredUniverse::interactivelySetUniversePossiblyNullUniversePossiblyShiftingUniverse()
             return
         end
 
