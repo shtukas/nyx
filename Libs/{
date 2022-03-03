@@ -1,0 +1,25 @@
+{
+  "uuid": "8c3c4dd8-d7c0-4b37-a94a-ecde79536b55",
+  "mikuType": "NS16:TxTodo",
+  "announce": "[todo] (3.96) The extension of consent string capture. (description-only) (work)",
+  "commands": [
+    "..",
+    "done"
+  ],
+  "ordinal": 0.0,
+  "TxTodo": {
+    "uuid": "8c3c4dd8-d7c0-4b37-a94a-ecde79536b55",
+    "mikuType": "TxTodo",
+    "description": "The extension of consent string capture.",
+    "unixtime": 1646065836,
+    "datetime": "2022-02-28T16:30:36Z",
+    "atomuuid": "bfd13d96-4125-4ed3-88ca-761897f5b7db",
+    "ordinal": 0.0
+  },
+  "rt": 3.9623113440142737
+}
+{
+  "uuid": "84FF58F7-6607-4E32:8c3c4dd8-d7c0-4b37-a94a-ecde79536b55",
+  "NxBallUUID": "8c3c4dd8-d7c0-4b37-a94a-ecde79536b55",
+  "mikuType": "NxBallNS16Delegate1"
+}

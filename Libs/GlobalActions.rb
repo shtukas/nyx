@@ -163,9 +163,8 @@ class GlobalActions
         end
 
         if command == "done" then
-            if object["mikuType"] == "NS16:Wave" then
-                wave = object["wave"]
-                Waves::performDone(wave)
+            if object["mikuType"] == "NxBallNS16Delegate1" then
+                NxBallsService::close(object["NxBallUUID"], true)
                 return
             end
             if object["mikuType"] == "NS16:TxDated" then
@@ -191,6 +190,11 @@ class GlobalActions
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
                     TxTodos::destroy(item["uuid"])
                 end
+                return
+            end
+            if object["mikuType"] == "NS16:Wave" then
+                wave = object["wave"]
+                Waves::performDone(wave)
                 return
             end
         end
