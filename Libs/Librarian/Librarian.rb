@@ -91,11 +91,13 @@ class Librarian0Utils
         "/Users/pascal/Galaxy/DataBank/Librarian/Data/Matter/#{matterId}.sqlite3"
     end
 
-    # Librarian0Utils::locationToGluonRootNamedHash(matterId, location)
-    def self.locationToGluonRootNamedHash(matterId, location)
+    # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
+    def self.injectLocationIntoToMatterFile(matterId, location)
         raise "[Librarian0Utils: error: f3f9e10f-d9e6-4e12-bf35-12954231ae18, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
         filepath = Librarian0Utils::matterIdToFilepath(matterId)
-        AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(filepath), location)
+        nhash = AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(filepath), location)
+        # All the blobs have been added to the file, we now write the root hash
+        Librarian11MatterElizabeth.new(filepath).commitRootNamedHash(nhash)
     end
 
     # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
@@ -306,15 +308,14 @@ class Librarian5Atoms
     # Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location) # Atom
     def self.issueMatterAtomUsingLocation(matterId, location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = Librarian0Utils::locationToGluonRootNamedHash(matterId, location)
+        Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "Atom",
             "unixtime" => Time.new.to_f,
             "type"     => "matter",
-            "matterId" => matterId,
-            "payload"  => nhash
+            "matterId" => matterId
         }
     end
 
@@ -489,14 +490,13 @@ class Librarian5Atoms
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
             filepath = Librarian0Utils::matterIdToFilepath(matterId)
-            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(filepath), atom["payload"], "/Users/pascal/Desktop")
+            nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
+            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(filepath), nhash, "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                nhash = Librarian0Utils::locationToGluonRootNamedHash(matterId, location)
+                Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
                 Librarian0Utils::moveFileToBinTimeline(location)
-                atom["payload"] = nhash
-                Librarian6Objects::commit(atom)
             end
         end
         if atom["type"] == "marble" then
@@ -545,7 +545,7 @@ class Librarian5Atoms
             return "Atom (aion-point): #{atom["payload"]}"
         end
         if atom["type"] == "matter" then
-            return "Atom (matter): #{atom["payload"]}"
+            return "Atom (matter)"
         end
         if atom["type"] == "marble" then
             return "Atom (marble): #{atom["payload"]}"
@@ -575,7 +575,7 @@ class Librarian5Atoms
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
             filepath = Librarian0Utils::matterIdToFilepath(matterId)
-            nhash = atom["payload"]
+            nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
             return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(filepath), nhash)
         end
         if atom["type"] == "marble" then
@@ -848,6 +848,37 @@ class Librarian11MatterElizabeth
         rescue
             false
         end
+    end
+
+    def commitRootNamedHash(nhash)
+
+        filepath = @filepath
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _data_ where _key_=?", ["root-nhash"]
+        db.execute "insert into _data_ (_key_, _blob_) values (?,?)", ["root-nhash", nhash]
+        db.commit 
+        db.close
+    end
+
+    def getRootNamedHash()
+        filepath = @filepath
+
+        raise "b99a6268-f1d2-490d-a676-05a87574ddff" if !File.exists?(filepath)
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        nhash = nil
+        db.execute("select * from _data_ where _key_=?", ["root-nhash"]) do |row|
+            nhash = row['_blob_']
+        end
+        db.close
+        nhash
     end
 end
 
