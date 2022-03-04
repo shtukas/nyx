@@ -56,6 +56,15 @@ class TerminalUtils
             return [">todo", store.getDefault()]
         end
 
+        if Interpreting::match("access", input) then
+            return ["access", store.getDefault()]
+        end
+
+        if Interpreting::match("access *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("access", ordinal, store)
+        end
+
         if Interpreting::match("done", input) then
             return ["done", store.getDefault()]
         end
