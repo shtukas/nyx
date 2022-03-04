@@ -14,7 +14,11 @@ class TxTodos
 
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        TxTodos::items().select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
+        TxTodos::items()
+            .select{|item| 
+                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse.nil? or (objuniverse == universe)
+            }
     end
 
     # TxTodos::itemsForUniverseWithCardinal(universe, n)
@@ -367,7 +371,6 @@ class TxTodos
             "uuid"     => uuid,
             "mikuType" => "NS16:TxTodo",
             "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
-            "commands" => ["..", "done"],
             "ordinal"  => nx50["ordinal"],
             "TxTodo"   => nx50,
             "rt"       => rt,
@@ -385,7 +388,10 @@ class TxTodos
             end
 
         items
-            .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
+            .select{|item| 
+                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse.nil? or (objuniverse == universe)
+            }
             .map{|item| TxTodos::ns16(item) }
     end
 

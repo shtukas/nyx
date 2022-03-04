@@ -23,13 +23,12 @@ class GlobalActions
         end
 
         if command == "[]" then
-            universe = StoredUniverse::getUniverse()
-            Topping::applyTransformation(universe)
+            Topping::applyTransformation(StoredUniverse::getUniverseOrNull())
             return
         end
 
         if command == ">>" then
-            StoredUniverse::interactivelySetUniversePossiblyNullUniverse()
+            StoredUniverse::interactivelySetUniverseOrUnsetUniverse()
             return
         end
 
@@ -278,7 +277,7 @@ class GlobalActions
         end
 
         if command == "run top" then
-            Topping::runTop(StoredUniverse::getUniverse())
+            Topping::runTop(StoredUniverse::getUniverseOrNull())
             return
         end
 
@@ -289,8 +288,8 @@ class GlobalActions
 
         if command == "start" then
             ns16 = object
-            universeAccountNumber = UniverseAccounting::universeToAccountNumber(ObjectUniverse::getObjectUniverseOrDefault(ns16["uuid"]))
-            NxBallsService::issue(ns16["uuid"], ns16["announce"], [ns16["uuid"], universeAccountNumber])
+            universeAccountNumber = UniverseAccounting::universeToAccountNumberOrNull(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]))
+            NxBallsService::issue(ns16["uuid"], ns16["announce"], [ns16["uuid"], universeAccountNumber].compact)
             return
         end
 
@@ -328,8 +327,7 @@ class GlobalActions
         end
 
         if command == "top" then
-            universe = StoredUniverse::getUniverse()
-            Topping::top(universe)
+            Topping::top(StoredUniverse::getUniverseOrNull())
             return
         end
 
@@ -358,6 +356,16 @@ class GlobalActions
             ns16 = object
             if ns16["mikuType"] == "NS16:TxFloat" then
                 item = ns16["TxFloat"]
+                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
+                return
+            end
+            if ns16["mikuType"] == "NS16:Wave" then
+                item = ns16["wave"]
+                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
+                return
+            end
+            if ns16["mikuType"] == "NS16:TxTodo" then
+                item = ns16["TxTodo"]
                 ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
                 return
             end

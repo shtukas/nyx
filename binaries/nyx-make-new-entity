@@ -6,7 +6,7 @@ require_relative "../Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-# This is call from `lucille`
+# This is called from `lucille`
 
 entity = Nx31::interactivelyCreateNewOrNull()
 exit if entity.nil?

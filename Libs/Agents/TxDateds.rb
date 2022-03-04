@@ -198,7 +198,6 @@ class TxDateds
             "uuid"     => uuid,
             "mikuType" => "NS16:TxDated",
             "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{AgentsUtils::atomTypeForToStrings(" ", mx49["atomuuid"])}",
-            "commands" => ["..", "done", "redate", "transmute"],
             "TxDated"     => mx49
         }
     end

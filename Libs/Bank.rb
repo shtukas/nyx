@@ -12,6 +12,7 @@ class Bank
 
     # Bank::put(setuuid, weight: Float)
     def self.put(setuuid, weight)
+        return if setuuid.nil?
         operationuuid = SecureRandom.uuid
         unixtime = Time.new.to_i
         date = Utils::today()
@@ -111,6 +112,7 @@ class BankExtended
 
     # BankExtended::stdRecoveredDailyTimeInHours(setuuid)
     def self.stdRecoveredDailyTimeInHours(setuuid)
+        return 0 if setuuid.nil?
         (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7)*86400).to_f/3600
     end
 end

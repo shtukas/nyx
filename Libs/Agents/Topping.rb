@@ -23,6 +23,7 @@ class Topping
 
     # Topping::applyTransformation(universe)
     def self.applyTransformation(universe)
+        return if universe.nil?
         text = Topping::getText(universe)
         Utils::dropTextAtBinTimeline("Catalyst-Top-#{universe}.txt", text)
         text = SectionsType0141::applyNextTransformationToText(text)
@@ -31,6 +32,7 @@ class Topping
 
     # Topping::top(universe)
     def self.top(universe)
+        return if universe.nil?
         text = Topping::getText(universe)
         Utils::dropTextAtBinTimeline("Catalyst-Top-#{universe}.txt", text)
         text = Utils::editTextSynchronously(text)
@@ -39,9 +41,10 @@ class Topping
 
     # Topping::runTop(universe)
     def self.runTop(universe)
+        return if universe.nil?
         uuid = "846b76f4-0d69-49cc-91cc-f4109ec37ef4:#{universe}"
         description = "Top @ #{universe}"
-        accounts = [UniverseAccounting::universeToAccountNumber(universe)]
+        accounts = [UniverseAccounting::universeToAccountNumberOrNull(universe)].compact
         NxBallsService::issue(uuid, description, accounts)
     end
 end

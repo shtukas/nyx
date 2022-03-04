@@ -327,7 +327,6 @@ class Waves
             "uuid"     => uuid,
             "mikuType" => "NS16:Wave",
             "announce" => Waves::toString(wave),
-            "commands" => ["..", "done"],
             "wave"     => wave
         }
     end
@@ -335,7 +334,9 @@ class Waves
     # Waves::ns16s(universe)
     def self.ns16s(universe)
         items1, items2 = Waves::items()
-            .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
+            .select{|item| 
+                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse.nil? or (objuniverse == universe) }
             .partition{|wave| Waves::isPriorityWave(wave) }
 
         items2 = items2

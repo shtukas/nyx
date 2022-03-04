@@ -5,7 +5,7 @@ class Multiverse
 
     # Multiverse::universes()
     def self.universes()
-        ["lucille", "beach", "backlog", "work"]
+        ["backlog", "work"]
     end
 
     # Multiverse::interactivelySelectUniverseOrNull()
@@ -31,6 +31,11 @@ class ObjectUniverse
             universe = "backlog"
             ObjectUniverse::setObjectUniverse(uuid, "backlog")
         end
+        if universe == "beach" then
+            puts "updating outdated universe attribution from beach to backlog"
+            universe = "backlog"
+            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+        end
         if universe == "xstream" then
             puts "updating outdated universe attribution from xstream to backlog"
             universe = "backlog"
@@ -42,20 +47,8 @@ class ObjectUniverse
             ObjectUniverse::setObjectUniverse(uuid, "backlog")
         end
         if !Multiverse::universes().include?(universe) then
-            universe = "lucille"
-            ObjectUniverse::setObjectUniverse(uuid, "lucille")
-        end
-        universe
-    end
-
-    # ObjectUniverse::getObjectUniverseOrDefault(uuid)
-    def self.getObjectUniverseOrDefault(uuid)
-        universe = ObjectUniverse::getObjectUniverseOrNull(uuid)
-        if universe.nil? then
-            universe = "lucille"
-        end
-        if !Multiverse::universes().include?(universe) then
-            universe = "lucille"
+            universe = nil
+            KeyValueStore::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
         end
         universe
     end
@@ -85,15 +78,8 @@ class StoredUniverse
         KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
     end
 
-    # StoredUniverse::getUniverse()
-    def self.getUniverse()
-        universe = KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
-        return universe if universe
-        "lucille"
-    end
-
-    # StoredUniverse::interactivelySetUniversePossiblyNullUniverse()
-    def self.interactivelySetUniversePossiblyNullUniverse()
+    # StoredUniverse::interactivelySetUniverseOrUnsetUniverse()
+    def self.interactivelySetUniverseOrUnsetUniverse()
         universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes())
         if universe.nil? then
             KeyValueStore::destroy(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
@@ -105,10 +91,10 @@ end
 
 class UniverseAccounting
 
-    # UniverseAccounting::universeToAccountNumber(universe)
-    def self.universeToAccountNumber(universe)
+    # UniverseAccounting::universeToAccountNumberOrNull(universe)
+    def self.universeToAccountNumberOrNull(universe)
+        return nil if universe.nil?
         map = {
-            "lucille" => "3b1a6d37-2c9c-4b75-bfca-be1fab1520d4",
             "beach"   => "12f07bbd-2831-4e7f-9e77-e7153e48805e",
             "backlog" => "0ee588ae-386f-40ab-a900-c3fe52b5ad59",
             "work"    => "acde7d70-2450-4d9d-a15b-13a427ac4023"
@@ -118,20 +104,18 @@ class UniverseAccounting
 
     # UniverseAccounting::addTimeToUniverse(universe, timespan)
     def self.addTimeToUniverse(universe, timespan)
-        Bank::put(UniverseAccounting::universeToAccountNumber(universe), timespan)
+        Bank::put(UniverseAccounting::universeToAccountNumberOrNull(universe), timespan)
     end
 
     # UniverseAccounting::universeRT(universe)
     def self.universeRT(universe)
-        BankExtended::stdRecoveredDailyTimeInHours(UniverseAccounting::universeToAccountNumber(universe))
+        BankExtended::stdRecoveredDailyTimeInHours(UniverseAccounting::universeToAccountNumberOrNull(universe))
     end
 
     # UniverseAccounting::universeExpectationOrNull(universe)
     def self.universeExpectationOrNull(universe)
         map = {
-            "lucille" => nil,
-            "beach"   => 1,
-            "backlog" => 3,
+            "backlog" => 4,
             "work"    => 6,
         }
         map[universe]

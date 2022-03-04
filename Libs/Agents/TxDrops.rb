@@ -166,7 +166,6 @@ class TxDrops
             "uuid"     => uuid,
             "mikuType" => "NS16:TxDrop",
             "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
-            "commands" => ["..", "done", "transmute"],
             "TxDrop"   => nx70,
             "rt"       => rt,
             "nonListingDefaultable" => (rt > 1)
@@ -176,7 +175,10 @@ class TxDrops
     # TxDrops::ns16s(universe)
     def self.ns16s(universe)
         TxDrops::mikus()
-            .select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
+            .select{|item| 
+                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse.nil? or (objuniverse == universe)
+            }
             .map{|item| TxDrops::ns16(item) }
     end
 

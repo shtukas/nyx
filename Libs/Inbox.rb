@@ -122,7 +122,6 @@ class Inbox
                     "mikuType"     => "NS16:Inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
-                    "commands"     => ["..", "transmute"],
                     "location"     => location
                 }
             }

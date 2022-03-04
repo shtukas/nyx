@@ -308,14 +308,6 @@ class TerminalDisplayOperator
         NxBallsService::isRunning(ns16["uuid"])
     end
 
-    # TerminalDisplayOperator::commandStrWithPrefix(ns16, isDefaultItem)
-    def self.commandStrWithPrefix(ns16, isDefaultItem)
-        return "" if !isDefaultItem
-        return "" if ns16["commands"].nil?
-        return "" if ns16["commands"].empty?
-        " (commands: #{ns16["commands"].join(", ")})".yellow
-    end
-
     # TerminalDisplayOperator::standardDisplay(universe, floats, section3)
     def self.standardDisplay(universe, floats, section3)
         system("clear")
@@ -395,7 +387,7 @@ class TerminalDisplayOperator
                 end
                 store.register(ns16, canBeDefault)
                 line = ns16["announce"]
-                line = "#{store.prefixString()} #{(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]) || "").ljust(7)} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
+                line = "#{store.prefixString()} #{(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]) || "").ljust(7)} #{line}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 if TerminalDisplayOperator::ns16HasStarted(ns16) then
                     line = line.green
