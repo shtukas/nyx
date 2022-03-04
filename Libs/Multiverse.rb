@@ -80,28 +80,21 @@ class StoredUniverse
         KeyValueStore::set(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
     end
 
+    # StoredUniverse::getUniverseOrNull()
+    def self.getUniverseOrNull()
+        KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
+    end
+
     # StoredUniverse::getUniverse()
     def self.getUniverse()
         universe = KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
-        if universe == "universe:42e7ce12" then
-            return UniverseAccounting::getExpectationUniversesInRatioOrder().first
-        end
         return universe if universe
         "lucille"
     end
 
-    # StoredUniverse::getUniversePossiblyNull()
-    def self.getUniversePossiblyNull()
-        universe = KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
-        if universe == "universe:42e7ce12" then
-            universe = UniverseAccounting::getExpectationUniversesInRatioOrder().first
-        end
-        universe
-    end
-
-    # StoredUniverse::interactivelySetUniversePossiblyNullUniversePossiblyShiftingUniverse()
-    def self.interactivelySetUniversePossiblyNullUniversePossiblyShiftingUniverse()
-        universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes() + ["universe:42e7ce12"])
+    # StoredUniverse::interactivelySetUniversePossiblyNullUniverse()
+    def self.interactivelySetUniversePossiblyNullUniverse()
+        universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes())
         if universe.nil? then
             KeyValueStore::destroy(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
             return nil

@@ -29,7 +29,7 @@ class GlobalActions
         end
 
         if command == ">>" then
-            StoredUniverse::interactivelySetUniversePossiblyNullUniversePossiblyShiftingUniverse()
+            StoredUniverse::interactivelySetUniversePossiblyNullUniverse()
             return
         end
 
@@ -274,6 +274,11 @@ class GlobalActions
         if command == "require internet" then
             ns16 = object
             InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
+            return
+        end
+
+        if command == "run top" then
+            Topping::runTop(StoredUniverse::getUniverse())
             return
         end
 

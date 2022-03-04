@@ -83,6 +83,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("pursue", ordinal, store)
         end
 
+        if Interpreting::match("run top", input) then
+            return ["run top", nil]
+        end
+
         if Interpreting::match("start", input) then
             return ["start", store.getDefault()]
         end
@@ -418,7 +422,7 @@ class TerminalDisplayOperator
                 break
             end
 
-            universe = StoredUniverse::getUniversePossiblyNull()
+            universe = StoredUniverse::getUniverseOrNull()
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
