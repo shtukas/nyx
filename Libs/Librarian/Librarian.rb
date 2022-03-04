@@ -86,16 +86,16 @@ class Librarian0Utils
         AionCore::commitLocationReturnHash(Librarian4Elizabeth.new(), location)
     end
 
-    # Librarian0Utils::gluonIdToFilepath(gluonId)
-    def self.gluonIdToFilepath(gluonId)
-        "/Users/pascal/Galaxy/DataBank/Librarian/Data/GluonFiles/#{gluonId}.sqlite3"
+    # Librarian0Utils::matterIdToFilepath(matterId)
+    def self.matterIdToFilepath(matterId)
+        "/Users/pascal/Galaxy/DataBank/Librarian/Data/Matter/#{matterId}.sqlite3"
     end
 
-    # Librarian0Utils::locationToGluonRootNamedHash(gluonId, location)
-    def self.locationToGluonRootNamedHash(gluonId, location)
+    # Librarian0Utils::locationToGluonRootNamedHash(matterId, location)
+    def self.locationToGluonRootNamedHash(matterId, location)
         raise "[Librarian0Utils: error: f3f9e10f-d9e6-4e12-bf35-12954231ae18, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        filepath = Librarian0Utils::gluonIdToFilepath(gluonId)
-        AionCore::commitLocationReturnHash(Librarian11GluonElizabeth.new(filepath), location)
+        filepath = Librarian0Utils::matterIdToFilepath(matterId)
+        AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(filepath), location)
     end
 
     # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
@@ -303,17 +303,17 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueGluonAtomUsingLocation(gluonId, location) # Atom
-    def self.issueGluonAtomUsingLocation(gluonId, location)
+    # Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location) # Atom
+    def self.issueMatterAtomUsingLocation(matterId, location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = Librarian0Utils::locationToGluonRootNamedHash(gluonId, location)
+        nhash = Librarian0Utils::locationToGluonRootNamedHash(matterId, location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "Atom",
             "unixtime" => Time.new.to_f,
-            "type"     => "gluon",
-            "gluonId"  => gluonId,
+            "type"     => "matter",
+            "matterId" => matterId,
             "payload"  => nhash
         }
     end
@@ -322,7 +322,7 @@ class Librarian5Atoms
     def self.issueUniqueStringAtomUsingString(uniqueString)
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType" => "Atom",
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "unique-string",
             "payload"     => uniqueString
@@ -343,7 +343,7 @@ class Librarian5Atoms
     # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point (deprecated)", "gluon", "marble", "unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point (deprecated)", "matter", "marble", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
             return Librarian5Atoms::issueDescriptionOnlyAtom()
@@ -366,11 +366,11 @@ class Librarian5Atoms
             return Librarian5Atoms::issueAionPointAtomUsingLocation(location)
         end
 
-        if type == "gluon" then
+        if type == "matter" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            gluonId = SecureRandom.uuid
-            return Librarian5Atoms::issueGluonAtomUsingLocation(gluonId, location)
+            matterId = SecureRandom.uuid
+            return Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location)
         end
 
         if type == "marble" then
@@ -486,14 +486,14 @@ class Librarian5Atoms
                 Librarian6Objects::commit(atom)
             end
         end
-        if atom["type"] == "gluon" then
-            gluonId = atom["gluonId"]
-            filepath = Librarian0Utils::gluonIdToFilepath(gluonId)
-            AionCore::exportHashAtFolder(Librarian11GluonElizabeth.new(filepath), atom["payload"], "/Users/pascal/Desktop")
-            if LucilleCore::askQuestionAnswerAsBoolean("> edit gluon ? ", false) then
+        if atom["type"] == "matter" then
+            matterId = atom["matterId"]
+            filepath = Librarian0Utils::matterIdToFilepath(matterId)
+            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(filepath), atom["payload"], "/Users/pascal/Desktop")
+            if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                nhash = Librarian0Utils::locationToGluonRootNamedHash(gluonId, location)
+                nhash = Librarian0Utils::locationToGluonRootNamedHash(matterId, location)
                 Librarian0Utils::moveFileToBinTimeline(location)
                 atom["payload"] = nhash
                 Librarian6Objects::commit(atom)
@@ -544,8 +544,8 @@ class Librarian5Atoms
         if atom["type"] == "aion-point" then
             return "Atom (aion-point): #{atom["payload"]}"
         end
-        if atom["type"] == "gluon" then
-            return "Atom (gluon): #{atom["payload"]}"
+        if atom["type"] == "matter" then
+            return "Atom (matter): #{atom["payload"]}"
         end
         if atom["type"] == "marble" then
             return "Atom (marble): #{atom["payload"]}"
@@ -572,11 +572,11 @@ class Librarian5Atoms
             nhash = atom["payload"]
             return AionFsck::structureCheckAionHash(Librarian4Elizabeth.new(), nhash)
         end
-        if atom["type"] == "gluon" then
-            gluonId = atom["gluonId"]
-            filepath = Librarian0Utils::gluonIdToFilepath(gluonId)
+        if atom["type"] == "matter" then
+            matterId = atom["matterId"]
+            filepath = Librarian0Utils::matterIdToFilepath(matterId)
             nhash = atom["payload"]
-            return AionFsck::structureCheckAionHash(Librarian11GluonElizabeth.new(filepath), nhash)
+            return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(filepath), nhash)
         end
         if atom["type"] == "marble" then
             return true
@@ -782,7 +782,7 @@ class Librarian9NonStandardOps
     end
 end
 
-class Librarian11GluonElizabeth
+class Librarian11MatterElizabeth
 
     # @filepath
 

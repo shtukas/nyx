@@ -36,8 +36,8 @@ Atoms are content definitions
     "uuid"     : String
     "mikuType" : "Atom"
     "unixtime" : Float
-    "type"     : "gluon"
-    "gluonId"  : String (UUID)
+    "type"     : "matter"
+    "matterId" : String (UUID)
     "payload"  : nhash
 }
 
