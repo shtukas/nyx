@@ -3,4 +3,6 @@ NS16 {
     "mikuType" : String # type of Ns16 used for dispatch
     "announce" : String
     "commands" : Array[String] | nil
+
+    "nonListingDefaultable" : Boolean # Optional
 }

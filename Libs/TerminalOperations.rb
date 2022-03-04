@@ -269,17 +269,6 @@ end
 
 class NS16sOperator
 
-    # NS16sOperator::section2(universe)
-    def self.section2(universe)
-        [
-            TxDrops::ns16sOverflowing(universe),
-            TxTodos::ns16sOverflowing(universe)
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-    end
-
     # NS16sOperator::section3(universe)
     def self.section3(universe)
         [
@@ -290,8 +279,8 @@ class NS16sOperator
             TxDateds::ns16s(),
             Waves::ns16s(universe),
             (universe.nil? or universe == "lucille") ? Inbox::ns16s() : [],
-            TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxDrops::ns16sOverflowing(universe), TxDrops::ns16s(universe)),
-            TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(TxTodos::ns16sOverflowing(universe), TxTodos::ns16s(universe))
+            TxDrops::ns16s(universe),
+            TxTodos::ns16s(universe)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -314,8 +303,8 @@ class TerminalDisplayOperator
         " (commands: #{ns16["commands"].join(", ")})".yellow
     end
 
-    # TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
-    def self.standardDisplay(universe, floats, section2, section3)
+    # TerminalDisplayOperator::standardDisplay(universe, floats, section3)
+    def self.standardDisplay(universe, floats, section3)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-3
@@ -353,7 +342,7 @@ class TerminalDisplayOperator
         }
 
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
-        listingUUIDs = (section2 + section3).map{|item| item["uuid"] }
+        listingUUIDs = section3.map{|item| item["uuid"] }
         running = running.select{|nxball| !listingUUIDs.include?(nxball["uuid"]) }
         if running.size>0 then
             puts ""
@@ -372,23 +361,6 @@ class TerminalDisplayOperator
                     vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
 
-        if section2.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-        section2
-            .each{|ns16|
-                store.register(ns16, false)
-                line = ns16["announce"]
-                line = "#{store.prefixString()} #{(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]) || "").ljust(7)} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
-                break if (vspaceleft - Utils::verticalSize(line)) < 0
-                if TerminalDisplayOperator::ns16HasStarted(ns16) then
-                    line = line.green
-                end
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
-
         top = Topping::getText(universe)
         if top and top.strip.size > 0 then
             puts ""
@@ -404,7 +376,11 @@ class TerminalDisplayOperator
         end
         section3
             .each{|ns16|
-                store.register(ns16, true)
+                canBeDefault = true
+                if ns16["nonListingDefaultable"] then
+                    canBeDefault = false
+                end
+                store.register(ns16, canBeDefault)
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]) || "").ljust(7)} #{line}#{TerminalDisplayOperator::commandStrWithPrefix(ns16, store.latestEnteredItemIsDefault())}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
@@ -447,10 +423,8 @@ class TerminalDisplayOperator
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
-            section3 = TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(section2, section3)
-            TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
+            TerminalDisplayOperator::standardDisplay(universe, floats, section3)
         }
     end
 end

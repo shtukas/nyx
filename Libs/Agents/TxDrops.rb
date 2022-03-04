@@ -168,7 +168,8 @@ class TxDrops
             "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
             "commands" => ["..", "done", "transmute"],
             "TxDrop"   => nx70,
-            "rt"       => rt
+            "rt"       => rt,
+            "nonListingDefaultable" => (rt > 1)
         }
     end
 
@@ -177,14 +178,6 @@ class TxDrops
         TxDrops::mikus()
             .select{|item| ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxDrops::ns16(item) }
-    end
-
-    # TxDrops::ns16sOverflowing(universe)
-    def self.ns16sOverflowing(universe)
-        TxDrops::mikus()
-            .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
-            .map{|item| TxDrops::ns16(item) }
-            .select{|ns16| ns16["rt"] > 1 }
     end
 
     # --------------------------------------------------

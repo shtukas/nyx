@@ -370,7 +370,8 @@ class TxTodos
             "commands" => ["..", "done"],
             "ordinal"  => nx50["ordinal"],
             "TxTodo"   => nx50,
-            "rt"       => rt
+            "rt"       => rt,
+            "nonListingDefaultable" => (rt > 1)
         }
     end
 
@@ -386,20 +387,6 @@ class TxTodos
         items
             .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
             .map{|item| TxTodos::ns16(item) }
-    end
-
-    # TxTodos::ns16sOverflowing(universe)
-    def self.ns16sOverflowing(universe)
-        items =
-            if universe then
-                TxTodos::itemsForUniverseWithCardinal(universe, 50)
-            else
-                TxTodos::itemsCardinal(100)
-            end
-        items
-            .select{|item| universe.nil? or ObjectUniverse::getObjectUniverseOrDefault(item["uuid"]) == universe }
-            .map{|item| TxTodos::ns16(item) }
-            .select{|ns16| ns16["rt"] > 1 }
     end
 
     # --------------------------------------------------
