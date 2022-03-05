@@ -156,21 +156,22 @@ class Librarian2DataBlobs
     # Librarian2DataBlobs::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        folderpath = "#{Librarian2DataBlobs::repositoryFolderPath()}/#{nhash[7, 2]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        filepath = "#{folderpath}/#{nhash}.data"
-        File.open(filepath, "w"){|f| f.write(blob) }
+        KeyValueStore::set(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
         nhash
     end
 
     # Librarian2DataBlobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
+        blob = KeyValueStore::getOrNull(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
+        return blob if blob
         folderpath = "#{Librarian2DataBlobs::repositoryFolderPath()}/#{nhash[7, 2]}"
         filepath = "#{folderpath}/#{nhash}.data"
         if File.exists?(filepath) then
-            return IO.read(filepath)
+            puts "Moving to xcache: #{nhash}"
+            blob = IO.read(filepath)
+            Librarian2DataBlobs::putBlob(blob)
+            FileUtils.rm(filepath)
+            return blob
         end
         nil
     end
@@ -291,20 +292,6 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueAionPointAtomUsingLocation(location) # Atom
-    def self.issueAionPointAtomUsingLocation(location)
-        raise "[Librarian: error: 201d6b31-e08b-4e64-955c-807e717138d6]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = Librarian0Utils::locationToAionPointRootNamedHash(location)
-        Librarian0Utils::moveFileToBinTimeline(location)
-        {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "Atom",
-            "unixtime" => Time.new.to_f,
-            "type"     => "aion-point",
-            "payload"  => nhash
-        }
-    end
-
     # Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location) # Atom
     def self.issueMatterAtomUsingLocation(matterId, location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
@@ -344,7 +331,7 @@ class Librarian5Atoms
     # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point (deprecated)", "matter", "marble", "unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "matter", "marble", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
             return Librarian5Atoms::issueDescriptionOnlyAtom()
@@ -359,12 +346,6 @@ class Librarian5Atoms
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
             return Librarian5Atoms::issueUrlAtomUsingUrl(url)
-        end
-
-        if type == "aion-point (deprecated)" then
-            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
-            return nil if location.nil?
-            return Librarian5Atoms::issueAionPointAtomUsingLocation(location)
         end
 
         if type == "matter" then
@@ -390,13 +371,13 @@ class Librarian5Atoms
 
     # -- Update ------------------------------------------
 
-    # Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
-    def self.marbleIsInAionPointObject(object, marbleId)
+    # Librarian5Atoms::marbleIsInAionPointObject(matterId, object, marbleId)
+    def self.marbleIsInAionPointObject(matterId, object, marbleId)
         if object["aionType"] == "indefinite" then
             return false
         end
         if object["aionType"] == "directory" then
-            return object["items"].any?{|nhash| Librarian5Atoms::marbleIsInNhash(nhash, marbleId) }
+            return object["items"].any?{|nhash| Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId) }
         end
         if object["aionType"] == "file" then
             return false if (object["name"] != "nyx-marble.json")
@@ -406,12 +387,14 @@ class Librarian5Atoms
         end
     end
 
-    # Librarian5Atoms::marbleIsInNhash(nhash, marbleId)
-    def self.marbleIsInNhash(nhash, marbleId)
+    # Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId)
+    def self.marbleIsInNhash(matterId, nhash, marbleId)
         # TODO:
         # This function can easily been memoised
-        object = AionCore::getAionObjectByHash(Librarian4Elizabeth.new(), nhash)
-        Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
+
+        filepath = Librarian0Utils::matterIdToFilepath(matterId)
+        object = AionCore::getAionObjectByHash(Librarian11MatterElizabeth.new(filepath), nhash)
+        Librarian5Atoms::marbleIsInAionPointObject(matterId, object, marbleId)
     end
 
     # Librarian5Atoms::findAndAccessMarble(marbleId)
@@ -433,21 +416,23 @@ class Librarian5Atoms
         end
         puts "I could not find the marble in Galaxy using the Force"
 
-        # Ok, so now we are going to look inside aion-points
-        puts "I am going to look inside aion-points"
+        # Ok, so now we are going to look inside matter
+        puts "I am going to look inside matter"
         Librarian6Objects::getObjectsByMikuType("Atom")
             .each{|atom|
-                next if atom["type"] != "aion-point"
-                nhash = atom["payload"]
-                if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
-                    puts "I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
+                next if atom["type"] != "matter"
+                matterId = atom["matterId"]
+                filepath = Librarian0Utils::matterIdToFilepath(matterId)
+                nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
+                if Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId) then
+                    puts "I have found the marble in atom matter: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
                     Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
                     return
                 end
             }
 
-        puts "I could not find the marble inside aion-points"
+        puts "I could not find the marble inside matter"
         LucilleCore::pressEnterToContinue()
         return nil
     end
@@ -474,17 +459,6 @@ class Librarian5Atoms
                     atom["payload"] = url
                     Librarian6Objects::commit(atom)
                 end
-            end
-        end
-        if atom["type"] == "aion-point" then
-            AionCore::exportHashAtFolder(Librarian4Elizabeth.new(), atom["payload"], "/Users/pascal/Desktop")
-            if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
-                location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
-                return nil if location.nil?
-                nhash = Librarian0Utils::locationToAionPointRootNamedHash(location)
-                Librarian0Utils::moveFileToBinTimeline(location)
-                atom["payload"] = nhash
-                Librarian6Objects::commit(atom)
             end
         end
         if atom["type"] == "matter" then
@@ -541,9 +515,6 @@ class Librarian5Atoms
         if atom["type"] == "url" then
             return "Atom (url): #{atom["payload"]}"
         end
-        if atom["type"] == "aion-point" then
-            return "Atom (aion-point): #{atom["payload"]}"
-        end
         if atom["type"] == "matter" then
             return "Atom (matter)"
         end
@@ -568,15 +539,12 @@ class Librarian5Atoms
         if atom["type"] == "url" then
             return true
         end
-        if atom["type"] == "aion-point" then
-            nhash = atom["payload"]
-            return AionFsck::structureCheckAionHash(Librarian4Elizabeth.new(), nhash)
-        end
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
-            filepath = Librarian0Utils::matterIdToFilepath(matterId)
-            nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
-            return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(filepath), nhash)
+            #filepath = Librarian0Utils::matterIdToFilepath(matterId)
+            #nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
+            #return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(filepath), nhash)
+            return true
         end
         if atom["type"] == "marble" then
             return true
