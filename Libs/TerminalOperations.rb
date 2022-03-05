@@ -96,6 +96,10 @@ class TerminalUtils
             return ["run top", nil]
         end
 
+        if Interpreting::match("search", input) then
+            return ["search", store.getDefault()]
+        end
+
         if Interpreting::match("start", input) then
             return ["start", store.getDefault()]
         end

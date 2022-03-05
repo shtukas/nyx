@@ -37,7 +37,7 @@ Atoms are content definitions
     "mikuType" : "Atom"
     "unixtime" : Float
     "type"     : "matter"
-    "matterId" : String (UUID)
+    "matterId" : String (UUID -- Important, will be used as filename)
     "payload"  : nhash
 }
 

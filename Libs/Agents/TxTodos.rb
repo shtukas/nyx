@@ -399,7 +399,7 @@ class TxTodos
 
     # TxTodos::nx19s()
     def self.nx19s()
-        TxTodos::items().map{|item|
+        (Librarian6Objects::getObjectsByMikuType("TxTodo")+Librarian6Objects::getObjectsByMikuType("TxTodo-Overflow")).map{|item|
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxTodos::toStringForNS19(item),
