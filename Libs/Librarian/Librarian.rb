@@ -83,7 +83,7 @@ class Librarian0Utils
     # Librarian0Utils::locationToAionPointRootNamedHash(location)
     def self.locationToAionPointRootNamedHash(location)
         raise "[Librarian0Utils: error: a1ac8255-45ed-4347-a898-d306c49f230c, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        AionCore::commitLocationReturnHash(Librarian4Elizabeth.new(), location)
+        AionCore::commitLocationReturnHash(Librarian4ElizabethXCache.new(), location)
     end
 
     # Librarian0Utils::matterIdToFilepath(matterId)
@@ -141,39 +141,18 @@ class Librarian0Utils
     end
 end
 
-class Librarian2DataBlobs
+class Librarian2DataBlobsXCache
 
-    # Librarian2DataBlobs::repositoryFolderPath()
-    def self.repositoryFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Librarian/Data/Datablobs"
-    end
-
-    # Librarian2DataBlobs::filepathToContentHash(filepath)
-    def self.filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    # Librarian2DataBlobs::putBlob(blob)
+    # Librarian2DataBlobsXCache::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         KeyValueStore::set(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
         nhash
     end
 
-    # Librarian2DataBlobs::getBlobOrNull(nhash)
+    # Librarian2DataBlobsXCache::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        blob = KeyValueStore::getOrNull(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
-        return blob if blob
-        folderpath = "#{Librarian2DataBlobs::repositoryFolderPath()}/#{nhash[7, 2]}"
-        filepath = "#{folderpath}/#{nhash}.data"
-        if File.exists?(filepath) then
-            puts "Moving to xcache: #{nhash}"
-            blob = IO.read(filepath)
-            Librarian2DataBlobs::putBlob(blob)
-            FileUtils.rm(filepath)
-            return blob
-        end
-        nil
+        KeyValueStore::getOrNull(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
     end
 end
 
@@ -226,13 +205,13 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-class Librarian4Elizabeth
+class Librarian4ElizabethXCache
 
     def initialize()
     end
 
     def commitBlob(blob)
-        Librarian2DataBlobs::putBlob(blob)
+        Librarian2DataBlobsXCache::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -240,9 +219,9 @@ class Librarian4Elizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian2DataBlobs::getBlobOrNull(nhash)
+        blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
         return blob if blob
-        raise "(Librarian4Elizabeth, readBlobErrorIfNotFound, nhash: #{nhash})"
+        raise "(Librarian4ElizabethXCache, readBlobErrorIfNotFound, nhash: #{nhash})"
     end
 
     def datablobCheck(nhash)
@@ -382,7 +361,7 @@ class Librarian5Atoms
         if object["aionType"] == "file" then
             return false if (object["name"] != "nyx-marble.json")
             nhash = object["hash"]
-            blob = Librarian2DataBlobs::getBlobOrNull(nhash)
+            blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
             return (JSON.parse(blob)["uuid"] == marbleId)
         end
     end
@@ -743,7 +722,7 @@ class Librarian9NonStandardOps
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            hashes << Librarian2DataBlobs::putBlob(blob)
+            hashes << Librarian2DataBlobsXCache::putBlob(blob)
         end
         f.close()
         hashes
