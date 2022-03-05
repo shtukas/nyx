@@ -88,7 +88,8 @@ class Librarian0Utils
 
     # Librarian0Utils::matterIdToFilepath(matterId)
     def self.matterIdToFilepath(matterId)
-        "/Users/pascal/Galaxy/DataBank/Librarian/Data/Matter/#{matterId}.sqlite3"
+        raise "(error: matter folder is not available)" if !File.exists?("/Volumes/Earth/Data")
+        "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
     end
 
     # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
@@ -520,10 +521,9 @@ class Librarian5Atoms
         end
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
-            #filepath = Librarian0Utils::matterIdToFilepath(matterId)
-            #nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
-            #return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(filepath), nhash)
-            return true
+            filepath = Librarian0Utils::matterIdToFilepath(matterId)
+            nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
+            return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(filepath), nhash)
         end
         if atom["type"] == "marble" then
             return true
