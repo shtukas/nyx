@@ -242,7 +242,7 @@ class GlobalActions
         end
 
         if command == "nyx" then
-            system("/Users/pascal/Galaxy/Software/Nyx/nyx")
+            system("/Users/pascal/Galaxy/Software/Catalyst/nyx")
             return
         end
 

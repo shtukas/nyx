@@ -87,6 +87,10 @@ class TerminalUtils
             return ["fsck", nil]
         end
 
+        if Interpreting::match("nyx", input) then
+            return ["nyx", nil]
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end
