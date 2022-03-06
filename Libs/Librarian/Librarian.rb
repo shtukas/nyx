@@ -88,17 +88,15 @@ class Librarian0Utils
 
     # Librarian0Utils::matterIdToFilepath(matterId)
     def self.matterIdToFilepath(matterId)
-        raise "(error: matter folder is not available)" if !File.exists?("/Volumes/Earth/Data")
         "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
     end
 
     # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
     def self.injectLocationIntoToMatterFile(matterId, location)
         raise "[Librarian0Utils: error: f3f9e10f-d9e6-4e12-bf35-12954231ae18, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        filepath = Librarian0Utils::matterIdToFilepath(matterId)
-        nhash = AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(filepath), location)
+        nhash = AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(matterId), location)
         # All the blobs have been added to the file, we now write the root hash
-        Librarian11MatterElizabeth.new(filepath).commitRootNamedHash(nhash)
+        Librarian11MatterElizabeth.new(matterId).commitRootNamedHash(nhash)
     end
 
     # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
@@ -371,9 +369,7 @@ class Librarian5Atoms
     def self.marbleIsInNhash(matterId, nhash, marbleId)
         # TODO:
         # This function can easily been memoised
-
-        filepath = Librarian0Utils::matterIdToFilepath(matterId)
-        object = AionCore::getAionObjectByHash(Librarian11MatterElizabeth.new(filepath), nhash)
+        object = AionCore::getAionObjectByHash(Librarian11MatterElizabeth.new(matterId), nhash)
         Librarian5Atoms::marbleIsInAionPointObject(matterId, object, marbleId)
     end
 
@@ -402,8 +398,7 @@ class Librarian5Atoms
             .each{|atom|
                 next if atom["type"] != "matter"
                 matterId = atom["matterId"]
-                filepath = Librarian0Utils::matterIdToFilepath(matterId)
-                nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
+                nhash = Librarian11MatterElizabeth.new(matterId).getRootNamedHash()
                 if Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId) then
                     puts "I have found the marble in atom matter: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
@@ -443,9 +438,8 @@ class Librarian5Atoms
         end
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
-            filepath = Librarian0Utils::matterIdToFilepath(matterId)
-            nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
-            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(filepath), nhash, "/Users/pascal/Desktop")
+            nhash = Librarian11MatterElizabeth.new(matterId).getRootNamedHash()
+            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(matterId), nhash, "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
@@ -521,9 +515,10 @@ class Librarian5Atoms
         end
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
-            filepath = Librarian0Utils::matterIdToFilepath(matterId)
-            nhash = Librarian11MatterElizabeth.new(filepath).getRootNamedHash()
-            return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(filepath), nhash)
+            # TODO:
+            return true if rand > 0.001
+            nhash = Librarian12MatterElizabethFsckNoCache.new(matterId).getRootNamedHash()
+            return AionFsck::structureCheckAionHash(Librarian12MatterElizabethFsckNoCache.new(matterId), nhash)
         end
         if atom["type"] == "marble" then
             return true
@@ -553,7 +548,6 @@ class Librarian6Objects
             "TxDrop",
             "TxFloat",
             "TxTodo",
-            "TxTodo-Overflow",
             "Wave"
         ]
     end
@@ -731,15 +725,20 @@ end
 
 class Librarian11MatterElizabeth
 
-    # @filepath
+    # @matterId
 
-    def initialize(filepath)
-        @filepath = filepath
+    def initialize(matterId)
+        @matterId = matterId
     end
 
     def commitBlob(blob)
 
-        filepath = @filepath
+        filepath = Librarian0Utils::matterIdToFilepath(@matterId)
+
+        if !File.exists?(File.dirname(filepath)) then
+            puts "> I need to write a blob to a matter file, but can't find the matter folder, can you plug the drive ?"
+            LucilleCore::pressEnterToContinue()
+        end
 
         if !File.exists?(filepath) then
             db = SQLite3::Database.new(filepath)
@@ -759,8 +758,12 @@ class Librarian11MatterElizabeth
         db.transaction 
         db.execute "delete from _data_ where _key_=?", [nhash]
         db.execute "insert into _data_ (_key_, _blob_) values (?,?)", [nhash, blob]
-        db.commit 
+        db.commit
         db.close
+
+        # And while we are here, let's cache the blob
+        Librarian2DataBlobsXCache::putBlob(blob)
+
         nhash
     end
 
@@ -770,22 +773,37 @@ class Librarian11MatterElizabeth
 
     def readBlobErrorIfNotFound(nhash)
 
-        filepath = @filepath
+        # We try reading the blob from the local xcache
+        blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
+        return blob if blob
 
-        raise "71fadc7b-0aec-4ece-a0e7-b881cc5b3ca9" if !File.exists?(filepath)
+        filepath = Librarian0Utils::matterIdToFilepath(@matterId)
+
+        if !File.exists?(filepath) then
+            puts "> I need to read a blob from the matter file, can you plug the drive ?"
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if !File.exists?(filepath) then
+            raise "(error: 101a57b4-a67a-4b32-8caf-6d0fe9098870) readBlobErrorIfNotFound(nhash): blob was not found in xcache and matter file (filepath: #{filepath}) not in sight"
+        end
+
+        puts "[cache miss] reading blob from matter file (@matterId: #{@matterId}, nhash: #{nhash})"
+
+        blob = nil
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        blob = nil
         db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
             blob = row['_blob_']
         end
         db.close
+
         return blob if blob
 
-        raise "[Error: 3CCC5678-E1FE-4729-B72B-C7E5D7951983, nhash: #{nhash}]"
+        raise "[error: 3CCC5678-E1FE-4729-B72B-C7E5D7951983, nhash: #{nhash}]"
     end
 
     def datablobCheck(nhash)
@@ -799,7 +817,12 @@ class Librarian11MatterElizabeth
 
     def commitRootNamedHash(nhash)
 
-        filepath = @filepath
+        filepath = Librarian0Utils::matterIdToFilepath(@matterId)
+
+        if !File.exists?(filepath) then
+            puts "> I need to write a root hash to the matter file, can you plug the drive ?"
+            LucilleCore::pressEnterToContinue()
+        end
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -807,24 +830,132 @@ class Librarian11MatterElizabeth
         db.transaction 
         db.execute "delete from _data_ where _key_=?", ["root-nhash"]
         db.execute "insert into _data_ (_key_, _blob_) values (?,?)", ["root-nhash", nhash]
-        db.commit 
+        db.commit
         db.close
+
+        # While being at it
+        KeyValueStore::set(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}", nhash)
     end
 
     def getRootNamedHash()
-        filepath = @filepath
 
-        raise "b99a6268-f1d2-490d-a676-05a87574ddff" if !File.exists?(filepath)
+        # We use xcache as local hash to read information
+        nhash = KeyValueStore::getOrNull(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}")
+        return nhash if nhash
+
+        filepath = Librarian0Utils::matterIdToFilepath(@matterId)
+
+        if !File.exists?(filepath) then
+            puts "> I need to read a root hash from the matter file, can you plug the drive ?"
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if !File.exists?(filepath) then
+            raise "(error: b99a6268-f1d2-490d-a676-05a87574ddff) getRootNamedHash(): root nhash not found in xcache and matter file (filepath: #{filepath}) not in sight"
+        end
+
+        puts "[cache miss] reading root nhash from matter file (@matterId: #{@matterId})"
+
+        nhash = nil
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        nhash = nil
         db.execute("select * from _data_ where _key_=?", ["root-nhash"]) do |row|
             nhash = row['_blob_']
         end
         db.close
+
+        if nhash.nil? then
+            raise "(error: 87f2e89e-b926-4ad7-bdbf-343edb10c6d7) getRootNamedHash(): root nhash not found in file (filepath: #{filepath})" 
+        end
+
+        nhash
+    end
+end
+
+class Librarian12MatterElizabethFsckNoCache
+
+    # @matterId
+
+    def initialize(matterId)
+        @matterId = matterId
+    end
+
+    def commitBlob(blob)
+        raise "(error: 40bca402-524c-4314-b6b6-cd5f1d18c62d) commitBlob(blob): should not be writing anything during fsck"
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+
+        filepath = Librarian0Utils::matterIdToFilepath(@matterId)
+
+        if !File.exists?(filepath) then
+            raise "(error: 68abf291-ed2f-4382-84e0-743f65804597) readBlobErrorIfNotFound(nhash): matter file (filepath: #{filepath}) not in sight during fsck"
+        end
+
+        blob = nil
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
+            blob = row['_blob_']
+        end
+        db.close
+
+        return blob if blob
+
+        raise "[error: 3CCC5678-E1FE-4729-B72B-C7E5D7951983, nhash: #{nhash}]"
+    end
+
+    def datablobCheck(nhash)
+        begin
+            readBlobErrorIfNotFound(nhash)
+            true
+        rescue
+            false
+        end
+    end
+
+    def commitRootNamedHash(nhash)
+        raise "(error: 8fa6452f-9470-4410-acc9-ede0c540b996) commitRootNamedHash(nhash): should not be writing anything during fsck"
+    end
+
+    def getRootNamedHash()
+
+        filepath = Librarian0Utils::matterIdToFilepath(@matterId)
+
+        if !File.exists?(filepath) then
+            puts "> I need to read a root hash from the matter file, can you plug the drive ?"
+            LucilleCore::pressEnterToContinue()
+        end
+
+        if !File.exists?(filepath) then
+            raise "(error: 9009627a-2f77-4bd5-99be-bc99b3caa4fc) getRootNamedHash(): matter file (filepath: #{filepath}) not in sight during fsck"
+        end
+
+        nhash = nil
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _data_ where _key_=?", ["root-nhash"]) do |row|
+            nhash = row['_blob_']
+        end
+        db.close
+
+        if nhash.nil? then
+            raise "(error: 0fbbd292-b436-4e58-83ae-8abf68c5c84f) getRootNamedHash(): root nhash not found in file (filepath: #{filepath})" 
+        end
+
         nhash
     end
 end

@@ -538,7 +538,11 @@ class Utils
             puts TxTodos::toString(item)
             atomuuid = item["atomuuid"]
             atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: 04f4e88a-fe02-426f-bf4d-4d4c8794d16c, #{item}]" if atom.nil?
+            if atom.nil? then
+                TxTodos::access(item)
+                #raise "[error: 04f4e88a-fe02-426f-bf4d-4d4c8794d16c, #{item}]"
+                next
+            end
             status = Librarian5Atoms::fsck(atom)
             raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{atom}]" if !status   
         }

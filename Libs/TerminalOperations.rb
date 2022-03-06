@@ -83,6 +83,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
+        if Interpreting::match("fsck", input) then
+            return ["fsck", nil]
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end
@@ -426,6 +430,8 @@ class TerminalDisplayOperator
                 puts "Code change detected"
                 break
             end
+
+            TxTodos::importNx50BacklogInbox()
 
             universe = StoredUniverse::getUniverseOrNull()
             floats = TxFloats::ns16s(universe)

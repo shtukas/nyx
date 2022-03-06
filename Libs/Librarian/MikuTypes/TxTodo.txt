@@ -7,13 +7,3 @@ TxTodo = {
   "atomuuid"       : UUID of an Atom
   "ordinal"        : Float
 }
-
-TxTodo = {
-  "uuid"           : String
-  "mikuType"       : "TxTodo-Overflow"
-  "description"    : String
-  "unixtime"       : Float
-  "datetime"       : DateTime Iso8601
-  "atomuuid"       : UUID of an Atom
-  "ordinal"        : Float
-}

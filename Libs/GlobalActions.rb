@@ -218,6 +218,11 @@ class GlobalActions
             return
         end
 
+        if command == "fsck" then
+            Utils::fsck()
+            return
+        end
+
         if command == "internet on" then
             InternetStatus::setInternetOn()
             return

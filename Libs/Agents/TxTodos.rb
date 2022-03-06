@@ -159,6 +159,7 @@ class TxTodos
         datetime    = Time.new.utc.iso8601
         atom        = Librarian5Atoms::issueUrlAtomUsingUrl(url)
         Librarian6Objects::commit(atom)
+
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th("backlog", 20, 30)
 
         item = {
@@ -200,40 +201,6 @@ class TxTodos
 
     # --------------------------------------------------
     # Operations
-
-    # TxTodos::importspread()
-    # We are not running this automatically, we do manual runs from nslog 
-    def self.importspread()
-        locations = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/TxTodos Spread")
- 
-        if locations.size > 0 then
-
-            puts "Starting to import spread (first item: #{locations.first})"
- 
-            ordinals = TxTodos::items().map{|item| item["ordinal"] }
- 
-            if ordinals.size < 2 then
-                start1 = ordinals.max + 1
-                end1   = ordinals.max + 1 + locations.size
-            else
-                start1 = ordinals.min
-                end1   = ordinals.max + 1
-            end
- 
-            spread = end1 - start1
- 
-            step = spread.to_f/locations.size
- 
-            cursor = start1
- 
-            locations.each{|location|
-                cursor = cursor + step
-                puts "[quark] (#{cursor}) #{location}"
-                TxTodos::issueSpreadItem(location, File.basename(location), cursor)
-                LucilleCore::removeFileSystemLocation(location)
-            }
-        end
-    end
 
     # TxTodos::access(nx50)
     def self.access(nx50)
@@ -360,6 +327,53 @@ class TxTodos
         }
     end
 
+    # TxTodos::importNx50BacklogInbox()
+    def self.importNx50BacklogInbox()
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Backlog Inbox").each{|location|
+            next if File.basename(location).start_with?(".")
+
+            puts "> importing: #{location}"
+
+            uuid        = SecureRandom.uuid
+            description = File.basename(location)
+            unixtime    = Time.new.to_i
+            datetime    = Time.new.utc.iso8601
+            atom        = Librarian5Atoms::issueMatterAtomUsingLocation(SecureRandom.uuid, location)
+            Librarian6Objects::commit(atom)
+
+            universe    = "backlog"
+            ordinal     = TxTodos::ordinalBetweenN1thAndN2th(universe, 10, 20)
+
+            item = {
+              "uuid"        => uuid,
+              "mikuType"    => "TxTodo",
+              "description" => description,
+              "unixtime"    => unixtime,
+              "datetime"    => datetime,
+              "atomuuid"    => atom["uuid"],
+              "ordinal"     => ordinal
+            }
+            Librarian6Objects::commit(item)
+            ObjectUniverse::setObjectUniverse(uuid, universe)
+
+            check = lambda{|itemuuid|
+                puts "fsck: itemuuid: #{itemuuid}"
+                item = Librarian6Objects::getObjectByUUIDOrNull(itemuuid)
+                return [false, "could not extract item"] if item.nil?
+                atomuuid = item["atomuuid"]
+                atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+                return [false, "could not extract atom"] if atom.nil?
+                status = Librarian5Atoms::fsck(atom)
+                return [false, "atom fsck failed"]
+                return [true, nil]
+            }
+
+            raise "(error: ce75724f-4905-4808-91d9-33c8e82d4dde)" if !check.call(item["uuid"])
+
+            LucilleCore::removeFileSystemLocation(location)
+        }
+    end
+
     # --------------------------------------------------
     # nx16s
 
@@ -399,7 +413,7 @@ class TxTodos
 
     # TxTodos::nx19s()
     def self.nx19s()
-        (Librarian6Objects::getObjectsByMikuType("TxTodo")+Librarian6Objects::getObjectsByMikuType("TxTodo-Overflow")).map{|item|
+        Librarian6Objects::getObjectsByMikuType("TxTodo").map{|item|
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxTodos::toStringForNS19(item),
