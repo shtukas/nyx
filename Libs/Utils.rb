@@ -10,6 +10,191 @@ class Utils
         "/Users/pascal/Galaxy/DataBank/Catalyst"
     end
 
+    # Utils::editTextSynchronously(text)
+    def self.editTextSynchronously(text)
+        filename = SecureRandom.uuid
+        filepath = "/tmp/#{filename}.txt"
+        File.open(filepath, 'w') {|f| f.write(text)}
+        system("open '#{filepath}'")
+        print "> press enter when done: "
+        input = STDIN.gets
+        IO.read(filepath)
+    end
+
+    # Utils::isInteger(str)
+    def self.isInteger(str)
+        str == str.to_i.to_s
+    end
+
+    # Utils::getNewValueEveryNSeconds(uuid, n)
+    def self.getNewValueEveryNSeconds(uuid, n)
+      Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
+    end
+
+    # Utils::openFilepath(filepath)
+    def self.openFilepath(filepath)
+        system("open '#{filepath}'")
+    end
+
+    # Utils::openFilepathWithInvite(filepath)
+    def self.openFilepathWithInvite(filepath)
+        system("open '#{filepath}'")
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Utils::openUrlUsingSafari(url)
+    def self.openUrlUsingSafari(url)
+        system("open -a Safari '#{url}'")
+    end
+
+    # Utils::onScreenNotification(title, message)
+    def self.onScreenNotification(title, message)
+        title = title.gsub("'","")
+        message = message.gsub("'","")
+        message = message.gsub("[","|")
+        message = message.gsub("]","|")
+        command = "terminal-notifier -title '#{title}' -message '#{message}'"
+        system(command)
+    end
+
+    # Utils::selectDateOfNextNonTodayWeekDay(weekday) #2
+    def self.selectDateOfNextNonTodayWeekDay(weekday)
+        weekDayIndexToStringRepresentation = lambda {|indx|
+            weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
+            weekdayNames[indx]
+        }
+        (1..7).each{|indx|
+            if weekDayIndexToStringRepresentation.call((Time.new+indx*86400).wday) == weekday then
+                return (Time.new+indx*86400).to_s[0,10]
+            end
+        }
+    end
+
+    # Utils::screenHeight()
+    def self.screenHeight()
+        `/usr/bin/env tput lines`.to_i
+    end
+
+    # Utils::screenWidth()
+    def self.screenWidth()
+        `/usr/bin/env tput cols`.to_i
+    end
+
+    # Utils::verticalSize(displayStr)
+    def self.verticalSize(displayStr)
+        displayStr.lines.map{|line| line.size/Utils::screenWidth() + 1 }.inject(0, :+)
+    end
+
+    # Utils::locationByUniqueStringOrNull(uniquestring)
+    def self.locationByUniqueStringOrNull(uniquestring)
+        location = `atlas '#{uniquestring}'`.strip
+        location.size > 0 ? location : nil
+    end
+
+    # Utils::sanitiseStringForFilenaming(str)
+    def self.sanitiseStringForFilenaming(str)
+        str
+            .gsub(":", "-")
+            .gsub("/", "-")
+            .gsub("'", "")
+    end
+
+    # Utils::codeTrace()
+    def self.codeTrace()
+        trace = []
+        Find.find(File.dirname(__FILE__)) do |location|
+            next if !File.file?(location)
+            next if location[-3, 3] != ".rb"
+            trace << Digest::SHA1.hexdigest(IO.read(location))
+        end
+        Digest::SHA1.hexdigest(trace.join(":"))
+    end
+
+    # Utils::copyFileToBinTimeline(location)
+    def self.copyFileToBinTimeline(location)
+        return if !File.exists?(location)
+        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(directory)
+        FileUtils.cp(location, directory)
+    end
+
+    # Utils::dropTextAtBinTimeline(filename, text)
+    def self.dropTextAtBinTimeline(filename, text)
+        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+        FileUtils.mkpath(directory)
+        File.open("#{directory}/#{filename}", "w"){|f| f.puts(text) }
+    end
+
+    # Utils::fileByFilenameIsSafelyOpenable(filename)
+    def self.fileByFilenameIsSafelyOpenable(filename)
+        safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
+        safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
+    end
+
+    # ----------------------------------------------------
+    # File System Routines
+
+    # Utils::locationByUniqueStringOrNull(uniquestring)
+    def self.locationByUniqueStringOrNull(uniquestring)
+        location = `atlas '#{uniquestring}'`.strip
+        location.size > 0 ? location : nil
+    end
+
+    # ----------------------------------------------------
+    # Date Routines
+
+    # Utils::isWeekday()
+    def self.isWeekday()
+        ![6, 0].include?(Time.new.wday)
+    end
+
+    # Utils::isWeekend()
+    def self.isWeekend()
+        !Utils::isWeekday()
+    end
+
+    # Utils::getLocalTimeZone()
+    def self.getLocalTimeZone()
+        `date`.strip[-3 , 3]
+    end
+
+    # Utils::todayAsLowercaseEnglishWeekDayName()
+    def self.todayAsLowercaseEnglishWeekDayName()
+        ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][Time.new.wday]
+    end
+
+    # Utils::interactivelySelectUnixtimeOrNull()
+    def self.interactivelySelectUnixtimeOrNull()
+        datecode = LucilleCore::askQuestionAnswerAsString("date code: +today, +tomorrow, +<weekdayname>, +<integer>hours(s), +<integer>day(s), +<integer>@HH:MM, +YYYY-MM-DD (empty to abort): ")
+        unixtime = Utils::codeToUnixtimeOrNull(datecode)
+        return nil if unixtime.nil?
+        unixtime
+    end
+
+    # Utils::interactivelySelectADateOrNull()
+    def self.interactivelySelectADateOrNull()
+        unixtime = Utils::interactivelySelectUnixtimeOrNull()
+        return nil if unixtime.nil?
+        Time.at(unixtime).to_s[0, 10]
+    end
+
+    # Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+    def self.interactivelySelectAUTCIso8601DateTimeOrNull()
+        unixtime = Utils::interactivelySelectUnixtimeOrNull()
+        return nil if unixtime.nil?
+        Time.at(unixtime).utc.iso8601
+    end
+
+    # Utils::nDaysInTheFuture(n)
+    def self.nDaysInTheFuture(n)
+        (Time.now+86400*n).to_s[0,10]
+    end
+
+    # Utils::dateIsWeekEnd(date)
+    def self.dateIsWeekEnd(date)
+        [6, 0].include?(Date.parse(date).to_time.wday)
+    end
+
     # Utils::codeToUnixtimeOrNull(code)
     def self.codeToUnixtimeOrNull(code)
 
@@ -85,150 +270,9 @@ class Utils
         nil
     end
 
-    # Utils::editTextSynchronously(text)
-    def self.editTextSynchronously(text)
-        filename = SecureRandom.uuid
-        filepath = "/tmp/#{filename}.txt"
-        File.open(filepath, 'w') {|f| f.write(text)}
-        system("open '#{filepath}'")
-        print "> press enter when done: "
-        input = STDIN.gets
-        IO.read(filepath)
-    end
-
-    # Utils::isInteger(str)
-    def self.isInteger(str)
-        str == str.to_i.to_s
-    end
-
-    # Utils::getNewValueEveryNSeconds(uuid, n)
-    def self.getNewValueEveryNSeconds(uuid, n)
-      Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
-    end
-
-    # Utils::nDaysInTheFuture(n)
-    def self.nDaysInTheFuture(n)
-        (Time.now+86400*n).to_s[0,10]
-    end
-
-    # Utils::dateIsWeekEnd(date)
-    def self.dateIsWeekEnd(date)
-        [6, 0].include?(Date.parse(date).to_time.wday)
-    end
-
-    # Utils::stringDistance1(str1, str2)
-    def self.stringDistance1(str1, str2)
-        # This metric takes values between 0 and 1
-        return 1 if str1.size == 0
-        return 1 if str2.size == 0
-        Utils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
-    end
-
-    # Utils::openFilepath(filepath)
-    def self.openFilepath(filepath)
-        system("open '#{filepath}'")
-    end
-
-    # Utils::openFilepathWithInvite(filepath)
-    def self.openFilepathWithInvite(filepath)
-        system("open '#{filepath}'")
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # Utils::openUrlUsingSafari(url)
-    def self.openUrlUsingSafari(url)
-        system("open -a Safari '#{url}'")
-    end
-
-    # Utils::onScreenNotification(title, message)
-    def self.onScreenNotification(title, message)
-        title = title.gsub("'","")
-        message = message.gsub("'","")
-        message = message.gsub("[","|")
-        message = message.gsub("]","|")
-        command = "terminal-notifier -title '#{title}' -message '#{message}'"
-        system(command)
-    end
-
-    # Utils::selectDateOfNextNonTodayWeekDay(weekday) #2
-    def self.selectDateOfNextNonTodayWeekDay(weekday)
-        weekDayIndexToStringRepresentation = lambda {|indx|
-            weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
-            weekdayNames[indx]
-        }
-        (1..7).each{|indx|
-            if weekDayIndexToStringRepresentation.call((Time.new+indx*86400).wday) == weekday then
-                return (Time.new+indx*86400).to_s[0,10]
-            end
-        }
-    end
-
-    # Utils::screenHeight()
-    def self.screenHeight()
-        `/usr/bin/env tput lines`.to_i
-    end
-
-    # Utils::screenWidth()
-    def self.screenWidth()
-        `/usr/bin/env tput cols`.to_i
-    end
-
     # Utils::today()
     def self.today()
         Time.new.to_s[0, 10]
-    end
-
-    # Utils::todayAsLowercaseEnglishWeekDayName()
-    def self.todayAsLowercaseEnglishWeekDayName()
-        ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][Time.new.wday]
-    end
-
-    # Utils::interactivelySelectUnixtimeOrNull()
-    def self.interactivelySelectUnixtimeOrNull()
-        datecode = LucilleCore::askQuestionAnswerAsString("date code: +today, +tomorrow, +<weekdayname>, +<integer>hours(s), +<integer>day(s), +<integer>@HH:MM, +YYYY-MM-DD (empty to abort): ")
-        unixtime = Utils::codeToUnixtimeOrNull(datecode)
-        return nil if unixtime.nil?
-        unixtime
-    end
-
-    # Utils::interactivelySelectADateOrNull()
-    def self.interactivelySelectADateOrNull()
-        unixtime = Utils::interactivelySelectUnixtimeOrNull()
-        return nil if unixtime.nil?
-        Time.at(unixtime).to_s[0, 10]
-    end
-
-    # Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-    def self.interactivelySelectAUTCIso8601DateTimeOrNull()
-        unixtime = Utils::interactivelySelectUnixtimeOrNull()
-        return nil if unixtime.nil?
-        Time.at(unixtime).utc.iso8601
-    end
-
-    # Utils::verticalSize(displayStr)
-    def self.verticalSize(displayStr)
-        displayStr.lines.map{|line| line.size/Utils::screenWidth() + 1 }.inject(0, :+)
-    end
-
-    # Utils::locationByUniqueStringOrNull(uniquestring)
-    def self.locationByUniqueStringOrNull(uniquestring)
-        location = `atlas '#{uniquestring}'`.strip
-        location.size > 0 ? location : nil
-    end
-
-    # Utils::isWeekday()
-    def self.isWeekday()
-        ![6, 0].include?(Time.new.wday)
-    end
-
-    # Utils::isWeekend()
-    def self.isWeekend()
-        !Utils::isWeekday()
-    end
-
-    # Utils::getLocalTimeZone()
-    def self.getLocalTimeZone()
-        `date`.strip[-3 , 3]
     end
 
     # Utils::unixtimeAtComingMidnightAtGivenTimeZone(timezone)
@@ -254,41 +298,98 @@ class Utils
             }
     end
 
-    # Utils::sanitiseStringForFilenaming(str)
-    def self.sanitiseStringForFilenaming(str)
-        str
-            .gsub(":", "-")
-            .gsub("/", "-")
-            .gsub("'", "")
-    end
-
-    # Utils::codeTrace()
-    def self.codeTrace()
-        trace = []
-        Find.find(File.dirname(__FILE__)) do |location|
-            next if !File.file?(location)
-            next if location[-3, 3] != ".rb"
-            trace << Digest::SHA1.hexdigest(IO.read(location))
+    # Utils2::isDateTime_UTC_ISO8601(datetime)
+    def self.isDateTime_UTC_ISO8601(datetime)
+        begin
+            DateTime.parse(datetime).to_time.utc.iso8601 == datetime
+        rescue
+            false
         end
-        Digest::SHA1.hexdigest(trace.join(":"))
     end
 
-    # Utils::copyFileToBinTimeline(location)
-    def self.copyFileToBinTimeline(location)
-        return if !File.exists?(location)
-        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(directory)
-        FileUtils.cp(location, directory)
-    end
-
-    # Utils::dropTextAtBinTimeline(filename, text)
-    def self.dropTextAtBinTimeline(filename, text)
-        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(directory)
-        File.open("#{directory}/#{filename}", "w"){|f| f.puts(text) }
+    # Utils2::updateDateTimeWithANewDate(datetime, date)
+    def self.updateDateTimeWithANewDate(datetime, date)
+        datetime = "#{date}#{datetime[10, 99]}"
+        if !Utils2::isDateTime_UTC_ISO8601(datetime) then
+            raise "(error: 32c505fa-4168, #{datetime})"
+        end
+        datetime
     end
 
     # ----------------------------------------------------
+    # String Utilities
+
+    # Utils::levenshteinDistance(s, t)
+    def self.levenshteinDistance(s, t)
+      # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
+      m = s.length
+      n = t.length
+      return m if n == 0
+      return n if m == 0
+      d = Array.new(m+1) {Array.new(n+1)}
+
+      (0..m).each {|i| d[i][0] = i}
+      (0..n).each {|j| d[0][j] = j}
+      (1..n).each do |j|
+        (1..m).each do |i|
+          d[i][j] = if s[i-1] == t[j-1] # adjust index into string
+                      d[i-1][j-1]       # no operation required
+                    else
+                      [ d[i-1][j]+1,    # deletion
+                        d[i][j-1]+1,    # insertion
+                        d[i-1][j-1]+1,  # substitution
+                      ].min
+                    end
+        end
+      end
+      d[m][n]
+    end
+
+    # Utils::stringDistance1(str1, str2)
+    def self.stringDistance1(str1, str2)
+        # This metric takes values between 0 and 1
+        return 1 if str1.size == 0
+        return 1 if str2.size == 0
+        Utils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
+    end
+
+    # Utils::stringDistance2(str1, str2)
+    def self.stringDistance2(str1, str2)
+        # We need the smallest string to come first
+        if str1.size > str2.size then
+            str1, str2 = str2, str1
+        end
+        diff = str2.size - str1.size
+        (0..diff).map{|i| Utils::levenshteinDistance(str1, str2[i, str1.size]) }.min
+    end
+
+    # ----------------------------------------------------
+    # Selection routines (0)
+
+    # Utils::selectLineOrNullUsingInteractiveInterface(lines) : String
+    def self.selectLineOrNullUsingInteractiveInterface(lines)
+        lines = Utils::selectLinesUsingInteractiveInterface(lines)
+        if lines.size == 0 then
+            return nil
+        end
+        if lines.size == 1 then
+            return lines[0]
+        end
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
+    end
+
+    # Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, toString = lambda{|item| item })
+    def self.selectOneObjectUsingInteractiveInterfaceOrNull(items, toString = lambda{|item| item })
+        lines = items.map{|item| toString.call(item) }
+        line = Utils::selectLineOrNullUsingInteractiveInterface(lines)
+        return nil if line.nil?
+        items
+            .select{|item| toString.call(item) == line }
+            .first
+    end
+
+    # ----------------------------------------------------
+    # Selection routines (1)
 
     # Utils::pecoStyleSelectionOrNull(lines)
     def self.pecoStyleSelectionOrNull(lines)
@@ -398,52 +499,7 @@ class Utils
     end
 
     # ----------------------------------------------------
-
-    # Utils::levenshteinDistance(s, t)
-    def self.levenshteinDistance(s, t)
-      # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
-      m = s.length
-      n = t.length
-      return m if n == 0
-      return n if m == 0
-      d = Array.new(m+1) {Array.new(n+1)}
-
-      (0..m).each {|i| d[i][0] = i}
-      (0..n).each {|j| d[0][j] = j}
-      (1..n).each do |j|
-        (1..m).each do |i|
-          d[i][j] = if s[i-1] == t[j-1] # adjust index into string
-                      d[i-1][j-1]       # no operation required
-                    else
-                      [ d[i-1][j]+1,    # deletion
-                        d[i][j-1]+1,    # insertion
-                        d[i-1][j-1]+1,  # substitution
-                      ].min
-                    end
-        end
-      end
-      d[m][n]
-    end
-
-    # Utils::stringDistance1(str1, str2)
-    def self.stringDistance1(str1, str2)
-        # This metric takes values between 0 and 1
-        return 1 if str1.size == 0
-        return 1 if str2.size == 0
-        Utils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
-    end
-
-    # Utils::stringDistance2(str1, str2)
-    def self.stringDistance2(str1, str2)
-        # We need the smallest string to come first
-        if str1.size > str2.size then
-            str1, str2 = str2, str1
-        end
-        diff = str2.size - str1.size
-        (0..diff).map{|i| Utils::levenshteinDistance(str1, str2[i, str1.size]) }.min
-    end
-
-    # ----------------------------------------------------
+    # Selection routines (2)
 
     # Utils::selectLinesUsingInteractiveInterface(lines) : Array[String]
     def self.selectLinesUsingInteractiveInterface(lines)
@@ -490,69 +546,4 @@ class Utils
     end
 
     # ----------------------------------------------------
-
-    # Utils::fsck()
-    def self.fsck()
-        Anniversaries::anniversaries().each{|item|
-            puts Anniversaries::toString(item)
-        }
-        Nx31::mikus().each{|item|
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: 23074570-475f-45b6-90a7-786256dfface, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, #{item}, #{atom}]" if !status
-        }
-        TxCalendarItems::items().each{|item|
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: 95cc8958-897f-4a44-b986-9780c71045fd, #{item}, #{atom}]" if !status
-        }
-        TxDateds::items().each{|item|
-            puts TxDateds::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: 291a7dd7-dc6d-4ab0-af48-50e67b455cb8, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: d9154d97-9bf6-43bb-9517-12c8a9d34509, #{item}, #{atom}]" if !status
-        }
-        TxDrops::mikus().each{|item|
-            puts TxDrops::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: e55d3f91-78d7-4819-a49a-e89be9b301bb, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: 4b86d0a7-a7b1-487d-95ab-987864c949f6, #{item}, #{atom}]" if !status
-        }
-        TxFloats::items().each{|item|
-            puts TxFloats::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: f5e1688f-3c5a-4da6-a751-5bbb4280844d, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{atom}]" if !status
-        }
-        TxTodos::items().each{|item|
-            puts TxTodos::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            if atom.nil? then
-                TxTodos::access(item)
-                #raise "[error: 04f4e88a-fe02-426f-bf4d-4d4c8794d16c, #{item}]"
-                next
-            end
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{atom}]" if !status   
-        }
-        Waves::items().each{|item|
-            puts Waves::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: 375b7330-ce92-456a-a348-989718a7726d, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{atom}]" if !status
-        }
-    end
 end

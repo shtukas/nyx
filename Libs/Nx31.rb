@@ -52,7 +52,7 @@ class Nx31
 
     # Nx31::selectExistingOrNull()
     def self.selectExistingOrNull()
-        Utils2::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31::mikus(), lambda{|item| "#{Nx31::toString(item)} [#{item["uuid"][0, 4]}]" })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31::mikus(), lambda{|item| "#{Nx31::toString(item)} [#{item["uuid"][0, 4]}]" })
     end
 
     # Nx31::architectOrNull()
@@ -163,7 +163,7 @@ class Nx31
             Links::entities(miku["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
-                    indx = store.add(entity)
+                    indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] [connected to] #{Nx31::toString(entity)}" 
                 }
 
@@ -207,7 +207,7 @@ class Nx31
             end
 
             if Interpreting::match("description", command) then
-                description = Utils2::editTextSynchronously(miku["description"]).strip
+                description = Utils::editTextSynchronously(miku["description"]).strip
                 next if description == ""
                 description = Nx31::normaliseDescription(description)
                 miku["description"] = description
@@ -216,7 +216,7 @@ class Nx31
             end
 
             if Interpreting::match("datetime", command) then
-                datetime = Utils2::editTextSynchronously(miku["datetime"]).strip
+                datetime = Utils::editTextSynchronously(miku["datetime"]).strip
                 next if !Utils2::isDateTime_UTC_ISO8601(datetime)
                 miku["datetime"] = datetime
                 Librarian6Objects::commit(miku) 
@@ -231,13 +231,13 @@ class Nx31
             end
 
             if Interpreting::match("note", command) then
-                text = Utils2::editTextSynchronously("").strip
+                text = Utils::editTextSynchronously("").strip
                 Librarian7Notes::addNote(miku["uuid"], text)
                 next
             end
 
             if Interpreting::match("tag", command) then
-                payload = Utils2::editTextSynchronously("").strip
+                payload = Utils::editTextSynchronously("").strip
                 next if payload.size == 0
                 Tags::insert(Time.new.to_i, miku["uuid"], payload)
             end

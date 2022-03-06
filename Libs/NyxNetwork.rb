@@ -4,7 +4,7 @@ class NyxNetwork
 
     # NyxNetwork::selectEntityFromGivenEntitiesOrNull(entities)
     def self.selectEntityFromGivenEntitiesOrNull(entities)
-        item = Utils2::selectOneObjectUsingInteractiveInterfaceOrNull(entities, lambda{|entity| Nx31::toString(entity) })
+        item = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(entities, lambda{|entity| Nx31::toString(entity) })
         return nil if item.nil?
         item
     end

@@ -147,6 +147,7 @@ require_relative "AgentsUtils"
 require_relative "Bank.rb"
 
 require_relative "Config.rb"
+require_relative "Catalyst.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -179,6 +180,5 @@ require_relative "Tags.rb"
 require_relative "TerminalOperations.rb"
 
 require_relative "Utils.rb"
-require_relative "Utils2.rb"
 
 # ------------------------------------------------------------

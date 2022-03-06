@@ -219,7 +219,7 @@ class GlobalActions
         end
 
         if command == "fsck" then
-            Utils::fsck()
+            Catalyst::fsck()
             return
         end
 

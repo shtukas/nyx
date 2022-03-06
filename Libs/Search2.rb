@@ -10,7 +10,7 @@ class Search2
 
     # Search2::interactivelySelectOneNx20OrNull()
     def self.interactivelySelectOneNx20OrNull()
-        Utils2::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31::getNx20s(), lambda{|item| item["announce"] })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31::getNx20s(), lambda{|item| item["announce"] })
     end
 
     # Search2::searchInteractiveView()
