@@ -138,6 +138,20 @@ class Librarian0Utils
         FileUtils.mkpath(directory)
         FileUtils.mv(location, directory)
     end
+
+    # Librarian0Utils::commitFileReturnPartsHashs(filepath)
+    def self.commitFileReturnPartsHashs(filepath)
+        raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
+        raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
+        hashes = []
+        partSizeInBytes = 1024*1024 # 1 MegaBytes
+        f = File.open(filepath)
+        while ( blob = f.read(partSizeInBytes) ) do
+            hashes << Librarian2DataBlobsXCache::putBlob(blob)
+        end
+        f.close()
+        hashes
+    end
 end
 
 class Librarian2DataBlobsXCache
@@ -706,23 +720,6 @@ class Librarian7Notes
     end
 end
 
-class Librarian9NonStandardOps
-    
-    # Librarian9NonStandardOps::commitFileReturnPartsHashs(filepath)
-    def self.commitFileReturnPartsHashs(filepath)
-        raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
-        raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
-        hashes = []
-        partSizeInBytes = 1024*1024 # 1 MegaBytes
-        f = File.open(filepath)
-        while ( blob = f.read(partSizeInBytes) ) do
-            hashes << Librarian2DataBlobsXCache::putBlob(blob)
-        end
-        f.close()
-        hashes
-    end
-end
-
 class Librarian11MatterElizabeth
 
     # @matterId
@@ -960,3 +957,6 @@ class Librarian12MatterElizabethFsckNoCache
     end
 end
 
+class Librarian14SpecialCircumstances
+    
+end
