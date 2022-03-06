@@ -171,7 +171,7 @@ class TxFloats
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFloat",
             "announce" => "#{float["description"]}#{AgentsUtils::atomTypeForToStrings(" ", float["atomuuid"])}",
-            "TxFloat"     => float
+            "TxFloat"  => float
         }
     end
 
@@ -181,7 +181,7 @@ class TxFloats
         TxFloats::items()
             .select{|item| 
                 objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
-                objuniverse.nil? or (objuniverse == universe)
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }

@@ -177,7 +177,7 @@ class TxDrops
         TxDrops::mikus()
             .select{|item| 
                 objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
-                objuniverse.nil? or (objuniverse == universe)
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxDrops::ns16(item) }
     end

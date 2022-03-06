@@ -17,7 +17,7 @@ class TxTodos
         TxTodos::items()
             .select{|item| 
                 objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
-                objuniverse.nil? or (objuniverse == universe)
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
     end
 
@@ -392,33 +392,33 @@ class TxTodos
         }
     end
 
+    # TxTodos::itemsForUniverse(universe)
+    def self.itemsForUniverse(universe)
+        key = "a489d77e-255e-467f-a302-7ead5337f005:#{$GENERAL_SYSTEM_RUN_ID}:#{universe}"
+        items = KeyValueStore::getOrNull(nil, key)
+        if items then
+            items = JSON.parse(items)
+        else
+            puts "> computing items from scratch @ universe: #{universe}"
+            items =
+                if universe then
+                    TxTodos::itemsForUniverseWithCardinal(universe, 50)
+                else
+                    TxTodos::itemsCardinal(100)
+                end
+            KeyValueStore::set(nil, key, JSON.generate(items))
+        end
+        items
+            .select{|item| Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]) }
+            .compact
+    end
+
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
-
-        itemsForUniverse = lambda{|universe|
-            key = "a489d77e-255e-467f-a302-7ead5337f005:#{$GENERAL_SYSTEM_RUN_ID}:#{universe}"
-            items = KeyValueStore::getOrNull(nil, key)
-            if items then
-                items = JSON.parse(items)
-            else
-                puts "> computing items from scratch @ universe: #{universe}"
-                items =
-                    if universe then
-                        TxTodos::itemsForUniverseWithCardinal(universe, 50)
-                    else
-                        TxTodos::itemsCardinal(100)
-                    end
-                KeyValueStore::set(nil, key, JSON.generate(items))
-            end
-            items
-                .select{|item| Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]) }
-                .compact
-        }
-
-        itemsForUniverse.call(universe)
+        TxTodos::itemsForUniverse(universe)
             .select{|item| 
                 objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
-                objuniverse.nil? or (objuniverse == universe)
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxTodos::ns16(item) }
     end

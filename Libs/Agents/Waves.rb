@@ -336,7 +336,8 @@ class Waves
         items1, items2 = Waves::items()
             .select{|item| 
                 objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
-                objuniverse.nil? or (objuniverse == universe) }
+                universe.nil? or objuniverse.nil? or (objuniverse == universe) 
+            }
             .partition{|wave| Waves::isPriorityWave(wave) }
 
         items2 = items2
