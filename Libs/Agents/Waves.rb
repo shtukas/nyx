@@ -303,7 +303,7 @@ class Waves
             end
             if operation == "delay" then
                 unixtime = Utils::interactivelySelectUnixtimeOrNull()
-                if unixtime.nil? then
+                if unixtime then
                     DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
                     NxBallsService::close(uuid, true)
                     return "8a2aeb48-780d" # Close NxBall

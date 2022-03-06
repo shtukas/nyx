@@ -275,6 +275,7 @@ class ItemStore
         if @defaultItem.nil? and canBeDefault then
             @defaultItem = item
         end
+        @items.size-1
     end
 
     def latestEnteredItemIsDefault()
