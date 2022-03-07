@@ -93,6 +93,17 @@ class StoredUniverse
     end
 end
 
+class DrivingModes
+
+    # DrivingModes::
+    def self.drivingModes()
+        [
+            "Stored universe",
+            "Automatic switching"
+        ]
+    end
+end
+
 class UniverseAccounting
 
     # UniverseAccounting::universeToAccountNumberOrNull(universe)
@@ -119,7 +130,7 @@ class UniverseAccounting
     # UniverseAccounting::universeExpectationOrNull(universe)
     def self.universeExpectationOrNull(universe)
         map = {
-            "backlog" => 4,
+            "backlog" => 6,
             "work"    => 6,
         }
         map[universe]

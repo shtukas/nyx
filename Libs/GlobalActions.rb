@@ -299,8 +299,12 @@ class GlobalActions
             return
         end
 
-        if command == "run top" then
-            Topping::runTop(StoredUniverse::getUniverseOrNull())
+        if command == "start something" then
+            uuid = SecureRandom.uuid
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            universe = Multiverse::interactivelySelectUniverse()
+            accounts = [UniverseAccounting::universeToAccountNumberOrNull(universe)].compact
+            NxBallsService::issue(uuid, description, accounts)
             return
         end
 

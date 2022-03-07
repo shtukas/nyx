@@ -38,15 +38,6 @@ class Topping
         text = Utils::editTextSynchronously(text)
         Topping::setText(universe, text)
     end
-
-    # Topping::runTop(universe)
-    def self.runTop(universe)
-        return if universe.nil?
-        uuid = "846b76f4-0d69-49cc-91cc-f4109ec37ef4:#{universe}"
-        description = "Top @ #{universe}"
-        accounts = [UniverseAccounting::universeToAccountNumberOrNull(universe)].compact
-        NxBallsService::issue(uuid, description, accounts)
-    end
 end
 
 

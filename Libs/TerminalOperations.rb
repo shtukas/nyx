@@ -108,8 +108,8 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("pursue", ordinal, store)
         end
 
-        if Interpreting::match("run top", input) then
-            return ["run top", nil]
+        if Interpreting::match("start something", input) then
+            return ["start something", nil]
         end
 
         if Interpreting::match("search", input) then
