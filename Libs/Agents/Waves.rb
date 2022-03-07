@@ -178,6 +178,7 @@ class Waves
             puts "schedule: #{Waves::scheduleString(wave)}".yellow
             puts "last done: #{wave["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
+            puts "universe: #{ObjectUniverse::getObjectUniverseOrNull(wave["uuid"])}".yellow
 
             Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
@@ -185,7 +186,7 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | atom | note | schedule | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | atom | note | schedule | universe | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -234,6 +235,11 @@ class Waves
                 wave["repeatType"] = schedule[0]
                 wave["repeatValue"] = schedule[1]
                 Librarian6Objects::commit(wave)
+                next
+            end
+
+            if Interpreting::match("universe", command) then
+                ObjectUniverse::interactivelySetObjectUniverse(wave["uuid"])
                 next
             end
 

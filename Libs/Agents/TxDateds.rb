@@ -106,7 +106,7 @@ class TxDateds
 
             AgentsUtils::atomLandingPresentation(mx49["atomuuid"])
 
-            puts "access | date | description | atom | note | show json | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | date | description | atom | note | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -165,6 +165,11 @@ class TxDateds
             if command == "transmute" then
                 TerminalUtils::transmutation2(mx49, "TxDated")
                 break
+            end
+
+            if Interpreting::match("universe", command) then
+                ObjectUniverse::interactivelySetObjectUniverse(mx49["uuid"])
+                next
             end
 
             if command == "gg" then

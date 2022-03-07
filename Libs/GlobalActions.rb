@@ -184,6 +184,13 @@ class GlobalActions
                 end
                 return
             end
+            if object["mikuType"] == "NS16:TxDrop" then
+                item = object["TxDrop"]
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
+                    TxDrops::destroy(item["uuid"])
+                end
+                return
+            end
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
                 if NxBallsService::isRunning(item["uuid"]) then

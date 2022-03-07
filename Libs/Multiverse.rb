@@ -61,8 +61,12 @@ class ObjectUniverse
 
     # ObjectUniverse::interactivelySetObjectUniverse(uuid)
     def self.interactivelySetObjectUniverse(uuid)
-        universe = Multiverse::interactivelySelectUniverse()
-        ObjectUniverse::setObjectUniverse(uuid, universe)
+        universe = Multiverse::interactivelySelectUniverseOrNull()
+        if universe then
+            ObjectUniverse::setObjectUniverse(uuid, universe)
+        else
+            KeyValueStore::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
+        end
     end
 end
 

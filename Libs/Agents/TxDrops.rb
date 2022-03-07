@@ -87,7 +87,7 @@ class TxDrops
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | note | show json | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -129,6 +129,11 @@ class TxDrops
             if Interpreting::match("transmute", command) then
                 TerminalUtils::transmutation2(nx70, "TxDrop")
                 break
+            end
+
+            if Interpreting::match("universe", command) then
+                ObjectUniverse::interactivelySetObjectUniverse(nx70["uuid"])
+                next
             end
 
             if Interpreting::match("show json", command) then
