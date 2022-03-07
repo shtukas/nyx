@@ -370,6 +370,11 @@ class GlobalActions
 
         if command == "universe" then
             ns16 = object
+            if ns16["mikuType"] == "NS16:TxDrop" then
+                item = ns16["TxDrop"]
+                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
+                return
+            end
             if ns16["mikuType"] == "NS16:TxFloat" then
                 item = ns16["TxFloat"]
                 ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
