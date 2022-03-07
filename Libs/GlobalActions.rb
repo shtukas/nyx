@@ -9,8 +9,11 @@ class GlobalActions
         return if command.nil?
 
         if command == ".." then
-            # Double Dot typically peforms start and access
-            GlobalActions::action("start", object)
+            if !NxBallsService::isRunning(object["uuid"]) then
+                GlobalActions::action("start", object)
+                return
+            end
+
             GlobalActions::action("access", object)
 
             # We do not perform "stop" on a wave
@@ -18,7 +21,9 @@ class GlobalActions
             if object["mikuType"] == "NS16:Wave" then
                 return
             end
-            GlobalActions::action("stop", object)
+            if LucilleCore::askQuestionAnswerAsBoolean("stop '#{object["announce"]}' ? ") then
+                GlobalActions::action("stop", object)
+            end
             return
         end
 
@@ -162,6 +167,12 @@ class GlobalActions
         end
 
         if command == "done" then
+
+            # If the object was running, then we stop it
+            if NxBallsService::isRunning(object["uuid"]) then
+                GlobalActions::action("stop", object)
+            end
+
             if object["mikuType"] == "NxBallNS16Delegate1" then
                 NxBallsService::close(object["uuid"], true)
                 return
