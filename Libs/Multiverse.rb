@@ -21,30 +21,30 @@ class Multiverse
     end
 end
 
-class ObjectUniverse
+class ObjectUniverseMapping
 
-    # ObjectUniverse::getObjectUniverseOrNull(uuid)
-    def self.getObjectUniverseOrNull(uuid)
+    # ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)
+    def self.getObjectUniverseMappingOrNull(uuid)
         universe = KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
         if universe == "eva" then
             puts "updating outdated universe attribution from eva to backlog"
             universe = "backlog"
-            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         end
         if universe == "beach" then
             puts "updating outdated universe attribution from beach to backlog"
             universe = "backlog"
-            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         end
         if universe == "xstream" then
             puts "updating outdated universe attribution from xstream to backlog"
             universe = "backlog"
-            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         end
         if universe == "jedi" then
             puts "updating outdated universe attribution from jedi to backlog"
             universe = "backlog"
-            ObjectUniverse::setObjectUniverse(uuid, "backlog")
+            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         end
         if !Multiverse::universes().include?(universe) then
             universe = nil
@@ -53,17 +53,17 @@ class ObjectUniverse
         universe
     end
 
-    # ObjectUniverse::setObjectUniverse(uuid, universe)
-    def self.setObjectUniverse(uuid, universe)
+    # ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
+    def self.setObjectUniverseMapping(uuid, universe)
         raise "(error: incorrect universe: #{universe})" if !Multiverse::universes().include?(universe)
         KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid, universe)
     end
 
-    # ObjectUniverse::interactivelySetObjectUniverse(uuid)
-    def self.interactivelySetObjectUniverse(uuid)
+    # ObjectUniverseMapping::interactivelySetObjectUniverseMapping(uuid)
+    def self.interactivelySetObjectUniverseMapping(uuid)
         universe = Multiverse::interactivelySelectUniverseOrNull()
         if universe then
-            ObjectUniverse::setObjectUniverse(uuid, universe)
+            ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         else
             KeyValueStore::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
         end

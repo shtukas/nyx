@@ -311,7 +311,7 @@ class GlobalActions
 
         if command == "start" then
             ns16 = object
-            universeAccountNumber = UniverseAccounting::universeToAccountNumberOrNull(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]))
+            universeAccountNumber = UniverseAccounting::universeToAccountNumberOrNull(ObjectUniverseMapping::getObjectUniverseMappingOrNull(ns16["uuid"]))
             NxBallsService::issue(ns16["uuid"], ns16["announce"], [ns16["uuid"], universeAccountNumber].compact)
             return
         end
@@ -379,22 +379,22 @@ class GlobalActions
             ns16 = object
             if ns16["mikuType"] == "NS16:TxDrop" then
                 item = ns16["TxDrop"]
-                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 return
             end
             if ns16["mikuType"] == "NS16:TxFloat" then
                 item = ns16["TxFloat"]
-                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 return
             end
             if ns16["mikuType"] == "NS16:Wave" then
                 item = ns16["wave"]
-                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 return
             end
             if ns16["mikuType"] == "NS16:TxTodo" then
                 item = ns16["TxTodo"]
-                ObjectUniverse::interactivelySetObjectUniverse(item["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 return
             end
         end

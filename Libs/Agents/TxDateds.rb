@@ -168,7 +168,7 @@ class TxDateds
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverse::interactivelySetObjectUniverse(mx49["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(mx49["uuid"])
                 next
             end
 

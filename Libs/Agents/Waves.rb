@@ -178,7 +178,7 @@ class Waves
             puts "schedule: #{Waves::scheduleString(wave)}".yellow
             puts "last done: #{wave["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
-            puts "universe: #{ObjectUniverse::getObjectUniverseOrNull(wave["uuid"])}".yellow
+            puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(wave["uuid"])}".yellow
 
             Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
@@ -239,7 +239,7 @@ class Waves
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverse::interactivelySetObjectUniverse(wave["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(wave["uuid"])
                 next
             end
 
@@ -341,7 +341,7 @@ class Waves
     def self.ns16s(universe)
         items1, items2 = Waves::items()
             .select{|item| 
-                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe) 
             }
             .partition{|wave| Waves::isPriorityWave(wave) }

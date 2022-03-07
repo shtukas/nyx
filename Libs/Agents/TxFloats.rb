@@ -38,7 +38,7 @@ class TxFloats
           "atomuuid"    => atom["uuid"]
         }
         Librarian6Objects::commit(item)
-        ObjectUniverse::interactivelySetObjectUniverse(uuid)
+        ObjectUniverseMapping::interactivelySetObjectUniverseMapping(uuid)
         item
     end
 
@@ -123,7 +123,7 @@ class TxFloats
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverse::interactivelySetObjectUniverse(float["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(float["uuid"])
                 break
             end
 
@@ -180,7 +180,7 @@ class TxFloats
         return [] if universe.nil?
         TxFloats::items()
             .select{|item| 
-                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }

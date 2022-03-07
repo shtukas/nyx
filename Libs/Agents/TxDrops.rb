@@ -132,7 +132,7 @@ class TxDrops
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverse::interactivelySetObjectUniverse(nx70["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(nx70["uuid"])
                 next
             end
 
@@ -181,7 +181,7 @@ class TxDrops
     def self.ns16s(universe)
         TxDrops::mikus()
             .select{|item| 
-                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxDrops::ns16(item) }

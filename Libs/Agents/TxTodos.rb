@@ -16,7 +16,7 @@ class TxTodos
     def self.itemsForUniverse(universe)
         TxTodos::items()
             .select{|item| 
-                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
     end
@@ -98,7 +98,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        ObjectUniverse::setObjectUniverse(uuid, universe)
+        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
 
@@ -124,7 +124,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        ObjectUniverse::setObjectUniverse(uuid, universe)
+        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
 
@@ -147,7 +147,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        ObjectUniverse::setObjectUniverse(uuid, "backlog")
+        ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         item
     end
 
@@ -172,7 +172,7 @@ class TxTodos
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
-        ObjectUniverse::setObjectUniverse(uuid, "backlog")
+        ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         item
     end
 
@@ -191,7 +191,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverse::getObjectUniverseOrNull(nx50["uuid"])})"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -215,7 +215,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "universe: #{ObjectUniverse::getObjectUniverseOrNull(uuid)}".yellow
+            puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)}".yellow
             puts "ordinal: #{nx50["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
@@ -271,7 +271,7 @@ class TxTodos
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverse::interactivelySetObjectUniverse(nx50["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(nx50["uuid"])
                 break
             end
 
@@ -280,7 +280,7 @@ class TxTodos
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 Librarian6Objects::commit(nx50)
-                ObjectUniverse::setObjectUniverse(nx50["uuid"], universe)
+                ObjectUniverseMapping::setObjectUniverseMapping(nx50["uuid"], universe)
                 next
             end
 
@@ -289,7 +289,7 @@ class TxTodos
                 ordinal = TxTodos::nextOrdinal(universe)
                 nx50["ordinal"] = ordinal
                 Librarian6Objects::commit(nx50)
-                ObjectUniverse::setObjectUniverse(nx50["uuid"], universe)
+                ObjectUniverseMapping::setObjectUniverseMapping(nx50["uuid"], universe)
                 break
             end
 
@@ -354,7 +354,7 @@ class TxTodos
               "ordinal"     => ordinal
             }
             Librarian6Objects::commit(item)
-            ObjectUniverse::setObjectUniverse(uuid, universe)
+            ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
 
             check = lambda{|itemuuid|
                 puts "fsck: itemuuid: #{itemuuid}"
@@ -416,7 +416,7 @@ class TxTodos
 
         makeItems.call(universe)
             .select{|item| 
-                objuniverse = ObjectUniverse::getObjectUniverseOrNull(item["uuid"])
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxTodos::ns16(item) }

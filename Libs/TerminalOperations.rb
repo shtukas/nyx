@@ -185,21 +185,21 @@ class TerminalUtils
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             Librarian6Objects::commit(object)
-            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
         if source == "TxDated" and target == "TxDrop" then
             object["mikuType"] = "TxDrop"
             Librarian6Objects::commit(object)
-            ObjectUniverse::interactivelySetObjectUniverse(object["uuid"])
+            ObjectUniverseMapping::interactivelySetObjectUniverseMapping(object["uuid"])
             return
         end
 
         if source == "TxDated" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
             Librarian6Objects::commit(object)
-            ObjectUniverse::interactivelySetObjectUniverse(object["uuid"])
+            ObjectUniverseMapping::interactivelySetObjectUniverseMapping(object["uuid"])
             return
         end
 
@@ -209,7 +209,7 @@ class TerminalUtils
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             Librarian6Objects::commit(object)
-            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
@@ -218,7 +218,7 @@ class TerminalUtils
             object["mikuType"] = "TxDated"
             object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
             Librarian6Objects::commit(object)
-            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
@@ -228,7 +228,7 @@ class TerminalUtils
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             Librarian6Objects::commit(object)
-            ObjectUniverse::setObjectUniverse(object["uuid"], universe)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
@@ -412,7 +412,7 @@ class TerminalDisplayOperator
                 end
                 store.register(ns16, canBeDefault)
                 line = ns16["announce"]
-                line = "#{store.prefixString()} #{(ObjectUniverse::getObjectUniverseOrNull(ns16["uuid"]) || "").ljust(7)} #{line}"
+                line = "#{store.prefixString()} #{(ObjectUniverseMapping::getObjectUniverseMappingOrNull(ns16["uuid"]) || "").ljust(7)} #{line}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 if TerminalDisplayOperator::ns16HasStarted(ns16) then
                     line = line.green
