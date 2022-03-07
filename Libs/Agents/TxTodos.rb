@@ -414,12 +414,19 @@ class TxTodos
                 .compact
         }
 
-        makeItems.call(universe)
+        ns16s = makeItems.call(universe)
             .select{|item| 
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxTodos::ns16(item) }
+
+        ns16s1 = ns16s.take(5)
+        ns16s2 = ns16s.drop(5)
+
+        ns16s1 = ns16s1.sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+
+        ns16s1 + ns16s2
     end
 
     # --------------------------------------------------
