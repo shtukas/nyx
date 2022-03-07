@@ -87,6 +87,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
+        if Interpreting::match("float", input) then
+            return ["float", nil]
+        end
+
         if Interpreting::match("fsck", input) then
             return ["fsck", nil]
         end

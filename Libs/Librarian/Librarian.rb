@@ -664,11 +664,70 @@ class Librarian6Objects
 
     # Librarian6Objects::destroy(uuid)
     def self.destroy(uuid)
+        Librarian6Objects::uuidGarbageCollection(uuid)
+
         db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
         db.close
+    end
+
+    # -------------------------------------------------
+    # Garbage Collection
+
+    # Librarian6Objects::uuidGarbageCollection(uuid)
+    def self.uuidGarbageCollection(uuid)
+        object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
+        return if object.nil?
+        Librarian6Objects::objectGarbageCollection(object)
+    end
+
+    # Librarian6Objects::objectGarbageCollection(object)
+    def self.objectGarbageCollection(object)
+        if object["mikuType"] == "Atom" then
+            if object["type"] == "matter" then
+                matterId = object["matterId"]
+                localFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
+                if File.exists?(localFile) then
+                    puts "> deleting local file: #{localFile}"
+                    FileUtils.rm(localFile)
+                end
+                remoteFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
+                if !File.exists?(File.dirname(remoteFile)) then
+                    puts "> I am looking for remote, can you plug the drive ?"
+                    LucilleCore::pressEnterToContinue()
+                end
+                if !File.exists?(File.dirname(remoteFile)) then
+                    raise "I wanted the remove drive 😞"
+                end
+                if File.exists?(remoteFile) then
+                    puts "> deleting remote file: #{remoteFile}"
+                    FileUtils.rm(remoteFile)
+                end
+            end
+        end
+        if object["mikuType"] == "Nx31" then
+            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
+        end
+        if object["mikuType"] == "TxCalendarItem" then
+            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
+        end
+        if object["mikuType"] == "TxDated" then
+            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
+        end
+        if object["mikuType"] == "TxDrop" then
+            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
+        end
+        if object["mikuType"] == "TxFloat" then
+            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
+        end
+        if object["mikuType"] == "TxTodo" then
+            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
+        end
+        if object["mikuType"] == "Wave" then
+            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
+        end
     end
 end
 
@@ -746,11 +805,11 @@ class Librarian10MatterIO
             if File.exists?(localFile) then
                 return localFile
             end
-            if !File.exists?(remoteFile) then
+            if !File.exists?(File.dirname(remoteFile)) then
                 puts "> I am looking for remote, can you plug the drive ?"
                 LucilleCore::pressEnterToContinue()
             end
-            if !File.exists?(remoteFile) then
+            if !File.exists?(File.dirname(remoteFile)) then
                 raise "I wanted the remove drive 😞"
             end
             return remoteFile
@@ -767,15 +826,21 @@ class Librarian10MatterIO
             if File.exists?(localFile) then
                 return localFile
             end
-            if !File.exists?(remoteFile) then
+            if !File.exists?(File.dirname(remoteFile)) then
                 puts "> I am looking for remote, can you plug the drive ?"
                 LucilleCore::pressEnterToContinue()
             end
-            if !File.exists?(remoteFile) then
+            if !File.exists?(File.dirname(remoteFile)) then
                 raise "I wanted the remove drive 😞"
             end
-            puts "> Downloading matter file: #{remoteFile}"
-            FileUtils.cp(remoteFile, localFile)
+            # At this point we know that the drive is plugged, 
+            # but note that the file itself may not exist, so we need to 
+            # check that it exists before we download it
+            # In any case, we return the local file
+            if File.exists?(remoteFile) then
+                puts "> Downloading matter file: #{remoteFile}"
+                FileUtils.cp(remoteFile, localFile)
+            end
             return localFile 
         end
     end
