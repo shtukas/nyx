@@ -11,6 +11,9 @@ class GlobalActions
         if command == ".." then
             if !NxBallsService::isRunning(object["uuid"]) then
                 GlobalActions::action("start", object)
+                if LucilleCore::askQuestionAnswerAsBoolean("access '#{object["announce"]}' ? ", true) then
+                    GlobalActions::action("access", object)
+                end
                 return
             end
 
