@@ -86,12 +86,12 @@ class Librarian0Utils
         AionCore::commitLocationReturnHash(Librarian4ElizabethXCache.new(), location)
     end
 
-    # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
-    def self.injectLocationIntoToMatterFile(matterId, location)
+    # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location, fileResolutionCode)
+    def self.injectLocationIntoToMatterFile(matterId, location, fileResolutionCode)
         raise "[Librarian0Utils: error: f3f9e10f-d9e6-4e12-bf35-12954231ae18, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(matterId, true), location)
+        nhash = AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(matterId, fileResolutionCode), location)
         # All the blobs have been added to the file, we now write the root hash
-        Librarian11MatterElizabeth.new(matterId, true).commitRootNamedHash(nhash)
+        Librarian11MatterElizabeth.new(matterId, fileResolutionCode).commitRootNamedHash(nhash)
     end
 
     # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
@@ -282,7 +282,7 @@ class Librarian5Atoms
     # Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location) # Atom
     def self.issueMatterAtomUsingLocation(matterId, location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
+        Librarian0Utils::injectLocationIntoToMatterFile(matterId, location, "02")
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
@@ -378,7 +378,7 @@ class Librarian5Atoms
     def self.marbleIsInNhash(matterId, nhash, marbleId)
         # TODO:
         # This function can easily been memoised
-        object = AionCore::getAionObjectByHash(Librarian11MatterElizabeth.new(matterId, false), nhash)
+        object = AionCore::getAionObjectByHash(Librarian11MatterElizabeth.new(matterId, "01"), nhash)
         Librarian5Atoms::marbleIsInAionPointObject(matterId, object, marbleId)
     end
 
@@ -407,7 +407,7 @@ class Librarian5Atoms
             .each{|atom|
                 next if atom["type"] != "matter"
                 matterId = atom["matterId"]
-                nhash = Librarian11MatterElizabeth.new(matterId, false).getRootNamedHash()
+                nhash = Librarian11MatterElizabeth.new(matterId, "01").getRootNamedHash()
                 if Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId) then
                     puts "I have found the marble in atom matter: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
@@ -447,12 +447,12 @@ class Librarian5Atoms
         end
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
-            nhash = Librarian11MatterElizabeth.new(matterId, true).getRootNamedHash()
-            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(matterId, true), nhash, "/Users/pascal/Desktop")
+            nhash = Librarian11MatterElizabeth.new(matterId, "03").getRootNamedHash()
+            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(matterId, "03"), nhash, "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
+                Librarian0Utils::injectLocationIntoToMatterFile(matterId, location, "03")
                 Librarian0Utils::moveFileToBinTimeline(location)
             end
         end
@@ -526,8 +526,8 @@ class Librarian5Atoms
             matterId = atom["matterId"]
             # TODO:
             return true if rand > 0.001
-            nhash = Librarian11MatterElizabeth.new(matterId, false).getRootNamedHash()
-            return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(matterId, false), nhash)
+            nhash = Librarian11MatterElizabeth.new(matterId, "01").getRootNamedHash()
+            return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(matterId, "01"), nhash)
         end
         if atom["type"] == "marble" then
             return true
@@ -717,6 +717,7 @@ end
 
 class Librarian10MatterIO
 
+    # ---------------------------------------------------
     # Matter Files Management
 
     # Librarian10MatterIO::matterIdToFilepath2(matterId, variant)
@@ -731,50 +732,60 @@ class Librarian10MatterIO
         raise "(error: 76080477-664a-4194-9be6-8a9313f2d5db, incorrect variant)"
     end
 
-    # Librarian10MatterIO::ensureThatMatterFileIsLocal(matterId)
-    def self.ensureThatMatterFileIsLocal(matterId)
-        localFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
-        return if File.exists?(localFile)
-        remoteFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
-        if !File.exists?(File.dirname(remoteFile)) then
-            puts "> I am looking for remote, can you plug the drive ?"
-            LucilleCore::pressEnterToContinue()
-        end
-        if !File.exists?(File.dirname(remoteFile)) then
-            raise "I wanted the remove drive 😞"
-        end
-        # Note that the remoteFile could actually not exist
-        # We only copy it if it exists
-        if File.exists?(remoteFile) then
-            puts "> Downloading matter file: #{remoteFile}"
-            FileUtils.cp(remoteFile, localFile)
-        end
-    end
+    # Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
+    def self.matterIdToOperationalFilepath(matterId, fileResolutionCode)
 
-    # Librarian10MatterIO::matterIdToOperationalFilepath(matterId, canDownloadFileOnLocal)
-    def self.matterIdToOperationalFilepath(matterId, canDownloadFileOnLocal)
-        if canDownloadFileOnLocal then
-            Librarian10MatterIO::ensureThatMatterFileIsLocal(matterId)
-            return Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
-        else
-            # Cannot download the file so we use it if it's one local and otherwise ask for remote.
-            localFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
+        # File resolution codes
+        #     01: Use the local file if it's available, otherwise seek the remote file but do not download it
+        #     02: Use the local file without seeking the remote file (for instance when creating a new file)
+        #     03: Use the local file if it's available, otherwise seek the remote file and dowload it, and use the local
+
+        if fileResolutionCode == "01" then
+            localFile  = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
+            remoteFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
             if File.exists?(localFile) then
                 return localFile
             end
-            Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
+            if !File.exists?(remoteFile) then
+                puts "> I am looking for remote, can you plug the drive ?"
+                LucilleCore::pressEnterToContinue()
+            end
+            if !File.exists?(remoteFile) then
+                raise "I wanted the remove drive 😞"
+            end
+            return remoteFile
+        end
+
+        if fileResolutionCode == "02" then
+            localFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
+            return localFile
+        end
+
+        if fileResolutionCode == "03" then
+            localFile  = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
+            remoteFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
+            if File.exists?(localFile) then
+                return localFile
+            end
+            if !File.exists?(remoteFile) then
+                puts "> I am looking for remote, can you plug the drive ?"
+                LucilleCore::pressEnterToContinue()
+            end
+            if !File.exists?(remoteFile) then
+                raise "I wanted the remove drive 😞"
+            end
+            puts "> Downloading matter file: #{remoteFile}"
+            FileUtils.cp(remoteFile, localFile)
+            return localFile 
         end
     end
 
+    # ---------------------------------------------------
     # IO
 
-    # Librarian10MatterIO::putBlob(matterId, blob)
-    def self.putBlob(matterId, blob)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, true)
-        if !File.exists?(File.dirname(filepath)) then
-            puts "> I need to write a blob to a matter file, but can't find the matter folder, can you plug the drive ?"
-            LucilleCore::pressEnterToContinue()
-        end
+    # Librarian10MatterIO::putBlob(matterId, blob, fileResolutionCode)
+    def self.putBlob(matterId, blob, fileResolutionCode)
+        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
         if !File.exists?(filepath) then
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
@@ -795,15 +806,9 @@ class Librarian10MatterIO
         nhash
     end
 
-    # Librarian10MatterIO::commitRootNamedHash(matterId, nhash)
-    def self.commitRootNamedHash(matterId, nhash)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, true)
-
-        if !File.exists?(filepath) then
-            puts "> I need to write a root hash to the matter file, can you plug the drive ?"
-            LucilleCore::pressEnterToContinue()
-        end
-
+    # Librarian10MatterIO::commitRootNamedHash(matterId, nhash, fileResolutionCode)
+    def self.commitRootNamedHash(matterId, nhash, fileResolutionCode)
+        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -814,16 +819,9 @@ class Librarian10MatterIO
         db.close
     end
 
-    # Librarian10MatterIO::getBlobOrNull(matterId, nhash, canDownloadFileOnLocal)
-    def self.getBlobOrNull(matterId, nhash, canDownloadFileOnLocal)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, canDownloadFileOnLocal)
-        if !File.exists?(filepath) then
-            puts "> I need to read a blob from the matter file, can you plug the drive ?"
-            LucilleCore::pressEnterToContinue()
-        end
-        if !File.exists?(filepath) then
-            raise "(error: 101a57b4-a67a-4b32-8caf-6d0fe9098870) Librarian10MatterIO::getBlobOrNull: matter file (filepath: #{filepath}) not in sight"
-        end
+    # Librarian10MatterIO::getBlobOrNull(matterId, nhash, fileResolutionCode)
+    def self.getBlobOrNull(matterId, nhash, fileResolutionCode)
+        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
         blob = nil
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -836,21 +834,10 @@ class Librarian10MatterIO
         blob
     end
 
-    # Librarian10MatterIO::getRootNamedHash(matterId, canDownloadFileOnLocal)
-    def self.getRootNamedHash(matterId, canDownloadFileOnLocal)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, canDownloadFileOnLocal)
-
-        if !File.exists?(filepath) then
-            puts "> I need to read a root hash from the matter file, can you plug the drive ?"
-            LucilleCore::pressEnterToContinue()
-        end
-
-        if !File.exists?(filepath) then
-            raise "(error: 9009627a-2f77-4bd5-99be-bc99b3caa4fc) Librarian10MatterIO::getRootNamedHash: matter file (filepath: #{filepath}) not in sight"
-        end
-
+    # Librarian10MatterIO::getRootNamedHash(matterId, fileResolutionCode)
+    def self.getRootNamedHash(matterId, fileResolutionCode)
+        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
         nhash = nil
-
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -861,7 +848,7 @@ class Librarian10MatterIO
         db.close
 
         if nhash.nil? then
-            raise "(error: 0fbbd292-b436-4e58-83ae-8abf68c5c84f) Librarian10MatterIO::getRootNamedHash(matterId): root nhash not found in file (filepath: #{filepath})" 
+            raise "(error: 0fbbd292-b436-4e58-83ae-8abf68c5c84f) Librarian10MatterIO::getRootNamedHash: root nhash not found in file (filepath: #{filepath})" 
         end
 
         nhash
@@ -872,13 +859,18 @@ class Librarian11MatterElizabeth
 
     # @matterId
 
-    def initialize(matterId, canDownloadFileOnLocal)
+    # File resolution codes
+    #     01: Use the local file if it's available, otherwise seek the remote file but do not download it (fsck, or marble seeking)
+    #     02: Use the local file without seeking the remote file (for instance when creating a new file)
+    #     03: Use the local file if it's available, otherwise seek the remote file and dowload it, and use the local
+
+    def initialize(matterId, fileResolutionCode)
         @matterId = matterId
-        @canDownloadFileOnLocal = canDownloadFileOnLocal
+        @fileResolutionCode = fileResolutionCode
     end
 
     def commitBlob(blob)
-        nhash = Librarian10MatterIO::putBlob(@matterId, blob)
+        nhash = Librarian10MatterIO::putBlob(@matterId, blob, @fileResolutionCode)
         Librarian2DataBlobsXCache::putBlob(blob)
         nhash
     end
@@ -891,7 +883,7 @@ class Librarian11MatterElizabeth
         blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
         return blob if blob
         puts "[cache miss] reading blob from matter file (@matterId: #{@matterId}, nhash: #{nhash})"
-        blob = Librarian10MatterIO::getBlobOrNull(@matterId, nhash, @canDownloadFileOnLocal)
+        blob = Librarian10MatterIO::getBlobOrNull(@matterId, nhash, @fileResolutionCode)
         raise "[error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash}]" if blob.nil?
         Librarian2DataBlobsXCache::putBlob(blob)
         blob
@@ -907,7 +899,7 @@ class Librarian11MatterElizabeth
     end
 
     def commitRootNamedHash(nhash)
-        Librarian10MatterIO::commitRootNamedHash(@matterId, nhash)
+        Librarian10MatterIO::commitRootNamedHash(@matterId, nhash, @fileResolutionCode)
         KeyValueStore::set(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}", nhash)
     end
 
@@ -915,7 +907,7 @@ class Librarian11MatterElizabeth
         nhash = KeyValueStore::getOrNull(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}")
         return nhash if nhash
         puts "[cache miss] reading root nhash from matter file (@matterId: #{@matterId})"
-        nhash = Librarian10MatterIO::getRootNamedHash(@matterId, @canDownloadFileOnLocal)
+        nhash = Librarian10MatterIO::getRootNamedHash(@matterId, @fileResolutionCode)
         KeyValueStore::set(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}", nhash)
         nhash
     end
