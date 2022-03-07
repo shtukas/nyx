@@ -74,6 +74,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("done", ordinal, store)
         end
 
+        if Interpreting::match("drop", input) then
+            return ["drop", nil]
+        end
+
         if Interpreting::match("expose", input) then
             return ["expose", store.getDefault()]
         end
