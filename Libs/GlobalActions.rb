@@ -263,6 +263,11 @@ class GlobalActions
         end
 
         if command == "mode" then
+            if NxBallsService::somethingIsRunning() then
+                puts "You cannot run mode while something is running"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             UniverseDrivingModes::interactivelySetMode()
             return
         end

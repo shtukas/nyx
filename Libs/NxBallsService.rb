@@ -140,6 +140,13 @@ class NxBallsService
         end
         "#{leftSide}running for #{((Time.new.to_i-nxball["status"]["startUnixtime"]).to_f/3600).round(2)} hours#{rightSide}"
     end
+
+    # NxBallsService::somethingIsRunning()
+    def self.somethingIsRunning()
+        nxballs = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+                    .select{|nxball| NxBallsService::isRunning(nxball["uuid"]) }
+        !nxballs.empty?
+    end
 end
 
 Thread.new {

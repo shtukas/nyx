@@ -456,7 +456,7 @@ class TerminalDisplayOperator
 
             TxTodos::importNx50BacklogInbox()
 
-            if UniverseDrivingModes::getStoredMode() == "assisted switching" then
+            if !NxBallsService::somethingIsRunning() and UniverseDrivingModes::getStoredMode() == "assisted switching" then
                 storedUniverse = StoredUniverse::getUniverseOrNull()
                 advisedUniverse = UniverseAccounting::getUniversesInRatioOrder().first
                 if storedUniverse != advisedUniverse then
