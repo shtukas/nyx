@@ -115,7 +115,11 @@ class UniverseDrivingModes
 
     # UniverseDrivingModes::getStoredMode()
     def self.getStoredMode()
-        KeyValueStore::getOrDefaultValue(nil, "d8c104ea-f64c-4280-99b4-c8d636856ed9", "stored universe")
+        mode = KeyValueStore::getOrDefaultValue(nil, "d8c104ea-f64c-4280-99b4-c8d636856ed9", "stored universe")
+        if UniverseDrivingModes::modes().include?(mode) then
+            mode = UniverseDrivingModes::modes().first
+        end
+        mode
     end
 end
 
