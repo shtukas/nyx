@@ -93,14 +93,29 @@ class StoredUniverse
     end
 end
 
-class DrivingModes
+class UniverseDrivingModes
 
-    # DrivingModes::
-    def self.drivingModes()
+    # UniverseDrivingModes::modes()
+    def self.modes()
         [
-            "Stored universe",
-            "Automatic switching"
+            "stored universe",
+            "assisted switching"
         ]
+    end
+
+    # UniverseDrivingModes::interactivelySetMode()
+    def self.interactivelySetMode()
+        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", UniverseDrivingModes::modes())
+        if mode.nil? then
+            UniverseDrivingModes::interactivelySetMode()
+        else
+            KeyValueStore::set(nil, "d8c104ea-f64c-4280-99b4-c8d636856ed9", mode)
+        end
+    end
+
+    # UniverseDrivingModes::getStoredMode()
+    def self.getStoredMode()
+        KeyValueStore::getOrDefaultValue(nil, "d8c104ea-f64c-4280-99b4-c8d636856ed9", "stored universe")
     end
 end
 
@@ -143,16 +158,9 @@ class UniverseAccounting
         UniverseAccounting::universeRT(universe).to_f/expectation
     end
 
-    # UniverseAccounting::getExpectationUniversesInRatioOrder()
-    def self.getExpectationUniversesInRatioOrder()
+    # UniverseAccounting::getUniversesInRatioOrder()
+    def self.getUniversesInRatioOrder()
         Multiverse::universes()
-            .select{|universe| UniverseAccounting::universeExpectationOrNull(universe) }
-            .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
-    end
-
-    # UniverseAccounting::getExpectationUniversesInRatioOrder2(universes)
-    def self.getExpectationUniversesInRatioOrder2(universes)
-        universes
             .select{|universe| UniverseAccounting::universeExpectationOrNull(universe) }
             .sort{|u1, u2| UniverseAccounting::universeRatioOrNull(u1) <=> UniverseAccounting::universeRatioOrNull(u2) }
     end

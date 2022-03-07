@@ -95,6 +95,10 @@ class TerminalUtils
             return ["fsck", nil]
         end
 
+        if Interpreting::match("mode", input) then
+            return ["mode", nil]
+        end
+
         if Interpreting::match("nyx", input) then
             return ["nyx", nil]
         end
@@ -340,7 +344,8 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        puts UniverseAccounting::getExpectationUniversesInRatioOrder()
+        t1 = UniverseDrivingModes::getStoredMode()
+        t2 = UniverseAccounting::getUniversesInRatioOrder()
             .map{|uni|
                 expectation = UniverseAccounting::universeExpectationOrNull(uni)
                 uniRatio = UniverseAccounting::universeRatioOrNull(uni)
@@ -351,6 +356,7 @@ class TerminalDisplayOperator
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
                 line
             }.join(" ")
+        puts "#{t1} / #{t2}"
 
         store = ItemStore.new()
 
@@ -449,6 +455,16 @@ class TerminalDisplayOperator
             end
 
             TxTodos::importNx50BacklogInbox()
+
+            if UniverseDrivingModes::getStoredMode() == "assisted switching" then
+                storedUniverse = StoredUniverse::getUniverseOrNull()
+                advisedUniverse = UniverseAccounting::getUniversesInRatioOrder().first
+                if storedUniverse != advisedUniverse then
+                    if LucilleCore::askQuestionAnswerAsBoolean("[assisted switching] Would you like to switch to: #{advisedUniverse} ? ") then
+                        StoredUniverse::setUniverse(advisedUniverse)
+                    end
+                end
+            end
 
             universe = StoredUniverse::getUniverseOrNull()
             floats = TxFloats::ns16s(universe)

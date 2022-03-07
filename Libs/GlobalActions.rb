@@ -259,6 +259,11 @@ class GlobalActions
             end
         end
 
+        if command == "mode" then
+            UniverseDrivingModes::interactivelySetMode()
+            return
+        end
+
         if command == "nyx" then
             system("/Users/pascal/Galaxy/Software/Catalyst/nyx")
             return
