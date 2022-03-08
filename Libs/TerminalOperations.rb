@@ -112,6 +112,15 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("pursue", ordinal, store)
         end
 
+        if Interpreting::match("redate", input) then
+            return ["redate", store.getDefault()]
+        end
+
+        if Interpreting::match("redate *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("redate", ordinal, store)
+        end
+
         if Interpreting::match("start something", input) then
             return ["start something", nil]
         end
