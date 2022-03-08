@@ -51,7 +51,7 @@ class Inbox
                     return
                 end
                 if action == "transmute" then
-                    TerminalUtils::transmutation2(location, "inbox")
+                    Transmutation::transmutation2(location, "inbox")
                     return
                 end
                 if action == ">nyx" then
@@ -77,7 +77,7 @@ class Inbox
                     return
                 end
                 if action == "transmute" then
-                    TerminalUtils::transmutation2(location, "inbox")
+                    Transmutation::transmutation2(location, "inbox")
                     return
                 end
                 if action == ">nyx" then

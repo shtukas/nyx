@@ -383,19 +383,19 @@ class GlobalActions
             ns16 = object
             if ns16["mikuType"] == "NS16:Inbox1" then
                 location = ns16["location"]
-                TerminalUtils::transmutation2(location, "inbox")
+                Transmutation::transmutation2(location, "inbox")
                 return
             end
 
             if ns16["mikuType"] == "NS16:TxDated" then
                 mx49 = ns16["TxDated"]
-                TerminalUtils::transmutation2(mx49, "TxDated")
+                Transmutation::transmutation2(mx49, "TxDated")
                 return
             end
 
             if ns16["mikuType"] == "NS16:TxDrop" then
                 nx70 = ns16["TxDrop"]
-                TerminalUtils::transmutation2(nx70, "TxDrop")
+                Transmutation::transmutation2(nx70, "TxDrop")
                 return
             end
         end

@@ -132,7 +132,7 @@ class TxDrops
             end
 
             if Interpreting::match("transmute", command) then
-                TerminalUtils::transmutation2(nx70, "TxDrop")
+                Transmutation::transmutation2(nx70, "TxDrop")
                 break
             end
 

@@ -178,6 +178,7 @@ require_relative "Search2.rb"
 
 require_relative "Tags.rb"
 require_relative "TerminalOperations.rb"
+require_relative "Transmutation.rb"
 
 require_relative "Utils.rb"
 

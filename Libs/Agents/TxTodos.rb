@@ -299,7 +299,7 @@ class TxTodos
             end
 
             if Interpreting::match("transmute", command) then
-                TerminalUtils::transmutation2(nx50, "TxTodo")
+                Transmutation::transmutation2(nx50, "TxTodo")
                 break
             end
 

@@ -133,7 +133,7 @@ class TxFloats
             end
 
             if Interpreting::match("transmute", command) then
-                TerminalUtils::transmutation2(float, "TxFloat")
+                Transmutation::transmutation2(float, "TxFloat")
                 break
             end
 
