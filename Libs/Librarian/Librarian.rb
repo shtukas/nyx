@@ -272,7 +272,7 @@ class Librarian5Atoms
     def self.issueUrlAtomUsingUrl(url)
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType" => "Atom",
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "url",
             "payload"     => url
@@ -308,7 +308,7 @@ class Librarian5Atoms
     def self.issueMarbleAtom(marbleId)
         {
             "uuid"        => SecureRandom.uuid,
-            "mikuType" => "Atom",
+            "mikuType"    => "Atom",
             "unixtime"    => Time.new.to_f,
             "type"        => "marble",
             "payload"     => marbleId

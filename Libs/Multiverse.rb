@@ -23,40 +23,42 @@ end
 
 class ObjectUniverseMapping
 
+    # sqlite> create table _mapping_ (_objectuuid_ text primary key, universe _text_);
+
+    # ObjectUniverseMapping::databaseFilepath()
+    def self.databaseFilepath()
+        "/Users/pascal/Galaxy/DataBank/Catalyst/universemapping.sqlite3"
+    end
+
     # ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)
     def self.getObjectUniverseMappingOrNull(uuid)
-        universe = KeyValueStore::getOrNull("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
-        if universe == "eva" then
-            puts "updating outdated universe attribution from eva to backlog"
-            universe = "backlog"
-            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
+
+        db = SQLite3::Database.new(ObjectUniverseMapping::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _mapping_ where _objectuuid_=?", [uuid]) do |row|
+            answer = row["universe"]
         end
-        if universe == "beach" then
-            puts "updating outdated universe attribution from beach to backlog"
-            universe = "backlog"
-            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
-        end
-        if universe == "xstream" then
-            puts "updating outdated universe attribution from xstream to backlog"
-            universe = "backlog"
-            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
-        end
-        if universe == "jedi" then
-            puts "updating outdated universe attribution from jedi to backlog"
-            universe = "backlog"
-            ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
-        end
-        if !Multiverse::universes().include?(universe) then
-            universe = nil
-            KeyValueStore::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
-        end
-        universe
+        db.close
+        answer
     end
 
     # ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
     def self.setObjectUniverseMapping(uuid, universe)
         raise "(error: incorrect universe: #{universe})" if !Multiverse::universes().include?(universe)
-        KeyValueStore::set("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid, universe)
+        db = SQLite3::Database.new(ObjectUniverseMapping::databaseFilepath())
+        db.execute "delete from _mapping_ where _objectuuid_=?", [uuid]
+        db.execute "insert into _mapping_ (_objectuuid_, universe) values (?,?)", [uuid, universe]
+        db.close
+    end
+
+    # ObjectUniverseMapping::unset(uuid)
+    def self.unset(uuid)
+        db = SQLite3::Database.new(ObjectUniverseMapping::databaseFilepath())
+        db.execute "delete from _mapping_ where _objectuuid_=?", [uuid]
+        db.close
     end
 
     # ObjectUniverseMapping::interactivelySetObjectUniverseMapping(uuid)
@@ -65,7 +67,7 @@ class ObjectUniverseMapping
         if universe then
             ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         else
-            KeyValueStore::destroy("/Users/pascal/Galaxy/DataBank/Catalyst/Multiverse/kv-store", uuid)
+            ObjectUniverseMapping::unset(uuid)
         end
     end
 end
@@ -150,8 +152,8 @@ class UniverseAccounting
     # UniverseAccounting::universeExpectationOrNull(universe)
     def self.universeExpectationOrNull(universe)
         map = {
-            "backlog" => 6,
-            "work"    => 6,
+            "backlog" => 5,
+            "work"    => 5,
         }
         map[universe]
     end
