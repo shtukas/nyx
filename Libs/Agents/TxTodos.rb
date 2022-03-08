@@ -231,7 +231,7 @@ class TxTodos
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | notes | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -270,6 +270,11 @@ class TxTodos
                 next
             end
 
+            if Interpreting::match("notes", command) then
+                Librarian7Notes::notesLanding(nx50["uuid"])
+                next
+            end
+
             if Interpreting::match("universe", command) then
                 ObjectUniverseMapping::interactivelySetObjectUniverseMapping(nx50["uuid"])
                 break
@@ -304,16 +309,9 @@ class TxTodos
                 break
             end
 
-            if command == "destroy" then
+            if command == "destroy" or command == "gg" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
-                    TxTodos::destroy(nx50["uuid"])
-                    break
-                end
-                next
-            end
-
-            if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
+                    NxBallsService::close(nx50["uuid"], true)
                     TxTodos::destroy(nx50["uuid"])
                     break
                 end

@@ -186,7 +186,7 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | atom | note | schedule | universe | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | atom | note | notes | schedule | universe | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -226,6 +226,11 @@ class Waves
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
                 Librarian7Notes::addNote(wave["uuid"], text)
+                next
+            end
+
+            if Interpreting::match("notes", command) then
+                Librarian7Notes::notesLanding(wave["uuid"])
                 next
             end
 

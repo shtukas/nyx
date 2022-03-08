@@ -190,7 +190,7 @@ class Nx31
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | datetime | atom | note | tag | untag | link | unlink | deep line | projection | destroy".yellow
+            puts "access | description | datetime | atom | note | notes | tag | untag | link | unlink | deep line | projection | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -233,6 +233,11 @@ class Nx31
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
                 Librarian7Notes::addNote(miku["uuid"], text)
+                next
+            end
+
+            if Interpreting::match("notes", command) then
+                Librarian7Notes::notesLanding(miku["uuid"])
                 next
             end
 

@@ -685,6 +685,13 @@ class Librarian6Objects
 
     # Librarian6Objects::objectGarbageCollection(object)
     def self.objectGarbageCollection(object)
+        notes = Librarian7Notes::getObjectNotes(object["uuid"])
+        notes.each{|note|
+            puts "Deleting note:"
+            puts note["text"].green
+            Librarian7Notes::deleteNote(note["noteuuid"])
+        }
+
         if object["mikuType"] == "Atom" then
             if object["type"] == "matter" then
                 matterId = object["matterId"]
@@ -766,11 +773,52 @@ class Librarian7Notes
         db.close
     end
 
+    # Librarian7Notes::commitNote(note)
+    def self.commitNote(note)
+        noteuuid = note["noteuuid"]
+        raise "(error: 96717e65-24d6-45d6-be03-0d9d80214eb5, #{note})" if noteuuid.nil?
+        db = SQLite3::Database.new(Librarian7Notes::databaseFilepath())
+        db.execute "delete from _notes_ where _noteuuid_=?", [noteuuid]
+        db.execute "insert into _notes_ (_noteuuid_, _objectuuid_, _unixtime_, _text_) values (?,?,?,?)", [noteuuid, note["objectuuid"], note["unixtime"], note["text"]]
+        db.close
+    end
+
     # Librarian7Notes::deleteNote(noteuuid)
     def self.deleteNote(noteuuid)
         db = SQLite3::Database.new(Librarian7Notes::databaseFilepath())
         db.execute "delete from _notes_ where _noteuuid_=?", [noteuuid]
         db.close
+    end
+
+    # Librarian7Notes::noteLanding(note)
+    def self.noteLanding(note)
+        loop {
+            system("clear")
+            puts "note: #{note["text"].green}"
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["edit note", "delete note", "exit (default)"])
+            break if action.nil?
+            break if action == "exit (default)"
+            if action == "edit note" then
+                text = Utils::editTextSynchronously(note["text"])
+                note["text"] = text
+                Librarian7Notes::commitNote(note)
+            end
+            if action == "delete note" then
+                Librarian7Notes::deleteNote(note["noteuuid"])
+                break
+            end
+        }
+    end
+
+    # Librarian7Notes::notesLanding(objectuuid)
+    def self.notesLanding(objectuuid)
+        loop {
+            system("clear")
+            notes = Librarian7Notes::getObjectNotes(objectuuid)
+            note = LucilleCore::selectEntityFromListOfEntitiesOrNull("note", notes, lambda{|note| note["text"].lines.first(5).join().strip })
+            break if note.nil?
+            Librarian7Notes::noteLanding(note)
+        }
     end
 end
 

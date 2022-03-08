@@ -83,7 +83,7 @@ class TxFloats
 
             AgentsUtils::atomLandingPresentation(float["atomuuid"])
 
-            puts "access | <datecode> | description | atom | note | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | notes | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -119,6 +119,11 @@ class TxFloats
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
                 Librarian7Notes::addNote(float["uuid"], text)
+                next
+            end
+
+            if Interpreting::match("notes", command) then
+                Librarian7Notes::notesLanding(float["uuid"])
                 next
             end
 

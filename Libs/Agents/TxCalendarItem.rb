@@ -89,7 +89,7 @@ class TxCalendarItems
 
             AgentsUtils::atomLandingPresentation(item["atomuuid"])
 
-            puts "access | datetime | description | atom | note | show json | destroy (gg) | exit (xx)".yellow
+            puts "access | datetime | description | atom | note | notes | show json | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -128,6 +128,11 @@ class TxCalendarItems
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
                 Librarian7Notes::addNote(item["uuid"], text)
+                next
+            end
+
+            if Interpreting::match("notes", command) then
+                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 

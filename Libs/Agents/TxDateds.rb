@@ -106,7 +106,7 @@ class TxDateds
 
             AgentsUtils::atomLandingPresentation(mx49["atomuuid"])
 
-            puts "access | date | description | atom | note | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
+            puts "access | date | description | atom | note | notes | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -145,6 +145,11 @@ class TxDateds
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
                 Librarian7Notes::addNote(mx49["uuid"], text)
+                next
+            end
+
+            if Interpreting::match("notes", command) then
+                Librarian7Notes::notesLanding(mx49["uuid"])
                 next
             end
 

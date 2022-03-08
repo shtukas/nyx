@@ -13,6 +13,9 @@ class GlobalActions
                 GlobalActions::action("start", object)
                 if LucilleCore::askQuestionAnswerAsBoolean("access '#{object["announce"]}' ? ", true) then
                     GlobalActions::action("access", object)
+                    if object["mikuType"] == "NS16:fitness1" then
+                        GlobalActions::action("stop", object)
+                    end
                 end
                 return
             end
@@ -36,6 +39,11 @@ class GlobalActions
         end
 
         if command == ">>" then
+            if NxBallsService::somethingIsRunning() then
+                puts "You cannot switch universe while something is running"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             StoredUniverse::interactivelySetUniverseOrUnsetUniverse()
             return
         end

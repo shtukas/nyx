@@ -87,7 +87,7 @@ class TxDrops
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | note | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | notes | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -123,6 +123,11 @@ class TxDrops
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
                 Librarian7Notes::addNote(nx70["uuid"], text)
+                next
+            end
+
+            if Interpreting::match("notes", command) then
+                Librarian7Notes::notesLanding(nx70["uuid"])
                 next
             end
 
