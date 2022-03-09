@@ -35,28 +35,6 @@ end
 # TODO:
 
 # ----------------------------------------------
-# reconciling tags
-
-=begin
-Tag {
-    "uuid"      : String
-    "unixtime"  : String
-    "owneruuid" : String # uuid of the Entity that this tag is attached to
-    "payload"   : String
-}
-=end
-
-Tags::tagsForOwner(node1["uuid"]).each{|tag|
-    puts "tagging '#{tag["payload"]}' to '#{Nx31::toStringWithTrace4(node2)}'"
-    Tags::insert(SecureRandom.uuid, node2["uuid"], tag["payload"])
-}
-
-Tags::tagsForOwner(node2["uuid"]).each{|tag|
-    puts "tagging '#{tag["payload"]}' to '#{Nx31::toStringWithTrace4(node1)}'"
-    Tags::insert(SecureRandom.uuid, node1["uuid"], tag["payload"])
-}
-
-# ----------------------------------------------
 # reconciling notes
 
 =begin

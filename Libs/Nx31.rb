@@ -167,10 +167,6 @@ class Nx31
                     puts "[#{indx.to_s.ljust(3)}] [connected to] #{Nx31::toString(entity)}" 
                 }
 
-            Tags::tagsForOwner(miku["uuid"]).each{|tag|
-                puts Tags::toString(tag)
-            }
-
             puts ""
 
             puts Nx31::toString(miku).green
@@ -190,7 +186,7 @@ class Nx31
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | datetime | atom | note | notes | tag | untag | link | unlink | deep line | projection | destroy".yellow
+            puts "access | description | datetime | atom | note | notes | link | unlink | deep line | projection | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -241,24 +237,12 @@ class Nx31
                 next
             end
 
-            if Interpreting::match("tag", command) then
-                payload = Utils::editTextSynchronously("").strip
-                next if payload.size == 0
-                Tags::insert(Time.new.to_i, miku["uuid"], payload)
-            end
-
             if Interpreting::match("link", command) then
                 NyxNetwork::connectToOtherArchitectured(miku)
             end
 
             if Interpreting::match("unlink", command) then
                 NyxNetwork::disconnectFromOtherInteractively(miku)
-            end
-
-            if Interpreting::match("untag", command) then
-                tag = LucilleCore::selectEntityFromGivenEntitiesOrNull("tag: ", Tags::tagsForOwner(miku["uuid"]), lambda{|tag| Tags::toString(tag) })
-                next if tag.nil?
-                Tags::delete(tag["uuid"])
             end
 
             if Interpreting::match("deep line", command) then
@@ -289,15 +273,7 @@ class Nx31
                 "type"     => "Nx31",
                 "payload"  => nx31
             }]
-            x3 = Tags::tagsForOwner(nx31["uuid"])
-                .map{|tag|
-                    {
-                        "announce" => "#{SecureRandom.hex[0, 8]} tag: '#{tag["payload"].lines.first}', for: #{Nx31::toString(nx31)}",
-                        "type"     => "Nx31",
-                        "payload"  => nx31
-                    }
-                }
-            x1 + x3
+            x1
         }
         .flatten
     end
@@ -323,18 +299,11 @@ class Nx31
             "announce" => "#{SecureRandom.hex[0, 8]} #{Nx31::toStringWithTrace4(miku)}]",
             "payload"  => miku
         }]
-        x3 = Tags::tagsForOwner(miku["uuid"])
-            .map{|tag|
-                {
-                    "announce" => "#{SecureRandom.hex[0, 8]} tag: '#{tag["payload"].lines.first}', for: #{Nx31::toString(miku)}",
-                    "payload"  => miku
-                }
-            }
         x4 = [{
             "announce" => "#{SecureRandom.hex[0, 8]} #{miku["uuid"]}",
             "payload"  => miku
         }]
-        (x1 + x3 + x4).flatten
+        (x1 + x4).flatten
     end
 
     # Nx31::getNx20s()

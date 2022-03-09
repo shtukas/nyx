@@ -175,7 +175,6 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Search2.rb"
 
-require_relative "Tags.rb"
 require_relative "TerminalOperations.rb"
 require_relative "Transmutation.rb"
 

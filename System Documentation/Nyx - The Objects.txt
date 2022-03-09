@@ -17,8 +17,6 @@ All librarian objects have "uuid" and "mikuType" attributes in common.
 
 * Nx31 objects are linked by bidirectional arrows (at the time these lines are written -- will change soon).
 
-* The Tags are Nyx specific, stored in tags.sqlite3, and present as
-
 Tag {
     "uuid"      : String
     "unixtime"  : String
