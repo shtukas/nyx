@@ -32,15 +32,7 @@ end
 # ----------------------------------------------
 # reconciling links
 
-Links::entities(node1["uuid"]).each{|nx31|
-    puts "linking '#{Nx31::toString(nx31)}' to '#{Nx31::toStringWithTrace4(node2)}'"
-    Links::link(nx31["uuid"], node2["uuid"])
-}
-
-Links::entities(node2["uuid"]).each{|nx31|
-    puts "linking '#{Nx31::toString(nx31)}' to '#{Nx31::toStringWithTrace4(node1)}'"
-    Links::link(nx31["uuid"], node1["uuid"])
-}
+# TODO:
 
 # ----------------------------------------------
 # reconciling tags

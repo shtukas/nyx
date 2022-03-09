@@ -20,7 +20,7 @@ class NyxNetwork
     def self.connectToOtherArchitectured(entity)
         other = Nx31::architectOrNull()
         return if other.nil?
-        Links::link(entity["uuid"], other["uuid"])
+        Links2::link(entity["uuid"], other["uuid"], 1)
     end
 
     # NyxNetwork::disconnectFromOtherInteractively(entity)
@@ -35,7 +35,7 @@ class NyxNetwork
     # Then we use this function to give to uuid2 the same connects as uuid1 
     def self.networkReplace(uuid1, uuid2)
         Links::entities(uuid1).each{|entity|
-            Links::link(uuid2, entity["uuid"])
+            Links2::link(uuid2, entity["uuid"], 1)
         }
     end
 
@@ -76,12 +76,12 @@ class NyxNetwork
     def self.mirrorLinksTagsNotes(node1, node2)
         Links::entities(node1["uuid"]).each{|nx31|
             puts "linking '#{Nx31::toString(nx31)}' to '#{Nx31::toStringWithTrace4(node2)}'"
-            Links::link(nx31["uuid"], node2["uuid"])
+            # TODO
         }
 
         Links::entities(node2["uuid"]).each{|nx31|
             puts "linking '#{Nx31::toString(nx31)}' to '#{Nx31::toStringWithTrace4(node1)}'"
-            Links::link(nx31["uuid"], node1["uuid"])
+            # TODO
         }
 
         Tags::tagsForOwner(node1["uuid"]).each{|tag|
