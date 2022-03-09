@@ -248,7 +248,7 @@ class GlobalActions
         end
 
         if command == "fsck" then
-            Catalyst::fsck()
+            Librarian12Fsck::fsck()
             return
         end
 
