@@ -83,15 +83,15 @@ class Librarian0Utils
     # Librarian0Utils::locationToAionPointRootNamedHash(location)
     def self.locationToAionPointRootNamedHash(location)
         raise "[Librarian0Utils: error: a1ac8255-45ed-4347-a898-d306c49f230c, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        AionCore::commitLocationReturnHash(Librarian4ElizabethXCache.new(), location)
+        AionCore::commitLocationReturnHash(Librarian3ElizabethXCache.new(), location)
     end
 
-    # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location, fileResolutionCode)
-    def self.injectLocationIntoToMatterFile(matterId, location, fileResolutionCode)
+    # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
+    def self.injectLocationIntoToMatterFile(matterId, location)
         raise "[Librarian0Utils: error: f3f9e10f-d9e6-4e12-bf35-12954231ae18, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = AionCore::commitLocationReturnHash(Librarian11MatterElizabeth.new(matterId, fileResolutionCode), location)
+        nhash = AionCore::commitLocationReturnHash(Librarian14EarthLibrarianElizabeth.new(matterId), location)
         # All the blobs have been added to the file, we now write the root hash
-        Librarian11MatterElizabeth.new(matterId, fileResolutionCode).commitRootNamedHash(nhash)
+        Librarian14EarthLibrarianElizabeth.new(matterId).commitRootNamedHash(nhash)
     end
 
     # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
@@ -213,7 +213,7 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-class Librarian4ElizabethXCache
+class Librarian3ElizabethXCache
 
     def initialize()
     end
@@ -229,7 +229,7 @@ class Librarian4ElizabethXCache
     def readBlobErrorIfNotFound(nhash)
         blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
         return blob if blob
-        raise "(Librarian4ElizabethXCache, readBlobErrorIfNotFound, nhash: #{nhash})"
+        raise "(Librarian3ElizabethXCache, readBlobErrorIfNotFound, nhash: #{nhash})"
     end
 
     def datablobCheck(nhash)
@@ -282,7 +282,7 @@ class Librarian5Atoms
     # Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location) # Atom
     def self.issueMatterAtomUsingLocation(matterId, location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        Librarian0Utils::injectLocationIntoToMatterFile(matterId, location, "02")
+        Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"     => SecureRandom.uuid,
@@ -378,7 +378,7 @@ class Librarian5Atoms
     def self.marbleIsInNhash(matterId, nhash, marbleId)
         # TODO:
         # This function can easily been memoised
-        object = AionCore::getAionObjectByHash(Librarian11MatterElizabeth.new(matterId, "01"), nhash)
+        object = AionCore::getAionObjectByHash(Librarian14EarthLibrarianElizabeth.new(matterId), nhash)
         Librarian5Atoms::marbleIsInAionPointObject(matterId, object, marbleId)
     end
 
@@ -407,7 +407,7 @@ class Librarian5Atoms
             .each{|atom|
                 next if atom["type"] != "matter"
                 matterId = atom["matterId"]
-                nhash = Librarian11MatterElizabeth.new(matterId, "01").getRootNamedHash()
+                nhash = Librarian14EarthLibrarianElizabeth.new(matterId).getRootNamedHash()
                 if Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId) then
                     puts "I have found the marble in atom matter: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
@@ -447,12 +447,12 @@ class Librarian5Atoms
         end
         if atom["type"] == "matter" then
             matterId = atom["matterId"]
-            nhash = Librarian11MatterElizabeth.new(matterId, "03").getRootNamedHash()
-            AionCore::exportHashAtFolder(Librarian11MatterElizabeth.new(matterId, "03"), nhash, "/Users/pascal/Desktop")
+            nhash = Librarian14EarthLibrarianElizabeth.new(matterId).getRootNamedHash()
+            AionCore::exportHashAtFolder(Librarian14EarthLibrarianElizabeth.new(matterId), nhash, "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                Librarian0Utils::injectLocationIntoToMatterFile(matterId, location, "03")
+                Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
                 Librarian0Utils::moveFileToBinTimeline(location)
             end
         end
@@ -509,35 +509,6 @@ class Librarian5Atoms
         end
         raise "(1EDB15D2-9125-4947-924E-B24D5E67CAE3, atom: #{atom})"
     end
-
-    # Librarian5Atoms::fsck(atom) : Boolean
-    def self.fsck(atom)
-        puts JSON.pretty_generate(atom)
-        if atom["type"] == "description-only" then
-            return true
-        end
-        if atom["type"] == "text" then
-            return true
-        end
-        if atom["type"] == "url" then
-            return true
-        end
-        if atom["type"] == "matter" then
-            matterId = atom["matterId"]
-            # TODO:
-            return true if rand > 0.001
-            nhash = Librarian11MatterElizabeth.new(matterId, "01").getRootNamedHash()
-            return AionFsck::structureCheckAionHash(Librarian11MatterElizabeth.new(matterId, "01"), nhash)
-        end
-        if atom["type"] == "marble" then
-            return true
-        end
-        if atom["type"] == "unique-string" then
-            # Technically we should be checking if the target exists, but that takes too long
-            return true
-        end
-        raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
-    end
 end
 
 class Librarian6Objects
@@ -559,34 +530,6 @@ class Librarian6Objects
             "TxTodo",
             "Wave"
         ]
-    end
-
-    # Librarian6Objects::objects2RepositoryFolderPath()
-    def self.objects2RepositoryFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Librarian/Databases/Objects"
-    end
-
-    # Librarian6Objects::objectsFilepathsEnumerator()
-    def self.objectsFilepathsEnumerator()
-        Enumerator.new do |filepaths|
-            Find.find(Librarian6Objects::objects2RepositoryFolderPath()) do |location|
-                next if !File.file?(location)
-                next if location[-5, 5] != ".json"
-                filepaths << location
-            end
-        end
-    end
-
-    # Librarian6Objects::objectUUIDToFilepath(uuid)
-    def self.objectUUIDToFilepath(uuid)
-        trace = Digest::SHA1.hexdigest(uuid)
-        fragment = trace[0, 2]
-        folder2 = "#{Librarian6Objects::objects2RepositoryFolderPath()}/#{fragment}"
-        if !File.exists?(folder2) then
-            FileUtils.mkdir(folder2)
-        end
-        filepath = "#{folder2}/#{trace}.json"
-        filepath
     end
 
     # ------------------------------------------------------------------------
@@ -664,77 +607,11 @@ class Librarian6Objects
 
     # Librarian6Objects::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6Objects::uuidGarbageCollection(uuid)
-
         db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
         db.close
-    end
-
-    # -------------------------------------------------
-    # Garbage Collection
-
-    # Librarian6Objects::uuidGarbageCollection(uuid)
-    def self.uuidGarbageCollection(uuid)
-        object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
-        return if object.nil?
-        Librarian6Objects::objectGarbageCollection(object)
-    end
-
-    # Librarian6Objects::objectGarbageCollection(object)
-    def self.objectGarbageCollection(object)
-        notes = Librarian7Notes::getObjectNotes(object["uuid"])
-        notes.each{|note|
-            puts "Deleting note:"
-            puts note["text"].green
-            Librarian7Notes::deleteNote(note["noteuuid"])
-        }
-
-        if object["mikuType"] == "Atom" then
-            if object["type"] == "matter" then
-                matterId = object["matterId"]
-                localFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
-                if File.exists?(localFile) then
-                    puts "> deleting local file: #{localFile}"
-                    FileUtils.rm(localFile)
-                end
-                remoteFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
-                if !File.exists?(File.dirname(remoteFile)) then
-                    puts "> I am looking for remote, can you plug the drive ?"
-                    LucilleCore::pressEnterToContinue()
-                end
-                if !File.exists?(File.dirname(remoteFile)) then
-                    raise "I wanted the remove drive 😞"
-                end
-                if File.exists?(remoteFile) then
-                    puts "> deleting remote file: #{remoteFile}"
-                    FileUtils.rm(remoteFile)
-                end
-            end
-        end
-        if object["mikuType"] == "Nx31" then
-            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
-        end
-        if object["mikuType"] == "TxCalendarItem" then
-            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
-        end
-        if object["mikuType"] == "TxDated" then
-            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
-        end
-        if object["mikuType"] == "TxDrop" then
-            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
-        end
-        if object["mikuType"] == "TxFloat" then
-            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
-        end
-        if object["mikuType"] == "TxTodo" then
-            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
-        end
-        if object["mikuType"] == "Wave" then
-            Librarian6Objects::uuidGarbageCollection(object["atomuuid"])
-        end
     end
 end
 
@@ -822,119 +699,14 @@ class Librarian7Notes
     end
 end
 
-class Librarian10MatterIO
-
-    # ---------------------------------------------------
-    # Matter Files Management
-
-    # Librarian10MatterIO::matterIdToFilepath2(matterId, variant)
-    # variant: "local", "remote"
-    def self.matterIdToFilepath2(matterId, variant)
-        if variant == "remote" then
-            return "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
-        end
-        if variant == "local" then
-            return "/Users/pascal/Galaxy/DataBank/Librarian/Matter/#{matterId}.sqlite3"
-        end
-        raise "(error: 76080477-664a-4194-9be6-8a9313f2d5db, incorrect variant)"
-    end
-
-    # Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
-    def self.matterIdToOperationalFilepath(matterId, fileResolutionCode)
-
-        # File resolution codes
-        #     01: Use the local file if it's available, otherwise seek the remote file but do not download it
-        #     02: Use the local file without seeking the remote file (for instance when creating a new file)
-        #     03: Use the local file if it's available, otherwise seek the remote file and dowload it, and use the local
-
-        if fileResolutionCode == "01" then
-            localFile  = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
-            remoteFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
-            if File.exists?(localFile) then
-                return localFile
-            end
-            if !File.exists?(File.dirname(remoteFile)) then
-                puts "> I am looking for remote, can you plug the drive ?"
-                LucilleCore::pressEnterToContinue()
-            end
-            if !File.exists?(File.dirname(remoteFile)) then
-                raise "I wanted the remove drive 😞"
-            end
-            return remoteFile
-        end
-
-        if fileResolutionCode == "02" then
-            localFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
-            return localFile
-        end
-
-        if fileResolutionCode == "03" then
-            localFile  = Librarian10MatterIO::matterIdToFilepath2(matterId, "local")
-            remoteFile = Librarian10MatterIO::matterIdToFilepath2(matterId, "remote")
-            if File.exists?(localFile) then
-                return localFile
-            end
-            if !File.exists?(File.dirname(remoteFile)) then
-                puts "> I am looking for remote, can you plug the drive ?"
-                LucilleCore::pressEnterToContinue()
-            end
-            if !File.exists?(File.dirname(remoteFile)) then
-                raise "I wanted the remove drive 😞"
-            end
-            # At this point we know that the drive is plugged, 
-            # but note that the file itself may not exist, so we need to 
-            # check that it exists before we download it
-            # In any case, we return the local file
-            if File.exists?(remoteFile) then
-                puts "> Downloading matter file: #{remoteFile}"
-                FileUtils.cp(remoteFile, localFile)
-            end
-            return localFile 
-        end
-    end
+class Librarian10SpecialCircumstances
 
     # ---------------------------------------------------
     # IO
 
-    # Librarian10MatterIO::putBlob(matterId, blob, fileResolutionCode)
-    def self.putBlob(matterId, blob, fileResolutionCode)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.execute "create table _data_ (_key_ string, _blob_ blob)", []
-            db.close
-        end
-        raise "a57bb88e-d792-4b15-bb7d-3ff7d41ee3ce" if !File.exists?(filepath)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _data_ where _key_=?", [nhash]
-        db.execute "insert into _data_ (_key_, _blob_) values (?,?)", [nhash, blob]
-        db.commit
-        db.close
-        nhash
-    end
-
-    # Librarian10MatterIO::commitRootNamedHash(matterId, nhash, fileResolutionCode)
-    def self.commitRootNamedHash(matterId, nhash, fileResolutionCode)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _data_ where _key_=?", ["root-nhash"]
-        db.execute "insert into _data_ (_key_, _blob_) values (?,?)", ["root-nhash", nhash]
-        db.commit
-        db.close
-    end
-
-    # Librarian10MatterIO::getBlobOrNull(matterId, nhash, fileResolutionCode)
-    def self.getBlobOrNull(matterId, nhash, fileResolutionCode)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
+    # Librarian10SpecialCircumstances::getBlobOrNull(matterId, nhash)
+    def self.getBlobOrNull(matterId, nhash)
+        filepath = "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
         blob = nil
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -947,9 +719,22 @@ class Librarian10MatterIO
         blob
     end
 
-    # Librarian10MatterIO::getRootNamedHash(matterId, fileResolutionCode)
-    def self.getRootNamedHash(matterId, fileResolutionCode)
-        filepath = Librarian10MatterIO::matterIdToOperationalFilepath(matterId, fileResolutionCode)
+    # Librarian10SpecialCircumstances::commitRootNamedHash(matterId, nhash)
+    def self.commitRootNamedHash(matterId, nhash)
+        filepath = "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from _data_ where _key_=?", ["root-nhash"]
+        db.execute "insert into _data_ (_key_, _blob_) values (?,?)", ["root-nhash", nhash]
+        db.commit
+        db.close
+    end
+
+    # Librarian10SpecialCircumstances::getRootNamedHash(matterId)
+    def self.getRootNamedHash(matterId)
+        filepath = "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
         nhash = nil
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -961,30 +746,45 @@ class Librarian10MatterIO
         db.close
 
         if nhash.nil? then
-            raise "(error: 0fbbd292-b436-4e58-83ae-8abf68c5c84f) Librarian10MatterIO::getRootNamedHash: root nhash not found in file (filepath: #{filepath})" 
+            raise "(error: 0fbbd292-b436-4e58-83ae-8abf68c5c84f) Librarian10SpecialCircumstances::getRootNamedHash: root nhash not found in file (filepath: #{filepath})" 
         end
 
         nhash
     end
 end
 
-class Librarian11MatterElizabeth
+class Librarian13EarthLibrarianDataBlobs
+    # Librarian13EarthLibrarianDataBlobs::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepathRemote)) then
+            FileUtils.mkpath(File.dirname(filepathRemote))
+        end
+        File.open(filepathRemote, "w"){|f| f.write(blob) }
+        nhash
+    end
+
+    # Librarian13EarthLibrarianDataBlobs::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(filepathRemote) then
+            return nil
+        end
+        IO.read(filepathRemote)
+    end
+end
+
+class Librarian14EarthLibrarianElizabeth
 
     # @matterId
 
-    # File resolution codes
-    #     01: Use the local file if it's available, otherwise seek the remote file but do not download it (fsck, or marble seeking)
-    #     02: Use the local file without seeking the remote file (for instance when creating a new file)
-    #     03: Use the local file if it's available, otherwise seek the remote file and dowload it, and use the local
-
-    def initialize(matterId, fileResolutionCode)
+    def initialize(matterId)
         @matterId = matterId
-        @fileResolutionCode = fileResolutionCode
     end
 
     def commitBlob(blob)
-        nhash = Librarian10MatterIO::putBlob(@matterId, blob, @fileResolutionCode)
-        Librarian2DataBlobsXCache::putBlob(blob)
+        nhash = Librarian13EarthLibrarianDataBlobs::putBlob(blob)
         nhash
     end
 
@@ -993,26 +793,23 @@ class Librarian11MatterElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
+        blob = Librarian13EarthLibrarianDataBlobs::getBlobOrNull(nhash)
         return blob if blob
-        puts "[cache miss] reading blob from matter file (@matterId: #{@matterId}, nhash: #{nhash})"
-        blob = Librarian10MatterIO::getBlobOrNull(@matterId, nhash, @fileResolutionCode)
         raise "[error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash}]" if blob.nil?
-        Librarian2DataBlobsXCache::putBlob(blob)
-        blob
     end
 
     def datablobCheck(nhash)
         begin
-            readBlobErrorIfNotFound(nhash)
-            true
+            blob = readBlobErrorIfNotFound(nhash)
+            puts "fsck: validating blob: #{nhash}"
+            return ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
         rescue
             false
         end
     end
 
     def commitRootNamedHash(nhash)
-        Librarian10MatterIO::commitRootNamedHash(@matterId, nhash, @fileResolutionCode)
+        Librarian10SpecialCircumstances::commitRootNamedHash(@matterId, nhash)
         KeyValueStore::set(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}", nhash)
     end
 
@@ -1020,72 +817,64 @@ class Librarian11MatterElizabeth
         nhash = KeyValueStore::getOrNull(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}")
         return nhash if nhash
         puts "[cache miss] reading root nhash from matter file (@matterId: #{@matterId})"
-        nhash = Librarian10MatterIO::getRootNamedHash(@matterId, @fileResolutionCode)
+        nhash = Librarian10SpecialCircumstances::getRootNamedHash(@matterId)
         KeyValueStore::set(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}", nhash)
         nhash
     end
 end
 
-class Librarian12Fsck
-    # Librarian12Fsck::fsck()
+class Librarian15Fsck
+
+    # Librarian15Fsck::fsckAtom(atom) : Boolean
+    def self.fsckAtom(atom)
+        puts JSON.pretty_generate(atom)
+        if atom["type"] == "description-only" then
+            return true
+        end
+        if atom["type"] == "text" then
+            return true
+        end
+        if atom["type"] == "url" then
+            return true
+        end
+        if atom["type"] == "matter" then
+            matterId = atom["matterId"]
+            nhash = Librarian14EarthLibrarianElizabeth.new(matterId).getRootNamedHash()
+            status = AionFsck::structureCheckAionHash(Librarian14EarthLibrarianElizabeth.new(matterId), nhash)
+            return status
+        end
+        if atom["type"] == "marble" then
+            return true
+        end
+        if atom["type"] == "unique-string" then
+            # Technically we should be checking if the target exists, but that takes too long
+            return true
+        end
+        raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
+    end
+
+    # Librarian15Fsck::fsck()
     def self.fsck()
-        Librarian6Objects::getObjectsByMikuType("Nx31").each{|item|
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: 23074570-475f-45b6-90a7-786256dfface, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, #{item}, #{atom}]" if !status
-        }
-        Librarian6Objects::getObjectsByMikuType("TxCalendarItem").each{|item|
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: 95cc8958-897f-4a44-b986-9780c71045fd, #{item}, #{atom}]" if !status
-        }
-        Librarian6Objects::getObjectsByMikuType("TxDated").each{|item|
-            puts TxDateds::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: 291a7dd7-dc6d-4ab0-af48-50e67b455cb8, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: d9154d97-9bf6-43bb-9517-12c8a9d34509, #{item}, #{atom}]" if !status
-        }
-        Librarian6Objects::getObjectsByMikuType("TxDrop").each{|item|
-            puts TxDrops::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: e55d3f91-78d7-4819-a49a-e89be9b301bb, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: 4b86d0a7-a7b1-487d-95ab-987864c949f6, #{item}, #{atom}]" if !status
-        }
-        Librarian6Objects::getObjectsByMikuType("TxFloat").each{|item|
-            puts TxFloats::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: f5e1688f-3c5a-4da6-a751-5bbb4280844d, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: 0dbec1f7-6c22-4fa2-b288-300bb95b8bba, #{item}, #{atom}]" if !status
-        }
-        Librarian6Objects::getObjectsByMikuType("TxTodo").each{|item|
-            puts TxTodos::toString(item)
+        Librarian6Objects::objects().each{|item|
+            next if item["mikuType"] == "Atom"
+            puts JSON.pretty_generate(item)
             atomuuid = item["atomuuid"]
             atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
             if atom.nil? then
-                TxTodos::access(item)
-                #raise "[error: 04f4e88a-fe02-426f-bf4d-4d4c8794d16c, #{item}]"
-                next
+                puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)" 
+                puts "item:"
+                puts JSON.pretty_generate(item)
+                exit
             end
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: bf252b78-6341-4715-ae52-931f3eed0d9d, #{item}, #{atom}]" if !status
-        }
-        Librarian6Objects::getObjectsByMikuType("Wave").each{|item|
-            puts Waves::toString(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            raise "[error: 375b7330-ce92-456a-a348-989718a7726d, #{item}]" if atom.nil?
-            status = Librarian5Atoms::fsck(atom)
-            raise "[error: cfda30da-73a6-4ad9-a3e4-23ed1a2cbc76, #{item}, #{atom}]" if !status
+            status = Librarian15Fsck::fsckAtom(atom)
+            if !status then 
+                puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)" 
+                puts "item:"
+                puts JSON.pretty_generate(item)
+                puts "atom:"
+                puts JSON.pretty_generate(atom)
+                exit
+            end
         }
     end
 end

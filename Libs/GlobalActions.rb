@@ -248,7 +248,7 @@ class GlobalActions
         end
 
         if command == "fsck" then
-            Librarian12Fsck::fsck()
+            Librarian15Fsck::fsck()
             return
         end
 

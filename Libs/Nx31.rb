@@ -332,6 +332,6 @@ class Nx31
 
     # Nx31::fsckNx31(miku)
     def self.fsckNx31(miku)
-        Librarian5Atoms::fsck(miku["atom"])
+        Librarian15Fsck::fsck(miku["atom"])
     end    
 end

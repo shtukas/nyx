@@ -361,7 +361,7 @@ class TxTodos
                 atomuuid = item["atomuuid"]
                 atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
                 return [false, "could not extract atom"] if atom.nil?
-                status = Librarian5Atoms::fsck(atom)
+                status = Librarian15Fsck::fsckAtom(atom)
                 return [false, "atom fsck failed"]
                 return [true, nil]
             }
