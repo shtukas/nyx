@@ -239,7 +239,7 @@ class Librarian5Atoms
     # Librarian5Atoms::issueMatterAtomUsingLocation(location) # Atom
     def self.issueMatterAtomUsingLocation(location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new("local with help from remote (download)"), location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"      => SecureRandom.uuid,
@@ -334,7 +334,7 @@ class Librarian5Atoms
     def self.marbleIsInNhash(nhash, marbleId)
         # TODO:
         # This function can easily been memoised
-        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new(), nhash)
+        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new("local with help from remote (no download)"), nhash)
         Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
     end
 
@@ -402,11 +402,11 @@ class Librarian5Atoms
         end
         if atom["type"] == "matter" then
             nhash = atom["rootnhash"]
-            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(Librarian14Elizabeth.new("local with help from remote (download)"), nhash, "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
+                rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new("local with help from remote (download)"), location)
                 atom["rootnhash"] = rootnhash
                 Librarian6Objects::commit(atom)
                 Librarian0Utils::moveFileToBinTimeline(location)
@@ -655,8 +655,8 @@ class Librarian7Notes
     end
 end
 
-class Librarian13DatablobsEarth
-    # Librarian13DatablobsEarth::putBlob(blob)
+class Librarian13DatablobsExternalDrive
+    # Librarian13DatablobsExternalDrive::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
@@ -667,7 +667,7 @@ class Librarian13DatablobsEarth
         nhash
     end
 
-    # Librarian13DatablobsEarth::getBlobOrNull(nhash)
+    # Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(filepathRemote) then
@@ -679,13 +679,29 @@ end
 
 class Librarian14Elizabeth
 
-    def initialize()
-
+    def initialize(style)
+        styles = [
+            "local with help from remote (download)",    # normal user operations
+            "local with help from remote (no download)", # fsck
+            "remote with help from local (upload)"       # lifting data off xcache
+        ]
+        if !styles.include?(style) then
+            raise "(error: 743731ec-5c84-44cd-b076-60ff0385e7f9, style: #{style})"
+        end
+        @style = style
     end
 
     def commitBlob(blob)
-        nhash = Librarian13DatablobsEarth::putBlob(blob)
-        nhash
+        if @style == "local with help from remote (download)"
+            return Librarian2DatablobsXCache::putBlob(blob)
+        end
+        if @style == "local with help from remote (no download)" then
+            return Librarian2DatablobsXCache::putBlob(blob)
+        end
+        if @style == "remote with help from local (upload)" then
+            # This case should not happen because this style should only be used to help move stuff from the local cache to the external drive
+            raise "(error: a44755ea-6a6e-44de-8467-8418cee9ca00)"
+        end
     end
 
     def filepathToContentHash(filepath)
@@ -693,7 +709,34 @@ class Librarian14Elizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian13DatablobsEarth::getBlobOrNull(nhash)
+        if @style == "local with help from remote (download)"
+            # normal user operations
+            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
+            if blob.nil? then
+                blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
+                if blob then
+                    Librarian2DatablobsXCache::putBlob(blob)
+                end
+            end
+        end
+        if @style == "local with help from remote (no download)" then
+            # fsck
+            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
+            if blob.nil? then
+                blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
+            end
+        end
+        if @style == "remote with help from local (upload)" then
+            # lifting data off xcache
+            blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
+            if blob.nil? then
+                blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
+                if blob then
+                    Librarian13DatablobsExternalDrive::putBlob(blob)
+                end
+            end
+        end
+
         return blob if blob
         raise "[error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash}]" if blob.nil?
     end
@@ -725,7 +768,7 @@ class Librarian15Fsck
         end
         if atom["type"] == "matter" then
             nhash = atom["rootnhash"]
-            status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new(), nhash)
+            status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new("remote with help from local (upload)"), nhash)
             return status
         end
         if atom["type"] == "marble" then
