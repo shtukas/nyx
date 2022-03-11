@@ -25,12 +25,11 @@ Atoms are content definitions
 }
 
 {
-    "uuid"     : String
-    "mikuType" : "Atom"
-    "unixtime" : Float
-    "type"     : "matter"
-    "matterId" : String (UUID -- Important, will be used as filename)
-    "payload"  : nhash
+    "uuid"      : String
+    "mikuType"  : "Atom"
+    "unixtime"  : Float
+    "type"      : "matter"
+    "rootnhash" : nhash
 }
 
 {

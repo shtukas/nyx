@@ -80,20 +80,6 @@ class Librarian0Utils
         "/Users/pascal/Desktop/#{locationNameOnDesktop}"
     end
 
-    # Librarian0Utils::locationToAionPointRootNamedHash(location)
-    def self.locationToAionPointRootNamedHash(location)
-        raise "[Librarian0Utils: error: a1ac8255-45ed-4347-a898-d306c49f230c, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        AionCore::commitLocationReturnHash(Librarian3ElizabethXCache.new(), location)
-    end
-
-    # Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
-    def self.injectLocationIntoToMatterFile(matterId, location)
-        raise "[Librarian0Utils: error: f3f9e10f-d9e6-4e12-bf35-12954231ae18, location: #{location}]" if !File.exists?(location) # Caller needs to ensure file exists.
-        nhash = AionCore::commitLocationReturnHash(Librarian14EarthLibrarianElizabeth.new(matterId), location)
-        # All the blobs have been added to the file, we now write the root hash
-        Librarian14EarthLibrarianElizabeth.new(matterId).commitRootNamedHash(nhash)
-    end
-
     # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
     def self.marbleLocationOrNullUseTheForce(uuid)
         Find.find("/Users/pascal/Galaxy") do |path|
@@ -142,23 +128,23 @@ class Librarian0Utils
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            hashes << Librarian2DataBlobsXCache::putBlob(blob)
+            hashes << Librarian2DatablobsXCache::putBlob(blob)
         end
         f.close()
         hashes
     end
 end
 
-class Librarian2DataBlobsXCache
+class Librarian2DatablobsXCache
 
-    # Librarian2DataBlobsXCache::putBlob(blob)
+    # Librarian2DatablobsXCache::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         KeyValueStore::set(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
         nhash
     end
 
-    # Librarian2DataBlobsXCache::getBlobOrNull(nhash)
+    # Librarian2DatablobsXCache::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         KeyValueStore::getOrNull(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
     end
@@ -213,35 +199,6 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-class Librarian3ElizabethXCache
-
-    def initialize()
-    end
-
-    def commitBlob(blob)
-        Librarian2DataBlobsXCache::putBlob(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
-        return blob if blob
-        raise "(Librarian3ElizabethXCache, readBlobErrorIfNotFound, nhash: #{nhash})"
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-end
-
 class Librarian5Atoms
 
     # -- Makers ---------------------------------------
@@ -279,17 +236,17 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location) # Atom
-    def self.issueMatterAtomUsingLocation(matterId, location)
+    # Librarian5Atoms::issueMatterAtomUsingLocation(location) # Atom
+    def self.issueMatterAtomUsingLocation(location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
-            "uuid"     => SecureRandom.uuid,
-            "mikuType" => "Atom",
-            "unixtime" => Time.new.to_f,
-            "type"     => "matter",
-            "matterId" => matterId
+            "uuid"      => SecureRandom.uuid,
+            "mikuType"  => "Atom",
+            "unixtime"  => Time.new.to_f,
+            "type"      => "matter",
+            "rootnhash" => rootnhash
         }
     end
 
@@ -338,8 +295,7 @@ class Librarian5Atoms
         if type == "matter" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            matterId = SecureRandom.uuid
-            return Librarian5Atoms::issueMatterAtomUsingLocation(matterId, location)
+            return Librarian5Atoms::issueMatterAtomUsingLocation(location)
         end
 
         if type == "marble" then
@@ -358,28 +314,28 @@ class Librarian5Atoms
 
     # -- Update ------------------------------------------
 
-    # Librarian5Atoms::marbleIsInAionPointObject(matterId, object, marbleId)
-    def self.marbleIsInAionPointObject(matterId, object, marbleId)
+    # Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
+    def self.marbleIsInAionPointObject(object, marbleId)
         if object["aionType"] == "indefinite" then
             return false
         end
         if object["aionType"] == "directory" then
-            return object["items"].any?{|nhash| Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId) }
+            return object["items"].any?{|nhash| Librarian5Atoms::marbleIsInNhash(nhash, marbleId) }
         end
         if object["aionType"] == "file" then
             return false if (object["name"] != "nyx-marble.json")
             nhash = object["hash"]
-            blob = Librarian2DataBlobsXCache::getBlobOrNull(nhash)
+            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
             return (JSON.parse(blob)["uuid"] == marbleId)
         end
     end
 
-    # Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId)
-    def self.marbleIsInNhash(matterId, nhash, marbleId)
+    # Librarian5Atoms::marbleIsInNhash(nhash, marbleId)
+    def self.marbleIsInNhash(nhash, marbleId)
         # TODO:
         # This function can easily been memoised
-        object = AionCore::getAionObjectByHash(Librarian14EarthLibrarianElizabeth.new(matterId), nhash)
-        Librarian5Atoms::marbleIsInAionPointObject(matterId, object, marbleId)
+        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new(), nhash)
+        Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
     end
 
     # Librarian5Atoms::findAndAccessMarble(marbleId)
@@ -406,9 +362,8 @@ class Librarian5Atoms
         Librarian6Objects::getObjectsByMikuType("Atom")
             .each{|atom|
                 next if atom["type"] != "matter"
-                matterId = atom["matterId"]
-                nhash = Librarian14EarthLibrarianElizabeth.new(matterId).getRootNamedHash()
-                if Librarian5Atoms::marbleIsInNhash(matterId, nhash, marbleId) then
+                nhash = atom["rootnhash"]
+                if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
                     puts "I have found the marble in atom matter: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
                     Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
@@ -446,13 +401,14 @@ class Librarian5Atoms
             end
         end
         if atom["type"] == "matter" then
-            matterId = atom["matterId"]
-            nhash = Librarian14EarthLibrarianElizabeth.new(matterId).getRootNamedHash()
-            AionCore::exportHashAtFolder(Librarian14EarthLibrarianElizabeth.new(matterId), nhash, "/Users/pascal/Desktop")
+            nhash = atom["rootnhash"]
+            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                Librarian0Utils::injectLocationIntoToMatterFile(matterId, location)
+                rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
+                atom["rootnhash"] = rootnhash
+                Librarian6Objects::commit(atom)
                 Librarian0Utils::moveFileToBinTimeline(location)
             end
         end
@@ -699,62 +655,8 @@ class Librarian7Notes
     end
 end
 
-class Librarian10SpecialCircumstances
-
-    # ---------------------------------------------------
-    # IO
-
-    # Librarian10SpecialCircumstances::getBlobOrNull(matterId, nhash)
-    def self.getBlobOrNull(matterId, nhash)
-        filepath = "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
-        blob = nil
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
-            blob = row['_blob_']
-        end
-        db.close
-        blob
-    end
-
-    # Librarian10SpecialCircumstances::commitRootNamedHash(matterId, nhash)
-    def self.commitRootNamedHash(matterId, nhash)
-        filepath = "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from _data_ where _key_=?", ["root-nhash"]
-        db.execute "insert into _data_ (_key_, _blob_) values (?,?)", ["root-nhash", nhash]
-        db.commit
-        db.close
-    end
-
-    # Librarian10SpecialCircumstances::getRootNamedHash(matterId)
-    def self.getRootNamedHash(matterId)
-        filepath = "/Volumes/Earth/Data/Matter/#{matterId}.sqlite3"
-        nhash = nil
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from _data_ where _key_=?", ["root-nhash"]) do |row|
-            nhash = row['_blob_']
-        end
-        db.close
-
-        if nhash.nil? then
-            raise "(error: 0fbbd292-b436-4e58-83ae-8abf68c5c84f) Librarian10SpecialCircumstances::getRootNamedHash: root nhash not found in file (filepath: #{filepath})" 
-        end
-
-        nhash
-    end
-end
-
-class Librarian13EarthLibrarianDataBlobs
-    # Librarian13EarthLibrarianDataBlobs::putBlob(blob)
+class Librarian13DatablobsEarth
+    # Librarian13DatablobsEarth::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
@@ -765,7 +667,7 @@ class Librarian13EarthLibrarianDataBlobs
         nhash
     end
 
-    # Librarian13EarthLibrarianDataBlobs::getBlobOrNull(nhash)
+    # Librarian13DatablobsEarth::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(filepathRemote) then
@@ -775,16 +677,14 @@ class Librarian13EarthLibrarianDataBlobs
     end
 end
 
-class Librarian14EarthLibrarianElizabeth
+class Librarian14Elizabeth
 
-    # @matterId
+    def initialize()
 
-    def initialize(matterId)
-        @matterId = matterId
     end
 
     def commitBlob(blob)
-        nhash = Librarian13EarthLibrarianDataBlobs::putBlob(blob)
+        nhash = Librarian13DatablobsEarth::putBlob(blob)
         nhash
     end
 
@@ -793,7 +693,7 @@ class Librarian14EarthLibrarianElizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian13EarthLibrarianDataBlobs::getBlobOrNull(nhash)
+        blob = Librarian13DatablobsEarth::getBlobOrNull(nhash)
         return blob if blob
         raise "[error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash}]" if blob.nil?
     end
@@ -806,20 +706,6 @@ class Librarian14EarthLibrarianElizabeth
         rescue
             false
         end
-    end
-
-    def commitRootNamedHash(nhash)
-        Librarian10SpecialCircumstances::commitRootNamedHash(@matterId, nhash)
-        KeyValueStore::set(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}", nhash)
-    end
-
-    def getRootNamedHash()
-        nhash = KeyValueStore::getOrNull(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}")
-        return nhash if nhash
-        puts "[cache miss] reading root nhash from matter file (@matterId: #{@matterId})"
-        nhash = Librarian10SpecialCircumstances::getRootNamedHash(@matterId)
-        KeyValueStore::set(nil, "9fe3b2c7-c659-44af-9c5d-6829cecd7817:#{@matterId}", nhash)
-        nhash
     end
 end
 
@@ -838,9 +724,8 @@ class Librarian15Fsck
             return true
         end
         if atom["type"] == "matter" then
-            matterId = atom["matterId"]
-            nhash = Librarian14EarthLibrarianElizabeth.new(matterId).getRootNamedHash()
-            status = AionFsck::structureCheckAionHash(Librarian14EarthLibrarianElizabeth.new(matterId), nhash)
+            nhash = atom["rootnhash"]
+            status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new(), nhash)
             return status
         end
         if atom["type"] == "marble" then
