@@ -713,6 +713,7 @@ class Librarian14Elizabeth
             # normal user operations
             blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
             if blob.nil? then
+                puts "downloading blob: #{nhash}"
                 blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
                 if blob then
                     Librarian2DatablobsXCache::putBlob(blob)
@@ -732,6 +733,7 @@ class Librarian14Elizabeth
             if blob.nil? then
                 blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
                 if blob then
+                    puts "uploading blob: #{nhash}"
                     Librarian13DatablobsExternalDrive::putBlob(blob)
                 end
             end
