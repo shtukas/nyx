@@ -678,29 +678,6 @@ class Librarian12EnergyGrid
     end
 end
 
-class Librarian13DatablobsExternalDrive
-
-    # Librarian13DatablobsExternalDrive::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepathRemote)) then
-            FileUtils.mkpath(File.dirname(filepathRemote))
-        end
-        File.open(filepathRemote, "w"){|f| f.write(blob) }
-        nhash
-    end
-
-    # Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        filepathRemote = "/Volumes/Earth/Data/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if !File.exists?(filepathRemote) then
-            return nil
-        end
-        IO.read(filepathRemote)
-    end
-end
-
 class Librarian14Elizabeth
 
     def initialize()
@@ -717,20 +694,17 @@ class Librarian14Elizabeth
     def readBlobErrorIfNotFound(nhash)
         blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
         return blob if blob
-        puts "downloading blob: #{nhash}"
-        blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
-        if blob then
-            Librarian12EnergyGrid::putBlob(blob)
-        end
-        return blob if blob
-        raise "[error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash}]" if blob.nil?
+        puts "(error: 69f99c35-5560-44fb-b463-903e9850bc93) could not find blob, nhash: #{nhash}"
+        raise "(error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash})" if blob.nil?
     end
 
     def datablobCheck(nhash)
         begin
             blob = readBlobErrorIfNotFound(nhash)
-            puts "fsck: validating blob: #{nhash}"
             status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 36d664ef-0731-4a00-ba0d-b5a7fb7cf941) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
             return status
         rescue
             false
