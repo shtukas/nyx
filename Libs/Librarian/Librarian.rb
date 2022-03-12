@@ -239,7 +239,7 @@ class Librarian5Atoms
     # Librarian5Atoms::issueMatterAtomUsingLocation(location) # Atom
     def self.issueMatterAtomUsingLocation(location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new("standard usage"), location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"      => SecureRandom.uuid,
@@ -334,7 +334,7 @@ class Librarian5Atoms
     def self.marbleIsInNhash(nhash, marbleId)
         # TODO:
         # This function can easily been memoised
-        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new("marble search"), nhash)
+        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new(), nhash)
         Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
     end
 
@@ -402,11 +402,11 @@ class Librarian5Atoms
         end
         if atom["type"] == "matter" then
             nhash = atom["rootnhash"]
-            AionCore::exportHashAtFolder(Librarian14Elizabeth.new("standard usage"), nhash, "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, "/Users/pascal/Desktop")
             if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
-                rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new("standard usage"), location)
+                rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
                 atom["rootnhash"] = rootnhash
                 Librarian6Objects::commit(atom)
                 Librarian0Utils::moveFileToBinTimeline(location)
@@ -655,19 +655,30 @@ class Librarian7Notes
     end
 end
 
-class Librarian13DatablobsExternalDrive
+class Librarian12EnergyGrid
 
-    # Librarian13DatablobsExternalDrive::ensureDrive()
-    def self.ensureDrive()
-        if !File.exists?("/Volumes/Earth/Data/Librarian/Datablobs") then
-            puts "I need the drive 🙏"
-            LucilleCore::pressEnterToContinue()
+    # Librarian12EnergyGrid::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepathRemote = "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepathRemote)) then
+            FileUtils.mkpath(File.dirname(filepathRemote))
         end
-        if !File.exists?("/Volumes/Earth/Data/Librarian/Datablobs") then
-            puts "I needed the drive 😞"
-            exit
-        end
+        File.open(filepathRemote, "w"){|f| f.write(blob) }
+        nhash
     end
+
+    # Librarian12EnergyGrid::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        filepathRemote = "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(filepathRemote) then
+            return nil
+        end
+        IO.read(filepathRemote)
+    end
+end
+
+class Librarian13DatablobsExternalDrive
 
     # Librarian13DatablobsExternalDrive::putBlob(blob)
     def self.putBlob(blob)
@@ -692,33 +703,11 @@ end
 
 class Librarian14Elizabeth
 
-    def initialize(style)
-        styles = [
-            "standard usage",
-            "fsck",
-            "marble search",
-            "populate remote drive"
-        ]
-        if !styles.include?(style) then
-            raise "(error: 743731ec-5c84-44cd-b076-60ff0385e7f9, style: #{style})"
-        end
-        @style = style
+    def initialize()
     end
 
     def commitBlob(blob)
-        if @style == "standard usage"
-            return Librarian2DatablobsXCache::putBlob(blob)
-        end
-        if @style == "fsck" then
-            return Librarian2DatablobsXCache::putBlob(blob)
-        end
-        if @style == "marble search" then
-            return Librarian2DatablobsXCache::putBlob(blob)
-        end
-        if @style == "populate remote drive" then
-            # This case should not happen because this style should only be used to help move stuff from the local cache to the external drive
-            raise "(error: a44755ea-6a6e-44de-8467-8418cee9ca00)"
-        end
+        Librarian12EnergyGrid::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -726,40 +715,13 @@ class Librarian14Elizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        if @style == "standard usage"
-            # normal user operations
-            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-            if blob.nil? then
-                puts "downloading blob: #{nhash}"
-                blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
-                if blob then
-                    Librarian2DatablobsXCache::putBlob(blob)
-                end
-            end
+        blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+        return blob if blob
+        puts "downloading blob: #{nhash}"
+        blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
+        if blob then
+            Librarian12EnergyGrid::putBlob(blob)
         end
-        if @style == "fsck" then
-            # fsck
-            blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
-        end
-        if @style == "marble search" then
-            # marble search
-            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-            if blob.nil? then
-                blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
-            end
-        end
-        if @style == "populate remote drive" then
-            # lifting data off xcache
-            blob = Librarian13DatablobsExternalDrive::getBlobOrNull(nhash)
-            if blob.nil? then
-                blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-                if blob then
-                    puts "uploading blob: #{nhash}"
-                    Librarian13DatablobsExternalDrive::putBlob(blob)
-                end
-            end
-        end
-
         return blob if blob
         raise "[error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash}]" if blob.nil?
     end
@@ -768,7 +730,8 @@ class Librarian14Elizabeth
         begin
             blob = readBlobErrorIfNotFound(nhash)
             puts "fsck: validating blob: #{nhash}"
-            return ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            return status
         rescue
             false
         end
@@ -791,7 +754,7 @@ class Librarian15Fsck
         end
         if atom["type"] == "matter" then
             nhash = atom["rootnhash"]
-            status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new("fsck"), nhash)
+            status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new(), nhash)
             return status
         end
         if atom["type"] == "marble" then
@@ -818,61 +781,6 @@ class Librarian15Fsck
                 exit
             end
             status = Librarian15Fsck::fsckAtom(atom)
-            if !status then 
-                puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)" 
-                puts "item:"
-                puts JSON.pretty_generate(item)
-                puts "atom:"
-                puts JSON.pretty_generate(atom)
-                exit
-            end
-        }
-    end
-end
-
-class Librarian16Upload
-
-    # Librarian16Upload::uploadAtom(atom) : Boolean
-    def self.uploadAtom(atom)
-        puts JSON.pretty_generate(atom)
-        if atom["type"] == "description-only" then
-            return true
-        end
-        if atom["type"] == "text" then
-            return true
-        end
-        if atom["type"] == "url" then
-            return true
-        end
-        if atom["type"] == "matter" then
-            nhash = atom["rootnhash"]
-            status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new("populate remote drive"), nhash)
-            return status
-        end
-        if atom["type"] == "marble" then
-            return true
-        end
-        if atom["type"] == "unique-string" then
-            # Technically we should be checking if the target exists, but that takes too long
-            return true
-        end
-        raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
-    end
-
-    # Librarian16Upload::upload()
-    def self.upload()
-        Librarian6Objects::objects().each{|item|
-            next if item["mikuType"] == "Atom"
-            puts JSON.pretty_generate(item)
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            if atom.nil? then
-                puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)" 
-                puts "item:"
-                puts JSON.pretty_generate(item)
-                exit
-            end
-            status = Librarian16Upload::uploadAtom(atom)
             if !status then 
                 puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)" 
                 puts "item:"
