@@ -308,7 +308,7 @@ class TerminalDisplayOperator
         end
         fyres.each{|ns16|
             store.register(ns16, false)
-            line = "#{store.prefixString()} [#{Time.at(ns16["TxFyre"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".red
+            line = "#{store.prefixString()} #{ns16["announce"]}".red
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }

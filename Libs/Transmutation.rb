@@ -38,6 +38,33 @@ class Transmutation
             return
         end
 
+        if source == "TxFloat" and target == "TxDated" then
+            universe = Multiverse::interactivelySelectUniverse()
+            object["mikuType"] = "TxDated"
+            object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            Librarian6Objects::commit(object)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
+            return
+        end
+
+        if source == "TxFloat" and target == "TxFyre" then
+            universe = Multiverse::interactivelySelectUniverse()
+            object["mikuType"] = "TxFyre"
+            Librarian6Objects::commit(object)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
+            return
+        end
+
+        if source == "TxFloat" and target == "TxTodo" then
+            universe = Multiverse::interactivelySelectUniverse()
+            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
+            object["ordinal"] = ordinal
+            object["mikuType"] = "TxTodo"
+            Librarian6Objects::commit(object)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
+            return
+        end
+
         if source == "TxFyre" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
@@ -56,25 +83,6 @@ class Transmutation
             return
         end
 
-        if source == "TxFloat" and target == "TxDated" then
-            universe = Multiverse::interactivelySelectUniverse()
-            object["mikuType"] = "TxDated"
-            object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            Librarian6Objects::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
-            return
-        end
-
-        if source == "TxFloat" and target == "TxTodo" then
-            universe = Multiverse::interactivelySelectUniverse()
-            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
-            object["ordinal"] = ordinal
-            object["mikuType"] = "TxTodo"
-            Librarian6Objects::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
-            return
-        end
-
         puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
         LucilleCore::pressEnterToContinue()
     end
@@ -88,7 +96,7 @@ class Transmutation
 
     # Transmutation::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxDated", "TxTodo" ]
+        options = ["TxFloat", "TxFyre", "TxDated", "TxTodo" ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option

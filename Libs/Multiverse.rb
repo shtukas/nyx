@@ -108,11 +108,8 @@ class UniverseDrivingModes
     # UniverseDrivingModes::interactivelySetMode()
     def self.interactivelySetMode()
         mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", UniverseDrivingModes::modes())
-        if mode.nil? then
-            UniverseDrivingModes::interactivelySetMode()
-        else
-            KeyValueStore::set(nil, "d8c104ea-f64c-4280-99b4-c8d636856ed9", mode)
-        end
+        return if mode.nil? 
+        KeyValueStore::set(nil, "d8c104ea-f64c-4280-99b4-c8d636856ed9", mode)
     end
 
     # UniverseDrivingModes::getStoredMode()

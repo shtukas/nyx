@@ -177,8 +177,7 @@ class TxFyres
             "mikuType" => "NS16:TxFyre",
             "announce" => "(fyre) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
             "TxFyre"   => nx70,
-            "rt"       => rt,
-            "nonListingDefaultable" => (rt > 1)
+            "rt"       => rt
         }
     end
 
