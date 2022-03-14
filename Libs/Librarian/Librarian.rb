@@ -245,7 +245,7 @@ class Librarian5Atoms
             "uuid"      => SecureRandom.uuid,
             "mikuType"  => "Atom",
             "unixtime"  => Time.new.to_f,
-            "type"      => "matter",
+            "type"      => "aion-point",
             "rootnhash" => rootnhash
         }
     end
@@ -275,7 +275,7 @@ class Librarian5Atoms
     # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "matter", "marble", "unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "marble", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
             return Librarian5Atoms::issueDescriptionOnlyAtom()
@@ -292,7 +292,7 @@ class Librarian5Atoms
             return Librarian5Atoms::issueUrlAtomUsingUrl(url)
         end
 
-        if type == "matter" then
+        if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return Librarian5Atoms::issueMatterAtomUsingLocation(location)
@@ -357,21 +357,21 @@ class Librarian5Atoms
         end
         puts "I could not find the marble in Galaxy using the Force"
 
-        # Ok, so now we are going to look inside matter
-        puts "I am going to look inside matter"
+        # Ok, so now we are going to look inside aion-points
+        puts "I am going to look inside aion-points"
         Librarian6Objects::getObjectsByMikuType("Atom")
             .each{|atom|
-                next if atom["type"] != "matter"
+                next if atom["type"] != "aion-point"
                 nhash = atom["rootnhash"]
                 if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
-                    puts "I have found the marble in atom matter: #{JSON.pretty_generate(atom)}"
+                    puts "I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
                     Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
                     return
                 end
             }
 
-        puts "I could not find the marble inside matter"
+        puts "I could not find the marble inside aion-points"
         LucilleCore::pressEnterToContinue()
         return nil
     end
@@ -400,10 +400,10 @@ class Librarian5Atoms
                 end
             end
         end
-        if atom["type"] == "matter" then
+        if atom["type"] == "aion-point" then
             nhash = atom["rootnhash"]
             AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, "/Users/pascal/Desktop")
-            if LucilleCore::askQuestionAnswerAsBoolean("> edit matter ? ", false) then
+            if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
                 location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
                 return if location.nil?
                 rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
@@ -454,8 +454,8 @@ class Librarian5Atoms
         if atom["type"] == "url" then
             return "Atom (url): #{atom["payload"]}"
         end
-        if atom["type"] == "matter" then
-            return "Atom (matter)"
+        if atom["type"] == "aion-point" then
+            return "Atom (aion-point)"
         end
         if atom["type"] == "marble" then
             return "Atom (marble): #{atom["payload"]}"
@@ -726,7 +726,7 @@ class Librarian15Fsck
         if atom["type"] == "url" then
             return true
         end
-        if atom["type"] == "matter" then
+        if atom["type"] == "aion-point" then
             nhash = atom["rootnhash"]
             status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new(), nhash)
             return status
