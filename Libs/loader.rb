@@ -160,7 +160,7 @@ require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
-require_relative "Links2.rb"
+require_relative "Links.rb"
 
 require_relative "Multiverse.rb"
 
