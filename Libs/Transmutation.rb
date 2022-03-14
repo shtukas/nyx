@@ -24,8 +24,8 @@ class Transmutation
             return
         end
 
-        if source == "TxDated" and target == "TxDrop" then
-            object["mikuType"] = "TxDrop"
+        if source == "TxDated" and target == "TxFyre" then
+            object["mikuType"] = "TxFyre"
             Librarian6Objects::commit(object)
             ObjectUniverseMapping::interactivelySetObjectUniverseMapping(object["uuid"])
             return
@@ -38,7 +38,7 @@ class Transmutation
             return
         end
 
-        if source == "TxDrop" and target == "TxTodo" then
+        if source == "TxFyre" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
@@ -48,7 +48,7 @@ class Transmutation
             return
         end
 
-        if source == "TxDrop" and target == "TxFloat" then
+        if source == "TxFyre" and target == "TxFloat" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFloat"
             Librarian6Objects::commit(object)

@@ -104,16 +104,16 @@ class GlobalActions
                 return
             end
 
-            if object["mikuType"] == "NS16:TxDrop" then
-                nx70 = object["TxDrop"]
+            if object["mikuType"] == "NS16:TxFyre" then
+                nx70 = object["TxFyre"]
                 puts nx70["description"].green
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
                 return if action.nil?
                 if action == "run" then
-                    TxDrops::access(nx70)
+                    TxFyres::access(nx70)
                 end
                 if action == "done" then
-                    TxDrops::destroy(nx70["uuid"])
+                    TxFyres::destroy(nx70["uuid"])
                 end
                 return
             end
@@ -195,10 +195,10 @@ class GlobalActions
                 end
                 return
             end
-            if object["mikuType"] == "NS16:TxDrop" then
-                item = object["TxDrop"]
+            if object["mikuType"] == "NS16:TxFyre" then
+                item = object["TxFyre"]
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
-                    TxDrops::destroy(item["uuid"])
+                    TxFyres::destroy(item["uuid"])
                 end
                 return
             end
@@ -227,8 +227,8 @@ class GlobalActions
             end
         end
 
-        if command == "drop" then
-            TxDrops::interactivelyCreateNewOrNull()
+        if command == "fyre" then
+            TxFyres::interactivelyCreateNewOrNull()
             return
         end
 
@@ -393,17 +393,17 @@ class GlobalActions
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxDrop" then
-                nx70 = ns16["TxDrop"]
-                Transmutation::transmutation2(nx70, "TxDrop")
+            if ns16["mikuType"] == "NS16:TxFyre" then
+                nx70 = ns16["TxFyre"]
+                Transmutation::transmutation2(nx70, "TxFyre")
                 return
             end
         end
 
         if command == "universe" then
             ns16 = object
-            if ns16["mikuType"] == "NS16:TxDrop" then
-                item = ns16["TxDrop"]
+            if ns16["mikuType"] == "NS16:TxFyre" then
+                item = ns16["TxFyre"]
                 ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 return
             end

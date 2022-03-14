@@ -8,7 +8,7 @@ class Search
         Anniversaries::nx19s() +
         TxCalendarItems::nx19s() +
         TxDateds::nx19s() +
-        TxDrops::nx19s() +
+        TxFyres::nx19s() +
         TxFloats::nx19s() +
         TxTodos::nx19s() +
         Waves::nx19s()

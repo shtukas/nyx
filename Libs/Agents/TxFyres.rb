@@ -1,13 +1,13 @@
 j# encoding: UTF-8
 
-class TxDrops
+class TxFyres
 
-    # TxDrops::mikus()
+    # TxFyres::mikus()
     def self.mikus()
-        Librarian6Objects::getObjectsByMikuType("TxDrop")
+        Librarian6Objects::getObjectsByMikuType("TxFyre")
     end
 
-    # TxDrops::destroy(uuid)
+    # TxFyres::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
@@ -15,7 +15,7 @@ class TxDrops
     # --------------------------------------------------
     # Makers
 
-    # TxDrops::interactivelyCreateNewOrNull()
+    # TxFyres::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -31,7 +31,7 @@ class TxDrops
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxDrop",
+          "mikuType"    => "TxFyre",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
@@ -44,25 +44,25 @@ class TxDrops
     # --------------------------------------------------
     # toString
 
-    # TxDrops::toString(nx70)
+    # TxFyres::toString(nx70)
     def self.toString(nx70)
-        "[drop] #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+        "[fyre] #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}"
     end
 
-    # TxDrops::toStringForNS19(nx70)
+    # TxFyres::toStringForNS19(nx70)
     def self.toStringForNS19(nx70)
-        "[drop] #{nx70["description"]}"
+        "[fyre] #{nx70["description"]}"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # TxDrops::complete(nx70)
+    # TxFyres::complete(nx70)
     def self.complete(nx70)
-        TxDrops::destroy(nx70["uuid"])
+        TxFyres::destroy(nx70["uuid"])
     end
 
-    # TxDrops::access(nx70)
+    # TxFyres::access(nx70)
     def self.access(nx70)
 
         system("clear")
@@ -73,7 +73,7 @@ class TxDrops
 
             system("clear")
 
-            puts TxDrops::toString(nx70).green
+            puts TxFyres::toString(nx70).green
             puts "uuid: #{uuid}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
@@ -132,7 +132,7 @@ class TxDrops
             end
 
             if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(nx70, "TxDrop")
+                Transmutation::transmutation2(nx70, "TxFyre")
                 break
             end
 
@@ -148,16 +148,16 @@ class TxDrops
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDrops::toString(nx70)}' ? ", true) then
-                    TxDrops::complete(nx70)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(nx70)}' ? ", true) then
+                    TxFyres::complete(nx70)
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDrops::toString(nx70)}' ? ", true) then
-                    TxDrops::complete(nx70)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(nx70)}' ? ", true) then
+                    TxFyres::complete(nx70)
                     break
                 end
                 next
@@ -168,39 +168,39 @@ class TxDrops
     # --------------------------------------------------
     # nx16s
 
-    # TxDrops::ns16(nx70)
+    # TxFyres::ns16(nx70)
     def self.ns16(nx70)
         uuid = nx70["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
-            "mikuType" => "NS16:TxDrop",
-            "announce" => "(drop) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
-            "TxDrop"   => nx70,
+            "mikuType" => "NS16:TxFyre",
+            "announce" => "(fyre) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
+            "TxFyre"   => nx70,
             "rt"       => rt,
             "nonListingDefaultable" => (rt > 1)
         }
     end
 
-    # TxDrops::ns16s(universe)
+    # TxFyres::ns16s(universe)
     def self.ns16s(universe)
-        TxDrops::mikus()
+        TxFyres::mikus()
             .select{|item| 
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
-            .map{|item| TxDrops::ns16(item) }
+            .map{|item| TxFyres::ns16(item) }
     end
 
     # --------------------------------------------------
 
-    # TxDrops::nx19s()
+    # TxFyres::nx19s()
     def self.nx19s()
-        TxDrops::mikus().map{|item|
+        TxFyres::mikus().map{|item|
             {
                 "uuid"     => item["uuid"],
-                "announce" => TxDrops::toStringForNS19(item),
-                "lambda"   => lambda { TxDrops::access(item) }
+                "announce" => TxFyres::toStringForNS19(item),
+                "lambda"   => lambda { TxFyres::access(item) }
             }
         }
     end

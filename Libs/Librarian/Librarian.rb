@@ -481,8 +481,8 @@ class Librarian6Objects
             "Nx31",
             "TxCalendarItem",
             "TxDated",
-            "TxDrop",
             "TxFloat",
+            "TxFyre",
             "TxTodo",
             "Wave"
         ]

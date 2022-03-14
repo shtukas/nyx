@@ -74,8 +74,8 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("done", ordinal, store)
         end
 
-        if Interpreting::match("drop", input) then
-            return ["drop", nil]
+        if Interpreting::match("fyre", input) then
+            return ["fyre", nil]
         end
 
         if Interpreting::match("expose", input) then
@@ -194,7 +194,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | calendaritem | float | drop | today | ondate | todo"
+        "wave | anniversary | calendaritem | float | fyre | today | ondate | todo"
     end
 
     # Commands::diversCommands()
@@ -250,7 +250,6 @@ class NS16sOperator
             TxDateds::ns16s(),
             Waves::ns16s(universe),
             (universe.nil? or universe == "lucille") ? Inbox::ns16s() : [],
-            TxDrops::ns16s(universe),
             TxTodos::ns16s(universe)
         ]
             .flatten
@@ -266,8 +265,8 @@ class TerminalDisplayOperator
         NxBallsService::isRunning(ns16["uuid"])
     end
 
-    # TerminalDisplayOperator::standardDisplay(universe, floats, section3)
-    def self.standardDisplay(universe, floats, section3)
+    # TerminalDisplayOperator::standardDisplay(universe, floats, fyres, section3)
+    def self.standardDisplay(universe, floats, fyres, section3)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-3
@@ -302,6 +301,17 @@ class TerminalDisplayOperator
         floats.each{|ns16|
             store.register(ns16, false)
             line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+            puts line
+            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        }
+
+        if fyres.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+        fyres.each{|ns16|
+            store.register(ns16, false)
+            line = "#{store.prefixString()} [#{Time.at(ns16["TxFyre"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".red
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
@@ -400,8 +410,12 @@ class TerminalDisplayOperator
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
+            fyres = TxFyres::ns16s(universe)
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                        .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+
             section3 = NS16sOperator::section3(universe)
-            TerminalDisplayOperator::standardDisplay(universe, floats, section3)
+            TerminalDisplayOperator::standardDisplay(universe, floats, fyres, section3)
         }
     end
 end
