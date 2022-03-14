@@ -160,7 +160,7 @@ class Nx31
 
             store = ItemStore.new()
 
-            Links::entities(miku["uuid"])
+            Links2::related(miku["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)

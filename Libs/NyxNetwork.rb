@@ -13,7 +13,7 @@ class NyxNetwork
 
     # NyxNetwork::linked(entity)
     def self.linked(entity)
-         Links::entities(entity["uuid"])
+         Links2::related(entity["uuid"])
     end
 
     # NyxNetwork::connectToOtherArchitectured(entity)
@@ -34,7 +34,7 @@ class NyxNetwork
     # If we want to update the uuid of an element (original: uuid1, new: uuid2)
     # Then we use this function to give to uuid2 the same connects as uuid1 
     def self.networkReplace(uuid1, uuid2)
-        Links::entities(uuid1).each{|entity|
+        Links2::related(uuid1).each{|entity|
             Links2::link(uuid2, entity["uuid"], 1)
         }
     end
@@ -58,7 +58,7 @@ class NyxNetwork
     # NyxNetwork::computeDeepLineConnectedEntities(entity)
     def self.computeDeepLineConnectedEntities(entity)
         NyxNetwork::computeDeepLineNodes(entity)
-            .map{|node| Links::entities(node["uuid"]) }
+            .map{|node| Links2::related(node["uuid"]) }
             .flatten
             .reduce([]){|selected, y|
                 if selected.none?{|x| x["uuid"] == y["uuid"] } then
