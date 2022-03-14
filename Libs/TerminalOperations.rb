@@ -103,6 +103,10 @@ class TerminalUtils
             return ["nyx", nil]
         end
 
+        if Interpreting::match("ondate", input) then
+            return ["ondate", nil]
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end
