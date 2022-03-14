@@ -273,18 +273,15 @@ class TerminalDisplayOperator
 
         puts ""
         t1 = UniverseDrivingModes::getStoredMode()
-        t2 = UniverseAccounting::getUniversesInRatioOrder()
+        t2 = Multiverse::universes()
             .map{|uni|
                 expectation = UniverseAccounting::universeExpectationOrNull(uni)
                 uniRatio = UniverseAccounting::universeRatioOrNull(uni)
                 line = "(#{uni}: #{(100 * uniRatio).round(2)} % of #{"%.2f" % expectation} hours)"
-                if uni == universe then
-                    line = line.green
-                end
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
                 line
             }.join(" ")
-        puts "#{t1} / #{t2}"
+        puts "#{t1}: #{universe} #{t2}"
 
         store = ItemStore.new()
 
