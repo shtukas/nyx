@@ -402,15 +402,17 @@ class Librarian5Atoms
         end
         if atom["type"] == "aion-point" then
             nhash = atom["rootnhash"]
-            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, "/Users/pascal/Desktop")
-            if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
-                location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
-                return if location.nil?
-                rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
-                atom["rootnhash"] = rootnhash
-                Librarian6Objects::commit(atom)
-                Librarian0Utils::moveFileToBinTimeline(location)
-            end
+            exportFolder = Librarian16AionDispatch::decideDispatchFolderpathOrNull(atom)
+            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
+            system("open '#{exportFolder}'")
+            #if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
+            #    location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
+            #    return if location.nil?
+            #    rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
+            #    atom["rootnhash"] = rootnhash
+            #    Librarian6Objects::commit(atom)
+            #    Librarian0Utils::moveFileToBinTimeline(location)
+            #end
         end
         if atom["type"] == "marble" then
             marbleId = atom["payload"]
@@ -765,4 +767,56 @@ class Librarian15Fsck
             end
         }
     end
+end
+
+=begin 
+
+AionDispatchTx45 {
+    "uuid"       : String
+    "atomUUID"   : String
+    "dispatchId" : String # Used for foldername
+}
+
+=end
+
+class Librarian16AionDispatch
+
+    # Librarian16AionDispatch::dispatchIdToFolderpath(dispatchId)
+    def self.dispatchIdToFolderpath(dispatchId)
+        "/Users/pascal/Galaxy/NS1-Aion-Exports/#{dispatchId}"
+    end
+
+    # Librarian16AionDispatch::issueAionDispatchTx45(uuid, atomUUID, dispatchId)
+    def self.issueAionDispatchTx45(uuid, atomUUID, dispatchId)
+        item = {
+            "uuid"       => uuid,
+            "atomUUID"   => atomUUID,
+            "dispatchId" => dispatchId
+        }
+        BTreeSets::set(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", item["uuid"], item)
+    end
+
+    # Librarian16AionDispatch::getValidDispatchItemsForAtom(atom)
+    def self.getValidDispatchItemsForAtom(atom)
+        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC")
+            .select{|item| item["atomUUID"] == atom["uuid"] }
+            .select{|item| File.exists?(Librarian16AionDispatch::dispatchIdToFolderpath(item["dispatchId"])) }
+    end
+
+    # Librarian16AionDispatch::decideDispatchFolderpathOrNull(atom)
+    def self.decideDispatchFolderpathOrNull(atom)
+        item = Librarian16AionDispatch::getValidDispatchItemsForAtom(atom).first
+        if item then
+            puts "Found aion dispatch item"
+            puts JSON.pretty_generate(item)
+            return Librarian16AionDispatch::dispatchIdToFolderpath(item["dispatchId"])
+        else
+            dispatchId = SecureRandom.hex[0, 8]
+            folderpath = Librarian16AionDispatch::dispatchIdToFolderpath(dispatchId)
+            FileUtils.mkdir(folderpath)
+            Librarian16AionDispatch::issueAionDispatchTx45(SecureRandom.uuid, atom["uuid"], dispatchId)
+            return folderpath
+        end
+    end
+
 end
