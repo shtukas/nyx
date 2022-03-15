@@ -278,7 +278,7 @@ class Waves
     # -------------------------------------------------------------------------
     # NS16
 
-    # Waves::landing(wave) # Code
+    # Waves::access(wave) # Code
     # "ebdc6546-8879" # Continue
     # "8a2aeb48-780d" # Close NxBall
     def self.access(wave)

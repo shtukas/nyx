@@ -395,6 +395,8 @@ class TxTodos
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxTodos::ns16(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
         ns16s1 = ns16s.take(5)
         ns16s2 = ns16s.drop(5)
