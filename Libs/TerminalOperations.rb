@@ -281,7 +281,7 @@ class TerminalDisplayOperator
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
                 line
             }.join(" ")
-        puts "#{t1}: #{universe} #{t2}"
+        puts "(#{t1}: #{universe.green}) #{t2}"
 
         store = ItemStore.new()
 
