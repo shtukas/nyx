@@ -398,6 +398,12 @@ class GlobalActions
                 Transmutation::transmutation2(nx70, "TxFyre")
                 return
             end
+
+            if ns16["mikuType"] == "NS16:TxTodo" then
+                nx70 = ns16["TxTodo"]
+                Transmutation::transmutation2(nx70, "TxTodo")
+                return
+            end
         end
 
         if command == "universe" then

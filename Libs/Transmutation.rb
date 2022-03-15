@@ -83,6 +83,14 @@ class Transmutation
             return
         end
 
+        if source == "TxTodo" and target == "TxFyre" then
+            universe = Multiverse::interactivelySelectUniverse()
+            object["mikuType"] = "TxFyre"
+            Librarian6Objects::commit(object)
+            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
+            return
+        end
+
         puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
         LucilleCore::pressEnterToContinue()
     end
