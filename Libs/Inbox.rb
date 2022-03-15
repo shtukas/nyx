@@ -31,7 +31,7 @@ class Inbox
         description
     end
 
-    # Inbox::access(location)
+    # Inbox::landing(location)
     def self.access(location)
         system("clear")
         puts location.green
@@ -134,7 +134,7 @@ class Inbox
             {
                 "uuid"     => item["uuid"],
                 "announce" => item["announce"],
-                "lambda"   => lambda { Inbox::access(item) }
+                "lambda"   => lambda { Inbox::landing(item) }
             }
         }
     end

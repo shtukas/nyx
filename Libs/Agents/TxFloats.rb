@@ -63,8 +63,8 @@ class TxFloats
         TxFloats::destroy(float["uuid"])
     end
 
-    # TxFloats::access(float)
-    def self.access(float)
+    # TxFloats::landing(float)
+    def self.landing(float)
 
         system("clear")
 
@@ -200,7 +200,7 @@ class TxFloats
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxFloats::toStringForNS19(item),
-                "lambda"   => lambda { TxFloats::access(item) }
+                "lambda"   => lambda { TxFloats::landing(item) }
             }
         }
     end

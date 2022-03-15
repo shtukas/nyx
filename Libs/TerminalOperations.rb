@@ -95,6 +95,15 @@ class TerminalUtils
             return ["fsck", nil]
         end
 
+        if Interpreting::match("landing", input) then
+            return ["landing", store.getDefault()]
+        end
+
+        if Interpreting::match("landing *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("landing", ordinal, store)
+        end
+
         if Interpreting::match("mode", input) then
             return ["mode", nil]
         end
@@ -308,7 +317,7 @@ class TerminalDisplayOperator
         end
         fyres.each{|ns16|
             store.register(ns16, false)
-            line = "#{store.prefixString()} #{ns16["announce"]}".red
+            line = "#{store.prefixString()} #{ns16["announce"]}"
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }

@@ -84,7 +84,7 @@ class GlobalActions
             end
 
             if object["mikuType"] == "NS16:TxCalendarItem" then
-                TxCalendarItems::access(object["item"])
+                AgentsUtils::accessAtom(object["item"]["atomuuid"])
                 return
             end
 
@@ -94,42 +94,34 @@ class GlobalActions
             end
 
             if object["mikuType"] == "NS16:Inbox1" then
-                Inbox::access(object["location"])
+                Inbox::landing(object["location"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxDated" then
                 dated = object["TxDated"]
-                TxDateds::access(dated)
+                AgentsUtils::accessAtom(dated["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxFyre" then
                 nx70 = object["TxFyre"]
-                puts nx70["description"].green
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["run", "done"])
-                return if action.nil?
-                if action == "run" then
-                    TxFyres::access(nx70)
-                end
-                if action == "done" then
-                    TxFyres::destroy(nx70["uuid"])
-                end
+                AgentsUtils::accessAtom(nx70["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxFloat" then
-                TxFloats::access(object["TxFloat"])
+                AgentsUtils::accessAtom(object["TxFloat"]["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxTodo" then
-                TxTodos::access(object["TxTodo"])
+                AgentsUtils::accessAtom(object["TxTodo"]["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:Wave" then
-                code = Waves::access(object["wave"])
+                code = Waves::landing(object["wave"])
                 # "ebdc6546-8879" # Continue
                 # "8a2aeb48-780d" # Close NxBall
                 if code == "ebdc6546-8879" then
@@ -264,7 +256,50 @@ class GlobalActions
 
         if command == "landing" then
             ns16 = object
-            if ns16["mikuType"] == "NS16:Wave" and command == "landing" then
+
+            if object["mikuType"] == "NS16:Anniversary1" then
+                Anniversaries::landing(object["anniversary"])
+                return
+            end
+
+            if object["mikuType"] == "NS16:TxCalendarItem" then
+                TxCalendarItems::ns16(object["item"])
+                return
+            end
+
+            if object["mikuType"] == "NS16:fitness1" then
+                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
+                return
+            end
+
+            if object["mikuType"] == "NS16:Inbox1" then
+                Inbox::landing(object["location"])
+                return
+            end
+
+            if object["mikuType"] == "NS16:TxDated" then
+                mx49 = object["TxDated"]
+                TxDateds::landing(mx49)
+                return
+            end
+
+            if object["mikuType"] == "NS16:TxFyre" then
+                nx70 = object["TxFyre"]
+                TxFyres::landing(nx70)
+                return
+            end
+
+            if object["mikuType"] == "NS16:TxFloat" then
+                TxFloats::landing(object["TxFloat"])
+                return
+            end
+
+            if object["mikuType"] == "NS16:TxTodo" then
+                TxTodos::landing(object["TxTodo"])
+                return
+            end
+
+            if ns16["mikuType"] == "NS16:Wave" then
                 Waves::landing(ns16["wave"])
                 return
             end
@@ -369,7 +404,7 @@ class GlobalActions
             loop {
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
                 return if nx50.nil?
-                TxTodos::access(nx50)
+                TxTodos::landing(nx50)
             }
             return
         end

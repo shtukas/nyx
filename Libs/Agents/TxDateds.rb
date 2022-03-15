@@ -85,8 +85,8 @@ class TxDateds
     # --------------------------------------------------
     # Operations
 
-    # TxDateds::access(mx49)
-    def self.access(mx49)
+    # TxDateds::landing(mx49)
+    def self.landing(mx49)
 
         system("clear")
 
@@ -194,7 +194,7 @@ class TxDateds
             items = TxDateds::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxDateds::toString(item) })
             break if item.nil?
-            TxDateds::access(item)
+            TxDateds::landing(item)
         }
     end
 
@@ -228,7 +228,7 @@ class TxDateds
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxDateds::toStringForNS19(item),
-                "lambda"   => lambda { TxDateds::access(item) }
+                "lambda"   => lambda { TxDateds::landing(item) }
             }
         }
     end

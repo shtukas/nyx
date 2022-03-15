@@ -128,29 +128,6 @@ class TxTodos
         item
     end
 
-    # TxTodos::issueSpreadItem(location, description, ordinal)
-    def self.issueSpreadItem(location, description, ordinal)
-        uuid       = SecureRandom.uuid
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
-        atom       = Librarian5Atoms::issueMatterAtomUsingLocation(location)
-        Librarian6Objects::commit(atom)
-        ordinal    = ordinal
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxTodo",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
-          "ordinal"     => ordinal
-        }
-        Librarian6Objects::commit(item)
-        ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
-        item
-    end
-
     # TxTodos::issueViennaURL(url)
     def self.issueViennaURL(url)
         uuid        = SecureRandom.uuid
@@ -202,8 +179,8 @@ class TxTodos
     # --------------------------------------------------
     # Operations
 
-    # TxTodos::access(nx50)
-    def self.access(nx50)
+    # TxTodos::landing(nx50)
+    def self.landing(nx50)
 
         system("clear")
 
@@ -422,7 +399,12 @@ class TxTodos
         ns16s1 = ns16s.take(5)
         ns16s2 = ns16s.drop(5)
 
-        ns16s1 = ns16s1.sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+        ns16s1 = ns16s1
+            .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+            .map{|ns16|
+                ns16["announce"] = ns16["announce"].red
+                ns16
+            }
 
         ns16s1 + ns16s2
     end
@@ -435,7 +417,7 @@ class TxTodos
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxTodos::toStringForNS19(item),
-                "lambda"   => lambda { TxTodos::access(item) }
+                "lambda"   => lambda { TxTodos::landing(item) }
             }
         }
     end

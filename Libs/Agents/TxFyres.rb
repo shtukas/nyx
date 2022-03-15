@@ -49,6 +49,11 @@ class TxFyres
         "[fyre] #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}"
     end
 
+    # TxFyres::toStringForNS16(nx70, rt)
+    def self.toStringForNS16(nx70, rt)
+        "[fyre] (#{"%4.2f" % rt}) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+    end
+
     # TxFyres::toStringForNS19(nx70)
     def self.toStringForNS19(nx70)
         "[fyre] #{nx70["description"]}"
@@ -62,8 +67,8 @@ class TxFyres
         TxFyres::destroy(nx70["uuid"])
     end
 
-    # TxFyres::access(nx70)
-    def self.access(nx70)
+    # TxFyres::landing(nx70)
+    def self.landing(nx70)
 
         system("clear")
 
@@ -172,10 +177,14 @@ class TxFyres
     def self.ns16(nx70)
         uuid = nx70["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        announce = TxFyres::toStringForNS16(nx70, rt)
+        if rt < 1 then
+            announce = announce.red
+        end
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFyre",
-            "announce" => "(fyre) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}",
+            "announce" => announce,
             "TxFyre"   => nx70,
             "rt"       => rt
         }
@@ -189,6 +198,7 @@ class TxFyres
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxFyres::ns16(item) }
+            .sort{|x1, x2| x1["rt"] <=> x2["rt"]}
     end
 
     # --------------------------------------------------
@@ -199,7 +209,7 @@ class TxFyres
             {
                 "uuid"     => item["uuid"],
                 "announce" => TxFyres::toStringForNS19(item),
-                "lambda"   => lambda { TxFyres::access(item) }
+                "lambda"   => lambda { TxFyres::landing(item) }
             }
         }
     end
