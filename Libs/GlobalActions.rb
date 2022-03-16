@@ -20,10 +20,9 @@ class GlobalActions
             # ---------------------------------------------------------------
             # Access
 
-            if LucilleCore::askQuestionAnswerAsBoolean("access '#{object["announce"]}' ? ", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("access : '#{object["announce"]}' ? ", true) then
                 GlobalActions::action("access", object)
             end
-
 
             # ---------------------------------------------------------------
             # Stop
@@ -40,8 +39,20 @@ class GlobalActions
             end
 
             if NxBallsService::isRunning(object["uuid"]) then
-                if LucilleCore::askQuestionAnswerAsBoolean("stop '#{object["announce"]}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("stop   : '#{object["announce"]}' ? ") then
                     GlobalActions::action("stop", object)
+                end
+            end
+
+            # ---------------------------------------------------------------
+            # Destroy
+
+            if !NxBallsService::isRunning(object["uuid"]) then
+                if object["mikuType"] == "NS16:TxTodo" then
+                    todo = object["TxTodo"]
+                    if (Bank::value(todo["uuid"]) < 3600) and LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{object["announce"]}' ? ") then
+                        TxTodos::destroy(todo["uuid"])
+                    end
                 end
             end
 
