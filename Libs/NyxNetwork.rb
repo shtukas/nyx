@@ -22,6 +22,7 @@ class NyxNetwork
         return if connectionType.nil?
         other = Nx31::architectOrNull()
         return if other.nil?
+        Nx31::landing(other)
         if connectionType == "other is parent" then
             Links::link(other["uuid"], entity["uuid"], 0)
         end
