@@ -828,41 +828,48 @@ class Librarian16AionDispatch
 
     # Librarian16AionDispatch::doPickups()
     def self.doPickups()
+        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC").each{|dispatchItem|
+            if !File.exists?(Librarian16AionDispatch::dispatchIdToFolderpath(dispatchItem["dispatchId"])) then
+                puts "> Destroying dispatch item: #{JSON.pretty_generate(dispatchItem)}"
+                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", dispatchItem["uuid"])
+            end
+        }
+
         exportFolders = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/NS1-Aion-Exports")
         exportFolders.each{|folder1|
             puts folder1 # Export folder with name equal to the dispatch Id
             dispatchId = File.basename(folder1)
             dispatchItem = Librarian16AionDispatch::getDispatchItemByDispatchIdOrNull(dispatchId)
             if dispatchItem.nil? then
-                puts "I could not find a dispatch item for dispatchItem: #{dispatchItem}"
-                puts "I am going to pause, and let you process the folder manually"
+                puts "> I could not find a dispatch item for dispatchItem: #{dispatchItem}"
+                puts "> I am going to pause, and let you process the folder manually"
                 LucilleCore::pressEnterToContinue()
                 next
             end
             puts "dispatchItem: #{JSON.pretty_generate(dispatchItem)}"
             atom = Librarian6Objects::getObjectByUUIDOrNull(dispatchItem["atomUUID"])
             if atom.nil? then
-                puts "I could not find an atom for atomuuid: #{dispatchItem["atomUUID"]}"
-                puts "I am going to pause, and let you process the folder manually"
+                puts "> I could not find an atom for atomuuid: #{dispatchItem["atomUUID"]}"
+                puts "> I am going to pause, and let you process the folder manually"
                 LucilleCore::pressEnterToContinue()
                 next
             end
             puts "atom: #{JSON.pretty_generate(atom)}"
             locations2 = LucilleCore::locationsAtFolder(folder1)
             if locations2.size == 0 then
-                puts "I could not find a location inside #{folder1}"
-                puts "I let you deal with it"
+                puts "> I could not find a location inside #{folder1}"
+                puts "> I let you deal with it"
                 LucilleCore::pressEnterToContinue()
                 next
             end
             if locations2.size > 1 then
-                puts "I found more than one location inside #{folder1}"
-                puts "I let you deal with it, and you will have to rerun pickup process"
+                puts "> I found more than one location inside #{folder1}"
+                puts "> I let you deal with it, and you will have to rerun pickup process"
                 LucilleCore::pressEnterToContinue()
                 next
             end
             location3 = locations2.first # Item to Aionize.
-            puts "location3: #{location3}"
+            puts "> location3: #{location3}"
 
             if LucilleCore::askQuestionAnswerAsBoolean("Pickup '#{File.basename(location3)}' ? ") then
                 rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location3)
@@ -872,6 +879,7 @@ class Librarian16AionDispatch
                     Librarian6Objects::commit(atom)
                 end
                 LucilleCore::removeFileSystemLocation(folder1)
+                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", dispatchItem["uuid"])
             end
         }
     end
