@@ -854,7 +854,29 @@ class Librarian16AionDispatch
                 LucilleCore::pressEnterToContinue()
                 next
             end
+
             puts "atom: #{JSON.pretty_generate(atom)}"
+
+            # We check whether the atom is alive, if it is not, we do not bother with the ones that are ophan as 
+            # they most likely correspond to dead top objects
+            atomOwnerOrNull = lambda {|atom|
+                Librarian6Objects::objects().each{|object|
+                    if object["atomuuid"] == atom["uuid"] then
+                        return object
+                    end
+                }
+                nil
+            }
+
+            if atomOwnerOrNull.call(atom).nil? then
+                puts "I could not find an owner for atom: #{JSON.generate(atom)}"
+                puts "Going to remove the export folder"
+                LucilleCore::pressEnterToContinue()
+                LucilleCore::removeFileSystemLocation(folder1)
+                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", dispatchItem["uuid"])
+                next
+            end
+
             locations2 = LucilleCore::locationsAtFolder(folder1)
             if locations2.size == 0 then
                 puts "> I could not find a location inside #{folder1}"
