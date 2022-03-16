@@ -6,7 +6,7 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-puts "commands: run fsck | show object | prob blob | exit"
+puts "commands: run fsck | show object | prob blob | do NS1 pickups | exit"
 
 loop {
     command = LucilleCore::askQuestionAnswerAsString("(librarian) ")
@@ -42,6 +42,9 @@ loop {
             puts "I could not find a blob with nhash: #{nhash}"
             LucilleCore::pressEnterToContinue()
         end
+    end
+    if command == "do NS1 pickups" then
+        Librarian16AionDispatch::doPickups()
     end
     if command == "exit" then
         break
