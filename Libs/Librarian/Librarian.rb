@@ -236,8 +236,8 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueMatterAtomUsingLocation(location) # Atom
-    def self.issueMatterAtomUsingLocation(location)
+    # Librarian5Atoms::issueAionPointAtomUsingLocation(location) # Atom
+    def self.issueAionPointAtomUsingLocation(location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
         rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
         Librarian0Utils::moveFileToBinTimeline(location)
@@ -295,7 +295,7 @@ class Librarian5Atoms
         if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Librarian5Atoms::issueMatterAtomUsingLocation(location)
+            return Librarian5Atoms::issueAionPointAtomUsingLocation(location)
         end
 
         if type == "marble" then

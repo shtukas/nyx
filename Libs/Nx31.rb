@@ -160,11 +160,25 @@ class Nx31
 
             store = ItemStore.new()
 
-            Links2::related(miku["uuid"])
+            Links::parents(miku["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [connected to] #{Nx31::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx31::toString(entity)}" 
+                }
+
+            Links::related(miku["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx31::toString(entity)}" 
+                }
+
+            Links::children(miku["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx31::toString(entity)}" 
                 }
 
             puts ""
@@ -213,7 +227,7 @@ class Nx31
 
             if Interpreting::match("datetime", command) then
                 datetime = Utils::editTextSynchronously(miku["datetime"]).strip
-                next if !Utils2::isDateTime_UTC_ISO8601(datetime)
+                next if !Utils::isDateTime_UTC_ISO8601(datetime)
                 miku["datetime"] = datetime
                 Librarian6Objects::commit(miku) 
             end

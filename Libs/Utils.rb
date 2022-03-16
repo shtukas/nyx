@@ -298,7 +298,7 @@ class Utils
             }
     end
 
-    # Utils2::isDateTime_UTC_ISO8601(datetime)
+    # Utils::isDateTime_UTC_ISO8601(datetime)
     def self.isDateTime_UTC_ISO8601(datetime)
         begin
             DateTime.parse(datetime).to_time.utc.iso8601 == datetime
@@ -307,10 +307,10 @@ class Utils
         end
     end
 
-    # Utils2::updateDateTimeWithANewDate(datetime, date)
+    # Utils::updateDateTimeWithANewDate(datetime, date)
     def self.updateDateTimeWithANewDate(datetime, date)
         datetime = "#{date}#{datetime[10, 99]}"
-        if !Utils2::isDateTime_UTC_ISO8601(datetime) then
+        if !Utils::isDateTime_UTC_ISO8601(datetime) then
             raise "(error: 32c505fa-4168, #{datetime})"
         end
         datetime

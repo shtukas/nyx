@@ -9,7 +9,7 @@ class NyxAdapter
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return if description == ""
 
-        atom = Librarian5Atoms::issueMatterAtomUsingLocation(location)
+        atom = Librarian5Atoms::issueAionPointAtomUsingLocation(location)
 
         puts JSON.pretty_generate(atom)
 
