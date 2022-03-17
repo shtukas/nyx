@@ -99,6 +99,14 @@ class TerminalUtils
             return ["fsck", nil]
         end
 
+        if Interpreting::match("internet off", input) then
+            return ["internet off", nil]
+        end
+
+        if Interpreting::match("internet on", input) then
+            return ["internet on", nil]
+        end
+
         if Interpreting::match("landing", input) then
             return ["landing", store.getDefault()]
         end
