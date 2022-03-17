@@ -1,4 +1,4 @@
-Nx31s are the original Nyx nodes (data carriers)
+Nx31s are Nyx nodes
 
 Nx31 {
     "uuid"        : uuid,
