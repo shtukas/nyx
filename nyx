@@ -37,7 +37,7 @@ def mainLoop()
                 fragment = LucilleCore::askQuestionAnswerAsString("fragment: ")
                 items = NyxNetworkNodes::selectItemsByDateFragment(fragment)
                 loop {
-                    item = NyxNetwork::selectEntityFromGivenEntitiesOrNull(items)
+                    item = NyxNetworkUtils::selectEntityFromGivenEntitiesOrNull(items)
                     break if item.nil?
                     NyxNetworkNodes::landing(item)
                 }

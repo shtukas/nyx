@@ -178,7 +178,7 @@ class NyxNetworkNodes
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | datetime | atom | note | notes | link | unlink | deep line | destroy".yellow
+            puts "access | description | datetime | atom | note | notes | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -230,18 +230,11 @@ class NyxNetworkNodes
             end
 
             if Interpreting::match("link", command) then
-                NyxNetwork::connectToOtherArchitectured(miku)
+                NyxNetworkUtils::connectToOtherArchitectured(miku)
             end
 
             if Interpreting::match("unlink", command) then
-                NyxNetwork::disconnectFromOtherInteractively(miku)
-            end
-
-            if Interpreting::match("deep line", command) then
-                NyxNetwork::computeDeepLineConnectedEntities(miku).each{|entity|
-                    puts "- #{NyxNetworkNodes::toString(entity)}"
-                }
-                LucilleCore::pressEnterToContinue()
+                NyxNetworkUtils::disconnectFromLinkedInteractively(miku)
             end
 
             if Interpreting::match("destroy", command) then
