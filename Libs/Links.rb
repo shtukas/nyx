@@ -92,21 +92,21 @@ class Links
     # Links::related(uuid)
     def self.related(uuid)
         Links::relatedUUIDs(uuid)
-            .map{|uuid| Nx31::getOrNull(uuid) }
+            .map{|uuid| NyxNetworkNodes::getOrNull(uuid) }
             .compact
     end
 
     # Links::parents(uuid)
     def self.parents(uuid)
         Links::parentUUIDs(uuid)
-            .map{|uuid| Nx31::getOrNull(uuid) }
+            .map{|uuid| NyxNetworkNodes::getOrNull(uuid) }
             .compact
     end
 
     # Links::children(uuid)
     def self.children(uuid)
         Links::childrenUUIDs(uuid)
-            .map{|uuid| Nx31::getOrNull(uuid) }
+            .map{|uuid| NyxNetworkNodes::getOrNull(uuid) }
             .compact
     end
 end

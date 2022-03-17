@@ -4,7 +4,7 @@ class NyxNetwork
 
     # NyxNetwork::selectEntityFromGivenEntitiesOrNull(entities)
     def self.selectEntityFromGivenEntitiesOrNull(entities)
-        item = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(entities, lambda{|entity| Nx31::toString(entity) })
+        item = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(entities, lambda{|entity| NyxNetworkNodes::toString(entity) })
         return nil if item.nil?
         item
     end
@@ -20,9 +20,9 @@ class NyxNetwork
     def self.connectToOtherArchitectured(entity)
         connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related", "other is child"])
         return if connectionType.nil?
-        other = Nx31::architectOrNull()
+        other = NyxNetworkNodes::architectOrNull()
         return if other.nil?
-        Nx31::landing(other)
+        NyxNetworkNodes::landing(other)
         if connectionType == "other is parent" then
             Links::link(other["uuid"], entity["uuid"], 0)
         end
@@ -36,7 +36,7 @@ class NyxNetwork
 
     # NyxNetwork::disconnectFromOtherInteractively(entity)
     def self.disconnectFromOtherInteractively(entity)
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NyxNetwork::linked(entity), lambda{|entity| Nx31::toString(entity)})
+        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NyxNetwork::linked(entity), lambda{|entity| NyxNetworkNodes::toString(entity)})
         return if other.nil?
         Links::unlink(entity["uuid"], other["uuid"])
     end
@@ -63,7 +63,7 @@ class NyxNetwork
     # NyxNetwork::computeDeepLineNodes(entity)
     def self.computeDeepLineNodes(entity)
         normalisedDescription = NyxNetwork::nomaliseDescriptionForDeepLineSearch(entity["description"])
-        Nx31::mikus().select{|nx31| NyxNetwork::nomaliseDescriptionForDeepLineSearch(nx31["description"]).start_with?(normalisedDescription) }
+        NyxNetworkNodes::nodes().select{|nx31| NyxNetwork::nomaliseDescriptionForDeepLineSearch(nx31["description"]).start_with?(normalisedDescription) }
     end
 
     # NyxNetwork::computeDeepLineConnectedEntities(entity)

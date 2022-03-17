@@ -12,13 +12,13 @@ uuid2 = ARGV[1]
 exit if uuid1.nil?
 exit if uuid2.nil?
 
-node1 = Nx31::getOrNull(uuid1)
+node1 = NyxNetworkNodes::getOrNull(uuid1)
 if node1.nil? then
     puts "> I could not find a node for uuid: #{uuid1}"
     exit
 end
 
-node2 = Nx31::getOrNull(uuid2)
+node2 = NyxNetworkNodes::getOrNull(uuid2)
 if node2.nil? then
     puts "> I could not find a node for uuid: #{uuid2}"
     exit
@@ -47,12 +47,12 @@ Note {
 =end
 
 Librarian7Notes::getObjectNotes(node1["uuid"]).each{|note|
-    puts "note: #{note["text"]} to '#{Nx31::toStringWithTrace4(node2)}'"
+    puts "note: #{note["text"]} to '#{NyxNetworkNodes::toStringWithTrace4(node2)}'"
     Librarian7Notes::addNote(node2["uuid"], note["text"])
 }
 
 Librarian7Notes::getObjectNotes(node2["uuid"]).each{|note|
-    puts "note: #{note["text"]} to '#{Nx31::toStringWithTrace4(node1)}'"
+    puts "note: #{note["text"]} to '#{NyxNetworkNodes::toStringWithTrace4(node1)}'"
     Librarian7Notes::addNote(node1["uuid"], note["text"])
 }
 
@@ -61,23 +61,23 @@ Librarian7Notes::getObjectNotes(node2["uuid"]).each{|note|
 loop {
     system("clear")
     puts "Visit (and select later which will be deleted):"
-    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", [node1, node2], lambda{|node| Nx31::toStringWithTrace4(node) })
+    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", [node1, node2], lambda{|node| NyxNetworkNodes::toStringWithTrace4(node) })
     break if node.nil?
-    Nx31::landing(node)
+    NyxNetworkNodes::landing(node)
 }
 
 loop {
     system("clear")
     puts "Select the node to delete"
-    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", [node1, node2], lambda{|node| Nx31::toStringWithTrace4(node) })
+    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", [node1, node2], lambda{|node| NyxNetworkNodes::toStringWithTrace4(node) })
     break if node.nil?
-    Nx31::destroy(node["uuid"])
+    NyxNetworkNodes::destroy(node["uuid"])
     break
 }
 
-node = [uuid1, uuid2].map{|uuid| Nx31::getOrNull(uuid) }.compact.first
+node = [uuid1, uuid2].map{|uuid| NyxNetworkNodes::getOrNull(uuid) }.compact.first
 
 puts "Survior:"
 sleep 1
-Nx31::landing(node)
+NyxNetworkNodes::landing(node)
 

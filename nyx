@@ -13,7 +13,6 @@ def mainLoop()
             "search (interactive)",
             "search (fragment)",
             "new entity",
-            "fsck",
             "special ops"
         ]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -25,12 +24,9 @@ def mainLoop()
             Search2::searchPerFragmentMainInterface()
         end
         if operation == "new entity" then
-            point = Nx31::interactivelyCreateNewOrNull()
+            point = NyxNetworkNodes::interactivelyCreateNewOrNull()
             exit if point.nil?
-            Nx31::landing(point)
-        end
-        if operation == "fsck" then
-            Nx31::fsck()
+            NyxNetworkNodes::landing(point)
         end
         if operation == "special ops" then
             specialOps = [
@@ -39,11 +35,11 @@ def mainLoop()
             op = LucilleCore::selectEntityFromListOfEntitiesOrNull("op", specialOps)
             if op == "listing per date fragment" then
                 fragment = LucilleCore::askQuestionAnswerAsString("fragment: ")
-                items = Nx31::selectItemsByDateFragment(fragment)
+                items = NyxNetworkNodes::selectItemsByDateFragment(fragment)
                 loop {
                     item = NyxNetwork::selectEntityFromGivenEntitiesOrNull(items)
                     break if item.nil?
-                    Nx31::landing(item)
+                    NyxNetworkNodes::landing(item)
                 }
             end
         end

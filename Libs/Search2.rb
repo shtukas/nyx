@@ -5,12 +5,12 @@ class Search2
 
     # Search2::nx20Landing(nx20)
     def self.nx20Landing(nx20)
-        Nx31::landing(nx20["payload"])
+        NyxNetworkNodes::landing(nx20["payload"])
     end
 
     # Search2::interactivelySelectOneNx20OrNull()
     def self.interactivelySelectOneNx20OrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31::getNx20s(), lambda{|item| item["announce"] })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NyxNetworkNodes::getNx20s(), lambda{|item| item["announce"] })
     end
 
     # Search2::searchInteractiveView()
@@ -27,7 +27,7 @@ class Search2
         loop {
             system("clear")
             puts "Searching: #{fragment}"
-            nx20s = Nx31::getNx20s().select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+            nx20s = NyxNetworkNodes::getNx20s().select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("select", nx20s, lambda{|nx20| nx20["announce"] })
             break if nx20.nil?
             Search2::nx20Landing(nx20)
