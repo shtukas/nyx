@@ -32,7 +32,7 @@ class Inbox
     end
 
     # Inbox::landing(location)
-    def self.access(location)
+    def self.landing(location)
         system("clear")
         puts location.green
         loop {
