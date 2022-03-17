@@ -201,9 +201,13 @@ class GlobalActions
             if NxBallsService::isRunning(object["uuid"]) then
                 GlobalActions::action("stop", object)
             end
-
             if object["mikuType"] == "NxBallNS16Delegate1" then
                 NxBallsService::close(object["uuid"], true)
+                return
+            end
+            if object["mikuType"] == "NS16:Anniversary1" then
+                anniversary = object["anniversary"]
+                Anniversaries::done(anniversary)
                 return
             end
             if object["mikuType"] == "NS16:TxDated" then

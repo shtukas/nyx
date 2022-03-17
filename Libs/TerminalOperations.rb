@@ -65,6 +65,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("access", ordinal, store)
         end
 
+        if Interpreting::match("anniversaries", input) then
+            return ["anniversaries", nil]
+        end
+
         if Interpreting::match("done", input) then
             return ["done", store.getDefault()]
         end
@@ -252,13 +256,14 @@ class NS16sOperator
     # NS16sOperator::section3(universe)
     def self.section3(universe)
         [
-            (universe == "lucille") ? Anniversaries::ns16s() : [],
+            Anniversaries::ns16s(),
             TxCalendarItems::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
             Waves::ns16s(universe),
-            (universe.nil? or universe == "lucille") ? Inbox::ns16s() : [],
+            Inbox::ns16s(),
+            TxFyres::ns16s(universe),
             TxTodos::ns16s(universe)
         ]
             .flatten
@@ -366,7 +371,7 @@ class TerminalDisplayOperator
                 line = "#{store.prefixString()} #{(ObjectUniverseMapping::getObjectUniverseMappingOrNull(ns16["uuid"]) || "").ljust(7)} #{line}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 if TerminalDisplayOperator::ns16HasStarted(ns16) then
-                    line = line.green
+                    line = "#{line} (#{NxBallsService::runningStringOrEmptyString("", ns16["uuid"], "")})".green
                 end
                 puts line
                 vspaceleft = vspaceleft - Utils::verticalSize(line)
