@@ -32,7 +32,7 @@ loop {
         if blob then
             if blob[0, 1] == "{" then
                 puts "blob: #{blob}"
-                puts JSON.pretty_generate(blob)
+                puts JSON.pretty_generate(JSON.parse(blob))
                 LucilleCore::pressEnterToContinue()
             else
                 puts "Found a blob of size #{blob.size}"

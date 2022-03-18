@@ -325,7 +325,7 @@ class Librarian5Atoms
         if object["aionType"] == "file" then
             return false if (object["name"] != "nyx-marble.json")
             nhash = object["hash"]
-            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
+            blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
             return (JSON.parse(blob)["uuid"] == marbleId)
         end
     end
@@ -346,32 +346,34 @@ class Librarian5Atoms
             system("open '#{File.dirname(location)}'")
             return nil
         end
-        puts "I could not find the location of the marble in the cache"
+        puts "> I could not find the location of the marble in the cache"
 
         return nil if !LucilleCore::askQuestionAnswerAsBoolean("Would you like me to use the Force ? ")
         location = Librarian0Utils::marbleLocationOrNullUseTheForce(marbleId)
         if location then
-            puts "found marble at: #{location}"
+            puts "> found marble at: #{location}"
             system("open '#{File.dirname(location)}'")
             return nil
         end
-        puts "I could not find the marble in Galaxy using the Force"
+        puts "> I could not find the marble in Galaxy using the Force"
 
         # Ok, so now we are going to look inside aion-points
-        puts "I am going to look inside aion-points"
+        puts "> I am going to look inside aion-points"
+        puts "" # To accomodate Utils::putsOnPreviousLine
         Librarian6Objects::getObjectsByMikuType("Atom")
             .each{|atom|
                 next if atom["type"] != "aion-point"
                 nhash = atom["rootnhash"]
+                Utils::putsOnPreviousLine(nhash)
                 if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
-                    puts "I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
-                    puts "Accessing the atom"
+                    puts "> I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
+                    puts "> Accessing the atom"
                     Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
                     return
                 end
             }
 
-        puts "I could not find the marble inside aion-points"
+        puts "> I could not find the marble inside aion-points"
         LucilleCore::pressEnterToContinue()
         return nil
     end

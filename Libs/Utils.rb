@@ -131,6 +131,15 @@ class Utils
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
+    # Utils::putsOnPreviousLine(str)
+    def self.putsOnPreviousLine(str)
+        # \r move to the beginning \033[1A move up \033[0K erase to the end
+        print "\r"
+        print "\033[1A"
+        print "\033[0K"
+        puts str
+    end
+
     # ----------------------------------------------------
     # File System Routines
 
