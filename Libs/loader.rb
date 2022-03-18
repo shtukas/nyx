@@ -131,16 +131,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 $GENERAL_SYSTEM_RUN_ID = SecureRandom.hex
 
-require_relative "Agents/Anniversaries.rb"
-require_relative "Agents/Topping.rb"
-require_relative "Agents/TxCalendarItem.rb"
-require_relative "Agents/TxFyres.rb"
-require_relative "Agents/TxFloats.rb"
-require_relative "Agents/TxDateds.rb"
-require_relative "Agents/TxTodos.rb"
-require_relative "Agents/Waves.rb"
-
 require_relative "AgentsUtils"
+require_relative "Anniversaries.rb"
 
 require_relative "Bank.rb"
 
@@ -175,8 +167,16 @@ require_relative "Search.rb"
 require_relative "Search2.rb"
 
 require_relative "TerminalOperations.rb"
+require_relative "Topping.rb"
 require_relative "Transmutation.rb"
+require_relative "TxCalendarItem.rb"
+require_relative "TxFyres.rb"
+require_relative "TxFloats.rb"
+require_relative "TxDateds.rb"
+require_relative "TxTodos.rb"
 
 require_relative "Utils.rb"
+
+require_relative "Waves.rb"
 
 # ------------------------------------------------------------
