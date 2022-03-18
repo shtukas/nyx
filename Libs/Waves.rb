@@ -143,7 +143,7 @@ class Waves
     def self.toString(wave)
         lastDoneDateTime = wave["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] #{wave["description"]}#{AgentsUtils::atomTypeForToStrings(" ", wave["atomuuid"])} (#{Waves::scheduleString(wave)}) (#{ago})"
+        "[wave] #{wave["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", wave["atomuuid"])} (#{Waves::scheduleString(wave)}) (#{ago})"
     end
 
     # Waves::performDone(wave)
@@ -194,7 +194,7 @@ class Waves
             break if command == "xx"
 
             if command == "access" then
-                AgentsUtils::accessAtom(wave["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(wave["atomuuid"])
                 next
             end
 
@@ -287,7 +287,7 @@ class Waves
         puts Waves::toString(wave)
         puts "Starting at #{Time.new.to_s}"
 
-        AgentsUtils::accessAtom(wave["atomuuid"])
+        Libriarian16SpecialCircumstances::accessAtom(wave["atomuuid"])
 
         loop {
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue", "landing and back", "delay"])

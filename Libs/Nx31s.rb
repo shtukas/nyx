@@ -77,14 +77,6 @@ class Nx31s
     # ----------------------------------------------------------------------
     # Data
 
-    # Nx31s::normaliseDescription(description)
-    def self.normaliseDescription(description)
-        description
-            .split("::")
-            .map{|fragment| fragment.strip }
-            .join(" :: ")
-    end
-
     # Nx31s::toString(item)
     def self.toString(item)
         "[data] #{item["description"]}"
@@ -105,27 +97,6 @@ class Nx31s
 
     # ----------------------------------------------------------------------
     # Operations
-
-    # Nx31s::atomLandingPresentation(atomuuid)
-    def self.atomLandingPresentation(atomuuid)
-        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-        if atom.nil? then
-            puts "warning: I could not find the atom for this item (atomuuid: #{atomuuid})"
-            LucilleCore::pressEnterToContinue()
-        else
-            if text = Librarian5Atoms::atomPayloadToTextOrNull(atom) then
-                puts "text:\n#{text}"
-            end
-        end
-    end
-
-    # Nx31s::accessAtom(atomuuid)
-    def self.accessAtom(atomuuid)
-        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-        return if atom.nil?
-        return if atom["type"] == "description-only"
-        Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
-    end
 
     # Nx31s::landing(miku)
     def self.landing(miku)
@@ -172,7 +143,7 @@ class Nx31s
                 puts "note: #{note["text"]}"
             }
 
-            Nx31s::atomLandingPresentation(miku["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(miku["atomuuid"])
 
             #Librarian::notes(miku["uuid"]).each{|note|
             #    puts "note: #{note["text"]}"
@@ -191,13 +162,12 @@ class Nx31s
             end
 
             if Interpreting::match("access", command) then
-                Nx31s::accessAtom(miku["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(miku["atomuuid"])
             end
 
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(miku["description"]).strip
                 next if description == ""
-                description = Nx31s::normaliseDescription(description)
                 miku["description"] = description
                 Librarian6Objects::commit(miku)
                 next
@@ -249,8 +219,8 @@ class Nx31s
     # ------------------------------------------------
     # Nx20s
 
-    # Nx31s::mikuToNx20s(miku)
-    def self.mikuToNx20s(miku)
+    # Nx31s::itemToNx20s(miku)
+    def self.itemToNx20s(miku)
         # At the moment we only transform Nx31s
         x1 = [{
             "announce" => "#{SecureRandom.hex[0, 8]} #{Nx31s::toStringWithTrace4(miku)}]",
@@ -265,6 +235,6 @@ class Nx31s
 
     # Nx31s::getNx20s()
     def self.getNx20s()
-        Nx31s::nodes().map{|miku| Nx31s::mikuToNx20s(miku) }.flatten
+        Nx31s::nodes().map{|miku| Nx31s::itemToNx20s(miku) }.flatten
     end
 end

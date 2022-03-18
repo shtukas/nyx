@@ -118,7 +118,7 @@ class GlobalActions
             end
 
             if object["mikuType"] == "NS16:TxCalendarItem" then
-                AgentsUtils::accessAtom(object["item"]["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(object["item"]["atomuuid"])
                 return
             end
 
@@ -134,23 +134,23 @@ class GlobalActions
 
             if object["mikuType"] == "NS16:TxDated" then
                 dated = object["TxDated"]
-                AgentsUtils::accessAtom(dated["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(dated["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxFyre" then
                 nx70 = object["TxFyre"]
-                AgentsUtils::accessAtom(nx70["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(nx70["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxFloat" then
-                AgentsUtils::accessAtom(object["TxFloat"]["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(object["TxFloat"]["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxTodo" then
-                AgentsUtils::accessAtom(object["TxTodo"]["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(object["TxTodo"]["atomuuid"])
                 return
             end
 

@@ -56,7 +56,7 @@ class TxCalendarItems
 
     # TxCalendarItems::toString(item)
     def self.toString(item)
-        "(calendar) [#{item["date"]}] (#{item["time"]}) #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}"
+        "(calendar) [#{item["date"]}] (#{item["time"]}) #{item["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", item["atomuuid"])}"
     end
 
     # TxCalendarItems::toStringForNS19(item)
@@ -87,7 +87,7 @@ class TxCalendarItems
                 puts "note: #{note["text"]}"
             }
 
-            AgentsUtils::atomLandingPresentation(item["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
             puts "access | datetime | description | atom | note | notes | show json | destroy (gg) | exit (xx)".yellow
 
@@ -97,7 +97,7 @@ class TxCalendarItems
             break if command == "xx"
 
             if Interpreting::match("access", command) then
-                AgentsUtils::accessAtom(item["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
                 next
             end
 
@@ -180,7 +180,7 @@ class TxCalendarItems
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxCalendarItem",
-            "announce" => "(calendar) [#{item["date"]}] (#{item["time"]}) #{item["description"]}#{AgentsUtils::atomTypeForToStrings(" ", item["atomuuid"])}",
+            "announce" => "(calendar) [#{item["date"]}] (#{item["time"]}) #{item["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", item["atomuuid"])}",
             "item"     => item
         }
     end

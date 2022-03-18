@@ -46,12 +46,12 @@ class TxFyres
 
     # TxFyres::toString(nx70)
     def self.toString(nx70)
-        "[fyre] #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+        "[fyre] #{nx70["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx70["atomuuid"])}"
     end
 
     # TxFyres::toStringForNS16(nx70, rt)
     def self.toStringForNS16(nx70, rt)
-        "[fyre] (#{"%4.2f" % rt}) #{nx70["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+        "[fyre] (#{"%4.2f" % rt}) #{nx70["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx70["atomuuid"])}"
     end
 
     # TxFyres::toStringForNS19(nx70)
@@ -86,7 +86,7 @@ class TxFyres
                 puts "note: #{note["text"]}"
             }
 
-            AgentsUtils::atomLandingPresentation(nx70["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(nx70["atomuuid"])
 
             #Librarian::notes(uuid).each{|note|
             #    puts "note: #{note["text"]}"
@@ -105,7 +105,7 @@ class TxFyres
             end
 
             if Interpreting::match("access", command) then
-                AgentsUtils::accessAtom(nx70["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(nx70["atomuuid"])
                 next
             end
 

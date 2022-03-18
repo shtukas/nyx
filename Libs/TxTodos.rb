@@ -158,17 +158,17 @@ class TxTodos
 
     # TxTodos::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "[nx50] #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
-        "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{AgentsUtils::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
+        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -202,7 +202,7 @@ class TxTodos
                 puts "note: #{note["text"]}"
             }
 
-            AgentsUtils::atomLandingPresentation(nx50["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(nx50["atomuuid"])
 
             #Librarian::notes(uuid).each{|note|
             #    puts "note: #{note["text"]}"
@@ -221,7 +221,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                AgentsUtils::accessAtom(nx50["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(nx50["atomuuid"])
                 next
             end
 

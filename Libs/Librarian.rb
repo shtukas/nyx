@@ -893,3 +893,34 @@ class Librarian16AionDispatch
         }
     end
 end
+
+class Libriarian16SpecialCircumstances
+
+    # Libriarian16SpecialCircumstances::atomLandingPresentation(atomuuid)
+    def self.atomLandingPresentation(atomuuid)
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+        if atom.nil? then
+            puts "warning: I could not find the atom for this item (atomuuid: #{atomuuid})"
+            LucilleCore::pressEnterToContinue()
+        else
+            if text = Librarian5Atoms::atomPayloadToTextOrNull(atom) then
+                puts "text:\n#{text}"
+            end
+        end
+    end
+
+    # Libriarian16SpecialCircumstances::accessAtom(atomuuid)
+    def self.accessAtom(atomuuid)
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+        return if atom.nil?
+        return if atom["type"] == "description-only"
+        Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
+    end
+
+    # Libriarian16SpecialCircumstances::atomTypeForToStrings(prefix, atomuuid)
+    def self.atomTypeForToStrings(prefix, atomuuid)
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+        return "" if atom.nil?
+        "#{prefix}(#{atom["type"]})"
+    end
+end

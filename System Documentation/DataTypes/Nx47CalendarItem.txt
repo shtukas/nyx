@@ -1,0 +1,9 @@
+Nx47CalendarItem {
+    "uuid"             : uuid,
+    "mikuType"         : "Nx47CalendarItem"
+    "description"      : description
+    "creationUnixtime" : unixtime
+    "calendarDate"     : String (format: YYYY-MM-DD)
+    "calendarTime"     : String (format: HH:MM)
+    "atomuuid"         : UUID of an Atom
+}

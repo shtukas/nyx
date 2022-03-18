@@ -47,7 +47,7 @@ class TxFloats
 
     # TxFloats::toString(float)
     def self.toString(float)
-        "[floa] #{float["description"]}#{AgentsUtils::atomTypeForToStrings(" ", float["atomuuid"])}"
+        "[floa] #{float["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", float["atomuuid"])}"
     end
 
     # TxFloats::toStringForNS19(float)
@@ -81,7 +81,7 @@ class TxFloats
                 puts "note: #{note["text"]}"
             }
 
-            AgentsUtils::atomLandingPresentation(float["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(float["atomuuid"])
 
             puts "access | <datecode> | description | atom | note | notes | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
 
@@ -96,7 +96,7 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                AgentsUtils::accessAtom(float["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(float["atomuuid"])
                 next
             end
 
@@ -175,7 +175,7 @@ class TxFloats
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFloat",
-            "announce" => "#{float["description"]}#{AgentsUtils::atomTypeForToStrings(" ", float["atomuuid"])}",
+            "announce" => "#{float["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", float["atomuuid"])}",
             "TxFloat"  => float
         }
     end
