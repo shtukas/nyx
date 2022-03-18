@@ -1,12 +1,20 @@
 
 class GlobalActions
 
-    # GlobalActions::action(command, object)
+    # GlobalActions::action(command, object or nil)
     def self.action(command, object)
 
         # All objects sent to this are expected to have an mikyType attribute
 
         return if command.nil?
+
+        if object and object["mikuType"].nil? then
+            puts "Objects sent to GlobalActions::action if not null should have a mikuType attribute."
+            puts "Got:"
+            puts JSON.pretty_generate(object)
+            puts "Aborting."
+            exit
+        end
 
         if command == ".." then
 
