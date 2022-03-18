@@ -131,8 +131,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 $GENERAL_SYSTEM_RUN_ID = SecureRandom.hex
 
-require_relative "Librarian/Librarian.rb"
-
 require_relative "Agents/Anniversaries.rb"
 require_relative "Agents/Topping.rb"
 require_relative "Agents/TxCalendarItem.rb"
@@ -160,6 +158,7 @@ require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
+require_relative "Librarian.rb"
 require_relative "Links.rb"
 
 require_relative "Multiverse.rb"

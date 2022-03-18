@@ -4,3 +4,7 @@ CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_
 
 notes.sqlite3
 CREATE TABLE _notes_ (_noteuuid_ text primary key, _objectuuid_ text, _unixtime_ float, _text_ string);
+
+### Librarian Objects
+
+To be acceptable, an object must have at least two keys: "uuid" and "mikuType". We can retrieve objects individually by "uuid" or collectively by MikuTypes.
