@@ -478,20 +478,6 @@ class Librarian6Objects
         "/Users/pascal/Galaxy/DataBank/Librarian/Databases/objects.sqlite3"
     end
 
-    # Librarian6Objects::validMikuTypes()
-    def self.validMikuTypes()
-        [
-            "Atom",
-            "Nx31",
-            "TxCalendarItem",
-            "TxDated",
-            "TxFloat",
-            "TxFyre",
-            "TxTodo",
-            "Wave"
-        ]
-    end
-
     # ------------------------------------------------------------------------
     # Below: Public Interface
 
@@ -541,7 +527,6 @@ class Librarian6Objects
     def self.commit(object)
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
-        raise "(error: 23273f9d-b6a0-4cdc-a826-b10c3a3955c5, non valid mikuType: #{object["mikuType"]})" if !Librarian6Objects::validMikuTypes().include?(object["mikuType"])
 
         ordinal = object["ordinal"] || 0
 
