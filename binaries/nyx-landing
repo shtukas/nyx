@@ -13,4 +13,4 @@ if object["mikuType"] != "Nx31" then
     puts "Found an object but it's not a Nx31"
     exit
 end
-NyxNetworkNodes::landing(object)
+Nx31s::landing(object)

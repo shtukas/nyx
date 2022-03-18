@@ -1,22 +1,22 @@
 
 # encoding: UTF-8
 
-class NyxNetworkNodes
+class Nx31s
 
     # ----------------------------------------------------------------------
     # IO
 
-    # NyxNetworkNodes::nodes()
+    # Nx31s::nodes()
     def self.nodes()
         Librarian6Objects::getObjectsByMikuType("Nx31")
     end
 
-    # NyxNetworkNodes::getOrNull(uuid): null or Nx31
+    # Nx31s::getOrNull(uuid): null or Nx31
     def self.getOrNull(uuid)
         Librarian6Objects::getObjectByUUIDOrNull(uuid)
     end
 
-    # NyxNetworkNodes::destroy(uuid)
+    # Nx31s::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
@@ -24,7 +24,7 @@ class NyxNetworkNodes
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # NyxNetworkNodes::interactivelyCreateNewOrNull()
+    # Nx31s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -50,12 +50,12 @@ class NyxNetworkNodes
         item
     end
 
-    # NyxNetworkNodes::selectExistingOrNull()
+    # Nx31s::selectExistingOrNull()
     def self.selectExistingOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(NyxNetworkNodes::nodes(), lambda{|item| "#{NyxNetworkNodes::toString(item)} [#{item["uuid"][0, 4]}]" })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31s::nodes(), lambda{|item| "#{Nx31s::toString(item)} [#{item["uuid"][0, 4]}]" })
     end
 
-    # NyxNetworkNodes::architectOrNull()
+    # Nx31s::architectOrNull()
     def self.architectOrNull()
         operations = ["existing || new", "new"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
@@ -63,21 +63,21 @@ class NyxNetworkNodes
         if operation == "existing || new" then
             puts "-> existing"
             sleep 1
-            entity = NyxNetworkNodes::selectExistingOrNull()
+            entity = Nx31s::selectExistingOrNull()
             return entity if entity
             puts "-> new"
             sleep 1
-            return NyxNetworkNodes::interactivelyCreateNewOrNull()
+            return Nx31s::interactivelyCreateNewOrNull()
         end
         if operation == "new" then
-            return NyxNetworkNodes::interactivelyCreateNewOrNull()
+            return Nx31s::interactivelyCreateNewOrNull()
         end
     end
 
     # ----------------------------------------------------------------------
     # Data
 
-    # NyxNetworkNodes::normaliseDescription(description)
+    # Nx31s::normaliseDescription(description)
     def self.normaliseDescription(description)
         description
             .split("::")
@@ -85,19 +85,19 @@ class NyxNetworkNodes
             .join(" :: ")
     end
 
-    # NyxNetworkNodes::toString(item)
+    # Nx31s::toString(item)
     def self.toString(item)
         "[data] #{item["description"]}"
     end
 
-    # NyxNetworkNodes::toStringWithTrace4(item)
+    # Nx31s::toStringWithTrace4(item)
     def self.toStringWithTrace4(item)
-        "#{NyxNetworkNodes::toString(item)} [#{item["uuid"][0, 4]}]"
+        "#{Nx31s::toString(item)} [#{item["uuid"][0, 4]}]"
     end
 
-    # NyxNetworkNodes::selectItemsByDateFragment(fragment)
+    # Nx31s::selectItemsByDateFragment(fragment)
     def self.selectItemsByDateFragment(fragment)
-        NyxNetworkNodes::nodes()
+        Nx31s::nodes()
             .select{|item|
                 item["datetime"].start_with?(fragment)
             }
@@ -106,7 +106,7 @@ class NyxNetworkNodes
     # ----------------------------------------------------------------------
     # Operations
 
-    # NyxNetworkNodes::atomLandingPresentation(atomuuid)
+    # Nx31s::atomLandingPresentation(atomuuid)
     def self.atomLandingPresentation(atomuuid)
         atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         if atom.nil? then
@@ -119,7 +119,7 @@ class NyxNetworkNodes
         end
     end
 
-    # NyxNetworkNodes::accessAtom(atomuuid)
+    # Nx31s::accessAtom(atomuuid)
     def self.accessAtom(atomuuid)
         atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         return if atom.nil?
@@ -127,10 +127,10 @@ class NyxNetworkNodes
         Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
     end
 
-    # NyxNetworkNodes::landing(miku)
+    # Nx31s::landing(miku)
     def self.landing(miku)
         loop {
-            miku = NyxNetworkNodes::getOrNull(miku["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            miku = Nx31s::getOrNull(miku["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if miku.nil?
             system("clear")
 
@@ -142,26 +142,26 @@ class NyxNetworkNodes
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{NyxNetworkNodes::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx31s::toString(entity)}" 
                 }
 
             Links::related(miku["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{NyxNetworkNodes::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx31s::toString(entity)}" 
                 }
 
             Links::children(miku["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{NyxNetworkNodes::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx31s::toString(entity)}" 
                 }
 
             puts ""
 
-            puts NyxNetworkNodes::toString(miku).green
+            puts Nx31s::toString(miku).green
             puts "uuid: #{miku["uuid"]}".yellow
             puts "datetime: #{miku["datetime"]}".yellow
             puts "atomuuid: #{miku["atomuuid"]}".yellow
@@ -172,7 +172,7 @@ class NyxNetworkNodes
                 puts "note: #{note["text"]}"
             }
 
-            NyxNetworkNodes::atomLandingPresentation(miku["atomuuid"])
+            Nx31s::atomLandingPresentation(miku["atomuuid"])
 
             #Librarian::notes(miku["uuid"]).each{|note|
             #    puts "note: #{note["text"]}"
@@ -187,17 +187,17 @@ class NyxNetworkNodes
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                NyxNetworkNodes::landing(entity)
+                Nx31s::landing(entity)
             end
 
             if Interpreting::match("access", command) then
-                NyxNetworkNodes::accessAtom(miku["atomuuid"])
+                Nx31s::accessAtom(miku["atomuuid"])
             end
 
             if Interpreting::match("description", command) then
                 description = Utils::editTextSynchronously(miku["description"]).strip
                 next if description == ""
-                description = NyxNetworkNodes::normaliseDescription(description)
+                description = Nx31s::normaliseDescription(description)
                 miku["description"] = description
                 Librarian6Objects::commit(miku)
                 next
@@ -230,16 +230,16 @@ class NyxNetworkNodes
             end
 
             if Interpreting::match("link", command) then
-                NyxNetworkUtils::connectToOtherArchitectured(miku)
+                NyxNetwork::connectToOtherArchitectured(miku)
             end
 
             if Interpreting::match("unlink", command) then
-                NyxNetworkUtils::disconnectFromLinkedInteractively(miku)
+                NyxNetwork::disconnectFromLinkedInteractively(miku)
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    NyxNetworkNodes::destroy(miku["uuid"])
+                    Nx31s::destroy(miku["uuid"])
                     break
                 end
             end
@@ -249,11 +249,11 @@ class NyxNetworkNodes
     # ------------------------------------------------
     # Nx20s
 
-    # NyxNetworkNodes::mikuToNx20s(miku)
+    # Nx31s::mikuToNx20s(miku)
     def self.mikuToNx20s(miku)
         # At the moment we only transform Nx31s
         x1 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{NyxNetworkNodes::toStringWithTrace4(miku)}]",
+            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx31s::toStringWithTrace4(miku)}]",
             "payload"  => miku
         }]
         x4 = [{
@@ -263,8 +263,8 @@ class NyxNetworkNodes
         (x1 + x4).flatten
     end
 
-    # NyxNetworkNodes::getNx20s()
+    # Nx31s::getNx20s()
     def self.getNx20s()
-        NyxNetworkNodes::nodes().map{|miku| NyxNetworkNodes::mikuToNx20s(miku) }.flatten
+        Nx31s::nodes().map{|miku| Nx31s::mikuToNx20s(miku) }.flatten
     end
 end

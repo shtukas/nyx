@@ -8,6 +8,6 @@ require_relative "../Libs/loader.rb"
 
 # This is called from `lucille`
 
-entity = NyxNetworkNodes::interactivelyCreateNewOrNull()
+entity = Nx31s::interactivelyCreateNewOrNull()
 exit if entity.nil?
-NyxNetworkNodes::landing(entity)
+Nx31s::landing(entity)

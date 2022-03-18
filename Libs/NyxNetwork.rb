@@ -1,28 +1,28 @@
 # encoding: UTF-8
 
-class NyxNetworkUtils
+class NyxNetwork
 
-    # NyxNetworkUtils::selectEntityFromGivenEntitiesOrNull(entities)
+    # NyxNetwork::selectEntityFromGivenEntitiesOrNull(entities)
     def self.selectEntityFromGivenEntitiesOrNull(entities)
-        item = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(entities, lambda{|entity| NyxNetworkNodes::toString(entity) })
+        item = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(entities, lambda{|entity| Nx31s::toString(entity) })
         return nil if item.nil?
         item
     end
 
     # -- connects -----------------------------------------------
 
-    # NyxNetworkUtils::linked(entity)
+    # NyxNetwork::linked(entity)
     def self.linked(entity)
          Links::parents(entity["uuid"]) + Links::related(entity["uuid"]) + Links::children(entity["uuid"])
     end
 
-    # NyxNetworkUtils::connectToOtherArchitectured(entity)
+    # NyxNetwork::connectToOtherArchitectured(entity)
     def self.connectToOtherArchitectured(entity)
         connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related", "other is child"])
         return if connectionType.nil?
-        other = NyxNetworkNodes::architectOrNull()
+        other = Nx31s::architectOrNull()
         return if other.nil?
-        NyxNetworkNodes::landing(other)
+        Nx31s::landing(other)
         if connectionType == "other is parent" then
             Links::link(other["uuid"], entity["uuid"], 0)
         end
@@ -34,9 +34,9 @@ class NyxNetworkUtils
         end
     end
 
-    # NyxNetworkUtils::disconnectFromLinkedInteractively(entity)
+    # NyxNetwork::disconnectFromLinkedInteractively(entity)
     def self.disconnectFromLinkedInteractively(entity)
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NyxNetworkUtils::linked(entity), lambda{|entity| NyxNetworkNodes::toString(entity)})
+        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("connected", NyxNetwork::linked(entity), lambda{|entity| Nx31s::toString(entity)})
         return if other.nil?
         Links::unlink(entity["uuid"], other["uuid"])
     end
