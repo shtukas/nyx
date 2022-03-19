@@ -364,7 +364,7 @@ class LxAction
         end
 
         if command == "nyx" then
-            system("/Users/pascal/Galaxy/Software/Catalyst/nyx")
+            Nyx::program()
             return
         end
 

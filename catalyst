@@ -13,4 +13,4 @@ Thread.new {
     }
 }
 
-TerminalDisplayOperator::standardDisplayLoop()
+Catalyst::program()
