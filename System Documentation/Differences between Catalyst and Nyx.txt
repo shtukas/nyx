@@ -1,0 +1,18 @@
+
+Differences between Catalyst and Nyx
+
+All the objects in the universe are essentialy on the same grath and there can be a link between any two, but in practice, Catalyst naturally manipulate some types dna Nyx manipulate the other types.
+
+Catalyst
+    - Anniversary
+    - Nx47CalendarItem
+    - TxDated
+    - TxFloat
+    - TxFyre
+    - TxTodo
+    - Wave
+
+Nyx
+    - Nx31
+    - Nx48TimedPublicEvent
+    - Nx49PascalPrivateLog

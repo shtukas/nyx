@@ -117,11 +117,6 @@ class GlobalActions
                 return
             end
 
-            if object["mikuType"] == "NS16:TxCalendarItem" then
-                Libriarian16SpecialCircumstances::accessAtom(object["item"]["atomuuid"])
-                return
-            end
-
             if object["mikuType"] == "NS16:fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
                 return
@@ -129,6 +124,11 @@ class GlobalActions
 
             if object["mikuType"] == "NS16:Inbox1" then
                 Inbox::landing(object["location"])
+                return
+            end
+
+            if object["mikuType"] == "NS16:Nx47CalendarItems" then
+                Libriarian16SpecialCircumstances::accessAtom(object["item"]["atomuuid"])
                 return
             end
 
@@ -305,11 +305,6 @@ class GlobalActions
                 return
             end
 
-            if object["mikuType"] == "NS16:TxCalendarItem" then
-                Nx47CalendarItems::landing(object["item"])
-                return
-            end
-
             if object["mikuType"] == "NS16:fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
                 return
@@ -317,6 +312,11 @@ class GlobalActions
 
             if object["mikuType"] == "NS16:Inbox1" then
                 Inbox::landing(object["location"])
+                return
+            end
+
+            if object["mikuType"] == "NS16:Nx47CalendarItems" then
+                Nx47CalendarItems::landing(object["item"])
                 return
             end
 

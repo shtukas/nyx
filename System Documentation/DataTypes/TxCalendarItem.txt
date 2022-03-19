@@ -1,8 +1,0 @@
-TxCalendarItem {
-    "uuid"            : String
-    "mikuType"        : "TxCalendarItem"
-    "description"     : String
-    "date"            : "YYYY-MM-DD"
-    "time"            : "HH:MM"
-    "atomuuid"        : UUID of an Atom
-}
