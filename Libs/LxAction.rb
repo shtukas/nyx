@@ -1,7 +1,7 @@
 
-class GlobalActions
+class LxAction
 
-    # GlobalActions::action(command, object or nil)
+    # LxAction::action(command, object or nil)
     def self.action(command, object)
 
         # All objects sent to this are expected to have an mikyType attribute
@@ -9,7 +9,7 @@ class GlobalActions
         return if command.nil?
 
         if object and object["mikuType"].nil? then
-            puts "Objects sent to GlobalActions::action if not null should have a mikuType attribute."
+            puts "Objects sent to LxAction::action if not null should have a mikuType attribute."
             puts "Got:"
             puts JSON.pretty_generate(object)
             puts "Aborting."
@@ -22,14 +22,14 @@ class GlobalActions
             # Start
 
             if !NxBallsService::isRunning(object["uuid"]) then
-                GlobalActions::action("start", object)
+                LxAction::action("start", object)
             end
 
             # ---------------------------------------------------------------
             # Access
 
             if LucilleCore::askQuestionAnswerAsBoolean("access : '#{object["announce"]}' ? ", true) then
-                GlobalActions::action("access", object)
+                LxAction::action("access", object)
             end
 
             # ---------------------------------------------------------------
@@ -43,12 +43,12 @@ class GlobalActions
 
             # We perform automatic stop on a fitness
             if object["mikuType"] == "NS16:fitness1" then
-                GlobalActions::action("stop", object)
+                LxAction::action("stop", object)
             end
 
             if NxBallsService::isRunning(object["uuid"]) then
                 if LucilleCore::askQuestionAnswerAsBoolean("stop   : '#{object["announce"]}' ? ") then
-                    GlobalActions::action("stop", object)
+                    LxAction::action("stop", object)
                 end
             end
 
@@ -207,7 +207,7 @@ class GlobalActions
 
             # If the object was running, then we stop it
             if NxBallsService::isRunning(object["uuid"]) then
-                GlobalActions::action("stop", object)
+                LxAction::action("stop", object)
             end
             if object["mikuType"] == "NxBallNS16Delegate1" then
                 NxBallsService::close(object["uuid"], true)

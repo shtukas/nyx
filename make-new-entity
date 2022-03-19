@@ -15,5 +15,5 @@ input = LucilleCore::askQuestionAnswerAsString("> ")
 
 command, objectOpt = TerminalUtils::inputParser(input, nil)
 #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-GlobalActions::action(command, objectOpt)
+LxAction::action(command, objectOpt)
 

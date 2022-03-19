@@ -143,7 +143,7 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 
 require_relative "Galaxy.rb"
-require_relative "GlobalActions.rb"
+require_relative "LxAction.rb"
 
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"

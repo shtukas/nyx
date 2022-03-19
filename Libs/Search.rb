@@ -29,7 +29,7 @@ class Search
         loop {
             nx20 = Search::funkyInterfaceInterativelySelectNx20OrNull()
             break if nx20.nil?
-            GlobalActions::action("landing", nx20["payload"])
+            LxAction::action("landing", nx20["payload"])
         }
     end
 
@@ -53,7 +53,7 @@ class Search
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("search", selected, lambda{|item| item["announce"] })
                 break if nx20.nil?
                 system('clear')
-                GlobalActions::action("landing", nx20["payload"])
+                LxAction::action("landing", nx20["payload"])
             }
         }
     end

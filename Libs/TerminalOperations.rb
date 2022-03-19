@@ -404,7 +404,7 @@ class TerminalDisplayOperator
 
         command, objectOpt = TerminalUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-        GlobalActions::action(command, objectOpt)
+        LxAction::action(command, objectOpt)
     end
 
     # TerminalDisplayOperator::standardDisplayLoop()
