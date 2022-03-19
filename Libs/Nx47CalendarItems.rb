@@ -47,7 +47,8 @@ class Nx47CalendarItems
           "creationUnixtime" => creationUnixtime,
           "calendarDate" => calendarDate,
           "calendarTime" => calendarTime,
-          "atomuuid"     => atom["uuid"]
+          "atomuuid"     => atom["uuid"],
+          "active"       => true
         }
         Librarian6Objects::commit(item)
         item

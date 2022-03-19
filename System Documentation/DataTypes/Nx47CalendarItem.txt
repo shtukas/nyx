@@ -6,4 +6,6 @@ Nx47CalendarItem {
     "calendarDate"     : String (format: YYYY-MM-DD)
     "calendarTime"     : String (format: HH:MM)
     "atomuuid"         : UUID of an Atom
+    "active"           : Boolean # indicates if the item needs to be considered in standard catalyst display
+                                 # typically becomes false when the event is done and processed 
 }
