@@ -1,0 +1,8 @@
+Nx25s are the navigation nodes
+
+Nx25 {
+    "uuid"        : uuid,
+    "mikuType"    : "Nx25"
+    "unixtime"    : unixtime
+    "description" : description
+}

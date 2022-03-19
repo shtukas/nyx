@@ -18,8 +18,17 @@ class NyxNetwork
 
     # NyxNetwork::interactivelyMakeNewOrNull()
     def self.interactivelyMakeNewOrNull()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["Nx31 Data Carrier", "Nx48 Timed Public Event", "Nx49 Pascal Private Log"])
+        types = [
+            "Nx25 Navigation Node", 
+            "Nx31 Data Carrier", 
+            "Nx48 Timed Public Event", 
+            "Nx49 Pascal Private Log"
+        ]
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
         return nil if type.nil?
+        if type == "Nx25 Navigation Node" then
+            return Nx25s::interactivelyCreateNewOrNull()
+        end
         if type == "Nx31 Data Carrier" then
             return Nx31s::interactivelyCreateNewOrNull()
         end
@@ -60,7 +69,7 @@ class NyxNetwork
     def self.connectToOtherArchitectured(item)
         connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related", "other is child"])
         return if connectionType.nil?
-        other = NyxNetwork::architechOrNull()
+        other = NyxNetwork::architectOrNull()
         return if other.nil?
        LxAction::action("landing", other)
         if connectionType == "other is parent" then

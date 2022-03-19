@@ -157,6 +157,7 @@ require_relative "Multiverse.rb"
 
 require_relative "NxBallsService.rb"
 require_relative "NyxNetwork.rb"
+require_relative "Nx25s.rb"
 require_relative "Nx31s.rb"
 require_relative "Nx47CalendarItems.rb"
 require_relative "Nx48TimedPublicEvents.rb"

@@ -5,6 +5,7 @@ class Search
 
     # Search::nx20s()
     def self.nx20s()
+        Nx25s::nx20s() +
         Nx31s::nx20s() +
         Anniversaries::nx20s() +
         Nx47CalendarItems::nx20s() +
