@@ -1,0 +1,8 @@
+Nx48TimedPublicEvent {
+    "uuid"             : uuid,
+    "mikuType"         : "Nx48TimedPublicEvent"
+    "description"      : description
+    "creationUnixtime" : unixtime
+    "eventDate"        : "YYYY-MM-DD"
+    "atomuuid"         : UUID of an Atom
+}

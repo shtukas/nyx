@@ -158,6 +158,8 @@ require_relative "NxBallsService.rb"
 require_relative "NyxNetwork.rb"
 require_relative "Nx31s.rb"
 require_relative "Nx47CalendarItems.rb"
+require_relative "Nx48TimedPublicEvent.rb"
+require_relative "Nx49PascalPrivateLog.rb"
 require_relative "NyxAdapter.rb"
 
 require_relative "ProgrammableBooleans.rb"

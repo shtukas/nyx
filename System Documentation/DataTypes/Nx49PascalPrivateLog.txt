@@ -1,0 +1,8 @@
+Nx49PascalPrivateLog {
+    "uuid"             : uuid,
+    "mikuType"         : "Nx49PascalPrivateLog"
+    "description"      : description
+    "creationUnixtime" : unixtime
+    "date"             : "YYYY-MM-DD"
+    "atomuuid"         : UUID of an Atom
+}

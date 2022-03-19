@@ -1,22 +1,22 @@
 
 # encoding: UTF-8
 
-class Nx47CalendarItems
+class Nx49PascalPrivateLog
 
     # ----------------------------------------------------------------------
     # IO
 
-    # Nx47CalendarItems::items()
+    # Nx49PascalPrivateLog::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("Nx47CalendarItem")
+        Librarian6Objects::getObjectsByMikuType("Nx49PascalPrivateLog")
     end
 
-    # Nx47CalendarItems::getOrNull(uuid): null or Nx47CalendarItem
+    # Nx49PascalPrivateLog::getOrNull(uuid): null or Nx49PascalPrivateLog
     def self.getOrNull(uuid)
         Librarian6Objects::getObjectByUUIDOrNull(uuid)
     end
 
-    # Nx47CalendarItems::destroy(uuid)
+    # Nx49PascalPrivateLog::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
@@ -24,7 +24,7 @@ class Nx47CalendarItems
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # Nx47CalendarItems::interactivelyCreateNewOrNull()
+    # Nx49PascalPrivateLog::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -37,50 +37,47 @@ class Nx47CalendarItems
         uuid = SecureRandom.uuid
         creationUnixtime = Time.new.to_i
 
-        calendarDate = LucilleCore::askQuestionAnswerAsString("calendarDate (format: YYYY-MM-DD) : ")
-        calendarTime = LucilleCore::askQuestionAnswerAsString("calendarTime (format: HH:MM) : ")
+        date = LucilleCore::askQuestionAnswerAsString("date (format: YYYY-MM-DD) : ")
 
         item = {
           "uuid"         => uuid,
-          "mikuType"     => "Nx47CalendarItem",
+          "mikuType"     => "Nx49PascalPrivateLog",
           "description"  => description,
           "creationUnixtime" => creationUnixtime,
-          "calendarDate" => calendarDate,
-          "calendarTime" => calendarTime,
-          "atomuuid"     => atom["uuid"],
-          "active"       => true
+          "date"         => date,
+          "atomuuid"     => atom["uuid"]
         }
         Librarian6Objects::commit(item)
         item
     end
 
-    # Nx47CalendarItems::selectExistingOrNull()
+    # Nx49PascalPrivateLog::selectExistingOrNull()
     def self.selectExistingOrNull()
-        items = Nx47CalendarItems::items()
-                    .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "#{Nx47CalendarItems::toString(item)} [#{item["uuid"][0, 4]}]" })
+        items = Nx49PascalPrivateLog::items()
+                    .sort{|i1, i2| "#{i1["date"]}" <=> "#{i2["date"]}" }
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "#{Nx49PascalPrivateLog::toString(item)} [#{item["uuid"][0, 4]}]" })
     end
 
     # ----------------------------------------------------------------------
     # Data
 
-    # Nx47CalendarItems::toString(item)
+    # Nx49PascalPrivateLog::toString(item)
     def self.toString(item)
-        "[cale] (#{item["calendarDate"]} #{item["calendarTime"]}) #{item["description"]}"
+        "(private log) (#{item["date"]}) #{item["description"]}"
     end
 
-    # Nx47CalendarItems::toStringWithTrace4(item)
+    # Nx49PascalPrivateLog::toStringWithTrace4(item)
     def self.toStringWithTrace4(item)
-        "#{Nx47CalendarItems::toString(item)} [#{item["uuid"][0, 4]}]"
+        "#{Nx49PascalPrivateLog::toString(item)} [#{item["uuid"][0, 4]}]"
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx47CalendarItems::landing(item)
+    # Nx49PascalPrivateLog::landing(item)
     def self.landing(item)
         loop {
-            item = Nx47CalendarItems::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            item = Nx49PascalPrivateLog::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if item.nil?
             system("clear")
 
@@ -92,29 +89,28 @@ class Nx47CalendarItems
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx49PascalPrivateLog::toString(entity)}" 
                 }
 
             Links::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx49PascalPrivateLog::toString(entity)}" 
                 }
 
             Links::children(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx49PascalPrivateLog::toString(entity)}" 
                 }
 
             puts ""
 
-            puts Nx47CalendarItems::toString(item).green
+            puts Nx49PascalPrivateLog::toString(item).green
             puts "uuid: #{item["uuid"]}".yellow
-            puts "calendarDate: #{item["calendarDate"]}".yellow
-            puts "calendarTime: #{item["calendarTime"]}".yellow
+            puts "date: #{item["date"]}".yellow
             puts "atomuuid: #{item["atomuuid"]}".yellow
             atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
             puts "atom: #{atom}".yellow
@@ -129,7 +125,7 @@ class Nx47CalendarItems
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | datetime | atom | note | notes | link | unlink | destroy".yellow
+            puts "access | description | date | atom | note | notes | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -138,7 +134,7 @@ class Nx47CalendarItems
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                Nx47CalendarItems::landing(entity)
+                Nx49PascalPrivateLog::landing(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -153,11 +149,9 @@ class Nx47CalendarItems
                 next
             end
 
-            if Interpreting::match("datetime", command) then
-                calendarDate = LucilleCore::askQuestionAnswerAsString("calendarDate (format: YYYY-MM-DD) : ")
-                calendarTime = LucilleCore::askQuestionAnswerAsString("calendarTime (format: HH:MM) : ")
-                item["calendarDate"] = calendarDate
-                item["calendarTime"] = calendarTime
+            if Interpreting::match("date", command) then
+                date = LucilleCore::askQuestionAnswerAsString("date (format: YYYY-MM-DD) : ")
+                item["date"] = date
                 Librarian6Objects::commit(item) 
             end
 
@@ -190,14 +184,14 @@ class Nx47CalendarItems
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx47CalendarItems::destroy(item["uuid"])
+                    Nx49PascalPrivateLog::destroy(item["uuid"])
                     break
                 end
             end
         }
     end
 
-    # Nx47CalendarItems::processAfterCompletionArchiveOrDestroy(item)
+    # Nx49PascalPrivateLog::processAfterCompletionArchiveOrDestroy(item)
     def self.processAfterCompletionArchiveOrDestroy(item)
         actions = ["disactivate (default)", "destroy"]
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -206,53 +200,33 @@ class Nx47CalendarItems
             Librarian6Objects::commit(item)
         end
         if action == "destroy" then
-            Nx47CalendarItems::destroy(item["uuid"])
+            Nx49PascalPrivateLog::destroy(item["uuid"])
         end
     end
 
     # ------------------------------------------------
     # Nx20s
 
-    # Nx47CalendarItems::dive()
+    # Nx49PascalPrivateLog::dive()
     def self.dive()
         loop {
             system("clear")
-            items = Nx47CalendarItems::items()
-                        .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("calendar item", items, lambda{|item| Nx47CalendarItems::toString(item) })
+            items = Nx49PascalPrivateLog::items()
+                        .sort{|i1, i2| "#{i1["date"]}" <=> "#{i2["date"]}" }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("private log", items, lambda{|item| Nx49PascalPrivateLog::toString(item) })
             break if item.nil?
-            Nx47CalendarItems::landing(item)
+            Nx49PascalPrivateLog::landing(item)
         }
     end
 
     # --------------------------------------------------
     # nx16s
 
-    # Nx47CalendarItems::ns16(item)
-    def self.ns16(item)
-        uuid = item["uuid"]
-        {
-            "uuid"     => uuid,
-            "mikuType" => "NS16:Nx47CalendarItems",
-            "announce" => "(calendar) [#{item["calendarDate"]}] (#{item["time"]}) #{item["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", item["atomuuid"])}",
-            "item"     => item
-        }
-    end
-
-    # Nx47CalendarItems::ns16s()
-    def self.ns16s()
-        Nx47CalendarItems::items()
-            .select{|item| item["active"] }
-            .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
-            .select{|item| item["calendarDate"] <= Utils::today() }
-            .map{|item| Nx47CalendarItems::ns16(item) }
-    end
-
-    # Nx47CalendarItems::itemToNx20s(item)
+    # Nx49PascalPrivateLog::itemToNx20s(item)
     def self.itemToNx20s(item)
-        # At the moment we only transform Nx47CalendarItems
+        # At the moment we only transform Nx49PascalPrivateLog
         x1 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx47CalendarItems::toStringWithTrace4(item)}]",
+            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx49PascalPrivateLog::toStringWithTrace4(item)}]",
             "payload"  => item
         }]
         x4 = [{
@@ -262,8 +236,8 @@ class Nx47CalendarItems
         (x1 + x4).flatten
     end
 
-    # Nx47CalendarItems::getNx20s()
+    # Nx49PascalPrivateLog::getNx20s()
     def self.getNx20s()
-        Nx47CalendarItems::items().map{|item| Nx47CalendarItems::itemToNx20s(item) }.flatten
+        Nx49PascalPrivateLog::items().map{|item| Nx49PascalPrivateLog::itemToNx20s(item) }.flatten
     end
 end

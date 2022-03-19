@@ -1,22 +1,22 @@
 
 # encoding: UTF-8
 
-class Nx47CalendarItems
+class Nx48TimedPublicEvents
 
     # ----------------------------------------------------------------------
     # IO
 
-    # Nx47CalendarItems::items()
+    # Nx48TimedPublicEvents::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("Nx47CalendarItem")
+        Librarian6Objects::getObjectsByMikuType("Nx48TimedPublicEvent")
     end
 
-    # Nx47CalendarItems::getOrNull(uuid): null or Nx47CalendarItem
+    # Nx48TimedPublicEvents::getOrNull(uuid): null or Nx48TimedPublicEvent
     def self.getOrNull(uuid)
         Librarian6Objects::getObjectByUUIDOrNull(uuid)
     end
 
-    # Nx47CalendarItems::destroy(uuid)
+    # Nx48TimedPublicEvents::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
@@ -24,7 +24,7 @@ class Nx47CalendarItems
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # Nx47CalendarItems::interactivelyCreateNewOrNull()
+    # Nx48TimedPublicEvents::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -37,50 +37,47 @@ class Nx47CalendarItems
         uuid = SecureRandom.uuid
         creationUnixtime = Time.new.to_i
 
-        calendarDate = LucilleCore::askQuestionAnswerAsString("calendarDate (format: YYYY-MM-DD) : ")
-        calendarTime = LucilleCore::askQuestionAnswerAsString("calendarTime (format: HH:MM) : ")
+        eventDate = LucilleCore::askQuestionAnswerAsString("eventDate (format: YYYY-MM-DD) : ")
 
         item = {
           "uuid"         => uuid,
-          "mikuType"     => "Nx47CalendarItem",
+          "mikuType"     => "Nx48TimedPublicEvent",
           "description"  => description,
           "creationUnixtime" => creationUnixtime,
-          "calendarDate" => calendarDate,
-          "calendarTime" => calendarTime,
-          "atomuuid"     => atom["uuid"],
-          "active"       => true
+          "eventDate"    => eventDate,
+          "atomuuid"     => atom["uuid"]
         }
         Librarian6Objects::commit(item)
         item
     end
 
-    # Nx47CalendarItems::selectExistingOrNull()
+    # Nx48TimedPublicEvents::selectExistingOrNull()
     def self.selectExistingOrNull()
-        items = Nx47CalendarItems::items()
-                    .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "#{Nx47CalendarItems::toString(item)} [#{item["uuid"][0, 4]}]" })
+        items = Nx48TimedPublicEvents::items()
+                    .sort{|i1, i2| "#{i1["eventDate"]}" <=> "#{i2["eventDate"]}" }
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "#{Nx48TimedPublicEvents::toString(item)} [#{item["uuid"][0, 4]}]" })
     end
 
     # ----------------------------------------------------------------------
     # Data
 
-    # Nx47CalendarItems::toString(item)
+    # Nx48TimedPublicEvents::toString(item)
     def self.toString(item)
-        "[cale] (#{item["calendarDate"]} #{item["calendarTime"]}) #{item["description"]}"
+        "(public event) (#{item["eventDate"]}) #{item["description"]}"
     end
 
-    # Nx47CalendarItems::toStringWithTrace4(item)
+    # Nx48TimedPublicEvents::toStringWithTrace4(item)
     def self.toStringWithTrace4(item)
-        "#{Nx47CalendarItems::toString(item)} [#{item["uuid"][0, 4]}]"
+        "#{Nx48TimedPublicEvents::toString(item)} [#{item["uuid"][0, 4]}]"
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx47CalendarItems::landing(item)
+    # Nx48TimedPublicEvents::landing(item)
     def self.landing(item)
         loop {
-            item = Nx47CalendarItems::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            item = Nx48TimedPublicEvents::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if item.nil?
             system("clear")
 
@@ -92,29 +89,28 @@ class Nx47CalendarItems
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx48TimedPublicEvents::toString(entity)}" 
                 }
 
             Links::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx48TimedPublicEvents::toString(entity)}" 
                 }
 
             Links::children(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx48TimedPublicEvents::toString(entity)}" 
                 }
 
             puts ""
 
-            puts Nx47CalendarItems::toString(item).green
+            puts Nx48TimedPublicEvents::toString(item).green
             puts "uuid: #{item["uuid"]}".yellow
-            puts "calendarDate: #{item["calendarDate"]}".yellow
-            puts "calendarTime: #{item["calendarTime"]}".yellow
+            puts "eventDate: #{item["eventDate"]}".yellow
             puts "atomuuid: #{item["atomuuid"]}".yellow
             atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
             puts "atom: #{atom}".yellow
@@ -129,7 +125,7 @@ class Nx47CalendarItems
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | datetime | atom | note | notes | link | unlink | destroy".yellow
+            puts "access | description | event date | atom | note | notes | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -138,7 +134,7 @@ class Nx47CalendarItems
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                Nx47CalendarItems::landing(entity)
+                Nx48TimedPublicEvents::landing(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -153,11 +149,9 @@ class Nx47CalendarItems
                 next
             end
 
-            if Interpreting::match("datetime", command) then
-                calendarDate = LucilleCore::askQuestionAnswerAsString("calendarDate (format: YYYY-MM-DD) : ")
-                calendarTime = LucilleCore::askQuestionAnswerAsString("calendarTime (format: HH:MM) : ")
-                item["calendarDate"] = calendarDate
-                item["calendarTime"] = calendarTime
+            if Interpreting::match("event date", command) then
+                date = LucilleCore::askQuestionAnswerAsString("date (format: YYYY-MM-DD) : ")
+                item["eventDate"] = date
                 Librarian6Objects::commit(item) 
             end
 
@@ -190,14 +184,14 @@ class Nx47CalendarItems
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx47CalendarItems::destroy(item["uuid"])
+                    Nx48TimedPublicEvents::destroy(item["uuid"])
                     break
                 end
             end
         }
     end
 
-    # Nx47CalendarItems::processAfterCompletionArchiveOrDestroy(item)
+    # Nx48TimedPublicEvents::processAfterCompletionArchiveOrDestroy(item)
     def self.processAfterCompletionArchiveOrDestroy(item)
         actions = ["disactivate (default)", "destroy"]
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -206,53 +200,33 @@ class Nx47CalendarItems
             Librarian6Objects::commit(item)
         end
         if action == "destroy" then
-            Nx47CalendarItems::destroy(item["uuid"])
+            Nx48TimedPublicEvents::destroy(item["uuid"])
         end
     end
 
     # ------------------------------------------------
     # Nx20s
 
-    # Nx47CalendarItems::dive()
+    # Nx48TimedPublicEvents::dive()
     def self.dive()
         loop {
             system("clear")
-            items = Nx47CalendarItems::items()
-                        .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("calendar item", items, lambda{|item| Nx47CalendarItems::toString(item) })
+            items = Nx48TimedPublicEvents::items()
+                        .sort{|i1, i2| "#{i1["eventDate"]}" <=> "#{i2["eventDate"]}" }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("public event", items, lambda{|item| Nx48TimedPublicEvents::toString(item) })
             break if item.nil?
-            Nx47CalendarItems::landing(item)
+            Nx48TimedPublicEvents::landing(item)
         }
     end
 
     # --------------------------------------------------
     # nx16s
 
-    # Nx47CalendarItems::ns16(item)
-    def self.ns16(item)
-        uuid = item["uuid"]
-        {
-            "uuid"     => uuid,
-            "mikuType" => "NS16:Nx47CalendarItems",
-            "announce" => "(calendar) [#{item["calendarDate"]}] (#{item["time"]}) #{item["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", item["atomuuid"])}",
-            "item"     => item
-        }
-    end
-
-    # Nx47CalendarItems::ns16s()
-    def self.ns16s()
-        Nx47CalendarItems::items()
-            .select{|item| item["active"] }
-            .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
-            .select{|item| item["calendarDate"] <= Utils::today() }
-            .map{|item| Nx47CalendarItems::ns16(item) }
-    end
-
-    # Nx47CalendarItems::itemToNx20s(item)
+    # Nx48TimedPublicEvents::itemToNx20s(item)
     def self.itemToNx20s(item)
-        # At the moment we only transform Nx47CalendarItems
+        # At the moment we only transform Nx48TimedPublicEvents
         x1 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx47CalendarItems::toStringWithTrace4(item)}]",
+            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx48TimedPublicEvents::toStringWithTrace4(item)}]",
             "payload"  => item
         }]
         x4 = [{
@@ -262,8 +236,8 @@ class Nx47CalendarItems
         (x1 + x4).flatten
     end
 
-    # Nx47CalendarItems::getNx20s()
+    # Nx48TimedPublicEvents::getNx20s()
     def self.getNx20s()
-        Nx47CalendarItems::items().map{|item| Nx47CalendarItems::itemToNx20s(item) }.flatten
+        Nx48TimedPublicEvents::items().map{|item| Nx48TimedPublicEvents::itemToNx20s(item) }.flatten
     end
 end
