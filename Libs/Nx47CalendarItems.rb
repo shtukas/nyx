@@ -58,7 +58,7 @@ class Nx47CalendarItems
     def self.selectExistingOrNull()
         items = Nx47CalendarItems::items()
                     .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "#{Nx47CalendarItems::toString(item)} [#{item["uuid"][0, 4]}]" })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx47CalendarItems::toString(item)}" })
     end
 
     # ----------------------------------------------------------------------
@@ -67,11 +67,6 @@ class Nx47CalendarItems
     # Nx47CalendarItems::toString(item)
     def self.toString(item)
         "[cale] (#{item["calendarDate"]} #{item["calendarTime"]}) #{item["description"]}"
-    end
-
-    # Nx47CalendarItems::toStringWithTrace4(item)
-    def self.toStringWithTrace4(item)
-        "#{Nx47CalendarItems::toString(item)} [#{item["uuid"][0, 4]}]"
     end
 
     # ----------------------------------------------------------------------
@@ -248,22 +243,13 @@ class Nx47CalendarItems
             .map{|item| Nx47CalendarItems::ns16(item) }
     end
 
-    # Nx47CalendarItems::itemToNx20s(item)
-    def self.itemToNx20s(item)
-        # At the moment we only transform Nx47CalendarItems
-        x1 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx47CalendarItems::toStringWithTrace4(item)}]",
-            "payload"  => item
-        }]
-        x4 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{item["uuid"]}",
-            "payload"  => item
-        }]
-        (x1 + x4).flatten
-    end
-
-    # Nx47CalendarItems::getNx20s()
-    def self.getNx20s()
-        Nx47CalendarItems::items().map{|item| Nx47CalendarItems::itemToNx20s(item) }.flatten
+    # Nx47CalendarItems::nx20s()
+    def self.nx20s()
+        Nx47CalendarItems::items().map{|item| 
+            {
+                "announce" => "(#{item["uuid"][0, 4]}) #{Nx47CalendarItems::toString(item)}",
+                "payload"  => item
+            }
+        }
     end
 end

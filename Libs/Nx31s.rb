@@ -52,7 +52,7 @@ class Nx31s
 
     # Nx31s::selectExistingOrNull()
     def self.selectExistingOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31s::nodes(), lambda{|item| "#{Nx31s::toString(item)} [#{item["uuid"][0, 4]}]" })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31s::nodes(), lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx31s::toString(item)}" })
     end
 
     # Nx31s::architectOrNull()
@@ -80,11 +80,6 @@ class Nx31s
     # Nx31s::toString(item)
     def self.toString(item)
         "[data] #{item["description"]}"
-    end
-
-    # Nx31s::toStringWithTrace4(item)
-    def self.toStringWithTrace4(item)
-        "#{Nx31s::toString(item)} [#{item["uuid"][0, 4]}]"
     end
 
     # Nx31s::selectItemsByDateFragment(fragment)
@@ -219,22 +214,13 @@ class Nx31s
     # ------------------------------------------------
     # Nx20s
 
-    # Nx31s::itemToNx20s(miku)
-    def self.itemToNx20s(miku)
-        # At the moment we only transform Nx31s
-        x1 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx31s::toStringWithTrace4(miku)}]",
-            "payload"  => miku
-        }]
-        x4 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{miku["uuid"]}",
-            "payload"  => miku
-        }]
-        (x1 + x4).flatten
-    end
-
-    # Nx31s::getNx20s()
-    def self.getNx20s()
-        Nx31s::nodes().map{|miku| Nx31s::itemToNx20s(miku) }.flatten
+    # Nx31s::nx20s()
+    def self.nx20s()
+        Nx31s::nodes().map{|item| 
+            {
+                "announce" => "(#{item["uuid"][0, 4]}) #{Nx31s::toString(item)}",
+                "payload"  => item
+            }
+        }
     end
 end

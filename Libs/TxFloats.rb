@@ -194,13 +194,12 @@ class TxFloats
 
     # --------------------------------------------------
 
-    # TxFloats::nx19s()
-    def self.nx19s()
+    # TxFloats::nx20s()
+    def self.nx20s()
         TxFloats::items().map{|item|
             {
-                "uuid"     => item["uuid"],
                 "announce" => TxFloats::toStringForNS19(item),
-                "lambda"   => lambda { TxFloats::landing(item) }
+                "payload"  => item
             }
         }
     end

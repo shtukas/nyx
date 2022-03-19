@@ -55,7 +55,7 @@ class Nx48TimedPublicEvents
     def self.selectExistingOrNull()
         items = Nx48TimedPublicEvents::items()
                     .sort{|i1, i2| "#{i1["eventDate"]}" <=> "#{i2["eventDate"]}" }
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "#{Nx48TimedPublicEvents::toString(item)} [#{item["uuid"][0, 4]}]" })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx48TimedPublicEvents::toString(item)}" })
     end
 
     # ----------------------------------------------------------------------
@@ -64,11 +64,6 @@ class Nx48TimedPublicEvents
     # Nx48TimedPublicEvents::toString(item)
     def self.toString(item)
         "(public event) (#{item["eventDate"]}) #{item["description"]}"
-    end
-
-    # Nx48TimedPublicEvents::toStringWithTrace4(item)
-    def self.toStringWithTrace4(item)
-        "#{Nx48TimedPublicEvents::toString(item)} [#{item["uuid"][0, 4]}]"
     end
 
     # ----------------------------------------------------------------------
@@ -222,22 +217,13 @@ class Nx48TimedPublicEvents
     # --------------------------------------------------
     # nx16s
 
-    # Nx48TimedPublicEvents::itemToNx20s(item)
-    def self.itemToNx20s(item)
-        # At the moment we only transform Nx48TimedPublicEvents
-        x1 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx48TimedPublicEvents::toStringWithTrace4(item)}]",
-            "payload"  => item
-        }]
-        x4 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{item["uuid"]}",
-            "payload"  => item
-        }]
-        (x1 + x4).flatten
-    end
-
-    # Nx48TimedPublicEvents::getNx20s()
-    def self.getNx20s()
-        Nx48TimedPublicEvents::items().map{|item| Nx48TimedPublicEvents::itemToNx20s(item) }.flatten
+    # Nx48TimedPublicEvents::nx20s()
+    def self.nx20s()
+        Nx48TimedPublicEvents::items().map{|item| 
+            {
+                "announce" => "(#{item["uuid"][0, 4]}) #{Nx48TimedPublicEvents::toString(item)}",
+                "payload"  => item
+            }
+        }
     end
 end

@@ -238,13 +238,12 @@ class Anniversaries
         }
     end
 
-    # Anniversaries::nx19s()
-    def self.nx19s()
+    # Anniversaries::nx20s()
+    def self.nx20s()
         Anniversaries::anniversaries().map{|item|
             {
-                "uuid"     => item["uuid"],
                 "announce" => Anniversaries::toString(item),
-                "lambda"   => lambda { Anniversaries::landing(item) }
+                "payload"  => item
             }
         }
     end

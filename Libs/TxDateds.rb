@@ -222,13 +222,12 @@ class TxDateds
 
     # --------------------------------------------------
 
-    # TxDateds::nx19s()
-    def self.nx19s()
+    # TxDateds::nx20s()
+    def self.nx20s()
         TxDateds::items().map{|item|
             {
-                "uuid"     => item["uuid"],
                 "announce" => TxDateds::toStringForNS19(item),
-                "lambda"   => lambda { TxDateds::landing(item) }
+                "payload"  => item
             }
         }
     end

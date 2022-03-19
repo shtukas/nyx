@@ -18,10 +18,10 @@ def mainLoop()
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return if operation.nil?
         if operation == "search (interactive)" then
-            Search2::searchInteractiveView()
+            Search::funkyInterface()
         end
         if operation == "search (fragment)" then
-            Search2::searchPerFragmentMainInterface()
+            Search::searchClassic()
         end
         if operation == "new entity" then
             point = Nx31s::interactivelyCreateNewOrNull()

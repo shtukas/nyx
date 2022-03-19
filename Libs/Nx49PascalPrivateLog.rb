@@ -55,7 +55,7 @@ class Nx49PascalPrivateLog
     def self.selectExistingOrNull()
         items = Nx49PascalPrivateLog::items()
                     .sort{|i1, i2| "#{i1["date"]}" <=> "#{i2["date"]}" }
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "#{Nx49PascalPrivateLog::toString(item)} [#{item["uuid"][0, 4]}]" })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx49PascalPrivateLog::toString(item)}" })
     end
 
     # ----------------------------------------------------------------------
@@ -64,11 +64,6 @@ class Nx49PascalPrivateLog
     # Nx49PascalPrivateLog::toString(item)
     def self.toString(item)
         "(private log) (#{item["date"]}) #{item["description"]}"
-    end
-
-    # Nx49PascalPrivateLog::toStringWithTrace4(item)
-    def self.toStringWithTrace4(item)
-        "#{Nx49PascalPrivateLog::toString(item)} [#{item["uuid"][0, 4]}]"
     end
 
     # ----------------------------------------------------------------------
@@ -222,22 +217,13 @@ class Nx49PascalPrivateLog
     # --------------------------------------------------
     # nx16s
 
-    # Nx49PascalPrivateLog::itemToNx20s(item)
-    def self.itemToNx20s(item)
-        # At the moment we only transform Nx49PascalPrivateLog
-        x1 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{Nx49PascalPrivateLog::toStringWithTrace4(item)}]",
-            "payload"  => item
-        }]
-        x4 = [{
-            "announce" => "#{SecureRandom.hex[0, 8]} #{item["uuid"]}",
-            "payload"  => item
-        }]
-        (x1 + x4).flatten
-    end
-
-    # Nx49PascalPrivateLog::getNx20s()
-    def self.getNx20s()
-        Nx49PascalPrivateLog::items().map{|item| Nx49PascalPrivateLog::itemToNx20s(item) }.flatten
+    # Nx49PascalPrivateLog::nx20s()
+    def self.nx20s()
+        Nx49PascalPrivateLog::items().map{|item| 
+            {
+                "announce" => "(#{item["uuid"][0, 4]}) #{Nx49PascalPrivateLog::toString(item)}",
+                "payload"  => item
+            }
+        }
     end
 end

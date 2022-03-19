@@ -408,7 +408,7 @@ class GlobalActions
         end
 
         if command == "search" then
-            Search::search()
+            Search::searchClassic()
             return
         end
 

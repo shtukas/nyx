@@ -360,8 +360,8 @@ class Waves
             .map{|wave| Waves::toNS16(wave) }
     end
 
-    # Waves::nx19s()
-    def self.nx19s()
+    # Waves::nx20s()
+    def self.nx20s()
         Waves::items().map{|item|
             {
                 "uuid"     => item["uuid"],

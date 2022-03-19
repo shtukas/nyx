@@ -203,13 +203,12 @@ class TxFyres
 
     # --------------------------------------------------
 
-    # TxFyres::nx19s()
-    def self.nx19s()
+    # TxFyres::nx20s()
+    def self.nx20s()
         TxFyres::mikus().map{|item|
             {
-                "uuid"     => item["uuid"],
                 "announce" => TxFyres::toStringForNS19(item),
-                "lambda"   => lambda { TxFyres::landing(item) }
+                "payload"  => item
             }
         }
     end

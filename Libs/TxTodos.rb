@@ -413,13 +413,12 @@ class TxTodos
 
     # --------------------------------------------------
 
-    # TxTodos::nx19s()
-    def self.nx19s()
+    # TxTodos::nx20s()
+    def self.nx20s()
         Librarian6Objects::getObjectsByMikuType("TxTodo").map{|item|
             {
-                "uuid"     => item["uuid"],
                 "announce" => TxTodos::toStringForNS19(item),
-                "lambda"   => lambda { TxTodos::landing(item) }
+                "payload"  => item
             }
         }
     end

@@ -127,15 +127,4 @@ class Inbox
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
-
-    # Inbox::nx19s()
-    def self.nx19s()
-        Inbox::ns16s().map{|item|
-            {
-                "uuid"     => item["uuid"],
-                "announce" => item["announce"],
-                "lambda"   => lambda { Inbox::landing(item) }
-            }
-        }
-    end
 end
