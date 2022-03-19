@@ -9,7 +9,7 @@ class Search
         Anniversaries::nx20s() +
         Nx47CalendarItems::nx20s() +
         Nx48TimedPublicEvents::nx20s() +
-        Nx49PascalPrivateLog::nx20s() +
+        Nx49PascalPersonalEvents::nx20s() +
         TxDateds::nx20s() +
         TxFyres::nx20s() +
         TxFloats::nx20s() +

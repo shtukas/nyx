@@ -1,22 +1,22 @@
 
 # encoding: UTF-8
 
-class Nx49PascalPrivateLog
+class Nx49PascalPersonalEvents
 
     # ----------------------------------------------------------------------
     # IO
 
-    # Nx49PascalPrivateLog::items()
+    # Nx49PascalPersonalEvents::items()
     def self.items()
         Librarian6Objects::getObjectsByMikuType("Nx49PascalPrivateLog")
     end
 
-    # Nx49PascalPrivateLog::getOrNull(uuid): null or Nx49PascalPrivateLog
+    # Nx49PascalPersonalEvents::getOrNull(uuid): null or Nx49PascalPrivateLog
     def self.getOrNull(uuid)
         Librarian6Objects::getObjectByUUIDOrNull(uuid)
     end
 
-    # Nx49PascalPrivateLog::destroy(uuid)
+    # Nx49PascalPersonalEvents::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
@@ -24,7 +24,7 @@ class Nx49PascalPrivateLog
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # Nx49PascalPrivateLog::interactivelyCreateNewOrNull()
+    # Nx49PascalPersonalEvents::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -51,17 +51,17 @@ class Nx49PascalPrivateLog
         item
     end
 
-    # Nx49PascalPrivateLog::selectExistingOrNull()
+    # Nx49PascalPersonalEvents::selectExistingOrNull()
     def self.selectExistingOrNull()
-        items = Nx49PascalPrivateLog::items()
+        items = Nx49PascalPersonalEvents::items()
                     .sort{|i1, i2| "#{i1["date"]}" <=> "#{i2["date"]}" }
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx49PascalPrivateLog::toString(item)}" })
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx49PascalPersonalEvents::toString(item)}" })
     end
 
     # ----------------------------------------------------------------------
     # Data
 
-    # Nx49PascalPrivateLog::toString(item)
+    # Nx49PascalPersonalEvents::toString(item)
     def self.toString(item)
         "(private log) (#{item["date"]}) #{item["description"]}"
     end
@@ -69,10 +69,10 @@ class Nx49PascalPrivateLog
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx49PascalPrivateLog::landing(item)
+    # Nx49PascalPersonalEvents::landing(item)
     def self.landing(item)
         loop {
-            item = Nx49PascalPrivateLog::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            item = Nx49PascalPersonalEvents::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if item.nil?
             system("clear")
 
@@ -84,26 +84,26 @@ class Nx49PascalPrivateLog
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx49PascalPrivateLog::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx49PascalPersonalEvents::toString(entity)}" 
                 }
 
             Links::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx49PascalPrivateLog::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx49PascalPersonalEvents::toString(entity)}" 
                 }
 
             Links::children(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx49PascalPrivateLog::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx49PascalPersonalEvents::toString(entity)}" 
                 }
 
             puts ""
 
-            puts Nx49PascalPrivateLog::toString(item).green
+            puts Nx49PascalPersonalEvents::toString(item).green
             puts "uuid: #{item["uuid"]}".yellow
             puts "date: #{item["date"]}".yellow
             puts "atomuuid: #{item["atomuuid"]}".yellow
@@ -129,7 +129,7 @@ class Nx49PascalPrivateLog
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                Nx49PascalPrivateLog::landing(entity)
+                Nx49PascalPersonalEvents::landing(entity)
             end
 
             if Interpreting::match("access", command) then
@@ -179,14 +179,14 @@ class Nx49PascalPrivateLog
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx49PascalPrivateLog::destroy(item["uuid"])
+                    Nx49PascalPersonalEvents::destroy(item["uuid"])
                     break
                 end
             end
         }
     end
 
-    # Nx49PascalPrivateLog::processAfterCompletionArchiveOrDestroy(item)
+    # Nx49PascalPersonalEvents::processAfterCompletionArchiveOrDestroy(item)
     def self.processAfterCompletionArchiveOrDestroy(item)
         actions = ["disactivate (default)", "destroy"]
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -195,33 +195,33 @@ class Nx49PascalPrivateLog
             Librarian6Objects::commit(item)
         end
         if action == "destroy" then
-            Nx49PascalPrivateLog::destroy(item["uuid"])
+            Nx49PascalPersonalEvents::destroy(item["uuid"])
         end
     end
 
     # ------------------------------------------------
     # Nx20s
 
-    # Nx49PascalPrivateLog::dive()
+    # Nx49PascalPersonalEvents::dive()
     def self.dive()
         loop {
             system("clear")
-            items = Nx49PascalPrivateLog::items()
+            items = Nx49PascalPersonalEvents::items()
                         .sort{|i1, i2| "#{i1["date"]}" <=> "#{i2["date"]}" }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("private log", items, lambda{|item| Nx49PascalPrivateLog::toString(item) })
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("private log", items, lambda{|item| Nx49PascalPersonalEvents::toString(item) })
             break if item.nil?
-            Nx49PascalPrivateLog::landing(item)
+            Nx49PascalPersonalEvents::landing(item)
         }
     end
 
     # --------------------------------------------------
     # nx16s
 
-    # Nx49PascalPrivateLog::nx20s()
+    # Nx49PascalPersonalEvents::nx20s()
     def self.nx20s()
-        Nx49PascalPrivateLog::items().map{|item| 
+        Nx49PascalPersonalEvents::items().map{|item| 
             {
-                "announce" => "(#{item["uuid"][0, 4]}) #{Nx49PascalPrivateLog::toString(item)}",
+                "announce" => "(#{item["uuid"][0, 4]}) #{Nx49PascalPersonalEvents::toString(item)}",
                 "payload"  => item
             }
         }

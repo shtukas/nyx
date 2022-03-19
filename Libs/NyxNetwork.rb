@@ -27,7 +27,7 @@ class NyxNetwork
             return Nx48TimedPublicEvents::interactivelyCreateNewOrNull()
         end
         if type == "Nx49 Pascal Private Log" then
-            return Nx49PascalPrivateLog::interactivelyCreateNewOrNull()
+            return Nx49PascalPersonalEvents::interactivelyCreateNewOrNull()
         end
         raise "(error: 468f19c7-cc43-4d7c-b3e6-f5d95c9365c3)"
     end

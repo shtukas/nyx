@@ -203,8 +203,8 @@ class Librarian5Atoms
 
     # -- Makers ---------------------------------------
 
-    # Librarian5Atoms::issueDescriptionOnlyAtom() # Atom
-    def self.issueDescriptionOnlyAtom()
+    # Librarian5Atoms::makeDescriptionOnlyAtom() # Atom
+    def self.makeDescriptionOnlyAtom()
         {
             "uuid"        => SecureRandom.uuid,
             "mikuType" => "Atom",
@@ -214,8 +214,8 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueTextAtomUsingText(text) # Atom
-    def self.issueTextAtomUsingText(text)
+    # Librarian5Atoms::makeTextAtomUsingText(text) # Atom
+    def self.makeTextAtomUsingText(text)
         {
             "uuid"        => SecureRandom.uuid,
             "mikuType" => "Atom",
@@ -225,8 +225,8 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueUrlAtomUsingUrl(url) # Atom
-    def self.issueUrlAtomUsingUrl(url)
+    # Librarian5Atoms::makeUrlAtomUsingUrl(url) # Atom
+    def self.makeUrlAtomUsingUrl(url)
         {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Atom",
@@ -236,8 +236,8 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueAionPointAtomUsingLocation(location) # Atom
-    def self.issueAionPointAtomUsingLocation(location)
+    # Librarian5Atoms::makeAionPointAtomUsingLocation(location) # Atom
+    def self.makeAionPointAtomUsingLocation(location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
         rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
         Librarian0Utils::moveFileToBinTimeline(location)
@@ -250,8 +250,8 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueUniqueStringAtomUsingString(uniqueString) # Atom
-    def self.issueUniqueStringAtomUsingString(uniqueString)
+    # Librarian5Atoms::makeUniqueStringAtomUsingString(uniqueString) # Atom
+    def self.makeUniqueStringAtomUsingString(uniqueString)
         {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Atom",
@@ -261,8 +261,8 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::issueMarbleAtom(marbleId) # Atom
-    def self.issueMarbleAtom(marbleId)
+    # Librarian5Atoms::makeMarbleAtom(marbleId) # Atom
+    def self.makeMarbleAtom(marbleId)
         {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Atom",
@@ -278,35 +278,35 @@ class Librarian5Atoms
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "marble", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
-            return Librarian5Atoms::issueDescriptionOnlyAtom()
+            return Librarian5Atoms::makeDescriptionOnlyAtom()
         end
 
         if type == "text" then
             text = Librarian0Utils::editTextSynchronously("")
-            return Librarian5Atoms::issueTextAtomUsingText(text)
+            return Librarian5Atoms::makeTextAtomUsingText(text)
         end
 
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            return Librarian5Atoms::issueUrlAtomUsingUrl(url)
+            return Librarian5Atoms::makeUrlAtomUsingUrl(url)
         end
 
         if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Librarian5Atoms::issueAionPointAtomUsingLocation(location)
+            return Librarian5Atoms::makeAionPointAtomUsingLocation(location)
         end
 
         if type == "marble" then
             marble = Librarian0Utils::interactivelyDropNewMarbleFileOnDesktop()
-            return Librarian5Atoms::issueMarbleAtom(marble["uuid"])
+            return Librarian5Atoms::makeMarbleAtom(marble["uuid"])
         end
 
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use '#{SecureRandom.hex(6)}' if need one): ")
             return nil if uniquestring == ""
-            return Librarian5Atoms::issueUniqueStringAtomUsingString(uniquestring)
+            return Librarian5Atoms::makeUniqueStringAtomUsingString(uniquestring)
         end
 
         raise "[Librarian] [D2BDF2BC-D0B8-4D76-B00F-9EBB328D4CF7, type: #{type}]"

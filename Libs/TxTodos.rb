@@ -108,7 +108,7 @@ class TxTodos
         description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Librarian5Atoms::issueAionPointAtomUsingLocation(location)
+        atom        = Librarian5Atoms::makeAionPointAtomUsingLocation(location)
         Librarian6Objects::commit(atom)
 
         universe    = Multiverse::interactivelySelectUniverse()
@@ -134,7 +134,7 @@ class TxTodos
         description = url
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Librarian5Atoms::issueUrlAtomUsingUrl(url)
+        atom        = Librarian5Atoms::makeUrlAtomUsingUrl(url)
         Librarian6Objects::commit(atom)
 
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th("backlog", 20, 30)
@@ -313,7 +313,7 @@ class TxTodos
             description = File.basename(location)
             unixtime    = Time.new.to_i
             datetime    = Time.new.utc.iso8601
-            atom        = Librarian5Atoms::issueAionPointAtomUsingLocation(location)
+            atom        = Librarian5Atoms::makeAionPointAtomUsingLocation(location)
             Librarian6Objects::commit(atom)
 
             universe    = "backlog"

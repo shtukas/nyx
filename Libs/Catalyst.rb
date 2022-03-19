@@ -73,6 +73,10 @@ class TerminalUtils
             return ["calendar item", nil]
         end
 
+        if Interpreting::match("calendar", input) then
+            return ["calendar", nil]
+        end
+
         if Interpreting::match("done", input) then
             return ["done", store.getDefault()]
         end

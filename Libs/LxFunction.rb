@@ -28,7 +28,7 @@ class LxFunction
             end
 
             if object["mikuType"] == "Nx49PascalPrivateLog" then
-                return Nx49PascalPrivateLog::toString(object)
+                return Nx49PascalPersonalEvents::toString(object)
             end
         end
 
