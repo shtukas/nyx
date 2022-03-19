@@ -298,7 +298,6 @@ class LxAction
         end
 
         if command == "landing" then
-            ns16 = object
 
             if object["mikuType"] == "NS16:Anniversary1" then
                 Anniversaries::landing(object["anniversary"])
@@ -342,10 +341,16 @@ class LxAction
                 return
             end
 
-            if ns16["mikuType"] == "NS16:Wave" then
-                Waves::landing(ns16["wave"])
+            if object["mikuType"] == "NS16:Wave" then
+                Waves::landing(object["wave"])
                 return
             end
+
+            if object["mikuType"] == "Nx31" then
+                Nx31s::landing(object)
+                return
+            end
+            
         end
 
         if command == "mode" then
