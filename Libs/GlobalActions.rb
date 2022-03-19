@@ -182,12 +182,12 @@ class GlobalActions
         end
 
         if command == "calendar" then
-            TxCalendarItems::dive()
+            Nx47CalendarItems::dive()
             return
         end
 
-        if command == "calendaritem" then
-            TxCalendarItems::interactivelyCreateNewOrNull()
+        if command == "calendar item" then
+            Nx47CalendarItems::interactivelyCreateNewOrNull()
             return
         end
 
@@ -216,6 +216,11 @@ class GlobalActions
             if object["mikuType"] == "NS16:Anniversary1" then
                 anniversary = object["anniversary"]
                 Anniversaries::done(anniversary)
+                return
+            end
+            if object["mikuType"] == "NS16:Nx47CalendarItems" then
+                item = object["item"]
+                Nx47CalendarItems::processAfterCompletionArchiveOrDestroy(item)
                 return
             end
             if object["mikuType"] == "NS16:TxDated" then
@@ -301,7 +306,7 @@ class GlobalActions
             end
 
             if object["mikuType"] == "NS16:TxCalendarItem" then
-                TxCalendarItems::ns16(object["item"])
+                Nx47CalendarItems::landing(object["item"])
                 return
             end
 

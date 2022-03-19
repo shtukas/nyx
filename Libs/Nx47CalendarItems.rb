@@ -195,8 +195,56 @@ class Nx47CalendarItems
         }
     end
 
+    # Nx47CalendarItems::processAfterCompletionArchiveOrDestroy(item)
+    def self.processAfterCompletionArchiveOrDestroy(item)
+        actions = ["disactivate (default)", "destroy"]
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
+        if action.nil? or action == "disactivate (default)" then
+            item["active"] = false
+            Librarian6Objects::commit(item)
+        end
+        if action == "destroy" then
+            Nx47CalendarItems::destroy(item["uuid"])
+        end
+    end
+
     # ------------------------------------------------
     # Nx20s
+
+    # Nx47CalendarItems::dive()
+    def self.dive()
+        loop {
+            system("clear")
+            items = Nx47CalendarItems::items()
+                        .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("calendar item", items, lambda{|item| Nx47CalendarItems::toString(item) })
+            break if item.nil?
+            Nx47CalendarItems::landing(item)
+        }
+    end
+
+    # --------------------------------------------------
+    # nx16s
+
+    # Nx47CalendarItems::ns16(item)
+    def self.ns16(item)
+        uuid = item["uuid"]
+        {
+            "uuid"     => uuid,
+            "mikuType" => "NS16:Nx47CalendarItems",
+            "announce" => "(calendar) [#{item["calendarDate"]}] (#{item["time"]}) #{item["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", item["atomuuid"])}",
+            "item"     => item
+        }
+    end
+
+    # Nx47CalendarItems::ns16s()
+    def self.ns16s()
+        Nx47CalendarItems::items()
+            .select{|item| item["active"] }
+            .sort{|i1, i2| "#{i1["calendarDate"]} #{i1["calendarTime"]}" <=> "#{i2["calendarDate"]} #{i2["calendarTime"]}" }
+            .select{|item| item["calendarDate"] <= Utils::today() }
+            .map{|item| Nx47CalendarItems::ns16(item) }
+    end
 
     # Nx47CalendarItems::itemToNx20s(item)
     def self.itemToNx20s(item)

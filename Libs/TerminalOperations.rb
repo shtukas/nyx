@@ -69,6 +69,10 @@ class TerminalUtils
             return ["anniversaries", nil]
         end
 
+        if Interpreting::match("calendar item", input) then
+            return ["calendar item", nil]
+        end
+
         if Interpreting::match("done", input) then
             return ["done", store.getDefault()]
         end
@@ -215,7 +219,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | calendaritem | float | fyre | today | ondate | todo"
+        "wave | anniversary | calendar item | float | fyre | today | ondate | todo"
     end
 
     # Commands::diversCommands()
@@ -265,7 +269,7 @@ class NS16sOperator
     def self.section3(universe)
         [
             Anniversaries::ns16s(),
-            TxCalendarItems::ns16s(),
+            Nx47CalendarItems::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
