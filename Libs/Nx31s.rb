@@ -6,8 +6,8 @@ class Nx31s
     # ----------------------------------------------------------------------
     # IO
 
-    # Nx31s::nodes()
-    def self.nodes()
+    # Nx31s::items()
+    def self.items()
         Librarian6Objects::getObjectsByMikuType("Nx31")
     end
 
@@ -52,26 +52,7 @@ class Nx31s
 
     # Nx31s::selectExistingOrNull()
     def self.selectExistingOrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31s::nodes(), lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx31s::toString(item)}" })
-    end
-
-    # Nx31s::architectOrNull()
-    def self.architectOrNull()
-        operations = ["existing || new", "new"]
-        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-        return nil if operation.nil?
-        if operation == "existing || new" then
-            puts "-> existing"
-            sleep 1
-            entity = Nx31s::selectExistingOrNull()
-            return entity if entity
-            puts "-> new"
-            sleep 1
-            return Nx31s::interactivelyCreateNewOrNull()
-        end
-        if operation == "new" then
-            return Nx31s::interactivelyCreateNewOrNull()
-        end
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Nx31s::items(), lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx31s::toString(item)}" })
     end
 
     # ----------------------------------------------------------------------
@@ -84,7 +65,7 @@ class Nx31s
 
     # Nx31s::selectItemsByDateFragment(fragment)
     def self.selectItemsByDateFragment(fragment)
-        Nx31s::nodes()
+        Nx31s::items()
             .select{|item|
                 item["datetime"].start_with?(fragment)
             }
@@ -216,7 +197,7 @@ class Nx31s
 
     # Nx31s::nx20s()
     def self.nx20s()
-        Nx31s::nodes().map{|item| 
+        Nx31s::items().map{|item| 
             {
                 "announce" => "(#{item["uuid"][0, 4]}) #{Nx31s::toString(item)}",
                 "payload"  => item

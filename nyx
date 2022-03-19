@@ -24,9 +24,9 @@ def mainLoop()
             Search::searchClassic()
         end
         if operation == "new entity" then
-            point = Nx31s::interactivelyCreateNewOrNull()
-            exit if point.nil?
-            Nx31s::landing(point)
+            item = NyxNetwork::interactivelyMakeNewOrNull()
+            next if item.nil?
+            LxAction::action("landing", item)
         end
         if operation == "special ops" then
             specialOps = [
