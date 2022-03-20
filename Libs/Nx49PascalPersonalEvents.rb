@@ -222,6 +222,7 @@ class Nx49PascalPersonalEvents
         Nx49PascalPersonalEvents::items().map{|item| 
             {
                 "announce" => "(#{item["uuid"][0, 4]}) #{Nx49PascalPersonalEvents::toString(item)}",
+                "unixtime" => item["creationUnixtime"],
                 "payload"  => item
             }
         }

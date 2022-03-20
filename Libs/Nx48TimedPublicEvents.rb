@@ -222,6 +222,7 @@ class Nx48TimedPublicEvents
         Nx48TimedPublicEvents::items().map{|item| 
             {
                 "announce" => "(#{item["uuid"][0, 4]}) #{Nx48TimedPublicEvents::toString(item)}",
+                "unixtime" => item["creationUnixtime"],
                 "payload"  => item
             }
         }

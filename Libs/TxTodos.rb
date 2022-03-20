@@ -418,6 +418,7 @@ class TxTodos
         Librarian6Objects::getObjectsByMikuType("TxTodo").map{|item|
             {
                 "announce" => TxTodos::toStringForNS19(item),
+                "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }

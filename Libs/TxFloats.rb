@@ -199,6 +199,7 @@ class TxFloats
         TxFloats::items().map{|item|
             {
                 "announce" => TxFloats::toStringForNS19(item),
+                "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }

@@ -208,6 +208,7 @@ class TxFyres
         TxFyres::mikus().map{|item|
             {
                 "announce" => TxFyres::toStringForNS19(item),
+                "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }

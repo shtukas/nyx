@@ -159,6 +159,7 @@ class Nx25s
         Nx25s::items().map{|item| 
             {
                 "announce" => "(#{item["uuid"][0, 4]}) #{Nx25s::toString(item)}",
+                "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }

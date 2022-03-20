@@ -243,6 +243,7 @@ class Anniversaries
         Anniversaries::anniversaries().map{|item|
             {
                 "announce" => Anniversaries::toString(item),
+                "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }

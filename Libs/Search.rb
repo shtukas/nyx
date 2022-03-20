@@ -5,17 +5,18 @@ class Search
 
     # Search::nx20s()
     def self.nx20s()
-        Nx25s::nx20s() +
-        Nx31s::nx20s() +
-        Anniversaries::nx20s() +
-        Nx47CalendarItems::nx20s() +
-        Nx48TimedPublicEvents::nx20s() +
-        Nx49PascalPersonalEvents::nx20s() +
-        TxDateds::nx20s() +
-        TxFyres::nx20s() +
-        TxFloats::nx20s() +
-        TxTodos::nx20s() +
-        Waves::nx20s()
+        nx20s = Nx25s::nx20s() +
+                Nx31s::nx20s() +
+                Anniversaries::nx20s() +
+                Nx47CalendarItems::nx20s() +
+                Nx48TimedPublicEvents::nx20s() +
+                Nx49PascalPersonalEvents::nx20s() +
+                TxDateds::nx20s() +
+                TxFyres::nx20s() +
+                TxFloats::nx20s() +
+                TxTodos::nx20s() +
+                Waves::nx20s()
+        nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }
     end
 
     # ---------------------------

@@ -364,9 +364,9 @@ class Waves
     def self.nx20s()
         Waves::items().map{|item|
             {
-                "uuid"     => item["uuid"],
                 "announce" => Waves::toString(item),
-                "lambda"   => lambda { Waves::landing(item) }
+                "unixtime" => item["unixtime"],
+                "payload"  => item
             }
         }
     end

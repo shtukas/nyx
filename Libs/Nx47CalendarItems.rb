@@ -248,6 +248,7 @@ class Nx47CalendarItems
         Nx47CalendarItems::items().map{|item| 
             {
                 "announce" => "(#{item["uuid"][0, 4]}) #{Nx47CalendarItems::toString(item)}",
+                "unixtime" => item["creationUnixtime"],
                 "payload"  => item
             }
         }

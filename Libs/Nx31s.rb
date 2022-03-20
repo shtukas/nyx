@@ -200,6 +200,7 @@ class Nx31s
         Nx31s::items().map{|item| 
             {
                 "announce" => "(#{item["uuid"][0, 4]}) #{Nx31s::toString(item)}",
+                "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }

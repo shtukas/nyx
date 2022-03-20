@@ -227,6 +227,7 @@ class TxDateds
         TxDateds::items().map{|item|
             {
                 "announce" => TxDateds::toStringForNS19(item),
+                "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }
