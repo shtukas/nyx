@@ -172,6 +172,7 @@ require_relative "Search.rb"
 
 require_relative "Topping.rb"
 require_relative "Transmutation.rb"
+require_relative "TxAttachments.rb"
 require_relative "TxFyres.rb"
 require_relative "TxFloats.rb"
 require_relative "TxDateds.rb"

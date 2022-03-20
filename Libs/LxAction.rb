@@ -350,6 +350,11 @@ class LxAction
                 Nx31s::landing(object)
                 return
             end
+
+            if object["mikuType"] == "TxAttachment" then
+                TxAttachments::landing(object)
+                return
+            end
             
         end
 
