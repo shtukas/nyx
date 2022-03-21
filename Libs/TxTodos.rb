@@ -179,41 +179,52 @@ class TxTodos
     # --------------------------------------------------
     # Operations
 
-    # TxTodos::landing(nx50)
-    def self.landing(nx50)
-
-        system("clear")
-
-        uuid = nx50["uuid"]
+    # TxTodos::landing(item)
+    def self.landing(item)
 
         loop {
 
             system("clear")
 
-            puts "#{TxTodos::toString(nx50)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
+            uuid = item["uuid"]
+
+            store = ItemStore.new()
+
+            puts "#{TxTodos::toString(item)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)}".yellow
-            puts "ordinal: #{nx50["ordinal"]}".yellow
+            puts "ordinal: #{item["ordinal"]}".yellow
 
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(nx50["uuid"])}".yellow
+            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
+
+            TxAttachments::itemsForOwner(uuid).each{|attachment|
+                indx = store.register(attachment, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            }
 
             Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(nx50["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
             #Librarian::notes(uuid).each{|note|
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | notes | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | note | notes | attachment | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
             break if command == "xx"
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Nx25s::landing(entity)
+            end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -221,82 +232,88 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(nx50["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
                 next
             end
 
             if Interpreting::match("description", command) then
-                description = Utils::editTextSynchronously(nx50["description"]).strip
+                description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
-                nx50["description"] = description
-                Librarian6Objects::commit(nx50)
+                item["description"] = description
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = nx50["atomuuid"]
                 Librarian6Objects::commit(atom)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(nx50["uuid"], text)
+                Librarian7Notes::addNote(item["uuid"], text)
                 next
             end
 
             if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(nx50["uuid"])
+                Librarian7Notes::notesLanding(item["uuid"])
+                next
+            end
+
+            if Interpreting::match("attachment", command) then
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(nx50["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 break
             end
 
             if Interpreting::match("ordinal", command) then
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
-                nx50["ordinal"] = ordinal
-                Librarian6Objects::commit(nx50)
-                ObjectUniverseMapping::setObjectUniverseMapping(nx50["uuid"], universe)
+                item["ordinal"] = ordinal
+                Librarian6Objects::commit(item)
+                ObjectUniverseMapping::setObjectUniverseMapping(item["uuid"], universe)
                 next
             end
 
             if Interpreting::match("rotate", command) then
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::nextOrdinal(universe)
-                nx50["ordinal"] = ordinal
-                Librarian6Objects::commit(nx50)
-                ObjectUniverseMapping::setObjectUniverseMapping(nx50["uuid"], universe)
+                item["ordinal"] = ordinal
+                Librarian6Objects::commit(item)
+                ObjectUniverseMapping::setObjectUniverseMapping(item["uuid"], universe)
                 break
             end
 
             if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(nx50, "TxTodo")
+                Transmutation::transmutation2(item, "TxTodo")
                 break
             end
 
             if Interpreting::match("show json", command) then
-                puts JSON.pretty_generate(nx50)
+                puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 break
             end
 
             if command == "destroy" or command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(nx50)}' ? ", true) then
-                    NxBallsService::close(nx50["uuid"], true)
-                    TxTodos::destroy(nx50["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(item)}' ? ", true) then
+                    NxBallsService::close(item["uuid"], true)
+                    TxTodos::destroy(item["uuid"])
                     break
                 end
                 next
             end
 
             if command == ">nyx" then
-                NyxAdapter::nx50ToNyx(nx50)
+                NyxAdapter::nx50ToNyx(item)
                 break
             end
         }

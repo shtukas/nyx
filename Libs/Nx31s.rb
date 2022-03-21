@@ -74,58 +74,62 @@ class Nx31s
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx31s::landing(miku)
-    def self.landing(miku)
+    # Nx31s::landing(item)
+    def self.landing(item)
         loop {
-            miku = Nx31s::getOrNull(miku["uuid"]) # Could have been destroyed or metadata updated in the previous loop
-            return if miku.nil?
+            item = Nx31s::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            return if item.nil?
             system("clear")
 
-            puts ""
+            uuid = item["uuid"]
 
             store = ItemStore.new()
 
-            Links::parents(miku["uuid"])
+
+            puts Nx31s::toString(item).green
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+            puts "atomuuid: #{item["atomuuid"]}".yellow
+            atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
+            puts "atom: #{atom}".yellow
+
+            TxAttachments::itemsForOwner(uuid).each{|attachment|
+                indx = store.register(attachment, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            }
+
+            Links::parents(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx31s::toString(entity)}" 
                 }
 
-            Links::related(miku["uuid"])
+            Links::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] [related] #{Nx31s::toString(entity)}" 
                 }
 
-            Links::children(miku["uuid"])
+            Links::children(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] [child] #{Nx31s::toString(entity)}" 
                 }
 
-            puts ""
-
-            puts Nx31s::toString(miku).green
-            puts "uuid: #{miku["uuid"]}".yellow
-            puts "datetime: #{miku["datetime"]}".yellow
-            puts "atomuuid: #{miku["atomuuid"]}".yellow
-            atom = Librarian6Objects::getObjectByUUIDOrNull(miku["atomuuid"])
-            puts "atom: #{atom}".yellow
-
-            Librarian7Notes::getObjectNotes(miku["uuid"]).each{|note|
+            Librarian7Notes::getObjectNotes(item["uuid"]).each{|note|
                 puts "note: #{note["text"]}"
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(miku["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
-            #Librarian::notes(miku["uuid"]).each{|note|
+            #Librarian::notes(item["uuid"]).each{|note|
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | datetime | atom | note | notes | link | unlink | destroy".yellow
+            puts "access | description | datetime | atom | note | attachment | notes | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -138,54 +142,60 @@ class Nx31s
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(miku["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
             end
 
             if Interpreting::match("description", command) then
-                description = Utils::editTextSynchronously(miku["description"]).strip
+                description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
-                miku["description"] = description
-                Librarian6Objects::commit(miku)
+                item["description"] = description
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("datetime", command) then
-                datetime = Utils::editTextSynchronously(miku["datetime"]).strip
+                datetime = Utils::editTextSynchronously(item["datetime"]).strip
                 next if !Utils::isDateTime_UTC_ISO8601(datetime)
-                miku["datetime"] = datetime
-                Librarian6Objects::commit(miku) 
+                item["datetime"] = datetime
+                Librarian6Objects::commit(item) 
             end
 
             if Interpreting::match("atom", command) then
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = miku["atomuuid"]
                 Librarian6Objects::commit(atom)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
+                next
+            end
+
+            if Interpreting::match("attachment", command) then
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(miku["uuid"], text)
+                Librarian7Notes::addNote(item["uuid"], text)
                 next
             end
 
             if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(miku["uuid"])
+                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 
             if Interpreting::match("link", command) then
-                NyxNetwork::connectToOtherArchitectured(miku)
+                NyxNetwork::connectToOtherArchitectured(item)
             end
 
             if Interpreting::match("unlink", command) then
-                NyxNetwork::disconnectFromLinkedInteractively(miku)
+                NyxNetwork::disconnectFromLinkedInteractively(item)
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx31s::destroy(miku["uuid"])
+                    Nx31s::destroy(item["uuid"])
                     break
                 end
             end

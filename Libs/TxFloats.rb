@@ -63,32 +63,43 @@ class TxFloats
         TxFloats::destroy(float["uuid"])
     end
 
-    # TxFloats::landing(float)
-    def self.landing(float)
-
-        system("clear")
-
-        uuid = float["uuid"]
+    # TxFloats::landing(item)
+    def self.landing(item)
 
         loop {
 
             system("clear")
 
-            puts TxFloats::toString(float).green
+            uuid = item["uuid"]
+
+            store = ItemStore.new()
+
+            puts TxFloats::toString(item).green
             puts "uuid: #{uuid}".yellow
+
+            TxAttachments::itemsForOwner(uuid).each{|attachment|
+                indx = store.register(attachment, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            }
 
             Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(float["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
-            puts "access | <datecode> | description | atom | note | notes | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | notes | attachment | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
             break if command == "xx"
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Nx25s::landing(entity)
+            end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -96,71 +107,77 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(float["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
                 next
             end
 
             if Interpreting::match("description", command) then
-                description = Utils::editTextSynchronously(float["description"]).strip
+                description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
-                float["description"] = description
-                Librarian6Objects::commit(float)
+                item["description"] = description
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = float["atomuuid"]
                 Librarian6Objects::commit(atom)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
+                next
+            end
+
+            if Interpreting::match("attachment", command) then
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(float["uuid"], text)
+                Librarian7Notes::addNote(item["uuid"], text)
                 next
             end
 
             if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(float["uuid"])
+                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(float["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 break
             end
 
             if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(float, "TxFloat")
+                Transmutation::transmutation2(item, "TxFloat")
                 break
             end
 
             if Interpreting::match("show json", command) then
-                puts JSON.pretty_generate(float)
+                puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 break
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(float)}' ? ", true) then
-                    TxFloats::complete(float)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(item)}' ? ", true) then
+                    TxFloats::complete(item)
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(float)}' ? ", true) then
-                    TxFloats::complete(float)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(item)}' ? ", true) then
+                    TxFloats::complete(item)
                     break
                 end
                 next
             end
 
             if command == ">nyx" then
-                NyxAdapter::floatToNyx(float)
+                NyxAdapter::floatToNyx(item)
                 break
             end
         }

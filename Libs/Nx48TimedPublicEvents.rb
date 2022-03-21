@@ -76,9 +76,21 @@ class Nx48TimedPublicEvents
             return if item.nil?
             system("clear")
 
-            puts ""
+            uuid = item["uuid"]
 
             store = ItemStore.new()
+
+            puts Nx48TimedPublicEvents::toString(item).green
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "eventDate: #{item["eventDate"]}".yellow
+            puts "atomuuid: #{item["atomuuid"]}".yellow
+            atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
+            puts "atom: #{atom}".yellow
+
+            TxAttachments::itemsForOwner(uuid).each{|attachment|
+                indx = store.register(attachment, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            }
 
             Links::parents(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
@@ -101,15 +113,6 @@ class Nx48TimedPublicEvents
                     puts "[#{indx.to_s.ljust(3)}] [child] #{Nx48TimedPublicEvents::toString(entity)}" 
                 }
 
-            puts ""
-
-            puts Nx48TimedPublicEvents::toString(item).green
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "eventDate: #{item["eventDate"]}".yellow
-            puts "atomuuid: #{item["atomuuid"]}".yellow
-            atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
-            puts "atom: #{atom}".yellow
-
             Librarian7Notes::getObjectNotes(item["uuid"]).each{|note|
                 puts "note: #{note["text"]}"
             }
@@ -120,7 +123,7 @@ class Nx48TimedPublicEvents
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | event date | atom | note | notes | link | unlink | destroy".yellow
+            puts "access | description | event date | atom | note | notes | attachment | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -153,8 +156,9 @@ class Nx48TimedPublicEvents
             if Interpreting::match("atom", command) then
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = item["atomuuid"]
                 Librarian6Objects::commit(atom)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
                 next
             end
 
@@ -166,6 +170,11 @@ class Nx48TimedPublicEvents
 
             if Interpreting::match("notes", command) then
                 Librarian7Notes::notesLanding(item["uuid"])
+                next
+            end
+
+            if Interpreting::match("attachment", command) then
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 

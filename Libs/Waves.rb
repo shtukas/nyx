@@ -162,23 +162,30 @@ class Waves
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end
 
-    # Waves::landing(wave)
-    def self.landing(wave)
-        uuid = wave["uuid"]
+    # Waves::landing(item)
+    def self.landing(item)
+        uuid = item["uuid"]
 
         loop {
 
             system("clear")
 
-            puts "#{Waves::toString(wave)}".green
+            store = ItemStore.new()
 
-            puts ""
+            uuid = item["uuid"]
 
-            puts "uuid: #{wave["uuid"]}".yellow
-            puts "schedule: #{Waves::scheduleString(wave)}".yellow
-            puts "last done: #{wave["lastDoneDateTime"]}".yellow
-            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(wave["uuid"])}".yellow
-            puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(wave["uuid"])}".yellow
+            puts "#{Waves::toString(item)}".green
+
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "schedule: #{Waves::scheduleString(item)}".yellow
+            puts "last done: #{item["lastDoneDateTime"]}".yellow
+            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
+            puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])}".yellow
+
+            TxAttachments::itemsForOwner(uuid).each{|attachment|
+                indx = store.register(attachment, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            }
 
             Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
@@ -186,20 +193,32 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | atom | note | notes | schedule | universe | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | atom | note | notes | attachment | schedule | universe | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
             break if command == "xx"
 
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Nx25s::landing(entity)
+            end
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Nx25s::landing(entity)
+            end
+
             if command == "access" then
-                Libriarian16SpecialCircumstances::accessAtom(wave["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
                 next
             end
 
             if command == "done" then
-                Waves::performDone(wave)
+                Waves::performDone(item)
                 break
             end
 
@@ -209,8 +228,8 @@ class Waves
             end
 
             if Interpreting::match("description", command) then
-                wave["description"] = Utils::editTextSynchronously(wave["description"])
-                Waves::performDone(wave)
+                item["description"] = Utils::editTextSynchronously(item["description"])
+                Waves::performDone(item)
                 next
             end
 
@@ -218,39 +237,44 @@ class Waves
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
                 Librarian6Objects::commit(atom)
-                wave["atomuuid"] = atom["uuid"]
-                Librarian6Objects::commit(wave)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(wave["uuid"], text)
+                Librarian7Notes::addNote(item["uuid"], text)
                 next
             end
 
             if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(wave["uuid"])
+                Librarian7Notes::notesLanding(item["uuid"])
+                next
+            end
+
+            if Interpreting::match("attachment", command) then
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 
             if Interpreting::match("schedule", command) then
                 schedule = Waves::makeScheduleParametersInteractivelyOrNull()
                 return if schedule.nil?
-                wave["repeatType"] = schedule[0]
-                wave["repeatValue"] = schedule[1]
-                Librarian6Objects::commit(wave)
+                item["repeatType"] = schedule[0]
+                item["repeatValue"] = schedule[1]
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(wave["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 next
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy this wave ? : ") then
-                    Waves::destroy(wave["uuid"])
+                    Waves::destroy(item["uuid"])
                     break
                 end
             end

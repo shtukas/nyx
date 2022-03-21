@@ -85,20 +85,18 @@ class TxDateds
     # --------------------------------------------------
     # Operations
 
-    # TxDateds::landing(mx49)
-    def self.landing(mx49)
-
-        system("clear")
-
-        uuid = mx49["uuid"]
+    # TxDateds::landing(item)
+    def self.landing(item)
 
         loop {
 
             system("clear")
 
-            puts TxDateds::toString(mx49).green
+            uuid = item["uuid"]
+
+            puts TxDateds::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "date: #{mx49["datetime"][0, 10]}".yellow
+            puts "date: #{item["datetime"][0, 10]}".yellow
 
             store = ItemStore.new()
 
@@ -110,7 +108,7 @@ class TxDateds
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(mx49["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
             puts "access | date | description | atom | note | attachment | notes | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 
@@ -127,77 +125,78 @@ class TxDateds
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(mx49["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
                 next
             end
 
             if Interpreting::match("date", command) then
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
-                mx49["datetime"] = datetime
-                Librarian6Objects::commit(mx49)
+                item["datetime"] = datetime
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("description", command) then
-                description = Utils::editTextSynchronously(mx49["description"]).strip
+                description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
-                mx49["description"] = description
-                Librarian6Objects::commit(mx49)
+                item["description"] = description
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = mx49["atomuuid"]
                 Librarian6Objects::commit(atom)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(mx49["uuid"], text)
+                Librarian7Notes::addNote(item["uuid"], text)
                 next
             end
 
             if Interpreting::match("attachment", command) then
-                TxAttachments::interactivelyCreateNewOrNullForOwner(mx49["uuid"])
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 
             if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(mx49["uuid"])
+                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 
             if Interpreting::match("show json", command) then
-                puts JSON.pretty_generate(mx49)
+                puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 break
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(mx49)}' ? ", true) then
-                    TxDateds::destroy(mx49["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(item)}' ? ", true) then
+                    TxDateds::destroy(item["uuid"])
                     break
                 end
                 next
             end
 
             if command == "transmute" then
-                Transmutation::transmutation2(mx49, "TxDated")
+                Transmutation::transmutation2(item, "TxDated")
                 break
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(mx49["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(mx49)}' ? ", true) then
-                    TxDateds::destroy(mx49["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(item)}' ? ", true) then
+                    TxDateds::destroy(item["uuid"])
                     break
                 end
                 next

@@ -79,9 +79,22 @@ class Nx47CalendarItems
             return if item.nil?
             system("clear")
 
-            puts ""
+            uuid = item["uuid"]
 
             store = ItemStore.new()
+
+            puts Nx47CalendarItems::toString(item).green
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "calendarDate: #{item["calendarDate"]}".yellow
+            puts "calendarTime: #{item["calendarTime"]}".yellow
+            puts "atomuuid: #{item["atomuuid"]}".yellow
+            atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
+            puts "atom: #{atom}".yellow
+
+            TxAttachments::itemsForOwner(uuid).each{|attachment|
+                indx = store.register(attachment, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            }
 
             Links::parents(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
@@ -104,16 +117,6 @@ class Nx47CalendarItems
                     puts "[#{indx.to_s.ljust(3)}] [child] #{Nx47CalendarItems::toString(entity)}" 
                 }
 
-            puts ""
-
-            puts Nx47CalendarItems::toString(item).green
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "calendarDate: #{item["calendarDate"]}".yellow
-            puts "calendarTime: #{item["calendarTime"]}".yellow
-            puts "atomuuid: #{item["atomuuid"]}".yellow
-            atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
-            puts "atom: #{atom}".yellow
-
             Librarian7Notes::getObjectNotes(item["uuid"]).each{|note|
                 puts "note: #{note["text"]}"
             }
@@ -124,7 +127,7 @@ class Nx47CalendarItems
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | description | datetime | atom | note | notes | link | unlink | destroy".yellow
+            puts "access | description | datetime | atom | note | attachment | notes | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -159,8 +162,14 @@ class Nx47CalendarItems
             if Interpreting::match("atom", command) then
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = item["atomuuid"]
                 Librarian6Objects::commit(atom)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
+                next
+            end
+
+            if Interpreting::match("attachment", command) then
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 

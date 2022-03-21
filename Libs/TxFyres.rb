@@ -67,37 +67,48 @@ class TxFyres
         TxFyres::destroy(nx70["uuid"])
     end
 
-    # TxFyres::landing(nx70)
-    def self.landing(nx70)
-
-        system("clear")
-
-        uuid = nx70["uuid"]
+    # TxFyres::landing(item)
+    def self.landing(item)
 
         loop {
 
             system("clear")
 
-            puts TxFyres::toString(nx70).green
+            uuid = item["uuid"]
+
+            store = ItemStore.new()
+
+            puts TxFyres::toString(item).green
             puts "uuid: #{uuid}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
+
+            TxAttachments::itemsForOwner(uuid).each{|attachment|
+                indx = store.register(attachment, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            }
 
             Librarian7Notes::getObjectNotes(uuid).each{|note|
                 puts "note: #{note["text"]}"
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(nx70["atomuuid"])
+            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
             #Librarian::notes(uuid).each{|note|
             #    puts "note: #{note["text"]}"
             #}
 
-            puts "access | <datecode> | description | atom | note | notes | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | note | notes | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
             break if command == "xx"
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Nx25s::landing(entity)
+            end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -105,64 +116,70 @@ class TxFyres
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(nx70["atomuuid"])
+                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
                 next
             end
 
             if Interpreting::match("description", command) then
-                description = Utils::editTextSynchronously(nx70["description"]).strip
+                description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
-                nx70["description"] = description
-                Librarian6Objects::commit(nx70)
+                item["description"] = description
+                Librarian6Objects::commit(item)
                 next
             end
 
             if Interpreting::match("atom", command) then
                 atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
                 next if atom.nil?
-                atom["uuid"] = nx70["atomuuid"]
                 Librarian6Objects::commit(atom)
+                item["atomuuid"] = atom["uuid"]
+                Librarian6Objects::commit(item)
+                next
+            end
+
+            if Interpreting::match("attachment", command) then
+                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
                 next
             end
 
             if Interpreting::match("note", command) then
                 text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(nx70["uuid"], text)
+                Librarian7Notes::addNote(item["uuid"], text)
                 next
             end
 
             if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(nx70["uuid"])
+                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 
             if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(nx70, "TxFyre")
+                Transmutation::transmutation2(item, "TxFyre")
                 break
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(nx70["uuid"])
+                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
                 next
             end
 
             if Interpreting::match("show json", command) then
-                puts JSON.pretty_generate(nx70)
+                puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 break
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(nx70)}' ? ", true) then
-                    TxFyres::complete(nx70)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(item)}' ? ", true) then
+                    TxFyres::complete(item)
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(nx70)}' ? ", true) then
-                    TxFyres::complete(nx70)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(item)}' ? ", true) then
+                    TxFyres::complete(item)
                     break
                 end
                 next

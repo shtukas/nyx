@@ -366,7 +366,7 @@ class TerminalDisplayOperator
         top = Topping::getText(universe)
         if top and top.strip.size > 0 then
             puts ""
-            puts "(-->) (top)".green
+            puts "(top)"
             top = top.lines.first(10).join()
             puts top
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
