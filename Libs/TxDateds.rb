@@ -100,9 +100,6 @@ class TxDateds
 
             store = ItemStore.new()
 
-            Librarian7Notes::getObjectNotes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
@@ -110,7 +107,7 @@ class TxDateds
 
             Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
-            puts "access | date | description | atom | note | attachment | notes | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
+            puts "access | date | description | atom | attachment | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -154,19 +151,8 @@ class TxDateds
                 next
             end
 
-            if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(item["uuid"], text)
-                next
-            end
-
             if Interpreting::match("attachment", command) then
                 TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
-                next
-            end
-
-            if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 

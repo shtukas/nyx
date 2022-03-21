@@ -1,8 +1,0 @@
-Note
-
-{
-    "noteuuid"   : String
-    "objectuuid" : String
-    "unixtime"   : Float
-    "text"       : String
-}

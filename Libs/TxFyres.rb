@@ -87,17 +87,9 @@ class TxFyres
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Librarian7Notes::getObjectNotes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
-
             Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
-            #Librarian::notes(uuid).each{|note|
-            #    puts "note: #{note["text"]}"
-            #}
-
-            puts "access | <datecode> | description | atom | note | notes | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | atom | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -139,17 +131,6 @@ class TxFyres
 
             if Interpreting::match("attachment", command) then
                 TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
-                next
-            end
-
-            if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(item["uuid"], text)
-                next
-            end
-
-            if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 

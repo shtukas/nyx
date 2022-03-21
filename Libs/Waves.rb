@@ -187,13 +187,9 @@ class Waves
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Librarian7Notes::getObjectNotes(uuid).each{|note|
-                puts "note: #{note["text"]}"
-            }
-
             puts ""
 
-            puts "access | done | <datecode> | description | atom | note | notes | attachment | schedule | universe | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | atom | attachment | schedule | universe | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -239,17 +235,6 @@ class Waves
                 Librarian6Objects::commit(atom)
                 item["atomuuid"] = atom["uuid"]
                 Librarian6Objects::commit(item)
-                next
-            end
-
-            if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(item["uuid"], text)
-                next
-            end
-
-            if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 

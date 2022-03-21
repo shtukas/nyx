@@ -113,17 +113,9 @@ class Nx49PascalPersonalEvents
                     puts "[#{indx.to_s.ljust(3)}] [child] #{Nx49PascalPersonalEvents::toString(entity)}" 
                 }
 
-            Librarian7Notes::getObjectNotes(item["uuid"]).each{|note|
-                puts "note: #{note["text"]}"
-            }
-
             Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
-            #Librarian::notes(item["uuid"]).each{|note|
-            #    puts "note: #{note["text"]}"
-            #}
-
-            puts "access | description | date | atom | note | attachment | notes | link | unlink | destroy".yellow
+            puts "access | description | date | atom | attachment | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -164,17 +156,6 @@ class Nx49PascalPersonalEvents
 
             if Interpreting::match("attachment", command) then
                 TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
-                next
-            end
-
-            if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(item["uuid"], text)
-                next
-            end
-
-            if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 

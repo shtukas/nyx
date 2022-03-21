@@ -98,11 +98,7 @@ class Nx25s
                     puts "[#{indx.to_s.ljust(3)}] [child] #{Nx25s::toString(entity)}" 
                 }
 
-            Librarian7Notes::getObjectNotes(item["uuid"]).each{|note|
-                puts "note: #{note["text"]}"
-            }
-
-            puts "access | description | note | attachment | notes | link | unlink | destroy".yellow
+            puts "access | description | attachment | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -123,17 +119,6 @@ class Nx25s
                 next if description == ""
                 item["description"] = description
                 Librarian6Objects::commit(item)
-                next
-            end
-
-            if Interpreting::match("note", command) then
-                text = Utils::editTextSynchronously("").strip
-                Librarian7Notes::addNote(item["uuid"], text)
-                next
-            end
-
-            if Interpreting::match("notes", command) then
-                Librarian7Notes::notesLanding(item["uuid"])
                 next
             end
 
