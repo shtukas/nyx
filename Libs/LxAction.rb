@@ -355,7 +355,17 @@ class LxAction
                 TxAttachments::landing(object)
                 return
             end
-            
+
+            if object["mikuType"] == "TxFloat" then
+                TxFloats::landing(object)
+                return
+            end
+
+            if object["mikuType"] == "TxTodo" then
+                TxTodos::landing(object)
+                return
+            end
+
         end
 
         if command == "mode" then

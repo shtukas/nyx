@@ -132,7 +132,7 @@ class Nx48TimedPublicEvents
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                Nx48TimedPublicEvents::landing(entity)
+                LxAction::action("landing", entity)
             end
 
             if Interpreting::match("access", command) then

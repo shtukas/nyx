@@ -138,7 +138,7 @@ class Nx31s
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                Nx31s::landing(entity)
+                LxAction::action("landing", entity)
             end
 
             if Interpreting::match("access", command) then

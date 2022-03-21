@@ -136,7 +136,7 @@ class Nx47CalendarItems
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                Nx47CalendarItems::landing(entity)
+                LxAction::action("landing", entity)
             end
 
             if Interpreting::match("access", command) then

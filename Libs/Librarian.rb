@@ -567,6 +567,25 @@ class Librarian7Notes
         "/Users/pascal/Galaxy/DataBank/Librarian/Databases/notes.sqlite3"
     end
 
+    # Librarian7Notes::getNotes()
+    def self.getNotes()
+        db = SQLite3::Database.new(Librarian7Notes::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _notes_", []) do |row|
+            answer << {
+                "noteuuid"   => row['_noteuuid_'],
+                "objectuuid" => row['_objectuuid_'],
+                "unixtime"   => row['_unixtime_'],
+                "text"       => row['_text_'],
+            }
+        end
+        db.close
+        answer
+    end
+
     # Librarian7Notes::getObjectNotes(objectuuid)
     def self.getObjectNotes(objectuuid)
         db = SQLite3::Database.new(Librarian7Notes::databaseFilepath())

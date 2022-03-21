@@ -98,7 +98,7 @@ class TxFloats
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                Nx25s::landing(entity)
+                LxAction::action("landing", entity)
             end
 
             if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
