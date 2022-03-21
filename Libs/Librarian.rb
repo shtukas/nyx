@@ -217,11 +217,11 @@ class Librarian5Atoms
     # Librarian5Atoms::makeTextAtomUsingText(text) # Atom
     def self.makeTextAtomUsingText(text)
         {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"     => SecureRandom.uuid,
             "mikuType" => "Atom",
-            "unixtime"    => Time.new.to_f,
-            "type"        => "text",
-            "payload"     => text
+            "unixtime" => Time.new.to_f,
+            "type"     => "text",
+            "payload"  => Librarian12EnergyGrid::putBlob(text)
         }
     end
 
@@ -385,10 +385,10 @@ class Librarian5Atoms
             LucilleCore::pressEnterToContinue()
         end
         if atom["type"] == "text" then
-            text1 = atom["payload"]
+            text1 = Librarian12EnergyGrid::getBlobOrNull(atom["payload"])
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
-                atom["payload"] = text2
+                atom["payload"] = Librarian12EnergyGrid::putBlob(text2)
                 Librarian6Objects::commit(atom)
             end
         end
@@ -451,7 +451,7 @@ class Librarian5Atoms
         if atom["type"] == "text" then
             text = [
                 "-- Atom (text) --",
-                atom["payload"].strip,
+                Librarian12EnergyGrid::getBlobOrNull(atom["payload"]).strip,
             ].join("\n")
             return text
         end
@@ -562,7 +562,7 @@ end
 
 class Librarian12EnergyGrid
 
-    # Librarian12EnergyGrid::putBlob(blob)
+    # Librarian12EnergyGrid::putBlob(blob) # nhash
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filepathRemote = "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
@@ -626,7 +626,7 @@ class Librarian15Fsck
             return true
         end
         if atom["type"] == "text" then
-            return true
+            return !Librarian12EnergyGrid::getBlobOrNull(atom["payload"]).nil?
         end
         if atom["type"] == "url" then
             return true
@@ -651,6 +651,11 @@ class Librarian15Fsck
         Librarian6Objects::objects().each{|item|
             next if item["mikuType"] == "Atom"
             puts JSON.pretty_generate(item)
+            if item["atomuuid"].nil? then
+                puts "This code relies on the assumption that every non atom object has a atomuuid"
+                puts "Is this an error of the object or an error in the assumption?"
+                exit
+            end
             atomuuid = item["atomuuid"]
             atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
             if atom.nil? then

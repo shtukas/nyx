@@ -13,7 +13,7 @@ Atoms are content definitions
     "mikuType" : "Atom"
     "unixtime" : Float
     "type"     : "text"
-    "payload"  : text
+    "payload"  : nhash # nhash of the blob of text
 }
 
 {
@@ -29,7 +29,7 @@ Atoms are content definitions
     "mikuType"  : "Atom"
     "unixtime"  : Float
     "type"      : "aion-point"
-    "rootnhash" : nhash
+    "rootnhash" : nhash # nhash of the aion root
 }
 
 {
