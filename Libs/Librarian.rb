@@ -404,8 +404,11 @@ class Librarian5Atoms
         end
         if atom["type"] == "aion-point" then
             nhash = atom["rootnhash"]
-            exportFolder = Librarian16AionDispatch::decideDispatchFolderpathOrNull(atom)
-            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
+            exportFolder = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
+            if exportFolder.nil? then
+                exportFolder = Librarian16AionExport::atomToNewExportFolderpath(atom)
+                AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
+            end
             system("open '#{exportFolder}'")
             #if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
             #    location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
@@ -679,138 +682,119 @@ end
 
 =begin 
 
-AionDispatchTx45 {
-    "uuid"       : String
-    "atomUUID"   : String
-    "dispatchId" : String # Used for foldername
+Tx45 {
+    "uuid"     : String
+    "atomuuid" : String
+    "exportId" : String # Used for foldername
 }
 
 =end
 
-class Librarian16AionDispatch
+class Librarian16AionExport
 
-    # Librarian16AionDispatch::dispatchIdToFolderpath(dispatchId)
-    def self.dispatchIdToFolderpath(dispatchId)
-        "/Users/pascal/Galaxy/NS1-Aion-Exports/#{dispatchId}"
-    end
-
-    # Librarian16AionDispatch::issueAionDispatchTx45(uuid, atomUUID, dispatchId)
-    def self.issueAionDispatchTx45(uuid, atomUUID, dispatchId)
+    # Librarian16AionExport::issueTx45(uuid, atomuuid, exportId)
+    def self.issueTx45(uuid, atomuuid, exportId)
         item = {
             "uuid"       => uuid,
-            "atomUUID"   => atomUUID,
-            "dispatchId" => dispatchId
+            "atomuuid"   => atomuuid,
+            "exportId" => exportId
         }
         BTreeSets::set(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", item["uuid"], item)
     end
 
-    # Librarian16AionDispatch::getValidDispatchItemsForAtom(atom)
-    def self.getValidDispatchItemsForAtom(atom)
+    # Librarian16AionExport::getTx45ForAtomOrNull(atom)
+    def self.getTx45ForAtomOrNull(atom)
         BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC")
-            .select{|item| item["atomUUID"] == atom["uuid"] }
-            .select{|item| File.exists?(Librarian16AionDispatch::dispatchIdToFolderpath(item["dispatchId"])) }
-    end
-
-    # Librarian16AionDispatch::decideDispatchFolderpathOrNull(atom)
-    def self.decideDispatchFolderpathOrNull(atom)
-        item = Librarian16AionDispatch::getValidDispatchItemsForAtom(atom).first
-        if item then
-            puts "Found aion dispatch item"
-            puts JSON.pretty_generate(item)
-            return Librarian16AionDispatch::dispatchIdToFolderpath(item["dispatchId"])
-        else
-            dispatchId = SecureRandom.hex[0, 8]
-            folderpath = Librarian16AionDispatch::dispatchIdToFolderpath(dispatchId)
-            FileUtils.mkdir(folderpath)
-            Librarian16AionDispatch::issueAionDispatchTx45(SecureRandom.uuid, atom["uuid"], dispatchId)
-            return folderpath
-        end
-    end
-
-    # Librarian16AionDispatch::getDispatchItemByDispatchIdOrNull(dispatchId)
-    def self.getDispatchItemByDispatchIdOrNull(dispatchId)
-        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC")
-            .select{|item| item["dispatchId"] == dispatchId }
+            .select{|item| item["atomuuid"] == atom["uuid"] }
             .first
     end
 
-    # Librarian16AionDispatch::doPickups()
-    def self.doPickups()
-        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC").each{|dispatchItem|
-            if !File.exists?(Librarian16AionDispatch::dispatchIdToFolderpath(dispatchItem["dispatchId"])) then
-                puts "> Destroying dispatch item: #{JSON.pretty_generate(dispatchItem)}"
-                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", dispatchItem["uuid"])
+    # Librarian16AionExport::getTx45ByDispatchIdOrNull(exportId)
+    def self.getTx45ByDispatchIdOrNull(exportId)
+        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC")
+            .select{|item| item["exportId"] == exportId }
+            .first
+    end
+
+    # Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(exportId)
+    def self.exportIdToExistingExportFolderpathOrNull(exportId)
+        # First we look for a folder with that dispatch id trace, if we find one we return 
+        # it otherwise we make one
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
+            if File.basename(location).include?(exportId) then
+                return location
             end
         }
+        nil
+    end
 
-        exportFolders = LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/NS1-Aion-Exports")
-        exportFolders.each{|folder1|
-            puts folder1 # Export folder with name equal to the dispatch Id
-            dispatchId = File.basename(folder1)
-            dispatchItem = Librarian16AionDispatch::getDispatchItemByDispatchIdOrNull(dispatchId)
-            if dispatchItem.nil? then
-                puts "> I could not find a dispatch item for dispatchItem: #{dispatchItem}"
-                puts "> I am going to pause, and let you process the folder manually"
-                LucilleCore::pressEnterToContinue()
+    # Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
+    def self.atomToExistingExportFolderpathOrNull(atom)
+        item = Librarian16AionExport::getTx45ForAtomOrNull(atom)
+        return nil if item.nil?
+        puts "Found aion dispatch item"
+        puts JSON.pretty_generate(item)
+        folderpath = Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(item["exportId"])
+        return nil if folderpath.nil?
+        puts "Found existing folderpath: #{folderpath}"
+        folderpath 
+    end
+
+    # Librarian16AionExport::atomToNewExportFolderpath(atom)
+    def self.atomToNewExportFolderpath(atom)
+        exportId = SecureRandom.hex[0, 8]
+        folderpath = "/Users/pascal/Desktop/#{exportId}"
+        FileUtils.mkdir(folderpath)
+        Librarian16AionExport::issueTx45(SecureRandom.uuid, atom["uuid"], exportId)
+        folderpath
+    end
+
+    # Librarian16AionExport::doPickups()
+    def self.doPickups()
+        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC").each{|exportControlItem|
+            puts JSON.pretty_generate(exportControlItem)
+            
+            folderpath1 = Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(exportControlItem["exportId"])
+            if folderpath1.nil? then
+                puts "> Export folder not found"
+                puts "> Destroying dispatch item: #{JSON.pretty_generate(exportControlItem)}"
+                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", exportControlItem["uuid"])
                 next
             end
-            puts "dispatchItem: #{JSON.pretty_generate(dispatchItem)}"
-            atom = Librarian6Objects::getObjectByUUIDOrNull(dispatchItem["atomUUID"])
-            if atom.nil? then
-                puts "> I could not find an atom for atomuuid: #{dispatchItem["atomUUID"]}"
-                puts "> I am going to pause, and let you process the folder manually"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            puts "atom: #{JSON.pretty_generate(atom)}"
-
-            # We check whether the atom is alive, if it is not, we do not bother with the ones that are ophan as 
-            # they most likely correspond to dead top objects
-            atomOwnerOrNull = lambda {|atom|
-                Librarian6Objects::objects().each{|object|
-                    if object["atomuuid"] == atom["uuid"] then
-                        return object
-                    end
-                }
-                nil
-            }
-
-            if atomOwnerOrNull.call(atom).nil? then
-                puts "I could not find an owner for atom: #{JSON.generate(atom)}"
-                puts "Going to remove the export folder"
-                LucilleCore::pressEnterToContinue()
-                LucilleCore::removeFileSystemLocation(folder1)
-                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", dispatchItem["uuid"])
-                next
-            end
-
-            locations2 = LucilleCore::locationsAtFolder(folder1)
+            locations2 = LucilleCore::locationsAtFolder(folderpath1)
             if locations2.size == 0 then
-                puts "> I could not find a location inside #{folder1}"
-                puts "> I let you deal with it"
+                puts "> There is export folderpath: #{folderpath1}"
+                puts " > But I cannot see anything inside."
                 LucilleCore::pressEnterToContinue()
                 next
             end
             if locations2.size > 1 then
-                puts "> I found more than one location inside #{folder1}"
-                puts "> I let you deal with it, and you will have to rerun pickup process"
+                puts "> There is export folderpath: #{folderpath1}"
+                puts "> I can find more than one location inside."
                 LucilleCore::pressEnterToContinue()
                 next
             end
-            location3 = locations2.first # Item to Aionize.
-            puts "> location3: #{location3}"
+            
+            location3 = locations2.first
 
-            if LucilleCore::askQuestionAnswerAsBoolean("Pickup '#{File.basename(location3)}' ? ") then
-                rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location3)
-                if rootnhash != atom["rootnhash"] then
-                    atom["rootnhash"] = rootnhash
-                    puts "atom (updated): #{JSON.pretty_generate(atom)}"
-                    Librarian6Objects::commit(atom)
-                end
-                LucilleCore::removeFileSystemLocation(folder1)
-                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", dispatchItem["uuid"])
+            atomuuid = exportControlItem["atomuuid"]
+            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+            if atom.nil? then
+                puts "I could not find an atom for atomuuid: #{atomuuid}"
+                puts "Destroying the export control item"
+                LucilleCore::pressEnterToContinue()
+                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", exportControlItem["uuid"])
+                next
             end
+
+            rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location3)
+            if rootnhash != atom["rootnhash"] then
+                atom["rootnhash"] = rootnhash
+                puts "atom (updated): #{JSON.pretty_generate(atom)}"
+                Librarian6Objects::commit(atom)
+            end
+            LucilleCore::removeFileSystemLocation(folderpath1)
+            BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", exportControlItem["uuid"])
         }
     end
 end
