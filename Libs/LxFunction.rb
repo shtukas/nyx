@@ -14,6 +14,12 @@ class LxFunction
             exit
         end
 
+        if command == "description" then
+            if object["mikuType"] == "TxTodo" then
+                return object["description"]
+            end
+        end
+
         if command == "toString" then
             if object["mikuType"] == "Nx31" then
                 return Nx31s::toString(object)

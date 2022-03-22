@@ -742,8 +742,21 @@ class Librarian16AionExport
 
     # Librarian16AionExport::atomToNewExportFolderpath(atom)
     def self.atomToNewExportFolderpath(atom)
+        # Let's try and determine a description for that atom
+        description = nil
+        Librarian6Objects::objects().each{|object|
+            next if object["atomuuid"].nil?
+            next if object["atomuuid"] != atom["uuid"]
+            description = LxFunction::function("description", object)
+            break
+        }
         exportId = SecureRandom.hex[0, 8]
-        folderpath = "/Users/pascal/Desktop/#{exportId}"
+        folderpath = 
+            if description then
+                "/Users/pascal/Desktop/#{Utils::sanitiseStringForFilenaming(description)} (#{exportId})"
+            else
+                "/Users/pascal/Desktop/aion-point export (#{exportId})"
+            end
         FileUtils.mkdir(folderpath)
         Librarian16AionExport::issueTx45(SecureRandom.uuid, atom["uuid"], exportId)
         folderpath
