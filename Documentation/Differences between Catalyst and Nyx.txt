@@ -14,5 +14,5 @@ Catalyst
 
 Nyx
     - Nx31
-    - Nx48TimedPublicEvent
-    - Nx49PascalPrivateLog
+    - Nx48PublicEvent
+    - Nx49PascalPersonalNote

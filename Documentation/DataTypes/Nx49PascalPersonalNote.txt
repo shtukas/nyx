@@ -1,8 +1,8 @@
-Nx48TimedPublicEvent {
+Nx49PascalPersonalNote {
     "uuid"             : uuid,
-    "mikuType"         : "Nx48TimedPublicEvent"
+    "mikuType"         : "Nx49PascalPersonalNote"
     "description"      : description
     "creationUnixtime" : unixtime
-    "eventDate"        : "YYYY-MM-DD"
+    "date"             : "YYYY-MM-DD"
     "atomuuid"         : UUID of an Atom
 }

@@ -1,22 +1,22 @@
 
 # encoding: UTF-8
 
-class Nx49PascalPersonalEvents
+class Nx48PublicEvents
 
     # ----------------------------------------------------------------------
     # IO
 
-    # Nx49PascalPersonalEvents::items()
+    # Nx48PublicEvents::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("Nx49PascalPrivateLog")
+        Librarian6Objects::getObjectsByMikuType("Nx48PublicEvent")
     end
 
-    # Nx49PascalPersonalEvents::getOrNull(uuid): null or Nx49PascalPrivateLog
+    # Nx48PublicEvents::getOrNull(uuid): null or Nx48PublicEvent
     def self.getOrNull(uuid)
         Librarian6Objects::getObjectByUUIDOrNull(uuid)
     end
 
-    # Nx49PascalPersonalEvents::destroy(uuid)
+    # Nx48PublicEvents::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
@@ -24,7 +24,7 @@ class Nx49PascalPersonalEvents
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # Nx49PascalPersonalEvents::interactivelyCreateNewOrNull()
+    # Nx48PublicEvents::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -37,42 +37,42 @@ class Nx49PascalPersonalEvents
         uuid = SecureRandom.uuid
         creationUnixtime = Time.new.to_i
 
-        date = LucilleCore::askQuestionAnswerAsString("date (format: YYYY-MM-DD) : ")
+        eventDate = LucilleCore::askQuestionAnswerAsString("eventDate (format: YYYY-MM-DD) : ")
 
         item = {
           "uuid"         => uuid,
-          "mikuType"     => "Nx49PascalPrivateLog",
+          "mikuType"     => "Nx48PublicEvent",
           "description"  => description,
           "creationUnixtime" => creationUnixtime,
-          "date"         => date,
+          "eventDate"    => eventDate,
           "atomuuid"     => atom["uuid"]
         }
         Librarian6Objects::commit(item)
         item
     end
 
-    # Nx49PascalPersonalEvents::selectExistingOrNull()
+    # Nx48PublicEvents::selectExistingOrNull()
     def self.selectExistingOrNull()
-        items = Nx49PascalPersonalEvents::items()
-                    .sort{|i1, i2| "#{i1["date"]}" <=> "#{i2["date"]}" }
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx49PascalPersonalEvents::toString(item)}" })
+        items = Nx48PublicEvents::items()
+                    .sort{|i1, i2| "#{i1["eventDate"]}" <=> "#{i2["eventDate"]}" }
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| "(#{item["uuid"][0, 4]}) #{Nx48PublicEvents::toString(item)}" })
     end
 
     # ----------------------------------------------------------------------
     # Data
 
-    # Nx49PascalPersonalEvents::toString(item)
+    # Nx48PublicEvents::toString(item)
     def self.toString(item)
-        "(private log) (#{item["date"]}) #{item["description"]}"
+        "(public event) (#{item["eventDate"]}) #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx49PascalPersonalEvents::landing(item)
+    # Nx48PublicEvents::landing(item)
     def self.landing(item)
         loop {
-            item = Nx49PascalPersonalEvents::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            item = Nx48PublicEvents::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if item.nil?
             system("clear")
 
@@ -80,9 +80,9 @@ class Nx49PascalPersonalEvents
 
             store = ItemStore.new()
 
-            puts Nx49PascalPersonalEvents::toString(item).green
+            puts Nx48PublicEvents::toString(item).green
             puts "uuid: #{item["uuid"]}".yellow
-            puts "date: #{item["date"]}".yellow
+            puts "eventDate: #{item["eventDate"]}".yellow
             puts "atomuuid: #{item["atomuuid"]}".yellow
             atom = Librarian6Objects::getObjectByUUIDOrNull(item["atomuuid"])
             puts "atom: #{atom}".yellow
@@ -96,26 +96,26 @@ class Nx49PascalPersonalEvents
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx49PascalPersonalEvents::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx48PublicEvents::toString(entity)}" 
                 }
 
             Links::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx49PascalPersonalEvents::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx48PublicEvents::toString(entity)}" 
                 }
 
             Links::children(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx49PascalPersonalEvents::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx48PublicEvents::toString(entity)}" 
                 }
 
             Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
 
-            puts "access | description | date | atom | attachment | link | unlink | destroy".yellow
+            puts "access | description | event date | atom | attachment | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -139,9 +139,9 @@ class Nx49PascalPersonalEvents
                 next
             end
 
-            if Interpreting::match("date", command) then
+            if Interpreting::match("event date", command) then
                 date = LucilleCore::askQuestionAnswerAsString("date (format: YYYY-MM-DD) : ")
-                item["date"] = date
+                item["eventDate"] = date
                 Librarian6Objects::commit(item) 
             end
 
@@ -169,14 +169,14 @@ class Nx49PascalPersonalEvents
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx49PascalPersonalEvents::destroy(item["uuid"])
+                    Nx48PublicEvents::destroy(item["uuid"])
                     break
                 end
             end
         }
     end
 
-    # Nx49PascalPersonalEvents::processAfterCompletionArchiveOrDestroy(item)
+    # Nx48PublicEvents::processAfterCompletionArchiveOrDestroy(item)
     def self.processAfterCompletionArchiveOrDestroy(item)
         actions = ["disactivate (default)", "destroy"]
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -185,33 +185,33 @@ class Nx49PascalPersonalEvents
             Librarian6Objects::commit(item)
         end
         if action == "destroy" then
-            Nx49PascalPersonalEvents::destroy(item["uuid"])
+            Nx48PublicEvents::destroy(item["uuid"])
         end
     end
 
     # ------------------------------------------------
     # Nx20s
 
-    # Nx49PascalPersonalEvents::dive()
+    # Nx48PublicEvents::dive()
     def self.dive()
         loop {
             system("clear")
-            items = Nx49PascalPersonalEvents::items()
-                        .sort{|i1, i2| "#{i1["date"]}" <=> "#{i2["date"]}" }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("private log", items, lambda{|item| Nx49PascalPersonalEvents::toString(item) })
+            items = Nx48PublicEvents::items()
+                        .sort{|i1, i2| "#{i1["eventDate"]}" <=> "#{i2["eventDate"]}" }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("public event", items, lambda{|item| Nx48PublicEvents::toString(item) })
             break if item.nil?
-            Nx49PascalPersonalEvents::landing(item)
+            Nx48PublicEvents::landing(item)
         }
     end
 
     # --------------------------------------------------
     # nx16s
 
-    # Nx49PascalPersonalEvents::nx20s()
+    # Nx48PublicEvents::nx20s()
     def self.nx20s()
-        Nx49PascalPersonalEvents::items().map{|item| 
+        Nx48PublicEvents::items().map{|item| 
             {
-                "announce" => "(#{item["uuid"][0, 4]}) #{Nx49PascalPersonalEvents::toString(item)}",
+                "announce" => "(#{item["uuid"][0, 4]}) #{Nx48PublicEvents::toString(item)}",
                 "unixtime" => item["creationUnixtime"],
                 "payload"  => item
             }

@@ -33,7 +33,7 @@ class NyxNetwork
             return Nx31s::interactivelyCreateNewOrNull()
         end
         if type == "Nx48 Timed Public Event" then
-            return Nx48TimedPublicEvents::interactivelyCreateNewOrNull()
+            return Nx48PublicEvents::interactivelyCreateNewOrNull()
         end
         if type == "Nx49 Pascal Private Log" then
             return Nx49PascalPersonalEvents::interactivelyCreateNewOrNull()
