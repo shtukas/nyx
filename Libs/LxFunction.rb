@@ -18,6 +18,9 @@ class LxFunction
             if object["mikuType"] == "TxTodo" then
                 return object["description"]
             end
+            if object["mikuType"] == "Nx31" then
+                return object["description"]
+            end
         end
 
         if command == "toString" then
@@ -38,7 +41,7 @@ class LxFunction
             end
         end
 
-        puts "I do not know how to do function (command: #{command}, object: #{JSON.pretty_generate(object)})"
+        puts "I do not know how to LxFunction::function (command: #{command}, object: #{JSON.pretty_generate(object)})"
         puts "Aborting."
         exit
     end
