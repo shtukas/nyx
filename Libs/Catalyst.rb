@@ -210,6 +210,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("universe", ordinal, store)
         end
 
+        if Interpreting::match("wave", input) then
+            return ["wave", nil]
+        end
+
         [nil, nil]
     end
 end
