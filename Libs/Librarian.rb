@@ -565,10 +565,15 @@ end
 
 class Librarian12EnergyGrid
 
+    # Librarian12EnergyGrid::datablobsRepository()
+    def self.datablobsRepository()
+        "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs"
+    end
+
     # Librarian12EnergyGrid::putBlob(blob) # nhash
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepathRemote = "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        filepathRemote = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(File.dirname(filepathRemote)) then
             FileUtils.mkpath(File.dirname(filepathRemote))
         end
@@ -578,11 +583,43 @@ class Librarian12EnergyGrid
 
     # Librarian12EnergyGrid::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepathRemote = "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        filepathRemote = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(filepathRemote) then
             return nil
         end
+        markFilepath = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.mark"
+        File.open(markFilepath, "w"){|f| f.puts(Time.new.to_i) }
         IO.read(filepathRemote)
+    end
+
+    # Librarian12EnergyGrid::garbageCollection()
+    def self.garbageCollection()
+        #puts "Garbage Collection Step 1: fsck"
+        #LucilleCore::pressEnterToContinue()
+        #Librarian15Fsck::fsck()
+
+        puts "Garbage Collection Step 2: deletions"
+        LucilleCore::pressEnterToContinue()
+        Find.find(Librarian12EnergyGrid::datablobsRepository()) do |path|
+            next if File.directory?(path)
+            if File.basename(path)[-5, 5] == ".data" then
+                markFilepath = path.gsub(".data", ".mark")
+                if !File.exist?(markFilepath) then
+                    File.open(markFilepath, "w"){|f| f.puts(Time.new.to_i) }
+                    next
+                end
+                mark = IO.read(markFilepath).to_i
+                if (Time.new.to_i - mark) > 86400*7 then
+                    puts "removing blob: #{path}"
+                    FileUtils.rm(path)
+                    FileUtils.rm(markFilepath)
+                end
+            end
+        end
+
+        puts "Garbage Collection Step 3: fsck (final)"
+        LucilleCore::pressEnterToContinue()
+        Librarian15Fsck::fsck()
     end
 end
 
