@@ -12,7 +12,8 @@ loop {
         "run fsck", 
         "show object", 
         "prob blob", 
-        "do aion-points pickups", 
+        "do aion-points pickups",
+        "garbage collection",
         "exit"
     ]
     action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action:", actions)
@@ -53,6 +54,9 @@ loop {
     end
     if action == "do aion-points pickups" then
         Librarian16AionExport::doPickups()
+    end
+    if action == "garbage collection" then
+        Librarian12EnergyGrid::garbageCollection()
     end
     if action == "exit" then
         break
