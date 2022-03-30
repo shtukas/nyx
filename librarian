@@ -56,7 +56,7 @@ loop {
         Librarian16AionExport::doPickups()
     end
     if action == "garbage collection" then
-        Librarian12EnergyGrid::garbageCollection()
+        Librarian15GarbageCollection::garbageCollection()
     end
     if action == "exit" then
         break

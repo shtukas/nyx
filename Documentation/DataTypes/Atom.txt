@@ -55,3 +55,15 @@ marble file:
     content {
         "uuid" => String
     }
+
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "local-group-001"
+    "payload"  : String # foldername on local group
+}
+
+"local-group-001" was created to offload to LocalGroup the numerous youtube videos that poluted the network as aion-points
+
+

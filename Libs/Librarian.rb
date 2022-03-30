@@ -272,6 +272,17 @@ class Librarian5Atoms
         }
     end
 
+    # Librarian5Atoms::makeLG001Atom(lg001Code)
+    def self.makeLG001Atom(lg001Code)
+        {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
+            "unixtime"    => Time.new.to_f,
+            "type"        => "local-group-001",
+            "payload"     => lg001Code
+        }
+    end
+
     # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
@@ -573,45 +584,16 @@ class Librarian12EnergyGrid
     # -----------------------------------------------------------------------------
     # mark in this context if the unixtime of the last time the blob was read
 
-    # Librarian12EnergyGrid::updateNhashMarkToLatest(nhash)
-    def self.updateNhashMarkToLatest(nhash)
-        filepath = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.mark"
-        File.open(filepath, "w"){|f| f.puts(Time.new.to_f) }
+    # Librarian12EnergyGrid::updateLastReadUnixtime(nhash)
+    def self.updateLastReadUnixtime(nhash)
+        KeyValueStore::set(nil, "9e52ce32-285d-42e3-a0d6-6fcbfe5941e8:#{nhash}", Time.new.to_f)
     end
 
-    # Librarian12EnergyGrid::getMarkOrNull(nhash)
-    def self.getMarkOrNull(nhash)
-        filepath = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.mark"
-        return nil if !File.exists?(filepath)
-        IO.read(filepath).to_f
-    end
-
-    # Librarian12EnergyGrid::deleteMarkFile(nhash)
-    def self.deleteMarkFile(nhash)
-        filepath = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.mark"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
-    end
-
-    # -----------------------------------------------------------------------------
-
-    # Librarian12EnergyGrid::logicalDelete(nhash)
-    def self.logicalDelete(nhash)
-        filepath = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.delete"
-        FileUtils.touch(filepath)
-    end
-
-    # Librarian12EnergyGrid::isLogicallyDeleted(nhash)
-    def self.isLogicallyDeleted(nhash)
-        filepath = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.delete"
-        File.exists?(filepath)
-    end
-
-    # Librarian12EnergyGrid::deleteLogicalDeleteMarker(nhash)
-    def self.deleteLogicalDeleteMarker(nhash)
-        filepath = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.delete"
-        return if !File.exists?(filepath)
-        FileUtils.rm(filepath)
+    # Librarian12EnergyGrid::getLastReadUnixtimeOrNull(nhash)
+    def self.getLastReadUnixtimeOrNull(nhash)
+        value = KeyValueStore::getOrNull(nil, "9e52ce32-285d-42e3-a0d6-6fcbfe5941e8:#{nhash}")
+        return nil if value.nil?
+        value.to_f
     end
 
     # -----------------------------------------------------------------------------
@@ -633,56 +615,8 @@ class Librarian12EnergyGrid
         if !File.exists?(filepathRemote) then
             return nil
         end
-        if Librarian12EnergyGrid::isLogicallyDeleted(nhash) then
-            return nil
-        end
-        Librarian12EnergyGrid::updateNhashMarkToLatest(nhash)
+        Librarian12EnergyGrid::updateLastReadUnixtime(nhash)
         IO.read(filepathRemote)
-    end
-
-    # Librarian12EnergyGrid::garbageCollection()
-    def self.garbageCollection()
-
-        time1 = Time.new.to_f
-
-        puts "Garbage Collection Step 1: fsck"
-        LucilleCore::pressEnterToContinue()
-        Librarian15Fsck::fsck()
-
-        #puts "Garbage Collection Step 2: deletions"
-        #LucilleCore::pressEnterToContinue()
-        #Find.find(Librarian12EnergyGrid::datablobsRepository()) do |path|
-        #    next if File.directory?(path)
-        #    if File.basename(path)[-5, 5] == ".data" then
-        #        nhash = File.basename(path).gsub(".data", "")
-        #        mark = Librarian12EnergyGrid::getMarkOrNull(nhash)
-        #        if mark.nil? or (mark < time1) then
-        #            # The last time the data file was read was before the start of the garbage collection process
-        #            puts "logical delete blob: #{path}"
-        #            Librarian12EnergyGrid::logicalDelete(nhash)
-        #        end
-        #    end
-        #end
-
-        #puts "Garbage Collection Step 3: fsck (again)"
-        #LucilleCore::pressEnterToContinue()
-        #Librarian15Fsck::fsck()
-
-        #puts "Garbage Collection Step 4: perma delete of logically deleted blobs"
-        #LucilleCore::pressEnterToContinue()
-        #Find.find(Librarian12EnergyGrid::datablobsRepository()) do |path|
-        #    next if File.directory?(path)
-        #    if File.basename(path)[-5, 5] == ".data" then
-        #        nhash = File.basename(path).gsub(".data", "")
-        #        if Librarian12EnergyGrid::isLogicallyDeleted(nhash) then
-        #            puts "> about to delete logically deleted blob #{nhash}"
-        #            exit
-        #            FileUtils.rm(path)
-        #            Librarian12EnergyGrid::isLogicallyDeleted(nhash)
-        #            Librarian12EnergyGrid::deleteLogicalDeleteMarker(nhash)
-        #        end
-        #    end
-        #end
     end
 end
 
@@ -746,6 +680,10 @@ class Librarian15Fsck
             # Technically we should be checking if the target exists, but that takes too long
             return true
         end
+        if atom["type"] == "local-group-001" then
+            # Technically we should be checking if the target exists, but that takes too long
+            return true
+        end
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
     end
 
@@ -777,6 +715,30 @@ class Librarian15Fsck
                 exit
             end
         }
+    end
+end
+
+class Librarian15GarbageCollection
+
+    # Librarian15GarbageCollection::garbageCollection()
+    def self.garbageCollection()
+
+        Librarian15Fsck::fsck()
+
+        Find.find(Librarian12EnergyGrid::datablobsRepository()) do |path|
+            next if File.directory?(path)
+            if File.basename(path)[-5, 5] == ".data" then
+                nhash = File.basename(path).gsub(".data", "")
+                mark = Librarian12EnergyGrid::getLastReadUnixtimeOrNull(nhash)
+                if mark.nil? or (mark < (Time.new.to_f-86400)) then
+                    # The last time the data file was read more that a day ago
+                    puts "garbage collect: #{path}"
+                    FileUtils.rm(path)
+                end
+            end
+        end
+
+        Librarian15Fsck::fsck()
     end
 end
 
