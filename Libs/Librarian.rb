@@ -498,7 +498,7 @@ class Librarian5Atoms
             return "Atom (url): #{atom["payload"]}"
         end
         if atom["type"] == "aion-point" then
-            return "Atom (aion-point)"
+            return "Atom (aion-point): #{atom["payload"]}"
         end
         if atom["type"] == "local-group-002" then
             return "Atom (local-group-002): #{atom["payload"]}"
