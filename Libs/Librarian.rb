@@ -283,10 +283,21 @@ class Librarian5Atoms
         }
     end
 
+    # Librarian5Atoms::makeLG002Atom(indx)
+    def self.makeLG002Atom(indx)
+        {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Atom",
+            "unixtime"    => Time.new.to_f,
+            "type"        => "local-group-002",
+            "payload"     => indx
+        }
+    end
+
     # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "marble", "unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "local-group-002", "marble", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
             return Librarian5Atoms::makeDescriptionOnlyAtom()
@@ -307,6 +318,11 @@ class Librarian5Atoms
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return Librarian5Atoms::makeAionPointAtomUsingLocation(location)
+        end
+
+        if type == "local-group-002" then
+            indx = LucilleCore::askQuestionAnswerAsString("Number between 000001 and 999999: ")
+            return Librarian5Atoms::makeLG002Atom(indx)
         end
 
         if type == "marble" then
@@ -430,6 +446,15 @@ class Librarian5Atoms
             #    Librarian0Utils::moveFileToBinTimeline(location)
             #end
         end
+        if atom["type"] == "local-group-001" then
+            puts "I do not know how to access local-group-001"
+            LucilleCore::pressEnterToContinue()
+        end
+        if atom["type"] == "local-group-002" then
+            puts "Local Group 002, code: #{atom["payload"]}"
+            puts "Access file on drive"
+            LucilleCore::pressEnterToContinue()
+        end
         if atom["type"] == "marble" then
             marbleId = atom["payload"]
             Librarian5Atoms::findAndAccessMarble(marbleId)
@@ -474,6 +499,9 @@ class Librarian5Atoms
         end
         if atom["type"] == "aion-point" then
             return "Atom (aion-point)"
+        end
+        if atom["type"] == "local-group-002" then
+            return "Atom (local-group-002): #{atom["payload"]}"
         end
         if atom["type"] == "marble" then
             return "Atom (marble): #{atom["payload"]}"
@@ -681,7 +709,9 @@ class Librarian15Fsck
             return true
         end
         if atom["type"] == "local-group-001" then
-            # Technically we should be checking if the target exists, but that takes too long
+            return true
+        end
+        if atom["type"] == "local-group-002" then
             return true
         end
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
@@ -891,7 +921,7 @@ class Libriarian16SpecialCircumstances
             LucilleCore::pressEnterToContinue()
         else
             if text = Librarian5Atoms::atomPayloadToTextOrNull(atom) then
-                puts "text:\n#{text}"
+                puts text
             end
         end
     end

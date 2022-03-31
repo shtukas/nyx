@@ -66,4 +66,11 @@ marble file:
 
 "local-group-001" was created to offload to LocalGroup the numerous youtube videos that poluted the network as aion-points
 
+{
+    "uuid"     : String
+    "mikuType" : "Atom"
+    "unixtime" : Float
+    "type"     : "local-group-002"
+    "payload"  : String # number between 000001 and 999999
+}
 
