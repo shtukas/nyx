@@ -754,6 +754,11 @@ Tx45 {
 
 class Librarian16AionExport
 
+    # Librarian16AionExport::aionExportFolder()
+    def self.aionExportFolder()
+        "/Users/pascal/Desktop/Aion-Exports"
+    end
+
     # Librarian16AionExport::issueTx45(uuid, atomuuid, exportId)
     def self.issueTx45(uuid, atomuuid, exportId)
         item = {
@@ -782,7 +787,7 @@ class Librarian16AionExport
     def self.exportIdToExistingExportFolderpathOrNull(exportId)
         # First we look for a folder with that dispatch id trace, if we find one we return 
         # it otherwise we make one
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
+        LucilleCore::locationsAtFolder(Librarian16AionExport::aionExportFolder()).each{|location|
             if File.basename(location).include?(exportId) then
                 return location
             end
@@ -815,9 +820,9 @@ class Librarian16AionExport
         exportId = SecureRandom.hex[0, 8]
         folderpath = 
             if description then
-                "/Users/pascal/Desktop/#{Utils::sanitiseStringForFilenaming(description)} (#{exportId})"
+                "#{Librarian16AionExport::aionExportFolder()}/#{Utils::sanitiseStringForFilenaming(description)} (#{exportId})"
             else
-                "/Users/pascal/Desktop/aion-point export (#{exportId})"
+                "#{Librarian16AionExport::aionExportFolder()}/(#{exportId})"
             end
         FileUtils.mkdir(folderpath)
         Librarian16AionExport::issueTx45(SecureRandom.uuid, atom["uuid"], exportId)
@@ -827,7 +832,7 @@ class Librarian16AionExport
     # Librarian16AionExport::doPickups()
     def self.doPickups()
         BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC").each{|exportControlItem|
-            puts JSON.pretty_generate(exportControlItem)
+            #puts JSON.pretty_generate(exportControlItem)
             
             folderpath1 = Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(exportControlItem["exportId"])
             if folderpath1.nil? then
@@ -852,6 +857,8 @@ class Librarian16AionExport
             
             location3 = locations2.first
 
+            next if !LucilleCore::askQuestionAnswerAsBoolean("process '#{location3}' ? ")
+
             atomuuid = exportControlItem["atomuuid"]
             atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
             if atom.nil? then
@@ -865,7 +872,7 @@ class Librarian16AionExport
             rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location3)
             if rootnhash != atom["rootnhash"] then
                 atom["rootnhash"] = rootnhash
-                puts "atom (updated): #{JSON.pretty_generate(atom)}"
+                #puts "atom (updated): #{JSON.generate(atom)}"
                 Librarian6Objects::commit(atom)
             end
             LucilleCore::removeFileSystemLocation(folderpath1)
