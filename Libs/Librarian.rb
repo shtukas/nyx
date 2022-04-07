@@ -339,7 +339,7 @@ class Librarian5Atoms
         raise "[Librarian] [D2BDF2BC-D0B8-4D76-B00F-9EBB328D4CF7, type: #{type}]"
     end
 
-    # -- Update ------------------------------------------
+    # -- Data ------------------------------------------
 
     # Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
     def self.marbleIsInAionPointObject(object, marbleId)
@@ -384,7 +384,7 @@ class Librarian5Atoms
         puts "> Marble not found in Galaxy"
         puts "> Looking inside aion-points..."
         puts "" # To accomodate Utils::putsOnPreviousLine
-        Librarian6Objects::getObjectsByMikuType("Atom")
+        Librarian6Objects::operationalAtoms()
             .each{|atom|
                 next if atom["type"] != "aion-point"
                 nhash = atom["rootnhash"]
@@ -400,6 +400,43 @@ class Librarian5Atoms
         puts "> I could not find the marble inside aion-points"
         LucilleCore::pressEnterToContinue()
     end
+
+    # Librarian5Atoms::toString(atom)
+    def self.toString(atom)
+        "[atom] #{atom["type"]}"
+    end
+
+    # Librarian5Atoms::atomPayloadToTextOrNull(atom)
+    def self.atomPayloadToTextOrNull(atom)
+        if atom["type"] == "description-only" then
+            return nil
+        end
+        if atom["type"] == "text" then
+            text = [
+                "-- Atom (text) --",
+                Librarian12EnergyGrid::getBlobOrNull(atom["payload"]).strip,
+            ].join("\n")
+            return text
+        end
+        if atom["type"] == "url" then
+            return "Atom (url): #{atom["payload"]}"
+        end
+        if atom["type"] == "aion-point" then
+            return "Atom (aion-point): #{atom["payload"]}"
+        end
+        if atom["type"] == "local-group-002" then
+            return "Atom (local-group-002): #{atom["payload"]}"
+        end
+        if atom["type"] == "marble" then
+            return "Atom (marble): #{atom["payload"]}"
+        end
+        if atom["type"] == "unique-string" then
+            return "Atom (unique-string): #{atom["payload"]}"
+        end
+        raise "(1EDB15D2-9125-4947-924E-B24D5E67CAE3, atom: #{atom})"
+    end
+
+    # -- Operations ------------------------------------------
 
     # Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
     def self.accessWithOptionToEditOptionalAutoMutation(atom)
@@ -469,43 +506,6 @@ class Librarian5Atoms
                 LucilleCore::pressEnterToContinue()
             end
         end
-    end
-
-    # -- Data ------------------------------------------
-
-    # Librarian5Atoms::toString(atom)
-    def self.toString(atom)
-        "[atom] #{atom["type"]}"
-    end
-
-    # Librarian5Atoms::atomPayloadToTextOrNull(atom)
-    def self.atomPayloadToTextOrNull(atom)
-        if atom["type"] == "description-only" then
-            return nil
-        end
-        if atom["type"] == "text" then
-            text = [
-                "-- Atom (text) --",
-                Librarian12EnergyGrid::getBlobOrNull(atom["payload"]).strip,
-            ].join("\n")
-            return text
-        end
-        if atom["type"] == "url" then
-            return "Atom (url): #{atom["payload"]}"
-        end
-        if atom["type"] == "aion-point" then
-            return "Atom (aion-point): #{atom["payload"]}"
-        end
-        if atom["type"] == "local-group-002" then
-            return "Atom (local-group-002): #{atom["payload"]}"
-        end
-        if atom["type"] == "marble" then
-            return "Atom (marble): #{atom["payload"]}"
-        end
-        if atom["type"] == "unique-string" then
-            return "Atom (unique-string): #{atom["payload"]}"
-        end
-        raise "(1EDB15D2-9125-4947-924E-B24D5E67CAE3, atom: #{atom})"
     end
 end
 
@@ -596,6 +596,23 @@ class Librarian6Objects
         db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
         db.close
     end
+
+    # Librarian6Objects::operationalAtoms() # Array[Atom]
+    def self.operationalAtoms()
+        objectToAtomOrNull = lambda{|item|
+            # The logic of this extraction mirror that of fsck
+            return nil if item["mikuType"] == "Atom"
+            return nil if item["mikuType"] == "Nx25"
+            raise "(error: d3063b74-da49-4c19-ab19-ed2c2268a7ac)" if item["atomuuid"].nil?
+            atomuuid = item["atomuuid"]
+            Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+        }
+
+        Librarian6Objects::objects()
+            .map{|item| objectToAtomOrNull.call(item) }
+            .compact
+    end
+
 end
 
 class Librarian12EnergyGrid
