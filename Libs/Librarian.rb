@@ -786,7 +786,7 @@ class Librarian16AionExport
 
     # Librarian16AionExport::aionExportFolder()
     def self.aionExportFolder()
-        "/Users/pascal/Desktop/Aion-Exports"
+        "/Users/pascal/x-space/Aion-Exports"
     end
 
     # Librarian16AionExport::issueTx45(uuid, atomuuid, exportId)
