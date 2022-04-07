@@ -378,16 +378,6 @@ class LxAction
             return
         end
 
-        if command == "mode" then
-            if NxBallsService::somethingIsRunning() then
-                puts "You cannot run mode while something is running"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            UniverseDrivingModes::interactivelySetMode()
-            return
-        end
-
         if command == "nyx" then
             Nyx::program()
             return
@@ -432,8 +422,7 @@ class LxAction
             uuid = SecureRandom.uuid
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             universe = Multiverse::interactivelySelectUniverse()
-            accounts = [UniverseAccounting::universeToAccountNumberOrNull(universe)].compact
-            NxBallsService::issue(uuid, description, accounts)
+            NxBallsService::issue(uuid, description, [])
             return
         end
 
@@ -444,8 +433,7 @@ class LxAction
 
         if command == "start" then
             ns16 = object
-            universeAccountNumber = UniverseAccounting::universeToAccountNumberOrNull(ObjectUniverseMapping::getObjectUniverseMappingOrNull(ns16["uuid"]))
-            NxBallsService::issue(ns16["uuid"], ns16["announce"], [ns16["uuid"], universeAccountNumber].compact)
+            NxBallsService::issue(ns16["uuid"], ns16["announce"], [ns16["uuid"]])
             return
         end
 

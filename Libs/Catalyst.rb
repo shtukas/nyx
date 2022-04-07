@@ -128,10 +128,6 @@ class TerminalUtils
             return ["librarian", nil]
         end
 
-        if Interpreting::match("mode", input) then
-            return ["mode", nil]
-        end
-
         if Interpreting::match("nyx", input) then
             return ["nyx", nil]
         end
@@ -310,16 +306,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        t1 = UniverseDrivingModes::getStoredMode()
-        t2 = Multiverse::universes()
-            .map{|uni|
-                expectation = UniverseAccounting::universeExpectationOrNull(uni)
-                uniRatio = UniverseAccounting::universeRatioOrNull(uni)
-                line = "(#{uni}: #{(100 * uniRatio).round(2)} % of #{"%.2f" % expectation} hours)"
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-                line
-            }.join(" ")
-        puts "(#{t1}: #{universe.green}) #{t2}"
+        puts "(#{universe})"
 
         store = ItemStore.new()
 
@@ -433,13 +420,9 @@ class Catalyst
 
             TxTodos::importNx50BacklogInbox()
 
-            if !NxBallsService::somethingIsRunning() and UniverseDrivingModes::getStoredMode() == "assisted switching" then
-                storedUniverse = StoredUniverse::getUniverseOrNull()
-                advisedUniverse = UniverseAccounting::getUniversesInRatioOrder().first
-                if storedUniverse != advisedUniverse then
-                    if LucilleCore::askQuestionAnswerAsBoolean("[assisted switching] Would you like to switch to: #{advisedUniverse} ? ") then
-                        StoredUniverse::setUniverse(advisedUniverse)
-                    end
+            if !NxBallsService::somethingIsRunning() then
+                if (uni2 = StoredUniverse::getUniverseOrNull()) then
+                    StoredUniverse::setUniverse(uni2)
                 end
             end
 
