@@ -21,6 +21,9 @@ class LxFunction
             if object["mikuType"] == "Nx31" then
                 return object["description"]
             end
+            if object["mikuType"] == "TxFloat" then
+                return object["description"]
+            end
         end
 
         if command == "toString" then
