@@ -80,25 +80,25 @@ class Librarian0Utils
         "/Users/pascal/Desktop/#{locationNameOnDesktop}"
     end
 
-    # Librarian0Utils::marbleLocationOrNullUseTheForce(uuid)
-    def self.marbleLocationOrNullUseTheForce(uuid)
-        Find.find("/Users/pascal/Galaxy") do |path|
-
-            Find.prune() if path.include?("/Users/pascal/Galaxy/DataBank")
-            Find.prune() if path.include?("/Users/pascal/Galaxy/Software")
-
-            next if !File.file?(path)
-            next if File.basename(path) != "nyx-marble.json" # We look for equality since at the moment we do not expect them to be renamed.
-
-            marble = JSON.parse(IO.read(path))
-
-            # We have a marble. We are going to cache its location.
-            # We cache the location against the marble's uuid.
-            KeyValueStore::set(nil, "5d7f5599-0b2c-4f16-acc6-a8ead29c272f:#{marble["uuid"]}", path)
-
-            next if marble["uuid"] != uuid
-            return path
-        end
+    # Librarian0Utils::marbleLocationUsingFileSystemSearchOrNull(uuid)
+    def self.marbleLocationUsingFileSystemSearchOrNull(uuid)
+        roots = [
+            "/Users/pascal/Galaxy/Documents",
+            Librarian16AionExport::aionExportFolder()
+        ]
+        roots.each{|root|
+            Find.find(root) do |path|
+                next if !File.file?(path)
+                next if File.basename(path) != "nyx-marble.json" # We look for equality since at the moment we do not expect them to be renamed.
+                marble = JSON.parse(IO.read(path))
+                # We have a marble. We are going to cache its location.
+                # We cache the location against the marble's uuid.
+                KeyValueStore::set(nil, "5d7f5599-0b2c-4f16-acc6-a8ead29c272f:#{marble["uuid"]}", path)
+                next if marble["uuid"] != uuid
+                return path
+            end
+        }
+        nil
     end
 
     # Librarian0Utils::marbleLocationOrNullUsingCache(uuid)
@@ -371,27 +371,24 @@ class Librarian5Atoms
         if location then
             puts "found marble at: #{location}"
             system("open '#{File.dirname(location)}'")
-            return nil
+            return
         end
-        puts "> I could not find the location of the marble in the cache"
-
-        return nil if !LucilleCore::askQuestionAnswerAsBoolean("Would you like me to use the Force ? ")
-        location = Librarian0Utils::marbleLocationOrNullUseTheForce(marbleId)
+        puts "> Marble not immediately found using the cache"
+        puts "> Looking into Galaxy..."
+        location = Librarian0Utils::marbleLocationUsingFileSystemSearchOrNull(marbleId)
         if location then
             puts "> found marble at: #{location}"
             system("open '#{File.dirname(location)}'")
-            return nil
+            return
         end
-        puts "> I could not find the marble in Galaxy using the Force"
-
-        # Ok, so now we are going to look inside aion-points
-        puts "> I am going to look inside aion-points"
+        puts "> Marble not found in Galaxy"
+        puts "> Looking inside aion-points..."
         puts "" # To accomodate Utils::putsOnPreviousLine
         Librarian6Objects::getObjectsByMikuType("Atom")
             .each{|atom|
                 next if atom["type"] != "aion-point"
                 nhash = atom["rootnhash"]
-                Utils::putsOnPreviousLine(nhash)
+                Utils::putsOnPreviousLine("checking atom '#{atom["uuid"]}'")
                 if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
                     puts "> I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
                     puts "> Accessing the atom"
@@ -402,7 +399,6 @@ class Librarian5Atoms
 
         puts "> I could not find the marble inside aion-points"
         LucilleCore::pressEnterToContinue()
-        return nil
     end
 
     # Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
@@ -709,9 +705,11 @@ class Librarian15Fsck
             return true
         end
         if atom["type"] == "local-group-001" then
+            puts "> assuming correct"
             return true
         end
         if atom["type"] == "local-group-002" then
+            puts "> assuming correct"
             return true
         end
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
@@ -719,32 +717,40 @@ class Librarian15Fsck
 
     # Librarian15Fsck::fsck()
     def self.fsck()
-        Librarian6Objects::objects().each{|item|
-            next if item["mikuType"] == "Atom"
+        Librarian6Objects::objects()
+        .each{|item|
+            if item["mikuType"] == "Atom" then
+                next
+            end
             puts JSON.pretty_generate(item)
+            if item["mikuType"] == "Nx25" then
+                next
+            end
             if item["atomuuid"].nil? then
-                puts "This code relies on the assumption that every non atom object has a atomuuid"
-                puts "Is this an error of the object or an error in the assumption?"
+                puts "This code relies on the assumption that any object that has not been captured yet has an 'atomuuid' key.".red
+                puts "Is this an error of the object or an error in the assumption?".red
                 exit
             end
             atomuuid = item["atomuuid"]
             atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
             if atom.nil? then
-                puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)" 
-                puts "item:"
-                puts JSON.pretty_generate(item)
+                puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)".red
+                puts "item:".red
+                puts JSON.pretty_generate(item).red
                 exit
             end
             status = Librarian15Fsck::fsckAtom(atom)
             if !status then 
-                puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)" 
-                puts "item:"
-                puts JSON.pretty_generate(item)
-                puts "atom:"
-                puts JSON.pretty_generate(atom)
+                puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)".red
+                puts "item:".red
+                puts JSON.pretty_generate(item).red
+                puts "atom:".red
+                puts JSON.pretty_generate(atom).red
                 exit
             end
         }
+        puts "Fsck completed successfully".green
+        LucilleCore::pressEnterToContinue()
     end
 end
 
@@ -961,8 +967,6 @@ class LibrarianCLI
 
             if action == "run fsck" then
                 Librarian15Fsck::fsck()
-                puts "fsck completed"
-                LucilleCore::pressEnterToContinue()
             end
             if action == "show object" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
