@@ -373,6 +373,11 @@ class LxAction
 
         end
 
+        if command == "librarian" then
+            LibrarianCLI::main()
+            return
+        end
+
         if command == "mode" then
             if NxBallsService::somethingIsRunning() then
                 puts "You cannot run mode while something is running"

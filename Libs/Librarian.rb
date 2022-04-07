@@ -887,7 +887,7 @@ class Librarian16AionExport
             
             location3 = locations2.first
 
-            next if !LucilleCore::askQuestionAnswerAsBoolean("process '#{location3}' ? ")
+            next if !LucilleCore::askQuestionAnswerAsBoolean("process '#{location3}' ? ", true)
 
             atomuuid = exportControlItem["atomuuid"]
             atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
@@ -939,5 +939,68 @@ class Libriarian16SpecialCircumstances
         atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         return "" if atom.nil?
         "#{prefix}(#{atom["type"]})"
+    end
+end
+
+class LibrarianCLI
+
+    # LibrarianCLI::main()
+    def self.main()
+        loop {
+            system("clear")
+            actions = [
+                "run fsck", 
+                "show object", 
+                "prob blob", 
+                "do aion-points pickups",
+                "garbage collection",
+                "exit"
+            ]
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action:", actions)
+            break if action.nil?
+
+            if action == "run fsck" then
+                Librarian15Fsck::fsck()
+                puts "fsck completed"
+                LucilleCore::pressEnterToContinue()
+            end
+            if action == "show object" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
+                if object then
+                    puts JSON.pretty_generate(object)
+                    LucilleCore::pressEnterToContinue()
+                else
+                    puts "I could not find an object with this uuid"
+                    LucilleCore::pressEnterToContinue()
+                end
+            end
+            if action == "prob blob" then
+                nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
+                blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+                if blob then
+                    if blob[0, 1] == "{" then
+                        puts "blob: #{blob}"
+                        puts JSON.pretty_generate(JSON.parse(blob))
+                        LucilleCore::pressEnterToContinue()
+                    else
+                        puts "Found a blob of size #{blob.size}"
+                        LucilleCore::pressEnterToContinue()
+                    end
+                else
+                    puts "I could not find a blob with nhash: #{nhash}"
+                    LucilleCore::pressEnterToContinue()
+                end
+            end
+            if action == "do aion-points pickups" then
+                Librarian16AionExport::doPickups()
+            end
+            if action == "garbage collection" then
+                Librarian15GarbageCollection::garbageCollection()
+            end
+            if action == "exit" then
+                break
+            end
+        }
     end
 end
