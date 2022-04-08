@@ -83,6 +83,7 @@ class Librarian0Utils
     # Librarian0Utils::marbleLocationUsingFileSystemSearchOrNull(uuid)
     def self.marbleLocationUsingFileSystemSearchOrNull(uuid)
         roots = [
+            "/Users/pascal/Desktop",
             "/Users/pascal/Galaxy/Documents",
             Librarian16AionExport::aionExportFolder()
         ]
@@ -132,6 +133,23 @@ class Librarian0Utils
         end
         f.close()
         hashes
+    end
+
+    # Librarian0Utils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+    def self.uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+        roots = [
+            "/Users/pascal/Desktop",
+            "/Users/pascal/Galaxy/Documents",
+            Librarian16AionExport::aionExportFolder()
+        ]
+        roots.each{|root|
+            Find.find(root) do |path|
+                if File.basename(path).downcase.include?(uniquestring.downcase) then
+                    return path
+                end
+            end
+        }
+        nil
     end
 end
 
@@ -365,42 +383,6 @@ class Librarian5Atoms
         Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
     end
 
-    # Librarian5Atoms::findAndAccessMarble(marbleId)
-    def self.findAndAccessMarble(marbleId)
-        location = Librarian0Utils::marbleLocationOrNullUsingCache(marbleId)
-        if location then
-            puts "found marble at: #{location}"
-            system("open '#{File.dirname(location)}'")
-            return
-        end
-        puts "> Marble not immediately found using the cache"
-        puts "> Looking into Galaxy..."
-        location = Librarian0Utils::marbleLocationUsingFileSystemSearchOrNull(marbleId)
-        if location then
-            puts "> found marble at: #{location}"
-            system("open '#{File.dirname(location)}'")
-            return
-        end
-        puts "> Marble not found in Galaxy"
-        puts "> Looking inside aion-points..."
-        puts "" # To accomodate Utils::putsOnPreviousLine
-        Librarian6Objects::operationalAtoms()
-            .each{|atom|
-                next if atom["type"] != "aion-point"
-                nhash = atom["rootnhash"]
-                Utils::putsOnPreviousLine("checking atom '#{atom["uuid"]}'")
-                if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
-                    puts "> I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
-                    puts "> Accessing the atom"
-                    Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
-                    return
-                end
-            }
-
-        puts "> I could not find the marble inside aion-points"
-        LucilleCore::pressEnterToContinue()
-    end
-
     # Librarian5Atoms::toString(atom)
     def self.toString(atom)
         "[atom] #{atom["type"]}"
@@ -436,7 +418,98 @@ class Librarian5Atoms
         raise "(1EDB15D2-9125-4947-924E-B24D5E67CAE3, atom: #{atom})"
     end
 
+    # Librarian5Atoms::uniqueStringIsInAionPointObject(object, uniquestring)
+    def self.uniqueStringIsInAionPointObject(object, uniquestring)
+        if object["aionType"] == "indefinite" then
+            return false
+        end
+        if object["aionType"] == "directory" then
+            if object["name"].downcase.include?(uniquestring.downcase) then
+                return true
+            end
+            return object["items"].any?{|nhash| Librarian5Atoms::uniqueStringIsInNhash(nhash, uniquestring) }
+        end
+        if object["aionType"] == "file" then
+            return object["name"].downcase.include?(uniquestring.downcase)
+        end
+    end
+
+    # Librarian5Atoms::uniqueStringIsInNhash(nhash, uniquestring)
+    def self.uniqueStringIsInNhash(nhash, uniquestring)
+        # TODO:
+        # This function can easily been memoised
+        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new(), nhash)
+        Librarian5Atoms::uniqueStringIsInAionPointObject(object, uniquestring)
+    end
+
     # -- Operations ------------------------------------------
+
+    # Librarian5Atoms::findAndAccessMarble(marbleId)
+    def self.findAndAccessMarble(marbleId)
+        location = Librarian0Utils::marbleLocationOrNullUsingCache(marbleId)
+        if location then
+            puts "found marble at: #{location}"
+            system("open '#{File.dirname(location)}'")
+            return
+        end
+        puts "Marble not immediately found using the cache"
+        puts "Looking into Galaxy..."
+        location = Librarian0Utils::marbleLocationUsingFileSystemSearchOrNull(marbleId)
+        if location then
+            puts "found marble at: #{location}"
+            system("open '#{File.dirname(location)}'")
+            return
+        end
+        puts "Marble not found in Galaxy"
+        puts "Looking inside aion-points..."
+        puts "" # To accomodate Utils::putsOnPreviousLine
+        Librarian6Objects::operationalAtoms()
+            .each{|atom|
+                next if atom["type"] != "aion-point"
+                nhash = atom["rootnhash"]
+                Utils::putsOnPreviousLine("checking atom '#{atom["uuid"]}'")
+                if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
+                    puts "I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
+                    puts "Accessing the atom"
+                    Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
+                    return
+                end
+            }
+
+        puts "I could not find the marble inside aion-points"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Librarian5Atoms::findAndAccessUniqueString(uniquestring)
+    def self.findAndAccessUniqueString(uniquestring)
+        puts "unique string: #{uniquestring}"
+        location = Librarian0Utils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+        if location then
+            puts "location: #{location}"
+            if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
+                system("open '#{location}'")
+            end
+            return
+        end
+        puts "Unique string not found in Galaxy"
+        puts "Looking inside aion-points..."
+        puts "" # To accomodate Utils::putsOnPreviousLine
+        Librarian6Objects::operationalAtoms()
+            .each{|atom|
+                next if atom["type"] != "aion-point"
+                nhash = atom["rootnhash"]
+                Utils::putsOnPreviousLine("checking atom '#{atom["uuid"]}'")
+                if Librarian5Atoms::uniqueStringIsInNhash(nhash, uniquestring) then
+                    puts "I have found the unique string in atom aion-point: #{JSON.pretty_generate(atom)}"
+                    puts "Accessing the atom"
+                    Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
+                    return
+                end
+            }
+
+        puts "I could not find the unique string inside aion-points"
+        LucilleCore::pressEnterToContinue()
+    end
 
     # Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
     def self.accessWithOptionToEditOptionalAutoMutation(atom)
@@ -493,18 +566,8 @@ class Librarian5Atoms
             Librarian5Atoms::findAndAccessMarble(marbleId)
         end
         if atom["type"] == "unique-string" then
-            payload = atom["payload"]
-            puts "unique string: #{payload}"
-            location = Librarian0Utils::atlas(payload)
-            if location then
-                puts "location: #{location}"
-                if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
-                    system("open '#{location}'")
-                end
-            else
-                puts "[Librarian] Could not find location for unique string: #{payload}"
-                LucilleCore::pressEnterToContinue()
-            end
+            uniquestring = atom["payload"]
+            Librarian5Atoms::findAndAccessUniqueString(uniquestring)
         end
     end
 end
@@ -612,7 +675,6 @@ class Librarian6Objects
             .map{|item| objectToAtomOrNull.call(item) }
             .compact
     end
-
 end
 
 class Librarian12EnergyGrid
@@ -722,11 +784,11 @@ class Librarian15Fsck
             return true
         end
         if atom["type"] == "local-group-001" then
-            puts "> assuming correct"
+            puts "assuming correct"
             return true
         end
         if atom["type"] == "local-group-002" then
-            puts "> assuming correct"
+            puts "assuming correct"
             return true
         end
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
@@ -889,21 +951,21 @@ class Librarian16AionExport
             
             folderpath1 = Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(exportControlItem["exportId"])
             if folderpath1.nil? then
-                puts "> Export folder not found"
-                puts "> Destroying dispatch item: #{JSON.pretty_generate(exportControlItem)}"
+                puts "Export folder not found"
+                puts "Destroying dispatch item: #{JSON.pretty_generate(exportControlItem)}"
                 BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", exportControlItem["uuid"])
                 next
             end
             locations2 = LucilleCore::locationsAtFolder(folderpath1)
             if locations2.size == 0 then
-                puts "> There is export folderpath: #{folderpath1}"
+                puts "There is export folderpath: #{folderpath1}"
                 puts " > But I cannot see anything inside."
                 LucilleCore::pressEnterToContinue()
                 next
             end
             if locations2.size > 1 then
-                puts "> There is export folderpath: #{folderpath1}"
-                puts "> I can find more than one location inside."
+                puts "There is export folderpath: #{folderpath1}"
+                puts "I can find more than one location inside."
                 LucilleCore::pressEnterToContinue()
                 next
             end

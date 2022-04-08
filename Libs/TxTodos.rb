@@ -305,7 +305,7 @@ class TxTodos
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Backlog Inbox").each{|location|
             next if File.basename(location).start_with?(".")
 
-            puts "> importing: #{location}"
+            puts "importing: #{location}"
 
             uuid        = SecureRandom.uuid
             description = File.basename(location)
@@ -373,7 +373,7 @@ class TxTodos
             if items then
                 items = JSON.parse(items)
             else
-                puts "> computing items from scratch @ universe: #{universe}"
+                puts "computing items from scratch @ universe: #{universe}"
                 items =
                     if universe then
                         TxTodos::itemsForUniverseWithCardinal(universe, 50)

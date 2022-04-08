@@ -40,6 +40,9 @@ Atoms are content definitions
     "payload"  : uniqueString
 }
 
+Unique strings can be anything, but when possible, it's recommended to use "Nx01-<substring>", note that 
+in this case "Nx01" is indeed part of the string.
+
 {
     "uuid"     : String
     "mikuType" : "Atom"
