@@ -18,7 +18,7 @@ class Links
     # Links::link(sourceuuid, targetuuid, isBidirectional)
     def self.link(sourceuuid, targetuuid, isBidirectional)
         return if (sourceuuid == targetuuid)
-        raise "(error: db6b66a4-2ef9-4e14-9adc-f0cf49b91cba, sourceuuid: #{uuid}, targetuuid: #{uuid}, isBidirectional: #{isBidirectional})" if ![0, 1].include?(isBidirectional)
+        raise "(error: db6b66a4-2ef9-4e14-9adc-f0cf49b91cba, sourceuuid: #{sourceuuid}, targetuuid: #{targetuuid}, isBidirectional: #{isBidirectional})" if ![0, 1].include?(isBidirectional)
         db = SQLite3::Database.new(Links::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
