@@ -47,22 +47,6 @@ in this case "Nx01" is indeed part of the string.
     "uuid"     : String
     "mikuType" : "Atom"
     "unixtime" : Float
-    "type"     : "marble"
-    "payload"  : marbleId
-}
-
-Note: A marble Atom is a reference to a marble file. The atom's payload is the uuid of the marble file.
-
-marble file:
-    filename: nyx-marble.json
-    content {
-        "uuid" => String
-    }
-
-{
-    "uuid"     : String
-    "mikuType" : "Atom"
-    "unixtime" : Float
     "type"     : "local-group-001"
     "payload"  : String # foldername on local group
 }

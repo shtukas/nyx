@@ -60,57 +60,12 @@ class Librarian0Utils
         (location != "") ? location : nil
     end
 
-    # Librarian0Utils::interactivelyDropNewMarbleFileOnDesktop() # Marble
-    def self.interactivelyDropNewMarbleFileOnDesktop()
-        marble = {
-            "uuid" => SecureRandom.uuid
-        }
-        filepath = "/Users/pascal/Desktop/nyx-marble.json"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(marble)) }
-        puts "Librarian marble generated on the Desktop, drop it at the right location"
-        LucilleCore::pressEnterToContinue()
-        marble
-    end
-
     # Librarian0Utils::interactivelySelectDesktopLocationOrNull() 
     def self.interactivelySelectDesktopLocationOrNull()
         entries = Dir.entries("/Users/pascal/Desktop").select{|filename| !filename.start_with?(".") }.sort
         locationNameOnDesktop = LucilleCore::selectEntityFromListOfEntitiesOrNull("locationname", entries)
         return nil if locationNameOnDesktop.nil?
         "/Users/pascal/Desktop/#{locationNameOnDesktop}"
-    end
-
-    # Librarian0Utils::marbleLocationUsingFileSystemSearchOrNull(uuid)
-    def self.marbleLocationUsingFileSystemSearchOrNull(uuid)
-        roots = [
-            "/Users/pascal/Desktop",
-            "/Users/pascal/Galaxy/Documents",
-            Librarian16AionExport::aionExportFolder()
-        ]
-        roots.each{|root|
-            Find.find(root) do |path|
-                next if !File.file?(path)
-                next if File.basename(path) != "nyx-marble.json" # We look for equality since at the moment we do not expect them to be renamed.
-                marble = JSON.parse(IO.read(path))
-                # We have a marble. We are going to cache its location.
-                # We cache the location against the marble's uuid.
-                KeyValueStore::set(nil, "5d7f5599-0b2c-4f16-acc6-a8ead29c272f:#{marble["uuid"]}", path)
-                next if marble["uuid"] != uuid
-                return path
-            end
-        }
-        nil
-    end
-
-    # Librarian0Utils::marbleLocationOrNullUsingCache(uuid)
-    def self.marbleLocationOrNullUsingCache(uuid)
-        path = KeyValueStore::getOrNull(nil, "5d7f5599-0b2c-4f16-acc6-a8ead29c272f:#{uuid}")
-        return nil if path.nil?
-        return nil if !File.exists?(path)
-        return nil if File.basename(path) != "nyx-marble.json"
-        marble = JSON.parse(IO.read(path))
-        return nil if marble["uuid"] != uuid
-        path
     end
 
     # Librarian0Utils::moveFileToBinTimeline(location)
@@ -279,17 +234,6 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::makeMarbleAtom(marbleId) # Atom
-    def self.makeMarbleAtom(marbleId)
-        {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
-            "unixtime"    => Time.new.to_f,
-            "type"        => "marble",
-            "payload"     => marbleId
-        }
-    end
-
     # Librarian5Atoms::makeLG001Atom(lg001Code)
     def self.makeLG001Atom(lg001Code)
         {
@@ -315,7 +259,7 @@ class Librarian5Atoms
     # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
     def self.interactivelyCreateNewAtomOrNull()
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "local-group-002", "marble", "unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "local-group-002", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
             return Librarian5Atoms::makeDescriptionOnlyAtom()
@@ -343,11 +287,6 @@ class Librarian5Atoms
             return Librarian5Atoms::makeLG002Atom(indx)
         end
 
-        if type == "marble" then
-            marble = Librarian0Utils::interactivelyDropNewMarbleFileOnDesktop()
-            return Librarian5Atoms::makeMarbleAtom(marble["uuid"])
-        end
-
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use '#{SecureRandom.hex(6)}' if need one): ")
             return nil if uniquestring == ""
@@ -358,30 +297,6 @@ class Librarian5Atoms
     end
 
     # -- Data ------------------------------------------
-
-    # Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
-    def self.marbleIsInAionPointObject(object, marbleId)
-        if object["aionType"] == "indefinite" then
-            return false
-        end
-        if object["aionType"] == "directory" then
-            return object["items"].any?{|nhash| Librarian5Atoms::marbleIsInNhash(nhash, marbleId) }
-        end
-        if object["aionType"] == "file" then
-            return false if (object["name"] != "nyx-marble.json")
-            nhash = object["hash"]
-            blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
-            return (JSON.parse(blob)["uuid"] == marbleId)
-        end
-    end
-
-    # Librarian5Atoms::marbleIsInNhash(nhash, marbleId)
-    def self.marbleIsInNhash(nhash, marbleId)
-        # TODO:
-        # This function can easily been memoised
-        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new(), nhash)
-        Librarian5Atoms::marbleIsInAionPointObject(object, marbleId)
-    end
 
     # Librarian5Atoms::toString(atom)
     def self.toString(atom)
@@ -409,9 +324,6 @@ class Librarian5Atoms
         if atom["type"] == "local-group-002" then
             return "Atom (local-group-002): #{atom["payload"]}"
         end
-        if atom["type"] == "marble" then
-            return "Atom (marble): #{atom["payload"]}"
-        end
         if atom["type"] == "unique-string" then
             return "Atom (unique-string): #{atom["payload"]}"
         end
@@ -436,49 +348,18 @@ class Librarian5Atoms
 
     # Librarian5Atoms::uniqueStringIsInNhash(nhash, uniquestring)
     def self.uniqueStringIsInNhash(nhash, uniquestring)
-        # TODO:
-        # This function can easily been memoised
+        # This function is memoised
+        answer = KeyValueStore::getOrNull(nil, "4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
+        if answer then
+            return JSON.parse(answer)[0]
+        end
         object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new(), nhash)
-        Librarian5Atoms::uniqueStringIsInAionPointObject(object, uniquestring)
+        answer = Librarian5Atoms::uniqueStringIsInAionPointObject(object, uniquestring)
+        KeyValueStore::set(nil, "4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
+        answer
     end
 
     # -- Operations ------------------------------------------
-
-    # Librarian5Atoms::findAndAccessMarble(marbleId)
-    def self.findAndAccessMarble(marbleId)
-        location = Librarian0Utils::marbleLocationOrNullUsingCache(marbleId)
-        if location then
-            puts "found marble at: #{location}"
-            system("open '#{File.dirname(location)}'")
-            return
-        end
-        puts "Marble not immediately found using the cache"
-        puts "Looking into Galaxy..."
-        location = Librarian0Utils::marbleLocationUsingFileSystemSearchOrNull(marbleId)
-        if location then
-            puts "found marble at: #{location}"
-            system("open '#{File.dirname(location)}'")
-            return
-        end
-        puts "Marble not found in Galaxy"
-        puts "Looking inside aion-points..."
-        puts "" # To accomodate Utils::putsOnPreviousLine
-        Librarian6Objects::operationalAtoms()
-            .each{|atom|
-                next if atom["type"] != "aion-point"
-                nhash = atom["rootnhash"]
-                Utils::putsOnPreviousLine("checking atom '#{atom["uuid"]}'")
-                if Librarian5Atoms::marbleIsInNhash(nhash, marbleId) then
-                    puts "I have found the marble in atom aion-point: #{JSON.pretty_generate(atom)}"
-                    puts "Accessing the atom"
-                    Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
-                    return
-                end
-            }
-
-        puts "I could not find the marble inside aion-points"
-        LucilleCore::pressEnterToContinue()
-    end
 
     # Librarian5Atoms::findAndAccessUniqueString(uniquestring)
     def self.findAndAccessUniqueString(uniquestring)
@@ -498,7 +379,7 @@ class Librarian5Atoms
             .each{|atom|
                 next if atom["type"] != "aion-point"
                 nhash = atom["rootnhash"]
-                Utils::putsOnPreviousLine("checking atom '#{atom["uuid"]}'")
+                Utils::putsOnPreviousLine("checking atom #{atom["uuid"]}")
                 if Librarian5Atoms::uniqueStringIsInNhash(nhash, uniquestring) then
                     puts "I have found the unique string in atom aion-point: #{JSON.pretty_generate(atom)}"
                     puts "Accessing the atom"
@@ -537,11 +418,8 @@ class Librarian5Atoms
         end
         if atom["type"] == "aion-point" then
             nhash = atom["rootnhash"]
-            exportFolder = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
-            if exportFolder.nil? then
-                exportFolder = Librarian16AionExport::atomToNewExportFolderpath(atom)
-                AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
-            end
+            exportFolder = Librarian16AionExport::atomToOperationalExportFolderpath(atom)
+            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
             system("open '#{exportFolder}'")
             #if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
             #    location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
@@ -560,10 +438,6 @@ class Librarian5Atoms
             puts "Local Group 002, code: #{atom["payload"]}"
             puts "Access file on drive"
             LucilleCore::pressEnterToContinue()
-        end
-        if atom["type"] == "marble" then
-            marbleId = atom["payload"]
-            Librarian5Atoms::findAndAccessMarble(marbleId)
         end
         if atom["type"] == "unique-string" then
             uniquestring = atom["payload"]
@@ -776,9 +650,6 @@ class Librarian15Fsck
             status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new(), nhash)
             return status
         end
-        if atom["type"] == "marble" then
-            return true
-        end
         if atom["type"] == "unique-string" then
             # Technically we should be checking if the target exists, but that takes too long
             return true
@@ -942,6 +813,15 @@ class Librarian16AionExport
         FileUtils.mkdir(folderpath)
         Librarian16AionExport::issueTx45(SecureRandom.uuid, atom["uuid"], exportId)
         folderpath
+    end
+
+    # Librarian16AionExport::atomToOperationalExportFolderpath(atom)
+    def self.atomToOperationalExportFolderpath(atom)
+        folderpath = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
+        if folderpath then
+            return folderpath
+        end
+        Librarian16AionExport::atomToNewExportFolderpath(atom)
     end
 
     # Librarian16AionExport::doPickups()
