@@ -105,7 +105,7 @@ class Nyx
 
         # We now link node3 (which is replacing node1) and node2 which is the Genesis node
 
-        Links::link(node3["uuid"], node2["uuid"], 1)
+        Links::link(node3["uuid"], node2["uuid"], true)
 
     end
 end

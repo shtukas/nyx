@@ -300,7 +300,7 @@ class Librarian5Atoms
 
     # Librarian5Atoms::toString(atom)
     def self.toString(atom)
-        "[atom] #{atom["type"]}"
+        "(atom) #{atom["type"]}"
     end
 
     # Librarian5Atoms::atomPayloadToTextOrNull(atom)

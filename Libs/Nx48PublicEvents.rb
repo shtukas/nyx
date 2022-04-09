@@ -96,21 +96,21 @@ class Nx48PublicEvents
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx48PublicEvents::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{LxFunction::function("toString", entity)}" 
                 }
 
             Links::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx48PublicEvents::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{LxFunction::function("toString", entity)}" 
                 }
 
             Links::children(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx48PublicEvents::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{LxFunction::function("toString", entity)}" 
                 }
 
             Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])

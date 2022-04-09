@@ -66,7 +66,7 @@ class Nx47CalendarItems
 
     # Nx47CalendarItems::toString(item)
     def self.toString(item)
-        "[cale] (#{item["calendarDate"]} #{item["calendarTime"]}) #{item["description"]}"
+        "(calendar) (#{item["calendarDate"]} #{item["calendarTime"]}) #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------
@@ -100,21 +100,21 @@ class Nx47CalendarItems
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [parent] #{LxFunction::function("toString", entity)}" 
                 }
 
             Links::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [related] #{LxFunction::function("toString", entity)}" 
                 }
 
             Links::children(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{Nx47CalendarItems::toString(entity)}" 
+                    puts "[#{indx.to_s.ljust(3)}] [child] #{LxFunction::function("toString", entity)}" 
                 }
 
             Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])

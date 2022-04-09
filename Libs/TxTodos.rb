@@ -158,12 +158,12 @@ class TxTodos
 
     # TxTodos::toString(nx50)
     def self.toString(nx50)
-        "[nx50] #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(nx50) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
-        "[nx50] (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(nx50) (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringForNS16(nx50, rt)
@@ -173,7 +173,7 @@ class TxTodos
 
     # TxTodos::toStringForNS19(nx50)
     def self.toStringForNS19(nx50)
-        "[nx50] #{nx50["description"]}"
+        "(nx50) #{nx50["description"]}"
     end
 
     # --------------------------------------------------

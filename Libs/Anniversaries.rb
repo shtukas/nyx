@@ -149,7 +149,7 @@ class Anniversaries
     # Anniversaries::toString(anniversary)
     def self.toString(anniversary)
         date, n = Anniversaries::nextDateOrdinal(anniversary)
-        "[anniversary] [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
+        "(anniversary) [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
     end
 
     # Anniversaries::done(anniversary)

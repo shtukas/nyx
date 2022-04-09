@@ -15,16 +15,15 @@ class Links
         "#{Config::nyxFolderPath()}/links2.sqlite3"
     end
 
-    # Links::link(sourceuuid, targetuuid, isBidirectional)
+    # Links::link(sourceuuid: String, targetuuid: String, isBidirectional: Boolean)
     def self.link(sourceuuid, targetuuid, isBidirectional)
         return if (sourceuuid == targetuuid)
-        raise "(error: db6b66a4-2ef9-4e14-9adc-f0cf49b91cba, sourceuuid: #{sourceuuid}, targetuuid: #{targetuuid}, isBidirectional: #{isBidirectional})" if ![0, 1].include?(isBidirectional)
         db = SQLite3::Database.new(Links::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _links_ where _sourceuuid_=? and _targetuuid_=?", [sourceuuid, targetuuid]
         db.execute "delete from _links_ where _sourceuuid_=? and _targetuuid_=?", [targetuuid, sourceuuid]
-        db.execute "insert into _links_ (_sourceuuid_, _targetuuid_, _bidirectional_) values (?, ?, ?)", [sourceuuid, targetuuid, isBidirectional]
+        db.execute "insert into _links_ (_sourceuuid_, _targetuuid_, _bidirectional_) values (?, ?, ?)", [sourceuuid, targetuuid, isBidirectional ? 1 : 0 ]
         db.close
     end
 

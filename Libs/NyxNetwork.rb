@@ -73,13 +73,13 @@ class NyxNetwork
         return if other.nil?
        LxAction::action("landing", other)
         if connectionType == "other is parent" then
-            Links::link(other["uuid"], item["uuid"], 0)
+            Links::link(other["uuid"], item["uuid"], false)
         end
         if connectionType == "other is related" then
-            Links::link(item["uuid"], other["uuid"], 1)
+            Links::link(item["uuid"], other["uuid"], true)
         end
         if connectionType == "other is child" then
-            Links::link(item["uuid"], other["uuid"], 0)
+            Links::link(item["uuid"], other["uuid"], true)
         end
     end
 

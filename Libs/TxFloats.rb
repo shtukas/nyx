@@ -47,12 +47,12 @@ class TxFloats
 
     # TxFloats::toString(float)
     def self.toString(float)
-        "[floa] #{float["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", float["atomuuid"])}"
+        "(float) #{float["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", float["atomuuid"])}"
     end
 
     # TxFloats::toStringForNS19(float)
     def self.toStringForNS19(float)
-        "[floa] #{float["description"]}"
+        "(float) #{float["description"]}"
     end
 
     # --------------------------------------------------
