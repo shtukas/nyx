@@ -418,8 +418,11 @@ class Librarian5Atoms
         end
         if atom["type"] == "aion-point" then
             nhash = atom["rootnhash"]
-            exportFolder = Librarian16AionExport::atomToOperationalExportFolderpath(atom)
-            AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
+            exportFolder = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
+            if exportFolder.nil? then
+                exportFolder = Librarian16AionExport::atomToNewExportFolderpath(atom)
+                AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
+            end
             system("open '#{exportFolder}'")
             #if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
             #    location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
@@ -813,15 +816,6 @@ class Librarian16AionExport
         FileUtils.mkdir(folderpath)
         Librarian16AionExport::issueTx45(SecureRandom.uuid, atom["uuid"], exportId)
         folderpath
-    end
-
-    # Librarian16AionExport::atomToOperationalExportFolderpath(atom)
-    def self.atomToOperationalExportFolderpath(atom)
-        folderpath = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
-        if folderpath then
-            return folderpath
-        end
-        Librarian16AionExport::atomToNewExportFolderpath(atom)
     end
 
     # Librarian16AionExport::doPickups()
