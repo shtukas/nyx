@@ -13,6 +13,7 @@ Catalyst
     - Wave
 
 Nyx
-    - Nx31
+    - Nx25 (navigation node)
+    - Nx31 (data carrier)
     - Nx48PublicEvent
     - Nx49PascalPersonalNote

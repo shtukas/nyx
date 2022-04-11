@@ -107,5 +107,7 @@ class Nyx
 
         Links::link(node3["uuid"], node2["uuid"], true)
 
+        puts "Operation completed"
+        LucilleCore::pressEnterToContinue()
     end
 end
