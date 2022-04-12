@@ -15,5 +15,7 @@ Catalyst
 Nyx
     - Nx25 (navigation node)
     - Nx31 (data carrier)
+    - Nx45 (primitive file)
     - Nx48PublicEvent
     - Nx49PascalPersonalNote
+    - Nx51 (carrier of primitive files)

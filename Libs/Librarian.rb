@@ -28,7 +28,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.r
 
 class Librarian0Utils
 
-    # Librarian0Utils::filepathToContentHash(filepath)
+    # Librarian0Utils::filepathToContentHash(filepath) # nhash
     def self.filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
@@ -85,6 +85,20 @@ class Librarian0Utils
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
             hashes << Librarian2DatablobsXCache::putBlob(blob)
+        end
+        f.close()
+        hashes
+    end
+
+    # Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+    def self.commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+        raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
+        raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
+        hashes = []
+        partSizeInBytes = 1024*1024 # 1 MegaBytes
+        f = File.open(filepath)
+        while ( blob = f.read(partSizeInBytes) ) do
+            hashes << lambdaBlobCommitReturnNhash.call(blob)
         end
         f.close()
         hashes
@@ -668,39 +682,95 @@ class Librarian15Fsck
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
     end
 
+    # Librarian15Fsck::fsckAtomuuid(item, atomuuid) : Boolean
+    def self.fsckAtomuuid(item, atomuuid)
+        if atomuuid.nil? then
+            puts JSON.pretty_generate(item).red
+            puts "This code relies on the assumption that any object that has not been captured yet has an 'atomuuid' key.".red
+            puts "Is this an error of the object or an error in the assumption?".red
+            exit
+        end
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+        if atom.nil? then
+            puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)".red
+            puts "item:".red
+            puts JSON.pretty_generate(item).red
+            exit
+        end
+        status = Librarian15Fsck::fsckAtom(atom)
+        if !status then 
+            puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)".red
+            puts "item:".red
+            puts JSON.pretty_generate(item).red
+            puts "atom:".red
+            puts JSON.pretty_generate(atom).red
+            exit
+        end
+    end
+
     # Librarian15Fsck::fsck()
     def self.fsck()
         Librarian6Objects::objects()
+        .select{|item|
+            item["mikuType"] != "Atom"
+        }
         .each{|item|
-            if item["mikuType"] == "Atom" then
-                next
-            end
             puts JSON.pretty_generate(item)
             if item["mikuType"] == "Nx25" then
+                # Navigation Nodes
                 next
             end
-            if item["atomuuid"].nil? then
-                puts "This code relies on the assumption that any object that has not been captured yet has an 'atomuuid' key.".red
-                puts "Is this an error of the object or an error in the assumption?".red
-                exit
+            if item["mikuType"] == "Nx31" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
             end
-            atomuuid = item["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            if atom.nil? then
-                puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)".red
-                puts "item:".red
-                puts JSON.pretty_generate(item).red
-                exit
+            if item["mikuType"] == "Nx45" then
+                status = item["parts"].all?{|nhash|
+                    !Librarian12EnergyGrid::getBlobOrNull(nhash).nil?
+                }
+                if !status then 
+                    puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, Nx45 is not checking out)".red
+                    puts "item:".red
+                    puts JSON.pretty_generate(item).red
+                    exit
+                end
+                next
             end
-            status = Librarian15Fsck::fsckAtom(atom)
-            if !status then 
-                puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)".red
-                puts "item:".red
-                puts JSON.pretty_generate(item).red
-                puts "atom:".red
-                puts JSON.pretty_generate(atom).red
-                exit
+            if item["mikuType"] == "Nx48PublicEvent" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
             end
+            if item["mikuType"] == "Nx49PascalPersonalNote" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxAttachment" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxDated" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxFloat" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxFyre" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxTodo" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "Wave" then
+                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                next
+            end
+
+            puts JSON.pretty_generate(item).red
+            raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
         }
         puts "Fsck completed successfully".green
         LucilleCore::pressEnterToContinue()

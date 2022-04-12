@@ -35,6 +35,10 @@ class LxFunction
                 return Nx31s::toString(object)
             end
 
+            if object["mikuType"] == "Nx45" then
+                return Nx45s::toString(object)
+            end
+
             if object["mikuType"] == "Nx47CalendarItem" then
                 return Nx47CalendarItems::toString(object)
             end

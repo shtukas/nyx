@@ -1,0 +1,16 @@
+
+Nx51 {
+    "uuid"        : UUID,
+    "mikuType"    : "Nx51"
+    "description" : String
+    "unixtime"    : unixtime
+}
+
+Nx60 is a Nx51 claim on a Nx45
+
+Nx60 {
+    "uuid"       : UUID,
+    "mikuType"   : "Nx60"
+    "owneruuid"  : Nx51 UUID
+    "targetuuid" : Nx45 UUID
+}
