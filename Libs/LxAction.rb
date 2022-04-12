@@ -361,6 +361,11 @@ class LxAction
                 return
             end
 
+            if object["mikuType"] == "Nx51" then
+                Nx51s::landing(object)
+                return
+            end
+
             if object["mikuType"] == "TxAttachment" then
                 TxAttachments::landing(object)
                 return

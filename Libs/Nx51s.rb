@@ -109,7 +109,7 @@ class Nx51s
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}" 
                 }
 
-            puts "access | description | attachment | link | unlink | destroy".yellow
+            puts "access | upload (primitive files) | description | attachment | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -126,6 +126,23 @@ class Nx51s
                 FileUtils.mkdir(exportFolderpath)
                 Nx51s::contents(uuid)
                     .each{|nx45| Nx45s::exportItemAtLocation(nx45, exportFolderpath)}
+            end
+
+            if Interpreting::match("upload", command) then
+                uploadFolderpath = LucilleCore::askQuestionAnswerAsString("upload folder: ")
+                LucilleCore::locationsAtFolder(uploadFolderpath).each{|location|
+                    if !File.file?(location) then
+                        raise "(error: 0c333466-8402-4a2a-a446-2297d3ae0ef3) #{location}"
+                    end
+                    filepath = location
+                    nx45 = Nx45s::createNewOrNull(filepath)
+                    puts "Primitive file:"
+                    puts JSON.pretty_generate(nx45)
+                    puts "Link: (owner: #{uuid}, file: #{nx45["uuid"]})"
+                    Nx60s::issueClaim(uuid, nx45["uuid"])
+                }
+                puts "Upload completed"
+                LucilleCore::pressEnterToContinue()
             end
 
             if Interpreting::match("description", command) then

@@ -105,6 +105,10 @@ class Nx45s
         puts "File written to Desktop. Going to remove when we continue."
         LucilleCore::pressEnterToContinue()
 
-        FileUtils.rm(targetFilepath)
+        if File.exists?(targetFilepath) then
+            if LucilleCore::askQuestionAnswerAsBoolean("remove file ? ") then
+                FileUtils.rm(targetFilepath)
+            end
+        end
     end
 end
