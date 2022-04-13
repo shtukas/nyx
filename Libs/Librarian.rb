@@ -736,10 +736,6 @@ class Librarian15Fsck
                 end
                 next
             end
-            if item["mikuType"] == "Nx48PublicEvent" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
-                next
-            end
             if item["mikuType"] == "Nx49PascalPersonalNote" then
                 Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
                 next

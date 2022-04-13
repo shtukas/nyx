@@ -22,7 +22,6 @@ class NyxNetwork
             "Nx25 Navigation Node",
             "Nx31 Data Carrier",
             "Nx51 Primitive File Carrier",
-            "Nx48 Timed Public Event",
             "Nx49 Pascal Private Log"
         ]
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
@@ -35,9 +34,6 @@ class NyxNetwork
         end
         if type == "Nx51 Primitive File Carrier" then
             return Nx51s::interactivelyCreateNewOrNull()
-        end
-        if type == "Nx48 Timed Public Event" then
-            return Nx48PublicEvents::interactivelyCreateNewOrNull()
         end
         if type == "Nx49 Pascal Private Log" then
             return Nx49PascalPersonalEvents::interactivelyCreateNewOrNull()
