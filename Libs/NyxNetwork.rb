@@ -83,7 +83,7 @@ class NyxNetwork
             Links::link(item["uuid"], other["uuid"], true)
         end
         if connectionType == "other is child" then
-            Links::link(item["uuid"], other["uuid"], true)
+            Links::link(item["uuid"], other["uuid"], false)
         end
     end
 

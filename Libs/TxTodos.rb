@@ -300,53 +300,6 @@ class TxTodos
         }
     end
 
-    # TxTodos::importNx50BacklogInbox()
-    def self.importNx50BacklogInbox()
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Nx50 Backlog Inbox").each{|location|
-            next if File.basename(location).start_with?(".")
-
-            puts "importing: #{location}"
-
-            uuid        = SecureRandom.uuid
-            description = File.basename(location)
-            unixtime    = Time.new.to_i
-            datetime    = Time.new.utc.iso8601
-            atom        = Librarian5Atoms::makeAionPointAtomUsingLocation(location)
-            Librarian6Objects::commit(atom)
-
-            universe    = "backlog"
-            ordinal     = TxTodos::ordinalBetweenN1thAndN2th(universe, 10, 20)
-
-            item = {
-              "uuid"        => uuid,
-              "mikuType"    => "TxTodo",
-              "description" => description,
-              "unixtime"    => unixtime,
-              "datetime"    => datetime,
-              "atomuuid"    => atom["uuid"],
-              "ordinal"     => ordinal
-            }
-            Librarian6Objects::commit(item)
-            ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
-
-            check = lambda{|itemuuid|
-                puts "fsck: itemuuid: #{itemuuid}"
-                item = Librarian6Objects::getObjectByUUIDOrNull(itemuuid)
-                return [false, "could not extract item"] if item.nil?
-                atomuuid = item["atomuuid"]
-                atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-                return [false, "could not extract atom"] if atom.nil?
-                status = Librarian15Fsck::fsckAtom(atom)
-                return [false, "atom fsck failed"]
-                return [true, nil]
-            }
-
-            raise "(error: ce75724f-4905-4808-91d9-33c8e82d4dde)" if !check.call(item["uuid"])
-
-            LucilleCore::removeFileSystemLocation(location)
-        }
-    end
-
     # --------------------------------------------------
     # nx16s
 

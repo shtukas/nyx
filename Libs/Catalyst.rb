@@ -418,8 +418,6 @@ class Catalyst
                 break
             end
 
-            TxTodos::importNx50BacklogInbox()
-
             if !NxBallsService::somethingIsRunning() then
                 if (uni2 = StoredUniverse::getUniverseOrNull()) then
                     StoredUniverse::setUniverse(uni2)

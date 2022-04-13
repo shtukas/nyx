@@ -5,3 +5,5 @@ CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_
 ### Librarian Objects
 
 To be acceptable, an object must have at least two keys: "uuid" and "mikuType". We can retrieve objects individually by "uuid" or collectively by MikuTypes.
+
+Objects expected to be on the Nyx Network must also have a "datetime" attribute.

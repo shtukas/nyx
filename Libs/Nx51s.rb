@@ -29,14 +29,16 @@ class Nx51s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        uuid       = SecureRandom.uuid
-        unixtime   = Time.new.to_i
+        uuid     = SecureRandom.uuid
+        unixtime = Time.new.to_i
+        datetime = Time.new.utc.iso8601
 
         item = {
           "uuid"        => uuid,
           "mikuType"    => "Nx51",
           "description" => description,
-          "unixtime"    => unixtime
+          "unixtime"    => unixtime,
+          "datetime"    => datetime
         }
         Librarian6Objects::commit(item)
         item

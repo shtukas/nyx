@@ -50,7 +50,7 @@ class Links
         db.execute( "select * from _links_ where _sourceuuid_=? and _bidirectional_=?" , [uuid, 1] ) do |row|
             answer << row["_targetuuid_"]
         end
-        db.execute( "select * from _links_ where _targetuuid_=? and _bidirectional_=?" , [uuid, 2] ) do |row|
+        db.execute( "select * from _links_ where _targetuuid_=? and _bidirectional_=?" , [uuid, 1] ) do |row|
             answer << row["_sourceuuid_"]
         end
         db.close

@@ -50,14 +50,14 @@ class Nx45s
         parts = Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
 
         item = {
-          "uuid"                => Nx45s::nx45Id(),
-          "mikuType"            => "Nx45",
-          "description"         => nil,
-          "creationUnixtime"    => Time.new.to_f,
-          "operationalDateTime" => Time.new.utc.iso8601,
-          "dottedExtension"     => dottedExtension,
-          "nhash"               => Librarian0Utils::filepathToContentHash(filepath),
-          "parts"               => parts
+          "uuid"            => Nx45s::nx45Id(),
+          "mikuType"        => "Nx45",
+          "description"     => nil,
+          "unixtime"        => Time.new.to_f,
+          "datetime"        => Time.new.utc.iso8601,
+          "dottedExtension" => dottedExtension,
+          "nhash"           => Librarian0Utils::filepathToContentHash(filepath),
+          "parts"           => parts
         }
         Librarian6Objects::commit(item)
         item
@@ -72,7 +72,7 @@ class Nx45s
         if item["description"] then
             body = item["description"]
         end
-        "(primitive file) #{body}"
+        "(primitive file) #{body}#{item["dottedExtension"]}"
     end
 
     # ----------------------------------------------------------------------

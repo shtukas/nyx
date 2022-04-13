@@ -31,11 +31,13 @@ class Nx25s
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
 
         item = {
           "uuid"        => uuid,
           "mikuType"    => "Nx25",
           "unixtime"    => unixtime,
+          "datetime"    => datetime,
           "description" => description
         }
         Librarian6Objects::commit(item)
@@ -98,7 +100,7 @@ class Nx25s
                     puts "[#{indx.to_s.ljust(3)}] [child] #{LxFunction::function("toString", entity)}" 
                 }
 
-            puts "access | description | attachment | link | unlink | destroy".yellow
+            puts "access | description | datetime |attachment | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -120,6 +122,13 @@ class Nx25s
                 item["description"] = description
                 Librarian6Objects::commit(item)
                 next
+            end
+
+            if Interpreting::match("datetime", command) then
+                datetime = Utils::editTextSynchronously(item["datetime"]).strip
+                next if !Utils::isDateTime_UTC_ISO8601(datetime)
+                item["datetime"] = datetime
+                Librarian6Objects::commit(item) 
             end
 
             if Interpreting::match("attachment", command) then

@@ -1,12 +1,12 @@
 Nx45s are primitive files. Introduced to try and sort out the pictures, they are nodes of the Nyx network, but in practice meant to be carried in bulk by carriers 
 
 Nx45 {
-    "uuid"                : Nx45Id,
-    "mikuType"            : "Nx45"
-    "description"         : String | Null # The description is optional.
-    "creationUnixtime"    : unixtime
-    "operationalDateTime" : DateTime Iso 8601 UTC Zulu
-    "dottedExtension"     : String
-    "nhash"               : Named SHA256 digest
-    "parts"               : Array[nhashes]
+    "uuid"            : Nx45Id,
+    "mikuType"        : "Nx45"
+    "description"     : String | Null # The description is optional.
+    "unixtime"        : unixtime
+    "datetime"        : DateTime Iso 8601 UTC Zulu
+    "dottedExtension" : String
+    "nhash"           : Named SHA256 digest
+    "parts"           : Array[nhashes]
 }
