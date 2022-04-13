@@ -36,18 +36,30 @@ class Nx45s
         "10#{str2}-#{str3}-#{str4}-#{str5}-#{str6}#{str7}"
     end
 
-    # Nx45s::createNewOrNull(filepath)
-    def self.createNewOrNull(filepath)
-
+    # Nx45s::readPrimitiveFileOrNull(filepath) # [dottedExtension, nhash, parts]
+    def self.readPrimitiveFileOrNull(filepath)
         return nil if !File.exists?(filepath)
         return nil if !File.file?(filepath)
 
-        dottedExtension = File.extname(filepath) 
+        dottedExtension = File.extname(filepath)
+
+        nhash = Librarian0Utils::filepathToContentHash(filepath)
 
         lambdaBlobCommitReturnNhash = lambda {|blob|
             Librarian12EnergyGrid::putBlob(blob)
         }
         parts = Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+
+        return [dottedExtension, nhash, parts]
+    end
+
+    # Nx45s::createNewOrNull(filepath)
+    def self.createNewOrNull(filepath)
+
+        data = Nx45s::readPrimitiveFileOrNull(filepath)
+        return nil if data.nil?
+
+        dottedExtension, nhash, parts = data
 
         item = {
           "uuid"            => Nx45s::nx45Id(),
@@ -56,7 +68,7 @@ class Nx45s
           "unixtime"        => Time.new.to_f,
           "datetime"        => Time.new.utc.iso8601,
           "dottedExtension" => dottedExtension,
-          "nhash"           => Librarian0Utils::filepathToContentHash(filepath),
+          "nhash"           => nhash,
           "parts"           => parts
         }
         Librarian6Objects::commit(item)

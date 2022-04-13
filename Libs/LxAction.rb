@@ -366,6 +366,11 @@ class LxAction
                 return
             end
 
+            if object["mikuType"] == "Nx100Node" then
+                Nx100Nodes::landing(object)
+                return
+            end
+
             if object["mikuType"] == "TxAttachment" then
                 TxAttachments::landing(object)
                 return
@@ -380,7 +385,6 @@ class LxAction
                 TxTodos::landing(object)
                 return
             end
-
         end
 
         if command == "librarian" then

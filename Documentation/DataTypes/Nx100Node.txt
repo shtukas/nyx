@@ -1,0 +1,49 @@
+
+Nx100Node {
+    "uuid"        : uuid,
+    "mikuType"    : "Nx100Node"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : description
+    "structure"   : (Nx101Structure)
+    "flavour"     : (Nx102Flavor)
+}
+
+Nx101Structure
+    {
+        "type" : "navigation"
+    }
+    {
+        "type"     : "atomic"
+        "atomuuid" : String
+    }
+    {
+        "type"            : "primitive-file"
+        "dottedExtension" : String
+        "nhash"           : Named SHA256 digest
+        "parts"           : Array[nhashes]
+    }
+    {
+        "type" : "carrier-of-primitive-files"
+    }
+
+Nx102Flavor 
+    {
+        "type" : "encyclopedia"
+    }
+    {
+        "type" : "of-interest-from-the-web"
+    }
+    {
+        "type"         : "calendar-item",
+        "calendarDate" : String (format: YYYY-MM-DD)
+        "calendarTime" : String (format: HH:MM)
+        "active"       : Boolean # indicates if the item needs to be considered in standard catalyst display. Typically becomes false when the event is done and processed 
+    }
+    {
+        "type"      : "public-event"
+        "eventDate" : "YYYY-MM-DD"
+    }
+    {
+        "type" : "pascal-personal-note"
+    }

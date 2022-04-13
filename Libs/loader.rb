@@ -165,6 +165,7 @@ require_relative "Nx48PublicEvents.rb"
 require_relative "Nx49PascalPersonalNotes.rb"
 require_relative "Nx51s.rb"
 require_relative "Nx60s.rb"
+require_relative "Nx100Nodes.rb"
 require_relative "Nyx.rb"
 require_relative "NyxAdapter.rb"
 
