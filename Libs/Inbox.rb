@@ -55,7 +55,8 @@ class Inbox
                     return
                 end
                 if action == ">nyx" then
-                    # TODO
+                    puts "(19f8c2ce-a9b6-44b1-8a37-3d734aa282b7: This has not been implemented, need re-implementation after refactoring)"
+                    LucilleCore::pressEnterToContinue()
                     return
                 end
                 if action == "destroy" then
@@ -81,7 +82,8 @@ class Inbox
                     return
                 end
                 if action == ">nyx" then
-                    # TODO
+                    puts "(be0c378b-c725-4f2c-b91f-f2edf4e6b517: This has not been implemented, need re-implementation after refactoring)"
+                    LucilleCore::pressEnterToContinue()
                     return
                 end
                 if action == "destroy" then

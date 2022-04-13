@@ -3,6 +3,19 @@
 
 class Nx101Structure
 
+    # Nx101Structure::primitiveFileStructureFromLocationOrNull(location)
+    def self.primitiveFileStructureFromLocationOrNull(location)
+        data = Librarian17PrimitiveFilesAndCarriers::readPrimitiveFileOrNull(location)
+        return nil if data.nil?
+        dottedExtension, nhash, parts = data
+        {
+            "type"            => "primitive-file",
+            "dottedExtension" => dottedExtension,
+            "nhash"           => nhash,
+            "parts"           => parts
+        }
+    end
+
     # Nx101Structure::interactivelyCreateNewStructureOrNull()
     def self.interactivelyCreateNewStructureOrNull()
         types = [
@@ -29,20 +42,44 @@ class Nx101Structure
         if type == "primitive-file" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            data = Nx45s::readPrimitiveFileOrNull(location)
-            return nil if data.nil?
-            dottedExtension, nhash, parts = data
-            return {
-                "type"            => "primitive-file",
-                "dottedExtension" => dottedExtension,
-                "nhash"           => nhash,
-                "parts"           => parts
-            }
+            return Nx101Structure::primitiveFileStructureFromLocationOrNull(location)
         end
         if type == "carrier-of-primitive-files" then
             return {
                 "type" => "carrier-of-primitive-files"
             }
+        end
+    end
+
+    # Nx101Structure::accessStructure(item, structure)
+    def self.accessStructure(item, structure)
+        if structure["type"] == "navigation" then
+            puts "This is a navigation node"
+            LucilleCore::pressEnterToContinue()
+        end
+        if structure["type"] == "atomic" then
+            atom = Librarian6Objects::getObjectByUUIDOrNull(structure["atomuuid"])
+            if atom.nil? then
+                puts "structure:"
+                puts JSON.pretty_generate(structure)
+                puts "Could not find the atom 😞 Do you want to run fsck or something ?"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            Librarian5Atoms::accessWithOptionToEditOptionalAutoMutation(atom)
+        end
+        if structure["type"] == "primitive-file" then
+            dottedExtension = structure["dottedExtension"]
+            parts = structure["parts"]
+            location = "/Users/pascal/Desktop"
+            filepath = Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(item["uuid"], dottedExtension, parts, location)
+            LucilleCore::pressEnterToContinue()
+            if File.exists?(filepath) and LucilleCore::askQuestionAnswerAsBoolean("delete file ? ") then
+                FileUtils.rm(filepath)
+            end
+        end
+        if structure["type"] == "carrier-of-primitive-files" then
+            Librarian17PrimitiveFilesAndCarriers::exportCarrier(item["uuid"])
         end
     end
 end
@@ -100,22 +137,22 @@ class Nx102Flavor
     end
 end
 
-class Nx100Nodes
+class Nx100s
 
     # ----------------------------------------------------------------------
     # IO
 
-    # Nx100Nodes::items()
+    # Nx100s::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("Nx100Node")
+        Librarian6Objects::getObjectsByMikuType("Nx100")
     end
 
-    # Nx100Nodes::getOrNull(uuid): null or Nx100Node
+    # Nx100s::getOrNull(uuid): null or Nx100
     def self.getOrNull(uuid)
         Librarian6Objects::getObjectByUUIDOrNull(uuid)
     end
 
-    # Nx100Nodes::destroy(uuid)
+    # Nx100s::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
@@ -123,11 +160,8 @@ class Nx100Nodes
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # Nx100Nodes::interactivelyCreateNewOrNull()
+    # Nx100s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
-        uuid       = SecureRandom.uuid
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -135,11 +169,59 @@ class Nx100Nodes
         structure = Nx101Structure::interactivelyCreateNewStructureOrNull()
         return nil if structure.nil?
 
-        flavour = Nx102Flavor::interactivelyCreateNewFlavour()
+        flavourMaker = lambda {|structure|
+            if structure["type"] == "primitive-file"  then
+                return {
+                    "type" => "pure-data"
+                }
+            end
+            Nx102Flavor::interactivelyCreateNewFlavour()
+        }
+
+        flavour = flavourMaker.call(structure)
+
+        uuidMaker = lambda {|structure|
+            if structure["type"] == "primitive-file" then
+                return Utils::nx45()
+            end
+            SecureRandom.uuid
+        }
+
+        uuid       = uuidMaker.call(structure)
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "Nx100Node",
+          "mikuType"    => "Nx100",
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "description" => description,
+          "structure"   => structure,
+          "flavour"     => flavour
+        }
+        Librarian6Objects::commit(item)
+        item
+    end
+
+    # Nx100s::makePrimitiveFileFromLocationOrNull(location)
+    def self.makePrimitiveFileFromLocationOrNull(location)
+        description = nil
+
+        structure = Nx101Structure::primitiveFileStructureFromLocationOrNull(location)
+        return nil if structure.nil?
+
+        flavour = {
+            "type" => "pure-data"
+        }
+
+        uuid       = Utils::nx45()
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "Nx100",
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "description" => description,
@@ -153,7 +235,7 @@ class Nx100Nodes
     # ----------------------------------------------------------------------
     # Data
 
-    # Nx100Nodes::toString(item)
+    # Nx100s::toString(item)
     def self.toString(item)
         "#{item["description"]}"
     end
@@ -161,10 +243,10 @@ class Nx100Nodes
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx100Nodes::landing(item)
+    # Nx100s::landing(item)
     def self.landing(item)
         loop {
-            item = Nx100Nodes::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            item = Nx100s::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if item.nil?
             system("clear")
 
@@ -172,7 +254,7 @@ class Nx100Nodes
 
             store = ItemStore.new()
 
-            puts Nx100Nodes::toString(item).green
+            puts Nx100s::toString(item).green
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
@@ -218,7 +300,7 @@ class Nx100Nodes
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
+                Nx101Structure::accessStructure(item, item["structure"])
             end
 
             if Interpreting::match("description", command) then
@@ -251,7 +333,7 @@ class Nx100Nodes
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx100Nodes::destroy(item["uuid"])
+                    Nx100s::destroy(item["uuid"])
                     break
                 end
             end
@@ -261,11 +343,11 @@ class Nx100Nodes
     # ------------------------------------------------
     # Nx20s
 
-    # Nx100Nodes::nx20s()
+    # Nx100s::nx20s()
     def self.nx20s()
-        Nx100Nodes::items().map{|item| 
+        Nx100s::items().map{|item| 
             {
-                "announce" => "(#{item["uuid"][0, 4]}) #{Nx100Nodes::toString(item)}",
+                "announce" => "(#{item["uuid"][0, 4]}) #{Nx100s::toString(item)}",
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }

@@ -33,8 +33,12 @@ class Nyx
                 ]
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("op", specialOps)
                 if op == "listing per date fragment" then
+                    puts "(95999b79-5d10-4db0-a4ef-c4f640013d0d: This has not been implemented, need re-implementation after refactoring)"
+                    LucilleCore::pressEnterToContinue()
+                    next
+
                     fragment = LucilleCore::askQuestionAnswerAsString("fragment: ")
-                    items = [] # TODO
+                    items = []
                     loop {
                         item = NyxNetwork::selectEntityFromGivenEntitiesOrNull(items)
                         break if item.nil?

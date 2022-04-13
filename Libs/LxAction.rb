@@ -86,7 +86,8 @@ class LxAction
             ns16 = object
             if ns16["mikuType"] == "NS16:Inbox1" then
                 location = ns16["location"]
-                # TODO
+                puts "(711d6220-1970-44ff-b017-cc65bd8bdaad: This has not been implemented, need re-implementation after refactoring)"
+                LucilleCore::pressEnterToContinue()
                 return
             end
         end
@@ -312,18 +313,8 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "Nx45" then
-                Nx45s::landing(object)
-                return
-            end
-
-            if object["mikuType"] == "Nx51" then
-                Nx51s::landing(object)
-                return
-            end
-
-            if object["mikuType"] == "Nx100Node" then
-                Nx100Nodes::landing(object)
+            if object["mikuType"] == "Nx100" then
+                Nx100s::landing(object)
                 return
             end
 

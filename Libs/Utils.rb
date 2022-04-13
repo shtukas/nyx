@@ -140,6 +140,18 @@ class Utils
         puts str
     end
 
+    # Utils::nx45()
+    def self.Nx45()
+        str1 = Time.new.strftime("%Y%m%d%H%M%S%6N")
+        str2 = str1[0, 6]
+        str3 = str1[6, 4]
+        str4 = str1[10, 4]
+        str5 = str1[14, 4]
+        str6 = str1[18, 2]
+        str7 = SecureRandom.hex[0, 10]
+        "10#{str2}-#{str3}-#{str4}-#{str5}-#{str6}#{str7}"
+    end
+
     # ----------------------------------------------------
     # File System Routines
 

@@ -157,10 +157,8 @@ require_relative "Multiverse.rb"
 
 require_relative "NxBallsService.rb"
 require_relative "NyxNetwork.rb"
-require_relative "Nx45s.rb"
-require_relative "Nx51s.rb"
 require_relative "Nx60s.rb"
-require_relative "Nx100Nodes.rb"
+require_relative "Nx100s.rb"
 require_relative "Nyx.rb"
 require_relative "NyxAdapter.rb"
 

@@ -15,6 +15,9 @@ class LxFunction
         end
 
         if command == "description" then
+            if object["mikuType"] == "Nx100" then
+                return object["description"]
+            end
             if object["mikuType"] == "TxTodo" then
                 return object["description"]
             end
@@ -24,16 +27,8 @@ class LxFunction
         end
 
         if command == "toString" then
-            if object["mikuType"] == "Nx45" then
-                return Nx45s::toString(object)
-            end
-
-            if object["mikuType"] == "Nx51" then
-                return Nx51s::toString(object)
-            end
-
-            if object["mikuType"] == "Nx100Node" then
-                return Nx100Nodes::toString(object)
+            if object["mikuType"] == "Nx100" then
+                return Nx100s::toString(object)
             end
         end
 

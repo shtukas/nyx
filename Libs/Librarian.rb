@@ -707,6 +707,23 @@ class Librarian15Fsck
         end
     end
 
+    # Librarian15Fsck::fsckNx100Structure(item, structure)
+    def self.fsckNx100Structure(item, structure)
+        if structure["type"] == "atomic" then
+            Librarian15Fsck::fsckAtomuuid(item, structure["atomuuid"])
+        end
+        if structure["type"] == "primitive-file" then
+            structure["parts"].each{|nhash|
+                blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+                next if blob
+                puts "Nx100/structure"
+                puts JSON.pretty_generate(structure).red
+                puts "nhash not found: #{nhash}"
+                exit
+            }
+        end
+    end
+
     # Librarian15Fsck::fsck()
     def self.fsck()
         Librarian6Objects::objects()
@@ -715,20 +732,11 @@ class Librarian15Fsck
         }
         .each{|item|
             puts JSON.pretty_generate(item)
-            if item["mikuType"] == "Nx45" then
-                status = item["parts"].all?{|nhash|
-                    !Librarian12EnergyGrid::getBlobOrNull(nhash).nil?
-                }
-                if !status then 
-                    puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, Nx45 is not checking out)".red
-                    puts "item:".red
-                    puts JSON.pretty_generate(item).red
-                    exit
-                end
+            if item["mikuType"] == "Nx60" then
                 next
             end
-            if item["mikuType"] == "Nx49PascalPersonalNote" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+            if item["mikuType"] == "Nx100" then
+                Librarian15Fsck::fsckNx100Structure(item, item["structure"])
                 next
             end
             if item["mikuType"] == "TxAttachment" then
@@ -958,6 +966,77 @@ class Libriarian16SpecialCircumstances
     end
 end
 
+class Librarian17PrimitiveFilesAndCarriers
+
+    # Librarian17PrimitiveFilesAndCarriers::readPrimitiveFileOrNull(filepath) # [dottedExtension, nhash, parts]
+    def self.readPrimitiveFileOrNull(filepath)
+        return nil if !File.exists?(filepath)
+        return nil if !File.file?(filepath)
+ 
+        dottedExtension = File.extname(filepath)
+ 
+        nhash = Librarian0Utils::filepathToContentHash(filepath)
+ 
+        lambdaBlobCommitReturnNhash = lambda {|blob|
+            Librarian12EnergyGrid::putBlob(blob)
+        }
+        parts = Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+ 
+        return [dottedExtension, nhash, parts]
+    end
+
+    # Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(someuuid, dottedExtension, parts, location) # targetFilepath
+    def self.exportPrimitiveFileAtLocation(item, location)
+        targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
+        File.open(targetFilepath, "w"){|f|  
+            parts.each{|nhash|
+                blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+                raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
+                f.write(blob)
+            }
+        }
+        targetFilepath
+    end
+
+    # Librarian17PrimitiveFilesAndCarriers::carrierContents(owneruuid)
+    def self.contents(owneruuid)
+        Librarian6Objects::getObjectsByMikuType("Nx60")
+            .select{|claim| claim["owneruuid"] == owneruuid }
+            .map{|claim| claim["targetuuid"] }
+            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
+            .compact
+    end
+
+    # Librarian17PrimitiveFilesAndCarriers::exportCarrier(uuid)
+    def self.exportCarrier(uuid)
+        exportFolderpath = "/Users/pascal/Desktop/#{item["description"]} (#{item["uuid"][-8, 8]})"
+        FileUtils.mkdir(exportFolderpath)
+        Librarian17PrimitiveFilesAndCarriers::carrierContents(uuid)
+            .each{|item| Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(item, exportFolderpath)}
+    end
+
+    # Librarian17PrimitiveFilesAndCarriers::uploadCarrier(uuid)
+    def self.uploadCarrier(uuid)
+        uploadFolderpath = LucilleCore::askQuestionAnswerAsString("upload folder: ")
+        locations = LucilleCore::locationsAtFolder(uploadFolderpath)
+        # We make a fiirst pass to ensure everything is a file
+        locations.each{|location|
+            if !File.file?(location) then
+                raise "(error: 0c333466-8402-4a2a-a446-2297d3ae0ef3) #{location}"
+            end
+        }
+        locations.each{|filepath|
+            primitiveFileObject = Nx100s::makePrimitiveFileFromLocationOrNull(filepath)
+            puts "Primitive file:"
+            puts JSON.pretty_generate(primitiveFileObject)
+            puts "Link: (owner: #{uuid}, file: #{primitiveFileObject["uuid"]})"
+            Nx60s::issueClaim(uuid, primitiveFileObject["uuid"])
+        }
+        puts "Upload completed"
+        LucilleCore::pressEnterToContinue()
+    end
+end
+
 class LibrarianCLI
 
     # LibrarianCLI::main()
@@ -967,7 +1046,8 @@ class LibrarianCLI
             actions = [
                 "run fsck", 
                 "show object", 
-                "edit object", 
+                "edit object",
+                "destroy object by uuid",
                 "prob blob", 
                 "do aion-points pickups",
                 "garbage collection",
@@ -1003,6 +1083,10 @@ class LibrarianCLI
                     puts "I could not find an object with this uuid"
                     LucilleCore::pressEnterToContinue()
                 end
+            end
+            if action == "destroy object by uuid" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                Librarian6Objects::destroy(uuid)
             end
             if action == "prob blob" then
                 nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")

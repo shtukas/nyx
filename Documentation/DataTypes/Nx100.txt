@@ -1,10 +1,10 @@
 
-Nx100Node {
+Nx100 {
     "uuid"        : uuid,
-    "mikuType"    : "Nx100Node"
+    "mikuType"    : "Nx100"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : description
+    "description" : description or null # Possibly null in the case of a structure: primitive-file"
     "structure"   : (Nx101Structure)
     "flavour"     : (Nx102Flavor)
 }
@@ -30,6 +30,9 @@ Nx101Structure
 Nx102Flavor 
     {
         "type" : "encyclopedia"
+    }
+    {
+        "type" : "pure-data" # Used with structure primitive-file
     }
     {
         "type" : "of-interest-from-the-web"

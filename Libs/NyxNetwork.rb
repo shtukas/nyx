@@ -18,7 +18,7 @@ class NyxNetwork
 
     # NyxNetwork::interactivelyMakeNewOrNull()
     def self.interactivelyMakeNewOrNull()
-        Nx100Nodes::interactivelyCreateNewOrNull()
+        Nx100s::interactivelyCreateNewOrNull()
     end
 
     # NyxNetwork::architectOrNull()

@@ -5,7 +5,7 @@ class Search
 
     # Search::nx20s()
     def self.nx20s()
-        nx20s = Nx100Nodes::nx20s() +
+        nx20s = Nx100s::nx20s() +
                 Anniversaries::nx20s() +
                 TxDateds::nx20s() +
                 TxFyres::nx20s() +
