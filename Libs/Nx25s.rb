@@ -101,7 +101,7 @@ class Nx25s
                     puts "[#{indx.to_s.ljust(3)}] [child] #{LxFunction::function("toString", entity)}" 
                 }
 
-            puts "access | description | datetime |attachment | link | unlink | destroy".yellow
+            puts "access | description | datetime | attachment | link | unlink | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
