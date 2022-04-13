@@ -12,7 +12,6 @@ Catalyst
     - Wave
 
 Nyx
-    - Nx31 (data carrier)
     - Nx45 (primitive file)
     - Nx49PascalPersonalNote
     - Nx51 (carrier of primitive files)

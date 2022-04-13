@@ -55,7 +55,7 @@ class Inbox
                     return
                 end
                 if action == ">nyx" then
-                    NyxAdapter::locationToNyx(location)
+                    # TODO
                     return
                 end
                 if action == "destroy" then
@@ -81,7 +81,7 @@ class Inbox
                     return
                 end
                 if action == ">nyx" then
-                    NyxAdapter::locationToNyx(location)
+                    # TODO
                     return
                 end
                 if action == "destroy" then

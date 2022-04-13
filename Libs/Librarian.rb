@@ -715,10 +715,6 @@ class Librarian15Fsck
         }
         .each{|item|
             puts JSON.pretty_generate(item)
-            if item["mikuType"] == "Nx31" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
-                next
-            end
             if item["mikuType"] == "Nx45" then
                 status = item["parts"].all?{|nhash|
                     !Librarian12EnergyGrid::getBlobOrNull(nhash).nil?

@@ -84,18 +84,9 @@ class LxAction
 
         if command == ">nyx" then
             ns16 = object
-            #Nx31 {
-            #    "uuid"        : uuid,
-            #    "mikuType"    : "Nx31"
-            #    "datetime"    : DateTime Iso 8601 UTC Zulu
-            #    "unixtime"    : unixtime
-            #    "description" : description
-            #    "atomuuid"    : UUID of an Atom
-            #}
-
             if ns16["mikuType"] == "NS16:Inbox1" then
                 location = ns16["location"]
-                NyxAdapter::locationToNyx(location)
+                # TODO
                 return
             end
         end
@@ -318,11 +309,6 @@ class LxAction
 
             if object["mikuType"] == "NS16:Wave" then
                 Waves::landing(object["wave"])
-                return
-            end
-
-            if object["mikuType"] == "Nx31" then
-                Nx31s::landing(object)
                 return
             end
 

@@ -91,21 +91,21 @@ class Links
     # Links::related(uuid)
     def self.related(uuid)
         Links::relatedUUIDs(uuid)
-            .map{|uuid| Nx31s::getOrNull(uuid) }
+            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
     # Links::parents(uuid)
     def self.parents(uuid)
         Links::parentUUIDs(uuid)
-            .map{|uuid| Nx31s::getOrNull(uuid) }
+            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
     # Links::children(uuid)
     def self.children(uuid)
         Links::childrenUUIDs(uuid)
-            .map{|uuid| Nx31s::getOrNull(uuid) }
+            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 end

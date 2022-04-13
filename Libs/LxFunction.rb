@@ -18,25 +18,22 @@ class LxFunction
             if object["mikuType"] == "TxTodo" then
                 return object["description"]
             end
-            if object["mikuType"] == "Nx31" then
-                return object["description"]
-            end
             if object["mikuType"] == "TxFloat" then
                 return object["description"]
             end
         end
 
         if command == "toString" then
-            if object["mikuType"] == "Nx31" then
-                return Nx31s::toString(object)
-            end
-
             if object["mikuType"] == "Nx45" then
                 return Nx45s::toString(object)
             end
 
             if object["mikuType"] == "Nx51" then
                 return Nx51s::toString(object)
+            end
+
+            if object["mikuType"] == "Nx100Node" then
+                return Nx100Nodes::toString(object)
             end
         end
 
