@@ -43,10 +43,6 @@ class LxFunction
                 return Nx51s::toString(object)
             end
 
-            if object["mikuType"] == "Nx47CalendarItem" then
-                return Nx47CalendarItems::toString(object)
-            end
-
             if object["mikuType"] == "Nx49PascalPersonalNote" then
                 return Nx49PascalPersonalEvents::toString(object)
             end

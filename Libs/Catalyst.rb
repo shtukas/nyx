@@ -277,7 +277,6 @@ class NS16sOperator
     def self.section3(universe)
         [
             Anniversaries::ns16s(),
-            Nx47CalendarItems::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),

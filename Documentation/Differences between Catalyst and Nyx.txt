@@ -5,7 +5,6 @@ All the objects in the universe are essentialy on the same grath and there can b
 
 Catalyst
     - Anniversary
-    - Nx47CalendarItem
     - TxDated
     - TxFloat
     - TxFyre

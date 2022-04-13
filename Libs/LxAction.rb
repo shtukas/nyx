@@ -127,11 +127,6 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "NS16:Nx47CalendarItems" then
-                Libriarian16SpecialCircumstances::accessAtom(object["item"]["atomuuid"])
-                return
-            end
-
             if object["mikuType"] == "NS16:TxDated" then
                 dated = object["TxDated"]
                 Libriarian16SpecialCircumstances::accessAtom(dated["atomuuid"])
@@ -181,16 +176,6 @@ class LxAction
             return
         end
 
-        if command == "calendar" then
-            Nx47CalendarItems::dive()
-            return
-        end
-
-        if command == "calendar item" then
-            Nx47CalendarItems::interactivelyCreateNewOrNull()
-            return
-        end
-
         if command == "commands" then
             puts [
                     "      " + Commands::terminalDisplayCommand(),
@@ -216,11 +201,6 @@ class LxAction
             if object["mikuType"] == "NS16:Anniversary1" then
                 anniversary = object["anniversary"]
                 Anniversaries::done(anniversary)
-                return
-            end
-            if object["mikuType"] == "NS16:Nx47CalendarItems" then
-                item = object["item"]
-                Nx47CalendarItems::processAfterCompletionArchiveOrDestroy(item)
                 return
             end
             if object["mikuType"] == "NS16:TxDated" then
@@ -311,11 +291,6 @@ class LxAction
 
             if object["mikuType"] == "NS16:Inbox1" then
                 Inbox::landing(object["location"])
-                return
-            end
-
-            if object["mikuType"] == "NS16:Nx47CalendarItems" then
-                Nx47CalendarItems::landing(object["item"])
                 return
             end
 
