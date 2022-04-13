@@ -158,22 +158,22 @@ class TxTodos
 
     # TxTodos::toString(nx50)
     def self.toString(nx50)
-        "(nx50) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(todo) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
-        "(nx50) (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(todo) (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "[todo] (#{"%4.2f" % rt}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
+        "(todo) (#{"%4.2f" % rt}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
     def self.toStringForNS19(nx50)
-        "(nx50) #{nx50["description"]}"
+        "(todo) #{nx50["description"]}"
     end
 
     # --------------------------------------------------

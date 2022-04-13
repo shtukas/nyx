@@ -980,6 +980,7 @@ class LibrarianCLI
             actions = [
                 "run fsck", 
                 "show object", 
+                "edit object", 
                 "prob blob", 
                 "do aion-points pickups",
                 "garbage collection",
@@ -997,6 +998,20 @@ class LibrarianCLI
                 if object then
                     puts JSON.pretty_generate(object)
                     LucilleCore::pressEnterToContinue()
+                else
+                    puts "I could not find an object with this uuid"
+                    LucilleCore::pressEnterToContinue()
+                end
+            end
+            if action == "edit object" then
+                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+                object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
+                if object then
+                    object = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(object)))
+                    puts JSON.pretty_generate(object)
+                    if LucilleCore::askQuestionAnswerAsBoolean("confirm ? ") then
+                        Librarian6Objects::commit(object)
+                    end
                 else
                     puts "I could not find an object with this uuid"
                     LucilleCore::pressEnterToContinue()
