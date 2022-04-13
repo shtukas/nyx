@@ -321,11 +321,6 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "Nx25" then
-                Nx25s::landing(object)
-                return
-            end
-
             if object["mikuType"] == "Nx31" then
                 Nx31s::landing(object)
                 return

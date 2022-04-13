@@ -18,24 +18,7 @@ class NyxNetwork
 
     # NyxNetwork::interactivelyMakeNewOrNull()
     def self.interactivelyMakeNewOrNull()
-        types = [
-            "Nx25 Navigation Node",
-            "Nx31 Data Carrier",
-            "Nx51 Primitive File Carrier",
-            "Nx49 Pascal Private Log"
-        ]
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", types)
-        return nil if type.nil?
-        if type == "Nx25 Navigation Node" then
-            return Nx25s::interactivelyCreateNewOrNull()
-        end
-        if type == "Nx31 Data Carrier" then
-            return Nx31s::interactivelyCreateNewOrNull()
-        end
-        if type == "Nx51 Primitive File Carrier" then
-            return Nx51s::interactivelyCreateNewOrNull()
-        end
-        raise "(error: 468f19c7-cc43-4d7c-b3e6-f5d95c9365c3)"
+        Nx100Nodes::interactivelyCreateNewOrNull()
     end
 
     # NyxNetwork::architectOrNull()

@@ -556,7 +556,6 @@ class Librarian6Objects
         objectToAtomOrNull = lambda{|item|
             # The logic of this extraction mirror that of fsck
             return nil if item["mikuType"] == "Atom"
-            return nil if item["mikuType"] == "Nx25"
             raise "(error: d3063b74-da49-4c19-ab19-ed2c2268a7ac)" if item["atomuuid"].nil?
             atomuuid = item["atomuuid"]
             Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
@@ -716,10 +715,6 @@ class Librarian15Fsck
         }
         .each{|item|
             puts JSON.pretty_generate(item)
-            if item["mikuType"] == "Nx25" then
-                # Navigation Nodes
-                next
-            end
             if item["mikuType"] == "Nx31" then
                 Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
                 next

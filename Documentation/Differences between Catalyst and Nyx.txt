@@ -12,7 +12,6 @@ Catalyst
     - Wave
 
 Nyx
-    - Nx25 (navigation node)
     - Nx31 (data carrier)
     - Nx45 (primitive file)
     - Nx49PascalPersonalNote

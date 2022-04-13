@@ -6,7 +6,6 @@ class Search
     # Search::nx20s()
     def self.nx20s()
         nx20s = Nx100Nodes::nx20s() +
-                Nx25s::nx20s() +
                 Nx31s::nx20s() +
                 Anniversaries::nx20s() +
                 TxDateds::nx20s() +
@@ -14,12 +13,6 @@ class Search
                 TxFloats::nx20s() +
                 TxTodos::nx20s() +
                 Waves::nx20s()
-        nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }
-    end
-
-    # Search::navigationNx20s()
-    def self.navigationNx20s()
-        nx20s = Nx25s::nx20s()
         nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }
     end
 
@@ -34,20 +27,6 @@ class Search
     def self.funkyInterface()
         loop {
             nx20 = Search::funkyInterfaceInterativelySelectNx20OrNull()
-            break if nx20.nil?
-            LxAction::action("landing", nx20["payload"])
-        }
-    end
-
-    # Search::funkyInterfaceInterativelySelectNavigationNx20OrNull()
-    def self.funkyInterfaceInterativelySelectNavigationNx20OrNull()
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::navigationNx20s(), lambda{|item| item["announce"] })
-    end
-
-    # Search::searchNavigation()
-    def self.searchNavigation()
-        loop {
-            nx20 = Search::funkyInterfaceInterativelySelectNavigationNx20OrNull()
             break if nx20.nil?
             LxAction::action("landing", nx20["payload"])
         }
