@@ -1,8 +1,0 @@
-Nx49PascalPersonalNote {
-    "uuid"             : uuid,
-    "mikuType"         : "Nx49PascalPersonalNote"
-    "description"      : description
-    "creationUnixtime" : unixtime
-    "date"             : "YYYY-MM-DD"
-    "atomuuid"         : UUID of an Atom
-}

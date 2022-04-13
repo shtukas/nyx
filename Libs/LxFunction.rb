@@ -42,10 +42,6 @@ class LxFunction
             if object["mikuType"] == "Nx51" then
                 return Nx51s::toString(object)
             end
-
-            if object["mikuType"] == "Nx49PascalPersonalNote" then
-                return Nx49PascalPersonalEvents::toString(object)
-            end
         end
 
         puts "I do not know how to LxFunction::function (command: #{command}, object: #{JSON.pretty_generate(object)})"
