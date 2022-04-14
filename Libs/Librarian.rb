@@ -716,9 +716,9 @@ class Librarian15Fsck
             structure["parts"].each{|nhash|
                 blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
                 next if blob
-                puts "Nx100/structure"
+                puts "Nx100/structure".red
                 puts JSON.pretty_generate(structure).red
-                puts "nhash not found: #{nhash}"
+                puts "nhash not found: #{nhash}".red
                 exit
             }
         end

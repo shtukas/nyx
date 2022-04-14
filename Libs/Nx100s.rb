@@ -192,13 +192,13 @@ class Nx100s
         datetime   = Time.new.utc.iso8601
 
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "Nx100",
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "description" => description,
-          "structure"   => structure,
-          "flavour"     => flavour
+            "uuid"        => uuid,
+            "mikuType"    => "Nx100",
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "description" => description,
+            "structure"   => structure,
+            "flavour"     => flavour
         }
         Librarian6Objects::commit(item)
         item
@@ -242,6 +242,36 @@ class Nx100s
 
     # ----------------------------------------------------------------------
     # Operations
+
+    # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+    def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+        if item["structure"]["type"] != "atomic" then
+            puts "I can only do that with atomic nodes"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        item2 = {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Nx100",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => "Genesis",
+            "structure"   => item["structure"].clone,
+            "flavour"     => {
+                "type" => "encyclopedia"
+            }
+        }
+        puts JSON.pretty_generate(item2)
+        Librarian6Objects::commit(item2)
+        Links::link(item["uuid"], item2["uuid"], false)
+        item["structure"] = {
+            "type" => "navigation"
+        }
+        puts JSON.pretty_generate(item)
+        Librarian6Objects::commit(item)
+        puts "Operation completed"
+        LucilleCore::pressEnterToContinue()
+    end
 
     # Nx100s::landing(item)
     def self.landing(item)
@@ -287,7 +317,17 @@ class Nx100s
                     puts "[#{indx.to_s.ljust(3)}] [child] #{LxFunction::function("toString", entity)}" 
                 }
 
-            puts "access | description | datetime | attachment | link | unlink | destroy".yellow
+            commands = []
+            commands << "access"
+            commands << "description"
+            commands << "datetime"
+            commands << "attachment"
+            commands << "link"
+            commands << "unlink"
+            commands << "special circumstances"
+            commands << "destroy"
+
+            puts commands.join(" | ").yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -337,6 +377,18 @@ class Nx100s
                     break
                 end
             end
+
+            if Interpreting::match("special circumstances", command) then
+                operations = [
+                    "transmute to navigation node and put contents into Genesis"
+                ]
+                operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                next if operation.nil?
+                if operation == "transmute to navigation node and put contents into Genesis" then
+                    Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+                end
+            end
+
         }
     end
 
