@@ -11,7 +11,7 @@ class NyxNetwork
 
     # NyxNetwork::selectExistingNetworkElementOrNull()
     def self.selectExistingNetworkElementOrNull()
-        nx20 = Search::funkyInterfaceInterativelySelectNx20OrNull()
+        nx20 = Search::interativeInterfaceSelectNx20OrNull()
         return nil if nx20.nil?
         nx20["payload"]
     end
@@ -38,11 +38,6 @@ class NyxNetwork
         if operation == "new" then
             return NyxNetwork::interactivelyMakeNewOrNull()
         end
-    end
-
-    # NyxNetwork::linked(item)
-    def self.linked(item)
-         Links::parents(item["uuid"]) + Links::related(item["uuid"]) + Links::children(item["uuid"])
     end
 
     # NyxNetwork::linkToDesignatedOther(item, other)
@@ -78,7 +73,9 @@ class NyxNetwork
     end
 
     def self.relinkToOther(item)
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("linked", NyxNetwork::linked(item), lambda{|item| LxFunction::function("toString", item)})
+        entities = Links::linked(item["uuid"])
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("linked", entities, lambda{|item| LxFunction::function("toString", item)})
         return if other.nil?
         Links::unlink(item["uuid"], other["uuid"])
         NyxNetwork::linkToDesignatedOther(item, other)
@@ -86,7 +83,9 @@ class NyxNetwork
 
     # NyxNetwork::disconnectFromLinkedInteractively(item)
     def self.disconnectFromLinkedInteractively(item)
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("linked", NyxNetwork::linked(item), lambda{|item| LxFunction::function("toString", item)})
+        entities = Links::linked(item["uuid"])
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("linked", entities, lambda{|item| LxFunction::function("toString", item)})
         return if other.nil?
         Links::unlink(item["uuid"], other["uuid"])
     end

@@ -388,7 +388,7 @@ class LxAction
         end
 
         if command == "search" then
-            Search::searchClassic()
+            Search::classicInterface()
             return
         end
 

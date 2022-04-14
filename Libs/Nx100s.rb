@@ -302,25 +302,12 @@ class Nx100s
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Links::parents(item["uuid"])
+            Links::linked(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [parent] #{LxFunction::function("toString", entity)}" 
-                }
-
-            Links::related(item["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity| 
-                    indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [related] #{LxFunction::function("toString", entity)}" 
-                }
-
-            Links::children(item["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity| 
-                    indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] [child] #{LxFunction::function("toString", entity)}" 
+                    linkType = Links::linkTypeOrNull(item["uuid"], entity["uuid"])
+                    puts "[#{indx.to_s.ljust(3)}] [#{linkType.ljust(7)}] #{LxFunction::function("toString", entity)}" 
                 }
 
             commands = []

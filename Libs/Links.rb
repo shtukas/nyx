@@ -108,4 +108,26 @@ class Links
             .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
             .compact
     end
+
+    # Links::linked(uuid)
+    def self.linked(uuid)
+         Links::parents(uuid) + Links::related(uuid) + Links::children(uuid)
+    end
+
+    # ------------------------------------------------
+    # Data
+
+    # Links::linkTypeOrNull(itemuuid, otheruuid)
+    def self.linkTypeOrNull(itemuuid, otheruuid)
+        if Links::relatedUUIDs(itemuuid).include?(otheruuid) then
+            return "related"
+        end
+        if Links::parentUUIDs(itemuuid).include?(otheruuid) then
+            return "parent"
+        end
+        if Links::childrenUUIDs(itemuuid).include?(otheruuid) then
+            return "child"
+        end
+        nil
+    end
 end

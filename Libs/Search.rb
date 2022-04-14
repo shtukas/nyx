@@ -17,15 +17,15 @@ class Search
 
     # ---------------------------
 
-    # Search::funkyInterfaceInterativelySelectNx20OrNull()
-    def self.funkyInterfaceInterativelySelectNx20OrNull()
+    # Search::interativeInterfaceSelectNx20OrNull()
+    def self.interativeInterfaceSelectNx20OrNull()
         Utils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::nx20s(), lambda{|item| item["announce"] })
     end
 
-    # Search::funkyInterface()
-    def self.funkyInterface()
+    # Search::interativeInterface()
+    def self.interativeInterface()
         loop {
-            nx20 = Search::funkyInterfaceInterativelySelectNx20OrNull()
+            nx20 = Search::interativeInterfaceSelectNx20OrNull()
             break if nx20.nil?
             LxAction::action("landing", nx20["payload"])
         }
@@ -33,8 +33,8 @@ class Search
 
     # ---------------------------
 
-    # Search::searchClassic()
-    def self.searchClassic()
+    # Search::classicInterface()
+    def self.classicInterface()
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")

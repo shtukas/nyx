@@ -8,18 +8,18 @@ class Nyx
         loop {
             system("clear")
             operations = [
-                "search (all)",
+                "search (interactive)",
                 "search classic (fragment)",
                 "new entity",
                 "special ops"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
-            if operation == "search (all)" then
-                Search::funkyInterface()
+            if operation == "search (interactive)" then
+                Search::interativeInterface()
             end
             if operation == "search classic (fragment)" then
-                Search::searchClassic()
+                Search::classicInterface()
             end
             if operation == "new entity" then
                 item = NyxNetwork::interactivelyMakeNewOrNull()
