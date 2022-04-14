@@ -16,8 +16,8 @@ class Nx101Structure
         }
     end
 
-    # Nx101Structure::interactivelyCreateNewStructureOrNull()
-    def self.interactivelyCreateNewStructureOrNull()
+    # Nx101Structure::interactivelySelectStructureTypeOrNull()
+    def self.interactivelySelectStructureTypeOrNull()
         types = [
             "navigation",
             "atomic",
@@ -25,7 +25,12 @@ class Nx101Structure
             "primitive-file",
             "carrier-of-primitive-files"
         ]
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("structure type", types)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("structure type", types)
+    end
+
+    # Nx101Structure::interactivelyCreateNewStructureOrNull()
+    def self.interactivelyCreateNewStructureOrNull()
+        type = Nx101Structure::interactivelySelectStructureTypeOrNull()
         return nil if type.nil?
         if type == "navigation" then
             return {

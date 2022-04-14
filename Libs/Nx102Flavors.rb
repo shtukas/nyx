@@ -3,8 +3,8 @@
 
 class Nx102Flavor
 
-    # Nx102Flavor::interactivelyCreateNewFlavour()
-    def self.interactivelyCreateNewFlavour()
+    # Nx102Flavor::interactivelySelectFlavourTypeOrNull()
+    def self.interactivelySelectFlavourTypeOrNull()
         types = [
             "encyclopedia (default)",
             "of-interest-from-the-web",
@@ -12,7 +12,12 @@ class Nx102Flavor
             "public-event",
             "pascal-personal-note"
         ]
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("flavor type", types)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("flavor type", types)
+    end
+
+    # Nx102Flavor::interactivelyCreateNewFlavour()
+    def self.interactivelyCreateNewFlavour()
+        type = Nx102Flavor::interactivelySelectFlavourTypeOrNull()
         if type.nil? then
             return {
                 "type" => "encyclopedia"
