@@ -306,6 +306,7 @@ class TerminalDisplayOperator
 
         puts ""
         puts "(#{universe})"
+        vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 

@@ -327,6 +327,8 @@ class Nx100s
             commands << "access"
             commands << "description"
             commands << "datetime"
+            commands << "structure"
+            commands << "flavour"
             commands << "attachment"
             commands << "link"
             commands << "unlink"
@@ -361,7 +363,27 @@ class Nx100s
                 datetime = Utils::editTextSynchronously(item["datetime"]).strip
                 next if !Utils::isDateTime_UTC_ISO8601(datetime)
                 item["datetime"] = datetime
-                Librarian6Objects::commit(item) 
+                Librarian6Objects::commit(item)
+            end
+
+            if Interpreting::match("structure", command) then
+                structure = Nx101Structure::interactivelyCreateNewStructureOrNull()
+                next nil if structure.nil?
+                puts JSON.pretty_generate(structure)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
+                    item["structure"] = structure
+                    Librarian6Objects::commit(item)
+                end
+            end
+
+            if Interpreting::match("flavour", command) then
+                flavour = Nx102Flavor::interactivelyCreateNewFlavour()
+                next nil if flavour.nil?
+                puts JSON.pretty_generate(flavour)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
+                    item["flavour"] = flavour
+                    Librarian6Objects::commit(item) 
+                end
             end
 
             if Interpreting::match("attachment", command) then
