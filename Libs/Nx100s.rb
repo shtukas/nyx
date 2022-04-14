@@ -104,6 +104,56 @@ class Nx100s
         "#{item["description"]}"
     end
 
+    # Nx100s::selectItemsByYear(year)
+    def self.selectItemsByYear(year)
+        Nx100s::items().select{|item| item["datetime"][0, 4] == year }
+    end
+
+    # Nx100s::selectItemsByYearMonth(yearMonth)
+    def self.selectItemsByYearMonth(yearMonth)
+        Nx100s::items().select{|item| item["datetime"][0, 7] == yearMonth }
+    end
+
+    # Nx100s::selectItemsByFlavours(flavourType)
+    def self.selectItemsByFlavours(flavourType)
+        Nx100s::items().select{|item| item["flavour"]["type"] == flavourType }
+    end
+
+    # Nx100s::getDistictYearMonthsFromItems()
+    def self.getDistictYearMonthsFromItems()
+        Nx100s::items().map{|item| item["datetime"][0, 7] }.uniq.sort
+    end
+
+    # Nx100s::getItemsFromTheBiggestYearMonth()
+    def self.getItemsFromTheBiggestYearMonth()
+        last = Nx100s::getDistictYearMonthsFromItems()
+            .map{|yearMonth|  
+                {
+                    "yearMonth" => yearMonth,
+                    "items" => Nx100s::selectItemsByYearMonth(yearMonth)
+                }
+            }
+            .sort{|p1, p2| p1["items"].size <=> p2["items"].size }
+            .last
+        last["items"].sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+    end
+
+    # Nx100s::getItemsFromTheBiggestYearMonthGame1Edition()
+    def self.getItemsFromTheBiggestYearMonthGame1Edition()
+        last = Nx100s::getDistictYearMonthsFromItems()
+            .map{|yearMonth|
+                items = Nx100s::selectItemsByYearMonth(yearMonth)
+                items = items.select{|item| !KeyValueStore::flagIsTrue(nil, "4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}") }
+                {
+                    "yearMonth" => yearMonth,
+                    "items" => items
+                }
+            }
+            .sort{|p1, p2| p1["items"].size <=> p2["items"].size }
+            .last
+        last["items"].sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+    end
+
     # ----------------------------------------------------------------------
     # Operations
 

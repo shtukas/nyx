@@ -28,21 +28,26 @@ class Nyx
             end
             if operation == "special ops" then
                 specialOps = [
-                    "listing per date fragment",
+                    "game: correcting datetimes",
                 ]
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("op", specialOps)
-                if op == "listing per date fragment" then
-                    puts "(95999b79-5d10-4db0-a4ef-c4f640013d0d: This has not been implemented, need re-implementation after refactoring)"
-                    LucilleCore::pressEnterToContinue()
-                    next
+                if op == "game: correcting datetimes" then
 
-                    fragment = LucilleCore::askQuestionAnswerAsString("fragment: ")
-                    items = []
-                    loop {
-                        item = NyxNetwork::selectEntityFromGivenEntitiesOrNull(items)
-                        break if item.nil?
-                        LxAction::action("landing", item)
+                    markHasHavingBeenDatetimeChecked = lambda{|item|
+                        KeyValueStore::setFlagTrue(nil, "4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}")
                     }
+
+                    hasBeenDateTimeChecked = lambda{|item|
+                        KeyValueStore::flagIsTrue(nil, "4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}")
+                    }
+
+                    Nx100s::getItemsFromTheBiggestYearMonthGame1Edition()
+                        .each{|item|
+                            next if hasBeenDateTimeChecked.call(item)
+                            LxAction::action("landing", item)
+                            markHasHavingBeenDatetimeChecked.call(item)
+                        }
+
                 end
             end
         }
