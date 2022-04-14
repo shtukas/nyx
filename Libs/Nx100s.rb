@@ -331,6 +331,7 @@ class Nx100s
             commands << "flavour"
             commands << "attachment"
             commands << "link"
+            commands << "relink"
             commands << "unlink"
             commands << "special circumstances"
             commands << "destroy"
@@ -393,6 +394,10 @@ class Nx100s
 
             if Interpreting::match("link", command) then
                 NyxNetwork::connectToOtherArchitectured(item)
+            end
+
+            if Interpreting::match("relink", command) then
+                NyxNetwork::relinkToOther(item)
             end
 
             if Interpreting::match("unlink", command) then
