@@ -11,6 +11,8 @@ class LxAction
         if object and object["mikuType"].nil? then
             puts "Objects sent to LxAction::action if not null should have a mikuType attribute."
             puts "Got:"
+            puts "command: #{command}"
+            puts "object:"
             puts JSON.pretty_generate(object)
             puts "Aborting."
             exit

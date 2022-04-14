@@ -181,7 +181,7 @@ class TerminalUtils
         end
 
         if Interpreting::match("top", input) then
-            return ["top", store.getDefault()]
+            return ["top", nil]
         end
 
         if Interpreting::match("today", input) then
@@ -277,7 +277,6 @@ class NS16sOperator
     def self.section3(universe)
         [
             Anniversaries::ns16s(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/amanda-bins`),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
             Waves::ns16s(universe),
