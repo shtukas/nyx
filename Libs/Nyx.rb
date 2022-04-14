@@ -29,7 +29,6 @@ class Nyx
             if operation == "special ops" then
                 specialOps = [
                     "listing per date fragment",
-                    "make genesis point",
                 ]
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("op", specialOps)
                 if op == "listing per date fragment" then
