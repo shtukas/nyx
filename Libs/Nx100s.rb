@@ -21,6 +21,7 @@ class Nx101Structure
         types = [
             "navigation",
             "atomic",
+            "log",
             "primitive-file",
             "carrier-of-primitive-files"
         ]
@@ -37,6 +38,11 @@ class Nx101Structure
             return {
                 "type"     => "atomic",
                 "atomuuid" => atom["uuid"]
+            }
+        end
+        if type == "log" then
+            return {
+                "type" => "log"
             }
         end
         if type == "primitive-file" then

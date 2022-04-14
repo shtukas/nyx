@@ -18,6 +18,9 @@ Nx101Structure
         "atomuuid" : String
     }
     {
+        "type" : "log"
+    }
+    {
         "type"            : "primitive-file"
         "dottedExtension" : String
         "nhash"           : Named SHA256 digest
