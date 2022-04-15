@@ -36,10 +36,8 @@ class TxAttachments
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
         return nil if atom.nil?
-
-        Librarian6Objects::commit(atom)
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i

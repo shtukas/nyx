@@ -270,41 +270,54 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::interactivelyCreateNewAtomOrNull()
-    def self.interactivelyCreateNewAtomOrNull()
+    # Librarian5Atoms::interactivelyIssueNewAtomOrNull()
+    def self.interactivelyIssueNewAtomOrNull()
+
+        commitMaybeAtomAndReturn = lambda{|atom|
+            return nil if atom.nil?
+            Librarian6Objects::commit(atom)
+            Librarian15Fsck::fsckExitAtFirstFailureAtomuuid({}, atom["uuid"])
+            atom
+        }
 
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "local-group-002", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
-            return Librarian5Atoms::makeDescriptionOnlyAtom()
+            atom = Librarian5Atoms::makeDescriptionOnlyAtom()
+            return commitMaybeAtomAndReturn.call(atom)
         end
 
         if type == "text" then
             text = Librarian0Utils::editTextSynchronously("")
-            return Librarian5Atoms::makeTextAtomUsingText(text)
+            atom = Librarian5Atoms::makeTextAtomUsingText(text)
+            return commitMaybeAtomAndReturn.call(atom)
         end
 
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            return Librarian5Atoms::makeUrlAtomUsingUrl(url)
+            atom = Librarian5Atoms::makeUrlAtomUsingUrl(url)
+            return commitMaybeAtomAndReturn.call(atom)
         end
 
         if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Librarian5Atoms::makeAionPointAtomUsingLocation(location)
+            atom = Librarian5Atoms::makeAionPointAtomUsingLocation(location)
+            return commitMaybeAtomAndReturn.call(atom)
         end
 
         if type == "local-group-002" then
             indx = LucilleCore::askQuestionAnswerAsString("Number between 000001 and 999999: ")
-            return Librarian5Atoms::makeLG002Atom(indx)
+            atom = Librarian5Atoms::makeLG002Atom(indx)
+            return commitMaybeAtomAndReturn.call(atom)
         end
 
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use '#{SecureRandom.hex(6)}' if need one): ")
             return nil if uniquestring == ""
-            return Librarian5Atoms::makeUniqueStringAtomUsingString(uniquestring)
+            atom = Librarian5Atoms::makeUniqueStringAtomUsingString(uniquestring)
+            return commitMaybeAtomAndReturn.call(atom)
         end
 
         raise "[Librarian] [D2BDF2BC-D0B8-4D76-B00F-9EBB328D4CF7, type: #{type}]"
@@ -649,8 +662,8 @@ end
 
 class Librarian15Fsck
 
-    # Librarian15Fsck::fsckAtom(atom) : Boolean
-    def self.fsckAtom(atom)
+    # Librarian15Fsck::fsckAtomReturnBoolean(atom) : Boolean
+    def self.fsckAtomReturnBoolean(atom)
         puts JSON.pretty_generate(atom)
         if atom["type"] == "description-only" then
             return true
@@ -681,14 +694,8 @@ class Librarian15Fsck
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
     end
 
-    # Librarian15Fsck::fsckAtomuuid(item, atomuuid) : Boolean
-    def self.fsckAtomuuid(item, atomuuid)
-        if atomuuid.nil? then
-            puts JSON.pretty_generate(item).red
-            puts "This code relies on the assumption that any object that has not been captured yet has an 'atomuuid' key.".red
-            puts "Is this an error of the object or an error in the assumption?".red
-            exit
-        end
+    # Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, atomuuid)
+    def self.fsckExitAtFirstFailureAtomuuid(item, atomuuid)
         atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
         if atom.nil? then
             puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)".red
@@ -696,7 +703,7 @@ class Librarian15Fsck
             puts JSON.pretty_generate(item).red
             exit
         end
-        status = Librarian15Fsck::fsckAtom(atom)
+        status = Librarian15Fsck::fsckAtomReturnBoolean(atom)
         if !status then 
             puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)".red
             puts "item:".red
@@ -707,10 +714,10 @@ class Librarian15Fsck
         end
     end
 
-    # Librarian15Fsck::fsckNx100Structure(item, structure)
-    def self.fsckNx100Structure(item, structure)
+    # Librarian15Fsck::fsckExitAtFirstFailureNx100Structure(item, structure)
+    def self.fsckExitAtFirstFailureNx100Structure(item, structure)
         if structure["type"] == "atomic" then
-            Librarian15Fsck::fsckAtomuuid(item, structure["atomuuid"])
+            Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, structure["atomuuid"])
         end
         if structure["type"] == "primitive-file" then
             structure["parts"].each{|nhash|
@@ -724,9 +731,12 @@ class Librarian15Fsck
         end
     end
 
-    # Librarian15Fsck::fsck()
-    def self.fsck()
+    # Librarian15Fsck::fsckExitAtFirstFailure()
+    def self.fsckExitAtFirstFailure()
         Librarian6Objects::objects()
+        .sort{|o1, o2| 
+            o1["unixtime"] <=> o2["unixtime"] 
+        }
         .select{|item|
             item["mikuType"] != "Atom"
         }
@@ -736,31 +746,31 @@ class Librarian15Fsck
                 next
             end
             if item["mikuType"] == "Nx100" then
-                Librarian15Fsck::fsckNx100Structure(item, item["structure"])
+                Librarian15Fsck::fsckExitAtFirstFailureNx100Structure(item, item["structure"])
                 next
             end
             if item["mikuType"] == "TxAttachment" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
                 next
             end
             if item["mikuType"] == "TxDated" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
                 next
             end
             if item["mikuType"] == "TxFloat" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
                 next
             end
             if item["mikuType"] == "TxFyre" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
                 next
             end
             if item["mikuType"] == "TxTodo" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
                 next
             end
             if item["mikuType"] == "Wave" then
-                Librarian15Fsck::fsckAtomuuid(item, item["atomuuid"])
+                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
                 next
             end
 
@@ -777,7 +787,7 @@ class Librarian15GarbageCollection
     # Librarian15GarbageCollection::garbageCollection()
     def self.garbageCollection()
 
-        Librarian15Fsck::fsck()
+        Librarian15Fsck::fsckExitAtFirstFailure()
 
         Find.find(Librarian12EnergyGrid::datablobsRepository()) do |path|
             next if File.directory?(path)
@@ -792,7 +802,7 @@ class Librarian15GarbageCollection
             end
         end
 
-        Librarian15Fsck::fsck()
+        Librarian15Fsck::fsckExitAtFirstFailure()
     end
 end
 
@@ -1057,7 +1067,7 @@ class LibrarianCLI
             break if action.nil?
 
             if action == "run fsck" then
-                Librarian15Fsck::fsck()
+                Librarian15Fsck::fsckExitAtFirstFailure()
             end
             if action == "show object" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")

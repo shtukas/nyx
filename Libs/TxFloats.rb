@@ -20,10 +20,8 @@ class TxFloats
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
         return nil if atom.nil?
-
-        Librarian6Objects::commit(atom)
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -116,9 +114,8 @@ class TxFloats
             end
 
             if Interpreting::match("atom", command) then
-                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
                 next if atom.nil?
-                Librarian6Objects::commit(atom)
                 item["atomuuid"] = atom["uuid"]
                 Librarian6Objects::commit(item)
                 next

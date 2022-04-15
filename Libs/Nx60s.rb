@@ -31,6 +31,7 @@ class Nx60s
         item = {
           "uuid"       => uuid,
           "mikuType"   => "Nx60",
+          "unixtime"   => unixtime,
           "owneruuid"  => owneruuid,
           "targetuuid" => targetuuid
         }

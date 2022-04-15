@@ -110,10 +110,8 @@ class Waves
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
+        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
         return nil if atom.nil?
-
-        Librarian6Objects::commit(atom)
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
@@ -224,9 +222,8 @@ class Waves
             end
 
             if Interpreting::match("atom", command) then
-                atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
+                atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
                 next if atom.nil?
-                Librarian6Objects::commit(atom)
                 item["atomuuid"] = atom["uuid"]
                 Librarian6Objects::commit(item)
                 next
