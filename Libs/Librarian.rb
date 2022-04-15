@@ -588,21 +588,6 @@ class Librarian12EnergyGrid
     end
 
     # -----------------------------------------------------------------------------
-    # mark in this context if the unixtime of the last time the blob was read
-
-    # Librarian12EnergyGrid::updateLastReadUnixtime(nhash)
-    def self.updateLastReadUnixtime(nhash)
-        KeyValueStore::set(nil, "9e52ce32-285d-42e3-a0d6-6fcbfe5941e8:#{nhash}", Time.new.to_f)
-    end
-
-    # Librarian12EnergyGrid::getLastReadUnixtimeOrNull(nhash)
-    def self.getLastReadUnixtimeOrNull(nhash)
-        value = KeyValueStore::getOrNull(nil, "9e52ce32-285d-42e3-a0d6-6fcbfe5941e8:#{nhash}")
-        return nil if value.nil?
-        value.to_f
-    end
-
-    # -----------------------------------------------------------------------------
 
     # Librarian12EnergyGrid::putBlob(blob) # nhash
     def self.putBlob(blob)
@@ -621,7 +606,6 @@ class Librarian12EnergyGrid
         if !File.exists?(filepathRemote) then
             return nil
         end
-        Librarian12EnergyGrid::updateLastReadUnixtime(nhash)
         IO.read(filepathRemote)
     end
 end
