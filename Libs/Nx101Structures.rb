@@ -39,6 +39,7 @@ class Nx101Structure
         end
         if type == "atomic" then
             atom = Librarian5Atoms::interactivelyCreateNewAtomOrNull()
+            Librarian6Objects::commit(atom)
             return nil if atom.nil?
             return {
                 "type"     => "atomic",
