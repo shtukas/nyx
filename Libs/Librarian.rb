@@ -208,7 +208,7 @@ class Librarian5Atoms
             "mikuType" => "Atom",
             "unixtime" => Time.new.to_f,
             "type"     => "text",
-            "payload"  => Librarian12EnergyGrid::putBlob(text)
+            "payload"  => Librarian12BlobsService::putBlob(text)
         }
     end
 
@@ -338,7 +338,7 @@ class Librarian5Atoms
         if atom["type"] == "text" then
             text = [
                 "-- Atom (text) --",
-                Librarian12EnergyGrid::getBlobOrNull(atom["payload"]).strip,
+                Librarian12BlobsService::getBlobOrNull(atom["payload"]).strip,
             ].join("\n")
             return text
         end
@@ -426,10 +426,10 @@ class Librarian5Atoms
             LucilleCore::pressEnterToContinue()
         end
         if atom["type"] == "text" then
-            text1 = Librarian12EnergyGrid::getBlobOrNull(atom["payload"])
+            text1 = Librarian12BlobsService::getBlobOrNull(atom["payload"])
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
-                atom["payload"] = Librarian12EnergyGrid::putBlob(text2)
+                atom["payload"] = Librarian12BlobsService::putBlob(text2)
                 Librarian6Objects::commit(atom)
             end
         end
@@ -580,19 +580,19 @@ class Librarian6Objects
     end
 end
 
-class Librarian12EnergyGrid
+class Librarian12BlobsService
 
-    # Librarian12EnergyGrid::datablobsRepository()
+    # Librarian12BlobsService::datablobsRepository()
     def self.datablobsRepository()
         "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs"
     end
 
     # -----------------------------------------------------------------------------
 
-    # Librarian12EnergyGrid::putBlob(blob) # nhash
+    # Librarian12BlobsService::putBlob(blob) # nhash
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepathRemote = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        filepathRemote = "#{Librarian12BlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(File.dirname(filepathRemote)) then
             FileUtils.mkpath(File.dirname(filepathRemote))
         end
@@ -600,9 +600,9 @@ class Librarian12EnergyGrid
         nhash
     end
 
-    # Librarian12EnergyGrid::getBlobOrNull(nhash)
+    # Librarian12BlobsService::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepathRemote = "#{Librarian12EnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        filepathRemote = "#{Librarian12BlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(filepathRemote) then
             return nil
         end
@@ -616,7 +616,7 @@ class Librarian14Elizabeth
     end
 
     def commitBlob(blob)
-        Librarian12EnergyGrid::putBlob(blob)
+        Librarian12BlobsService::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -624,7 +624,7 @@ class Librarian14Elizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+        blob = Librarian12BlobsService::getBlobOrNull(nhash)
         return blob if blob
         puts "(error: 69f99c35-5560-44fb-b463-903e9850bc93) could not find blob, nhash: #{nhash}"
         raise "(error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash})" if blob.nil?
@@ -653,7 +653,7 @@ class Librarian15Fsck
             return true
         end
         if atom["type"] == "text" then
-            return !Librarian12EnergyGrid::getBlobOrNull(atom["payload"]).nil?
+            return !Librarian12BlobsService::getBlobOrNull(atom["payload"]).nil?
         end
         if atom["type"] == "url" then
             return true
@@ -705,7 +705,7 @@ class Librarian15Fsck
         end
         if structure["type"] == "primitive-file" then
             structure["parts"].each{|nhash|
-                blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+                blob = Librarian12BlobsService::getBlobOrNull(nhash)
                 next if blob
                 puts "Nx100/structure".red
                 puts JSON.pretty_generate(structure).red
@@ -949,7 +949,7 @@ class Librarian17PrimitiveFilesAndCarriers
         nhash = Librarian0Utils::filepathToContentHash(filepath)
  
         lambdaBlobCommitReturnNhash = lambda {|blob|
-            Librarian12EnergyGrid::putBlob(blob)
+            Librarian12BlobsService::putBlob(blob)
         }
         parts = Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
  
@@ -961,7 +961,7 @@ class Librarian17PrimitiveFilesAndCarriers
         targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+                blob = Librarian12BlobsService::getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -1066,7 +1066,7 @@ class LibrarianCLI
             end
             if action == "prob blob" then
                 nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-                blob = Librarian12EnergyGrid::getBlobOrNull(nhash)
+                blob = Librarian12BlobsService::getBlobOrNull(nhash)
                 if blob then
                     if blob[0, 1] == "{" then
                         puts "blob: #{blob}"
