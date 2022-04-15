@@ -226,7 +226,7 @@ class Librarian5Atoms
     # Librarian5Atoms::makeAionPointAtomUsingLocation(location) # Atom
     def self.makeAionPointAtomUsingLocation(location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethStandard.new(), location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"      => SecureRandom.uuid,
@@ -380,7 +380,7 @@ class Librarian5Atoms
         if answer then
             return JSON.parse(answer)[0]
         end
-        object = AionCore::getAionObjectByHash(Librarian14Elizabeth.new(), nhash)
+        object = AionCore::getAionObjectByHash(Librarian14ElizabethStandard.new(), nhash)
         answer = Librarian5Atoms::uniqueStringIsInAionPointObject(object, uniquestring)
         KeyValueStore::set(nil, "4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
         answer
@@ -448,13 +448,13 @@ class Librarian5Atoms
             exportFolder = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
             if exportFolder.nil? then
                 exportFolder = Librarian16AionExport::atomToNewExportFolderpath(atom)
-                AionCore::exportHashAtFolder(Librarian14Elizabeth.new(), nhash, exportFolder)
+                AionCore::exportHashAtFolder(Librarian14ElizabethStandard.new(), nhash, exportFolder)
             end
             system("open '#{exportFolder}'")
             #if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
             #    location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             #    return if location.nil?
-            #    rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location)
+            #    rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethStandard.new(), location)
             #    atom["rootnhash"] = rootnhash
             #    Librarian6Objects::commit(atom)
             #    Librarian0Utils::moveFileToBinTimeline(location)
@@ -610,7 +610,7 @@ class Librarian12BlobsService
     end
 end
 
-class Librarian14Elizabeth
+class Librarian14ElizabethStandard
 
     def initialize()
     end
@@ -660,7 +660,7 @@ class Librarian15Fsck
         end
         if atom["type"] == "aion-point" then
             nhash = atom["rootnhash"]
-            status = AionFsck::structureCheckAionHash(Librarian14Elizabeth.new(), nhash)
+            status = AionFsck::structureCheckAionHash(Librarian14ElizabethStandard.new(), nhash)
             return status
         end
         if atom["type"] == "unique-string" then
@@ -894,7 +894,7 @@ class Librarian16AionExport
                 next
             end
 
-            rootnhash = AionCore::commitLocationReturnHash(Librarian14Elizabeth.new(), location3)
+            rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethStandard.new(), location3)
             if rootnhash != atom["rootnhash"] then
                 atom["rootnhash"] = rootnhash
                 #puts "atom (updated): #{JSON.generate(atom)}"
