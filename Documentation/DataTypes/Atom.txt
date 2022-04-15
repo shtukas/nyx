@@ -50,7 +50,7 @@ Unique strings can be anything, but when possible, it's recommended to use "Nx01
     "payload"  : String # foldername on local group
 }
 
-"local-group-001" was created to offload to LocalGroup the numerous youtube videos that poluted the network as aion-points
+"local-group-001" was created to offload to LocalGroup (renamed GSV-Lucille) the numerous youtube videos that poluted the network as aion-points
 
 {
     "uuid"     : String
