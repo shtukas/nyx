@@ -783,30 +783,6 @@ class Librarian15Fsck
     end
 end
 
-class Librarian15GarbageCollection
-
-    # Librarian15GarbageCollection::garbageCollection()
-    def self.garbageCollection()
-
-        Librarian15Fsck::fsckExitAtFirstFailure()
-
-        Find.find(Librarian12EnergyGrid::datablobsRepository()) do |path|
-            next if File.directory?(path)
-            if File.basename(path)[-5, 5] == ".data" then
-                nhash = File.basename(path).gsub(".data", "")
-                mark = Librarian12EnergyGrid::getLastReadUnixtimeOrNull(nhash)
-                if mark.nil? or (mark < (Time.new.to_f-86400)) then
-                    # The last time the data file was read more that a day ago
-                    puts "garbage collect: #{path}"
-                    FileUtils.rm(path)
-                end
-            end
-        end
-
-        Librarian15Fsck::fsckExitAtFirstFailure()
-    end
-end
-
 =begin 
 
 Tx45 {
@@ -1067,7 +1043,6 @@ class LibrarianCLI
                 "destroy object by uuid",
                 "prob blob", 
                 "do aion-points pickups",
-                "garbage collection",
                 "exit"
             ]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action:", actions)
@@ -1124,9 +1099,6 @@ class LibrarianCLI
             end
             if action == "do aion-points pickups" then
                 Librarian16AionExport::doPickups()
-            end
-            if action == "garbage collection" then
-                Librarian15GarbageCollection::garbageCollection()
             end
             if action == "exit" then
                 break
