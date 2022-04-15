@@ -141,7 +141,7 @@ class Utils
     end
 
     # Utils::nx45()
-    def self.Nx45()
+    def self.nx45()
         str1 = Time.new.strftime("%Y%m%d%H%M%S%6N")
         str2 = str1[0, 6]
         str3 = str1[6, 4]

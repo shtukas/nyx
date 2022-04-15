@@ -68,34 +68,6 @@ class Nx100s
         item
     end
 
-    # Nx100s::makePrimitiveFileFromLocationOrNull(location)
-    def self.makePrimitiveFileFromLocationOrNull(location)
-        description = nil
-
-        structure = Nx101Structure::primitiveFileStructureFromLocationOrNull(location)
-        return nil if structure.nil?
-
-        flavour = {
-            "type" => "pure-data"
-        }
-
-        uuid       = Utils::nx45()
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "Nx100",
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "description" => description,
-          "structure"   => structure,
-          "flavour"     => flavour
-        }
-        Librarian6Objects::commit(item)
-        item
-    end
-
     # ----------------------------------------------------------------------
     # Data
 
@@ -187,6 +159,34 @@ class Nx100s
         LucilleCore::pressEnterToContinue()
     end
 
+    # Nx100s::issuePrimitiveFileFromLocationOrNull(location)
+    def self.issuePrimitiveFileFromLocationOrNull(location)
+        description = nil
+
+        structure = Nx101Structure::primitiveFileStructureFromLocationOrNull(location)
+        return nil if structure.nil?
+
+        flavour = {
+            "type" => "pure-data"
+        }
+
+        uuid       = Utils::nx45()
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "Nx100",
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "description" => description,
+          "structure"   => structure,
+          "flavour"     => flavour
+        }
+        Librarian6Objects::commit(item)
+        item
+    end
+
     # Nx100s::landing(item)
     def self.landing(item)
         loop {
@@ -221,6 +221,11 @@ class Nx100s
             commands = []
             commands << "access"
             commands << "description"
+
+            if item["structure"]["type"] == "carrier-of-primitive-files" then
+                commands << "upload (primitive files)"
+            end
+
             commands << "datetime"
             commands << "structure"
             commands << "flavour"
@@ -252,6 +257,17 @@ class Nx100s
                 next if description == ""
                 item["description"] = description
                 Librarian6Objects::commit(item)
+                next
+            end
+
+            if Interpreting::match("upload", command) then
+                if item["structure"]["type"] != "carrier-of-primitive-files" then
+                    puts "(this should not have happened)"
+                    puts "I can only upload a carrier-of-primitive-files"
+                    LucilleCore::pressEnterToContinue()
+                    next
+                end
+                Librarian17PrimitiveFilesAndCarriers::uploadCarrierOrNothing(item["uuid"])
                 next
             end
 

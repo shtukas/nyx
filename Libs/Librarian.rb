@@ -314,7 +314,7 @@ class Librarian5Atoms
         end
 
         if type == "unique-string" then
-            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use '#{SecureRandom.hex(6)}' if need one): ")
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
             return nil if uniquestring == ""
             atom = Librarian5Atoms::makeUniqueStringAtomUsingString(uniquestring)
             return commitMaybeAtomAndReturn.call(atom)
@@ -737,6 +737,7 @@ class Librarian15Fsck
         .sort{|o1, o2| 
             o1["unixtime"] <=> o2["unixtime"] 
         }
+        .reverse
         .select{|item|
             item["mikuType"] != "Atom"
         }
@@ -996,7 +997,7 @@ class Librarian17PrimitiveFilesAndCarriers
     end
 
     # Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(someuuid, dottedExtension, parts, location) # targetFilepath
-    def self.exportPrimitiveFileAtLocation(item, location)
+    def self.exportPrimitiveFileAtLocation(someuuid, dottedExtension, parts, location)
         targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
@@ -1009,7 +1010,7 @@ class Librarian17PrimitiveFilesAndCarriers
     end
 
     # Librarian17PrimitiveFilesAndCarriers::carrierContents(owneruuid)
-    def self.contents(owneruuid)
+    def self.carrierContents(owneruuid)
         Librarian6Objects::getObjectsByMikuType("Nx60")
             .select{|claim| claim["owneruuid"] == owneruuid }
             .map{|claim| claim["targetuuid"] }
@@ -1017,26 +1018,32 @@ class Librarian17PrimitiveFilesAndCarriers
             .compact
     end
 
-    # Librarian17PrimitiveFilesAndCarriers::exportCarrier(uuid)
-    def self.exportCarrier(uuid)
+    # Librarian17PrimitiveFilesAndCarriers::exportCarrier(item)
+    def self.exportCarrier(item)
         exportFolderpath = "/Users/pascal/Desktop/#{item["description"]} (#{item["uuid"][-8, 8]})"
         FileUtils.mkdir(exportFolderpath)
-        Librarian17PrimitiveFilesAndCarriers::carrierContents(uuid)
-            .each{|item| Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(item, exportFolderpath)}
+        Librarian17PrimitiveFilesAndCarriers::carrierContents(item["uuid"])
+            .each{|ix| Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(ix["uuid"], ix["structure"]["dottedExtension"], ix["structure"]["parts"], exportFolderpath)}
     end
 
-    # Librarian17PrimitiveFilesAndCarriers::uploadCarrier(uuid)
-    def self.uploadCarrier(uuid)
-        uploadFolderpath = LucilleCore::askQuestionAnswerAsString("upload folder: ")
-        locations = LucilleCore::locationsAtFolder(uploadFolderpath)
+    # Librarian17PrimitiveFilesAndCarriers::uploadCarrierOrNothing(uuid)
+    def self.uploadCarrierOrNothing(uuid)
+        uploadFolder = LucilleCore::askQuestionAnswerAsString("upload folder: ")
+        if !File.exists?(uploadFolder) then
+            puts "This upload folder does not exists!"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        locations = LucilleCore::locationsAtFolder(uploadFolder)
         # We make a fiirst pass to ensure everything is a file
-        locations.each{|location|
-            if !File.file?(location) then
-                raise "(error: 0c333466-8402-4a2a-a446-2297d3ae0ef3) #{location}"
-            end
-        }
+        status = locations.all?{|location| File.file?(location) }
+        if !status then
+            puts "The upload folder has elements that are not files!"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         locations.each{|filepath|
-            primitiveFileObject = Nx100s::makePrimitiveFileFromLocationOrNull(filepath)
+            primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(filepath)
             puts "Primitive file:"
             puts JSON.pretty_generate(primitiveFileObject)
             puts "Link: (owner: #{uuid}, file: #{primitiveFileObject["uuid"]})"

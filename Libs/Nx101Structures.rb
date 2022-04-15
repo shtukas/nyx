@@ -90,7 +90,7 @@ class Nx101Structure
             end
         end
         if structure["type"] == "carrier-of-primitive-files" then
-            Librarian17PrimitiveFilesAndCarriers::exportCarrier(item["uuid"])
+            Librarian17PrimitiveFilesAndCarriers::exportCarrier(item)
         end
     end
 end
