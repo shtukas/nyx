@@ -257,7 +257,7 @@ class LxAction
         end
 
         if command == "fsck" then
-            Librarian15Fsck::fsckExitAtFirstFailure()
+            Librarian21Fsck::fsckExitAtFirstFailure()
             return
         end
 

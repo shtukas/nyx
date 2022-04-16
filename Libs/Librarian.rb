@@ -208,7 +208,7 @@ class Librarian5Atoms
             "mikuType" => "Atom",
             "unixtime" => Time.new.to_f,
             "type"     => "text",
-            "payload"  => Librarian12BlobsService::putBlob(text)
+            "payload"  => Librarian12LocalBlobsService::putBlob(text)
         }
     end
 
@@ -226,7 +226,7 @@ class Librarian5Atoms
     # Librarian5Atoms::makeAionPointAtomUsingLocation(location) # Atom
     def self.makeAionPointAtomUsingLocation(location)
         raise "[Librarian: error: 2a6077f3-6572-4bde-a435-04604590c8d8]" if !File.exists?(location) # Caller needs to ensure file exists.
-        rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethStandard.new(), location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
         Librarian0Utils::moveFileToBinTimeline(location)
         {
             "uuid"      => SecureRandom.uuid,
@@ -276,7 +276,7 @@ class Librarian5Atoms
         commitMaybeAtomAndReturn = lambda{|atom|
             return nil if atom.nil?
             Librarian6Objects::commit(atom)
-            Librarian15Fsck::fsckExitAtFirstFailureAtomuuid({}, atom["uuid"])
+            Librarian21Fsck::fsckExitAtFirstFailureAtomuuid({}, atom["uuid"])
             atom
         }
 
@@ -338,7 +338,7 @@ class Librarian5Atoms
         if atom["type"] == "text" then
             text = [
                 "-- Atom (text) --",
-                Librarian12BlobsService::getBlobOrNull(atom["payload"]).strip,
+                Librarian12LocalBlobsService::getBlobOrNull(atom["payload"]).strip,
             ].join("\n")
             return text
         end
@@ -375,12 +375,15 @@ class Librarian5Atoms
 
     # Librarian5Atoms::uniqueStringIsInNhash(nhash, uniquestring)
     def self.uniqueStringIsInNhash(nhash, uniquestring)
+        # This function will cause all the objects from all aion-structures to remain alive on the local cache
+        # but doesn't download the data blobs
+
         # This function is memoised
         answer = KeyValueStore::getOrNull(nil, "4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
         if answer then
             return JSON.parse(answer)[0]
         end
-        object = AionCore::getAionObjectByHash(Librarian14ElizabethStandard.new(), nhash)
+        object = AionCore::getAionObjectByHash(Librarian14ElizabethLocalStandard.new(), nhash)
         answer = Librarian5Atoms::uniqueStringIsInAionPointObject(object, uniquestring)
         KeyValueStore::set(nil, "4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
         answer
@@ -426,10 +429,10 @@ class Librarian5Atoms
             LucilleCore::pressEnterToContinue()
         end
         if atom["type"] == "text" then
-            text1 = Librarian12BlobsService::getBlobOrNull(atom["payload"])
+            text1 = Librarian12LocalBlobsService::getBlobOrNull(atom["payload"])
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
-                atom["payload"] = Librarian12BlobsService::putBlob(text2)
+                atom["payload"] = Librarian12LocalBlobsService::putBlob(text2)
                 Librarian6Objects::commit(atom)
             end
         end
@@ -448,17 +451,9 @@ class Librarian5Atoms
             exportFolder = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
             if exportFolder.nil? then
                 exportFolder = Librarian16AionExport::atomToNewExportFolderpath(atom)
-                AionCore::exportHashAtFolder(Librarian14ElizabethStandard.new(), nhash, exportFolder)
+                AionCore::exportHashAtFolder(Librarian14ElizabethLocalStandard.new(), nhash, exportFolder)
             end
             system("open '#{exportFolder}'")
-            #if LucilleCore::askQuestionAnswerAsBoolean("> edit aion-point ? ", false) then
-            #    location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
-            #    return if location.nil?
-            #    rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethStandard.new(), location)
-            #    atom["rootnhash"] = rootnhash
-            #    Librarian6Objects::commit(atom)
-            #    Librarian0Utils::moveFileToBinTimeline(location)
-            #end
         end
         if atom["type"] == "local-group-001" then
             puts "I do not know how to access local-group-001"
@@ -580,43 +575,76 @@ class Librarian6Objects
     end
 end
 
-class Librarian12BlobsService
+# ---------------------------------------------------------------------------
+# Local blob services and Elizabeth(s)
+# ---------------------------------------------------------------------------
 
-    # Librarian12BlobsService::datablobsRepository()
+class Librarian12LocalBlobsService
+
+    # Librarian12LocalBlobsService::datablobsRepository()
     def self.datablobsRepository()
-        "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs"
+        "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs-Staging"
     end
 
     # -----------------------------------------------------------------------------
 
-    # Librarian12BlobsService::putBlob(blob) # nhash
+    # Librarian12LocalBlobsService::putBlob(blob) # nhash
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepathRemote = "#{Librarian12BlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepathRemote)) then
-            FileUtils.mkpath(File.dirname(filepathRemote))
+        filepath = "#{Librarian12LocalBlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
         end
-        File.open(filepathRemote, "w"){|f| f.write(blob) }
+        File.open(filepath, "w"){|f| f.write(blob) }
         nhash
     end
 
-    # Librarian12BlobsService::getBlobOrNull(nhash)
+    # Librarian12LocalBlobsService::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepathRemote = "#{Librarian12BlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if !File.exists?(filepathRemote) then
-            return nil
+        # Let's try the cache
+
+        blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
+        if blob then
+            return blob
         end
-        IO.read(filepathRemote)
+
+        filepath = "#{Librarian12LocalBlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            blob = IO.read(filepath)
+            Librarian2DatablobsXCache::putBlob(blob)
+            return blob
+        end
+
+        # We need to try the Drive
+        Librarian19DriveEnergyGrid::ensureDrive()
+
+        # Drive lookup (and possible cache update)
+        filepath = "#{Librarian19DriveEnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            blob = IO.read(filepath)
+            Librarian2DatablobsXCache::putBlob(blob)
+            return blob
+        end
+
+        nil
+    end
+
+    # Librarian12LocalBlobsService::nuke(nhash)
+    def self.nuke(nhash)
+        filepath = "#{Librarian12LocalBlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            FileUtils.rm(filepath)
+        end
     end
 end
 
-class Librarian14ElizabethStandard
+class Librarian14ElizabethLocalStandard
 
     def initialize()
     end
 
     def commitBlob(blob)
-        Librarian12BlobsService::putBlob(blob)
+        Librarian12LocalBlobsService::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -624,7 +652,7 @@ class Librarian14ElizabethStandard
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian12BlobsService::getBlobOrNull(nhash)
+        blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
         return blob if blob
         puts "(error: 69f99c35-5560-44fb-b463-903e9850bc93) could not find blob, nhash: #{nhash}"
         raise "(error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash})" if blob.nil?
@@ -644,128 +672,9 @@ class Librarian14ElizabethStandard
     end
 end
 
-class Librarian15Fsck
-
-    # Librarian15Fsck::fsckAtomReturnBoolean(atom) : Boolean
-    def self.fsckAtomReturnBoolean(atom)
-        puts JSON.pretty_generate(atom)
-        if atom["type"] == "description-only" then
-            return true
-        end
-        if atom["type"] == "text" then
-            return !Librarian12BlobsService::getBlobOrNull(atom["payload"]).nil?
-        end
-        if atom["type"] == "url" then
-            return true
-        end
-        if atom["type"] == "aion-point" then
-            nhash = atom["rootnhash"]
-            status = AionFsck::structureCheckAionHash(Librarian14ElizabethStandard.new(), nhash)
-            return status
-        end
-        if atom["type"] == "unique-string" then
-            # Technically we should be checking if the target exists, but that takes too long
-            return true
-        end
-        if atom["type"] == "local-group-001" then
-            puts "assuming correct"
-            return true
-        end
-        if atom["type"] == "local-group-002" then
-            puts "assuming correct"
-            return true
-        end
-        raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
-    end
-
-    # Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, atomuuid)
-    def self.fsckExitAtFirstFailureAtomuuid(item, atomuuid)
-        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-        if atom.nil? then
-            puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)".red
-            puts "item:".red
-            puts JSON.pretty_generate(item).red
-            exit
-        end
-        status = Librarian15Fsck::fsckAtomReturnBoolean(atom)
-        if !status then 
-            puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)".red
-            puts "item:".red
-            puts JSON.pretty_generate(item).red
-            puts "atom:".red
-            puts JSON.pretty_generate(atom).red
-            exit
-        end
-    end
-
-    # Librarian15Fsck::fsckExitAtFirstFailureNx100Structure(item, structure)
-    def self.fsckExitAtFirstFailureNx100Structure(item, structure)
-        if structure["type"] == "atomic" then
-            Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, structure["atomuuid"])
-        end
-        if structure["type"] == "primitive-file" then
-            structure["parts"].each{|nhash|
-                blob = Librarian12BlobsService::getBlobOrNull(nhash)
-                next if blob
-                puts "Nx100/structure".red
-                puts JSON.pretty_generate(structure).red
-                puts "nhash not found: #{nhash}".red
-                exit
-            }
-        end
-    end
-
-    # Librarian15Fsck::fsckExitAtFirstFailure()
-    def self.fsckExitAtFirstFailure()
-        Librarian6Objects::objects()
-        .sort{|o1, o2| 
-            o1["unixtime"] <=> o2["unixtime"] 
-        }
-        .reverse
-        .select{|item|
-            item["mikuType"] != "Atom"
-        }
-        .each{|item|
-            puts JSON.pretty_generate(item)
-            if item["mikuType"] == "Nx60" then
-                next
-            end
-            if item["mikuType"] == "Nx100" then
-                Librarian15Fsck::fsckExitAtFirstFailureNx100Structure(item, item["structure"])
-                next
-            end
-            if item["mikuType"] == "TxAttachment" then
-                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
-                next
-            end
-            if item["mikuType"] == "TxDated" then
-                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
-                next
-            end
-            if item["mikuType"] == "TxFloat" then
-                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
-                next
-            end
-            if item["mikuType"] == "TxFyre" then
-                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
-                next
-            end
-            if item["mikuType"] == "TxTodo" then
-                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
-                next
-            end
-            if item["mikuType"] == "Wave" then
-                Librarian15Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
-                next
-            end
-
-            puts JSON.pretty_generate(item).red
-            raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
-        }
-        puts "Fsck completed successfully".green
-        LucilleCore::pressEnterToContinue()
-    end
-end
+# ---------------------------------------------------------------------------
+# 
+# ---------------------------------------------------------------------------
 
 =begin 
 
@@ -894,7 +803,7 @@ class Librarian16AionExport
                 next
             end
 
-            rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethStandard.new(), location3)
+            rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location3)
             if rootnhash != atom["rootnhash"] then
                 atom["rootnhash"] = rootnhash
                 #puts "atom (updated): #{JSON.generate(atom)}"
@@ -949,7 +858,7 @@ class Librarian17PrimitiveFilesAndCarriers
         nhash = Librarian0Utils::filepathToContentHash(filepath)
  
         lambdaBlobCommitReturnNhash = lambda {|blob|
-            Librarian12BlobsService::putBlob(blob)
+            Librarian12LocalBlobsService::putBlob(blob)
         }
         parts = Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
  
@@ -961,7 +870,7 @@ class Librarian17PrimitiveFilesAndCarriers
         targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Librarian12BlobsService::getBlobOrNull(nhash)
+                blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -1033,7 +942,7 @@ class LibrarianCLI
             break if action.nil?
 
             if action == "run fsck" then
-                Librarian15Fsck::fsckExitAtFirstFailure()
+                Librarian21Fsck::fsckExitAtFirstFailure()
             end
             if action == "show object" then
                 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
@@ -1066,7 +975,7 @@ class LibrarianCLI
             end
             if action == "prob blob" then
                 nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-                blob = Librarian12BlobsService::getBlobOrNull(nhash)
+                blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
                 if blob then
                     if blob[0, 1] == "{" then
                         puts "blob: #{blob}"
@@ -1090,3 +999,233 @@ class LibrarianCLI
         }
     end
 end
+
+# ---------------------------------------------------------------------------
+# Drive blobs service / Elizabeth for fsck and Fsck
+# ---------------------------------------------------------------------------
+
+class Librarian19DriveEnergyGrid
+
+    # Librarian19DriveEnergyGrid::datablobsRepository()
+    def self.datablobsRepository()
+        "/Volumes/GSV-Lucille/Data/Pascal/Nyx-EnergyGrid/Hyperspacial-Direction1"
+    end
+
+    # Librarian19DriveEnergyGrid::ensureDrive()
+    def self.ensureDrive()
+        if !File.exists?(Librarian19DriveEnergyGrid::datablobsRepository()) then
+            puts "I need GSV-Lucille, could I have it please ?"
+            LucilleCore::pressEnterToContinue()
+            if !File.exists?(Librarian19DriveEnergyGrid::datablobsRepository()) then
+                puts "I needed GSV-Lucille. Aborting 😞"
+                exit
+            end
+        end
+    end
+
+    # -----------------------------------------------------------------------------
+
+    # Librarian19DriveEnergyGrid::putBlob(blob) # nhash
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        Librarian19DriveEnergyGrid::ensureDrive()
+        filepath = "#{Librarian19DriveEnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.write(blob) }
+        nhash
+    end
+
+    # Librarian19DriveEnergyGrid::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        Librarian19DriveEnergyGrid::ensureDrive()
+
+        # Drive lookup
+        filepath = "#{Librarian19DriveEnergyGrid::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            Librarian12LocalBlobsService::nuke(nhash)
+            return IO.read(filepath)
+        end
+
+        # Computer look up(s) (and drive update)
+
+        filepath = "#{Librarian12LocalBlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            blob = IO.read(filepath)
+            Librarian19DriveEnergyGrid::putBlob(blob)
+            return blob
+        end
+        
+        # Let's try the cache
+
+        blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
+        if blob then
+            Librarian19DriveEnergyGrid::putBlob(blob)
+            return blob
+        end
+
+        nil
+    end
+end
+
+class Librarian20ElizabethDriveEnergyGrid
+
+    def initialize()
+    end
+
+    def commitBlob(blob)
+        Librarian19DriveEnergyGrid::putBlob(blob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = Librarian19DriveEnergyGrid::getBlobOrNull(nhash)
+        return blob if blob
+        puts "(error: 8f5383fa-53ce-41db-ac7d-68e1670576b7) could not find blob, nhash: #{nhash}"
+        raise "(error: 72cc07dc-b8a0-483e-9c72-1de5d71b7540, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 746d74b9-3c4b-4049-92e3-b396e4edccbf) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+end
+
+class Librarian21Fsck
+
+    # Librarian21Fsck::fsckAtomReturnBoolean(atom) : Boolean
+    def self.fsckAtomReturnBoolean(atom)
+        puts JSON.pretty_generate(atom)
+        if atom["type"] == "description-only" then
+            return true
+        end
+        if atom["type"] == "text" then
+            return !Librarian19DriveEnergyGrid::getBlobOrNull(atom["payload"]).nil?
+        end
+        if atom["type"] == "url" then
+            return true
+        end
+        if atom["type"] == "aion-point" then
+            nhash = atom["rootnhash"]
+            status = AionFsck::structureCheckAionHash(Librarian20ElizabethDriveEnergyGrid.new(), nhash)
+            return status
+        end
+        if atom["type"] == "unique-string" then
+            # Technically we should be checking if the target exists, but that takes too long
+            return true
+        end
+        if atom["type"] == "local-group-001" then
+            puts "assuming correct"
+            return true
+        end
+        if atom["type"] == "local-group-002" then
+            puts "assuming correct"
+            return true
+        end
+        raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
+    end
+
+    # Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, atomuuid)
+    def self.fsckExitAtFirstFailureAtomuuid(item, atomuuid)
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+        if atom.nil? then
+            puts "(error: b3fde618-5d36-4f50-b1dc-cbf29bc4d61e, atom not found)".red
+            puts "item:".red
+            puts JSON.pretty_generate(item).red
+            exit
+        end
+        status = Librarian21Fsck::fsckAtomReturnBoolean(atom)
+        if !status then 
+            puts "(error: d4f39eb1-7a3b-4812-bb99-7adeb9d8c37c, atom fsck returned false)".red
+            puts "item:".red
+            puts JSON.pretty_generate(item).red
+            puts "atom:".red
+            puts JSON.pretty_generate(atom).red
+            exit
+        end
+    end
+
+    # Librarian21Fsck::fsckExitAtFirstFailureNx100Structure(item, structure)
+    def self.fsckExitAtFirstFailureNx100Structure(item, structure)
+        if structure["type"] == "atomic" then
+            Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, structure["atomuuid"])
+        end
+        if structure["type"] == "primitive-file" then
+            structure["parts"].each{|nhash|
+                blob = Librarian19DriveEnergyGrid::getBlobOrNull(nhash)
+                next if blob
+                puts "Nx100/structure".red
+                puts JSON.pretty_generate(structure).red
+                puts "nhash not found: #{nhash}".red
+                exit
+            }
+        end
+    end
+
+    # Librarian21Fsck::fsckExitAtFirstFailure()
+    def self.fsckExitAtFirstFailure()
+        Librarian6Objects::objects()
+        .sort{|o1, o2| 
+            o1["unixtime"] <=> o2["unixtime"] 
+        }
+        .reverse
+        .select{|item|
+            item["mikuType"] != "Atom"
+        }
+        .each{|item|
+            puts JSON.pretty_generate(item)
+            if item["mikuType"] == "Nx60" then
+                next
+            end
+            if item["mikuType"] == "Nx100" then
+                Librarian21Fsck::fsckExitAtFirstFailureNx100Structure(item, item["structure"])
+                next
+            end
+            if item["mikuType"] == "TxAttachment" then
+                Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxDated" then
+                Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxFloat" then
+                Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxFyre" then
+                Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "TxTodo" then
+                Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+                next
+            end
+            if item["mikuType"] == "Wave" then
+                Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+                next
+            end
+
+            puts JSON.pretty_generate(item).red
+            raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
+        }
+        puts "Fsck completed successfully".green
+        LucilleCore::pressEnterToContinue()
+    end
+end
+
+# ---------------------------------------------------------------------------
+# 
+# ---------------------------------------------------------------------------
