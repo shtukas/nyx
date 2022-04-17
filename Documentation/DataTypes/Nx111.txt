@@ -1,0 +1,10 @@
+Nx111
+    ["navigation"]
+    ["log"]
+    ["description-only"]
+    ["text", nhash]     # nhash of the blob of text
+    ["url", url]
+    ["aion-point", rootnhash] # nhash of the aion root
+    ["unique-string", uniqueString]
+    ["primitive-file", dottedExtension, nhash, parts : Array[nhashes]]
+    ["carrier-of-primitive-files"]

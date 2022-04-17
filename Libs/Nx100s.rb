@@ -22,7 +22,7 @@ class Nx100s
     end
 
     # ----------------------------------------------------------------------
-    # Objects Management
+    # Objects Makers
 
     # Nx100s::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
@@ -30,11 +30,11 @@ class Nx100s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        structure = Nx101Structure::interactivelyCreateNewStructureOrNull()
-        return nil if structure.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+        return nil if iAmValue.nil?
 
-        flavourMaker = lambda {|structure|
-            if structure["type"] == "primitive-file"  then
+        flavourMaker = lambda {|iAmValue|
+            if iAmValue[0] == "primitive-file"  then
                 return {
                     "type" => "pure-data"
                 }
@@ -42,16 +42,16 @@ class Nx100s
             Nx102Flavor::interactivelyCreateNewFlavour()
         }
 
-        flavour = flavourMaker.call(structure)
+        flavour = flavourMaker.call(iAmValue)
 
-        uuidMaker = lambda {|structure|
-            if structure["type"] == "primitive-file" then
+        uuidMaker = lambda {|iAmValue|
+            if iAmValue[0] == "primitive-file" then
                 return Utils::nx45()
             end
             SecureRandom.uuid
         }
 
-        uuid       = uuidMaker.call(structure)
+        uuid       = uuidMaker.call(iAmValue)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
@@ -61,8 +61,64 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "structure"   => structure,
+            "iam"         => iAmValue,
             "flavour"     => flavour
+        }
+        Librarian6Objects::commit(item)
+        item
+    end
+
+    # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+    def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+        if item["iam"][0] != "aion-point" then
+            puts "I can only do that with aion-points"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        item2 = {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Nx100",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => "Genesis",
+            "iam"         => item["iam"].clone,
+            "flavour"     => {
+                "type" => "encyclopedia"
+            }
+        }
+        puts JSON.pretty_generate(item2)
+        Librarian6Objects::commit(item2)
+        Links::link(item["uuid"], item2["uuid"], false)
+        item["iam"] = ["navigation"]
+        puts JSON.pretty_generate(item)
+        Librarian6Objects::commit(item)
+        puts "Operation completed"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Nx100s::issuePrimitiveFileFromLocationOrNull(location)
+    def self.issuePrimitiveFileFromLocationOrNull(location)
+        description = nil
+
+        iAmValue = Nx111::primitiveFileIamValueFromLocationOrNull(location)
+        return nil if iAmValue.nil?
+
+        flavour = {
+            "type" => "pure-data"
+        }
+
+        uuid       = Utils::nx45()
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "Nx100",
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "description" => description,
+          "iam"         => iAmValue,
+          "flavour"     => flavour
         }
         Librarian6Objects::commit(item)
         item
@@ -129,64 +185,6 @@ class Nx100s
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
-    def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
-        if item["structure"]["type"] != "atomic" then
-            puts "I can only do that with atomic nodes"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        item2 = {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Nx100",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => "Genesis",
-            "structure"   => item["structure"].clone,
-            "flavour"     => {
-                "type" => "encyclopedia"
-            }
-        }
-        puts JSON.pretty_generate(item2)
-        Librarian6Objects::commit(item2)
-        Links::link(item["uuid"], item2["uuid"], false)
-        item["structure"] = {
-            "type" => "navigation"
-        }
-        puts JSON.pretty_generate(item)
-        Librarian6Objects::commit(item)
-        puts "Operation completed"
-        LucilleCore::pressEnterToContinue()
-    end
-
-    # Nx100s::issuePrimitiveFileFromLocationOrNull(location)
-    def self.issuePrimitiveFileFromLocationOrNull(location)
-        description = nil
-
-        structure = Nx101Structure::primitiveFileStructureFromLocationOrNull(location)
-        return nil if structure.nil?
-
-        flavour = {
-            "type" => "pure-data"
-        }
-
-        uuid       = Utils::nx45()
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "Nx100",
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "description" => description,
-          "structure"   => structure,
-          "flavour"     => flavour
-        }
-        Librarian6Objects::commit(item)
-        item
-    end
-
     # Nx100s::landing(item)
     def self.landing(item)
         loop {
@@ -202,7 +200,7 @@ class Nx100s
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-            puts "structure: #{item["structure"]}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "flavour: #{item["flavour"]}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
@@ -222,17 +220,18 @@ class Nx100s
             commands << "access"
             commands << "description"
 
-            if item["structure"]["type"] == "carrier-of-primitive-files" then
+            if item["iam"][0] == "carrier-of-primitive-files" then
                 commands << "upload (primitive files)"
             end
 
             commands << "datetime"
-            commands << "structure"
+            commands << "iam"
             commands << "flavour"
             commands << "attachment"
             commands << "link"
             commands << "relink"
             commands << "unlink"
+            commands << "json"
             commands << "special circumstances"
             commands << "destroy"
 
@@ -249,7 +248,8 @@ class Nx100s
             end
 
             if Interpreting::match("access", command) then
-                Nx101Structure::accessStructure(item, item["structure"])
+                Nx111::accessNx100PossibleStorageMutation(item)
+                next
             end
 
             if Interpreting::match("description", command) then
@@ -261,7 +261,7 @@ class Nx100s
             end
 
             if Interpreting::match("upload", command) then
-                if item["structure"]["type"] != "carrier-of-primitive-files" then
+                if item["iam"][0] != "carrier-of-primitive-files" then
                     puts "(this should not have happened)"
                     puts "I can only upload a carrier-of-primitive-files"
                     LucilleCore::pressEnterToContinue()
@@ -278,12 +278,12 @@ class Nx100s
                 Librarian6Objects::commit(item)
             end
 
-            if Interpreting::match("structure", command) then
-                structure = Nx101Structure::interactivelyCreateNewStructureOrNull()
-                next nil if structure.nil?
-                puts JSON.pretty_generate(structure)
+            if Interpreting::match("iam", command) then
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+                next if iAmValue.nil?
+                puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["structure"] = structure
+                    item["iam"] = iAmValue
                     Librarian6Objects::commit(item)
                 end
             end
@@ -315,11 +315,9 @@ class Nx100s
                 NyxNetwork::disconnectFromLinkedInteractively(item)
             end
 
-            if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx100s::destroy(item["uuid"])
-                    break
-                end
+            if Interpreting::match("json", command) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
             end
 
             if Interpreting::match("special circumstances", command) then
@@ -330,6 +328,13 @@ class Nx100s
                 next if operation.nil?
                 if operation == "transmute to navigation node and put contents into Genesis" then
                     Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+                end
+            end
+
+            if Interpreting::match("destroy", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
+                    Nx100s::destroy(item["uuid"])
+                    break
                 end
             end
 

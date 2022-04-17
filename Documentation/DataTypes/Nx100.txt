@@ -4,38 +4,30 @@ Nx100 {
     "mikuType"    : "Nx100"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : description or null # Possibly null in the case of a structure: primitive-file"
-    "structure"   : (Nx101Structure)
+    "description" : description or null # Possibly null in the case of a primitive-file"
+    "iam"         : (Nx111)
     "flavour"     : (Nx102Flavor)
 }
 
-Nx101Structure
-    {
-        "type" : "navigation"
-    }
-    {
-        "type"     : "atomic"
-        "atomuuid" : String
-    }
-    {
-        "type" : "log"
-    }
-    {
-        "type"            : "primitive-file"
-        "dottedExtension" : String
-        "nhash"           : Named SHA256 digest
-        "parts"           : Array[nhashes]
-    }
-    {
-        "type" : "carrier-of-primitive-files"
-    }
+Nx111
+    ["navigation"]
+    ["log"]
+    ["description-only"]
+    ["text", nhash]     # nhash of the blob of text
+    ["url", url]
+    ["aion-point", rootnhash] # nhash of the aion root
+    ["unique-string", uniquestring]
+    ["primitive-file", dottedExtension, nhash, parts : Array[nhashes]]
+    ["carrier-of-primitive-files"]
+    ["local-group-001", foldername] # foldername on local group
+    ["local-group-002", index] # number between 000001 and 999999
 
 Nx102Flavor 
     {
         "type" : "encyclopedia"
     }
     {
-        "type" : "pure-data" # Used with structure primitive-file
+        "type" : "pure-data" # Used with a primitive-file
     }
     {
         "type" : "of-interest-from-the-web"
