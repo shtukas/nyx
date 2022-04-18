@@ -8,6 +8,5 @@ Nx111
     ["unique-string", uniquestring]
     ["primitive-file", dottedExtension, nhash, parts : Array[nhashes]]
     ["carrier-of-primitive-files"]
-    ["local-group-001", foldername] # foldername on local group
     ["Dx8Unit", Dx8UnitConfiguration]
 

@@ -985,9 +985,6 @@ class Librarian21Fsck
         if iAmValue[0] == "carrier-of-primitive-files" then
             return
         end
-        if iAmValue[0] == "local-group-001" then
-            return
-        end
         if iAmValue[0] == "Dx8Unit" then
             configuration = iAmValue[1]
 
