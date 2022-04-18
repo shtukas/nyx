@@ -97,7 +97,7 @@ class Nx111
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return nil if !File.exists?(location)
-            rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId), location)
+            rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "upload"), location)
             configuration = {
                 "unitId"   => unitId,
                 "status"   => "standard",
@@ -108,8 +108,8 @@ class Nx111
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
 
-    # Nx111::accessNx100PossibleStorageMutation(item)
-    def self.accessNx100PossibleStorageMutation(item)
+    # Nx111::accessIamCarrierPossibleStorageMutation(item)
+    def self.accessIamCarrierPossibleStorageMutation(item)
         iAmValue = item["iam"]
         if iAmValue[0] == "navigation" then
             puts "This is a navigation node"
@@ -185,7 +185,7 @@ class Nx111
                 exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{tx46Id})"
                 puts "export folder: #{exportFolder}"
                 FileUtils.mkdir(exportFolder)
-                AionCore::exportHashAtFolder(Librarian24ElizabethForDx8Units.new(unitId), rootnhash, exportFolder)
+                AionCore::exportHashAtFolder(Librarian24ElizabethForDx8Units.new(unitId, "readonly"), rootnhash, exportFolder)
                 system("open '#{exportFolder}'")
                 return
             end

@@ -77,8 +77,8 @@ class TxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom       = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-        return nil if atom.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+        return nil if iAmValue.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -92,7 +92,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
+          "iam"         => iAmValue,
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
@@ -106,8 +106,9 @@ class TxTodos
         description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Librarian5Atoms::makeAionPointAtomUsingLocation(location)
-        Librarian6Objects::commit(atom)
+
+        rootnhash   = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
+        iAmValue    = ["aion-point", rootnhash]
 
         universe    = Multiverse::interactivelySelectUniverse()
         ordinal     = TxTodos::interactivelyDecideNewOrdinal(universe)
@@ -118,7 +119,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
+          "iam"         => iAmValue,
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
@@ -132,8 +133,6 @@ class TxTodos
         description = url
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        atom        = Librarian5Atoms::makeUrlAtomUsingUrl(url)
-        Librarian6Objects::commit(atom)
 
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th("backlog", 20, 30)
 
@@ -143,7 +142,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
+          "iam"         => ["url", url],
           "ordinal"     => ordinal
         }
         Librarian6Objects::commit(item)
@@ -156,17 +155,17 @@ class TxTodos
 
     # TxTodos::toString(nx50)
     def self.toString(nx50)
-        "(todo) #{nx50["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(todo) #{nx50["description"]} (#{nx50["iam"][0]})"
     end
 
     # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
-        "(todo) (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(todo) (ord: #{nx50["ordinal"]}) #{nx50["description"]} (#{nx50["iam"][0]})"
     end
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "(todo) (#{"%4.2f" % rt}) #{nx50["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
+        "(todo) (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["iam"][0]}) (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -190,6 +189,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(item)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)}".yellow
             puts "ordinal: #{item["ordinal"]}".yellow
 
@@ -201,9 +201,7 @@ class TxTodos
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Librarian5Atoms::atomLandingPresentation(item["atomuuid"])
-
-            puts "access | <datecode> | description | atom | ordinal | rotate | transmute | attachment | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | iam | ordinal | rotate | transmute | attachment | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -222,7 +220,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                Librarian5Atoms::accessAtom(item["atomuuid"])
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 next
             end
 
@@ -234,12 +232,14 @@ class TxTodos
                 next
             end
 
-            if Interpreting::match("atom", command) then
-                atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-                next if atom.nil?
-                item["atomuuid"] = atom["uuid"]
-                Librarian6Objects::commit(item)
-                next
+            if Interpreting::match("iam", command) then
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+                next if iAmValue.nil?
+                puts JSON.pretty_generate(iAmValue)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
+                    item["iam"] = iAmValue
+                    Librarian6Objects::commit(item)
+                end
             end
 
             if Interpreting::match("attachment", command) then

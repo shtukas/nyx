@@ -854,9 +854,9 @@ class Librarian21Fsck
             if configuration["status"] == "standard" then
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
-                status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId), rootnhash)
+                status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId, "fsck"), rootnhash)
                 if !status then
-                    puts "Nx100, could not validate Dx8Unit".red
+                    puts "object, could not validate Dx8Unit".red
                     puts JSON.pretty_generate(object).red
                     exit
                 end
@@ -935,6 +935,8 @@ end
 # Dx8Unit blob services and Elizabeth
 # ---------------------------------------------------------------------------
 
+# Modes: "fsck" | "readonly" | "upload"
+
 class Librarian23Dx8UnitsBlobsService
 
     # Librarian23Dx8UnitsBlobsService::gsvRepository()
@@ -966,39 +968,77 @@ class Librarian23Dx8UnitsBlobsService
 
     # -----------------------------------------------------------------------------
 
-    # Librarian23Dx8UnitsBlobsService::putBlob(dx8UnitId, blob) # nhash
-    def self.putBlob(dx8UnitId, blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
+    # Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob) # nhash
+    def self.putBlob(mode, dx8UnitId, blob)
+
+        if mode == "fsck" then
+            raise "(error: 080c5efa-627a-4853-b45a-0e1142b3b995) This should not happens"
         end
-        File.open(filepath, "w"){|f| f.write(blob) }
-        nhash
+
+        if mode == "readonly" then
+            raise "(error: 65f7c330-7f0e-4294-89d5-451afa455202) This should not happens"
+        end
+
+        if mode == "upload" then
+            Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+            nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            if !File.exists?(File.dirname(filepath)) then
+                FileUtils.mkpath(File.dirname(filepath))
+            end
+            File.open(filepath, "w"){|f| f.write(blob) }
+            return nhash
+        end
     end
 
-    # Librarian23Dx8UnitsBlobsService::getBlobOrNull(dx8UnitId, nhash)
-    def self.getBlobOrNull(dx8UnitId, nhash)
-        filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-        if File.exists?(filepath) then
-            blob = IO.read(filepath)
-            return blob
+    # Librarian23Dx8UnitsBlobsService::getBlobOrNull(mode, dx8UnitId, nhash)
+    def self.getBlobOrNull(mode, dx8UnitId, nhash)
+
+        # Modes: "fsck" | "readonly" | "upload"
+
+        if mode == "fsck" then
+            Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            if File.exists?(filepath) then
+                blob = IO.read(filepath)
+                return blob
+            end
+            return nil
         end
-        nil
+
+        if mode == "readonly" then
+            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
+            return blob if blob
+
+            Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            if File.exists?(filepath) then
+                blob = IO.read(filepath)
+                LibrarianXSpaceCache::putBlob(blob)
+                return blob
+            end
+            return nil
+        end
+        
+        if mode == "upload" then
+            raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
+        end
+
     end
 end
 
 class Librarian24ElizabethForDx8Units
 
     # @dx8UnitId
+    # @mode
 
-    def initialize(dx8UnitId)
-        Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+    def initialize(dx8UnitId, mode)
         @dx8UnitId = dx8UnitId
+        @mode = mode
     end
 
     def commitBlob(blob)
-        Librarian23Dx8UnitsBlobsService::putBlob(@dx8UnitId, blob)
+        Librarian23Dx8UnitsBlobsService::putBlob(@mode, @dx8UnitId, blob)
     end
 
     def filepathToContentHash(filepath)
@@ -1006,7 +1046,7 @@ class Librarian24ElizabethForDx8Units
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian23Dx8UnitsBlobsService::getBlobOrNull(@dx8UnitId, nhash)
+        blob = Librarian23Dx8UnitsBlobsService::getBlobOrNull(@mode, @dx8UnitId, nhash)
         return blob if blob
         puts "(error: 226a8374-bcc9-4b8c-97cd-ec57df17003d) could not find blob, nhash: #{nhash}"
         raise "(error: ae3735b2-87a8-4e13-b2ca-f5b93069e297, nhash: #{nhash})" if blob.nil?

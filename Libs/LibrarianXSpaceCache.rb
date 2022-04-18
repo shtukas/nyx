@@ -17,34 +17,34 @@ We keep up to 50 folders (with a 1000 folder capacity; 50Gb), but we do not dele
 
 =end
 
-class LibrarianXSpaceUnreliableCache
+class LibrarianXSpaceCache
 
-    # LibrarianXSpaceUnreliableCache::repositoryFolderPath()
+    # LibrarianXSpaceCache::repositoryFolderPath()
     def self.repositoryFolderPath()
         "/Users/pascal/x-space/Librarian-Cache-1-F35E"
     end
 
-    # LibrarianXSpaceUnreliableCache::folderMaxCapacity()
+    # LibrarianXSpaceCache::folderMaxCapacity()
     def self.folderMaxCapacity()
         1000
     end
 
-    # LibrarianXSpaceUnreliableCache::repositoryMaxCapacityInGb()
+    # LibrarianXSpaceCache::repositoryMaxCapacityInGb()
     def self.repositoryMaxCapacityInGb()
         20
     end
 
-    # LibrarianXSpaceUnreliableCache::generateNewIndex()
+    # LibrarianXSpaceCache::generateNewIndex()
     def self.generateNewIndex()
         idx = "#{Time.new.to_s[0, 10]}-#{Time.new.strftime("%H%M%S%6N")}"
     end
 
-    # LibrarianXSpaceUnreliableCache::getIndices()
+    # LibrarianXSpaceCache::getIndices()
     def self.getIndices()
-        indices = LucilleCore::locationsAtFolder(LibrarianXSpaceUnreliableCache::repositoryFolderPath()).map{|location| File.basename(location)}
+        indices = LucilleCore::locationsAtFolder(LibrarianXSpaceCache::repositoryFolderPath()).map{|location| File.basename(location)}
         if indices.size == 0 then
-            idx = LibrarianXSpaceUnreliableCache::generateNewIndex()
-            folderpath = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{idx}"
+            idx = LibrarianXSpaceCache::generateNewIndex()
+            folderpath = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{idx}"
             FileUtils.mkdir(folderpath)
             return [idx]
         end
@@ -54,30 +54,30 @@ class LibrarianXSpaceUnreliableCache
         indices
     end
 
-    # LibrarianXSpaceUnreliableCache::indexIsToday(indx)
+    # LibrarianXSpaceCache::indexIsToday(indx)
     def self.indexIsToday(indx)
         indx[0, 10] == Time.new.to_s[0, 10]
     end
 
-    # LibrarianXSpaceUnreliableCache::getFileCountAtIndex(ix)
+    # LibrarianXSpaceCache::getFileCountAtIndex(ix)
     def self.getFileCountAtIndex(ix)
-        folderpath = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{ix}"
+        folderpath = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{ix}"
         LucilleCore::locationsAtFolder(folderpath).size
     end
 
-    # LibrarianXSpaceUnreliableCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+    # LibrarianXSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
     def self.getTheLastestIndexOrANewerOneIfFullEnsureToday()
-        latestIndex = LibrarianXSpaceUnreliableCache::getIndices().max
+        latestIndex = LibrarianXSpaceCache::getIndices().max
 
         if latestIndex[0, 10] != Time.new.to_s[0, 10] then
-            latestIndex = LibrarianXSpaceUnreliableCache::generateNewIndex()
-            folderpath = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{latestIndex}"
+            latestIndex = LibrarianXSpaceCache::generateNewIndex()
+            folderpath = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{latestIndex}"
             FileUtils.mkdir(folderpath)
         end
 
-        if LibrarianXSpaceUnreliableCache::getFileCountAtIndex(latestIndex) >= LibrarianXSpaceUnreliableCache::folderMaxCapacity() then
-            latestIndex = LibrarianXSpaceUnreliableCache::generateNewIndex()
-            folderpath = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{latestIndex}"
+        if LibrarianXSpaceCache::getFileCountAtIndex(latestIndex) >= LibrarianXSpaceCache::folderMaxCapacity() then
+            latestIndex = LibrarianXSpaceCache::generateNewIndex()
+            folderpath = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{latestIndex}"
             FileUtils.mkdir(folderpath)
         end
 
@@ -86,14 +86,14 @@ class LibrarianXSpaceUnreliableCache
 
     # -------------------------------------------------------
 
-    # LibrarianXSpaceUnreliableCache::getFilepathForPut(nhash)
+    # LibrarianXSpaceCache::getFilepathForPut(nhash)
     def self.getFilepathForPut(nhash)
         filepath = nil
         
         # Checking if the blob is already in repository
         
-        LibrarianXSpaceUnreliableCache::getIndices().each{|ix1|
-            filepath1 = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{ix1}/#{nhash}.data"
+        LibrarianXSpaceCache::getIndices().each{|ix1|
+            filepath1 = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{ix1}/#{nhash}.data"
             if File.exists?(filepath1) then
                 filepath = filepath1
             end
@@ -102,16 +102,16 @@ class LibrarianXSpaceUnreliableCache
         # If the filepath was null (no occurence of the blob), we make a new one
         
         if filepath.nil? then
-            ix2 = LibrarianXSpaceUnreliableCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
-            filepath = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
+            ix2 = LibrarianXSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+            filepath = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
         end
 
         # Let's check in the path points at today
         # If it doesn't we make a today one and if a blob already existed, we move it
 
-        if !LibrarianXSpaceUnreliableCache::indexIsToday(File.basename(File.dirname(filepath))) then
-            ix2 = LibrarianXSpaceUnreliableCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
-            filepath2 = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
+        if !LibrarianXSpaceCache::indexIsToday(File.basename(File.dirname(filepath))) then
+            ix2 = LibrarianXSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+            filepath2 = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
             if File.exists?(filepath) then
                 FileUtils.mv(filepath, filepath2)
                 filepath = filepath2
@@ -121,13 +121,13 @@ class LibrarianXSpaceUnreliableCache
         filepath
     end
 
-    # LibrarianXSpaceUnreliableCache::getFilepathForGetOrNull(nhash)
+    # LibrarianXSpaceCache::getFilepathForGetOrNull(nhash)
     def self.getFilepathForGetOrNull(nhash)
 
         filepath = nil
 
-        LibrarianXSpaceUnreliableCache::getIndices().each{|ix1|
-            filepath1 = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{ix1}/#{nhash}.data"
+        LibrarianXSpaceCache::getIndices().each{|ix1|
+            filepath1 = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{ix1}/#{nhash}.data"
             if File.exists?(filepath1) then
                 filepath = filepath1
             end
@@ -136,9 +136,9 @@ class LibrarianXSpaceUnreliableCache
         # Let's check in the path points at today
         # If it doesn't we make a today one and if a blob already existed, we move it
 
-        if filepath and !LibrarianXSpaceUnreliableCache::indexIsToday(File.basename(File.dirname(filepath))) then
-            ix2 = LibrarianXSpaceUnreliableCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
-            filepath2 = "#{LibrarianXSpaceUnreliableCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
+        if filepath and !LibrarianXSpaceCache::indexIsToday(File.basename(File.dirname(filepath))) then
+            ix2 = LibrarianXSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+            filepath2 = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
             if File.exists?(filepath) then
                 FileUtils.mv(filepath, filepath2)
                 filepath = filepath2
@@ -150,10 +150,10 @@ class LibrarianXSpaceUnreliableCache
 
     # -------------------------------------------------------
 
-    # LibrarianXSpaceUnreliableCache::putBlob(blob)
+    # LibrarianXSpaceCache::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = LibrarianXSpaceUnreliableCache::getFilepathForPut(nhash)
+        filepath = LibrarianXSpaceCache::getFilepathForPut(nhash)
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -161,16 +161,16 @@ class LibrarianXSpaceUnreliableCache
         nhash
     end
 
-    # LibrarianXSpaceUnreliableCache::getBlobOrNull(nhash)
+    # LibrarianXSpaceCache::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepath = LibrarianXSpaceUnreliableCache::getFilepathForGetOrNull(nhash)
+        filepath = LibrarianXSpaceCache::getFilepathForGetOrNull(nhash)
         return nil if filepath.nil?
         if File.exists?(filepath) then
             blob = IO.read(filepath)
 
             # -------------------------------------------------------------
             # I put the following check in place because 
-            # both LibrarianXSpaceUnreliableCache::getFilepathForPut and LibrarianXSpaceUnreliableCache::getFilepathForGetOrNull
+            # both LibrarianXSpaceCache::getFilepathForPut and LibrarianXSpaceCache::getFilepathForGetOrNull
             # move files and better safe than sorry
 
             if nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}" then
