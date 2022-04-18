@@ -4,27 +4,27 @@ class InternetStatus
 
     # InternetStatus::setInternetOn()
     def self.setInternetOn()
-        KeyValueStore::destroy(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d")
+        XCache::destroy("099dc001-c211-4e37-b631-8f3cf7ef6f2d")
     end
 
     # InternetStatus::setInternetOff()
     def self.setInternetOff()
-        KeyValueStore::set(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d", "off")
+        XCache::set("099dc001-c211-4e37-b631-8f3cf7ef6f2d", "off")
     end
 
     # InternetStatus::internetIsActive()
     def self.internetIsActive()
-        KeyValueStore::getOrNull(nil, "099dc001-c211-4e37-b631-8f3cf7ef6f2d").nil?
+        XCache::getOrNull("099dc001-c211-4e37-b631-8f3cf7ef6f2d").nil?
     end
 
     # InternetStatus::markIdAsRequiringInternet(id)
     def self.markIdAsRequiringInternet(id)
-        KeyValueStore::set(nil, "29f7d6a5-91ed-4623-9f52-543684881f33:#{id}", "require")
+        XCache::set("29f7d6a5-91ed-4623-9f52-543684881f33:#{id}", "require")
     end
 
     # InternetStatus::trueIfElementRequiresInternet(id)
     def self.trueIfElementRequiresInternet(id)
-        KeyValueStore::getOrNull(nil, "29f7d6a5-91ed-4623-9f52-543684881f33:#{id}") == "require"
+        XCache::getOrNull("29f7d6a5-91ed-4623-9f52-543684881f33:#{id}") == "require"
     end
 
     # InternetStatus::ns16ShouldShow(id)

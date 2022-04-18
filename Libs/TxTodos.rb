@@ -319,7 +319,7 @@ class TxTodos
     def self.ns16s(universe)
         makeItems = lambda {|universe|
             key = "a489d77e-255e-467f-a302-7ead5337f005:#{$GENERAL_SYSTEM_RUN_ID}:#{universe}"
-            items = KeyValueStore::getOrNull(nil, key)
+            items = XCache::getOrNull(key)
             if items then
                 items = JSON.parse(items)
             else
@@ -330,7 +330,7 @@ class TxTodos
                     else
                         TxTodos::itemsCardinal(100)
                     end
-                KeyValueStore::set(nil, key, JSON.generate(items))
+                XCache::set(key, JSON.generate(items))
             end
             items
                 .select{|item| Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]) }

@@ -76,19 +76,19 @@ class StoredUniverse
 
     # StoredUniverse::setUniverse(universe)
     def self.setUniverse(universe)
-        KeyValueStore::set(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
+        XCache::set("5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
     end
 
     # StoredUniverse::getUniverseOrNull()
     def self.getUniverseOrNull()
-        KeyValueStore::getOrNull(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
+        XCache::getOrNull("5117D42F-8542-4D74-A219-47AF3C58F22B")
     end
 
     # StoredUniverse::interactivelySetUniverseOrUnsetUniverse()
     def self.interactivelySetUniverseOrUnsetUniverse()
         universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes())
         if universe.nil? then
-            KeyValueStore::destroy(nil, "5117D42F-8542-4D74-A219-47AF3C58F22B")
+            XCache::destroy("5117D42F-8542-4D74-A219-47AF3C58F22B")
             return nil
         end
         StoredUniverse::setUniverse(universe)

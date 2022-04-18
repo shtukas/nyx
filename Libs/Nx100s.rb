@@ -171,7 +171,7 @@ class Nx100s
         last = Nx100s::getDistictYearMonthsFromItems()
             .map{|yearMonth|
                 items = Nx100s::selectItemsByYearMonth(yearMonth)
-                items = items.select{|item| !KeyValueStore::flagIsTrue(nil, "4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}") }
+                items = items.select{|item| !XCache::flagIsTrue("4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}") }
                 {
                     "yearMonth" => yearMonth,
                     "items" => items

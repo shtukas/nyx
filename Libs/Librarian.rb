@@ -14,14 +14,14 @@ require 'find'
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
 =begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+    XCache::setFlagTrue(key)
+    XCache::setFlagFalse(key)
+    XCache::flagIsTrue(key)
 
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
+    XCache::set(key, value)
+    XCache::getOrNull(key)
+    XCache::getOrDefaultValue(key, defaultValue)
+    XCache::destroy(key)
 =end
 
 # ------------------------------------------------------------------------
@@ -127,13 +127,13 @@ class Librarian2DatablobsXCache
     # Librarian2DatablobsXCache::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        KeyValueStore::set(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
+        XCache::set("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
         nhash
     end
 
     # Librarian2DatablobsXCache::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        KeyValueStore::getOrNull(nil, "FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
+        XCache::getOrNull("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
     end
 end
 
@@ -154,7 +154,7 @@ class Elizabeth
 
     def commitBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        KeyValueStore::set(nil, nhash, blob)
+        XCache::set(nhash, blob)
         nhash
     end
 
@@ -163,7 +163,7 @@ class Elizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = KeyValueStore::getOrNull(nil, nhash)
+        blob = XCache::getOrNull(nhash)
         raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
         blob
     end
@@ -379,13 +379,13 @@ class Librarian5Atoms
         # but doesn't download the data blobs
 
         # This function is memoised
-        answer = KeyValueStore::getOrNull(nil, "4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
+        answer = XCache::getOrNull("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
         if answer then
             return JSON.parse(answer)[0]
         end
         object = AionCore::getAionObjectByHash(Librarian14ElizabethLocalStandard.new(), nhash)
         answer = Librarian5Atoms::uniqueStringIsInAionPointObject(object, uniquestring)
-        KeyValueStore::set(nil, "4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
+        XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
         answer
     end
 

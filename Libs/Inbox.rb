@@ -9,10 +9,10 @@ class Inbox
 
     # Inbox::getLocationUUID(location)
     def self.getLocationUUID(location)
-        uuid = KeyValueStore::getOrNull(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
+        uuid = XCache::getOrNull("54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
         return uuid if uuid
         uuid = SecureRandom.uuid
-        KeyValueStore::set(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}", uuid)
+        XCache::set("54226eda-9437-4f64-9ab9-7e5141a15471:#{location}", uuid)
         uuid
     end
 
@@ -101,10 +101,10 @@ class Inbox
     def self.ns16s()
 
         getLocationUnixtime = lambda{|location|
-            unixtime = KeyValueStore::getOrNull(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
+            unixtime = XCache::getOrNull("54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
             return unixtime.to_f if unixtime
             unixtime = Time.new.to_f
-            KeyValueStore::set(nil, "54226eda-9437-4f64-9ab9-7e5141a15471:#{location}", unixtime)
+            XCache::set("54226eda-9437-4f64-9ab9-7e5141a15471:#{location}", unixtime)
             unixtime
         }
 

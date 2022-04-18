@@ -34,11 +34,11 @@ class Nyx
                 if op == "game: correcting datetimes" then
 
                     markHasHavingBeenDatetimeChecked = lambda{|item|
-                        KeyValueStore::setFlagTrue(nil, "4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}")
+                        XCache::setFlagTrue("4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}")
                     }
 
                     hasBeenDateTimeChecked = lambda{|item|
-                        KeyValueStore::flagIsTrue(nil, "4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}")
+                        XCache::flagIsTrue("4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}")
                     }
 
                     Nx100s::getItemsFromTheBiggestYearMonthGame1Edition()

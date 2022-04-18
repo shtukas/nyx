@@ -51,16 +51,16 @@ item = Pepin.search(list) # Launches interactive window and returns selected ite
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 =begin
-    KeyValueStore::setFlagTrue(repositorylocation or nil, key)
-    KeyValueStore::setFlagFalse(repositorylocation or nil, key)
-    KeyValueStore::flagIsTrue(repositorylocation or nil, key)
+    XCache::setFlagTrue(key)
+    XCache::setFlagFalse(key)
+    XCache::flagIsTrue(key)
 
-    KeyValueStore::set(repositorylocation or nil, key, value)
-    KeyValueStore::getOrNull(repositorylocation or nil, key)
-    KeyValueStore::getOrDefaultValue(repositorylocation or nil, key, defaultValue)
-    KeyValueStore::destroy(repositorylocation or nil, key)
+    XCache::set(key, value)
+    XCache::getOrNull(key)
+    XCache::getOrDefaultValue(key, defaultValue)
+    XCache::destroy(key)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/BTreeSets.rb"
@@ -89,7 +89,7 @@ class Elizabeth
 
     def commitBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        KeyValueStore::set(nil, "SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
+        XCache::set("SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
         nhash
     end
 
@@ -98,7 +98,7 @@ class Elizabeth
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = KeyValueStore::getOrNull(nil, nhash)
+        blob = XCache::getOrNull(nhash)
         raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
         blob
     end
