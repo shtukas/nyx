@@ -77,7 +77,7 @@ class TxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
         return nil if iAmValue.nil?
 
         uuid       = SecureRandom.uuid
@@ -233,7 +233,7 @@ class TxTodos
             end
 
             if Interpreting::match("iam", command) then
-                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
                 next if iAmValue.nil?
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then

@@ -19,12 +19,11 @@ class Nx111
         ]
     end
 
-    # Nx111::iamTypesForManualMaking()
-    def self.iamTypesForManualMaking()
+    # Nx111::iamTypesForManualMakingOfNyxNodes()
+    def self.iamTypesForManualMakingOfNyxNodes()
         [
             "navigation",
             "log",
-            "description-only",
             "text",
             "url",
             "aion-point",
@@ -35,9 +34,20 @@ class Nx111
         ]
     end
 
-    # Nx111::interactivelySelectIamTypeOrNull()
-    def self.interactivelySelectIamTypeOrNull()
-        types = Nx111::iamTypesForManualMaking()
+    # Nx111::iamTypesForManualMakingOfCatalystItems()
+    def self.iamTypesForManualMakingOfCatalystItems()
+        [
+            "description-only",
+            "text",
+            "url",
+            "aion-point",
+            "unique-string",
+            "Dx8Unit"
+        ]
+    end
+
+    # Nx111::interactivelySelectIamTypeOrNull(types)
+    def self.interactivelySelectIamTypeOrNull(types)
         LucilleCore::selectEntityFromListOfEntitiesOrNull("iam type", types)
     end
 
@@ -49,9 +59,9 @@ class Nx111
         ["primitive-file", dottedExtension, nhash, parts]
     end
 
-    # Nx111::interactivelyCreateNewIamValueOrNull()
-    def self.interactivelyCreateNewIamValueOrNull()
-        type = Nx111::interactivelySelectIamTypeOrNull()
+    # Nx111::interactivelyCreateNewIamValueOrNull(types)
+    def self.interactivelyCreateNewIamValueOrNull(types)
+        type = Nx111::interactivelySelectIamTypeOrNull(types)
         return nil if type.nil?
         if type == "navigation" then
             return ["navigation"]

@@ -30,7 +30,7 @@ class Nx100s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes())
         return nil if iAmValue.nil?
 
         flavourMaker = lambda {|iAmValue|
@@ -279,7 +279,7 @@ class Nx100s
             end
 
             if Interpreting::match("iam", command) then
-                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull()
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes())
                 next if iAmValue.nil?
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then

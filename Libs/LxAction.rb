@@ -334,6 +334,11 @@ class LxAction
                 TxTodos::landing(object)
                 return
             end
+
+            if object["mikuType"] == "Wave" then
+                Waves::landing(object)
+                return
+            end
         end
 
         if command == "librarian" then
