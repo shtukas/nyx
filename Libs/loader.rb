@@ -141,7 +141,6 @@ require_relative "Catalyst.rb"
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
-require_relative "Dx8Cache.rb"
 
 require_relative "Galaxy.rb"
 
@@ -150,6 +149,7 @@ require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
 require_relative "Librarian.rb"
+require_relative "LibrarianXSpaceUnreliableCache.rb"
 require_relative "Links.rb"
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
