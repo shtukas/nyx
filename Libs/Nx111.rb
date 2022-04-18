@@ -16,7 +16,8 @@ class Nx111
             "primitive-file",
             "carrier-of-primitive-files",
             "local-group-001",
-            "local-group-002"
+            "local-group-002",
+            "Dx8Unit"
         ]
     end
 
@@ -31,7 +32,8 @@ class Nx111
             "aion-point",
             "unique-string",
             "primitive-file",
-            "carrier-of-primitive-files"
+            "carrier-of-primitive-files",
+            "Dx8Unit"
         ]
     end
 
@@ -92,6 +94,19 @@ class Nx111
         if type == "carrier-of-primitive-files" then
             return ["carrier-of-primitive-files"]
         end
+        if type == "Dx8Unit" then
+            unitId = Utils::nx45()
+            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
+            return nil if location.nil?
+            return nil if !File.exists?(location)
+            rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId), location)
+            configuration = {
+                "unitId"   => unitId,
+                "status"   => "standard",
+                "rootnhash" => rootnhash
+            }
+            return ["Dx8Unit", configuration]
+        end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
 
@@ -132,11 +147,11 @@ class Nx111
             return
         end
         if iAmValue[0] == "aion-point" then
-            roothash = iAmValue[1]
-            exportFolder = "/Users/pascal/Desktop/(#{SecureRandom.hex[0, 4]}) #{item["description"]}"
+            rootnhash = iAmValue[1]
+            exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{SecureRandom.hex[0, 4]})"
             puts "export folder: #{exportFolder}"
             FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(Librarian14ElizabethLocalStandard.new(), roothash, exportFolder)
+            AionCore::exportHashAtFolder(Librarian14ElizabethLocalStandard.new(), rootnhash, exportFolder)
             system("open '#{exportFolder}'")
             return
         end
@@ -168,6 +183,22 @@ class Nx111
             puts JSON.pretty_generate(iAmValue)
             LucilleCore::pressEnterToContinue()
             return
+        end
+        if iAmValue[0] == "Dx8Unit" then
+            configuration = iAmValue[1]
+
+            if configuration["status"] == "standard" then
+                unitId = configuration["unitId"]
+                rootnhash = configuration["rootnhash"]
+                exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{SecureRandom.hex[0, 4]})"
+                puts "export folder: #{exportFolder}"
+                FileUtils.mkdir(exportFolder)
+                AionCore::exportHashAtFolder(Librarian24ElizabethForDx8Units.new(unitId), rootnhash, exportFolder)
+                system("open '#{exportFolder}'")
+                return
+            end
+
+            raise "(error: 3d84d2b9-56c3-4762-b6a8-8a50c66b9240): #{item}, #{iAmValue}"
         end
         raise "(error: 3cbb1e64-0d18-48c5-bd28-f4ba584659a3): #{item}"
     end

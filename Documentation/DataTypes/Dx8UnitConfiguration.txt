@@ -1,0 +1,8 @@
+
+Dx8UnitConfiguration
+
+{
+    "unitId"    : String,
+    "status"    : "standard"
+    "rootnhash" : String
+}

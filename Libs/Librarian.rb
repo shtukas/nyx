@@ -1020,6 +1020,23 @@ class Librarian21Fsck
         if iAmValue[0] == "local-group-002" then
             return
         end
+        if iAmValue[0] == "Dx8Unit" then
+            configuration = iAmValue[1]
+
+            if configuration["status"] == "standard" then
+                unitId = configuration["unitId"]
+                rootnhash = configuration["rootnhash"]
+                status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId), rootnhash)
+                if !status then
+                    puts "Nx100, could not validate Dx8Unit".red
+                    puts JSON.pretty_generate(item).red
+                    exit
+                end
+                return
+            end
+
+            raise "(error: 5a970959-ca52-40e4-b291-056c9c500575): #{item}, #{iAmValue}"
+        end
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{iAmValue})"
     end
 

@@ -21,6 +21,7 @@ Nx111
     ["carrier-of-primitive-files"]
     ["local-group-001", foldername] # foldername on local group
     ["local-group-002", index] # number between 000001 and 999999
+    ["Dx8Unit", Dx8UnitConfiguration]
 
 Nx102Flavor 
     {
