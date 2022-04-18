@@ -576,7 +576,7 @@ class Librarian6Objects
 end
 
 # ---------------------------------------------------------------------------
-# Local blob services and Elizabeth(s)
+# Local blob services and Elizabeth
 # ---------------------------------------------------------------------------
 
 class Librarian12LocalBlobsService
@@ -1083,6 +1083,101 @@ class Librarian21Fsck
         }
         puts "Fsck completed successfully".green
         LucilleCore::pressEnterToContinue()
+    end
+end
+
+# ---------------------------------------------------------------------------
+# Dx8Unit blob services and Elizabeth
+# ---------------------------------------------------------------------------
+
+class Librarian23Dx8UnitsBlobsService
+
+    # Librarian23Dx8UnitsBlobsService::gsvRepository()
+    def self.gsvRepository()
+        "/Volumes/GSV-Lucille/Data/Pascal/Nyx-Librarian-Dx8Units"
+    end
+
+    # Librarian23Dx8UnitsBlobsService::gsvDriveIsPlugged()
+    def self.gsvDriveIsPlugged()
+        File.exists?(Librarian23Dx8UnitsBlobsService::gsvRepository())
+    end
+
+    # Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+    def self.ensureGSVRepository()
+        if !Librarian23Dx8UnitsBlobsService::gsvDriveIsPlugged() then
+            puts "I need Lucille, could you plug the drive please ?"
+            LucilleCore::pressEnterToContinue()
+        end
+        if !Librarian23Dx8UnitsBlobsService::gsvDriveIsPlugged() then
+            puts "I needed Lucille 😞. Exiting."
+            exit
+        end
+    end
+
+    # Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)
+    def self.dx8UnitFolder(dx8UnitId)
+        "/Volumes/GSV-Lucille/Data/Pascal/Nyx-Librarian-Dx8Units/#{dx8UnitId}"
+    end
+
+    # -----------------------------------------------------------------------------
+
+    # Librarian23Dx8UnitsBlobsService::putBlob(dx8UnitId, blob) # nhash
+    def self.putBlob(dx8UnitId, blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.write(blob) }
+        nhash
+    end
+
+    # Librarian23Dx8UnitsBlobsService::getBlobOrNull(dx8UnitId, nhash)
+    def self.getBlobOrNull(dx8UnitId, nhash)
+        filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            blob = IO.read(filepath)
+            return blob
+        end
+        nil
+    end
+end
+
+class Librarian24ElizabethForDx8Units
+
+    # @dx8UnitId
+
+    def initialize(dx8UnitId)
+        Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+        @dx8UnitId = dx8UnitId
+    end
+
+    def commitBlob(blob)
+        Librarian23Dx8UnitsBlobsService::putBlob(@dx8UnitId, blob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = Librarian23Dx8UnitsBlobsService::getBlobOrNull(@dx8UnitId, nhash)
+        return blob if blob
+        puts "(error: 226a8374-bcc9-4b8c-97cd-ec57df17003d) could not find blob, nhash: #{nhash}"
+        raise "(error: ae3735b2-87a8-4e13-b2ca-f5b93069e297, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 4b6590da-c62c-43e8-90fc-3893f0e4ac7d) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
     end
 end
 
