@@ -123,23 +123,23 @@ class LxAction
 
             if object["mikuType"] == "NS16:TxDated" then
                 dated = object["TxDated"]
-                Libriarian16SpecialCircumstances::accessAtom(dated["atomuuid"])
+                Librarian5Atoms::accessAtom(dated["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxFyre" then
                 nx70 = object["TxFyre"]
-                Libriarian16SpecialCircumstances::accessAtom(nx70["atomuuid"])
+                Librarian5Atoms::accessAtom(nx70["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxFloat" then
-                Libriarian16SpecialCircumstances::accessAtom(object["TxFloat"]["atomuuid"])
+                Librarian5Atoms::accessAtom(object["TxFloat"]["atomuuid"])
                 return
             end
 
             if object["mikuType"] == "NS16:TxTodo" then
-                Libriarian16SpecialCircumstances::accessAtom(object["TxTodo"]["atomuuid"])
+                Librarian5Atoms::accessAtom(object["TxTodo"]["atomuuid"])
                 return
             end
 

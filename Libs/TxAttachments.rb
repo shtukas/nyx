@@ -64,7 +64,7 @@ class TxAttachments
 
     # TxAttachments::toString(item)
     def self.toString(item)
-        "(attachment) #{item["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", item["atomuuid"])}"
+        "(attachment) #{item["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", item["atomuuid"])}"
     end
 
     # ----------------------------------------------------------------------
@@ -82,7 +82,7 @@ class TxAttachments
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit atom" then
-                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
+                Librarian5Atoms::accessAtom(item["atomuuid"])
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TxAttachments::toString(item)}' ? ") then

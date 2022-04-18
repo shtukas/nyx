@@ -44,12 +44,12 @@ class TxFyres
 
     # TxFyres::toString(nx70)
     def self.toString(nx70)
-        "(fyre) #{nx70["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+        "(fyre) #{nx70["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx70["atomuuid"])}"
     end
 
     # TxFyres::toStringForNS16(nx70, rt)
     def self.toStringForNS16(nx70, rt)
-        "(fyre) (#{"%4.2f" % rt}) #{nx70["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+        "(fyre) (#{"%4.2f" % rt}) #{nx70["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx70["atomuuid"])}"
     end
 
     # TxFyres::toStringForNS19(nx70)
@@ -85,7 +85,7 @@ class TxFyres
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
+            Librarian5Atoms::atomLandingPresentation(item["atomuuid"])
 
             puts "access | <datecode> | description | atom | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
@@ -106,7 +106,7 @@ class TxFyres
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
+                Librarian5Atoms::accessAtom(item["atomuuid"])
                 next
             end
 

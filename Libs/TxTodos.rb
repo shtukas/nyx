@@ -156,17 +156,17 @@ class TxTodos
 
     # TxTodos::toString(nx50)
     def self.toString(nx50)
-        "(todo) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(todo) #{nx50["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringWithOrdinal(nx50)
     def self.toStringWithOrdinal(nx50)
-        "(todo) (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])}"
+        "(todo) (ord: #{nx50["ordinal"]}) #{nx50["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx50["atomuuid"])}"
     end
 
     # TxTodos::toStringForNS16(nx50, rt)
     def self.toStringForNS16(nx50, rt)
-        "(todo) (#{"%4.2f" % rt}) #{nx50["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
+        "(todo) (#{"%4.2f" % rt}) #{nx50["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx50["atomuuid"])} (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
     end
 
     # TxTodos::toStringForNS19(nx50)
@@ -201,7 +201,7 @@ class TxTodos
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
+            Librarian5Atoms::atomLandingPresentation(item["atomuuid"])
 
             puts "access | <datecode> | description | atom | ordinal | rotate | transmute | attachment | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
@@ -222,7 +222,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
+                Librarian5Atoms::accessAtom(item["atomuuid"])
                 next
             end
 

@@ -70,7 +70,7 @@ class TxDateds
 
     # TxDateds::toString(mx49)
     def self.toString(mx49)
-        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", mx49["atomuuid"])}"
+        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", mx49["atomuuid"])}"
     end
 
     # TxDateds::toStringForNS19(mx49)
@@ -101,7 +101,7 @@ class TxDateds
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Libriarian16SpecialCircumstances::atomLandingPresentation(item["atomuuid"])
+            Librarian5Atoms::atomLandingPresentation(item["atomuuid"])
 
             puts "access | date | description | atom | attachment | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 
@@ -118,7 +118,7 @@ class TxDateds
             end
 
             if Interpreting::match("access", command) then
-                Libriarian16SpecialCircumstances::accessAtom(item["atomuuid"])
+                Librarian5Atoms::accessAtom(item["atomuuid"])
                 next
             end
 
@@ -205,7 +205,7 @@ class TxDateds
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxDated",
-            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{Libriarian16SpecialCircumstances::atomTypeForToStrings(" ", mx49["atomuuid"])}",
+            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", mx49["atomuuid"])}",
             "TxDated"     => mx49
         }
     end
