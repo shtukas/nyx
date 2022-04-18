@@ -25,7 +25,6 @@ class Topping
     def self.applyTransformation(universe)
         return if universe.nil?
         text = Topping::getText(universe)
-        Utils::dropTextAtBinTimeline("Catalyst-Top-#{universe}.txt", text)
         text = SectionsType0141::applyNextTransformationToText(text)
         Topping::setText(universe, text)
     end
@@ -34,7 +33,6 @@ class Topping
     def self.top(universe)
         return if universe.nil?
         text = Topping::getText(universe)
-        Utils::dropTextAtBinTimeline("Catalyst-Top-#{universe}.txt", text)
         text = Utils::editTextSynchronously(text)
         Topping::setText(universe, text)
     end

@@ -110,21 +110,6 @@ class Utils
         Digest::SHA1.hexdigest(trace.join(":"))
     end
 
-    # Utils::copyFileToBinTimeline(location)
-    def self.copyFileToBinTimeline(location)
-        return if !File.exists?(location)
-        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(directory)
-        FileUtils.cp(location, directory)
-    end
-
-    # Utils::dropTextAtBinTimeline(filename, text)
-    def self.dropTextAtBinTimeline(filename, text)
-        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
-        FileUtils.mkpath(directory)
-        File.open("#{directory}/#{filename}", "w"){|f| f.puts(text) }
-    end
-
     # Utils::fileByFilenameIsSafelyOpenable(filename)
     def self.fileByFilenameIsSafelyOpenable(filename)
         safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]

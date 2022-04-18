@@ -145,8 +145,10 @@ class Nx111
             return
         end
         if iAmValue[0] == "aion-point" then
+            tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
+
             rootnhash = iAmValue[1]
-            exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{SecureRandom.hex[0, 4]})"
+            exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{tx46Id})"
             puts "export folder: #{exportFolder}"
             FileUtils.mkdir(exportFolder)
             AionCore::exportHashAtFolder(Librarian14ElizabethLocalStandard.new(), rootnhash, exportFolder)
@@ -176,9 +178,11 @@ class Nx111
             configuration = iAmValue[1]
 
             if configuration["status"] == "standard" then
+                tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
+                
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
-                exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{SecureRandom.hex[0, 4]})"
+                exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{tx46Id})"
                 puts "export folder: #{exportFolder}"
                 FileUtils.mkdir(exportFolder)
                 AionCore::exportHashAtFolder(Librarian24ElizabethForDx8Units.new(unitId), rootnhash, exportFolder)
@@ -189,5 +193,33 @@ class Nx111
             raise "(error: 3d84d2b9-56c3-4762-b6a8-8a50c66b9240): #{item}, #{iAmValue}"
         end
         raise "(error: 3cbb1e64-0d18-48c5-bd28-f4ba584659a3): #{item}"
+    end
+
+    # Nx111::atomuuidToNx111(atomuuid)
+    def self.atomuuidToNx111(atomuuid)
+        atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
+        puts JSON.pretty_generate(atom)
+
+        if atom["type"] == "aion-point" then
+            return ["aion-point", atom["rootnhash"]]
+        end
+
+        if atom["type"] == "description-only" then
+            return ["description-only"]
+        end
+
+        if atom["type"] == "text" then
+            return ["text", atom["payload"]]
+        end
+
+        if atom["type"] == "url" then
+            return ["url", atom["payload"]]
+        end
+
+        if atom["type"] =="unique-string" then
+            return ["unique-string", atom["payload"]]
+        end
+
+        raise "()"
     end
 end

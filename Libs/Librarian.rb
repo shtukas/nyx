@@ -107,9 +107,7 @@ class Librarian0Utils
     # Librarian0Utils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
     def self.uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
         roots = [
-            "/Users/pascal/Desktop",
-            "/Users/pascal/Galaxy/Documents",
-            Librarian16AionExport::aionExportFolder()
+            "/Users/pascal/Desktop"
         ]
         roots.each{|root|
             Find.find(root) do |path|
@@ -245,17 +243,6 @@ class Librarian5Atoms
             "unixtime"    => Time.new.to_f,
             "type"        => "unique-string",
             "payload"     => uniqueString
-        }
-    end
-
-    # Librarian5Atoms::makeLG001Atom(lg001Code)
-    def self.makeLG001Atom(lg001Code)
-        {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
-            "unixtime"    => Time.new.to_f,
-            "type"        => "local-group-001",
-            "payload"     => lg001Code
         }
     end
 
@@ -427,17 +414,13 @@ class Librarian5Atoms
             end
         end
         if atom["type"] == "aion-point" then
-            nhash = atom["rootnhash"]
-            exportFolder = Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
-            if exportFolder.nil? then
-                exportFolder = Librarian16AionExport::atomToNewExportFolderpath(atom)
-                AionCore::exportHashAtFolder(Librarian14ElizabethLocalStandard.new(), nhash, exportFolder)
-            end
+            tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(atom)
+            rootnhash = atom["rootnhash"]
+            exportFolder = "/Users/pascal/Desktop/(#{tx46Id})"
+            puts "export folder: #{exportFolder}"
+            FileUtils.mkdir(exportFolder)
+            AionCore::exportHashAtFolder(Librarian14ElizabethLocalStandard.new(), rootnhash, exportFolder)
             system("open '#{exportFolder}'")
-        end
-        if atom["type"] == "local-group-001" then
-            puts "I do not know how to access local-group-001"
-            LucilleCore::pressEnterToContinue()
         end
         if atom["type"] == "unique-string" then
             uniquestring = atom["payload"]
@@ -623,143 +606,28 @@ end
 # 
 # ---------------------------------------------------------------------------
 
-=begin 
+class Librarian15BecauseReadWrite
 
-Tx45 {
-    "uuid"     : String
-    "atomuuid" : String
-    "exportId" : String # Used for foldername
-}
+    # The purpose of this class is to provide edition of objects that have been exported to the desktop
 
-=end
+    # Tx46 {
+    #     "identifier" : String # This is the fragment that was used as name for the export folder on the desktop
+    #     "itemuuid"   : String # UUID of the main object
+    # }   
 
-class Librarian16AionExport
+    # When we export, we generate an identififer, put the Tx46 into XCache and let it be. 
+    # If somebody wants to update the object, then depending on the type, they will know what to do
 
-    # Librarian16AionExport::aionExportFolder()
-    def self.aionExportFolder()
-        "/Users/pascal/x-space/Aion-Exports"
-    end
-
-    # Librarian16AionExport::issueTx45(uuid, atomuuid, exportId)
-    def self.issueTx45(uuid, atomuuid, exportId)
-        item = {
-            "uuid"       => uuid,
-            "atomuuid"   => atomuuid,
-            "exportId" => exportId
+    # Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
+    def self.issueTx46ReturnIdentifier(item)
+        tx = {
+            "identifier" => SecureRandom.hex[0, 8],
+            "itemuuid"   => item["uuid"]
         }
-        BTreeSets::set(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", item["uuid"], item)
+        XCache::set(tx["identifier"], JSON.generate(tx))
+        tx["identifier"]
     end
 
-    # Librarian16AionExport::getTx45ForAtomOrNull(atom)
-    def self.getTx45ForAtomOrNull(atom)
-        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC")
-            .select{|item| item["atomuuid"] == atom["uuid"] }
-            .first
-    end
-
-    # Librarian16AionExport::getTx45ByDispatchIdOrNull(exportId)
-    def self.getTx45ByDispatchIdOrNull(exportId)
-        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC")
-            .select{|item| item["exportId"] == exportId }
-            .first
-    end
-
-    # Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(exportId)
-    def self.exportIdToExistingExportFolderpathOrNull(exportId)
-        # First we look for a folder with that dispatch id trace, if we find one we return 
-        # it otherwise we make one
-        LucilleCore::locationsAtFolder(Librarian16AionExport::aionExportFolder()).each{|location|
-            if File.basename(location).include?(exportId) then
-                return location
-            end
-        }
-        nil
-    end
-
-    # Librarian16AionExport::atomToExistingExportFolderpathOrNull(atom)
-    def self.atomToExistingExportFolderpathOrNull(atom)
-        item = Librarian16AionExport::getTx45ForAtomOrNull(atom)
-        return nil if item.nil?
-        puts "Found aion dispatch item"
-        puts JSON.pretty_generate(item)
-        folderpath = Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(item["exportId"])
-        return nil if folderpath.nil?
-        puts "Found existing folderpath: #{folderpath}"
-        folderpath 
-    end
-
-    # Librarian16AionExport::atomToNewExportFolderpath(atom)
-    def self.atomToNewExportFolderpath(atom)
-        # Let's try and determine a description for that atom
-        description = nil
-        Librarian6Objects::objects().each{|object|
-            next if object["atomuuid"].nil?
-            next if object["atomuuid"] != atom["uuid"]
-            description = LxFunction::function("description", object)
-            break
-        }
-        exportId = SecureRandom.hex[0, 8]
-        folderpath = 
-            if description then
-                "#{Librarian16AionExport::aionExportFolder()}/#{Utils::sanitiseStringForFilenaming(description)} (#{exportId})"
-            else
-                "#{Librarian16AionExport::aionExportFolder()}/(#{exportId})"
-            end
-        FileUtils.mkdir(folderpath)
-        Librarian16AionExport::issueTx45(SecureRandom.uuid, atom["uuid"], exportId)
-        folderpath
-    end
-
-    # Librarian16AionExport::doPickups()
-    def self.doPickups()
-        BTreeSets::values(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC").each{|exportControlItem|
-            #puts JSON.pretty_generate(exportControlItem)
-            
-            folderpath1 = Librarian16AionExport::exportIdToExistingExportFolderpathOrNull(exportControlItem["exportId"])
-            if folderpath1.nil? then
-                puts "Export folder not found"
-                puts "Destroying dispatch item: #{JSON.pretty_generate(exportControlItem)}"
-                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", exportControlItem["uuid"])
-                next
-            end
-            locations2 = LucilleCore::locationsAtFolder(folderpath1)
-            if locations2.size == 0 then
-                puts "There is export folderpath: #{folderpath1}"
-                puts " > But I cannot see anything inside."
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            if locations2.size > 1 then
-                puts "There is export folderpath: #{folderpath1}"
-                puts "I can find more than one location inside."
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-            
-            location3 = locations2.first
-
-            next if !LucilleCore::askQuestionAnswerAsBoolean("process '#{location3}' ? ", true)
-
-            atomuuid = exportControlItem["atomuuid"]
-            atom = Librarian6Objects::getObjectByUUIDOrNull(atomuuid)
-            if atom.nil? then
-                puts "I could not find an atom for atomuuid: #{atomuuid}"
-                puts "Destroying the export control item"
-                LucilleCore::pressEnterToContinue()
-                BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", exportControlItem["uuid"])
-                next
-            end
-
-            rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location3)
-            if rootnhash != atom["rootnhash"] then
-                atom["rootnhash"] = rootnhash
-                #puts "atom (updated): #{JSON.generate(atom)}"
-                Librarian6Objects::commit(atom)
-            end
-            LucilleCore::removeFileSystemLocation(folderpath1)
-            BTreeSets::destroy(nil, "90B9B2B7-6E04-44C4-80D2-D7AA5F3428CC", exportControlItem["uuid"])
-        }
-    end
 end
 
 class Libriarian16SpecialCircumstances
@@ -836,7 +704,8 @@ class Librarian17PrimitiveFilesAndCarriers
 
     # Librarian17PrimitiveFilesAndCarriers::exportCarrier(item)
     def self.exportCarrier(item)
-        exportFolderpath = "/Users/pascal/Desktop/#{item["description"]} (#{item["uuid"][-8, 8]})"
+        tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
+        exportFolderpath = "/Users/pascal/Desktop/#{item["description"]} (#{tx46Id})"
         FileUtils.mkdir(exportFolderpath)
         Librarian17PrimitiveFilesAndCarriers::carrierContents(item["uuid"])
             .each{|ix|
@@ -896,10 +765,6 @@ class Librarian21Fsck
             # Technically we should be checking if the target exists, but that takes too long
             return true
         end
-        if atom["type"] == "local-group-001" then
-            puts "assuming correct"
-            return true
-        end
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
     end
 
@@ -923,70 +788,70 @@ class Librarian21Fsck
         end
     end
 
-    # Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, iAmValue)
-    def self.fsckExitAtFirstFailureIamValue(item, iAmValue)
-        if !Nx111::iamTypes().include?(iAmValue[0]) then
-            puts "Nx100 has an incorrect iam value type".red
-            puts JSON.pretty_generate(item).red
+    # Librarian21Fsck::fsckExitAtFirstFailureIamValue(object, nx111)
+    def self.fsckExitAtFirstFailureIamValue(object, nx111)
+        if !Nx111::iamTypes().include?(nx111[0]) then
+            puts "object has an incorrect iam value type".red
+            puts JSON.pretty_generate(object).red
             exit
         end
-        if iAmValue[0] == "navigation" then
+        if nx111[0] == "navigation" then
             return
         end
-        if iAmValue[0] == "log" then
+        if nx111[0] == "log" then
             return
         end
-        if iAmValue[0] == "description-only" then
+        if nx111[0] == "description-only" then
             return
         end
-        if iAmValue[0] == "text" then
-            nhash = iAmValue[1]
+        if nx111[0] == "text" then
+            nhash = nx111[1]
             if Librarian12LocalBlobsService::getBlobOrNull(nhash).nil? then
-                puts "Nx100, could not find the text data".red
-                puts JSON.pretty_generate(item).red
+                puts "object, could not find the text data".red
+                puts JSON.pretty_generate(object).red
                 exit
             end
             return
         end
-        if iAmValue[0] == "url" then
+        if nx111[0] == "url" then
             return
         end
-        if iAmValue[0] == "aion-point" then
-            rootnhash = iAmValue[1]
+        if nx111[0] == "aion-point" then
+            rootnhash = nx111[1]
             status = AionFsck::structureCheckAionHash(Librarian14ElizabethLocalStandard.new(), rootnhash)
             if !status then
-                puts "Nx100, could not validate aion-point".red
-                puts JSON.pretty_generate(item).red
+                puts "object, could not validate aion-point".red
+                puts JSON.pretty_generate(object).red
                 exit
             end
             return
         end
-        if iAmValue[0] == "unique-string" then
+        if nx111[0] == "unique-string" then
             return
         end
-        if iAmValue[0] == "primitive-file" then
-            _, dottedExtension, nhash, parts = iAmValue
+        if nx111[0] == "primitive-file" then
+            _, dottedExtension, nhash, parts = nx111
             if dottedExtension[0, 1] != "." then
-                puts "Nx100".red
-                puts JSON.pretty_generate(item).red
+                puts "object".red
+                puts JSON.pretty_generate(object).red
                 puts "primitive parts, dotted extension is malformed".red
                 exit
             end
             parts.each{|nhash|
                 blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
                 next if blob
-                puts "Nx100".red
-                puts JSON.pretty_generate(item).red
+                puts "object".red
+                puts JSON.pretty_generate(object).red
                 puts "primitive parts, nhash not found: #{nhash}".red
                 exit
             }
             return
         end
-        if iAmValue[0] == "carrier-of-primitive-files" then
+        if nx111[0] == "carrier-of-primitive-files" then
             return
         end
-        if iAmValue[0] == "Dx8Unit" then
-            configuration = iAmValue[1]
+        if nx111[0] == "Dx8Unit" then
+            configuration = nx111[1]
 
             if configuration["status"] == "standard" then
                 unitId = configuration["unitId"]
@@ -994,15 +859,15 @@ class Librarian21Fsck
                 status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId), rootnhash)
                 if !status then
                     puts "Nx100, could not validate Dx8Unit".red
-                    puts JSON.pretty_generate(item).red
+                    puts JSON.pretty_generate(object).red
                     exit
                 end
                 return
             end
 
-            raise "(error: 5a970959-ca52-40e4-b291-056c9c500575): #{item}, #{iAmValue}"
+            raise "(error: 5a970959-ca52-40e4-b291-056c9c500575): #{object}, #{nx111}"
         end
-        raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{iAmValue})"
+        raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end
 
     # Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
@@ -1038,7 +903,7 @@ class Librarian21Fsck
             return
         end
         if item["mikuType"] == "TxTodo" then
-            Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "Wave" then
@@ -1180,7 +1045,7 @@ class LibrarianCLI
                 "destroy object by uuid",
                 "prob blob", 
                 "echo blob", 
-                "do aion-points pickups",
+                "do exports pickups",
                 "exit"
             ]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action:", actions)
@@ -1240,8 +1105,9 @@ class LibrarianCLI
                     LucilleCore::pressEnterToContinue()
                 end
             end
-            if action == "do aion-points pickups" then
-                Librarian16AionExport::doPickups()
+            if action == "do exports pickups" then
+                puts "Not implemented yet, see Librarian15BecauseReadWrite"
+                LucilleCore::pressEnterToContinue()
             end
             if action == "exit" then
                 break
