@@ -259,17 +259,6 @@ class Librarian5Atoms
         }
     end
 
-    # Librarian5Atoms::makeLG002Atom(indx)
-    def self.makeLG002Atom(indx)
-        {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Atom",
-            "unixtime"    => Time.new.to_f,
-            "type"        => "local-group-002",
-            "payload"     => indx
-        }
-    end
-
     # Librarian5Atoms::interactivelyIssueNewAtomOrNull()
     def self.interactivelyIssueNewAtomOrNull()
 
@@ -280,7 +269,7 @@ class Librarian5Atoms
             atom
         }
 
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "local-group-002", "unique-string"])
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["description-only (default)", "text", "url", "aion-point", "unique-string"])
 
         if type.nil? or type == "description-only (default)" then
             atom = Librarian5Atoms::makeDescriptionOnlyAtom()
@@ -304,12 +293,6 @@ class Librarian5Atoms
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             atom = Librarian5Atoms::makeAionPointAtomUsingLocation(location)
-            return commitMaybeAtomAndReturn.call(atom)
-        end
-
-        if type == "local-group-002" then
-            indx = LucilleCore::askQuestionAnswerAsString("Number between 000001 and 999999: ")
-            atom = Librarian5Atoms::makeLG002Atom(indx)
             return commitMaybeAtomAndReturn.call(atom)
         end
 
@@ -347,9 +330,6 @@ class Librarian5Atoms
         end
         if atom["type"] == "aion-point" then
             return "Atom (aion-point): #{atom["rootnhash"]}"
-        end
-        if atom["type"] == "local-group-002" then
-            return "Atom (local-group-002): #{atom["payload"]}"
         end
         if atom["type"] == "unique-string" then
             return "Atom (unique-string): #{atom["payload"]}"
@@ -457,11 +437,6 @@ class Librarian5Atoms
         end
         if atom["type"] == "local-group-001" then
             puts "I do not know how to access local-group-001"
-            LucilleCore::pressEnterToContinue()
-        end
-        if atom["type"] == "local-group-002" then
-            puts "Local Group 002, code: #{atom["payload"]}"
-            puts "Access file on drive"
             LucilleCore::pressEnterToContinue()
         end
         if atom["type"] == "unique-string" then
@@ -925,10 +900,6 @@ class Librarian21Fsck
             puts "assuming correct"
             return true
         end
-        if atom["type"] == "local-group-002" then
-            puts "assuming correct"
-            return true
-        end
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
     end
 
@@ -1015,9 +986,6 @@ class Librarian21Fsck
             return
         end
         if iAmValue[0] == "local-group-001" then
-            return
-        end
-        if iAmValue[0] == "local-group-002" then
             return
         end
         if iAmValue[0] == "Dx8Unit" then

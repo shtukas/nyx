@@ -16,7 +16,6 @@ class Nx111
             "primitive-file",
             "carrier-of-primitive-files",
             "local-group-001",
-            "local-group-002",
             "Dx8Unit"
         ]
     end
@@ -175,11 +174,6 @@ class Nx111
             return
         end
         if iAmValue[0] == "local-group-001" then
-            puts JSON.pretty_generate(iAmValue)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        if iAmValue[0] == "local-group-002" then
             puts JSON.pretty_generate(iAmValue)
             LucilleCore::pressEnterToContinue()
             return

@@ -9,20 +9,6 @@ Nx100 {
     "flavour"     : (Nx102Flavor)
 }
 
-Nx111
-    ["navigation"]
-    ["log"]
-    ["description-only"]
-    ["text", nhash]     # nhash of the blob of text
-    ["url", url]
-    ["aion-point", rootnhash] # nhash of the aion root
-    ["unique-string", uniquestring]
-    ["primitive-file", dottedExtension, nhash, parts : Array[nhashes]]
-    ["carrier-of-primitive-files"]
-    ["local-group-001", foldername] # foldername on local group
-    ["local-group-002", index] # number between 000001 and 999999
-    ["Dx8Unit", Dx8UnitConfiguration]
-
 Nx102Flavor 
     {
         "type" : "encyclopedia"

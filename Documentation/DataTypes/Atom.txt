@@ -52,11 +52,3 @@ Unique strings can be anything, but when possible, it's recommended to use "Nx01
 
 "local-group-001" was created to offload to LocalGroup (renamed GSV-Lucille) the numerous youtube videos that poluted the network as aion-points
 
-{
-    "uuid"     : String
-    "mikuType" : "Atom"
-    "unixtime" : Float
-    "type"     : "local-group-002"
-    "payload"  : String # number between 000001 and 999999
-}
-
