@@ -110,7 +110,7 @@ class Dx8Cache
             # Before we return this, we just need to make sure that it's not the last folder otherwise we need to move the blob
             if Dx8Cache::isLowIndexFolder(ix1) then
                 ix2 = Dx8Cache::getTheLastestIndexOrANewerOneIfFull()
-                if ix1 != ix2 then
+                if ix2 != ix1 then
                     filepath2 = "#{Dx8Cache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
                     FileUtils.mv(filepath1, filepath2)
                     return ix2
