@@ -119,18 +119,18 @@ end
 
 class Beatrice
 
-    # Beatrice::timeRatioOverHoursCount(setuuid, hoursCount)
-    def self.timeRatioOverHoursCount(setuuid, hoursCount)
-        Bank::valueOverTimespan(setuuid, 3600*hoursCount).to_f/(3600*hoursCount)
+    # Beatrice::valueOverTimeInHours(setuuid, hours)
+    def self.valueOverTimeInHours(setuuid, hours)
+        Bank::valueOverTimespan(setuuid, 3600*hours).to_f
     end
 
-    # Beatrice::bestTimeRatioWithinHoursCount(setuuid, hoursCount)
-    def self.bestTimeRatioWithinHoursCount(setuuid, hoursCount)
-        (1..hoursCount).map{|i| Beatrice::timeRatioOverHoursCount(setuuid, i) }.max
+    # Beatrice::bestAverageWithinIntegerHours(setuuid, hours)
+    def self.bestAverageWithinIntegerHours(setuuid, hours)
+        (1..hours).map{|i| Beatrice::valueOverTimeInHours(setuuid, i).to_f/i }.max
     end
 
-    # Beatrice::stdRecoveredHourlyTimeInHours(setuuid)
-    def self.stdRecoveredHourlyTimeInHours(setuuid)
-        Beatrice::bestTimeRatioWithinHoursCount(setuuid, 6)
+    # Beatrice::stdRecoveredHourlyAverage(setuuid)
+    def self.stdRecoveredHourlyAverage(setuuid)
+        Beatrice::bestAverageWithinIntegerHours(setuuid, 6)
     end
 end
