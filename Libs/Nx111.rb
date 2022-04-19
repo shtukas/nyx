@@ -37,7 +37,7 @@ class Nx111
     # Nx111::iamTypesForManualMakingOfCatalystItems()
     def self.iamTypesForManualMakingOfCatalystItems()
         [
-            "description-only",
+            "description-only (default)",
             "text",
             "url",
             "aion-point",
@@ -48,7 +48,11 @@ class Nx111
 
     # Nx111::interactivelySelectIamTypeOrNull(types)
     def self.interactivelySelectIamTypeOrNull(types)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("iam type", types)
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("iam type", types)
+        if type.nil? and types.include?("description-only (default)") then
+            return "description-only"
+        end
+        type
     end
 
     # Nx111::primitiveFileIamValueFromLocationOrNull(location)
