@@ -146,11 +146,6 @@ class Waves
     def self.performDone(item)
         return if !LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item)} ? '", true)
 
-        if Waves::toString(item).include?("[backup]") then
-            logfile = "/Users/pascal/Galaxy/LucilleOS/Backups-Utils/logs/main.txt"
-            File.open(logfile, "a"){|f| f.puts("#{Time.new.to_s} : #{item["description"]}")}
-        end
-
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
         Librarian6Objects::commit(item)

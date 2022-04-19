@@ -602,7 +602,7 @@ class Librarian23Dx8UnitsBlobsService
 
     # Librarian23Dx8UnitsBlobsService::gsvRepository()
     def self.gsvRepository()
-        "/Volumes/GSV-Lucille/Data/Pascal/Nyx-Librarian-Dx8Units"
+        "/Volumes/Lucille/Data/Pascal/Nyx-Librarian-Dx8Units"
     end
 
     # Librarian23Dx8UnitsBlobsService::gsvDriveIsPlugged()
@@ -624,7 +624,7 @@ class Librarian23Dx8UnitsBlobsService
 
     # Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)
     def self.dx8UnitFolder(dx8UnitId)
-        "/Volumes/GSV-Lucille/Data/Pascal/Nyx-Librarian-Dx8Units/#{dx8UnitId}"
+        "#{Librarian23Dx8UnitsBlobsService::gsvRepository()}/#{dx8UnitId}"
     end
 
     # -----------------------------------------------------------------------------
