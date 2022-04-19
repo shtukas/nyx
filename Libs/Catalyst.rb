@@ -154,6 +154,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("redate", ordinal, store)
         end
 
+        if Interpreting::match("require internet", input) then
+            return ["require internet", store.getDefault()]
+        end
+
         if Interpreting::match("start something", input) then
             return ["start something", nil]
         end
