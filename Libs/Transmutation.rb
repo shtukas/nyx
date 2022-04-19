@@ -14,6 +14,13 @@ class Transmutation
             return
         end
 
+        if source == "inbox" and target == "TxFyre" then
+            location = object
+            TxFyres::interactivelyIssueItemUsingInboxLocation(location)
+            LucilleCore::removeFileSystemLocation(location)
+            return
+        end
+
         if source == "TxDated" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)

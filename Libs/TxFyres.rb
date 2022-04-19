@@ -27,6 +27,8 @@ class TxFyres
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
+        universe    = Multiverse::interactivelySelectUniverse()
+
         item = {
           "uuid"        => uuid,
           "mikuType"    => "TxFyre",
@@ -36,6 +38,33 @@ class TxFyres
           "iam"         => iAmValue
         }
         Librarian6Objects::commit(item)
+        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
+        item
+    end
+
+    # TxFyres::interactivelyIssueItemUsingInboxLocation(location)
+    def self.interactivelyIssueItemUsingInboxLocation(location)
+        uuid        = SecureRandom.uuid
+        description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+
+        rootnhash   = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
+        iAmValue    = ["aion-point", rootnhash]
+
+        universe    = Multiverse::interactivelySelectUniverse()
+
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxFyre",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "iam"         => iAmValue,
+          "ordinal"     => ordinal
+        }
+        Librarian6Objects::commit(item)
+        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
 

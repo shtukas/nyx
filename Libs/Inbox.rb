@@ -36,63 +36,46 @@ class Inbox
         system("clear")
         puts location.green
         loop {
-            if File.file?(location) then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "datecode", "transmute", ">nyx", "destroy", "exit (default)"])
-                if action == "open" then
-                    system("open '#{location}'")
+
+            actions = 
+                if File.file?(location) then
+                    ["open", "copy to desktop", "datecode", "transmute", ">nyx", "destroy", "exit (default)"]
+                else
+                    ["open", "datecode", "transmute", ">nyx", "destroy", "exit (default)"]
                 end
-                if action == "copy to desktop" then
-                    FileUtils.cp(location, "/Users/pascal/Desktop")
-                end
-                if action == "datecode" then
-                    unixtime = Utils::interactivelySelectUnixtimeOrNull()
-                    next if unixtime.nil?
-                    DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
-                    return
-                end
-                if action == "transmute" then
-                    Transmutation::transmutation2(location, "inbox")
-                    return
-                end
-                if action == ">nyx" then
-                    puts "(19f8c2ce-a9b6-44b1-8a37-3d734aa282b7: This has not been implemented, need re-implementation after refactoring)"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                if action == "destroy" then
-                    LucilleCore::removeFileSystemLocation(location)
-                    return
-                end
-                if action.nil? or action == "exit (default)" then
-                    return
-                end
-            else
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "datecode", "transmute", ">nyx", "destroy", "exit (default)"])
-                if action == "open" then
-                    system("open '#{location}'")
-                end
-                if action == "datecode" then
-                    unixtime = Utils::interactivelySelectUnixtimeOrNull()
-                    next if unixtime.nil?
-                    DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
-                    return
-                end
-                if action == "transmute" then
-                    Transmutation::transmutation2(location, "inbox")
-                    return
-                end
-                if action == ">nyx" then
-                    puts "(be0c378b-c725-4f2c-b91f-f2edf4e6b517: This has not been implemented, need re-implementation after refactoring)"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                if action == "destroy" then
-                    LucilleCore::removeFileSystemLocation(location)
-                    return
-                end
-                if action.nil? or action == "exit (default)" then
-                    return
-                end
+
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "datecode", ">todo", ">nyx", "destroy", "exit (default)"])
+            if action == "open" then
+                system("open '#{location}'")
+            end
+            if action == "copy to desktop" then
+                FileUtils.cp(location, "/Users/pascal/Desktop")
+            end
+            if action == "datecode" then
+                unixtime = Utils::interactivelySelectUnixtimeOrNull()
+                next if unixtime.nil?
+                DoNotShowUntil::setUnixtime(Inbox::getLocationUUID(location), unixtime)
+                return
+            end
+            if action == ">todo" then
+                Transmutation::transmutation1(location, "inbox", "TxTodo")
+                return
+            end
+            if action == ">fyre" then
+                Transmutation::transmutation1(location, "inbox", "TxFyre")
+                return
+            end
+            if action == ">nyx" then
+                puts "(19f8c2ce-a9b6-44b1-8a37-3d734aa282b7: This has not been implemented, need re-implementation after refactoring)"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            if action == "destroy" then
+                LucilleCore::removeFileSystemLocation(location)
+                return
+            end
+            if action.nil? or action == "exit (default)" then
+                return
             end
         }
     end
