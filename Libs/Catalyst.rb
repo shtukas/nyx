@@ -308,7 +308,7 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        puts "(#{universe})"
+        puts "👩‍💻 🔥 #{TxDateds::items().size + TxFyres::items().size + TxTodos::items().size} (#{universe})"
         vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
