@@ -78,6 +78,7 @@ class TxFyres
 
             puts TxFyres::toString(item).green
             puts "uuid: #{uuid}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|

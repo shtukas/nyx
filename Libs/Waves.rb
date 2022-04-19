@@ -110,8 +110,8 @@ class Waves
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-        return nil if atom.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if iAmValue.nil?
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
@@ -123,7 +123,7 @@ class Waves
             "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "atomuuid"    => atom["uuid"],
+            "iam"         => iAmValue,
         }
 
         wave["repeatType"]       = schedule[0]
@@ -141,7 +141,7 @@ class Waves
     def self.toString(wave)
         lastDoneDateTime = wave["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] #{wave["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", wave["atomuuid"])} (#{Waves::scheduleString(wave)}) (#{ago})"
+        "[wave] #{wave["description"]} (#{item["iam"][0]}) (#{Waves::scheduleString(wave)}) (#{ago})"
     end
 
     # Waves::performDone(wave)
@@ -175,6 +175,7 @@ class Waves
             puts "#{Waves::toString(item)}".green
 
             puts "uuid: #{item["uuid"]}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "schedule: #{Waves::scheduleString(item)}".yellow
             puts "last done: #{item["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
@@ -187,7 +188,7 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | atom | attachment | schedule | universe | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | iam | attachment | schedule | universe | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -201,7 +202,7 @@ class Waves
             end
 
             if command == "access" then
-                Librarian5Atoms::accessAtom(item["atomuuid"])
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 next
             end
 
@@ -221,12 +222,14 @@ class Waves
                 next
             end
 
-            if Interpreting::match("atom", command) then
-                atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-                next if atom.nil?
-                item["atomuuid"] = atom["uuid"]
-                Librarian6Objects::commit(item)
-                next
+            if Interpreting::match("iam", command) then
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if iAmValue.nil?
+                puts JSON.pretty_generate(iAmValue)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
+                    item["iam"] = iAmValue
+                    Librarian6Objects::commit(item)
+                end
             end
 
             if Interpreting::match("attachment", command) then
@@ -278,22 +281,22 @@ class Waves
     # -------------------------------------------------------------------------
     # NS16
 
-    # Waves::access(wave) # Code
+    # Waves::access(item) # Code
     # "ebdc6546-8879" # Continue
     # "8a2aeb48-780d" # Close NxBall
-    def self.access(wave)
+    def self.access(item)
         system("clear")
-        uuid = wave["uuid"]
-        puts Waves::toString(wave)
+        uuid = item["uuid"]
+        puts Waves::toString(item)
         puts "Starting at #{Time.new.to_s}"
 
-        Librarian5Atoms::accessAtom(wave["atomuuid"])
+        Nx111::accessIamCarrierPossibleStorageMutation(item)
 
         loop {
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue", "landing and back", "delay"])
 
             if operation.nil? or operation == "done (default)" then
-                Waves::performDone(wave)
+                Waves::performDone(item)
                 NxBallsService::close(uuid, true)
                 return "8a2aeb48-780d" # Close NxBall
             end
@@ -305,9 +308,9 @@ class Waves
                 return "ebdc6546-8879" # Continue
             end
             if operation == "landing and back" then
-                Waves::landing(wave)
+                Waves::landing(item)
                 # The next line handle if the landing resulted in a destruction of the object
-                if Librarian6Objects::getObjectByUUIDOrNull(wave["uuid"]).nil? then
+                if Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]).nil? then
                     NxBallsService::close(uuid, true)
                     return "8a2aeb48-780d" # Close NxBall
                 end
@@ -315,7 +318,7 @@ class Waves
             if operation == "delay" then
                 unixtime = Utils::interactivelySelectUnixtimeOrNull()
                 if unixtime then
-                    DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+                    DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                     NxBallsService::close(uuid, true)
                     return "8a2aeb48-780d" # Close NxBall
                 end

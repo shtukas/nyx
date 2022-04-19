@@ -74,6 +74,7 @@ class TxFloats
 
             puts TxFloats::toString(item).green
             puts "uuid: #{uuid}".yellow
+            puts "iam: #{item["iam"]}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
