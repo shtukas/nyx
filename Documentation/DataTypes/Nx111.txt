@@ -10,3 +10,4 @@ Nx111
     ["carrier-of-primitive-files"]
     ["Dx8Unit", Dx8UnitConfiguration]
 
+Unique strings can be anything, but when possible, it's recommended to use "Nx01-<substring>", note that in this case "Nx01" is indeed part of the string.

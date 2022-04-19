@@ -122,24 +122,26 @@ class LxAction
             end
 
             if object["mikuType"] == "NS16:TxDated" then
-                dated = object["TxDated"]
-                Librarian5Atoms::accessAtom(dated["atomuuid"])
+                item = object["TxDated"]
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxFyre" then
-                nx70 = object["TxFyre"]
-                Librarian5Atoms::accessAtom(nx70["atomuuid"])
+                item = object["TxFyre"]
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxFloat" then
-                Librarian5Atoms::accessAtom(object["TxFloat"]["atomuuid"])
+                item = object["TxFloat"]
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxTodo" then
-                Librarian5Atoms::accessAtom(object["TxTodo"]["atomuuid"])
+                item = object["TxTodo"]
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 return
             end
 

@@ -167,7 +167,7 @@ class Nx111
         end
         if iAmValue[0] == "unique-string" then
             uniquestring = iAmValue[1]
-            Librarian5Atoms::findAndAccessUniqueString(uniquestring)
+            Nx111::findAndAccessUniqueString(uniquestring)
             return
         end
         if iAmValue[0] == "primitive-file" then
@@ -232,4 +232,62 @@ class Nx111
 
         raise "()"
     end
+
+    # ----------------------------------------------------------------------
+    # The art of the unique string
+
+    # Nx111::uniqueStringIsInAionPointObject(object, uniquestring)
+    def self.uniqueStringIsInAionPointObject(object, uniquestring)
+        if object["aionType"] == "indefinite" then
+            return false
+        end
+        if object["aionType"] == "directory" then
+            if object["name"].downcase.include?(uniquestring.downcase) then
+                return true
+            end
+            return object["items"].any?{|nhash| Nx111::uniqueStringIsInNhash(nhash, uniquestring) }
+        end
+        if object["aionType"] == "file" then
+            return object["name"].downcase.include?(uniquestring.downcase)
+        end
+    end
+
+    # Nx111::uniqueStringIsInNhash(nhash, uniquestring)
+    def self.uniqueStringIsInNhash(nhash, uniquestring)
+        # This function will cause all the objects from all aion-structures to remain alive on the local cache
+        # but doesn't download the data blobs
+
+        # This function is memoised
+        answer = XCache::getOrNull("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
+        if answer then
+            return JSON.parse(answer)[0]
+        end
+        object = AionCore::getAionObjectByHash(Librarian14ElizabethLocalStandard.new(), nhash)
+        answer = Nx111::uniqueStringIsInAionPointObject(object, uniquestring)
+        XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
+        answer
+    end
+
+    # Nx111::findAndAccessUniqueString(uniquestring)
+    def self.findAndAccessUniqueString(uniquestring)
+        puts "unique string: #{uniquestring}"
+        location = Librarian0Utils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+        if location then
+            puts "location: #{location}"
+            if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
+                system("open '#{location}'")
+            end
+            return
+        end
+        puts "Unique string not found in Galaxy"
+        puts "Looking inside aion-points..."
+        puts "" # To accomodate Utils::putsOnPreviousLine
+
+        puts "This functionality needs implementing (a2af6b27-132b-44c1-935a-739df2eaf627)"
+        LucilleCore::pressEnterToContinue()
+
+        puts "I could not find the unique string inside aion-points"
+        LucilleCore::pressEnterToContinue()
+    end
+
 end
