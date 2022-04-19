@@ -4,5 +4,5 @@ TxFloat = {
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "atomuuid"       : UUID of an Atom
+  "iam"            : Nx111
 }

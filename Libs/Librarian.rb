@@ -893,7 +893,7 @@ class Librarian21Fsck
             return
         end
         if item["mikuType"] == "TxFloat" then
-            Librarian21Fsck::fsckExitAtFirstFailureAtomuuid(item, item["atomuuid"])
+            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxFyre" then

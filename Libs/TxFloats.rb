@@ -20,8 +20,8 @@ class TxFloats
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-        return nil if atom.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if iAmValue.nil?
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -33,7 +33,7 @@ class TxFloats
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"]
+          "iam"         => iAmValue
         }
         Librarian6Objects::commit(item)
         ObjectUniverseMapping::interactivelySetObjectUniverseMapping(uuid)
@@ -45,7 +45,7 @@ class TxFloats
 
     # TxFloats::toString(float)
     def self.toString(float)
-        "(float) #{float["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", float["atomuuid"])}"
+        "(float) #{float["description"]} (#{item["iam"][0]})"
     end
 
     # TxFloats::toStringForNS19(float)
@@ -80,9 +80,7 @@ class TxFloats
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Librarian5Atoms::atomLandingPresentation(item["atomuuid"])
-
-            puts "access | <datecode> | description | atom | attachment | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | iam| attachment | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -101,7 +99,7 @@ class TxFloats
             end
 
             if Interpreting::match("access", command) then
-                Librarian5Atoms::accessAtom(item["atomuuid"])
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 next
             end
 
@@ -113,12 +111,14 @@ class TxFloats
                 next
             end
 
-            if Interpreting::match("atom", command) then
-                atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-                next if atom.nil?
-                item["atomuuid"] = atom["uuid"]
-                Librarian6Objects::commit(item)
-                next
+            if Interpreting::match("iam", command) then
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if iAmValue.nil?
+                puts JSON.pretty_generate(iAmValue)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
+                    item["iam"] = iAmValue
+                    Librarian6Objects::commit(item)
+                end
             end
 
             if Interpreting::match("attachment", command) then
@@ -168,14 +168,14 @@ class TxFloats
     # --------------------------------------------------
     # nx16s
 
-    # TxFloats::ns16(float)
-    def self.ns16(float)
-        uuid = float["uuid"]
+    # TxFloats::ns16(item)
+    def self.ns16(item)
+        uuid = item["uuid"]
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFloat",
-            "announce" => "#{float["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", float["atomuuid"])}",
-            "TxFloat"  => float
+            "announce" => "#{item["description"]} (#{item["iam"][0]})",
+            "TxFloat"  => item
         }
     end
 
