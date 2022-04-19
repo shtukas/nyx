@@ -6,6 +6,6 @@ TxAttachment
     "owneruuid"   : String
     "unixtime"    : Float
     "description" : String
-    "atomuuid"    : String
+    "iam"         : Nx111
 }
 

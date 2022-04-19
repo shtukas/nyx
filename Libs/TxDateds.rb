@@ -23,8 +23,8 @@ class TxDateds
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
 
-        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-        return nil if atom.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if iAmValue.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -35,7 +35,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"],
+          "iam"         => iAmValue,
         }
         Librarian6Objects::commit(item)
         item
@@ -46,8 +46,8 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-        return nil if atom.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if iAmValue.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -55,11 +55,11 @@ class TxDateds
 
         item = {
           "uuid"        => uuid,
-          "mikuType" => "TxDated",
+          "mikuType"    => "TxDated",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"]
+          "iam"         => iAmValue
         }
         Librarian6Objects::commit(item)
         item
@@ -68,14 +68,14 @@ class TxDateds
     # --------------------------------------------------
     # toString
 
-    # TxDateds::toString(mx49)
-    def self.toString(mx49)
-        "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", mx49["atomuuid"])}"
+    # TxDateds::toString(item)
+    def self.toString(item)
+        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{item["iam"][0]})"
     end
 
-    # TxDateds::toStringForNS19(mx49)
-    def self.toStringForNS19(mx49)
-        "[date] #{mx49["description"]}"
+    # TxDateds::toStringForNS19(item)
+    def self.toStringForNS19(item)
+        "[date] #{item["description"]}"
     end
 
     # --------------------------------------------------
@@ -92,6 +92,7 @@ class TxDateds
 
             puts TxDateds::toString(item).green
             puts "uuid: #{uuid}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "date: #{item["datetime"][0, 10]}".yellow
 
             store = ItemStore.new()
@@ -101,9 +102,7 @@ class TxDateds
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Librarian5Atoms::atomLandingPresentation(item["atomuuid"])
-
-            puts "access | date | description | atom | attachment | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
+            puts "access | date | description | iam | attachment | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -118,7 +117,7 @@ class TxDateds
             end
 
             if Interpreting::match("access", command) then
-                Librarian5Atoms::accessAtom(item["atomuuid"])
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 next
             end
 
@@ -138,12 +137,14 @@ class TxDateds
                 next
             end
 
-            if Interpreting::match("atom", command) then
-                atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-                next if atom.nil?
-                item["atomuuid"] = atom["uuid"]
-                Librarian6Objects::commit(item)
-                next
+            if Interpreting::match("iam", command) then
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if iAmValue.nil?
+                puts JSON.pretty_generate(iAmValue)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
+                    item["iam"] = iAmValue
+                    Librarian6Objects::commit(item)
+                end
             end
 
             if Interpreting::match("attachment", command) then
@@ -199,23 +200,23 @@ class TxDateds
     # --------------------------------------------------
     # nx16s
 
-    # TxDateds::ns16(mx49)
-    def self.ns16(mx49)
-        uuid = mx49["uuid"]
+    # TxDateds::ns16(item)
+    def self.ns16(item)
+        uuid = item["uuid"]
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxDated",
-            "announce" => "(ondate) [#{mx49["datetime"][0, 10]}] #{mx49["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", mx49["atomuuid"])}",
-            "TxDated"     => mx49
+            "announce" => "(ondate) [#{item["datetime"][0, 10]}] (#{item["iam"][0]})",
+            "TxDated"     => item
         }
     end
 
     # TxDateds::ns16s()
     def self.ns16s()
         TxDateds::items()
-            .select{|mx49| mx49["datetime"][0, 10] <= Utils::today() }
+            .select{|item| item["datetime"][0, 10] <= Utils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            .map{|mx49| TxDateds::ns16(mx49) }
+            .map{|item| TxDateds::ns16(item) }
     end
 
     # --------------------------------------------------

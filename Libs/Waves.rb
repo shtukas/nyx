@@ -61,47 +61,47 @@ class Waves
         raise "e45c4622-4501-40e1-a44e-2948544df256"
     end
 
-    # Waves::waveToDoNotShowUnixtime(wave)
-    def self.waveToDoNotShowUnixtime(wave)
-        if wave["repeatType"] == 'sticky' then
+    # Waves::computeNextShowUp(item)
+    def self.computeNextShowUp(item)
+        if item["repeatType"] == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
-            unixtime1 = (Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 86400) + wave["repeatValue"].to_i*3600
+            unixtime1 = (Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 86400) + item["repeatValue"].to_i*3600
             if unixtime1 > Time.new.to_i then
                 return unixtime1
             end
             # We return the event happening tomorrow
-            return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + wave["repeatValue"].to_i*3600
+            return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + item["repeatValue"].to_i*3600
         end
-        if wave["repeatType"] == 'every-n-hours' then
-            return Time.new.to_i+3600 * wave["repeatValue"].to_f
+        if item["repeatType"] == 'every-n-hours' then
+            return Time.new.to_i+3600 * item["repeatValue"].to_f
         end
-        if wave["repeatType"] == 'every-n-days' then
-            return Time.new.to_i+86400 * wave["repeatValue"].to_f
+        if item["repeatType"] == 'every-n-days' then
+            return Time.new.to_i+86400 * item["repeatValue"].to_f
         end
-        if wave["repeatType"] == 'every-this-day-of-the-month' then
+        if item["repeatType"] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
-            while Time.at(cursor).strftime("%d") != wave["repeatValue"] do
+            while Time.at(cursor).strftime("%d") != item["repeatValue"] do
                 cursor = cursor + 3600
             end
            return cursor
         end
-        if wave["repeatType"] == 'every-this-day-of-the-week' then
+        if item["repeatType"] == 'every-this-day-of-the-week' then
             mapping = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             cursor = Time.new.to_i + 86400
-            while mapping[Time.at(cursor).wday] != wave["repeatValue"] do
+            while mapping[Time.at(cursor).wday] != item["repeatValue"] do
                 cursor = cursor + 3600
             end
             return cursor
         end
     end
 
-    # Waves::scheduleString(wave)
-    def self.scheduleString(wave)
-        if wave["repeatType"] == 'sticky' then
-            return "sticky, from: #{wave["repeatValue"]}"
+    # Waves::scheduleString(item)
+    def self.scheduleString(item)
+        if item["repeatType"] == 'sticky' then
+            return "sticky, from: #{item["repeatValue"]}"
         end
-        "#{wave["repeatType"]}: #{wave["repeatValue"]}"
+        "#{item["repeatType"]}: #{item["repeatValue"]}"
     end
 
     # Waves::issueNewWaveInteractivelyOrNull()
@@ -137,11 +137,11 @@ class Waves
     # -------------------------------------------------------------------------
     # Operations
 
-    # Waves::toString(wave)
-    def self.toString(wave)
-        lastDoneDateTime = wave["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
+    # Waves::toString(item)
+    def self.toString(item)
+        lastDoneDateTime = item["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] #{wave["description"]} (#{item["iam"][0]}) (#{Waves::scheduleString(wave)}) (#{ago})"
+        "[wave] #{item["description"]} (#{item["iam"][0]}) (#{Waves::scheduleString(item)}) (#{ago})"
     end
 
     # Waves::performDone(wave)
@@ -155,7 +155,7 @@ class Waves
         wave["lastDoneDateTime"] = Time.now.utc.iso8601
         Librarian6Objects::commit(wave)
 
-        unixtime = Waves::waveToDoNotShowUnixtime(wave)
+        unixtime = Waves::computeNextShowUp(wave)
         puts "Not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
     end

@@ -36,8 +36,8 @@ class TxAttachments
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-        return nil if atom.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if iAmValue.nil?
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -48,7 +48,7 @@ class TxAttachments
           "owneruuid"   => owneruuid,
           "unixtime"    => unixtime,
           "description" => description,
-          "atomuuid"    => atom["uuid"]
+          "iam"         => iAmValue
         }
         Librarian6Objects::commit(item)
         item
@@ -64,7 +64,7 @@ class TxAttachments
 
     # TxAttachments::toString(item)
     def self.toString(item)
-        "(attachment) #{item["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", item["atomuuid"])}"
+        "(attachment) #{item["description"]} (#{item["iam"][0]})"
     end
 
     # ----------------------------------------------------------------------
@@ -82,7 +82,7 @@ class TxAttachments
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit atom" then
-                Librarian5Atoms::accessAtom(item["atomuuid"])
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TxAttachments::toString(item)}' ? ") then
