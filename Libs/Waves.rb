@@ -116,8 +116,6 @@ class Waves
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
 
-        Librarian6Objects::commit(atom)
-
         wave = {
             "uuid"        => SecureRandom.uuid,
             "mikuType"    => "Wave",
