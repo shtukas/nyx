@@ -75,7 +75,7 @@ class TxDateds
 
     # TxDateds::toStringForNS19(item)
     def self.toStringForNS19(item)
-        "[date] #{item["description"]}"
+        "(ondate) #{item["description"]}"
     end
 
     # --------------------------------------------------
@@ -206,7 +206,7 @@ class TxDateds
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxDated",
-            "announce" => "(ondate) [#{item["datetime"][0, 10]}] (#{item["iam"][0]})",
+            "announce" => TxDateds::toString(item),
             "TxDated"     => item
         }
     end

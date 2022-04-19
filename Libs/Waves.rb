@@ -144,20 +144,22 @@ class Waves
         "[wave] #{item["description"]} (#{item["iam"][0]}) (#{Waves::scheduleString(item)}) (#{ago})"
     end
 
-    # Waves::performDone(wave)
-    def self.performDone(wave)
-        if Waves::toString(wave).include?("[backup]") then
+    # Waves::performDone(item)
+    def self.performDone(item)
+        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item)} ? '", true)
+
+        if Waves::toString(item).include?("[backup]") then
             logfile = "/Users/pascal/Galaxy/LucilleOS/Backups-Utils/logs/main.txt"
-            File.open(logfile, "a"){|f| f.puts("#{Time.new.to_s} : #{wave["description"]}")}
+            File.open(logfile, "a"){|f| f.puts("#{Time.new.to_s} : #{item["description"]}")}
         end
 
-        puts "done-ing: #{Waves::toString(wave)}"
-        wave["lastDoneDateTime"] = Time.now.utc.iso8601
-        Librarian6Objects::commit(wave)
+        puts "done-ing: #{Waves::toString(item)}"
+        item["lastDoneDateTime"] = Time.now.utc.iso8601
+        Librarian6Objects::commit(item)
 
-        unixtime = Waves::computeNextShowUp(wave)
-        puts "Not shown until: #{Time.at(unixtime).to_s}"
-        DoNotShowUntil::setUnixtime(wave["uuid"], unixtime)
+        unixtime = Waves::computeNextShowUp(item)
+        puts "not shown until: #{Time.at(unixtime).to_s}"
+        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
     end
 
     # Waves::landing(item)
