@@ -556,17 +556,33 @@ class Librarian21Fsck
 
     # Librarian21Fsck::fsckExitAtFirstFailure()
     def self.fsckExitAtFirstFailure()
+
+        runhash = XCache::getOrNull("1A07231B-8535-499B-BB2C-89A4EB429F49")
+        if runhash.nil? then
+            runhash = SecureRandom.hex
+            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F49", runhash)
+        else
+            if LucilleCore::askQuestionAnswerAsBoolean("We have a run in progress, continue ? ") then
+                # Nothing to do, we run with the existing hash
+            else
+                # We make a register a new hash
+                runhash = SecureRandom.hex
+                XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F49", runhash)
+            end
+        end
+
         Librarian6Objects::objects()
-        .sort{|o1, o2| 
-            o1["unixtime"] <=> o2["unixtime"] 
-        }
+        .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
         .reverse
-        .select{|item|
-            item["mikuType"] != "Atom" # 29c488ff-9d50-4433-9ba0-26a02c4560da
-        }
         .each{|item|
+            next if XCache::flagIsTrue("#{runhash}:#{item["uuid"]}")
+
             puts JSON.pretty_generate(item)
             Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+
+            XCache::setFlagTrue("#{runhash}:#{item["uuid"]}")
+
+            return if !File.exists?("/Users/pascal/Desktop/Pascal.png") # We use this file to interrupt long runs at a place where it would not corrupt any file system.
         }
         puts "Fsck completed successfully".green
         LucilleCore::pressEnterToContinue()
