@@ -584,6 +584,9 @@ class Librarian21Fsck
 
             return if !File.exists?("/Users/pascal/Desktop/Pascal.png") # We use this file to interrupt long runs at a place where it would not corrupt any file system.
         }
+
+        XCache::destroy("1A07231B-8535-499B-BB2C-89A4EB429F49")
+
         puts "Fsck completed successfully".green
         LucilleCore::pressEnterToContinue()
     end
