@@ -283,9 +283,7 @@ class Waves
     # -------------------------------------------------------------------------
     # NS16
 
-    # Waves::access(item) # Code
-    # "ebdc6546-8879" # Continue
-    # "8a2aeb48-780d" # Close NxBall
+    # Waves::access(item)
     def self.access(item)
         system("clear")
         uuid = item["uuid"]
@@ -295,35 +293,24 @@ class Waves
         Nx111::accessIamCarrierPossibleStorageMutation(item)
 
         loop {
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "stop and exit", "exit and continue", "landing and back", "delay"])
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "landing", "exit"])
 
             if operation.nil? or operation == "done (default)" then
                 Waves::performDone(item)
                 NxBallsService::close(uuid, true)
-                return "8a2aeb48-780d" # Close NxBall
+                break
             end
-            if operation == "stop and exit" then
-                NxBallsService::close(uuid, true)
-                return "8a2aeb48-780d" # Close NxBall
-            end
-            if operation == "exit and continue" then
-                return "ebdc6546-8879" # Continue
-            end
-            if operation == "landing and back" then
+            if operation == "landing" then
                 Waves::landing(item)
-                # The next line handle if the landing resulted in a destruction of the object
+
+                # the landing could result in a destruction of the object
                 if Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]).nil? then
-                    NxBallsService::close(uuid, true)
-                    return "8a2aeb48-780d" # Close NxBall
+                    break
                 end
             end
-            if operation == "delay" then
-                unixtime = Utils::interactivelySelectUnixtimeOrNull()
-                if unixtime then
-                    DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                    NxBallsService::close(uuid, true)
-                    return "8a2aeb48-780d" # Close NxBall
-                end
+            if operation == "exit" then
+                NxBallsService::close(uuid, true)
+                break
             end
         }
     end

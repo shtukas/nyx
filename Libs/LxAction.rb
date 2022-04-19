@@ -146,16 +146,7 @@ class LxAction
             end
 
             if object["mikuType"] == "NS16:Wave" then
-                code = Waves::access(object["wave"])
-                # "ebdc6546-8879" # Continue
-                # "8a2aeb48-780d" # Close NxBall
-                if code == "ebdc6546-8879" then
-                    return
-                end
-                if code == "8a2aeb48-780d" then
-                    NxBallsService::close(object["uuid"], true)
-                    return 
-                end
+                Waves::access(object["wave"])
                 return
             end
         end
