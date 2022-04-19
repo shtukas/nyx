@@ -600,23 +600,23 @@ end
 
 class Librarian23Dx8UnitsBlobsService
 
-    # Librarian23Dx8UnitsBlobsService::gsvRepository()
-    def self.gsvRepository()
-        "/Volumes/Lucille/Data/Pascal/Nyx-Librarian-Dx8Units"
+    # Librarian23Dx8UnitsBlobsService::infinityRepository
+    def self.infinityRepository
+        "/Volumes/Infinity/Data/Pascal/Nyx-Librarian-Dx8Units"
     end
 
-    # Librarian23Dx8UnitsBlobsService::gsvDriveIsPlugged()
-    def self.gsvDriveIsPlugged()
-        File.exists?(Librarian23Dx8UnitsBlobsService::gsvRepository())
+    # Librarian23Dx8UnitsBlobsService::driveIsPlugged()
+    def self.driveIsPlugged()
+        File.exists?(Librarian23Dx8UnitsBlobsService::infinityRepository)
     end
 
-    # Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
-    def self.ensureGSVRepository()
-        if !Librarian23Dx8UnitsBlobsService::gsvDriveIsPlugged() then
+    # Librarian23Dx8UnitsBlobsService::ensureDrive()
+    def self.ensureDrive()
+        if !Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
             puts "I need Lucille, could you plug the drive please ?"
             LucilleCore::pressEnterToContinue()
         end
-        if !Librarian23Dx8UnitsBlobsService::gsvDriveIsPlugged() then
+        if !Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
             puts "I needed Lucille 😞. Exiting."
             exit
         end
@@ -624,7 +624,7 @@ class Librarian23Dx8UnitsBlobsService
 
     # Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)
     def self.dx8UnitFolder(dx8UnitId)
-        "#{Librarian23Dx8UnitsBlobsService::gsvRepository()}/#{dx8UnitId}"
+        "#{Librarian23Dx8UnitsBlobsService::infinityRepository}/#{dx8UnitId}"
     end
 
     # -----------------------------------------------------------------------------
@@ -641,7 +641,7 @@ class Librarian23Dx8UnitsBlobsService
         end
 
         if mode == "upload" then
-            Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+            Librarian23Dx8UnitsBlobsService::ensureDrive()
             nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
             filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if !File.exists?(File.dirname(filepath)) then
@@ -658,7 +658,7 @@ class Librarian23Dx8UnitsBlobsService
         # Modes: "fsck" | "readonly" | "upload"
 
         if mode == "fsck" then
-            Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+            Librarian23Dx8UnitsBlobsService::ensureDrive()
             filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if File.exists?(filepath) then
                 blob = IO.read(filepath)
@@ -671,7 +671,7 @@ class Librarian23Dx8UnitsBlobsService
             blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
             return blob if blob
 
-            Librarian23Dx8UnitsBlobsService::ensureGSVRepository()
+            Librarian23Dx8UnitsBlobsService::ensureDrive()
             filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if File.exists?(filepath) then
                 blob = IO.read(filepath)
