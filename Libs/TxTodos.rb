@@ -153,24 +153,24 @@ class TxTodos
     # --------------------------------------------------
     # toString
 
-    # TxTodos::toString(nx50)
-    def self.toString(nx50)
-        "(todo) #{nx50["description"]} (#{nx50["iam"][0]})"
+    # TxTodos::toString(item)
+    def self.toString(item)
+        "(todo) #{item["description"]} (#{item["iam"][0]})"
     end
 
-    # TxTodos::toStringWithOrdinal(nx50)
-    def self.toStringWithOrdinal(nx50)
-        "(todo) (ord: #{nx50["ordinal"]}) #{nx50["description"]} (#{nx50["iam"][0]})"
+    # TxTodos::toStringWithOrdinal(item)
+    def self.toStringWithOrdinal(item)
+        "(todo) (ord: #{item["ordinal"]}) #{item["description"]} (#{item["iam"][0]})"
     end
 
-    # TxTodos::toStringForNS16(nx50, rt)
-    def self.toStringForNS16(nx50, rt)
-        "(todo) (#{"%4.2f" % rt}) #{nx50["description"]} (#{nx50["iam"][0]}) (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(nx50["uuid"])})"
+    # TxTodos::toStringForNS16(item, rt)
+    def self.toStringForNS16(item, rt)
+        "(todo) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]}) (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])})"
     end
 
-    # TxTodos::toStringForNS19(nx50)
-    def self.toStringForNS19(nx50)
-        "(todo) #{nx50["description"]}"
+    # TxTodos::toStringForNS19(item)
+    def self.toStringForNS19(item)
+        "(todo) #{item["description"]}"
     end
 
     # --------------------------------------------------

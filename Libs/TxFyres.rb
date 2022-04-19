@@ -2,8 +2,8 @@ j# encoding: UTF-8
 
 class TxFyres
 
-    # TxFyres::mikus()
-    def self.mikus()
+    # TxFyres::items()
+    def self.items()
         Librarian6Objects::getObjectsByMikuType("TxFyre")
     end
 
@@ -20,8 +20,8 @@ class TxFyres
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        atom       = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-        return nil if atom.nil?
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if iAmValue.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -33,7 +33,7 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "atomuuid"    => atom["uuid"]
+          "iam"         => iAmValue
         }
         Librarian6Objects::commit(item)
         item
@@ -42,27 +42,27 @@ class TxFyres
     # --------------------------------------------------
     # toString
 
-    # TxFyres::toString(nx70)
-    def self.toString(nx70)
-        "(fyre) #{nx70["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+    # TxFyres::toString(item)
+    def self.toString(item)
+        "(fyre) #{item["description"]} (#{item["iam"][0]})"
     end
 
-    # TxFyres::toStringForNS16(nx70, rt)
-    def self.toStringForNS16(nx70, rt)
-        "(fyre) (#{"%4.2f" % rt}) #{nx70["description"]}#{Librarian5Atoms::atomTypeForToStrings(" ", nx70["atomuuid"])}"
+    # TxFyres::toStringForNS16(item, rt)
+    def self.toStringForNS16(item, rt)
+        "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
     end
 
-    # TxFyres::toStringForNS19(nx70)
-    def self.toStringForNS19(nx70)
-        "(fyre) #{nx70["description"]}"
+    # TxFyres::toStringForNS19(item)
+    def self.toStringForNS19(item)
+        "(fyre) #{item["description"]}"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # TxFyres::complete(nx70)
-    def self.complete(nx70)
-        TxFyres::destroy(nx70["uuid"])
+    # TxFyres::complete(item)
+    def self.complete(item)
+        TxFyres::destroy(item["uuid"])
     end
 
     # TxFyres::landing(item)
@@ -85,9 +85,7 @@ class TxFyres
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            Librarian5Atoms::atomLandingPresentation(item["atomuuid"])
-
-            puts "access | <datecode> | description | atom | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | iam | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -106,7 +104,7 @@ class TxFyres
             end
 
             if Interpreting::match("access", command) then
-                Librarian5Atoms::accessAtom(item["atomuuid"])
+                Nx111::accessIamCarrierPossibleStorageMutation(item)
                 next
             end
 
@@ -118,12 +116,14 @@ class TxFyres
                 next
             end
 
-            if Interpreting::match("atom", command) then
-                atom = Librarian5Atoms::interactivelyIssueNewAtomOrNull()
-                next if atom.nil?
-                item["atomuuid"] = atom["uuid"]
-                Librarian6Objects::commit(item)
-                next
+            if Interpreting::match("iam", command) then
+                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if iAmValue.nil?
+                puts JSON.pretty_generate(iAmValue)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
+                    item["iam"] = iAmValue
+                    Librarian6Objects::commit(item)
+                end
             end
 
             if Interpreting::match("attachment", command) then
@@ -187,7 +187,7 @@ class TxFyres
 
     # TxFyres::ns16s(universe)
     def self.ns16s(universe)
-        TxFyres::mikus()
+        TxFyres::items()
             .select{|item| 
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
@@ -200,7 +200,7 @@ class TxFyres
 
     # TxFyres::nx20s()
     def self.nx20s()
-        TxFyres::mikus().map{|item|
+        TxFyres::items().map{|item|
             {
                 "announce" => TxFyres::toStringForNS19(item),
                 "unixtime" => item["unixtime"],
