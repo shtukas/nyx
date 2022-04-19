@@ -220,7 +220,7 @@ class Waves
 
             if Interpreting::match("description", command) then
                 item["description"] = Utils::editTextSynchronously(item["description"])
-                Waves::performDone(item)
+                Librarian6Objects::commit(item)
                 next
             end
 
