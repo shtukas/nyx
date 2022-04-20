@@ -48,8 +48,14 @@ class LibrarianXSpaceCache
             FileUtils.mkdir(folderpath)
             return [idx]
         end
-        if indices.size > 50 then
 
+        # The first check below ensures that there are not pending Dx8Unit mainenance
+        # We do not garbage collect this cache if there are pending Dx8Unit that need sync to origin
+        if Mercury::isEmpty("055e1acb-164c-49cd-b17a-7946ba02c583") and indices.size > 50 then
+            oldestIndex = indices.sort.first
+            folderpath = "#{LibrarianXSpaceCache::repositoryFolderPath()}/#{oldestIndex}"
+            LucilleCore::removeFileSystemLocation(location)
+            indices = indices - [oldestIndex]
         end
         indices
     end
