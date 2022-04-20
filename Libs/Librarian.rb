@@ -787,6 +787,7 @@ class Librarian23Dx8UnitsBlobsService
 
             blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
             if blob then
+                puts "Dx8Unit fsck, put blob, #{dx8UnitId}, #{nhash}"
                 Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob)
                 return blob
             end
@@ -796,14 +797,24 @@ class Librarian23Dx8UnitsBlobsService
     end
 end
 
-class FLibrarian24ElizabethForDx8Units
+class Librarian24ElizabethForDx8Units
 
     # @dx8UnitId
     # @mode
 
     def initialize(dx8UnitId, mode)
+
         @dx8UnitId = dx8UnitId
         @mode = mode
+
+        if mode == "standard" then
+            # Every time we instanciate this operator, in standard mode, the Dx8Unit is scheduled for dedicted fsck, because we could have performed an operation 
+            # that added blobs to the Dx8Unit but currently only sitting on local. Fsck will fix that. We are listing them because 
+            # running those dedicated fsck is part of the librarian Dx8Units maintenance, instead of having to wait for the next scheduled
+            # global fsck.
+
+            Mercury::postValue("055e1acb-164c-49cd-b17a-7946ba02c583", dx8UnitId)
+        end
     end
 
     def commitBlob(blob)
@@ -843,82 +854,111 @@ class LibrarianCLI
 
     # LibrarianCLI::main()
     def self.main()
-        loop {
-            system("clear")
-            actions = [
-                "run fsck", 
-                "show object", 
-                "edit object",
-                "destroy object by uuid",
-                "prob blob", 
-                "echo blob", 
-                "desktop data pickup",
-                "exit"
-            ]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action:", actions)
-            break if action.nil?
 
-            if action == "run fsck" then
-                Librarian21Fsck::fsckExitAtFirstFailure()
+        if ARGV[0] == "fsck" then
+            Librarian21Fsck::fsckExitAtFirstFailure()
+            exit
+        end
+
+        if ARGV[0] == "show-object-i" then
+            uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+            object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
+            if object then
+                puts JSON.pretty_generate(object)
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not find an object with this uuid"
+                LucilleCore::pressEnterToContinue()
             end
-            if action == "show object" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
-                if object then
-                    puts JSON.pretty_generate(object)
-                    LucilleCore::pressEnterToContinue()
-                else
-                    puts "I could not find an object with this uuid"
-                    LucilleCore::pressEnterToContinue()
-                end
+            exit
+        end
+
+        if ARGV[0] == "edit-object-i" then
+            uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+            object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
+            if object then
+                puts JSON.pretty_generate(object)
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not find an object with this uuid"
+                LucilleCore::pressEnterToContinue()
             end
-            if action == "edit object" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
-                if object then
-                    object = JSON.parse(Utils::editTextSynchronously(JSON.pretty_generate(object)))
-                    puts JSON.pretty_generate(object)
-                    if LucilleCore::askQuestionAnswerAsBoolean("confirm ? ") then
-                        Librarian6Objects::commit(object)
-                    end
-                else
-                    puts "I could not find an object with this uuid"
-                    LucilleCore::pressEnterToContinue()
-                end
+            exit
+        end
+
+        if ARGV[0] == "destroy-object-by-uuid-i" then
+            uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+            Librarian6Objects::destroy(uuid)
+            exit
+        end
+
+        if ARGV[0] == "prob-blob-i" then
+            nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
+            blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
+            if blob then
+                puts "Found a blob of size #{blob.size}"
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not find a blob with nhash: #{nhash}"
+                LucilleCore::pressEnterToContinue()
             end
-            if action == "destroy object by uuid" then
-                uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-                Librarian6Objects::destroy(uuid)
+            exit
+        end
+
+        if ARGV[0] == "echo-blob-i" then
+            nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
+            blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
+            if blob then
+                puts JSON.pretty_generate(JSON.parse(blob))
+                LucilleCore::pressEnterToContinue()
+            else
+                puts "I could not find a blob with nhash: #{nhash}"
+                LucilleCore::pressEnterToContinue()
             end
-            if action == "prob blob" then
-                nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-                blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
-                if blob then
-                    puts "Found a blob of size #{blob.size}"
-                    LucilleCore::pressEnterToContinue()
-                else
-                    puts "I could not find a blob with nhash: #{nhash}"
-                    LucilleCore::pressEnterToContinue()
-                end
+            exit
+        end
+
+        if ARGV[0] == "desktop-data-pickup" then
+            Librarian15BecauseReadWrite::desktopDataPickups()
+            exit
+        end
+
+        if ARGV[0] == "Dx8Units-Maintenance" then
+            while dx8UnitId = Mercury::dequeueFirstValueOrNull("055e1acb-164c-49cd-b17a-7946ba02c583") do
+                puts "Dx8Unit Maintenance for dx8UnitId: #{dx8UnitId}"
+                # We now need to determine the item by a Dx8Unit Id
+
+                getItemOrNull = lambda{|dx8UnitId|
+                    Nx100s::items().each{|item|
+                        next if item["iam"][0] != "Dx8Unit"
+                        configuration = item["iam"][1]
+                        next if configuration["unitId"] != dx8UnitId
+                        return item
+                    }
+                    nil
+                }
+
+                item = getItemOrNull.call(dx8UnitId)
+
+                next if item.nil?
+
+                puts "Dx8Unit maintenance (fsck) for item: #{item["description"].green}"
+
+                Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+
             end
-            if action == "echo blob" then
-                nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-                blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
-                if blob then
-                    puts JSON.pretty_generate(JSON.parse(blob))
-                    LucilleCore::pressEnterToContinue()
-                else
-                    puts "I could not find a blob with nhash: #{nhash}"
-                    LucilleCore::pressEnterToContinue()
-                end
-            end
-            if action == "desktop data pickup" then
-                Librarian15BecauseReadWrite::desktopDataPickups()
-            end
-            if action == "exit" then
-                break
-            end
-        }
+            exit
+        end
+
+        puts "usage:"
+        puts "    librarian fsck"
+        puts "    librarian show-object-i"
+        puts "    librarian edit-object-i"
+        puts "    librarian destroy-object-by-uuid-i"
+        puts "    librarian prob-blob-i"
+        puts "    librarian echo-blob-i"
+        puts "    librarian desktop-data-pickup"
+        puts "    librarian Dx8Units-Maintenance"
     end
 end
 
