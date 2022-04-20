@@ -383,7 +383,7 @@ class Librarian15BecauseReadWrite
                 configuration = item["iam"][1]
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
-                operator = Librarian24ElizabethForDx8Units.new(unitId, "upload")
+                operator = Librarian24ElizabethForDx8Units.new(unitId, "standard")
                 rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
                 puts "rootnhash1: #{rootnhash1}"
                 rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
@@ -694,7 +694,7 @@ end
 # Dx8Unit blob services and Elizabeth
 # ---------------------------------------------------------------------------
 
-# Modes: "fsck" | "readonly" | "upload"
+# Modes: "standard" | "fsck"
 
 class Librarian23Dx8UnitsBlobsService
 
@@ -730,24 +730,21 @@ class Librarian23Dx8UnitsBlobsService
     # Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob) # nhash
     def self.putBlob(mode, dx8UnitId, blob)
 
-        if mode == "fsck" then
-            Librarian23Dx8UnitsBlobsService::ensureDrive()
-            nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-            if !File.exists?(File.dirname(filepath)) then
-                FileUtils.mkpath(File.dirname(filepath))
+        if mode == "standard" then
+            if Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
+                nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+                filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+                if !File.exists?(File.dirname(filepath)) then
+                    FileUtils.mkpath(File.dirname(filepath))
+                end
+                File.open(filepath, "w"){|f| f.write(blob) }
+                return nhash
+            else
+                return LibrarianXSpaceCache::putBlob(blob)
             end
-            File.open(filepath, "w"){|f| f.write(blob) }
-            return nhash
         end
 
-        if mode == "readonly" then
-            # raise "(error: 65f7c330-7f0e-4294-89d5-451afa455202) This should not happens"
-            # Actually this happens when we rewrite top names before Tx46 exporting to the Desktop
-            return LibrarianXSpaceCache::putBlob(blob)
-        end
-
-        if mode == "upload" then
+        if mode == "fsck" then
             Librarian23Dx8UnitsBlobsService::ensureDrive()
             nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
             filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
@@ -762,7 +759,21 @@ class Librarian23Dx8UnitsBlobsService
     # Librarian23Dx8UnitsBlobsService::getBlobOrNull(mode, dx8UnitId, nhash)
     def self.getBlobOrNull(mode, dx8UnitId, nhash)
 
-        # Modes: "fsck" | "readonly" | "upload"
+        if mode == "standard" then
+            # raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
+            # Actually this happens when we rewrite top names after Tx46 pickup from the Desktop
+            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
+            return blob if blob
+
+            Librarian23Dx8UnitsBlobsService::ensureDrive()
+            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            if File.exists?(filepath) then
+                blob = IO.read(filepath)
+                LibrarianXSpaceCache::putBlob(blob)
+                return blob
+            end
+            return nil
+        end
 
         if mode == "fsck" then
             # When we fsck commit to repair, so we want the blobs to be on the drive and we look local cache if needed
@@ -782,41 +793,10 @@ class Librarian23Dx8UnitsBlobsService
 
             return nil
         end
-
-        if mode == "readonly" then
-            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
-            return blob if blob
-
-            Librarian23Dx8UnitsBlobsService::ensureDrive()
-            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-            if File.exists?(filepath) then
-                blob = IO.read(filepath)
-                LibrarianXSpaceCache::putBlob(blob)
-                return blob
-            end
-            return nil
-        end
-        
-        if mode == "upload" then
-            # raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
-            # Actually this happens when we rewrite top names after Tx46 pickup from the Desktop
-            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
-            return blob if blob
-
-            Librarian23Dx8UnitsBlobsService::ensureDrive()
-            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-            if File.exists?(filepath) then
-                blob = IO.read(filepath)
-                LibrarianXSpaceCache::putBlob(blob)
-                return blob
-            end
-            return nil
-        end
-
     end
 end
 
-class Librarian24ElizabethForDx8Units
+class FLibrarian24ElizabethForDx8Units
 
     # @dx8UnitId
     # @mode

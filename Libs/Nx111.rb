@@ -111,7 +111,7 @@ class Nx111
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return nil if !File.exists?(location)
-            rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "upload"), location)
+            rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "standard"), location)
             configuration = {
                 "unitId"   => unitId,
                 "status"   => "standard",
@@ -194,7 +194,7 @@ class Nx111
                 tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
-                operator = Librarian24ElizabethForDx8Units.new(unitId, "readonly")
+                operator = Librarian24ElizabethForDx8Units.new(unitId, "standard")
                 newtopname = "#{item["description"]} (#{tx46Id})"
                 rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newtopname)
                 exportFolder = "/Users/pascal/Desktop"
