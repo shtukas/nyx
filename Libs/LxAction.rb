@@ -192,14 +192,14 @@ class LxAction
             end
             if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
                 return
             end
             if object["mikuType"] == "NS16:TxFyre" then
                 item = object["TxFyre"]
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of fyre '#{item["description"]}' ? ", true) then
                     TxFyres::destroy(item["uuid"])
                 end
                 return
@@ -217,7 +217,7 @@ class LxAction
                         # We go through the next section
                     end
                 end
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of todo '#{item["description"]}' ? ", true) then
                     TxTodos::destroy(item["uuid"])
                 end
                 return
