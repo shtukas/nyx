@@ -308,7 +308,10 @@ class TerminalDisplayOperator
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        puts "👩‍💻 🔥 #{TxDateds::items().size + TxFyres::items().size + TxTodos::items().size} (#{universe})"
+        reference = 12395 # 20th April 2022 @ 08:00
+        current = TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
+        percentage = 100*(current.to_f/reference)
+        puts "👩‍💻 🔥 #{current}, #{percentage.round(3)}% (#{universe})"
         vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
