@@ -299,6 +299,49 @@ end
 
 class Librarian15BecauseReadWrite
 
+    # Librarian15BecauseReadWrite::utils_getAllTheSubstrings(str)
+    def self.utils_getAllTheSubstrings(str)
+        indx1 = 0
+        substrings = []
+        loop {
+            break if indx1 >= str.length
+            length = 1
+            loop {
+                break if length > str.length
+                substring = str[indx1, length]
+                substrings << substring
+                length = length + 1
+            }
+            indx1 = indx1 + 1
+        }
+        substrings.uniq
+    end
+
+    # Librarian15BecauseReadWrite::utils_getAllTheTx46IdsLocationPairsFromDesktop()
+    def self.utils_getAllTheTx46IdsLocationPairsFromDesktop()
+        answer = []
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
+            substrings = Librarian15BecauseReadWrite::utils_getAllTheSubstrings(File.basename(location))
+            substring = substrings.select{|ss| XCache::getOrNull("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{ss}") }.first
+            if substring then
+                pair = {
+                    "identifier" => substring,
+                    "location"   => location
+                }
+                answer << pair
+            end
+        }
+        answer
+    end
+
+    # Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, name_)
+    def self.utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, name_)
+        aionObject = AionCore::getAionObjectByHash(operator, rootnhash)
+        aionObject["name"] = name_
+        blob = JSON.generate(aionObject)
+        operator.commitBlob(blob)
+    end
+
     # The purpose of this class is to provide edition of objects that have been exported to the desktop
 
     # Tx46 {
@@ -313,15 +356,66 @@ class Librarian15BecauseReadWrite
     def self.issueTx46ReturnIdentifier(item)
         tx = {
             "identifier" => SecureRandom.hex[0, 8],
+            "mikuType"   => "Tx46",
             "itemuuid"   => item["uuid"]
         }
-        XCache::set(tx["identifier"], JSON.generate(tx))
+        XCache::set("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{tx["identifier"]}", JSON.generate(tx))
         tx["identifier"]
+    end
+
+    # Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
+    def self.pickupItem(tx46, item, location)
+        puts "> Librarian15BecauseReadWrite::pickupItem(item, location)"
+        puts "item: #{JSON.pretty_generate(item)}"
+        puts "location: #{location}"
+        if item["mikuType"] == "Nx100" then
+            if item["iam"][0] == "aion-point" then
+                operator = Librarian14ElizabethLocalStandard.new()
+                rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
+                puts "rootnhash1: #{rootnhash1}"
+                rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
+                puts "rootnhash2: #{rootnhash2}"
+                item["iam"][1] = rootnhash2
+                Librarian6Objects::commit(item)
+                return
+            end
+            if item["iam"][0] == "Dx8Unit" then
+                configuration = item["iam"][1]
+                unitId = configuration["unitId"]
+                rootnhash = configuration["rootnhash"]
+                operator = Librarian24ElizabethForDx8Units.new(unitId, "upload")
+                rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
+                puts "rootnhash1: #{rootnhash1}"
+                rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
+                puts "rootnhash2: #{rootnhash2}"
+                configuration["rootnhash"] = rootnhash2
+                item["iam"][1] = configuration
+                Librarian6Objects::commit(item)
+                return
+            end
+            raise "(error: 68436fbf-745f-4a02-8912-a04279c122c1) I don't know how to pickup #{item["iam"]}"
+        end
     end
 
     # Librarian15BecauseReadWrite::desktopDataPickups()
     def self.desktopDataPickups()
-
+        Librarian15BecauseReadWrite::utils_getAllTheTx46IdsLocationPairsFromDesktop()
+            .each{|pair|
+                identifier = pair["identifier"]
+                location   = pair["location"]
+                tx46       = XCache::getOrNull("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{identifier}")
+                # We will be asuming that tx46 is not null, otherwise this is too wierd and we deserve to crash
+                tx46       = JSON.parse(tx46)
+                puts JSON.pretty_generate(tx46)
+                itemuuid   = tx46["itemuuid"]
+                item       = Librarian6Objects::getObjectByUUIDOrNull(itemuuid)
+                if item then
+                    Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
+                else
+                    puts "I could not find a nyx node for itemuuid: #{itemuuid}, that is associated with location: #{location}. Is that expected ?"
+                    LucilleCore::pressEnterToContinue()
+                end
+            }
     end
 end
 
@@ -617,11 +711,11 @@ class Librarian23Dx8UnitsBlobsService
     # Librarian23Dx8UnitsBlobsService::ensureDrive()
     def self.ensureDrive()
         if !Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
-            puts "I need Lucille, could you plug the drive please ?"
+            puts "I need Infinity, could you plug the drive please ?"
             LucilleCore::pressEnterToContinue()
         end
         if !Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
-            puts "I needed Lucille 😞. Exiting."
+            puts "I needed Infinity 😞. Exiting."
             exit
         end
     end
@@ -641,7 +735,9 @@ class Librarian23Dx8UnitsBlobsService
         end
 
         if mode == "readonly" then
-            raise "(error: 65f7c330-7f0e-4294-89d5-451afa455202) This should not happens"
+            # raise "(error: 65f7c330-7f0e-4294-89d5-451afa455202) This should not happens"
+            # Actually this happens when we rewrite top names before Tx46 exporting to the Desktop
+            return LibrarianXSpaceCache::putBlob(blob)
         end
 
         if mode == "upload" then
@@ -686,7 +782,19 @@ class Librarian23Dx8UnitsBlobsService
         end
         
         if mode == "upload" then
-            raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
+            # raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
+            # Actually this happens when we rewrite top names after Tx46 pickup from the Desktop
+            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
+            return blob if blob
+
+            Librarian23Dx8UnitsBlobsService::ensureDrive()
+            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            if File.exists?(filepath) then
+                blob = IO.read(filepath)
+                LibrarianXSpaceCache::putBlob(blob)
+                return blob
+            end
+            return nil
         end
 
     end

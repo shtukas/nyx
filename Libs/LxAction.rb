@@ -123,25 +123,25 @@ class LxAction
 
             if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
-                Nx111::accessIamCarrierPossibleStorageMutation(item)
+                Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxFyre" then
                 item = object["TxFyre"]
-                Nx111::accessIamCarrierPossibleStorageMutation(item)
+                Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxFloat" then
                 item = object["TxFloat"]
-                Nx111::accessIamCarrierPossibleStorageMutation(item)
+                Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
-                Nx111::accessIamCarrierPossibleStorageMutation(item)
+                Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
                 return
             end
 

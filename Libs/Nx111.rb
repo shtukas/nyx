@@ -122,8 +122,8 @@ class Nx111
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
 
-    # Nx111::accessIamCarrierPossibleStorageMutation(item)
-    def self.accessIamCarrierPossibleStorageMutation(item)
+    # Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
+    def self.accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
         iAmValue = item["iam"]
         if iAmValue[0] == "navigation" then
             puts "This is a navigation node"
@@ -160,13 +160,12 @@ class Nx111
         end
         if iAmValue[0] == "aion-point" then
             tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
-
+            operator = Librarian14ElizabethLocalStandard.new() 
             rootnhash = iAmValue[1]
-            exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{tx46Id})"
-            puts "export folder: #{exportFolder}"
-            FileUtils.mkdir(exportFolder)
-            AionCore::exportHashAtFolder(Librarian14ElizabethLocalStandard.new(), rootnhash, exportFolder)
-            system("open '#{exportFolder}'")
+            newtopname = "#{item["description"]} (#{tx46Id})"
+            rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newtopname)
+            exportFolder = "/Users/pascal/Desktop"
+            AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
             return
         end
         if iAmValue[0] == "unique-string" then
@@ -193,14 +192,13 @@ class Nx111
 
             if configuration["status"] == "standard" then
                 tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
-                
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
-                exportFolder = "/Users/pascal/Desktop/#{item["description"]} (#{tx46Id})"
-                puts "export folder: #{exportFolder}"
-                FileUtils.mkdir(exportFolder)
-                AionCore::exportHashAtFolder(Librarian24ElizabethForDx8Units.new(unitId, "readonly"), rootnhash, exportFolder)
-                system("open '#{exportFolder}'")
+                operator = Librarian24ElizabethForDx8Units.new(unitId, "readonly")
+                newtopname = "#{item["description"]} (#{tx46Id})"
+                rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newtopname)
+                exportFolder = "/Users/pascal/Desktop"
+                AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
                 return
             end
 

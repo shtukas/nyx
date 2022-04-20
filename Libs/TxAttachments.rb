@@ -82,7 +82,7 @@ class TxAttachments
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit atom" then
-                Nx111::accessIamCarrierPossibleStorageMutation(item)
+                Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TxAttachments::toString(item)}' ? ") then

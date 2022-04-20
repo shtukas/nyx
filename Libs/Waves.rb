@@ -199,7 +199,7 @@ class Waves
             end
 
             if command == "access" then
-                Nx111::accessIamCarrierPossibleStorageMutation(item)
+                Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
                 next
             end
 
@@ -285,7 +285,7 @@ class Waves
         puts Waves::toString(item)
         puts "Starting at #{Time.new.to_s}"
 
-        Nx111::accessIamCarrierPossibleStorageMutation(item)
+        Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
 
         loop {
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "landing", "exit"])
