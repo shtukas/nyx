@@ -319,6 +319,10 @@ class Librarian15BecauseReadWrite
         tx["identifier"]
     end
 
+    # Librarian15BecauseReadWrite::desktopDataPickups()
+    def self.desktopDataPickups()
+
+    end
 end
 
 class Librarian17PrimitiveFilesAndCarriers
@@ -744,7 +748,7 @@ class LibrarianCLI
                 "destroy object by uuid",
                 "prob blob", 
                 "echo blob", 
-                "do exports pickups",
+                "desktop data pickup",
                 "exit"
             ]
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action:", actions)
@@ -804,9 +808,8 @@ class LibrarianCLI
                     LucilleCore::pressEnterToContinue()
                 end
             end
-            if action == "do exports pickups" then
-                puts "Not implemented yet, see Librarian15BecauseReadWrite"
-                LucilleCore::pressEnterToContinue()
+            if action == "desktop data pickup" then
+                Librarian15BecauseReadWrite::desktopDataPickups()
             end
             if action == "exit" then
                 break
