@@ -731,7 +731,14 @@ class Librarian23Dx8UnitsBlobsService
     def self.putBlob(mode, dx8UnitId, blob)
 
         if mode == "fsck" then
-            raise "(error: 080c5efa-627a-4853-b45a-0e1142b3b995) This should not happens"
+            Librarian23Dx8UnitsBlobsService::ensureDrive()
+            nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            if !File.exists?(File.dirname(filepath)) then
+                FileUtils.mkpath(File.dirname(filepath))
+            end
+            File.open(filepath, "w"){|f| f.write(blob) }
+            return nhash
         end
 
         if mode == "readonly" then
@@ -758,12 +765,21 @@ class Librarian23Dx8UnitsBlobsService
         # Modes: "fsck" | "readonly" | "upload"
 
         if mode == "fsck" then
+            # When we fsck commit to repair, so we want the blobs to be on the drive and we look local cache if needed
+
             Librarian23Dx8UnitsBlobsService::ensureDrive()
+
             filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if File.exists?(filepath) then
-                blob = IO.read(filepath)
+                return IO.read(filepath)
+            end
+
+            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
+            if blob then
+                Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob)
                 return blob
             end
+
             return nil
         end
 
