@@ -202,7 +202,7 @@ class TxFyres
     def self.ns16(nx70)
         uuid = nx70["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        announce = TxFyres::toStringForNS16(nx70, rt)
+        announce = TxFyres::toStringForNS16(nx70, rt).gsub("(0.00)", "      ")
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFyre",

@@ -277,6 +277,16 @@ end
 
 class NS16sOperator
 
+    # NS16sOperator::section2(universe)
+    def self.section2(universe)
+        # Section 2 shows what's current, fyres and todos with more than an hour in their Bank
+        fyres = TxFyres::topDisplay(universe)
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+        todos = TxTodos::section2(universe)
+        fyres + todos
+    end
+
     # NS16sOperator::section3(universe)
     def self.section3(universe)
         [
@@ -301,8 +311,8 @@ class TerminalDisplayOperator
         NxBallsService::isRunning(ns16["uuid"])
     end
 
-    # TerminalDisplayOperator::standardDisplay(universe, floats, fyres, section3)
-    def self.standardDisplay(universe, floats, fyres, section3)
+    # TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
+    def self.standardDisplay(universe, floats, section2, section3)
         system("clear")
 
         vspaceleft = Utils::screenHeight()-3
@@ -339,11 +349,11 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
 
-        if fyres.size>0 then
+        if section2.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
         end
-        fyres.each{|ns16|
+        section2.each{|ns16|
             store.register(ns16, false)
             line = "#{store.prefixString()} #{ns16["announce"]}"
             puts line
@@ -441,12 +451,10 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            fyres = TxFyres::topDisplay(universe)
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                        .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            section2 = NS16sOperator::section2(universe)
 
             section3 = NS16sOperator::section3(universe)
-            TerminalDisplayOperator::standardDisplay(universe, floats, fyres, section3)
+            TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }
     end
 end

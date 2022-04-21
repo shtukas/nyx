@@ -347,6 +347,20 @@ class TxTodos
         ns16s1 + ns16s2
     end
 
+    # TxTodos::section2(universe)
+    def self.section2(universe)
+        TxTodos::itemsForNS16s(universe)
+            .select{|item| 
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
+            }
+            .map{|item| TxTodos::ns16(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            .first(5)
+            .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
+    end
+
     # --------------------------------------------------
 
     # TxTodos::nx20s()
