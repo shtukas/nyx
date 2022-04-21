@@ -81,7 +81,7 @@ class TxFloats
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            puts "access | <datecode> | description | iam| attachment | universe | transmute | show json | >nyx |destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | iam| attachment | universe | transmute | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

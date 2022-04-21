@@ -393,81 +393,84 @@ class Librarian15BecauseReadWrite
         puts "> Librarian15BecauseReadWrite::pickupItem(item, location)"
         puts "item: #{JSON.pretty_generate(item)}"
         puts "location: #{location}"
-        if item["mikuType"] == "Nx100" then
-            if item["iam"][0] == "aion-point" then
-                operator = Librarian14ElizabethLocalStandard.new()
-                rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-                puts "rootnhash1: #{rootnhash1}"
-                rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
-                puts "rootnhash2: #{rootnhash2}"
-                return if rootnhash1 == rootnhash2
-                item["iam"][1] = rootnhash2
-                Librarian6Objects::commit(item)
-                return
-            end
-            if item["iam"][0] == "Dx8Unit" then
-                configuration = item["iam"][1]
-                unitId = configuration["unitId"]
-                rootnhash = configuration["rootnhash"]
-                operator = Librarian24ElizabethForDx8Units.new(unitId, "standard")
-                rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-                puts "rootnhash1: #{rootnhash1}"
-                rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
-                puts "rootnhash2: #{rootnhash2}"
-                return if rootnhash1 == rootnhash2
-                configuration["rootnhash"] = rootnhash2
-                item["iam"][1] = configuration
-                Librarian6Objects::commit(item)
-                return
-            end
-            if item["iam"][0] == "primitive-file" then
-                puts "We are not yet picking up modifications of primitive files (#{location})"
-                return
-            end
-            if item["iam"][0] == "carrier-of-primitive-files" then
-                # We scan the location and upload any file that wasn't there before
 
-                locations = LucilleCore::locationsAtFolder(location)
-                # We make a fiirst pass to ensure everything is a file
-                status = locations.all?{|loc| File.file?(loc) }
-                if !status then
-                    puts "The folder has elements that are not files!"
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                locations.each{|filepath|
-
-                    # So..... unlike a regular upload, some of the files in there can already be existing 
-                    # primitive files tht were exported.
-
-                    # The nice thing is that primitive files carry their own uuid as Nyx objects.
-                    # We can use that to know if the location is an existing primitive file and can be ignored
-
-                    id = File.basename(filepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
-                    if Librarian6Objects::getObjectByUUIDOrNull(id) then
-                        puts "#{File.basename(filepath)} is already a node"
-                        # Note that in this case we are not picking up possible modifications of the primitive files
-                    else
-                        puts "#{File.basename(filepath)} is new and needs upload"
-                        primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(filepath)
-                        puts "Primitive file:"
-                        puts JSON.pretty_generate(primitiveFileObject)
-                        puts "Link: (owner: #{item["uuid"]}, file: #{primitiveFileObject["uuid"]})"
-                        Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
-
-                        puts "Writing #{primitiveFileObject["uuid"]}"
-                        _, dottedExtension, nhash, parts = primitiveFileObject["iam"]
-                        Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(primitiveFileObject["uuid"], dottedExtension, parts, location)
-
-                        puts "Removing #{filepath}"
-                        FileUtils.rm(filepath)
-                    end
-                }
-
-                return
-            end
-            raise "(error: 68436fbf-745f-4a02-8912-a04279c122c1) I don't know how to pickup #{item["iam"]}"
+        if !item["iam"] then
+            raise "(error: 4f8aa915-0c22-43a8-99ca-81958ead8fa6) We have an expectation that #{item} would have a 'iam' attribute"
         end
+
+        if item["iam"][0] == "aion-point" then
+            operator = Librarian14ElizabethLocalStandard.new()
+            rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
+            puts "rootnhash1: #{rootnhash1}"
+            rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
+            puts "rootnhash2: #{rootnhash2}"
+            return if rootnhash1 == rootnhash2
+            item["iam"][1] = rootnhash2
+            Librarian6Objects::commit(item)
+            return
+        end
+        if item["iam"][0] == "Dx8Unit" then
+            configuration = item["iam"][1]
+            unitId = configuration["unitId"]
+            rootnhash = configuration["rootnhash"]
+            operator = Librarian24ElizabethForDx8Units.new(unitId, "standard")
+            rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
+            puts "rootnhash1: #{rootnhash1}"
+            rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
+            puts "rootnhash2: #{rootnhash2}"
+            return if rootnhash1 == rootnhash2
+            configuration["rootnhash"] = rootnhash2
+            item["iam"][1] = configuration
+            Librarian6Objects::commit(item)
+            return
+        end
+        if item["iam"][0] == "primitive-file" then
+            puts "We are not yet picking up modifications of primitive files (#{location})"
+            return
+        end
+        if item["iam"][0] == "carrier-of-primitive-files" then
+            # We scan the location and upload any file that wasn't there before
+
+            locations = LucilleCore::locationsAtFolder(location)
+            # We make a fiirst pass to ensure everything is a file
+            status = locations.all?{|loc| File.file?(loc) }
+            if !status then
+                puts "The folder has elements that are not files!"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            locations.each{|filepath|
+
+                # So..... unlike a regular upload, some of the files in there can already be existing 
+                # primitive files tht were exported.
+
+                # The nice thing is that primitive files carry their own uuid as Nyx objects.
+                # We can use that to know if the location is an existing primitive file and can be ignored
+
+                id = File.basename(filepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
+                if Librarian6Objects::getObjectByUUIDOrNull(id) then
+                    puts "#{File.basename(filepath)} is already a node"
+                    # Note that in this case we are not picking up possible modifications of the primitive files
+                else
+                    puts "#{File.basename(filepath)} is new and needs upload"
+                    primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(filepath)
+                    puts "Primitive file:"
+                    puts JSON.pretty_generate(primitiveFileObject)
+                    puts "Link: (owner: #{item["uuid"]}, file: #{primitiveFileObject["uuid"]})"
+                    Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
+
+                    puts "Writing #{primitiveFileObject["uuid"]}"
+                    _, dottedExtension, nhash, parts = primitiveFileObject["iam"]
+                    Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(primitiveFileObject["uuid"], dottedExtension, parts, location)
+
+                    puts "Removing #{filepath}"
+                    FileUtils.rm(filepath)
+                end
+            }
+
+            return
+        end
+        raise "(error: 68436fbf-745f-4a02-8912-a04279c122c1) I don't know how to pickup #{item["iam"]}"
     end
 
     # Librarian15BecauseReadWrite::desktopDataPickups()
