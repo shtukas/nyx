@@ -203,9 +203,6 @@ class TxFyres
         uuid = nx70["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         announce = TxFyres::toStringForNS16(nx70, rt)
-        if rt < 1 then
-            announce = announce.red
-        end
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFyre",
@@ -213,6 +210,17 @@ class TxFyres
             "TxFyre"   => nx70,
             "rt"       => rt
         }
+    end
+
+    # TxFyres::topDisplay(universe)
+    def self.topDisplay(universe)
+        TxFyres::items()
+            .select{|item| 
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
+            }
+            .map{|item| TxFyres::ns16(item) }
+            .sort{|x1, x2| x1["rt"] <=> x2["rt"]}
     end
 
     # TxFyres::ns16s(universe)
@@ -223,6 +231,7 @@ class TxFyres
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxFyres::ns16(item) }
+            .select{|item| item["rt"] < 1}
             .sort{|x1, x2| x1["rt"] <=> x2["rt"]}
     end
 

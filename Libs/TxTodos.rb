@@ -7,11 +7,6 @@ class TxTodos
         Librarian6Objects::getObjectsByMikuType("TxTodo")
     end
 
-    # TxTodos::itemsCardinal(n)
-    def self.itemsCardinal(n)
-        Librarian6Objects::getObjectsByMikuTypeLimitByOrdinal("TxTodo", n)
-    end
-
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
         TxTodos::items()
@@ -21,14 +16,31 @@ class TxTodos
             }
     end
 
-    # TxTodos::itemsForUniverseWithCardinal(universe, n)
-    def self.itemsForUniverseWithCardinal(universe, n)
-        TxTodos::itemsForUniverse(universe).first(n)
-    end
-
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
+    end
+
+    # --------------------------------------------------
+
+    # TxTodos::itemsForNS16sMaintenance()
+    def self.itemsForNS16sMaintenance()
+        Multiverse::universes()
+            .each{|universe|
+                items = TxTodos::itemsForUniverse(universe).first(100)
+                XCache::set("13016616-9244-443e-86b5-24bbaea2b5b1:#{universe}", JSON.generate(items))
+            }
+    end
+
+    # TxTodos::itemsForNS16s(universe)
+    def self.itemsForNS16s(universe)
+        items = XCache::getOrNull("13016616-9244-443e-86b5-24bbaea2b5b1:#{universe}")
+        if items.nil? then
+            return []
+        end
+        JSON.parse(items)
+            .map{|item| Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]) }
+            .compact
     end
 
     # --------------------------------------------------
@@ -42,7 +54,7 @@ class TxTodos
 
     # TxTodos::ordinalBetweenN1thAndN2th(universe, n1, n2)
     def self.ordinalBetweenN1thAndN2th(universe, n1, n2)
-        nx50s = TxTodos::itemsForUniverseWithCardinal(universe, n2)
+        nx50s = TxTodos::itemsForUniverse(universe).first(n2)
         if nx50s.size < n1+2 then
             return TxTodos::nextOrdinal(universe)
         end
@@ -54,7 +66,7 @@ class TxTodos
     def self.interactivelyDecideNewOrdinal(universe)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "random within [10-20] (default)", "next"])
         if action == "fine selection near the top" then
-            TxTodos::itemsForUniverseWithCardinal(universe, 50)
+            TxTodos::itemsForUniverse(universe).first(50)
                 .each{|nx50| 
                     puts "- #{TxTodos::toStringWithOrdinal(nx50)}"
                 }
@@ -317,27 +329,7 @@ class TxTodos
 
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
-        makeItems = lambda {|universe|
-            key = "a489d77e-255e-467f-a302-7ead5337f005:#{$GENERAL_SYSTEM_RUN_ID}:#{universe}"
-            items = XCache::getOrNull(key)
-            if items then
-                items = JSON.parse(items)
-            else
-                puts "computing items from scratch @ universe: #{universe}"
-                items =
-                    if universe then
-                        TxTodos::itemsForUniverseWithCardinal(universe, 50)
-                    else
-                        TxTodos::itemsCardinal(100)
-                    end
-                XCache::set(key, JSON.generate(items))
-            end
-            items
-                .select{|item| Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]) }
-                .compact
-        }
-
-        ns16s = makeItems.call(universe)
+        ns16s = TxTodos::itemsForNS16s(universe)
             .select{|item| 
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
@@ -351,10 +343,6 @@ class TxTodos
 
         ns16s1 = ns16s1
             .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
-            .map{|ns16|
-                ns16["announce"] = ns16["announce"].red
-                ns16
-            }
 
         ns16s1 + ns16s2
     end
@@ -372,3 +360,11 @@ class TxTodos
         }
     end
 end
+
+Thread.new {
+    sleep 60 # 1 min
+    loop {
+        TxTodos::itemsForNS16sMaintenance()
+        sleep 600 # 10 mins
+    }
+}

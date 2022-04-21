@@ -441,7 +441,7 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            fyres = TxFyres::ns16s(universe)
+            fyres = TxFyres::topDisplay(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
