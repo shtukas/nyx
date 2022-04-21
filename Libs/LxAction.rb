@@ -19,53 +19,7 @@ class LxAction
         end
 
         if command == ".." then
-
-            # ---------------------------------------------------------------
-            # Start
-
-            if !NxBallsService::isRunning(object["uuid"]) then
-                LxAction::action("start", object)
-            end
-
-            # ---------------------------------------------------------------
-            # Access
-
-            if LucilleCore::askQuestionAnswerAsBoolean("access : '#{object["announce"]}' ? ", true) then
-                LxAction::action("access", object)
-            end
-
-            # ---------------------------------------------------------------
-            # Stop
-
-            # We do not perform "stop" on a wave
-            # NxBall Management will have been done by access itself.
-            if object["mikuType"] == "NS16:Wave" then
-                return
-            end
-
-            # We perform automatic stop on a fitness
-            if object["mikuType"] == "NS16:fitness1" then
-                LxAction::action("stop", object)
-            end
-
-            if NxBallsService::isRunning(object["uuid"]) then
-                if LucilleCore::askQuestionAnswerAsBoolean("stop   : '#{object["announce"]}' ? ") then
-                    LxAction::action("stop", object)
-                end
-            end
-
-            # ---------------------------------------------------------------
-            # Destroy
-
-            if !NxBallsService::isRunning(object["uuid"]) then
-                if object["mikuType"] == "NS16:TxTodo" then
-                    todo = object["TxTodo"]
-                    if (Bank::value(todo["uuid"]) < 3600) and LucilleCore::askQuestionAnswerAsBoolean("destroy: '#{object["announce"]}' ? ") then
-                        TxTodos::destroy(todo["uuid"])
-                    end
-                end
-            end
-
+            LxAction::action("access", object)
             return
         end
 
@@ -223,8 +177,9 @@ class LxAction
                 return
             end
             if object["mikuType"] == "NS16:Wave" then
-                wave = object["wave"]
-                Waves::performDone(wave)
+                item = object["wave"]
+                return if !LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true)
+                Waves::performDone(item)
                 return
             end
         end

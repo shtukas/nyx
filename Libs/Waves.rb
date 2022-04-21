@@ -144,8 +144,6 @@ class Waves
 
     # Waves::performDone(item)
     def self.performDone(item)
-        return if !LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item)} ? '", true)
-
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
         Librarian6Objects::commit(item)
