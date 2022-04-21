@@ -164,14 +164,46 @@ class Nx111
             return
         end
         if iAmValue[0] == "aion-point" then
-            tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
+            modes = [
+                "quick/synchronous readonly and delete",
+                "quick/synchronous edit, update and delete",
+                "Tx46 export (export and pickup maybe later)"
+            ]
+            mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+            return if mode.nil?
+
+            tx46 = Librarian15BecauseReadWrite::issueTx46(item)
+            tx46Id = tx46["identifier"]
             operator = Librarian14ElizabethLocalStandard.new() 
             rootnhash = iAmValue[1]
-            newtopname = "#{item["description"]} (#{tx46Id})"
-            rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newtopname)
+            newTopNameMainPart = "#{item["description"]} (#{tx46Id})"
+            rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newTopNameMainPart)
+            newTopNameCompleteWithExtension = Librarian15BecauseReadWrite::extractTopName(operator, rootnhash)
             exportFolder = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
-            puts "Item exported on Desktop at #{newtopname}"
+            puts "Item exported on Desktop at #{newTopNameCompleteWithExtension.green}"
+
+            if mode == "quick/synchronous readonly and delete" then
+                LucilleCore::pressEnterToContinue("> Enter to continue (will delete)")
+                location2 = Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(tx46Id)
+                return if location2.nil?
+                puts "Deleting #{location2}"
+                LucilleCore::removeFileSystemLocation(location2)
+            end
+
+            if mode == "quick/synchronous edit, update and delete" then
+                LucilleCore::pressEnterToContinue("> Enter to continue (will update and delete)")
+                location2 = Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(tx46Id)
+                return if location2.nil?
+                Librarian15BecauseReadWrite::pickupItem(tx46, item, location2)
+                puts "Deleting #{location2}"
+                LucilleCore::removeFileSystemLocation(location2)
+            end
+
+            if mode == "Tx46 export (export and pickup maybe later)" then
+                # The Tx46 has been issued, nothing to do here
+            end
+
             return
         end
         if iAmValue[0] == "unique-string" then
@@ -197,15 +229,49 @@ class Nx111
             configuration = iAmValue[1]
 
             if configuration["status"] == "standard" then
-                tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
+
+                modes = [
+                    "quick/synchronous readonly and delete",
+                    "quick/synchronous edit, update and delete",
+                    "Tx46 export (export and pickup maybe later)"
+                ]
+                mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+                return if mode.nil?
+
+                tx46 = Librarian15BecauseReadWrite::issueTx46(item)
+                tx46Id = tx46["identifier"]
+
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
                 operator = Librarian24ElizabethForDx8Units.new(unitId, "standard")
-                newtopname = "#{item["description"]} (#{tx46Id})"
-                rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newtopname)
+                newTopNameMainPart = "#{item["description"]} (#{tx46Id})"
+                rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newTopNameMainPart)
+                newTopNameCompleteWithExtension = Librarian15BecauseReadWrite::extractTopName(operator, rootnhash)
                 exportFolder = "/Users/pascal/Desktop"
                 AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
-                puts "Item exported on Desktop at #{newtopname}"
+                puts "Item exported on Desktop at #{newTopNameCompleteWithExtension}"
+
+                if mode == "quick/synchronous readonly and delete" then
+                    LucilleCore::pressEnterToContinue("> Enter to continue (will delete)")
+                    location2 = Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(tx46Id)
+                    return if location2.nil?
+                    puts "Deleting #{location2}"
+                    LucilleCore::removeFileSystemLocation(location2)
+                end
+
+                if mode == "quick/synchronous edit, update and delete" then
+                    LucilleCore::pressEnterToContinue("> Enter to continue (will update and delete)")
+                    location2 = Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(tx46Id)
+                    return if location2.nil?
+                    Librarian15BecauseReadWrite::pickupItem(tx46, item, location2)
+                    puts "Deleting #{location2}"
+                    LucilleCore::removeFileSystemLocation(location2)
+                end
+
+                if mode == "Tx46 export (export and pickup maybe later)" then
+                    # The Tx46 has been issued, nothing to do here
+                end
+
                 return
             end
 

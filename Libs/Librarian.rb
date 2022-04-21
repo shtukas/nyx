@@ -317,6 +317,14 @@ class Librarian15BecauseReadWrite
         substrings.uniq
     end
 
+    # Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(identifier)
+    def self.getLocationForThisTx46IdentiferOrNull(identifier)
+        LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
+            return location if location.include?(identifier)
+        }
+        nil
+    end
+
     # Librarian15BecauseReadWrite::utils_getAllTheTx46IdsLocationPairsFromDesktop()
     def self.utils_getAllTheTx46IdsLocationPairsFromDesktop()
         answer = []
@@ -332,6 +340,11 @@ class Librarian15BecauseReadWrite
             end
         }
         answer
+    end
+
+    # Librarian15BecauseReadWrite::extractTopName(operator, rootnhash)
+    def self.extractTopName(operator, rootnhash)
+        AionCore::getAionObjectByHash(operator, rootnhash)["name"]
     end
 
     # Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, name1)
@@ -359,15 +372,20 @@ class Librarian15BecauseReadWrite
     # When we export, we generate an identififer, put the Tx46 into XCache and let it be. 
     # If somebody wants to update the object, then depending on the type, they will know what to do
 
-    # Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
-    def self.issueTx46ReturnIdentifier(item)
+    # Librarian15BecauseReadWrite::issueTx46(item)
+    def self.issueTx46(item)
         tx = {
             "identifier" => SecureRandom.hex[0, 8],
             "mikuType"   => "Tx46",
             "itemuuid"   => item["uuid"]
         }
         XCache::set("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{tx["identifier"]}", JSON.generate(tx))
-        tx["identifier"]
+        tx
+    end
+
+    # Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
+    def self.issueTx46ReturnIdentifier(item)
+        Librarian15BecauseReadWrite::issueTx46(item)["identifier"]
     end
 
     # Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
