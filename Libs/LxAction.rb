@@ -19,6 +19,17 @@ class LxAction
         end
 
         if command == ".." then
+
+            if object["mikuType"] == "NS16:TxFyre" then
+                LxAction::action("access", object)
+                if !NxBallsService::isRunning(object["uuid"]) then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Want to start ? ") then
+                        LxAction::action("start", object)
+                    end
+                end
+                return
+            end
+
             LxAction::action("access", object)
             return
         end
