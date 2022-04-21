@@ -24,8 +24,8 @@ class Nx100s
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # Nx100s::interactivelyCreateNewOrNull()
-    def self.interactivelyCreateNewOrNull()
+    # Nx100s::interactivelyIssueNewItemOrNull()
+    def self.interactivelyIssueNewItemOrNull()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -68,32 +68,27 @@ class Nx100s
         item
     end
 
-    # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
-    def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
-        if item["iam"][0] != "aion-point" then
-            puts "I can only do that with aion-points"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        item2 = {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Nx100",
-            "unixtime"    => Time.new.to_i,
-            "datetime"    => Time.new.utc.iso8601,
-            "description" => "Genesis",
-            "iam"         => item["iam"].clone,
-            "flavour"     => {
-                "type" => "encyclopedia"
-            }
+    # Nx100s::issueNewItemAionPointFromLocation(location)
+    def self.issueNewItemAionPointFromLocation(location)
+        description = File.basename(location)
+        iAmValue = Nx111::aionPointIamValueFromLocationOrNull(location)
+        flavour = {
+            "type" => "encyclopedia"
         }
-        puts JSON.pretty_generate(item2)
-        Librarian6Objects::commit(item2)
-        Links::link(item["uuid"], item2["uuid"], false)
-        item["iam"] = ["navigation"]
-        puts JSON.pretty_generate(item)
+        uuid       = SecureRandom.uuid
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "Nx100",
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "description" => description,
+            "iam"         => iAmValue,
+            "flavour"     => flavour
+        }
         Librarian6Objects::commit(item)
-        puts "Operation completed"
-        LucilleCore::pressEnterToContinue()
+        item
     end
 
     # Nx100s::issuePrimitiveFileFromLocationOrNull(location)
@@ -184,6 +179,47 @@ class Nx100s
 
     # ----------------------------------------------------------------------
     # Operations
+
+    # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+    def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+        if item["iam"][0] != "aion-point" then
+            puts "I can only do that with aion-points"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        item2 = {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "Nx100",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => "Genesis",
+            "iam"         => item["iam"].clone,
+            "flavour"     => {
+                "type" => "encyclopedia"
+            }
+        }
+        puts JSON.pretty_generate(item2)
+        Librarian6Objects::commit(item2)
+        Links::link(item["uuid"], item2["uuid"], false)
+        item["iam"] = ["navigation"]
+        puts JSON.pretty_generate(item)
+        Librarian6Objects::commit(item)
+        puts "Operation completed"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # Nx100s::uploadAllLocationsOfAFolderAsAionPointChildren(item)
+    def self.uploadAllLocationsOfAFolderAsAionPointChildren(item)
+        folder = LucilleCore::askQuestionAnswerAsString("folder: ")
+        return if !File.exists?(folder)
+        return if !File.directory?(folder)
+        LucilleCore::locationsAtFolder(folder).each{|location|
+            puts "processing: #{location}"
+            child = Nx100s::issueNewItemAionPointFromLocation(location)
+            Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            Links::link(item["uuid"], child["uuid"], false)
+        }
+    end
 
     # Nx100s::landing(item)
     def self.landing(item)
@@ -322,12 +358,16 @@ class Nx100s
 
             if Interpreting::match("special circumstances", command) then
                 operations = [
-                    "transmute to navigation node and put contents into Genesis"
+                    "transmute to navigation node and put contents into Genesis",
+                    "upload all locations of a folder as aion-point children"
                 ]
                 operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                 next if operation.nil?
                 if operation == "transmute to navigation node and put contents into Genesis" then
                     Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+                end
+                if operation == "upload all locations of a folder as aion-point children" then
+                    Nx100s::uploadAllLocationsOfAFolderAsAionPointChildren(item)
                 end
             end
 

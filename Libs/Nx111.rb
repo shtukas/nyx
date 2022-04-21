@@ -63,6 +63,13 @@ class Nx111
         ["primitive-file", dottedExtension, nhash, parts]
     end
 
+    # Nx111::aionPointIamValueFromLocationOrNull(location)
+    def self.aionPointIamValueFromLocationOrNull(location)
+        return nil if !File.exists?(location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
+        return ["aion-point", rootnhash]
+    end
+
     # Nx111::interactivelyCreateNewIamValueOrNull(types)
     def self.interactivelyCreateNewIamValueOrNull(types)
         type = Nx111::interactivelySelectIamTypeOrNull(types)
@@ -89,9 +96,7 @@ class Nx111
         if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return nil if !File.exists?(location)
-            rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
-            return ["aion-point", rootnhash]
+            return Nx111::aionPointIamValueFromLocationOrNull(location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
@@ -166,6 +171,7 @@ class Nx111
             rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newtopname)
             exportFolder = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
+            puts "Item exported on Desktop at #{newtopname}"
             return
         end
         if iAmValue[0] == "unique-string" then
@@ -199,6 +205,7 @@ class Nx111
                 rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newtopname)
                 exportFolder = "/Users/pascal/Desktop"
                 AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
+                puts "Item exported on Desktop at #{newtopname}"
                 return
             end
 

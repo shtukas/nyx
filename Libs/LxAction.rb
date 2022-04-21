@@ -21,12 +21,12 @@ class LxAction
         if command == ".." then
 
             if object["mikuType"] == "NS16:TxFyre" then
-                LxAction::action("access", object)
                 if !NxBallsService::isRunning(object["uuid"]) then
                     if LucilleCore::askQuestionAnswerAsBoolean("Want to start ? ") then
                         LxAction::action("start", object)
                     end
                 end
+                LxAction::action("access", object)
                 return
             end
 
@@ -157,14 +157,14 @@ class LxAction
             end
             if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"]}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
                 return
             end
             if object["mikuType"] == "NS16:TxFyre" then
                 item = object["TxFyre"]
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of fyre '#{item["description"]}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of fyre '#{item["description"].green}' ? ", true) then
                     TxFyres::destroy(item["uuid"])
                 end
                 return
@@ -182,7 +182,7 @@ class LxAction
                         # We go through the next section
                     end
                 end
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of todo '#{item["description"]}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of todo '#{item["description"].green}' ? ", true) then
                     TxTodos::destroy(item["uuid"])
                 end
                 return

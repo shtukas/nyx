@@ -43,22 +43,22 @@ class TxFloats
     # --------------------------------------------------
     # toString
 
-    # TxFloats::toString(float)
-    def self.toString(float)
-        "(float) #{float["description"]} (#{item["iam"][0]})"
+    # TxFloats::toString(item)
+    def self.toString(item)
+        "(item) #{item["description"]} (#{item["iam"][0]})"
     end
 
-    # TxFloats::toStringForNS19(float)
-    def self.toStringForNS19(float)
-        "(float) #{float["description"]}"
+    # TxFloats::toStringForNS19(item)
+    def self.toStringForNS19(item)
+        "(item) #{item["description"]}"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # TxFloats::complete(float)
-    def self.complete(float)
-        TxFloats::destroy(float["uuid"])
+    # TxFloats::complete(item)
+    def self.complete(item)
+        TxFloats::destroy(item["uuid"])
     end
 
     # TxFloats::landing(item)
