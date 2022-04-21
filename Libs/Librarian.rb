@@ -382,6 +382,7 @@ class Librarian15BecauseReadWrite
                 puts "rootnhash1: #{rootnhash1}"
                 rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
                 puts "rootnhash2: #{rootnhash2}"
+                return if rootnhash1 == rootnhash2
                 item["iam"][1] = rootnhash2
                 Librarian6Objects::commit(item)
                 return
@@ -395,9 +396,14 @@ class Librarian15BecauseReadWrite
                 puts "rootnhash1: #{rootnhash1}"
                 rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
                 puts "rootnhash2: #{rootnhash2}"
+                return if rootnhash1 == rootnhash2
                 configuration["rootnhash"] = rootnhash2
                 item["iam"][1] = configuration
                 Librarian6Objects::commit(item)
+                return
+            end
+            if item["iam"][0] == "primitive-file" then
+                puts "We are not yet picking up modifications of primitive files (#{location})"
                 return
             end
             if item["iam"][0] == "carrier-of-primitive-files" then
@@ -422,6 +428,7 @@ class Librarian15BecauseReadWrite
                     id = File.basename(filepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
                     if Librarian6Objects::getObjectByUUIDOrNull(id) then
                         puts "#{File.basename(filepath)} is already a node"
+                        # Note that in this case we are not picking up possible modifications of the primitive files
                     else
                         puts "#{File.basename(filepath)} is new and needs upload"
                         primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(filepath)
