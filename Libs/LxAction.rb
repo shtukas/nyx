@@ -41,11 +41,13 @@ class LxAction
 
         if command == ">>" then
             if NxBallsService::somethingIsRunning() then
-                puts "You cannot switch universe while something is running"
+                puts "You cannot set a Nx24 (Universe Management) while something is running"
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            StoredUniverse::interactivelySetUniverseOrUnsetUniverse()
+            puts "Current Nx24:"
+            puts JSON.pretty_generate(UniverseManagement::getNx24())
+            UniverseManagement::interactivelySetNx24()
             return
         end
 

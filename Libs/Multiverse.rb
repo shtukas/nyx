@@ -84,13 +84,133 @@ class StoredUniverse
         XCache::getOrNull("5117D42F-8542-4D74-A219-47AF3C58F22B")
     end
 
-    # StoredUniverse::interactivelySetUniverseOrUnsetUniverse()
-    def self.interactivelySetUniverseOrUnsetUniverse()
+    # StoredUniverse::interactivelySetUniverse()
+    def self.interactivelySetUniverse()
         universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes())
         if universe.nil? then
-            XCache::destroy("5117D42F-8542-4D74-A219-47AF3C58F22B")
-            return nil
+            universe = "backlog"
         end
         StoredUniverse::setUniverse(universe)
     end
+end
+
+class UniverseManagement
+
+    # Nx24 specifies the current mode for universe management
+    # {
+    #     "mode" => "standard"
+    # }
+    # {
+    #     "mode"     => "hourOverride"
+    #     "start"    => Unixtime
+    #     "universe" => String
+    # }
+    # {
+    #     "mode"     => "dayOverride"
+    #     "date"     => Date
+    #     "universe" => String
+    # }
+
+    # UniverseManagement::setNx24(nx24)
+    def self.setNx24(nx24)
+        XCache::set("e0dbc3dc-0454-41ba-a15d-e29df540ad80", JSON.generate(nx24))
+    end
+
+    # UniverseManagement::getNx24()
+    def self.getNx24()
+        nx24 = XCache::getOrNull("e0dbc3dc-0454-41ba-a15d-e29df540ad80")
+        if nx24 then
+            JSON.parse(nx24)
+        else
+            {
+                "mode" => "standard"
+            }
+        end
+    end
+
+    # UniverseManagement::interactivelySetNx24()
+    def self.interactivelySetNx24()
+        modes = ["standard", "hourOverride", "dayOverride"]
+        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+        return if mode.nil?
+        if mode == "standard" then
+            UniverseManagement::setNx24({
+                "mode" => "standard"
+            })
+        end
+        if mode == "hourOverride" then
+            start = Time.new.to_i
+            universe = Multiverse::interactivelySelectUniverse()
+            UniverseManagement::setNx24({
+                "mode"     => "hourOverride",
+                "start"    => start,
+                "universe" => universe
+            })
+        end
+        if mode == "dayOverride" then
+            date = Utils::today()
+            universe = Multiverse::interactivelySelectUniverse()
+            UniverseManagement::setNx24({
+                "mode"     => "dayOverride",
+                "date"     => date,
+                "universe" => universe
+            })
+        end
+    end
+
+    # --------------------------------------------------------------
+
+    # UniverseManagement::naturalUniverseForThisTime()
+     def self.naturalUniverseForThisTime()
+        if [1, 2, 4].include?(Time.new.wday) and Time.new.hour >= 9 and Time.new.hour < 16 then
+            return "work"
+        end
+        if [3, 5].include?(Time.new.wday) and Time.new.hour >= 9 and Time.new.hour < 14 then
+            return "work"
+        end
+        "backlog"
+     end
+
+    # UniverseManagement::nx24UniverseForThisTime()
+     def self.nx24UniverseForThisTime()
+        nx24 = UniverseManagement::getNx24()
+        if nx24["mode"] == "standard" then
+            return UniverseManagement::naturalUniverseForThisTime()
+        end
+        if nx24["mode"] == "hourOverride" then
+            if  (Time.new.to_i-nx24["start"]) < 3600 then
+                return nx24["universe"]
+            else
+                UniverseManagement::setNx24({
+                    "mode" => "standard"
+                })
+                return UniverseManagement::naturalUniverseForThisTime()
+            end
+        end
+        if nx24["mode"] == "dayOverride" then
+            if nx24["date"] == Utils::today() then
+                return nx24["universe"]
+            else
+                UniverseManagement::setNx24({
+                    "mode" => "standard"
+                })
+                return UniverseManagement::naturalUniverseForThisTime()
+            end
+        end
+        raise "(error: 0eb2b610-53f7-45fb-83ae-77ba4cb4d89d)"
+     end
+
+    # UniverseManagement::performTransitionIfRelevantAndIfPossible()
+     def self.performTransitionIfRelevantAndIfPossible()
+        return if NxBallsService::somethingIsRunning()
+
+        currentUniverse = StoredUniverse::getUniverseOrNull()
+        nx24Universe = UniverseManagement::nx24UniverseForThisTime()
+
+        if currentUniverse != nx24Universe then
+            puts "Transitioning to #{nx24Universe}"
+            sleep 1
+            StoredUniverse::setUniverse(nx24Universe)
+        end
+     end
 end

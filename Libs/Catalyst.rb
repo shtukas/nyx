@@ -443,11 +443,7 @@ class Catalyst
                 break
             end
 
-            if !NxBallsService::somethingIsRunning() then
-                if (uni2 = StoredUniverse::getUniverseOrNull()) then
-                    StoredUniverse::setUniverse(uni2)
-                end
-            end
+            UniverseManagement::performTransitionIfRelevantAndIfPossible()
 
             universe = StoredUniverse::getUniverseOrNull()
             floats = TxFloats::ns16s(universe)
