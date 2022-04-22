@@ -453,6 +453,11 @@ class Catalyst
             section2 = NS16sOperator::section2(universe)
 
             section3 = NS16sOperator::section3(universe)
+
+            # If some section3 items are running we show them first
+            section3_1, section3_2 = section3.partition{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
+            section3 = section3_1 + section3_2
+
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }
     end
