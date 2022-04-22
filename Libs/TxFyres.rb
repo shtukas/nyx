@@ -212,8 +212,8 @@ class TxFyres
         }
     end
 
-    # TxFyres::topDisplay(universe)
-    def self.topDisplay(universe)
+    # TxFyres::section2(universe)
+    def self.section2(universe)
         TxFyres::items()
             .select{|item| 
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])

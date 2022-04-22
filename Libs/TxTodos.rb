@@ -322,9 +322,22 @@ class TxTodos
             "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
             "ordinal"  => nx50["ordinal"],
             "TxTodo"   => nx50,
-            "rt"       => rt,
-            "nonListingDefaultable" => (rt > 1)
+            "rt"       => rt
         }
+    end
+
+    # TxTodos::section2(universe)
+    def self.section2(universe)
+        TxTodos::itemsForNS16s(universe)
+            .select{|item| 
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
+            }
+            .map{|item| TxTodos::ns16(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            .first(5)
+            .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
     end
 
     # TxTodos::ns16s(universe)
@@ -342,23 +355,10 @@ class TxTodos
         ns16s2 = ns16s.drop(5)
 
         ns16s1 = ns16s1
+            .select{|item| item["rt"] < 1}
             .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
 
         ns16s1 + ns16s2
-    end
-
-    # TxTodos::section2(universe)
-    def self.section2(universe)
-        TxTodos::itemsForNS16s(universe)
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
-            .map{|item| TxTodos::ns16(item) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .first(5)
-            .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
     end
 
     # --------------------------------------------------
