@@ -35,7 +35,7 @@ class Bank
         db.results_as_hash = true
         answer = 0
         db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=?" , [setuuid] ) do |row|
-            answer = row["_sum_"]
+            answer = row["_sum_"] || 0
         end
         db.close
         answer

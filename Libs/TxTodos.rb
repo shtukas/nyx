@@ -333,6 +333,7 @@ class TxTodos
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
+            .select{|item| Bank::valueOverTimespan(item["uuid"], 86400*7) > 3600 }
             .map{|item| TxTodos::ns16(item) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
