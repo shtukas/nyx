@@ -148,6 +148,7 @@ class Nx111
         if iAmValue[0] == "text" then
             nhash = iAmValue[1]
             text1 = Librarian12LocalBlobsService::getBlobOrNull(nhash)
+            puts "Editing text"
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
                 iAmValue[1] = Librarian12LocalBlobsService::putBlob(text2)
