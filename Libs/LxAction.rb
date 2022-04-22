@@ -286,6 +286,11 @@ class LxAction
                 return
             end
 
+            if object["mikuType"] == "TxFyre" then
+                TxFyres::landing(object)
+                return
+            end
+
             if object["mikuType"] == "TxFloat" then
                 TxFloats::landing(object)
                 return
