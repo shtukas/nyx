@@ -22,11 +22,33 @@ class LxAction
 
             if object["mikuType"] == "NS16:TxFyre" then
                 if !NxBallsService::isRunning(object["uuid"]) then
-                    if LucilleCore::askQuestionAnswerAsBoolean("Want to start ? ") then
-                        LxAction::action("start", object)
-                    end
+                    LxAction::action("start", object)
                 end
                 LxAction::action("access", object)
+                if NxBallsService::isRunning(object["uuid"]) then
+                    if !LucilleCore::askQuestionAnswerAsBoolean("continue ? ") then
+                        LxAction::action("stop", object)
+                    end
+                end
+                return
+            end
+
+            if object["mikuType"] == "NS16:TxTodo" then
+                if !NxBallsService::isRunning(object["uuid"]) then
+                    LxAction::action("start", object)
+                end
+                LxAction::action("access", object)
+                if NxBallsService::isRunning(object["uuid"]) then
+                    if LucilleCore::askQuestionAnswerAsBoolean("continue ? ") then
+                        # Nothing else to do, we return
+                    else
+                        LxAction::action("stop", object)
+                        if LucilleCore::askQuestionAnswerAsBoolean("done/destroy ? ") then
+                            item = object["TxTodo"]
+                            TxTodos::destroy(item["uuid"])
+                        end
+                    end
+                end
                 return
             end
 
