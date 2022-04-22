@@ -177,7 +177,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(todo) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]}) (#{ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])})"
+        "(todo) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
     end
 
     # TxTodos::toStringForNS19(item)
