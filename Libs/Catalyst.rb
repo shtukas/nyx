@@ -404,7 +404,7 @@ class TerminalDisplayOperator
                 end
                 store.register(ns16, canBeDefault)
                 line = ns16["announce"]
-                line = "#{store.prefixString()} #{(ObjectUniverseMapping::getObjectUniverseMappingOrNull(ns16["uuid"]) || "").ljust(7)} #{line}"
+                line = "#{store.prefixString()} #{line}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 if TerminalDisplayOperator::ns16HasStarted(ns16) then
                     line = "#{line} (#{NxBallsService::runningStringOrEmptyString("", ns16["uuid"], "")})".green
