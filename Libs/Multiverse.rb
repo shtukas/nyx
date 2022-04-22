@@ -158,6 +158,20 @@ class UniverseManagement
         end
     end
 
+    # UniverseManagement::nx24AsStringForListing()
+    def self.nx24AsStringForListing()
+        nx24 = UniverseManagement::getNx24()
+        if nx24["mode"] == "standard" then
+            return StoredUniverse::getUniverseOrNull()
+        end
+        if nx24["mode"] == "hourOverride" then
+            return "#{StoredUniverse::getUniverseOrNull()} until #{Time.at(nx24["start"]+3600).to_s}"
+        end
+        if nx24["mode"] == "dayOverride" then
+            return "#{StoredUniverse::getUniverseOrNull()} today"
+        end
+    end
+
     # --------------------------------------------------------------
 
     # UniverseManagement::naturalUniverseForThisTime()
