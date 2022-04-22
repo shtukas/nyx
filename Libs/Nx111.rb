@@ -166,9 +166,8 @@ class Nx111
         end
         if iAmValue[0] == "aion-point" then
             modes = [
-                "quick/synchronous readonly and delete",
                 "quick/synchronous edit, update and delete",
-                "Tx46 export (export and pickup maybe later)"
+                "Tx46 export (and pickup maybe later)"
             ]
             mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
             return if mode.nil?
@@ -183,14 +182,6 @@ class Nx111
             exportFolder = "/Users/pascal/Desktop"
             AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
             puts "Item exported on Desktop at #{newTopNameCompleteWithExtension.green}"
-
-            if mode == "quick/synchronous readonly and delete" then
-                LucilleCore::pressEnterToContinue("> Enter to continue (will delete)")
-                location2 = Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(tx46Id)
-                return if location2.nil?
-                puts "Deleting #{location2}"
-                LucilleCore::removeFileSystemLocation(location2)
-            end
 
             if mode == "quick/synchronous edit, update and delete" then
                 LucilleCore::pressEnterToContinue("> Enter to continue (will update and delete)")
@@ -232,7 +223,6 @@ class Nx111
             if configuration["status"] == "standard" then
 
                 modes = [
-                    "quick/synchronous readonly and delete",
                     "quick/synchronous edit, update and delete",
                     "Tx46 export (export and pickup maybe later)"
                 ]
@@ -251,14 +241,6 @@ class Nx111
                 exportFolder = "/Users/pascal/Desktop"
                 AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
                 puts "Item exported on Desktop at #{newTopNameCompleteWithExtension}"
-
-                if mode == "quick/synchronous readonly and delete" then
-                    LucilleCore::pressEnterToContinue("> Enter to continue (will delete)")
-                    location2 = Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(tx46Id)
-                    return if location2.nil?
-                    puts "Deleting #{location2}"
-                    LucilleCore::removeFileSystemLocation(location2)
-                end
 
                 if mode == "quick/synchronous edit, update and delete" then
                     LucilleCore::pressEnterToContinue("> Enter to continue (will update and delete)")
