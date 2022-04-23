@@ -232,6 +232,12 @@ class Nx100s
 
             store = ItemStore.new()
 
+            stack = TheNetworkStack::getStack()
+            stack.each{|i| puts "(stack) #{LxFunction::function("toString", i)}" }
+            if stack.size > 0 then
+                puts ""
+            end
+
             puts Nx100s::toString(item).green
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
@@ -270,6 +276,9 @@ class Nx100s
             commands << "json"
             commands << "special circumstances"
             commands << "destroy"
+            commands << "stack: add [this]"
+            commands << "stack: add [from children]"
+            commands << "stack: clear"
 
             puts commands.join(" | ").yellow
 
@@ -340,7 +349,7 @@ class Nx100s
             end
 
             if Interpreting::match("link", command) then
-                NyxNetwork::connectToOtherArchitectured(item)
+                NyxNetwork::connectToOneOrMoreOthersArchitectured(item)
             end
 
             if Interpreting::match("relink", command) then
@@ -378,6 +387,21 @@ class Nx100s
                 end
             end
 
+            if command == "stack: add [this]" then
+                TheNetworkStack::queue(item["uuid"])
+            end
+
+            if command == "stack: add [from children]" then
+                children = Links::children(item["uuid"])
+                selected, _ = LucilleCore::selectZeroOrMore("item", [], children, lambda{ |i| LxFunction::function("toString", i) })
+                selected.each{|ix|
+                    TheNetworkStack::queue(ix["uuid"])
+                }
+            end
+
+            if command == "stack: clear" then
+                TheNetworkStack::clear()
+            end
         }
     end
 

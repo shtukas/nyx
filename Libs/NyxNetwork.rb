@@ -21,8 +21,8 @@ class NyxNetwork
         Nx100s::interactivelyIssueNewItemOrNull()
     end
 
-    # NyxNetwork::architectOrNull()
-    def self.architectOrNull()
+    # NyxNetwork::architectOneOrNull()
+    def self.architectOneOrNull()
         operations = ["existing || new", "new"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return nil if operation.nil?
@@ -40,6 +40,29 @@ class NyxNetwork
         end
     end
 
+    #   
+    def self.architectMultiple()
+        operations = ["existing || new", "new", "use stack"]
+        operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+        return nil if operation.nil?
+        if operation == "existing || new" then
+            puts "-> existing"
+            sleep 1
+            entity = NyxNetwork::selectExistingNetworkElementOrNull()
+            return [entity] if entity
+            puts "-> new"
+            sleep 1
+            return [NyxNetwork::interactivelyMakeNewOrNull()].compact
+        end
+        if operation == "new" then
+            return [NyxNetwork::interactivelyMakeNewOrNull()].compact
+        end
+        if operation == "use stack" then
+            selected, unselected = LucilleCore::selectZeroOrMore("item", [], TheNetworkStack::getStack(), lambda{ |i| LxFunction::function("toString", i) })
+            return selected
+        end
+    end
+
     # NyxNetwork::linkToDesignatedOther(item, other)
     def self.linkToDesignatedOther(item, other)
         connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related (default)", "other is child"])
@@ -54,22 +77,21 @@ class NyxNetwork
         end
     end
 
-    # NyxNetwork::connectToOtherArchitectured(item)
-    def self.connectToOtherArchitectured(item)
+    # NyxNetwork::connectToOneOrMoreOthersArchitectured(item)
+    def self.connectToOneOrMoreOthersArchitectured(item)
         connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related", "other is child"])
         return if connectionType.nil?
-        other = NyxNetwork::architectOrNull()
-        return if other.nil?
-        if connectionType == "other is parent" then
-            Links::link(other["uuid"], item["uuid"], false)
-        end
-        if connectionType == "other is related" then
-            Links::link(item["uuid"], other["uuid"], true)
-        end
-        if connectionType == "other is child" then
-            Links::link(item["uuid"], other["uuid"], false)
-        end
-        #LxAction::action("landing", other)
+        NyxNetwork::architectMultiple().each{|other|
+            if connectionType == "other is parent" then
+                Links::link(other["uuid"], item["uuid"], false)
+            end
+            if connectionType == "other is related" then
+                Links::link(item["uuid"], other["uuid"], true)
+            end
+            if connectionType == "other is child" then
+                Links::link(item["uuid"], other["uuid"], false)
+            end
+        }
     end
 
     def self.relinkToOther(item)
