@@ -107,8 +107,9 @@ class NyxNetwork
     def self.disconnectFromLinkedInteractively(item)
         entities = Links::linked(item["uuid"])
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("linked", entities, lambda{|item| LxFunction::function("toString", item)})
-        return if other.nil?
-        Links::unlink(item["uuid"], other["uuid"])
+        selected, _ = LucilleCore::selectZeroOrMore("item", [], entities, lambda{ |i| LxFunction::function("toString", i) })
+        selected.each{|other|
+            Links::unlink(item["uuid"], other["uuid"])
+        }
     end
 end
