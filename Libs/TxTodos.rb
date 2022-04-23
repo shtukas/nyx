@@ -326,11 +326,14 @@ class TxTodos
             viewAndDeleteItemsFragments.any?{|fragment| description.include?(fragment) }
         }
 
+        time1 = Time.new.to_i
+
         TxTodos::items().each{|item|
             next if !match1531.call(item["description"])
             LxAction::action("access", item)
             LucilleCore::pressEnterToContinue("Press enter to destroy and continue: ")
             TxTodos::destroy(item["uuid"])
+            break if (Time.new.to_i - time1) > 3600
         }
     end
 
