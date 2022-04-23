@@ -99,6 +99,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
+        if Interpreting::match("todo fast urls", input) then
+            return ["todo fast urls", nil]
+        end
+
         if Interpreting::match("float", input) then
             return ["float", nil]
         end

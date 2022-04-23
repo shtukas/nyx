@@ -309,6 +309,31 @@ class TxTodos
         }
     end
 
+    # TxTodos::fastUrls()
+    def self.fastUrls()
+        match1531 = lambda {|description|
+            viewAndDeleteItemsFragments = [
+                "apod.nasa.gov",
+                "www.geekculture.com",
+                "www.schneier.com",
+                "www.smbc-comics.com",
+                "thekidshouldseethis.com",
+                "dilbert.com",
+                "ribbonfarm.com",
+                "theoatmeal.com",
+                "xkcd.com"
+            ]
+            viewAndDeleteItemsFragments.any?{|fragment| description.include?(fragment) }
+        }
+
+        TxTodos::items().each{|item|
+            next if !match1531.call(item["description"])
+            LxAction::action("access", item)
+            LucilleCore::pressEnterToContinue("Press enter to destroy and continue: ")
+            TxTodos::destroy(item["uuid"])
+        }
+    end
+
     # --------------------------------------------------
     # nx16s
 
