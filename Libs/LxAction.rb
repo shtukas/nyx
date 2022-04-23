@@ -33,6 +33,29 @@ class LxAction
                 return
             end
 
+            match1531 = lambda {|description|
+                viewAndDeleteItemsFragments = [
+                    "apod.nasa.gov",
+                    "www.geekculture.com",
+                    "www.schneier.com",
+                    "www.smbc-comics.com",
+                    "thekidshouldseethis.com",
+                    "dilbert.com",
+                    "ribbonfarm.com",
+                    "theoatmeal.com",
+                    "xkcd.com"
+                ]
+                viewAndDeleteItemsFragments.any?{|fragment| description.include?(fragment) }
+            }
+
+            if object["mikuType"] == "NS16:TxTodo" and match1531.call(object["TxTodo"]["description"]) then
+                LxAction::action("access", object)
+                LucilleCore::pressEnterToContinue("Press enter to destroy: ")
+                item = object["TxTodo"]
+                TxTodos::destroy(item["uuid"])
+                return
+            end
+
             if object["mikuType"] == "NS16:TxTodo" then
                 if !NxBallsService::isRunning(object["uuid"]) then
                     LxAction::action("start", object)
