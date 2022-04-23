@@ -40,11 +40,11 @@ class NyxNetwork
         end
     end
 
-    #   
+    # NyxNetwork::architectMultiple()
     def self.architectMultiple()
         operations = ["existing || new", "new", "use stack"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-        return nil if operation.nil?
+        return [] if operation.nil?
         if operation == "existing || new" then
             puts "-> existing"
             sleep 1
