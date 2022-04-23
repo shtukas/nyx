@@ -69,7 +69,7 @@ class NyxNetwork
         if connectionType == "other is child" then
             Links::link(item["uuid"], other["uuid"], false)
         end
-        LxAction::action("landing", other)
+        #LxAction::action("landing", other)
     end
 
     def self.relinkToOther(item)

@@ -36,7 +36,7 @@ class TxAttachments
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodesAttachment())
         return nil if iAmValue.nil?
 
         uuid     = SecureRandom.uuid
@@ -76,12 +76,12 @@ class TxAttachments
             system("clear")
             puts TxAttachments::toString(item)
             operations = [
-                "access/edit atom",
+                "access/edit",
                 "destroy"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "access/edit atom" then
+            if operation == "access/edit" then
                 Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
             end
             if operation == "destroy" then

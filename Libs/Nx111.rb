@@ -46,6 +46,18 @@ class Nx111
         ]
     end
 
+    # Nx111::iamTypesForManualMakingOfNyxNodesAttachment()
+    def self.iamTypesForManualMakingOfNyxNodesAttachment()
+        [
+            "description-only (default)",
+            "text",
+            "url",
+            "aion-point",
+            "unique-string",
+            "Dx8Unit"
+        ]
+    end
+
     # Nx111::interactivelySelectIamTypeOrNull(types)
     def self.interactivelySelectIamTypeOrNull(types)
         type = LucilleCore::selectEntityFromListOfEntitiesOrNull("iam type", types)
@@ -81,6 +93,9 @@ class Nx111
             return ["log"]
         end
         if type == "description-only" then
+            return ["description-only"]
+        end
+        if type == "description-only (default)" then
             return ["description-only"]
         end
         if type == "text" then
