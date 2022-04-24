@@ -280,16 +280,23 @@ class ItemStore
 end
 
 class Defaultability
-    # Defaultability works within a session, there is no permanent storage of it.
     
     # Defaultability::advance(uuid)
     def self.advance(uuid)
-        XCache::setFlagTrue("#{$GENERAL_SYSTEM_RUN_ID}:4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}")
+        XCache::set("4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}", Time.new.to_i)
     end
 
     # Defaultability::isAdvanced(uuid)
     def self.isAdvanced(uuid)
-        XCache::flagIsTrue("#{$GENERAL_SYSTEM_RUN_ID}:4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}")
+        unixtime = XCache::getOrNull("4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}")
+        return false if unixtime.nil?
+        unixtime = unixtime.to_i
+        if (Time.new.to_i - unixtime) < 3600*3 then
+            Defaultability::advance(uuid) # to update the timestamp
+            true
+        else
+            false
+        end
     end
 
     # Defaultability::isDefaultable(ns16)
