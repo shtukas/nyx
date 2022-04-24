@@ -310,31 +310,41 @@ class TxTodos
         }
     end
 
-    # TxTodos::fastUrls()
-    def self.fastUrls()
-        match1531 = lambda {|description|
-            viewAndDeleteItemsFragments = [
-                "apod.nasa.gov",
-                "www.geekculture.com",
-                "www.schneier.com",
-                "www.smbc-comics.com",
-                "thekidshouldseethis.com",
-                "dilbert.com",
-                "ribbonfarm.com",
-                "theoatmeal.com",
-                "xkcd.com"
-            ]
-            viewAndDeleteItemsFragments.any?{|fragment| description.include?(fragment) }
-        }
-
-        time1 = Time.new.to_i
-
-        TxTodos::items().each{|item|
-            next if !match1531.call(item["description"])
+    # TxTodos::xstream()
+    def self.xstream()
+        TxTodos::itemsForUniverse("backlog").each{|item|
+            next if XCache::flagIsTrue("0ef23228-ff27-4c9b-ae98-560828a160c8:#{item["uuid"]}")
+            puts item["description"].green
+            LxAction::action("start", item)
             LxAction::action("access", item)
-            LucilleCore::pressEnterToContinue("Press enter to destroy and continue: ")
-            TxTodos::destroy(item["uuid"])
-            break if (Time.new.to_i - time1) > 3600
+            loop {
+                command = LucilleCore::askQuestionAnswerAsString("next # default, destroy, landing (and back), exit, run (and exit xstream): ")
+                if command == "" then
+                    LxAction::action("stop", item)
+                    break
+                end
+                if command == "next" then
+                    LxAction::action("stop", item)
+                    break
+                end
+                if command == "destroy" then
+                    LxAction::action("stop", item)
+                    TxTodos::destroy(item["uuid"])
+                    break
+                end
+                if command == "landing" then
+                    LxAction::action("landing", item)
+                    next
+                end
+                if command == "exit" then
+                    LxAction::action("stop", item)
+                    return
+                end
+                if command == "run" then
+                    return
+                end
+            }
+            XCache::setFlagTrue("0ef23228-ff27-4c9b-ae98-560828a160c8:#{item["uuid"]}")
         }
     end
 

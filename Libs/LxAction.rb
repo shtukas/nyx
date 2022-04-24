@@ -416,8 +416,9 @@ class LxAction
             return
         end
 
-        if command == "todo fast urls" then
-            TxTodos::fastUrls()
+        if command == "xstream" then
+            TxTodos::xstream()
+            return
         end
 
         if command == "todos" then

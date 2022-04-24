@@ -95,8 +95,8 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
-        if Interpreting::match("todo fast urls", input) then
-            return ["todo fast urls", nil]
+        if Interpreting::match("xstream", input) then
+            return ["xstream", nil]
         end
 
         if Interpreting::match("float", input) then
