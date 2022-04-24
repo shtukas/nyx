@@ -26,17 +26,13 @@ class TxFyres
     # TxFyres::interactivelyMakeNewFyreStyle()
     def self.interactivelyMakeNewFyreStyle()
         styles = [
+            "daily-time-commitment (default)",
             "one-daily-impact",
-            "daily-time-commitment (default)"
+            "float"
         ]
         style = LucilleCore::selectEntityFromListOfEntitiesOrNull("Fyre style", styles)
         if style.nil? then
             return TxFyres::makeDefaultFyreStyle()
-        end
-        if style == "one-daily-impact" then
-            return {
-                "style" => "one-daily-impact"
-            }
         end
         if style == "daily-time-commitment (default)" then
             hours = LucilleCore::askQuestionAnswerAsString("Commitment in hours (defaults to 1 hour): ").to_f
@@ -46,6 +42,16 @@ class TxFyres
             return {
                 "style"       => "daily-time-commitment",
                 "timeInHours" => hours
+            }
+        end
+        if style == "one-daily-impact" then
+            return {
+                "style" => "one-daily-impact"
+            }
+        end
+        if style == "float" then
+            return {
+                "style" => "float"
             }
         end
     end
@@ -121,11 +127,14 @@ class TxFyres
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
+        if item["style"]["style"] == "daily-time-commitment" then
+            return "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
+        end
         if item["style"]["style"] == "one-daily-impact" then
             return "(fyre) (once) #{item["description"]} (#{item["iam"][0]})"
         end
-        if item["style"]["style"] == "daily-time-commitment" then
-            return "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
+        if item["style"]["style"] == "float" then
+            return "(fyre) (floa) #{item["description"]} (#{item["iam"][0]})"
         end
         raise "(error: 73e0676d-9893-4f2a-86e4-dc90420bd14f)"
     end
@@ -275,7 +284,6 @@ class TxFyres
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
             .map{|item| TxFyres::ns16(item) }
-            .sort{|x1, x2| x1["rt"] <=> x2["rt"]}
     end
 
     # TxFyres::ns16s(universe)

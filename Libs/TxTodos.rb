@@ -367,7 +367,6 @@ class TxTodos
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
             .first(5)
-            .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
     end
 
     # TxTodos::ns16s(universe)

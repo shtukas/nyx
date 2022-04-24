@@ -10,6 +10,9 @@ TxFyre = {
 
 TxFxStyle:
 {
+    "style": "float"
+}
+{
     "style": "one-daily-impact"
 }
 {
