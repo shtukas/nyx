@@ -275,6 +275,9 @@ class TxFyres
     # TxFyres::ns16s(universe)
     def self.ns16s(universe)
         styleFilter = lambda {|item|
+
+            return item if NxBallsService::isRunning(item["uuid"])
+
             # return the item is the item is cleared to be shown in section3, otherwise return null
             if item["style"]["style"] == "one-daily-impact" then
                 if Bank::valueAtDate(item["uuid"], Utils::today()) > 0 then

@@ -384,22 +384,8 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
 
-        if section2.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-        section2.each{|ns16|
-            store.register(ns16, false)
-            line = "#{store.prefixString()} #{ns16["announce"]}"
-            if NxBallsService::isRunning(ns16["uuid"]) then
-                line = line.green
-            end
-            puts line
-            vspaceleft = vspaceleft - Utils::verticalSize(line)
-        }
-
         running = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
-        listingUUIDs = section3.map{|item| item["uuid"] }
+        listingUUIDs = (section2+section3).map{|item| item["uuid"] }
         running = running.select{|nxball| !listingUUIDs.include?(nxball["uuid"]) }
         if running.size>0 then
             puts ""
@@ -417,6 +403,20 @@ class TerminalDisplayOperator
                     puts line
                     vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
+
+        if section2.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+        section2.each{|ns16|
+            store.register(ns16, false)
+            line = "#{store.prefixString()} #{ns16["announce"]} #{NxBallsService::runningStringOrEmptyString("(", ns16["uuid"], ")")}"
+            if NxBallsService::isRunning(ns16["uuid"]) then
+                line = line.green
+            end
+            puts line
+            vspaceleft = vspaceleft - Utils::verticalSize(line)
+        }
 
         top = Topping::getText(universe)
         if top and top.strip.size > 0 then
