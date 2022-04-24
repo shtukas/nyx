@@ -305,11 +305,9 @@ class NS16sOperator
     # NS16sOperator::section2(universe)
     def self.section2(universe)
         # Section 2 shows what's current, fyres and todos with more than an hour in their Bank
-        fyres = TxFyres::section2(universe)
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-        todos = TxTodos::section2(universe)
-        fyres + todos
+        TxFyres::section2(universe)
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
     # NS16sOperator::section3(universe)

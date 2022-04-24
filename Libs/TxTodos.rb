@@ -365,20 +365,6 @@ class TxTodos
         }
     end
 
-    # TxTodos::section2(universe)
-    def self.section2(universe)
-        TxTodos::itemsForNS16s(universe)
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
-            .select{|item| Bank::valueOverTimespan(item["uuid"], 86400*7) > 3600 }
-            .map{|item| TxTodos::ns16(item) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .first(5)
-    end
-
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
         ns16s = TxTodos::itemsForNS16s(universe)
