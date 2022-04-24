@@ -39,10 +39,6 @@ class TerminalUtils
             return ["[]", nil]
         end
 
-        if Interpreting::match(">>", input) then
-            return [">>", nil]
-        end
-
         if Interpreting::match("..", input) then
             return ["..", store.getDefault()]
         end
@@ -134,6 +130,10 @@ class TerminalUtils
 
         if Interpreting::match("nyx", input) then
             return ["nyx", nil]
+        end
+
+        if Interpreting::match("Nx24", input) then
+            return ["Nx24", nil]
         end
 
         if Interpreting::match("ondate", input) then
@@ -276,6 +276,27 @@ class ItemStore
 
     def getDefault()
         @defaultItem.clone
+    end
+end
+
+class Defaultability
+    # Defaultability works within a session, there is no permanent storage of it.
+    
+    # Defaultability::advance(uuid)
+    def self.advance(uuid)
+        XCache::setFlagTrue("#{$GENERAL_SYSTEM_RUN_ID}:4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}")
+    end
+
+    # Defaultability::isAdvanced(uuid)
+    def self.isAdvanced(uuid)
+        XCache::flagIsTrue("#{$GENERAL_SYSTEM_RUN_ID}:4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}")
+    end
+
+    # Defaultability::isDefaultable(ns16)
+    def self.isDefaultable(ns16)
+        return false if ns16["nonListingDefaultable"]
+        return false if Defaultability::isAdvanced(ns16["uuid"])
+        true
     end
 end
 
@@ -433,11 +454,7 @@ class TerminalDisplayOperator
         end
         section3
             .each{|ns16|
-                canBeDefault = true
-                if ns16["nonListingDefaultable"] then
-                    canBeDefault = false
-                end
-                store.register(ns16, canBeDefault)
+                store.register(ns16, Defaultability::isDefaultable(ns16))
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{line}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
@@ -457,6 +474,13 @@ class TerminalDisplayOperator
         if (unixtime = Utils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+        end
+
+        if input == ">>" then
+            if (item = store.getDefault()) then
+                Defaultability::advance(item["uuid"])
                 return
             end
         end

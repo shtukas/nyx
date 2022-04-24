@@ -61,18 +61,6 @@ class LxAction
             return
         end
 
-        if command == ">>" then
-            if NxBallsService::somethingIsRunning() then
-                puts "You cannot set a Nx24 (Universe Management) while something is running"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            puts "Current Nx24:"
-            puts JSON.pretty_generate(UniverseManagement::getNx24())
-            UniverseManagement::interactivelySetNx24()
-            return
-        end
-
         if command == ">nyx" then
             ns16 = object
             if ns16["mikuType"] == "NS16:Inbox1" then
@@ -343,6 +331,18 @@ class LxAction
 
         if command == "nyx" then
             Nyx::program()
+            return
+        end
+
+        if command == "Nx24" then
+            if NxBallsService::somethingIsRunning() then
+                puts "You cannot set a Nx24 (Universe Management) while something is running"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            puts "Current Nx24:"
+            puts JSON.pretty_generate(UniverseManagement::getNx24())
+            UniverseManagement::interactivelySetNx24()
             return
         end
 
