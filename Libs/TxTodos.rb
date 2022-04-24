@@ -206,7 +206,7 @@ class TxTodos
             puts "ordinal: #{item["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
-            puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
+            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)

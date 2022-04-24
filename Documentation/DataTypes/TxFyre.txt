@@ -5,4 +5,14 @@ TxFyre = {
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
   "iam"            : Nx111
+  "style"          : TxFxStyle
+}
+
+TxFxStyle:
+{
+    "style": "one-daily-impact"
+}
+{
+    "style"       : "daily-time-commitment"
+    "timeInHours" : Float
 }

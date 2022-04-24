@@ -13,6 +13,44 @@ class TxFyres
     end
 
     # --------------------------------------------------
+    # Fyre Styles
+
+    # TxFyres::makeDefaultFyreStyle()
+    def self.makeDefaultFyreStyle()
+        {
+            "style"       => "daily-time-commitment",
+            "timeInHours" => 1
+        }
+    end
+
+    # TxFyres::interactivelyMakeNewFyreStyle()
+    def self.interactivelyMakeNewFyreStyle()
+        styles = [
+            "one-daily-impact",
+            "daily-time-commitment (default)"
+        ]
+        style = LucilleCore::selectEntityFromListOfEntitiesOrNull("Fyre style", styles)
+        if style.nil? then
+            return TxFyres::makeDefaultFyreStyle()
+        end
+        if style == "one-daily-impact" then
+            return {
+                "style" => "one-daily-impact"
+            }
+        end
+        if style == "daily-time-commitment (default)" then
+            hours = LucilleCore::askQuestionAnswerAsString("Commitment in hours (defaults to 1 hour): ").to_f
+            if hours == 0 then
+                hours = 1
+            end
+            return {
+                "style"       => "daily-time-commitment",
+                "timeInHours" => hours
+            }
+        end
+    end
+
+    # --------------------------------------------------
     # Makers
 
     # TxFyres::interactivelyCreateNewOrNull()
@@ -27,7 +65,9 @@ class TxFyres
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        universe    = Multiverse::interactivelySelectUniverse()
+        universe   = Multiverse::interactivelySelectUniverse()
+
+        style      = TxFyres::interactivelyMakeNewFyreStyle()
 
         item = {
           "uuid"        => uuid,
@@ -35,7 +75,8 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue
+          "iam"         => iAmValue,
+          "style"       => style
         }
         Librarian6Objects::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -54,6 +95,8 @@ class TxFyres
 
         universe    = Multiverse::interactivelySelectUniverse()
 
+        style       = TxFyres::interactivelyMakeNewFyreStyle()
+
         item = {
           "uuid"        => uuid,
           "mikuType"    => "TxFyre",
@@ -61,7 +104,7 @@ class TxFyres
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "iam"         => iAmValue,
-          "ordinal"     => ordinal
+          "style"       => style
         }
         Librarian6Objects::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -108,14 +151,15 @@ class TxFyres
             puts TxFyres::toString(item).green
             puts "uuid: #{uuid}".yellow
             puts "iam: #{item["iam"]}".yellow
-            puts "RT: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
+            puts "style: #{item["style"]}".yellow
+            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            puts "access | <datecode> | description | iam | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | iam | style | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -154,6 +198,11 @@ class TxFyres
                     item["iam"] = iAmValue
                     Librarian6Objects::commit(item)
                 end
+            end
+
+            if Interpreting::match("style", command) then
+                item["style"] = TxFyres::interactivelyMakeNewFyreStyle()
+                Librarian6Objects::commit(item)
             end
 
             if Interpreting::match("attachment", command) then
@@ -225,11 +274,32 @@ class TxFyres
 
     # TxFyres::ns16s(universe)
     def self.ns16s(universe)
+        styleFilter = lambda {|item|
+            # return the item is the item is cleared to be shown in section3, otherwise return null
+            if item["style"]["style"] == "one-daily-impact" then
+                if Bank::valueAtDate(item["uuid"], Utils::today()) > 0 then
+                    return nil
+                else
+                    return item
+                end
+            end
+            if item["style"]["style"] == "daily-time-commitment" then
+                rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
+                if rt < item["style"]["timeInHours"] then
+                    return item
+                else
+                    return nil
+                end
+            end
+        }
+
         TxFyres::items()
             .select{|item| 
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
+            .map{|item| styleFilter.call(item) }
+            .compact
             .map{|item| TxFyres::ns16(item) }
             .select{|item| item["rt"] < 1}
             .sort{|x1, x2| x1["rt"] <=> x2["rt"]}
