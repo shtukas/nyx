@@ -121,7 +121,13 @@ class TxFyres
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
+        if item["style"]["style"] == "one-daily-impact" then
+            return "(fyre) (once) #{item["description"]} (#{item["iam"][0]})"
+        end
+        if item["style"]["style"] == "daily-time-commitment" then
+            return "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
+        end
+        raise "(error: 73e0676d-9893-4f2a-86e4-dc90420bd14f)"
     end
 
     # TxFyres::toStringForNS19(item)

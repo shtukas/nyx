@@ -3,10 +3,40 @@
 
 class NyxAdapter
 
-    # NyxAdapter::nx50ToNyx(nx50)
-    def self.nx50ToNyx(nx50)
-        puts "(7b316954-d3a5-47e7-8944-d03f41797d36: This has not been implemented, need re-implementation after refactoring)"
-        LucilleCore::pressEnterToContinue()
+    # NyxAdapter::interactivelyNx50ToNyx(todo) # Nx100
+    def self.interactivelyNx50ToNyx(todo)
+
+        description = todo["description"]
+        iAmValue = todo["iam"]
+
+
+        flavourMaker = lambda {|iAmValue|
+            if iAmValue[0] == "primitive-file"  then
+                return {
+                    "type" => "pure-data"
+                }
+            end
+            Nx102Flavor::interactivelyCreateNewFlavour()
+        }
+
+        flavour = flavourMaker.call(iAmValue)
+
+        uuid       = SecureRandom.uuid
+        unixtime   = todo["unixtime"]
+        datetime   = todo["datetime"]
+
+        item = {
+            "uuid"        => uuid,
+            "mikuType"    => "Nx100",
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "description" => description,
+            "iam"         => iAmValue,
+            "flavour"     => flavour
+        }
+        Librarian6Objects::commit(item)
+        item
+
     end
 
     # NyxAdapter::floatToNyx(float)

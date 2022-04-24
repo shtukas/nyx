@@ -277,7 +277,7 @@ class Nx100s
             commands << "special circumstances"
             commands << "destroy"
             commands << "stack: add [this]"
-            commands << "stack: add [from children]"
+            commands << "stack: add [from linked]"
             commands << "stack: clear"
 
             puts commands.join(" | ").yellow
@@ -391,9 +391,8 @@ class Nx100s
                 TheNetworkStack::queue(item["uuid"])
             end
 
-            if command == "stack: add [from children]" then
-                children = Links::children(item["uuid"])
-                selected, _ = LucilleCore::selectZeroOrMore("item", [], children, lambda{ |i| LxFunction::function("toString", i) })
+            if command == "stack: add [from linked]" then
+                selected, _ = LucilleCore::selectZeroOrMore("item", [], Links::linked(item["uuid"]), lambda{ |i| LxFunction::function("toString", i) })
                 selected.each{|ix|
                     TheNetworkStack::queue(ix["uuid"])
                 }
