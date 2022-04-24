@@ -319,13 +319,44 @@ class TerminalDisplayOperator
     def self.standardDisplay(universe, floats, section2, section3)
         system("clear")
 
+        #reference = {
+        #    "count"    =>
+        #    "datetime" =>
+        #}
+
+        issueNewReference = lambda {
+            count = TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
+            reference = {
+                "count"    => count,
+                "datetime" => Time.new.to_s
+            }
+            XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
+            reference
+        }
+
+        getReference = lambda {
+            reference = XCache::getOrNull("002c358b-e6ee-41bd-9bee-105396a6349a")
+            if reference then
+                JSON.parse(reference)
+            else
+                issueNewReference.call()
+            end
+        }
+
+        getCurrent = lambda {
+            TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
+        }
+
         vspaceleft = Utils::screenHeight()-3
 
         puts ""
-        reference = 12395 # 20th April 2022 @ 08:00
-        current = TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
-        percentage = 100*(current.to_f/reference)
-        puts "👩‍💻 🔥 #{current}, #{percentage.round(3)}% (#{UniverseManagement::nx24AsStringForListing()})"
+        reference = getReference.call()
+        current   = getCurrent.call()
+        ratio     = current.to_f/reference["count"]
+        puts "(#{UniverseManagement::nx24AsStringForListing()}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
+        if ratio < 0.99 then
+            issueNewReference.call()
+        end
         vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()

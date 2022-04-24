@@ -192,10 +192,8 @@ class LxAction
                 return
             end
             if object["mikuType"] == "NS16:TxFyre" then
-                item = object["TxFyre"]
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of fyre '#{item["description"].green}' ? ", true) then
-                    TxFyres::destroy(item["uuid"])
-                end
+                puts "You cannot done a fyre from the main listing you need to land on them to do that"
+                LucilleCore::pressEnterToContinue()
                 return
             end
             if object["mikuType"] == "NS16:TxTodo" then
