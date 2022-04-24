@@ -210,10 +210,6 @@ class LxAction
             end
         end
 
-        if command == "todo fast urls" then
-            TxTodos::fastUrls()
-        end
-
         if command == "fyre" then
             TxFyres::interactivelyCreateNewOrNull()
             return
@@ -418,6 +414,10 @@ class LxAction
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
+        end
+
+        if command == "todo fast urls" then
+            TxTodos::fastUrls()
         end
 
         if command == "todos" then
