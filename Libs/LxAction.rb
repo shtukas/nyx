@@ -235,6 +235,11 @@ class LxAction
             return
         end
 
+        if command == "fyres" then
+            TxFyres::dive()
+            return
+        end
+
         if command == "fsck" then
             Librarian21Fsck::fsckExitAtFirstFailure()
             return

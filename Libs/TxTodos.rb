@@ -213,7 +213,7 @@ class TxTodos
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            puts "access | <datecode> | description | iam | ordinal | rotate | transmute | attachment | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | start | <datecode> | description | iam | ordinal | rotate | transmute | attachment | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -233,6 +233,13 @@ class TxTodos
 
             if Interpreting::match("access", command) then
                 Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
+                next
+            end
+
+            if Interpreting::match("start", command) then
+                if !NxBallsService::isRunning(item["uuid"]) then
+                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
+                end
                 next
             end
 

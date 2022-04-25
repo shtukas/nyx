@@ -174,7 +174,7 @@ class TxFyres
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            puts "access | <datecode> | description | iam | style | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | start |<datecode> | description | iam | style | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -194,6 +194,13 @@ class TxFyres
 
             if Interpreting::match("access", command) then
                 Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
+                next
+            end
+
+            if Interpreting::match("start", command) then
+                if !NxBallsService::isRunning(item["uuid"]) then
+                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
+                end
                 next
             end
 
@@ -256,6 +263,17 @@ class TxFyres
                 end
                 next
             end
+        }
+    end
+
+    # TxFyres::dive()
+    def self.dive()
+        loop {
+            system("clear")
+            items = TxFyres::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("fyre", items, lambda{|item| TxFyres::toString(item) })
+            break if item.nil?
+            TxFyres::landing(item)
         }
     end
 

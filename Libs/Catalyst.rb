@@ -99,6 +99,10 @@ class TerminalUtils
             return ["xstream", nil]
         end
 
+       if Interpreting::match("fyres", input) then
+            return ["fyres", nil]
+        end
+
         if Interpreting::match("float", input) then
             return ["float", nil]
         end
@@ -244,7 +248,7 @@ class Commands
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "waves | anniversaries | calendar | ondates | todos"
+        "waves | anniversaries | calendar | fyres | ondates | todos"
     end
 end
 
