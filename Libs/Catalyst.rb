@@ -358,7 +358,7 @@ class TerminalDisplayOperator
             }
             puts "Issuing a new reference:"
             puts JSON.pretty_generate(reference)
-            sleep 10
+            LucilleCore::pressEnterToContinue()
             XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
             reference
         }

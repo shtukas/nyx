@@ -223,7 +223,7 @@ class UniverseManagement
 
         if currentUniverse != nx24Universe then
             puts "Transitioning to #{nx24Universe}"
-            sleep 1
+            LucilleCore::pressEnterToContinue()
             StoredUniverse::setUniverse(nx24Universe)
         end
      end
