@@ -184,6 +184,11 @@ class LxAction
                 LucilleCore::pressEnterToContinue()
                 return
             end
+            if object["mikuType"] == "NS16:Inbox1" then
+                location = object["location"]
+                LucilleCore::removeFileSystemLocation(location)
+                return
+            end
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
                 if NxBallsService::isRunning(item["uuid"]) then

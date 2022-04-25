@@ -140,6 +140,10 @@ class TerminalUtils
             return ["ondate", nil]
         end
 
+        if Interpreting::match("ondates", input) then
+            return ["ondates", nil]
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end
