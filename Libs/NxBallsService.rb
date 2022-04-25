@@ -136,7 +136,7 @@ class NxBallsService
             return ""
         end
         if nxball["status"]["type"] == "paused" then
-            return "#{leftSide}paused#{rightSide}"
+            return "#{leftSide}#{"paused".green}#{rightSide}"
         end
         "#{leftSide}running for #{((Time.new.to_i-nxball["status"]["startUnixtime"]).to_f/3600).round(2)} hours#{rightSide}"
     end

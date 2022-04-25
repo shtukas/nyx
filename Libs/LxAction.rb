@@ -364,6 +364,12 @@ class LxAction
             return
         end
 
+        if command == "pause" then
+            ns16 = object
+            NxBallsService::pause(ns16["uuid"])
+            return
+        end
+
         if command == "pursue" then
             ns16 = object
             NxBallsService::pursue(ns16["uuid"])

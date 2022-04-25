@@ -148,6 +148,15 @@ class TerminalUtils
             return ["ondates", nil]
         end
 
+        if Interpreting::match("pause", input) then
+            return ["pause", store.getDefault()]
+        end
+
+        if Interpreting::match("pause *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("pause", ordinal, store)
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end
