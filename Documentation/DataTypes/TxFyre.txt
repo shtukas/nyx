@@ -5,17 +5,14 @@ TxFyre = {
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
   "iam"            : Nx111
-  "style"          : TxFxStyle
 }
 
-TxFxStyle:
+TxFy36 indicates the time commitment for the day or that the item is done for the day
 {
-    "style": "float"
+    "status" : "time-commitment",
+    "hours"  : Float
 }
 {
-    "style": "one-daily-impact"
+    "status" : "done"
 }
-{
-    "style"       : "daily-time-commitment"
-    "timeInHours" : Float
-}
+

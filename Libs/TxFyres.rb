@@ -7,53 +7,75 @@ class TxFyres
         Librarian6Objects::getObjectsByMikuType("TxFyre")
     end
 
+    # TxFyres::itemsForUniverse(universe)
+    def self.itemsForUniverse(universe)
+        TxFyres::items()
+            .select{|item| 
+                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
+                universe.nil? or objuniverse.nil? or (objuniverse == universe)
+            }
+    end
+
     # TxFyres::destroy(uuid)
     def self.destroy(uuid)
         Librarian6Objects::destroy(uuid)
     end
 
     # --------------------------------------------------
-    # Fyre Styles
+    # TxFy36
 
-    # TxFyres::makeDefaultFyreStyle()
-    def self.makeDefaultFyreStyle()
-        {
-            "style"       => "daily-time-commitment",
-            "timeInHours" => 1
-        }
+    # TxFyres::getTxFy36ForTodayOrNull(uuid)
+    def self.getTxFy36ForTodayOrNull(uuid)
+        obj = XCache::getOrNull("c57f60cd-7d03-4d8f-a7e3-a420a7c136ce:#{uuid}:#{Utils::today()}")
+        return nil if obj.nil?
+        return JSON.parse(obj)
     end
 
-    # TxFyres::interactivelyMakeNewFyreStyle()
-    def self.interactivelyMakeNewFyreStyle()
-        styles = [
-            "daily-time-commitment (default)",
-            "one-daily-impact",
-            "float"
+    # TxFyres::setTxFy36ForToday(uuid, tx)
+    def self.setTxFy36ForToday(uuid, tx)
+        XCache::set("c57f60cd-7d03-4d8f-a7e3-a420a7c136ce:#{uuid}:#{Utils::today()}", JSON.generate(tx))
+    end
+
+    # TxFyres::interactivelyMakeTxFy36()
+    def self.interactivelyMakeTxFy36()
+        modes = [
+            "time commitment for today (default)",
+            "done for today"
         ]
-        style = LucilleCore::selectEntityFromListOfEntitiesOrNull("Fyre style", styles)
-        if style.nil? then
-            return TxFyres::makeDefaultFyreStyle()
-        end
-        if style == "daily-time-commitment (default)" then
-            hours = LucilleCore::askQuestionAnswerAsString("Commitment in hours (defaults to 1 hour): ").to_f
-            if hours == 0 then
-                hours = 1
+        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+        if mode.nil? or mode == "time commitment for today (default)" then
+            hours = LucilleCore::askQuestionAnswerAsString("hours (default to 1) : ")
+            if hours == "" then
+                hours = "1"
             end
+            hours = hours.to_f
             return {
-                "style"       => "daily-time-commitment",
-                "timeInHours" => hours
+                "status" => "time-commitment",
+                "hours"  => hours
             }
         end
-        if style == "one-daily-impact" then
+        if mode == "done for today" then
             return {
-                "style" => "one-daily-impact"
+                "status" => "done"
             }
         end
-        if style == "float" then
-            return {
-                "style" => "float"
-            }
+
+        raise "()"
+    end
+
+    # TxFyres::ensureTxFy36sForUniverseForToday(universe)
+    def self.ensureTxFy36sForUniverseForToday(universe)
+        return if TxFyres::itemsForUniverse(universe).all?{|item| TxFyres::getTxFy36ForTodayOrNull(item["uuid"]) }
+        puts "--------------------------------------"
+        items = TxFyres::itemsForUniverse(universe)
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| "#{item["description"]} : #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"]).to_s.green}" })
+        if item.nil? then
+            return TxFyres::ensureTxFy36sForUniverseForToday(universe)
         end
+        puts "#{item["description"]}"
+        tx = TxFyres::interactivelyMakeTxFy36()
+        TxFyres::setTxFy36ForToday(item["uuid"], tx)
+        TxFyres::ensureTxFy36sForUniverseForToday(universe)
     end
 
     # --------------------------------------------------
@@ -73,16 +95,13 @@ class TxFyres
 
         universe   = Multiverse::interactivelySelectUniverse()
 
-        style      = TxFyres::interactivelyMakeNewFyreStyle()
-
         item = {
           "uuid"        => uuid,
           "mikuType"    => "TxFyre",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue,
-          "style"       => style
+          "iam"         => iAmValue
         }
         Librarian6Objects::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -101,16 +120,13 @@ class TxFyres
 
         universe    = Multiverse::interactivelySelectUniverse()
 
-        style       = TxFyres::interactivelyMakeNewFyreStyle()
-
         item = {
           "uuid"        => uuid,
           "mikuType"    => "TxFyre",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue,
-          "style"       => style
+          "iam"         => iAmValue
         }
         Librarian6Objects::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -127,16 +143,7 @@ class TxFyres
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        if item["style"]["style"] == "daily-time-commitment" then
-            return "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
-        end
-        if item["style"]["style"] == "one-daily-impact" then
-            return "(fyre) (once) #{item["description"]} (#{item["iam"][0]})"
-        end
-        if item["style"]["style"] == "float" then
-            return "(fyre) (floa) #{item["description"]} (#{item["iam"][0]})"
-        end
-        raise "(error: 73e0676d-9893-4f2a-86e4-dc90420bd14f)"
+        "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
     end
 
     # TxFyres::toStringForNS19(item)
@@ -166,7 +173,6 @@ class TxFyres
             puts TxFyres::toString(item).green
             puts "uuid: #{uuid}".yellow
             puts "iam: #{item["iam"]}".yellow
-            puts "style: #{item["style"]}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
@@ -174,7 +180,7 @@ class TxFyres
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            puts "access | start |<datecode> | description | iam | style | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | start |<datecode> | description | iam | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -220,11 +226,6 @@ class TxFyres
                     item["iam"] = iAmValue
                     Librarian6Objects::commit(item)
                 end
-            end
-
-            if Interpreting::match("style", command) then
-                item["style"] = TxFyres::interactivelyMakeNewFyreStyle()
-                Librarian6Objects::commit(item)
             end
 
             if Interpreting::match("attachment", command) then
@@ -296,45 +297,21 @@ class TxFyres
 
     # TxFyres::section2(universe)
     def self.section2(universe)
-        TxFyres::items()
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
+        TxFyres::itemsForUniverse(universe)
             .map{|item| TxFyres::ns16(item) }
     end
 
     # TxFyres::ns16s(universe)
     def self.ns16s(universe)
-        styleFilter = lambda {|item|
+        TxFyres::ensureTxFy36sForUniverseForToday(universe)
 
-            return item if NxBallsService::isRunning(item["uuid"])
-
-            # return the item is the item is cleared to be shown in section3, otherwise return null
-            if item["style"]["style"] == "one-daily-impact" then
-                if Bank::valueAtDate(item["uuid"], Utils::today()) > 0 then
-                    return nil
-                else
-                    return item
-                end
-            end
-            if item["style"]["style"] == "daily-time-commitment" then
-                rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
-                if rt < item["style"]["timeInHours"] then
-                    return item
-                else
-                    return nil
-                end
-            end
+        txFy36Filter = lambda {|item|
+            tx = TxFyres::getTxFy36ForTodayOrNull(item["uuid"])
+            (tx["status"] == "time-commitment") and (BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < tx["hours"])
         }
 
-        TxFyres::items()
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
-            .map{|item| styleFilter.call(item) }
-            .compact
+        TxFyres::itemsForUniverse(universe)
+            .select{|item| txFy36Filter.call(item) }
             .map{|item| TxFyres::ns16(item) }
             .select{|item| item["rt"] < 1}
             .sort{|x1, x2| x1["rt"] <=> x2["rt"]}
