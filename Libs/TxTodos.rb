@@ -379,6 +379,7 @@ class TxTodos
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe)
             }
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .map{|item| TxTodos::ns16(item) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
