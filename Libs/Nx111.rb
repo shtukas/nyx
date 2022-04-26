@@ -85,7 +85,7 @@ class Nx111
     # Nx111::dx8UnitIamValueFromLocationOrError(unitId, location)
     def self.dx8UnitIamValueFromLocationOrError(unitId, location)
         raise "(error: ac2300d4-2421-4bdc-9885-93ff9c15c083) #{location}"  if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "standard"), location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "aion-standard"), location)
         configuration = {
             "unitId"    => unitId,
             "Dx8Type"   => "aion",
@@ -223,7 +223,7 @@ class Nx111
                 tx46 = Librarian15BecauseReadWrite::issueTx46(item)
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
-                operator = Librarian24ElizabethForDx8Units.new(unitId, "standard")
+                operator = Librarian24ElizabethForDx8Units.new(unitId, "aion-standard")
                 newTopNameMainPart = "#{item["description"]} (#{tx46["identifier"]})"
                 rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newTopNameMainPart)
                 newTopNameCompleteWithExtension = Librarian15BecauseReadWrite::extractTopName(operator, rootnhash)

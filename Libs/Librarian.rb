@@ -413,7 +413,7 @@ class Librarian15BecauseReadWrite
             configuration = item["iam"][1]
             unitId = configuration["unitId"]
             rootnhash = configuration["rootnhash"]
-            operator = Librarian24ElizabethForDx8Units.new(unitId, "standard")
+            operator = Librarian24ElizabethForDx8Units.new(unitId, "aion-standard")
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             puts "rootnhash1: #{rootnhash1}"
             rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
@@ -670,7 +670,7 @@ class Librarian21Fsck
             if configuration["Dx8Type"] == "aion" then
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
-                status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId, "fsck"), rootnhash)
+                status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId, "aion-fsck"), rootnhash)
                 if !status then
                     puts "object, could not validate Dx8Unit".red
                     puts JSON.pretty_generate(object).red
@@ -770,7 +770,7 @@ end
 # Dx8Unit blob services and Elizabeth
 # ---------------------------------------------------------------------------
 
-# Modes: "standard" | "fsck"
+# Modes: "aion-standard" | "aion-fsck"
 
 class Librarian23Dx8UnitsBlobsService
 
@@ -806,7 +806,7 @@ class Librarian23Dx8UnitsBlobsService
     # Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob) # nhash
     def self.putBlob(mode, dx8UnitId, blob)
 
-        if mode == "standard" then
+        if mode == "aion-standard" then
             if Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
                 nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
                 filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
@@ -820,7 +820,7 @@ class Librarian23Dx8UnitsBlobsService
             end
         end
 
-        if mode == "fsck" then
+        if mode == "aion-fsck" then
             Librarian23Dx8UnitsBlobsService::ensureDrive()
             nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
             filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
@@ -835,7 +835,7 @@ class Librarian23Dx8UnitsBlobsService
     # Librarian23Dx8UnitsBlobsService::getBlobOrNull(mode, dx8UnitId, nhash)
     def self.getBlobOrNull(mode, dx8UnitId, nhash)
 
-        if mode == "standard" then
+        if mode == "aion-standard" then
             # raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
             # Actually this happens when we rewrite top names after Tx46 pickup from the Desktop
             blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
@@ -851,7 +851,7 @@ class Librarian23Dx8UnitsBlobsService
             return nil
         end
 
-        if mode == "fsck" then
+        if mode == "aion-fsck" then
             # When we fsck commit to repair, so we want the blobs to be on the drive and we look local cache if needed
 
             Librarian23Dx8UnitsBlobsService::ensureDrive()
@@ -883,7 +883,7 @@ class Librarian24ElizabethForDx8Units
         @dx8UnitId = dx8UnitId
         @mode = mode
 
-        if mode == "standard" then
+        if mode == "aion-standard" then
             # Every time we instanciate this operator, in standard mode, the Dx8Unit is scheduled for dedicted fsck, because we could have performed an operation 
             # that added blobs to the Dx8Unit but currently only sitting on local. Fsck will fix that. We are listing them because 
             # running those dedicated fsck is part of the librarian Dx8Units maintenance, instead of having to wait for the next scheduled
