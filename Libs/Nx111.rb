@@ -75,11 +75,23 @@ class Nx111
         ["primitive-file", dottedExtension, nhash, parts]
     end
 
-    # Nx111::aionPointIamValueFromLocationOrNull(location)
-    def self.aionPointIamValueFromLocationOrNull(location)
-        return nil if !File.exists?(location)
+    # Nx111::aionPointIamValueFromLocationOrError(location)
+    def self.aionPointIamValueFromLocationOrError(location)
+        raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
         rootnhash = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
-        return ["aion-point", rootnhash]
+        ["aion-point", rootnhash]
+    end
+
+    # Nx111::dx8UnitIamValueFromLocationOrError(unitId, location)
+    def self.dx8UnitIamValueFromLocationOrError(unitId, location)
+        raise "(error: ac2300d4-2421-4bdc-9885-93ff9c15c083) #{location}"  if !File.exists?(location)
+        rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "standard"), location)
+        configuration = {
+            "unitId"    => unitId,
+            "Dx8Type"   => "aion",
+            "rootnhash" => rootnhash
+        }
+        ["Dx8Unit", configuration]
     end
 
     # Nx111::interactivelyCreateNewIamValueOrNull(types)
@@ -111,7 +123,7 @@ class Nx111
         if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::aionPointIamValueFromLocationOrNull(location)
+            return Nx111::aionPointIamValueFromLocationOrError(location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
@@ -131,13 +143,7 @@ class Nx111
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return nil if !File.exists?(location)
-            rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "standard"), location)
-            configuration = {
-                "unitId"   => unitId,
-                "status"   => "standard",
-                "rootnhash" => rootnhash
-            }
-            return ["Dx8Unit", configuration]
+            return Nx111::dx8UnitIamValueFromLocationOrError(unitId, location)
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
@@ -213,7 +219,7 @@ class Nx111
         if iAmValue[0] == "Dx8Unit" then
             configuration = iAmValue[1]
 
-            if configuration["status"] == "standard" then
+            if configuration["Dx8Type"] == "aion" then
                 tx46 = Librarian15BecauseReadWrite::issueTx46(item)
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]

@@ -667,7 +667,7 @@ class Librarian21Fsck
         if nx111[0] == "Dx8Unit" then
             configuration = nx111[1]
 
-            if configuration["status"] == "standard" then
+            if configuration["Dx8Type"] == "aion" then
                 unitId = configuration["unitId"]
                 rootnhash = configuration["rootnhash"]
                 status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId, "fsck"), rootnhash)

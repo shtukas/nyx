@@ -71,7 +71,7 @@ class Nx100s
     # Nx100s::issueNewItemAionPointFromLocation(location)
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
-        iAmValue = Nx111::aionPointIamValueFromLocationOrNull(location)
+        iAmValue = Nx111::aionPointIamValueFromLocationOrError(location)
         flavour = {
             "type" => "encyclopedia"
         }
