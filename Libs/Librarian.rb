@@ -679,6 +679,25 @@ class Librarian21Fsck
                 return
             end
 
+            if configuration["Dx8Type"] == "unique-file-on-infinity-drive" then
+                unitId = configuration["unitId"]
+                location = Librarian22Dx8UnitsUtils::dx8UnitFolder(unitId)
+                puts "location: #{location}"
+                status = File.exists?(location)
+                if !status then
+                    puts "could not find location".red
+                    puts JSON.pretty_generate(object).red
+                    exit
+                end
+                status = LucilleCore::locationsAtFolder(location).size == 1
+                if !status then
+                    puts "expecting only one file at location".red
+                    puts JSON.pretty_generate(object).red
+                    exit
+                end
+                return
+            end
+
             raise "(error: 5a970959-ca52-40e4-b291-056c9c500575): #{object}, #{nx111}"
         end
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
@@ -770,46 +789,46 @@ end
 # Dx8Unit blob services and Elizabeth
 # ---------------------------------------------------------------------------
 
-# Modes: "aion-standard" | "aion-fsck"
-
-class Librarian23Dx8UnitsBlobsService
-
-    # Librarian23Dx8UnitsBlobsService::infinityRepository
-    def self.infinityRepository
+class Librarian22Dx8UnitsUtils
+    # Librarian22Dx8UnitsUtils::infinityRepository()
+    def self.infinityRepository()
         "/Volumes/Infinity/Data/Pascal/Nyx-Librarian-Dx8Units"
     end
 
-    # Librarian23Dx8UnitsBlobsService::driveIsPlugged()
+    # Librarian22Dx8UnitsUtils::driveIsPlugged()
     def self.driveIsPlugged()
-        File.exists?(Librarian23Dx8UnitsBlobsService::infinityRepository)
+        File.exists?(Librarian22Dx8UnitsUtils::infinityRepository())
     end
 
-    # Librarian23Dx8UnitsBlobsService::ensureDrive()
+    # Librarian22Dx8UnitsUtils::ensureDrive()
     def self.ensureDrive()
-        if !Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
+        if !Librarian22Dx8UnitsUtils::driveIsPlugged() then
             puts "I need Infinity, could you plug the drive please ?"
             LucilleCore::pressEnterToContinue()
         end
-        if !Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
+        if !Librarian22Dx8UnitsUtils::driveIsPlugged() then
             puts "I needed Infinity 😞. Exiting."
             exit
         end
     end
 
-    # Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)
+    # Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)
     def self.dx8UnitFolder(dx8UnitId)
-        "#{Librarian23Dx8UnitsBlobsService::infinityRepository}/#{dx8UnitId}"
+        "#{Librarian22Dx8UnitsUtils::infinityRepository()}/#{dx8UnitId}"
     end
+end
 
-    # -----------------------------------------------------------------------------
+# Modes: "aion-standard" | "aion-fsck"
+
+class Librarian23Dx8UnitsBlobsService
 
     # Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob) # nhash
     def self.putBlob(mode, dx8UnitId, blob)
 
         if mode == "aion-standard" then
-            if Librarian23Dx8UnitsBlobsService::driveIsPlugged() then
+            if Librarian22Dx8UnitsUtils::driveIsPlugged() then
                 nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-                filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+                filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
                 if !File.exists?(File.dirname(filepath)) then
                     FileUtils.mkpath(File.dirname(filepath))
                 end
@@ -821,9 +840,9 @@ class Librarian23Dx8UnitsBlobsService
         end
 
         if mode == "aion-fsck" then
-            Librarian23Dx8UnitsBlobsService::ensureDrive()
+            Librarian22Dx8UnitsUtils::ensureDrive()
             nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if !File.exists?(File.dirname(filepath)) then
                 FileUtils.mkpath(File.dirname(filepath))
             end
@@ -841,8 +860,8 @@ class Librarian23Dx8UnitsBlobsService
             blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
             return blob if blob
 
-            Librarian23Dx8UnitsBlobsService::ensureDrive()
-            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            Librarian22Dx8UnitsUtils::ensureDrive()
+            filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if File.exists?(filepath) then
                 blob = IO.read(filepath)
                 LibrarianXSpaceCache::putBlob(blob)
@@ -854,9 +873,9 @@ class Librarian23Dx8UnitsBlobsService
         if mode == "aion-fsck" then
             # When we fsck commit to repair, so we want the blobs to be on the drive and we look local cache if needed
 
-            Librarian23Dx8UnitsBlobsService::ensureDrive()
+            Librarian22Dx8UnitsUtils::ensureDrive()
 
-            filepath = "#{Librarian23Dx8UnitsBlobsService::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
+            filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if File.exists?(filepath) then
                 return IO.read(filepath)
             end
@@ -884,7 +903,7 @@ class Librarian24ElizabethForDx8Units
         @mode = mode
 
         if mode == "aion-standard" then
-            # Every time we instanciate this operator, in standard mode, the Dx8Unit is scheduled for dedicted fsck, because we could have performed an operation 
+            # Every time we instanciate this operator, in aion-standard mode, the Dx8Unit is scheduled for dedicted fsck, because we could have performed an operation 
             # that added blobs to the Dx8Unit but currently only sitting on local. Fsck will fix that. We are listing them because 
             # running those dedicated fsck is part of the librarian Dx8Units maintenance, instead of having to wait for the next scheduled
             # global fsck.
@@ -1005,7 +1024,8 @@ class LibrarianCLI
                 # We now need to determine the item by a Dx8Unit Id
 
                 getItemOrNull = lambda{|dx8UnitId|
-                    Nx100s::items().each{|item|
+                    Librarian6Objects::objects().each{|item|
+                        next if item["iam"].nil?
                         next if item["iam"][0] != "Dx8Unit"
                         configuration = item["iam"][1]
                         next if configuration["unitId"] != dx8UnitId
