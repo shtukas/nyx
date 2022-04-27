@@ -432,8 +432,8 @@ class LxAction
             return
         end
 
-        if command == "xstream" then
-            TxTodos::xstream()
+        if command == "rstream" then
+            TxTodos::rstream()
             return
         end
 

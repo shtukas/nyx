@@ -95,8 +95,8 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
-        if Interpreting::match("xstream", input) then
-            return ["xstream", nil]
+        if Interpreting::match("rstream", input) then
+            return ["rstream", nil]
         end
 
        if Interpreting::match("fyres", input) then

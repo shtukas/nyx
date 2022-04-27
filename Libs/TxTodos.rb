@@ -317,15 +317,14 @@ class TxTodos
         }
     end
 
-    # TxTodos::xstream()
-    def self.xstream()
-        TxTodos::itemsForUniverse("backlog").drop(1000).each{|item|
-            next if XCache::flagIsTrue("0ef23228-ff27-4c9b-ae98-560828a160c8:#{item["uuid"]}")
+    # TxTodos::rstream()
+    def self.rstream()
+        TxTodos::itemsForUniverse("backlog").shuffle.each{|item|
             puts item["description"].green
             LxAction::action("start", item)
             LxAction::action("access", item)
             loop {
-                command = LucilleCore::askQuestionAnswerAsString("next # default, done, landing (and back), exit, run (and exit xstream): ")
+                command = LucilleCore::askQuestionAnswerAsString("next # default, done, landing (and back), exit, run (and exit rstream): ")
                 if command == "" then
                     LxAction::action("stop", item)
                     break
@@ -351,7 +350,6 @@ class TxTodos
                     return
                 end
             }
-            XCache::setFlagTrue("0ef23228-ff27-4c9b-ae98-560828a160c8:#{item["uuid"]}")
         }
     end
 
