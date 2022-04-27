@@ -233,6 +233,26 @@ class Nx111
                 return
             end
 
+            if configuration["Dx8Type"] == "unique-file-on-infinity-drive" then
+                unitId = configuration["unitId"]
+                location = Librarian22Dx8UnitsUtils::dx8UnitFolder(unitId)
+                puts "location: #{location}"
+                if File.exists?(Librarian22Dx8UnitsUtils::infinityRepository()) then
+                    system("open '#{location}'")
+                    LucilleCore::pressEnterToContinue()
+                else
+                    if LucilleCore::askQuestionAnswerAsBoolean("Infinity drive is not connected, want to access ? ") then
+                        Librarian22Dx8UnitsUtils::ensureDrive()
+                        system("open '#{location}'")
+                        LucilleCore::pressEnterToContinue()
+                    else
+                        puts "Ok, not accessing the file."
+                        sleep 1
+                    end
+                end
+                return
+            end
+
             raise "(error: 3d84d2b9-56c3-4762-b6a8-8a50c66b9240): #{item}, #{iAmValue}"
         end
         raise "(error: 3cbb1e64-0d18-48c5-bd28-f4ba584659a3): #{item}"

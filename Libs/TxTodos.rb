@@ -324,7 +324,7 @@ class TxTodos
             LxAction::action("start", item)
             LxAction::action("access", item)
             loop {
-                command = LucilleCore::askQuestionAnswerAsString("next # default, done, landing (and back), exit, run (and exit rstream): ")
+                command = LucilleCore::askQuestionAnswerAsString("next (default), done, landing (and back), exit, run (and exit rstream): ")
                 if command == "" then
                     LxAction::action("stop", item)
                     break
@@ -340,6 +340,10 @@ class TxTodos
                 end
                 if command == "landing" then
                     LxAction::action("landing", item)
+                    item = Librarian6Objects::getObjectByUUIDOrNull(item["uuid"])
+                    if item["mikuType"] != "TxTodo" then
+                        break
+                    end
                     next
                 end
                 if command == "exit" then
