@@ -174,7 +174,6 @@ class Waves
             puts "schedule: #{Waves::scheduleString(item)}".yellow
             puts "last done: #{item["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
-            puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
