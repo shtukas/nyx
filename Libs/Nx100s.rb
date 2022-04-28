@@ -353,7 +353,7 @@ class Nx100s
             end
 
             if Interpreting::match("relink", command) then
-                NyxNetwork::relinkToOther(item)
+                NyxNetwork::relinkToOneOrMoreLinked(item)
             end
 
             if Interpreting::match("unlink", command) then

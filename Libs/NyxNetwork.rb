@@ -94,13 +94,27 @@ class NyxNetwork
         }
     end
 
-    def self.relinkToOther(item)
+    # NyxNetwork::crelinkToOneOrMoreLinked(item)
+    def self.relinkToOneOrMoreLinked(item)
         entities = Links::linked(item["uuid"])
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-        other = LucilleCore::selectEntityFromListOfEntitiesOrNull("linked", entities, lambda{|item| LxFunction::function("toString", item)})
-        return if other.nil?
-        Links::unlink(item["uuid"], other["uuid"])
-        NyxNetwork::linkToDesignatedOther(item, other)
+        selected, unselected = LucilleCore::selectZeroOrMore("linked", [], entities, lambda{ |i| LxFunction::function("toString", i) })
+
+        connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related", "other is child"])
+        return if connectionType.nil?
+
+        selected.each{|other|
+            Links::unlink(item["uuid"], other["uuid"])
+            if connectionType == "other is parent" then
+                Links::link(other["uuid"], item["uuid"], false)
+            end
+            if connectionType == "other is related" then
+                Links::link(item["uuid"], other["uuid"], true)
+            end
+            if connectionType == "other is child" then
+                Links::link(item["uuid"], other["uuid"], false)
+            end
+        }
     end
 
     # NyxNetwork::disconnectFromLinkedInteractively(item)

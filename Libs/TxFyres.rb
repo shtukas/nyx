@@ -180,7 +180,7 @@ class TxFyres
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            puts "access | start |<datecode> | description | iam | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | start | <datecode> | description | iam | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
