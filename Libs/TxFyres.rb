@@ -148,7 +148,12 @@ class TxFyres
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
+        txFy36 = TxFyres::getTxFy36ForTodayOrNull(item["uuid"])
+        if txFy36 then
+            "(fyre) #{item["description"]} (#{item["iam"][0]}) (#{"%4.2f" % rt} of #{txFy36["hours"]} hours)"
+        else
+            "(fyre) #{item["description"]} (#{item["iam"][0]})"
+        end
     end
 
     # TxFyres::toStringForNS19(item)
