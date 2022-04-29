@@ -141,6 +141,11 @@ class TxFyres
         "(fyre) #{item["description"]} (#{item["iam"][0]})"
     end
 
+    # TxFyres::toStringForSection2(item)
+    def self.toStringForSection2(item)
+        "(fyre) #{item["description"]} (#{item["iam"][0]})"
+    end
+
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
         "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
@@ -298,7 +303,16 @@ class TxFyres
     # TxFyres::section2(universe)
     def self.section2(universe)
         TxFyres::itemsForUniverse(universe)
-            .map{|item| TxFyres::ns16(item) }
+            .map{|item|
+                uuid = item["uuid"]
+                announce = toStringForSection2(item)
+                {
+                    "uuid"     => uuid,
+                    "mikuType" => "NS16:TxFyre",
+                    "announce" => announce,
+                    "TxFyre"   => item
+                }
+            }
     end
 
     # TxFyres::ns16s(universe)
