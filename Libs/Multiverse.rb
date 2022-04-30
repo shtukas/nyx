@@ -27,7 +27,7 @@ class ObjectUniverseMapping
 
     # ObjectUniverseMapping::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/universemapping.sqlite3"
+        "#{Config::pathToLocalDidact()}/Catalyst/universemapping.sqlite3"
     end
 
     # ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)

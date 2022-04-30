@@ -5,9 +5,9 @@
 
 class Config
 
-    # Config::nyxFolderPath()
-    def self.nyxFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Nyx"
+    # Config::pathToLocalDidact()
+    def self.pathToLocalDidact()
+        "/Users/pascal/Galaxy/DataBank/Didact"
     end
 
     # Config::pathToInfinityDidact()

@@ -1,7 +1,5 @@
-### Catalyst
+### Didact
 
-Catalyst is an advanced electronic secretary.
+Didact is the umbrella name used to refer to **Catalyst** and **Nyx** together.
 
-### Nyx (File System). Organising the world's data.
-
-Nyx is the commandline interface to, and a data repository of, a knowledge network. Used by Pascal to store organise, search and edit personal and professional data.
+Catalyst is an advanced electronic secretary. Nyx is a file sysyem and a data network.

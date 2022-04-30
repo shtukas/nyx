@@ -12,7 +12,7 @@ class Links
 
     # Links::databaseFilepath()
     def self.databaseFilepath()
-        "#{Config::nyxFolderPath()}/links2.sqlite3"
+        "#{Config::pathToLocalDidact()}/Nyx/links2.sqlite3"
     end
 
     # Links::link(sourceuuid: String, targetuuid: String, isBidirectional: Boolean)
@@ -91,21 +91,21 @@ class Links
     # Links::related(uuid)
     def self.related(uuid)
         Links::relatedUUIDs(uuid)
-            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
     # Links::parents(uuid)
     def self.parents(uuid)
         Links::parentUUIDs(uuid)
-            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
     # Links::children(uuid)
     def self.children(uuid)
         Links::childrenUUIDs(uuid)
-            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 

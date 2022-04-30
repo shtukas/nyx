@@ -76,22 +76,22 @@ class Librarian0Utils
         FileUtils.mv(location, directory)
     end
 
-    # Librarian0Utils::commitFileReturnPartsHashs(filepath)
-    def self.commitFileReturnPartsHashs(filepath)
+    # Librarian0Utils::commitFileToXCacheReturnPartsHashs(filepath)
+    def self.commitFileToXCacheReturnPartsHashs(filepath)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
         raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
         hashes = []
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            hashes << Librarian2DatablobsUnsecuredXCache::putBlob(blob)
+            hashes << Librarian2DatablobsXCache::putBlob(blob)
         end
         f.close()
         hashes
     end
 
-    # Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
-    def self.commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+    # Librarian0Utils::commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+    def self.commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
         raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
         hashes = []
@@ -120,28 +120,28 @@ class Librarian0Utils
     end
 end
 
-class Librarian2DatablobsUnsecuredXCache
+class Librarian2DatablobsXCache
 
-    # Librarian2DatablobsUnsecuredXCache::putBlob(blob)
+    # Librarian2DatablobsXCache::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         XCache::set("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
         nhash
     end
 
-    # Librarian2DatablobsUnsecuredXCache::getBlobOrNull(nhash)
+    # Librarian2DatablobsXCache::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         XCache::getOrNull("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
     end
 end
 
-class Librarian3ElizabethUnsecuredXCache
+class Librarian3ElizabethXCache
 
     def initialize()
     end
 
     def commitBlob(blob)
-        Librarian2DatablobsUnsecuredXCache::putBlob(blob)
+        Librarian2DatablobsXCache::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -149,7 +149,7 @@ class Librarian3ElizabethUnsecuredXCache
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian2DatablobsUnsecuredXCache::getBlobOrNull(nhash)
+        blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
         return blob if blob
         puts "(error: c052116a-dd92-47a8-88e4-22d7516863d1) could not find blob, nhash: #{nhash}"
         raise "(error: 521d8f17-a958-44ba-97c2-ffacbbca9724, nhash: #{nhash})" if blob.nil?
@@ -169,19 +169,19 @@ class Librarian3ElizabethUnsecuredXCache
     end
 end
 
-class Librarian6Objects
+class Librarian6ObjectsLocal
 
-    # Librarian6Objects::databaseFilepath()
+    # Librarian6ObjectsLocal::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Librarian/Databases/objects.sqlite3"
+        "#{Config::pathToLocalDidact()}/objects.sqlite3"
     end
 
     # ------------------------------------------------------------------------
     # Below: Public Interface
 
-    # Librarian6Objects::objects()
+    # Librarian6ObjectsLocal::objects()
     def self.objects()
-        db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
+        db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -193,9 +193,9 @@ class Librarian6Objects
         answer
     end
 
-    # Librarian6Objects::getObjectsByMikuType(mikuType)
+    # Librarian6ObjectsLocal::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
-        db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
+        db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -207,9 +207,9 @@ class Librarian6Objects
         answer
     end
 
-    # Librarian6Objects::getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
+    # Librarian6ObjectsLocal::getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
     def self.getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
-        db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
+        db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -221,22 +221,22 @@ class Librarian6Objects
         answer
     end
 
-    # Librarian6Objects::commit(object)
+    # Librarian6ObjectsLocal::commit(object)
     def self.commit(object)
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
 
         ordinal = object["ordinal"] || 0
 
-        db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
+        db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_) values (?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal]
         db.close
     end
 
-    # Librarian6Objects::getObjectByUUIDOrNull(uuid)
+    # Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
+        db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -248,9 +248,98 @@ class Librarian6Objects
         answer
     end
 
-    # Librarian6Objects::destroy(uuid)
+    # Librarian6ObjectsLocal::destroy(uuid)
     def self.destroy(uuid)
-        db = SQLite3::Database.new(Librarian6Objects::databaseFilepath())
+        db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+        db.close
+    end
+end
+
+class Librarian7ObjectsInfinity
+
+    # Librarian7ObjectsInfinity::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Config::pathToInfinityDidact()}/objects.sqlite3"
+    end
+
+    # ------------------------------------------------------------------------
+    # Below: Public Interface
+
+    # Librarian7ObjectsInfinity::objects()
+    def self.objects()
+        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ order by _ordinal_", []) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian7ObjectsInfinity::getObjectsByMikuType(mikuType)
+    def self.getObjectsByMikuType(mikuType)
+        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian7ObjectsInfinity::getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
+    def self.getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
+        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_ limit ?", [mikuType, n]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian7ObjectsInfinity::commit(object)
+    def self.commit(object)
+        raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
+        raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
+
+        ordinal = object["ordinal"] || 0
+
+        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_) values (?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal]
+        db.close
+    end
+
+    # Librarian7ObjectsInfinity::getObjectByUUIDOrNull(uuid)
+    def self.getObjectByUUIDOrNull(uuid)
+        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
+            answer = JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian7ObjectsInfinity::destroy(uuid)
+    def self.destroy(uuid)
+        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
@@ -262,44 +351,44 @@ end
 # Local blob services and Elizabeth
 # ---------------------------------------------------------------------------
 
-class Librarian12LocalBlobsService
+class Librarian12InfinityBlobsServiceXCached
 
-    # Librarian12LocalBlobsService::datablobsRepository()
-    def self.datablobsRepository()
-        "/Users/pascal/Galaxy/DataBank/Librarian/Datablobs"
+    # Librarian12InfinityBlobsServiceXCached::infinityDatablobsRepository()
+    def self.infinityDatablobsRepository()
+        "#{Config::pathToInfinityDidact()}/DatablobsDepth2"
     end
 
     # -----------------------------------------------------------------------------
 
-    # Librarian12LocalBlobsService::putBlob(blob) # nhash
+    # Librarian12InfinityBlobsServiceXCached::putBlob(blob) # nhash
     def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = "#{Librarian12LocalBlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.write(blob) }
-        nhash
+        Librarian2DatablobsXCache::putBlob(blob)
     end
 
-    # Librarian12LocalBlobsService::getBlobOrNull(nhash)
+    # Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepath = "#{Librarian12LocalBlobsService::datablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+
+        blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
+        return blob if blob
+
+        InfinityDrive::ensureInfinityDrive()
+
+        puts "Librarian12InfinityBlobsServiceXCached: downloading and caching missing blob: #{nhash}"
+
+        filepath = "#{Librarian12InfinityBlobsServiceXCached::infinityDatablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if File.exists?(filepath) then
             blob = IO.read(filepath)
+            Librarian2DatablobsXCache::putBlob(blob)
             return blob
         end
         nil
     end
 end
 
-class Librarian14ElizabethLocalStandard
-
-    def initialize()
-    end
+class Librarian14InfinityElizabethXCached
 
     def commitBlob(blob)
-        Librarian12LocalBlobsService::putBlob(blob)
+        Librarian12InfinityBlobsServiceXCached::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -307,10 +396,10 @@ class Librarian14ElizabethLocalStandard
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
+        blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
         return blob if blob
-        puts "(error: 69f99c35-5560-44fb-b463-903e9850bc93) could not find blob, nhash: #{nhash}"
-        raise "(error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash})" if blob.nil?
+        puts "(error: 7ffc6f95-4977-47a2-b9fd-eecd8312ebbe) could not find blob, nhash: #{nhash}"
+        raise "(error: 47f74e9a-0255-44e6-bf04-f12ff7786c65, nhash: #{nhash})" if blob.nil?
     end
 
     def datablobCheck(nhash)
@@ -318,7 +407,7 @@ class Librarian14ElizabethLocalStandard
             blob = readBlobErrorIfNotFound(nhash)
             status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
             if !status then
-                puts "(error: 36d664ef-0731-4a00-ba0d-b5a7fb7cf941) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+                puts "(error: 479c057e-d77b-4cd9-a6ba-df082e93f6b5) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
             end
             return status
         rescue
@@ -439,14 +528,14 @@ class Librarian15BecauseReadWrite
         end
 
         if item["iam"][0] == "aion-point" then
-            operator = Librarian14ElizabethLocalStandard.new()
+            operator = Librarian14InfinityElizabethXCached.new()
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             puts "rootnhash1: #{rootnhash1}"
             rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
             puts "rootnhash2: #{rootnhash2}"
             return if rootnhash1 == rootnhash2
             item["iam"][1] = rootnhash2
-            Librarian6Objects::commit(item)
+            Librarian6ObjectsLocal::commit(item)
             return
         end
         if item["iam"][0] == "Dx8Unit" then
@@ -461,7 +550,7 @@ class Librarian15BecauseReadWrite
             return if rootnhash1 == rootnhash2
             configuration["rootnhash"] = rootnhash2
             item["iam"][1] = configuration
-            Librarian6Objects::commit(item)
+            Librarian6ObjectsLocal::commit(item)
             return
         end
         if item["iam"][0] == "primitive-file" then
@@ -488,7 +577,7 @@ class Librarian15BecauseReadWrite
                 # We can use that to know if the location is an existing primitive file and can be ignored
 
                 id = File.basename(filepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
-                if Librarian6Objects::getObjectByUUIDOrNull(id) then
+                if Librarian6ObjectsLocal::getObjectByUUIDOrNull(id) then
                     puts "#{File.basename(filepath)} is already a node"
                     # Note that in this case we are not picking up possible modifications of the primitive files
                 else
@@ -524,7 +613,7 @@ class Librarian15BecauseReadWrite
                 tx46       = JSON.parse(tx46)
                 puts JSON.pretty_generate(tx46)
                 itemuuid   = tx46["itemuuid"]
-                item       = Librarian6Objects::getObjectByUUIDOrNull(itemuuid)
+                item       = Librarian6ObjectsLocal::getObjectByUUIDOrNull(itemuuid)
                 if item then
                     Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
                 else
@@ -546,7 +635,7 @@ class Librarian15BecauseReadWrite
             tx46       = JSON.parse(tx46)
             puts JSON.pretty_generate(tx46)
             itemuuid   = tx46["itemuuid"]
-            item       = Librarian6Objects::getObjectByUUIDOrNull(itemuuid)
+            item       = Librarian6ObjectsLocal::getObjectByUUIDOrNull(itemuuid)
             if item then
                 Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
                 LucilleCore::removeFileSystemLocation(location)
@@ -570,9 +659,9 @@ class Librarian17PrimitiveFilesAndCarriers
         nhash = Librarian0Utils::filepathToContentHash(filepath)
  
         lambdaBlobCommitReturnNhash = lambda {|blob|
-            Librarian12LocalBlobsService::putBlob(blob)
+            Librarian12InfinityBlobsServiceXCached::putBlob(blob)
         }
-        parts = Librarian0Utils::commitFileReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+        parts = Librarian0Utils::commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
  
         return [dottedExtension, nhash, parts]
     end
@@ -582,7 +671,7 @@ class Librarian17PrimitiveFilesAndCarriers
         targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
+                blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -592,10 +681,10 @@ class Librarian17PrimitiveFilesAndCarriers
 
     # Librarian17PrimitiveFilesAndCarriers::carrierContents(owneruuid)
     def self.carrierContents(owneruuid)
-        Librarian6Objects::getObjectsByMikuType("Nx60")
+        Librarian6ObjectsLocal::getObjectsByMikuType("Nx60")
             .select{|claim| claim["owneruuid"] == owneruuid }
             .map{|claim| claim["targetuuid"] }
-            .map{|uuid| Librarian6Objects::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
@@ -635,227 +724,6 @@ class Librarian17PrimitiveFilesAndCarriers
             Nx60s::issueClaim(uuid, primitiveFileObject["uuid"])
         }
         puts "Upload completed"
-        LucilleCore::pressEnterToContinue()
-    end
-end
-
-class Librarian20Fsck
-
-    # Librarian20Fsck::fsckAtomReturnBoolean(atom) : Boolean
-    def self.fsckAtomReturnBoolean(atom)
-        puts JSON.pretty_generate(atom)
-        if atom["type"] == "description-only" then
-            return true
-        end
-        if atom["type"] == "text" then
-            return !Librarian12LocalBlobsService::getBlobOrNull(atom["payload"]).nil?
-        end
-        if atom["type"] == "url" then
-            return true
-        end
-        if atom["type"] == "aion-point" then
-            nhash = atom["rootnhash"]
-            status = AionFsck::structureCheckAionHash(Librarian14ElizabethLocalStandard.new(), nhash)
-            return status
-        end
-        if atom["type"] == "unique-string" then
-            # Technically we should be checking if the target exists, but that takes too long
-            return true
-        end
-        raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
-    end
-
-    # Librarian20Fsck::fsckExitAtFirstFailureIamValue(object, nx111)
-    def self.fsckExitAtFirstFailureIamValue(object, nx111)
-        if !Nx111::iamTypes().include?(nx111[0]) then
-            puts "object has an incorrect iam value type".red
-            puts JSON.pretty_generate(object).red
-            exit
-        end
-        if nx111[0] == "navigation" then
-            return
-        end
-        if nx111[0] == "log" then
-            return
-        end
-        if nx111[0] == "description-only" then
-            return
-        end
-        if nx111[0] == "text" then
-            nhash = nx111[1]
-            if Librarian12LocalBlobsService::getBlobOrNull(nhash).nil? then
-                puts "object, could not find the text data".red
-                puts JSON.pretty_generate(object).red
-                exit
-            end
-            return
-        end
-        if nx111[0] == "url" then
-            return
-        end
-        if nx111[0] == "aion-point" then
-            rootnhash = nx111[1]
-            status = AionFsck::structureCheckAionHash(Librarian14ElizabethLocalStandard.new(), rootnhash)
-            if !status then
-                puts "object, could not validate aion-point".red
-                puts JSON.pretty_generate(object).red
-                exit
-            end
-            return
-        end
-        if nx111[0] == "unique-string" then
-            return
-        end
-        if nx111[0] == "primitive-file" then
-            _, dottedExtension, nhash, parts = nx111
-            if dottedExtension[0, 1] != "." then
-                puts "object".red
-                puts JSON.pretty_generate(object).red
-                puts "primitive parts, dotted extension is malformed".red
-                exit
-            end
-            parts.each{|nhash|
-                blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
-                next if blob
-                puts "object".red
-                puts JSON.pretty_generate(object).red
-                puts "primitive parts, nhash not found: #{nhash}".red
-                exit
-            }
-            return
-        end
-        if nx111[0] == "carrier-of-primitive-files" then
-            return
-        end
-        if nx111[0] == "Dx8Unit" then
-            configuration = nx111[1]
-
-            if configuration["Dx8Type"] == "aion" then
-                unitId = configuration["unitId"]
-                rootnhash = configuration["rootnhash"]
-                status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId, "aion-fsck"), rootnhash)
-                if !status then
-                    puts "object, could not validate Dx8Unit".red
-                    puts JSON.pretty_generate(object).red
-                    exit
-                end
-                return
-            end
-
-            if configuration["Dx8Type"] == "unique-file-on-infinity-drive" then
-                unitId = configuration["unitId"]
-                location = Librarian22Dx8UnitsUtils::dx8UnitFolder(unitId)
-                puts "location: #{location}"
-                status = File.exists?(location)
-                if !status then
-                    puts "could not find location".red
-                    puts JSON.pretty_generate(object).red
-                    exit
-                end
-                status = LucilleCore::locationsAtFolder(location).size == 1
-                if !status then
-                    puts "expecting only one file at location".red
-                    puts JSON.pretty_generate(object).red
-                    exit
-                end
-                return
-            end
-
-            raise "(error: 5a970959-ca52-40e4-b291-056c9c500575): #{object}, #{nx111}"
-        end
-        raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
-    end
-
-    # Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-    def self.fsckExitAtFirstFailureLibrarianMikuObject(item)
-        if item["mikuType"] == "Nx60" then
-            return
-        end
-        if item["mikuType"] == "Nx100" then
-            if item["iam"].nil? then
-                puts "Nx100 has not iam value".red
-                puts JSON.pretty_generate(item).red
-                exit
-            end
-            iAmValue = item["iam"]
-            puts JSON.pretty_generate(iAmValue)
-            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, iAmValue)
-            return
-        end
-        if item["mikuType"] == "TxAttachment" then
-            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
-            return
-        end
-        if item["mikuType"] == "TxDated" then
-            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
-            return
-        end
-        if item["mikuType"] == "TxFloat" then
-            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
-            return
-        end
-        if item["mikuType"] == "TxFyre" then
-            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
-            return
-        end
-        if item["mikuType"] == "TxInbox2" then
-            if item["aionrootnhash"] then
-                status = AionFsck::structureCheckAionHash(Librarian3ElizabethUnsecuredXCache.new(), item["aionrootnhash"])
-                if !status then
-                    puts "aionrootnhash does not validate".red
-                    puts JSON.pretty_generate(item).red
-                    exit
-                end
-            end
-            return
-        end
-        if item["mikuType"] == "TxTodo" then
-            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
-            return
-        end
-        if item["mikuType"] == "Wave" then
-            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
-            return
-        end
-
-        puts JSON.pretty_generate(item).red
-        raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
-    end
-
-    # Librarian20Fsck::fsckExitAtFirstFailure()
-    def self.fsckExitAtFirstFailure()
-
-        runhash = XCache::getOrNull("1A07231B-8535-499B-BB2C-89A4EB429F49")
-        if runhash.nil? then
-            runhash = SecureRandom.hex
-            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F49", runhash)
-        else
-            if LucilleCore::askQuestionAnswerAsBoolean("We have a run in progress, continue ? ") then
-                # Nothing to do, we run with the existing hash
-            else
-                # We make a register a new hash
-                runhash = SecureRandom.hex
-                XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F49", runhash)
-            end
-        end
-
-        Librarian6Objects::objects()
-        .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
-        .reverse
-        .each{|item|
-            next if XCache::flagIsTrue("#{runhash}:#{item["uuid"]}")
-
-            puts JSON.pretty_generate(item)
-            Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-
-            XCache::setFlagTrue("#{runhash}:#{item["uuid"]}")
-
-            return if !File.exists?("/Users/pascal/Desktop/Pascal.png") # We use this file to interrupt long runs at a place where it would not corrupt any file system.
-        }
-
-        XCache::destroy("1A07231B-8535-499B-BB2C-89A4EB429F49")
-
-        puts "Fsck completed successfully".green
         LucilleCore::pressEnterToContinue()
     end
 end
@@ -910,7 +778,7 @@ class Librarian23Dx8UnitsBlobsService
                 File.open(filepath, "w"){|f| f.write(blob) }
                 return nhash
             else
-                return Librarian2DatablobsUnsecuredXCache::putBlob(blob)
+                return Librarian2DatablobsXCache::putBlob(blob)
             end
         end
 
@@ -932,15 +800,16 @@ class Librarian23Dx8UnitsBlobsService
         if mode == "aion-standard" then
             # raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
             # Actually this happens when we rewrite top names after Tx46 pickup from the Desktop
-            blob = Librarian2DatablobsUnsecuredXCache::getBlobOrNull(nhash)
+            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
             return blob if blob
 
             Librarian22Dx8UnitsUtils::ensureDrive()
 
             filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if File.exists?(filepath) then
+                puts "Librarian23Dx8UnitsBlobsService (aion-standard): downloading and caching missing blob: #{nhash}"
                 blob = IO.read(filepath)
-                Librarian2DatablobsUnsecuredXCache::putBlob(blob)
+                Librarian2DatablobsXCache::putBlob(blob)
                 return blob
             end
             return nil
@@ -956,9 +825,9 @@ class Librarian23Dx8UnitsBlobsService
                 return IO.read(filepath)
             end
 
-            blob = Librarian2DatablobsUnsecuredXCache::getBlobOrNull(nhash)
+            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
             if blob then
-                puts "Dx8Unit fsck, put blob, #{dx8UnitId}, #{nhash}"
+                puts "Librarian23Dx8UnitsBlobsService (aion-fsck), uploading missing blob #{dx8UnitId}, #{nhash}"
                 Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob)
                 return blob
             end
@@ -1026,14 +895,15 @@ class LibrarianCLI
     # LibrarianCLI::main()
     def self.main()
 
-        if ARGV[0] == "fsck" then
-            Librarian20Fsck::fsckExitAtFirstFailure()
+        if ARGV[0] == "sync+fsck" then
+            AlexandraDidactSynchronization::run()
+            InfinityFileSystemCheck::fsckExitAtFirstFailure()
             exit
         end
 
         if ARGV[0] == "show-object-i" then
             uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-            object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
+            object = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
             if object then
                 puts JSON.pretty_generate(object)
                 LucilleCore::pressEnterToContinue()
@@ -1046,7 +916,7 @@ class LibrarianCLI
 
         if ARGV[0] == "edit-object-i" then
             uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-            object = Librarian6Objects::getObjectByUUIDOrNull(uuid)
+            object = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
             if object then
                 puts JSON.pretty_generate(object)
                 LucilleCore::pressEnterToContinue()
@@ -1059,13 +929,13 @@ class LibrarianCLI
 
         if ARGV[0] == "destroy-object-by-uuid-i" then
             uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-            Librarian6Objects::destroy(uuid)
+            Librarian6ObjectsLocal::destroy(uuid)
             exit
         end
 
         if ARGV[0] == "prob-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
+            blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
             if blob then
                 puts "Found a blob of size #{blob.size}"
                 LucilleCore::pressEnterToContinue()
@@ -1078,7 +948,7 @@ class LibrarianCLI
 
         if ARGV[0] == "echo-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = Librarian12LocalBlobsService::getBlobOrNull(nhash)
+            blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
             if blob then
                 puts JSON.pretty_generate(JSON.parse(blob))
                 LucilleCore::pressEnterToContinue()
@@ -1100,7 +970,7 @@ class LibrarianCLI
                 # We now need to determine the item by a Dx8Unit Id
 
                 getItemOrNull = lambda{|dx8UnitId|
-                    Librarian6Objects::objects().each{|item|
+                    Librarian6ObjectsLocal::objects().each{|item|
                         next if item["iam"].nil?
                         next if item["iam"][0] != "Dx8Unit"
                         configuration = item["iam"][1]
@@ -1116,14 +986,14 @@ class LibrarianCLI
 
                 puts "Dx8Unit maintenance (fsck) for item: #{item["description"].green}"
 
-                Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+                InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
 
             end
             exit
         end
 
         puts "usage:"
-        puts "    librarian fsck"
+        puts "    librarian sync+fsck"
         puts "    librarian show-object-i"
         puts "    librarian edit-object-i"
         puts "    librarian destroy-object-by-uuid-i"

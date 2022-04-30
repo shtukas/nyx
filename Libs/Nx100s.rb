@@ -8,17 +8,17 @@ class Nx100s
 
     # Nx100s::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("Nx100")
+        Librarian6ObjectsLocal::getObjectsByMikuType("Nx100")
     end
 
     # Nx100s::getOrNull(uuid): null or Nx100
     def self.getOrNull(uuid)
-        Librarian6Objects::getObjectByUUIDOrNull(uuid)
+        Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
     end
 
     # Nx100s::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6Objects::destroy(uuid)
+        Librarian6ObjectsLocal::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -64,7 +64,7 @@ class Nx100s
             "iam"         => iAmValue,
             "flavour"     => flavour
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         item
     end
 
@@ -87,7 +87,7 @@ class Nx100s
             "iam"         => iAmValue,
             "flavour"     => flavour
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         item
     end
 
@@ -115,7 +115,7 @@ class Nx100s
           "iam"         => iAmValue,
           "flavour"     => flavour
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         item
     end
 
@@ -199,11 +199,11 @@ class Nx100s
             }
         }
         puts JSON.pretty_generate(item2)
-        Librarian6Objects::commit(item2)
+        Librarian6ObjectsLocal::commit(item2)
         Links::link(item["uuid"], item2["uuid"], false)
         item["iam"] = ["navigation"]
         puts JSON.pretty_generate(item)
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         puts "Operation completed"
         LucilleCore::pressEnterToContinue()
     end
@@ -216,7 +216,7 @@ class Nx100s
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
             child = Nx100s::issueNewItemAionPointFromLocation(location)
-            Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
             Links::link(item["uuid"], child["uuid"], false)
         }
     end
@@ -230,7 +230,7 @@ class Nx100s
             puts "processing: #{location}"
             child = Nx100s::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
-            Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
             Links::link(item["uuid"], child["uuid"], false)
         }
     end
@@ -315,7 +315,7 @@ class Nx100s
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -334,7 +334,7 @@ class Nx100s
                 datetime = Utils::editTextSynchronously(item["datetime"]).strip
                 next if !Utils::isDateTime_UTC_ISO8601(datetime)
                 item["datetime"] = datetime
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
             end
 
             if Interpreting::match("iam", command) then
@@ -343,7 +343,7 @@ class Nx100s
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = iAmValue
-                    Librarian6Objects::commit(item)
+                    Librarian6ObjectsLocal::commit(item)
                 end
             end
 
@@ -353,7 +353,7 @@ class Nx100s
                 puts JSON.pretty_generate(flavour)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["flavour"] = flavour
-                    Librarian6Objects::commit(item) 
+                    Librarian6ObjectsLocal::commit(item) 
                 end
             end
 

@@ -246,7 +246,7 @@ class LxAction
         end
 
         if command == "fsck" then
-            Librarian20Fsck::fsckExitAtFirstFailure()
+            InfinityFileSystemCheck::fsckExitAtFirstFailure()
             return
         end
 
@@ -260,7 +260,7 @@ class LxAction
             aionrootnhash = nil
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull() 
             if location then
-                aionrootnhash = AionCore::commitLocationReturnHash(Librarian3ElizabethUnsecuredXCache.new(), location)
+                aionrootnhash = AionCore::commitLocationReturnHash(Librarian3ElizabethXCache.new(), location)
             end
 
             item = {
@@ -273,7 +273,7 @@ class LxAction
 
             puts JSON.pretty_generate(item)
 
-            Librarian6Objects::commit(item)
+            Librarian6ObjectsLocal::commit(item)
 
             if location then
                 LucilleCore::removeFileSystemLocation(location)
@@ -419,7 +419,7 @@ class LxAction
                 mx49 = ns16["TxDated"]
                 datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
                 mx49["datetime"] = datetime
-                Librarian6Objects::commit(mx49)
+                Librarian6ObjectsLocal::commit(mx49)
                 return
             end
         end

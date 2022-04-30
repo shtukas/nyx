@@ -4,7 +4,7 @@ class TxTodos
 
     # TxTodos::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("TxTodo")
+        Librarian6ObjectsLocal::getObjectsByMikuType("TxTodo")
     end
 
     # TxTodos::itemsForUniverse(universe)
@@ -18,7 +18,7 @@ class TxTodos
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6Objects::destroy(uuid)
+        Librarian6ObjectsLocal::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -39,7 +39,7 @@ class TxTodos
             return []
         end
         JSON.parse(items)
-            .map{|item| Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]) }
+            .map{|item| Librarian6ObjectsLocal::getObjectByUUIDOrNull(item["uuid"]) }
             .compact
     end
 
@@ -107,7 +107,7 @@ class TxTodos
           "iam"         => iAmValue,
           "ordinal"     => ordinal
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
@@ -119,7 +119,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        rootnhash   = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
+        rootnhash   = AionCore::commitLocationReturnHash(Librarian14InfinityElizabethXCached.new(), location)
         iAmValue    = ["aion-point", rootnhash]
 
         universe    = Multiverse::interactivelySelectUniverse()
@@ -134,7 +134,7 @@ class TxTodos
           "iam"         => iAmValue,
           "ordinal"     => ordinal
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
@@ -157,7 +157,7 @@ class TxTodos
           "iam"         => ["url", url],
           "ordinal"     => ordinal
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         item
     end
@@ -247,7 +247,7 @@ class TxTodos
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -257,7 +257,7 @@ class TxTodos
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = iAmValue
-                    Librarian6Objects::commit(item)
+                    Librarian6ObjectsLocal::commit(item)
                 end
             end
 
@@ -275,7 +275,7 @@ class TxTodos
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 item["ordinal"] = ordinal
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 ObjectUniverseMapping::setObjectUniverseMapping(item["uuid"], universe)
                 next
             end
@@ -284,7 +284,7 @@ class TxTodos
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::nextOrdinal(universe)
                 item["ordinal"] = ordinal
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 ObjectUniverseMapping::setObjectUniverseMapping(item["uuid"], universe)
                 break
             end
@@ -340,7 +340,7 @@ class TxTodos
                 end
                 if command == "landing" then
                     LxAction::action("landing", item)
-                    item = Librarian6Objects::getObjectByUUIDOrNull(item["uuid"])
+                    item = Librarian6ObjectsLocal::getObjectByUUIDOrNull(item["uuid"])
                     if item["mikuType"] != "TxTodo" then
                         break
                     end
@@ -400,7 +400,7 @@ class TxTodos
 
     # TxTodos::nx20s()
     def self.nx20s()
-        Librarian6Objects::getObjectsByMikuType("TxTodo").map{|item|
+        Librarian6ObjectsLocal::getObjectsByMikuType("TxTodo").map{|item|
             {
                 "announce" => TxTodos::toStringForNS19(item),
                 "unixtime" => item["unixtime"],

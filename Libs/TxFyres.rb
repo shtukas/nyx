@@ -4,7 +4,7 @@ class TxFyres
 
     # TxFyres::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("TxFyre")
+        Librarian6ObjectsLocal::getObjectsByMikuType("TxFyre")
     end
 
     # TxFyres::itemsForUniverse(universe)
@@ -18,7 +18,7 @@ class TxFyres
 
     # TxFyres::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6Objects::destroy(uuid)
+        Librarian6ObjectsLocal::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -103,7 +103,7 @@ class TxFyres
           "datetime"    => datetime,
           "iam"         => iAmValue
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
@@ -115,7 +115,7 @@ class TxFyres
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        rootnhash   = AionCore::commitLocationReturnHash(Librarian14ElizabethLocalStandard.new(), location)
+        rootnhash   = AionCore::commitLocationReturnHash(Librarian14InfinityElizabethXCached.new(), location)
         iAmValue    = ["aion-point", rootnhash]
 
         universe    = Multiverse::interactivelySelectUniverse()
@@ -128,7 +128,7 @@ class TxFyres
           "datetime"    => datetime,
           "iam"         => iAmValue
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
@@ -224,7 +224,7 @@ class TxFyres
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -234,7 +234,7 @@ class TxFyres
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = iAmValue
-                    Librarian6Objects::commit(item)
+                    Librarian6ObjectsLocal::commit(item)
                 end
             end
 

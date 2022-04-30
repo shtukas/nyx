@@ -121,7 +121,7 @@ class Inbox
 
     # Inbox::txInbox2NS16s()
     def self.txInbox2NS16s()
-        Librarian6Objects::getObjectsByMikuType("TxInbox2").map{|item|
+        Librarian6ObjectsLocal::getObjectsByMikuType("TxInbox2").map{|item|
             {
                 "uuid"     => item["uuid"],
                 "mikuType" => "NS16:TxInbox2",
@@ -136,14 +136,14 @@ class Inbox
     def self.landingInbox2(item)
         puts item["line"]
         if item["aionrootnhash"] then
-            AionCore::exportHashAtFolder(Librarian3ElizabethUnsecuredXCache.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(Librarian3ElizabethXCache.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
         end
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["exit (default)", "destroy"])
         if action.nil? or action == "exit" then
             return
         end
         if action == "destroy" then
-            Librarian6Objects::destroy(item["uuid"])
+            Librarian6ObjectsLocal::destroy(item["uuid"])
             return
         end
     end

@@ -6,12 +6,12 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("Wave")
+        Librarian6ObjectsLocal::getObjectsByMikuType("Wave")
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6Objects::destroy(uuid)
+        Librarian6ObjectsLocal::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -128,7 +128,7 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        Librarian6Objects::commit(wave)
+        Librarian6ObjectsLocal::commit(wave)
         wave
     end
 
@@ -146,7 +146,7 @@ class Waves
     def self.performDone(item)
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
 
         unixtime = Waves::computeNextShowUp(item)
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -212,7 +212,7 @@ class Waves
 
             if Interpreting::match("description", command) then
                 item["description"] = Utils::editTextSynchronously(item["description"])
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -222,7 +222,7 @@ class Waves
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = iAmValue
-                    Librarian6Objects::commit(item)
+                    Librarian6ObjectsLocal::commit(item)
                 end
             end
 
@@ -236,7 +236,7 @@ class Waves
                 return if schedule.nil?
                 item["repeatType"] = schedule[0]
                 item["repeatValue"] = schedule[1]
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -296,7 +296,7 @@ class Waves
                 Waves::landing(item)
 
                 # the landing could result in a destruction of the object
-                if Librarian6Objects::getObjectByUUIDOrNull(item["uuid"]).nil? then
+                if Librarian6ObjectsLocal::getObjectByUUIDOrNull(item["uuid"]).nil? then
                     break
                 end
             end

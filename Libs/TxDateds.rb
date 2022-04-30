@@ -4,12 +4,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("TxDated")
+        Librarian6ObjectsLocal::getObjectsByMikuType("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6Objects::destroy(uuid)
+        Librarian6ObjectsLocal::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -37,7 +37,7 @@ class TxDateds
           "datetime"    => datetime,
           "iam"         => iAmValue,
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         item
     end
 
@@ -61,7 +61,7 @@ class TxDateds
           "datetime"    => datetime,
           "iam"         => iAmValue
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         item
     end
 
@@ -125,7 +125,7 @@ class TxDateds
                 datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
                 item["datetime"] = datetime
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -133,7 +133,7 @@ class TxDateds
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -143,7 +143,7 @@ class TxDateds
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = iAmValue
-                    Librarian6Objects::commit(item)
+                    Librarian6ObjectsLocal::commit(item)
                 end
             end
 

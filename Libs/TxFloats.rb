@@ -4,12 +4,12 @@ class TxFloats
 
     # TxFloats::items()
     def self.items()
-        Librarian6Objects::getObjectsByMikuType("TxFloat")
+        Librarian6ObjectsLocal::getObjectsByMikuType("TxFloat")
     end
 
     # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6Objects::destroy(uuid)
+        Librarian6ObjectsLocal::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -35,7 +35,7 @@ class TxFloats
           "datetime"    => datetime,
           "iam"         => iAmValue
         }
-        Librarian6Objects::commit(item)
+        Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::interactivelySetObjectUniverseMapping(uuid)
         item
     end
@@ -108,7 +108,7 @@ class TxFloats
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian6Objects::commit(item)
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 
@@ -118,7 +118,7 @@ class TxFloats
                 puts JSON.pretty_generate(iAmValue)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = iAmValue
-                    Librarian6Objects::commit(item)
+                    Librarian6ObjectsLocal::commit(item)
                 end
             end
 

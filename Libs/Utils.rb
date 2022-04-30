@@ -5,11 +5,6 @@
 
 class Utils
 
-    # Utils::catalystDataCenterFolderpath()
-    def self.catalystDataCenterFolderpath()
-        "/Users/pascal/Galaxy/DataBank/Catalyst"
-    end
-
     # Utils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.uuid

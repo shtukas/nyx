@@ -129,6 +129,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 # ------------------------------------------------------------
 
+require_relative "AlexandraDidactSynchronization.rb"
 require_relative "Anniversaries.rb"
 
 require_relative "Bank.rb"
@@ -145,6 +146,8 @@ require_relative "Galaxy.rb"
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
+require_relative "InfinityFileSystemCheck.rb"
+require_relative "InfinityDrive.rb"
 
 require_relative "Librarian.rb"
 require_relative "Links.rb"
