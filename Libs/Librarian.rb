@@ -867,7 +867,7 @@ end
 class Librarian22Dx8UnitsUtils
     # Librarian22Dx8UnitsUtils::infinityRepository()
     def self.infinityRepository()
-        "/Volumes/Infinity/Data/Pascal/Nyx-Librarian-Dx8Units"
+        "#{Config::pathToInfinityDidact()}/Nyx-Librarian-Dx8Units"
     end
 
     # Librarian22Dx8UnitsUtils::driveIsPlugged()

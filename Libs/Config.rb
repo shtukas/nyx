@@ -9,4 +9,9 @@ class Config
     def self.nyxFolderPath()
         "/Users/pascal/Galaxy/DataBank/Nyx"
     end
+
+    # Config::pathToInfinityDidact()
+    def self.pathToInfinityDidact()
+        "/Volumes/Infinity/Data/Pascal/Ur-Didact"
+    end
 end
