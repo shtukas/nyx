@@ -221,6 +221,20 @@ class Nx100s
         }
     end
 
+    # Nx100s::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+    def self.uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+        folder = LucilleCore::askQuestionAnswerAsString("folder: ")
+        return if !File.exists?(folder)
+        return if !File.directory?(folder)
+        LucilleCore::locationsAtFolder(folder).each{|location|
+            puts "processing: #{location}"
+            child = Nx100s::issuePrimitiveFileFromLocationOrNull(location)
+            next if child.nil?
+            Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            Links::link(item["uuid"], child["uuid"], false)
+        }
+    end
+
     # Nx100s::landing(item)
     def self.landing(item)
         loop {
@@ -368,7 +382,8 @@ class Nx100s
             if Interpreting::match("special circumstances", command) then
                 operations = [
                     "transmute to navigation node and put contents into Genesis",
-                    "upload all locations of a folder as aion-point children"
+                    "upload all locations of a folder as aion-point children",
+                    "upload all locations of a folder as primitive files children"
                 ]
                 operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                 next if operation.nil?
@@ -377,6 +392,9 @@ class Nx100s
                 end
                 if operation == "upload all locations of a folder as aion-point children" then
                     Nx100s::uploadAllLocationsOfAFolderAsAionPointChildren(item)
+                end
+                if operation == "upload all locations of a folder as primitive files children" then
+                    Nx100s::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
                 end
             end
 
