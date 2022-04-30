@@ -317,6 +317,12 @@ class Librarian15BecauseReadWrite
         substrings.uniq
     end
 
+    # Librarian15BecauseReadWrite::utils_getAllTheSubstringsOfSize8(str)
+    def self.utils_getAllTheSubstringsOfSize8(str)
+        Librarian15BecauseReadWrite::utils_getAllTheSubstrings(str)
+            .select{|str| str.size == 8 }
+    end
+
     # Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(identifier)
     def self.getLocationForThisTx46IdentiferOrNull(identifier)
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
@@ -329,7 +335,7 @@ class Librarian15BecauseReadWrite
     def self.utils_getAllTheTx46IdsLocationPairsFromDesktop()
         answer = []
         LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
-            substrings = Librarian15BecauseReadWrite::utils_getAllTheSubstrings(File.basename(location))
+            substrings = Librarian15BecauseReadWrite::utils_getAllTheSubstringsOfSize8(File.basename(location))
             substring = substrings.select{|ss| XCache::getOrNull("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{ss}") }.first
             if substring then
                 pair = {
@@ -492,6 +498,29 @@ class Librarian15BecauseReadWrite
                     LucilleCore::pressEnterToContinue()
                 end
             }
+    end
+
+    # Librarian15BecauseReadWrite::pickupInteractiveInterface()
+    def self.pickupInteractiveInterface()
+        pairs = Librarian15BecauseReadWrite::utils_getAllTheTx46IdsLocationPairsFromDesktop()
+        selected, _ = LucilleCore::selectZeroOrMore("pickups", [], pairs, lambda{ |pair| File.basename(pair["location"]) })
+        selected.each{|pair|
+            identifier = pair["identifier"]
+            location   = pair["location"]
+            tx46       = XCache::getOrNull("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{identifier}")
+            # We will be asuming that tx46 is not null, otherwise this is too wierd and we deserve to crash
+            tx46       = JSON.parse(tx46)
+            puts JSON.pretty_generate(tx46)
+            itemuuid   = tx46["itemuuid"]
+            item       = Librarian6Objects::getObjectByUUIDOrNull(itemuuid)
+            if item then
+                Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
+                LucilleCore::removeFileSystemLocation(location)
+            else
+                puts "I could not find a nyx node for itemuuid: #{itemuuid}, that is associated with location: #{location}. Is that expected ?"
+                LucilleCore::pressEnterToContinue()
+            end
+        }
     end
 end
 
@@ -1013,8 +1042,8 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "desktop-data-pickup" then
-            Librarian15BecauseReadWrite::desktopDataPickups()
+        if ARGV[0] == "desktop-aion-export-pickup-i" then
+            Librarian15BecauseReadWrite::pickupInteractiveInterface()
             exit
         end
 
@@ -1053,7 +1082,7 @@ class LibrarianCLI
         puts "    librarian destroy-object-by-uuid-i"
         puts "    librarian prob-blob-i"
         puts "    librarian echo-blob-i"
-        puts "    librarian desktop-data-pickup"
+        puts "    librarian desktop-aion-export-pickup-i"
         puts "    librarian Dx8Units-Maintenance"
     end
 end
