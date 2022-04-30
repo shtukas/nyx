@@ -906,8 +906,12 @@ class LibrarianCLI
     # LibrarianCLI::main()
     def self.main()
 
-        if ARGV[0] == "sync+fsck" then
+        if ARGV[0] == "alexandra-sync" then
             AlexandraDidactSynchronization::run()
+            exit
+        end
+
+        if ARGV[0] == "infinity-fsck" then
             InfinityFileSystemCheck::fsckExitAtFirstFailure()
             exit
         end
@@ -1004,7 +1008,8 @@ class LibrarianCLI
         end
 
         puts "usage:"
-        puts "    librarian sync+fsck"
+        puts "    librarian alexandra-sync"
+        puts "    librarian infinity-fsck"
         puts "    librarian show-object-i"
         puts "    librarian edit-object-i"
         puts "    librarian destroy-object-by-uuid-i"
