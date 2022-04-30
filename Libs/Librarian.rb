@@ -360,8 +360,19 @@ class Librarian12InfinityBlobsServiceXCached
 
     # -----------------------------------------------------------------------------
 
+    # Librarian12InfinityBlobsServiceXCached::commitToDatablobsInfinityBufferOut(blob)
+    def self.commitToDatablobsInfinityBufferOut(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath = "#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut/#{nhash[7, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.write(blob) }
+    end
+
     # Librarian12InfinityBlobsServiceXCached::putBlob(blob) # nhash
     def self.putBlob(blob)
+        Librarian12InfinityBlobsServiceXCached::commitToDatablobsInfinityBufferOut(blob)
         Librarian2DatablobsXCache::putBlob(blob)
     end
 

@@ -22,9 +22,21 @@ class AlexandraDidactSynchronization
         puts "Update objects database on drive"
         FileUtils.cp(Librarian6ObjectsLocal::databaseFilepath(), Librarian7ObjectsInfinity::databaseFilepath())
 
+        puts "Rsync Catalyst data"
         system($AlexandraDidactSynchronizationCatalystDataRsync) or raise "(error: 7bf44899-8bb2-47f2-be7b-c38e95b8543c)"
 
+        puts "Rsync Nyx data"
         system($AlexandraDidactSynchronizationNyxDataRsync) or raise "(error: bc0ee679-d4cf-4efc-8ebf-bc5d83150bfe)"
+
+        puts "Process DatablobsInfinityBufferOut"
+        Find.find("#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut") do |path|
+            next if !File.file?(path)
+            next if path[-5, 5] != ".data"
+            puts "Uploading blob: #{path}"
+            blob = IO.read(path)
+            InfinityFsckBlobsService::putBlob(blob)
+            FileUtils.rm(path)
+        end
 
     end
 end
