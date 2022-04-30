@@ -1,0 +1,7 @@
+TxInbox2 = {
+  "uuid"           : String
+  "mikuType"       : "TxInbox2"
+  "unixtime"       : Float
+  "line"           : String
+  "aionrootnhash"  : null | Nhash
+}

@@ -310,7 +310,7 @@ class TxTodos
             end
 
             if command == ">nyx" then
-                i2 = NyxAdapter::interactivelyNx50ToNyx(item)
+                i2 = Transmutation::interactivelyNx50ToNyx(item)
                 LxAction::action("landing", i2)
                 break
             end

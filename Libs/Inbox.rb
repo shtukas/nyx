@@ -2,6 +2,9 @@
 
 class Inbox
 
+    # --------------------------------------------------------------------------
+    # Desktop Functions
+
     # Inbox::repository()
     def self.repository()
         "/Users/pascal/Desktop/Inbox"
@@ -31,8 +34,8 @@ class Inbox
         description
     end
 
-    # Inbox::landing(location)
-    def self.landing(location)
+    # Inbox::landingInbox1(location)
+    def self.landingInbox1(location)
         system("clear")
         puts location.green
         loop {
@@ -44,7 +47,7 @@ class Inbox
                     ["open", "datecode", "transmute", ">nyx", "destroy", "exit (default)"]
                 end
 
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["open", "copy to desktop", "datecode", ">todo", ">nyx", "destroy", "exit (default)"])
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
             if action == "open" then
                 system("open '#{location}'")
             end
@@ -80,8 +83,8 @@ class Inbox
         }
     end
 
-    # Inbox::ns16s()
-    def self.ns16s()
+    # Inbox::inboxDesktopNS16s()
+    def self.inboxDesktopNS16s()
 
         getLocationUnixtime = lambda{|location|
             unixtime = XCache::getOrNull("54226eda-9437-4f64-9ab9-7e5141a15471:#{location}")
@@ -112,4 +115,46 @@ class Inbox
             }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
+
+    # --------------------------------------------------------------------------
+    # TxInbox2 Functions
+
+    # Inbox::txInbox2NS16s()
+    def self.txInbox2NS16s()
+        Librarian6Objects::getObjectsByMikuType("TxInbox2").map{|item|
+            {
+                "uuid"     => item["uuid"],
+                "mikuType" => "NS16:TxInbox2",
+                "unixtime" => item["unixtime"],
+                "announce" => item["line"],
+                "item"     => item
+            }
+        }
+    end
+
+    # Inbox::landingInbox2(item)
+    def self.landingInbox2(item)
+        puts item["line"]
+        if item["aionrootnhash"] then
+            AionCore::exportHashAtFolder(Librarian3ElizabethUnsecuredXCache.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
+        end
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["exit (default)", "destroy"])
+        if action.nil? or action == "exit" then
+            return
+        end
+        if action == "destroy" then
+            Librarian6Objects::destroy(item["uuid"])
+            return
+        end
+    end
+
+    # --------------------------------------------------------------------------
+    # Common Interface
+
+    # Inbox::ns16s()
+    def self.ns16s()
+        (Inbox::txInbox2NS16s()+Inbox::inboxDesktopNS16s())
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+    end
+
 end

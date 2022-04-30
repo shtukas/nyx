@@ -216,7 +216,7 @@ class Nx100s
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
             child = Nx100s::issueNewItemAionPointFromLocation(location)
-            Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
             Links::link(item["uuid"], child["uuid"], false)
         }
     end
@@ -230,7 +230,7 @@ class Nx100s
             puts "processing: #{location}"
             child = Nx100s::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
-            Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
             Links::link(item["uuid"], child["uuid"], false)
         }
     end

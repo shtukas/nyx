@@ -160,7 +160,7 @@ class TxFloats
             end
 
             if command == ">nyx" then
-                NyxAdapter::floatToNyx(item)
+                Transmutation::floatToNyx(item)
                 break
             end
         }

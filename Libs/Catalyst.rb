@@ -111,6 +111,10 @@ class TerminalUtils
             return ["fsck", nil]
         end
 
+        if Interpreting::match("inbox", input) then
+            return ["inbox", nil]
+        end
+
         if Interpreting::match("internet off", input) then
             return ["internet off", nil]
         end

@@ -94,7 +94,12 @@ class LxAction
             end
 
             if object["mikuType"] == "NS16:Inbox1" then
-                Inbox::landing(object["location"])
+                Inbox::landingInbox1(object["location"])
+                return
+            end
+
+            if object["mikuType"] == "NS16:TxInbox2" then
+                Inbox::landingInbox2(object["item"])
                 return
             end
 
@@ -241,7 +246,39 @@ class LxAction
         end
 
         if command == "fsck" then
-            Librarian21Fsck::fsckExitAtFirstFailure()
+            Librarian20Fsck::fsckExitAtFirstFailure()
+            return
+        end
+
+        if command == "inbox" then
+            
+            # This function creates a TxInbox2 object that is going to be dropped into the Inbox folder. 
+            # Catalyst will know how to pick them up properly and how to present them
+
+            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+            return if line == ""
+            aionrootnhash = nil
+            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull() 
+            if location then
+                aionrootnhash = AionCore::commitLocationReturnHash(Librarian3ElizabethUnsecuredXCache.new(), location)
+            end
+
+            item = {
+                "uuid"          => SecureRandom.uuid,
+                "mikuType"      => "TxInbox2",
+                "unixtime"      => Time.new.to_i,
+                "line"          => line,
+                "aionrootnhash" => aionrootnhash
+            }
+
+            puts JSON.pretty_generate(item)
+
+            Librarian6Objects::commit(item)
+
+            if location then
+                LucilleCore::removeFileSystemLocation(location)
+            end
+
             return
         end
 
@@ -268,7 +305,7 @@ class LxAction
             end
 
             if object["mikuType"] == "NS16:Inbox1" then
-                Inbox::landing(object["location"])
+                Inbox::landingInbox1(object["location"])
                 return
             end
 

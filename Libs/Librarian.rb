@@ -84,7 +84,7 @@ class Librarian0Utils
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            hashes << Librarian2DatablobsXCache::putBlob(blob)
+            hashes << Librarian2DatablobsUnsecuredXCache::putBlob(blob)
         end
         f.close()
         hashes
@@ -120,18 +120,52 @@ class Librarian0Utils
     end
 end
 
-class Librarian2DatablobsXCache
+class Librarian2DatablobsUnsecuredXCache
 
-    # Librarian2DatablobsXCache::putBlob(blob)
+    # Librarian2DatablobsUnsecuredXCache::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         XCache::set("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
         nhash
     end
 
-    # Librarian2DatablobsXCache::getBlobOrNull(nhash)
+    # Librarian2DatablobsUnsecuredXCache::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         XCache::getOrNull("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
+    end
+end
+
+class Librarian3ElizabethUnsecuredXCache
+
+    def initialize()
+    end
+
+    def commitBlob(blob)
+        Librarian2DatablobsUnsecuredXCache::putBlob(blob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = Librarian2DatablobsUnsecuredXCache::getBlobOrNull(nhash)
+        return blob if blob
+        puts "(error: c052116a-dd92-47a8-88e4-22d7516863d1) could not find blob, nhash: #{nhash}"
+        raise "(error: 521d8f17-a958-44ba-97c2-ffacbbca9724, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 4a667893-8d05-4bae-8ea8-d415066ac443) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
     end
 end
 
@@ -605,9 +639,9 @@ class Librarian17PrimitiveFilesAndCarriers
     end
 end
 
-class Librarian21Fsck
+class Librarian20Fsck
 
-    # Librarian21Fsck::fsckAtomReturnBoolean(atom) : Boolean
+    # Librarian20Fsck::fsckAtomReturnBoolean(atom) : Boolean
     def self.fsckAtomReturnBoolean(atom)
         puts JSON.pretty_generate(atom)
         if atom["type"] == "description-only" then
@@ -631,7 +665,7 @@ class Librarian21Fsck
         raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
     end
 
-    # Librarian21Fsck::fsckExitAtFirstFailureIamValue(object, nx111)
+    # Librarian20Fsck::fsckExitAtFirstFailureIamValue(object, nx111)
     def self.fsckExitAtFirstFailureIamValue(object, nx111)
         if !Nx111::iamTypes().include?(nx111[0]) then
             puts "object has an incorrect iam value type".red
@@ -732,7 +766,7 @@ class Librarian21Fsck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end
 
-    # Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+    # Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
     def self.fsckExitAtFirstFailureLibrarianMikuObject(item)
         if item["mikuType"] == "Nx60" then
             return
@@ -745,38 +779,38 @@ class Librarian21Fsck
             end
             iAmValue = item["iam"]
             puts JSON.pretty_generate(iAmValue)
-            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, iAmValue)
+            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, iAmValue)
             return
         end
         if item["mikuType"] == "TxAttachment" then
-            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxDated" then
-            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxFloat" then
-            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxFyre" then
-            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxTodo" then
-            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "Wave" then
-            Librarian21Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            Librarian20Fsck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         puts JSON.pretty_generate(item).red
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
     end
 
-    # Librarian21Fsck::fsckExitAtFirstFailure()
+    # Librarian20Fsck::fsckExitAtFirstFailure()
     def self.fsckExitAtFirstFailure()
 
         runhash = XCache::getOrNull("1A07231B-8535-499B-BB2C-89A4EB429F49")
@@ -800,7 +834,7 @@ class Librarian21Fsck
             next if XCache::flagIsTrue("#{runhash}:#{item["uuid"]}")
 
             puts JSON.pretty_generate(item)
-            Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
 
             XCache::setFlagTrue("#{runhash}:#{item["uuid"]}")
 
@@ -817,6 +851,197 @@ end
 # ---------------------------------------------------------------------------
 # Dx8Unit blob services and Elizabeth
 # ---------------------------------------------------------------------------
+
+=begin
+
+We have an array of folders, corresponding to an array of indices.
+
+An index is an element of the form 2022-04-10-114509310072, meaning a date time to microseconds.
+
+When we read a block
+    - If the block is read from today, we keep it in place, and return
+    - If the block is read from a past day, we move it to today, and return
+
+When we write a block
+    - that has not been written, we write it at today (actually the latest folder, possibly creating a new one to avoid overflowed)
+    - that has been written, we move it to today, before we rewrite it
+
+We keep up to 50 folders (with a 1000 folder capacity; 50Gb), but we do not delete folders less than 48 hours old
+
+=end
+
+class Librarian21XSpaceCache
+
+    # Librarian21XSpaceCache::repositoryFolderPath()
+    def self.repositoryFolderPath()
+        "/Users/pascal/x-space/Librarian-Cache-1-F35E"
+    end
+
+    # Librarian21XSpaceCache::folderMaxCapacity()
+    def self.folderMaxCapacity()
+        1000
+    end
+
+    # Librarian21XSpaceCache::repositoryMaxCapacityInGb()
+    def self.repositoryMaxCapacityInGb()
+        20
+    end
+
+    # Librarian21XSpaceCache::generateNewIndex()
+    def self.generateNewIndex()
+        idx = "#{Time.new.to_s[0, 10]}-#{Time.new.strftime("%H%M%S%6N")}"
+    end
+
+    # Librarian21XSpaceCache::getIndices()
+    def self.getIndices()
+        indices = LucilleCore::locationsAtFolder(Librarian21XSpaceCache::repositoryFolderPath()).map{|location| File.basename(location)}
+        if indices.size == 0 then
+            idx = Librarian21XSpaceCache::generateNewIndex()
+            folderpath = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{idx}"
+            FileUtils.mkdir(folderpath)
+            return [idx]
+        end
+
+        # The first check below ensures that there are not pending Dx8Unit mainenance
+        # We do not garbage collect this cache if there are pending Dx8Unit that need sync to origin
+        if Mercury::isEmpty("055e1acb-164c-49cd-b17a-7946ba02c583") and indices.size > 50 then
+            oldestIndex = indices.sort.first
+            folderpath = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{oldestIndex}"
+            LucilleCore::removeFileSystemLocation(location)
+            indices = indices - [oldestIndex]
+        end
+        indices
+    end
+
+    # Librarian21XSpaceCache::indexIsToday(indx)
+    def self.indexIsToday(indx)
+        indx[0, 10] == Time.new.to_s[0, 10]
+    end
+
+    # Librarian21XSpaceCache::getFileCountAtIndex(ix)
+    def self.getFileCountAtIndex(ix)
+        folderpath = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{ix}"
+        LucilleCore::locationsAtFolder(folderpath).size
+    end
+
+    # Librarian21XSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+    def self.getTheLastestIndexOrANewerOneIfFullEnsureToday()
+        latestIndex = Librarian21XSpaceCache::getIndices().max
+
+        if latestIndex[0, 10] != Time.new.to_s[0, 10] then
+            latestIndex = Librarian21XSpaceCache::generateNewIndex()
+            folderpath = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{latestIndex}"
+            FileUtils.mkdir(folderpath)
+        end
+
+        if Librarian21XSpaceCache::getFileCountAtIndex(latestIndex) >= Librarian21XSpaceCache::folderMaxCapacity() then
+            latestIndex = Librarian21XSpaceCache::generateNewIndex()
+            folderpath = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{latestIndex}"
+            FileUtils.mkdir(folderpath)
+        end
+
+        latestIndex
+    end
+
+    # -------------------------------------------------------
+
+    # Librarian21XSpaceCache::getFilepathForPut(nhash)
+    def self.getFilepathForPut(nhash)
+        filepath = nil
+        
+        # Checking if the blob is already in repository
+        
+        Librarian21XSpaceCache::getIndices().each{|ix1|
+            filepath1 = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{ix1}/#{nhash}.data"
+            if File.exists?(filepath1) then
+                filepath = filepath1
+            end
+        }
+
+        # If the filepath was null (no occurence of the blob), we make a new one
+        
+        if filepath.nil? then
+            ix2 = Librarian21XSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+            filepath = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
+        end
+
+        # Let's check in the path points at today
+        # If it doesn't we make a today one and if a blob already existed, we move it
+
+        if !Librarian21XSpaceCache::indexIsToday(File.basename(File.dirname(filepath))) then
+            ix2 = Librarian21XSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+            filepath2 = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
+            if File.exists?(filepath) then
+                FileUtils.mv(filepath, filepath2)
+                filepath = filepath2
+            end
+        end
+
+        filepath
+    end
+
+    # Librarian21XSpaceCache::getFilepathForGetOrNull(nhash)
+    def self.getFilepathForGetOrNull(nhash)
+
+        filepath = nil
+
+        Librarian21XSpaceCache::getIndices().each{|ix1|
+            filepath1 = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{ix1}/#{nhash}.data"
+            if File.exists?(filepath1) then
+                filepath = filepath1
+            end
+        }
+
+        # Let's check in the path points at today
+        # If it doesn't we make a today one and if a blob already existed, we move it
+
+        if filepath and !Librarian21XSpaceCache::indexIsToday(File.basename(File.dirname(filepath))) then
+            ix2 = Librarian21XSpaceCache::getTheLastestIndexOrANewerOneIfFullEnsureToday()
+            filepath2 = "#{Librarian21XSpaceCache::repositoryFolderPath()}/#{ix2}/#{nhash}.data"
+            if File.exists?(filepath) then
+                FileUtils.mv(filepath, filepath2)
+                filepath = filepath2
+            end
+        end
+
+        filepath
+    end
+
+    # -------------------------------------------------------
+
+    # Librarian21XSpaceCache::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath = Librarian21XSpaceCache::getFilepathForPut(nhash)
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.write(blob) }
+        nhash
+    end
+
+    # Librarian21XSpaceCache::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        filepath = Librarian21XSpaceCache::getFilepathForGetOrNull(nhash)
+        return nil if filepath.nil?
+        if File.exists?(filepath) then
+            blob = IO.read(filepath)
+
+            # -------------------------------------------------------------
+            # I put the following check in place because 
+            # both Librarian21XSpaceCache::getFilepathForPut and Librarian21XSpaceCache::getFilepathForGetOrNull
+            # move files and better safe than sorry
+
+            if nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}" then
+                raise "(error: 0b8fb33e-9fab-4c7c-b14f-e418d678c720) This should never happen!"
+            end
+            # -------------------------------------------------------------
+
+            return blob
+        end
+        nil
+    end
+end
 
 class Librarian22Dx8UnitsUtils
     # Librarian22Dx8UnitsUtils::infinityRepository()
@@ -864,7 +1089,7 @@ class Librarian23Dx8UnitsBlobsService
                 File.open(filepath, "w"){|f| f.write(blob) }
                 return nhash
             else
-                return LibrarianXSpaceCache::putBlob(blob)
+                return Librarian21XSpaceCache::putBlob(blob)
             end
         end
 
@@ -886,14 +1111,14 @@ class Librarian23Dx8UnitsBlobsService
         if mode == "aion-standard" then
             # raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
             # Actually this happens when we rewrite top names after Tx46 pickup from the Desktop
-            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
+            blob = Librarian21XSpaceCache::getBlobOrNull(nhash)
             return blob if blob
 
             Librarian22Dx8UnitsUtils::ensureDrive()
             filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
             if File.exists?(filepath) then
                 blob = IO.read(filepath)
-                LibrarianXSpaceCache::putBlob(blob)
+                Librarian21XSpaceCache::putBlob(blob)
                 return blob
             end
             return nil
@@ -909,7 +1134,7 @@ class Librarian23Dx8UnitsBlobsService
                 return IO.read(filepath)
             end
 
-            blob = LibrarianXSpaceCache::getBlobOrNull(nhash)
+            blob = Librarian21XSpaceCache::getBlobOrNull(nhash)
             if blob then
                 puts "Dx8Unit fsck, put blob, #{dx8UnitId}, #{nhash}"
                 Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob)
@@ -980,7 +1205,7 @@ class LibrarianCLI
     def self.main()
 
         if ARGV[0] == "fsck" then
-            Librarian21Fsck::fsckExitAtFirstFailure()
+            Librarian20Fsck::fsckExitAtFirstFailure()
             exit
         end
 
@@ -1069,7 +1294,7 @@ class LibrarianCLI
 
                 puts "Dx8Unit maintenance (fsck) for item: #{item["description"].green}"
 
-                Librarian21Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+                Librarian20Fsck::fsckExitAtFirstFailureLibrarianMikuObject(item)
 
             end
             exit

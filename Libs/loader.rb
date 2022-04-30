@@ -147,7 +147,6 @@ require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 
 require_relative "Librarian.rb"
-require_relative "LibrarianXSpaceCache.rb"
 require_relative "Links.rb"
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
@@ -161,7 +160,6 @@ require_relative "Nx100s.rb"
 require_relative "Nx111.rb"
 require_relative "Nx102Flavors.rb"
 require_relative "Nyx.rb"
-require_relative "NyxAdapter.rb"
 
 require_relative "ProgrammableBooleans.rb"
 

@@ -2,9 +2,6 @@
 
 class Topping
 
-    # The reason we are not just opening the files, is because those functions used to read and write 
-    # from KeyValueStore. We kept the same logic and the same functions (and just added universe as argument)
-
     # Topping::getText(universe)
     def self.getText(universe)
         return nil if universe.nil?
