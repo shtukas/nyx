@@ -73,12 +73,8 @@ class InfinityElizabethFsck
 
     def datablobCheck(nhash)
         begin
-
-            #blob = readBlobErrorIfNotFound(nhash)
-            #status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-
-            status = InfinityFsckBlobsService::blobExist?(nhash)
-
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
             if !status then
                 puts "(error: 36d664ef-0731-4a00-ba0d-b5a7fb7cf941) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
             end
