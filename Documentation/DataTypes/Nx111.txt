@@ -8,6 +8,6 @@ Nx111
     ["unique-string", uniquestring]
     ["primitive-file", dottedExtension, nhash, parts : Array[nhashes]]
     ["carrier-of-primitive-files"]
-    ["Dx8Unit", Dx8UnitConfiguration]
+    ["Dx8Unit", "unique-file-on-infinity-drive", <unitId>]
 
 Unique strings can be anything, but when possible, it's recommended to use "Nx01-<substring>", note that in this case "Nx01" is indeed part of the string.

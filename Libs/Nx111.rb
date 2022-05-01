@@ -4,12 +4,7 @@
 class Dx8UnitsUtils
     # Dx8UnitsUtils::infinityRepository()
     def self.infinityRepository()
-        "#{Config::pathToInfinityDidact()}/Nyx-Librarian-Dx8Units"
-    end
-
-    # Dx8UnitsUtils::driveIsPlugged()
-    def self.driveIsPlugged()
-        File.exists?(Dx8UnitsUtils::infinityRepository())
+        "#{Config::pathToInfinityDidact()}/Dx8Units"
     end
 
     # Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)
@@ -211,30 +206,24 @@ class Nx111
             Librarian17PrimitiveFilesAndCarriers::exportCarrier(item)
             return
         end
-        if iAmValue[0] == "Dx8Unit" then
-            configuration = iAmValue[1]
-
-            if configuration["Dx8Type"] == "unique-file-on-infinity-drive" then
-                unitId = configuration["unitId"]
-                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-                puts "location: #{location}"
-                if File.exists?(Dx8UnitsUtils::infinityRepository()) then
+        if iAmValue[0] == "Dx8Unit" and iAmValue[1] == "unique-file-on-infinity-drive" then
+            unitId = iAmValue[2]
+            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+            puts "location: #{location}"
+            if File.exists?(Dx8UnitsUtils::infinityRepository()) then
+                system("open '#{location}'")
+                LucilleCore::pressEnterToContinue()
+            else
+                if LucilleCore::askQuestionAnswerAsBoolean("Infinity drive is not connected, want to access ? ") then
+                    InfinityDrive::ensureInfinityDrive()
                     system("open '#{location}'")
                     LucilleCore::pressEnterToContinue()
                 else
-                    if LucilleCore::askQuestionAnswerAsBoolean("Infinity drive is not connected, want to access ? ") then
-                        InfinityDrive::ensureInfinityDrive()
-                        system("open '#{location}'")
-                        LucilleCore::pressEnterToContinue()
-                    else
-                        puts "Ok, not accessing the file."
-                        sleep 1
-                    end
+                    puts "Ok, not accessing the file."
+                    sleep 1
                 end
-                return
             end
-
-            raise "(error: 3d84d2b9-56c3-4762-b6a8-8a50c66b9240): #{item}, #{iAmValue}"
+            return
         end
         raise "(error: 3cbb1e64-0d18-48c5-bd28-f4ba584659a3): #{item}"
     end

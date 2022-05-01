@@ -10,13 +10,6 @@ class InfinityFsckBlobsService
 
     # -----------------------------------------------------------------------------
 
-    # InfinityFsckBlobsService::blobExist?(nhash)
-    def self.blobExist?(nhash)
-        InfinityDrive::ensureInfinityDrive()
-        filepath = "#{InfinityFsckBlobsService::infinityDatablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        File.exists?(File.dirname(filepath))
-    end
-
     # InfinityFsckBlobsService::putBlob(blob) # nhash
     def self.putBlob(blob)
 
@@ -173,29 +166,23 @@ class InfinityFileSystemCheck
         if nx111[0] == "carrier-of-primitive-files" then
             return
         end
-        if nx111[0] == "Dx8Unit" then
-            configuration = nx111[1]
-
-            if configuration["Dx8Type"] == "unique-file-on-infinity-drive" then
-                unitId = configuration["unitId"]
-                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-                puts "location: #{location}"
-                status = File.exists?(location)
-                if !status then
-                    puts "could not find location".red
-                    puts JSON.pretty_generate(object).red
-                    exit
-                end
-                status = LucilleCore::locationsAtFolder(location).size == 1
-                if !status then
-                    puts "expecting only one file at location".red
-                    puts JSON.pretty_generate(object).red
-                    exit
-                end
-                return
+        if nx111[0] == "Dx8Unit" and nx111[1] == "unique-file-on-infinity-drive" then
+            unitId = nx111[2]
+            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+            puts "location: #{location}"
+            status = File.exists?(location)
+            if !status then
+                puts "could not find location".red
+                puts JSON.pretty_generate(object).red
+                exit
             end
-
-            raise "(error: 5a970959-ca52-40e4-b291-056c9c500575): #{object}, #{nx111}"
+            status = LucilleCore::locationsAtFolder(location).size == 1
+            if !status then
+                puts "expecting only one file at location".red
+                puts JSON.pretty_generate(object).red
+                exit
+            end
+            return
         end
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end

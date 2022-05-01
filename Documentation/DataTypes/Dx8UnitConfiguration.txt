@@ -1,7 +1,0 @@
-
-Dx8UnitConfiguration
-
-{
-    "unitId"    : String,
-    "Dx8Type"   : "unique-file-on-infinity-drive"
-}

@@ -3,6 +3,11 @@
 
 class InfinityDrive
 
+    # InfinityDrive::driveIsPlugged()
+    def self.driveIsPlugged()
+        File.exists?(Dx8UnitsUtils::infinityRepository())
+    end
+
     # InfinityDrive::ensureInfinityDrive()
     def self.ensureInfinityDrive()
         if !File.exists?(InfinityFsckBlobsService::infinityDatablobsRepository()) then
