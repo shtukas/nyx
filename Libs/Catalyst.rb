@@ -82,6 +82,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("done", ordinal, store)
         end
 
+        if Interpreting::match("exit", input) then
+            exit
+        end
+
         if Interpreting::match("fyre", input) then
             return ["fyre", nil]
         end
