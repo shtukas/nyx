@@ -1,7 +1,8 @@
 NS16 {
     "uuid"     : String # used by DoNotShowUntil
-    "mikuType" : String # type of Ns16 used for dispatch
+    "mikuType" : String # type of NS16 used for dispatch
     "announce" : String
+    "height"   : Float
 
     "nonListingDefaultable" : Boolean # Optional
 }

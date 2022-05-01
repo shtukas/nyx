@@ -322,6 +322,7 @@ class Waves
             "uuid"     => uuid,
             "mikuType" => "NS16:Wave",
             "announce" => Waves::toString(wave),
+            "height"   => 0.8, # HEIGHT
             "wave"     => wave
         }
     end

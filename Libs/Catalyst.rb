@@ -144,10 +144,6 @@ class TerminalUtils
             return ["nyx", nil]
         end
 
-        if Interpreting::match("Nx24", input) then
-            return ["Nx24", nil]
-        end
-
         if Interpreting::match("ondate", input) then
             return ["ondate", nil]
         end
@@ -235,7 +231,7 @@ class TerminalUtils
         end
 
         if Interpreting::match("universe", input) then
-            return ["universe", store.getDefault()]
+            return ["universe", nil]
         end
 
         if Interpreting::match("universe *", input) then
@@ -407,7 +403,7 @@ class TerminalDisplayOperator
         reference = getReference.call()
         current   = getCurrent.call()
         ratio     = current.to_f/reference["count"]
-        puts "(#{UniverseManagement::nx24AsStringForListing()}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
+        puts "(#{universe}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
         if ratio < 0.99 then
             issueNewReference.call()
         end
@@ -535,15 +531,15 @@ class Catalyst
                 break
             end
 
-            UniverseManagement::performTransitionIfRelevantAndIfPossible()
-
             universe = StoredUniverse::getUniverseOrNull()
+            
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = NS16sOperator::section2(universe)
 
+
+            section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
 
             # If some section3 items are running we show them first

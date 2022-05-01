@@ -110,6 +110,7 @@ class Inbox
                     "mikuType"     => "NS16:Inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
+                    "height"       => 0.8, # HEIGHT
                     "location"     => location
                 }
             }
@@ -127,6 +128,7 @@ class Inbox
                 "mikuType" => "NS16:TxInbox2",
                 "unixtime" => item["unixtime"],
                 "announce" => item["line"],
+                "height"   => 0.8, # HEIGHT
                 "item"     => item
             }
         }

@@ -300,6 +300,7 @@ class TxFyres
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFyre",
             "announce" => announce,
+            "height"   => 0.8, # HEIGHT
             "TxFyre"   => nx70,
             "rt"       => rt
         }
@@ -315,6 +316,7 @@ class TxFyres
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
                     "announce" => announce,
+                    "height"   => 0.8, # HEIGHT
                     "TxFyre"   => item
                 }
             }

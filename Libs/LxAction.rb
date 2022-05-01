@@ -377,18 +377,6 @@ class LxAction
             return
         end
 
-        if command == "Nx24" then
-            if NxBallsService::somethingIsRunning() then
-                puts "You cannot set a Nx24 (Universe Management) while something is running"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            puts "Current Nx24:"
-            puts JSON.pretty_generate(UniverseManagement::getNx24())
-            UniverseManagement::interactivelySetNx24()
-            return
-        end
-
         if command == "ondate" then
             item = TxDateds::interactivelyCreateNewOrNull()
             return if item.nil?
@@ -520,27 +508,7 @@ class LxAction
         end
 
         if command == "universe" then
-            ns16 = object
-            if ns16["mikuType"] == "NS16:TxFyre" then
-                item = ns16["TxFyre"]
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
-                return
-            end
-            if ns16["mikuType"] == "NS16:TxFloat" then
-                item = ns16["TxFloat"]
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
-                return
-            end
-            if ns16["mikuType"] == "NS16:Wave" then
-                item = ns16["wave"]
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
-                return
-            end
-            if ns16["mikuType"] == "NS16:TxTodo" then
-                item = ns16["TxTodo"]
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
-                return
-            end
+            StoredUniverse::interactivelySetUniverse()
         end
 
         if command == "wave" then
