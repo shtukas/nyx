@@ -368,7 +368,7 @@ class TxTodos
             "uuid"     => uuid,
             "mikuType" => "NS16:TxTodo",
             "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
-            "height"   => 0.8, # HEIGHT
+            "height"   => Heights::height1("beca7cc9", uuid),
             "ordinal"  => nx50["ordinal"],
             "TxTodo"   => nx50,
             "rt"       => rt

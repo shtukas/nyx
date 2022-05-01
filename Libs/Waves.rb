@@ -318,11 +318,16 @@ class Waves
     # Waves::toNS16(wave)
     def self.toNS16(wave)
         uuid = wave["uuid"]
+        height = if Waves::isPriorityWave(wave) then
+                    Heights::height1("f0047af0", uuid)
+                 else
+                    Heights::height1("beca7cc9", uuid)
+                 end
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:Wave",
             "announce" => Waves::toString(wave),
-            "height"   => 0.8, # HEIGHT
+            "height"   => height,
             "wave"     => wave
         }
     end

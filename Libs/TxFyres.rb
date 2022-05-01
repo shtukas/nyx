@@ -143,7 +143,7 @@ class TxFyres
 
     # TxFyres::toStringForSection2(item)
     def self.toStringForSection2(item)
-        "(fyre) #{item["description"]} (#{item["iam"][0]})"
+        "(fyre) #{item["description"]} (#{item["iam"][0]}) #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"])}"
     end
 
     # TxFyres::toStringForNS16(item, rt)
@@ -184,6 +184,7 @@ class TxFyres
             puts "uuid: #{uuid}".yellow
             puts "iam: #{item["iam"]}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
+            puts "TxFy36: #{TxFyres::getTxFy36ForTodayOrNull(uuid)}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
@@ -291,21 +292,6 @@ class TxFyres
     # --------------------------------------------------
     # nx16s
 
-    # TxFyres::ns16(nx70)
-    def self.ns16(nx70)
-        uuid = nx70["uuid"]
-        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        announce = TxFyres::toStringForNS16(nx70, rt).gsub("(0.00)", "      ")
-        {
-            "uuid"     => uuid,
-            "mikuType" => "NS16:TxFyre",
-            "announce" => announce,
-            "height"   => 0.8, # HEIGHT
-            "TxFyre"   => nx70,
-            "rt"       => rt
-        }
-    end
-
     # TxFyres::section2(universe)
     def self.section2(universe)
         TxFyres::itemsForUniverse(universe)
@@ -316,14 +302,14 @@ class TxFyres
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
                     "announce" => announce,
-                    "height"   => 0.8, # HEIGHT
+                    "height"   => 1,
                     "TxFyre"   => item
                 }
             }
     end
 
-    # TxFyres::ns16s(universe)
-    def self.ns16s(universe)
+    # TxFyres::section3(universe)
+    def self.section3(universe)
         TxFyres::ensureTxFy36sForUniverseForToday(universe)
 
         txFy36Filter = lambda {|item|
@@ -333,9 +319,19 @@ class TxFyres
 
         TxFyres::itemsForUniverse(universe)
             .select{|item| txFy36Filter.call(item) }
-            .map{|item| TxFyres::ns16(item) }
-            .select{|item| item["rt"] < 1}
-            .sort{|x1, x2| x1["rt"] <=> x2["rt"]}
+            .map{|item| 
+                uuid = item["uuid"]
+                rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+                announce = TxFyres::toStringForNS16(item, rt).gsub("(0.00)", "      ")
+                {
+                    "uuid"     => uuid,
+                    "mikuType" => "NS16:TxFyre",
+                    "announce" => announce,
+                    "height"   => Heights::height1("f0047af0", uuid),
+                    "TxFyre"   => item,
+                    "rt"       => rt
+                }
+            }
     end
 
     # --------------------------------------------------

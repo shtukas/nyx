@@ -346,7 +346,7 @@ class NS16sOperator
             TxDateds::ns16s(),
             Waves::ns16s(universe),
             Inbox::ns16s(),
-            TxFyres::ns16s(universe),
+            TxFyres::section3(universe),
             TxTodos::ns16s(universe)
         ]
             .flatten
@@ -463,6 +463,8 @@ class TerminalDisplayOperator
             line = "#{store.prefixString()} #{ns16["announce"]} #{NxBallsService::runningStringOrEmptyString("(", ns16["uuid"], ")")}"
             if NxBallsService::isRunning(ns16["uuid"]) then
                 line = line.green
+            else
+                line = line.yellow
             end
             puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
@@ -485,7 +487,7 @@ class TerminalDisplayOperator
             .each{|ns16|
                 store.register(ns16, Defaultability::isDefaultable(ns16))
                 line = ns16["announce"]
-                line = "#{store.prefixString()} #{line}"
+                line = "#{store.prefixString()} (#{"%.3f" % ns16["height"]}) #{line}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 if TerminalDisplayOperator::ns16HasStarted(ns16) then
                     line = "#{line} (#{NxBallsService::runningStringOrEmptyString("", ns16["uuid"], "")})".green
@@ -537,14 +539,12 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-
-
             section2 = NS16sOperator::section2(universe)
             section3 = NS16sOperator::section3(universe)
 
             # If some section3 items are running we show them first
             section3_1, section3_2 = section3.partition{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
-            section3 = section3_1 + section3_2
+            section3 = section3_1 + section3_2.sort{|i1, i2| i1["height"] <=> i2["height"] }.reverse
 
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }

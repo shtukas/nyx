@@ -207,7 +207,7 @@ class TxDateds
             "uuid"     => uuid,
             "mikuType" => "NS16:TxDated",
             "announce" => TxDateds::toString(item),
-            "height"   => 0.8, # HEIGHT
+            "height"   => Heights::height1("141de8cf", uuid),
             "TxDated"  => item
         }
     end

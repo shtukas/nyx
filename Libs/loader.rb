@@ -143,6 +143,8 @@ require_relative "DoNotShowUntil.rb"
 
 require_relative "Galaxy.rb"
 
+require_relative "Heights.rb"
+
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"

@@ -105,12 +105,13 @@ class Inbox
                     location = location2
                 end
                 announce = "[inbx] #{File.basename(location)}"
+                uuid = Inbox::getLocationUUID(location)
                 {
-                    "uuid"         => Inbox::getLocationUUID(location),
+                    "uuid"         => uuid,
                     "mikuType"     => "NS16:Inbox1",
                     "unixtime"     => getLocationUnixtime.call(location),
                     "announce"     => announce,
-                    "height"       => 0.8, # HEIGHT
+                    "height"       => Heights::height1("beca7cc9", uuid),
                     "location"     => location
                 }
             }
@@ -123,12 +124,13 @@ class Inbox
     # Inbox::txInbox2NS16s()
     def self.txInbox2NS16s()
         Librarian6ObjectsLocal::getObjectsByMikuType("TxInbox2").map{|item|
+            uuid = item["uuid"]
             {
-                "uuid"     => item["uuid"],
+                "uuid"     => uuid,
                 "mikuType" => "NS16:TxInbox2",
                 "unixtime" => item["unixtime"],
                 "announce" => item["line"],
-                "height"   => 0.8, # HEIGHT
+                "height"   => Heights::height1("141de8cf", uuid),
                 "item"     => item
             }
         }

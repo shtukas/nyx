@@ -171,11 +171,12 @@ class Anniversaries
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
             .map{|anniversary|
+                uuid = anniversary["uuid"]
                 {
-                    "uuid"        => anniversary["uuid"],
+                    "uuid"        => uuid,
                     "mikuType"    => "NS16:Anniversary1",
                     "announce"    => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "height"      => 0.8, # HEIGHT
+                    "height"      => Heights::height1("141de8cf", uuid),
                     "anniversary" => anniversary
                 }
             }
