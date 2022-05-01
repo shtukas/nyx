@@ -509,6 +509,7 @@ class LxAction
 
         if command == "universe" then
             StoredUniverse::interactivelySetUniverse()
+            return
         end
 
         if command == "wave" then

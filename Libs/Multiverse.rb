@@ -74,8 +74,12 @@ end
 
 class StoredUniverse
 
-    # StoredUniverse::setUniverse(universe)
+    # StoredUniverse::setUniverse(universe or null)
     def self.setUniverse(universe)
+        if universe.nil? then
+            XCache::destroy("5117D42F-8542-4D74-A219-47AF3C58F22B")
+            return
+        end
         XCache::set("5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
     end
 
@@ -86,10 +90,7 @@ class StoredUniverse
 
     # StoredUniverse::interactivelySetUniverse()
     def self.interactivelySetUniverse()
-        universe = LucilleCore::selectEntityFromListOfEntitiesOrNull("universe", Multiverse::universes())
-        if universe.nil? then
-            universe = "backlog"
-        end
+        universe = Multiverse::interactivelySelectUniverse()
         StoredUniverse::setUniverse(universe)
     end
 end
