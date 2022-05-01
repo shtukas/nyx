@@ -252,7 +252,7 @@ class Nx100s
                 puts ""
             end
 
-            puts Nx100s::toString(item).green
+            puts "(Nx100, Nyx Node) #{Nx100s::toString(item)}".green
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow

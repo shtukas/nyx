@@ -161,6 +161,11 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("pause", ordinal, store)
         end
 
+        if Interpreting::match("pickup", input) then
+            Librarian15BecauseReadWrite::pickupInteractiveInterface()
+            return [nil, nil]
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end

@@ -191,7 +191,7 @@ class TxFyres
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
 
-            puts "access | start | <datecode> | description | iam | attachment | show json | universe | transmute | destroy (gg) | exit (xx)".yellow
+            puts "access | start | <datecode> | description | iam | attachment | show json | universe | transmute | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -257,6 +257,23 @@ class TxFyres
             if Interpreting::match("show json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
+                break
+            end
+
+            if Interpreting::match(">nyx", command) then
+                ix = {
+                    "uuid"        => SecureRandom.uuid,
+                    "mikuType"    => "Nx100",
+                    "unixtime"    => item["unixtime"],
+                    "datetime"    => item["datetime"],
+                    "description" => item["description"],
+                    "iam"         => item["iam"],
+                    "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
+                }
+                Librarian6ObjectsLocal::commit(ix)
+                LxAction::action("landing", ix)
+
+                TxFyres::complete(item)
                 break
             end
 

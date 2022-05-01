@@ -9,8 +9,9 @@ class Nx102Flavor
             "encyclopedia (default)",
             "of-interest-from-the-web",
             "calendar-item",
-            "public-event",
-            "pascal-personal-note"
+            "pascal-personal-note",
+            "limited-scope-event",
+            "public-event"
         ]
         LucilleCore::selectEntityFromListOfEntitiesOrNull("flavor type", types)
     end
@@ -56,5 +57,11 @@ class Nx102Flavor
                 "type" => "pascal-personal-note"
             }
         end
+        if type == "limited-scope-event" then
+            return {
+                "type" => "limited-scope-event"
+            }
+        end
+        raise "(error: afcc7f96-5552-4639-ba3e-d6f03287371c) type: #{type}"
     end
 end
