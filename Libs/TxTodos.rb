@@ -392,7 +392,6 @@ class TxTodos
 
         ns16s1 = ns16s1
             .select{|item| item["rt"] < 1 or NxBallsService::isRunning(item["uuid"]) }
-            .sort{|x1, x2| x1["rt"] <=> x2["rt"] }
 
         ns16s1 + ns16s2
     end
