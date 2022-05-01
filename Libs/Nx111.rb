@@ -1,6 +1,23 @@
 
 # encoding: UTF-8
 
+class Dx8UnitsUtils
+    # Dx8UnitsUtils::infinityRepository()
+    def self.infinityRepository()
+        "#{Config::pathToInfinityDidact()}/Nyx-Librarian-Dx8Units"
+    end
+
+    # Dx8UnitsUtils::driveIsPlugged()
+    def self.driveIsPlugged()
+        File.exists?(Dx8UnitsUtils::infinityRepository())
+    end
+
+    # Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)
+    def self.dx8UnitFolder(dx8UnitId)
+        "#{Dx8UnitsUtils::infinityRepository()}/#{dx8UnitId}"
+    end
+end
+
 class Nx111
 
     # Nx111::iamTypes()
@@ -29,8 +46,7 @@ class Nx111
             "aion-point",
             "unique-string",
             "primitive-file",
-            "carrier-of-primitive-files",
-            "Dx8Unit"
+            "carrier-of-primitive-files"
         ]
     end
 
@@ -41,8 +57,7 @@ class Nx111
             "text",
             "url",
             "aion-point",
-            "unique-string",
-            "Dx8Unit"
+            "unique-string"
         ]
     end
 
@@ -53,8 +68,7 @@ class Nx111
             "text",
             "url",
             "aion-point",
-            "unique-string",
-            "Dx8Unit"
+            "unique-string"
         ]
     end
 
@@ -80,18 +94,6 @@ class Nx111
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
         rootnhash = AionCore::commitLocationReturnHash(Librarian14InfinityElizabethXCached.new(), location)
         ["aion-point", rootnhash]
-    end
-
-    # Nx111::dx8UnitIamValueFromLocationOrError(unitId, location)
-    def self.dx8UnitIamValueFromLocationOrError(unitId, location)
-        raise "(error: ac2300d4-2421-4bdc-9885-93ff9c15c083) #{location}"  if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(Librarian24ElizabethForDx8Units.new(unitId, "aion-standard"), location)
-        configuration = {
-            "unitId"    => unitId,
-            "Dx8Type"   => "aion",
-            "rootnhash" => rootnhash
-        }
-        ["Dx8Unit", configuration]
     end
 
     # Nx111::interactivelyCreateNewIamValueOrNull(types)
@@ -137,13 +139,6 @@ class Nx111
         end
         if type == "carrier-of-primitive-files" then
             return ["carrier-of-primitive-files"]
-        end
-        if type == "Dx8Unit" then
-            unitId = Utils::nx45()
-            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
-            return nil if location.nil?
-            return nil if !File.exists?(location)
-            return Nx111::dx8UnitIamValueFromLocationOrError(unitId, location)
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
@@ -219,30 +214,16 @@ class Nx111
         if iAmValue[0] == "Dx8Unit" then
             configuration = iAmValue[1]
 
-            if configuration["Dx8Type"] == "aion" then
-                tx46 = Librarian15BecauseReadWrite::issueTx46(item)
-                unitId = configuration["unitId"]
-                rootnhash = configuration["rootnhash"]
-                operator = Librarian24ElizabethForDx8Units.new(unitId, "aion-standard")
-                newTopNameMainPart = "#{item["description"]} (#{tx46["identifier"]})"
-                rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newTopNameMainPart)
-                newTopNameCompleteWithExtension = Librarian15BecauseReadWrite::extractTopName(operator, rootnhash)
-                exportFolder = "/Users/pascal/Desktop"
-                AionCore::exportHashAtFolder(operator, rootnhash, exportFolder)
-                puts "Item exported on Desktop at #{newTopNameCompleteWithExtension}"
-                return
-            end
-
             if configuration["Dx8Type"] == "unique-file-on-infinity-drive" then
                 unitId = configuration["unitId"]
-                location = Librarian22Dx8UnitsUtils::dx8UnitFolder(unitId)
+                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
                 puts "location: #{location}"
-                if File.exists?(Librarian22Dx8UnitsUtils::infinityRepository()) then
+                if File.exists?(Dx8UnitsUtils::infinityRepository()) then
                     system("open '#{location}'")
                     LucilleCore::pressEnterToContinue()
                 else
                     if LucilleCore::askQuestionAnswerAsBoolean("Infinity drive is not connected, want to access ? ") then
-                        Librarian22Dx8UnitsUtils::ensureDrive()
+                        InfinityDrive::ensureInfinityDrive()
                         system("open '#{location}'")
                         LucilleCore::pressEnterToContinue()
                     else
@@ -256,34 +237,6 @@ class Nx111
             raise "(error: 3d84d2b9-56c3-4762-b6a8-8a50c66b9240): #{item}, #{iAmValue}"
         end
         raise "(error: 3cbb1e64-0d18-48c5-bd28-f4ba584659a3): #{item}"
-    end
-
-    # Nx111::atomuuidToNx111(atomuuid)
-    def self.atomuuidToNx111(atomuuid)
-        atom = Librarian6ObjectsLocal::getObjectByUUIDOrNull(atomuuid)
-        puts JSON.pretty_generate(atom)
-
-        if atom["type"] == "aion-point" then
-            return ["aion-point", atom["rootnhash"]]
-        end
-
-        if atom["type"] == "description-only" then
-            return ["description-only"]
-        end
-
-        if atom["type"] == "text" then
-            return ["text", atom["payload"]]
-        end
-
-        if atom["type"] == "url" then
-            return ["url", atom["payload"]]
-        end
-
-        if atom["type"] =="unique-string" then
-            return ["unique-string", atom["payload"]]
-        end
-
-        raise "()"
     end
 
     # ----------------------------------------------------------------------

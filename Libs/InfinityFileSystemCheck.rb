@@ -176,21 +176,9 @@ class InfinityFileSystemCheck
         if nx111[0] == "Dx8Unit" then
             configuration = nx111[1]
 
-            if configuration["Dx8Type"] == "aion" then
-                unitId = configuration["unitId"]
-                rootnhash = configuration["rootnhash"]
-                status = AionFsck::structureCheckAionHash(Librarian24ElizabethForDx8Units.new(unitId, "aion-fsck"), rootnhash)
-                if !status then
-                    puts "object, could not validate Dx8Unit".red
-                    puts JSON.pretty_generate(object).red
-                    exit
-                end
-                return
-            end
-
             if configuration["Dx8Type"] == "unique-file-on-infinity-drive" then
                 unitId = configuration["unitId"]
-                location = Librarian22Dx8UnitsUtils::dx8UnitFolder(unitId)
+                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
                 puts "location: #{location}"
                 status = File.exists?(location)
                 if !status then

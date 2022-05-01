@@ -549,21 +549,6 @@ class Librarian15BecauseReadWrite
             Librarian6ObjectsLocal::commit(item)
             return
         end
-        if item["iam"][0] == "Dx8Unit" then
-            configuration = item["iam"][1]
-            unitId = configuration["unitId"]
-            rootnhash = configuration["rootnhash"]
-            operator = Librarian24ElizabethForDx8Units.new(unitId, "aion-standard")
-            rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-            puts "rootnhash1: #{rootnhash1}"
-            rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
-            puts "rootnhash2: #{rootnhash2}"
-            return if rootnhash1 == rootnhash2
-            configuration["rootnhash"] = rootnhash2
-            item["iam"][1] = configuration
-            Librarian6ObjectsLocal::commit(item)
-            return
-        end
         if item["iam"][0] == "primitive-file" then
             puts "We are not yet picking up modifications of primitive files (#{location})"
             return
@@ -740,164 +725,6 @@ class Librarian17PrimitiveFilesAndCarriers
 end
 
 # ---------------------------------------------------------------------------
-# Dx8Unit blob services and Elizabeth
-# ---------------------------------------------------------------------------
-
-class Librarian22Dx8UnitsUtils
-    # Librarian22Dx8UnitsUtils::infinityRepository()
-    def self.infinityRepository()
-        "#{Config::pathToInfinityDidact()}/Nyx-Librarian-Dx8Units"
-    end
-
-    # Librarian22Dx8UnitsUtils::driveIsPlugged()
-    def self.driveIsPlugged()
-        File.exists?(Librarian22Dx8UnitsUtils::infinityRepository())
-    end
-
-    # Librarian22Dx8UnitsUtils::ensureDrive()
-    def self.ensureDrive()
-        if !Librarian22Dx8UnitsUtils::driveIsPlugged() then
-            puts "I need Infinity, could you plug the drive please ?"
-            LucilleCore::pressEnterToContinue()
-        end
-        if !Librarian22Dx8UnitsUtils::driveIsPlugged() then
-            puts "I needed Infinity 😞. Exiting."
-            exit
-        end
-    end
-
-    # Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)
-    def self.dx8UnitFolder(dx8UnitId)
-        "#{Librarian22Dx8UnitsUtils::infinityRepository()}/#{dx8UnitId}"
-    end
-end
-
-# Modes: "aion-standard" | "aion-fsck"
-
-class Librarian23Dx8UnitsBlobsService
-
-    # Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob) # nhash
-    def self.putBlob(mode, dx8UnitId, blob)
-
-        if mode == "aion-standard" then
-            if Librarian22Dx8UnitsUtils::driveIsPlugged() then
-                nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-                filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-                if !File.exists?(File.dirname(filepath)) then
-                    FileUtils.mkpath(File.dirname(filepath))
-                end
-                File.open(filepath, "w"){|f| f.write(blob) }
-                return nhash
-            else
-                return Librarian2DatablobsXCache::putBlob(blob)
-            end
-        end
-
-        if mode == "aion-fsck" then
-            Librarian22Dx8UnitsUtils::ensureDrive()
-            nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-            filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-            if !File.exists?(File.dirname(filepath)) then
-                FileUtils.mkpath(File.dirname(filepath))
-            end
-            File.open(filepath, "w"){|f| f.write(blob) }
-            return nhash
-        end
-    end
-
-    # Librarian23Dx8UnitsBlobsService::getBlobOrNull(mode, dx8UnitId, nhash)
-    def self.getBlobOrNull(mode, dx8UnitId, nhash)
-
-        if mode == "aion-standard" then
-            # raise "(error: 43b52dd9-3f29-4a66-8abc-bea210ab9126) This should not happens"
-            # Actually this happens when we rewrite top names after Tx46 pickup from the Desktop
-            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-            return blob if blob
-
-            Librarian22Dx8UnitsUtils::ensureDrive()
-
-            filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-            if File.exists?(filepath) then
-                puts "Librarian23Dx8UnitsBlobsService (aion-standard): downloading and caching missing blob: #{nhash}"
-                blob = IO.read(filepath)
-                Librarian2DatablobsXCache::putBlob(blob)
-                return blob
-            end
-            return nil
-        end
-
-        if mode == "aion-fsck" then
-            # When we fsck commit to repair, so we want the blobs to be on the drive and we look local cache if needed
-
-            Librarian22Dx8UnitsUtils::ensureDrive()
-
-            filepath = "#{Librarian22Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)}/#{nhash[7, 2]}/#{nhash}.data"
-            if File.exists?(filepath) then
-                return IO.read(filepath)
-            end
-
-            blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-            if blob then
-                puts "Librarian23Dx8UnitsBlobsService (aion-fsck), uploading missing blob #{dx8UnitId}, #{nhash}"
-                Librarian23Dx8UnitsBlobsService::putBlob(mode, dx8UnitId, blob)
-                return blob
-            end
-
-            return nil
-        end
-    end
-end
-
-class Librarian24ElizabethForDx8Units
-
-    # @dx8UnitId
-    # @mode
-
-    def initialize(dx8UnitId, mode)
-
-        @dx8UnitId = dx8UnitId
-        @mode = mode
-
-        if mode == "aion-standard" then
-            # Every time we instanciate this operator, in aion-standard mode, the Dx8Unit is scheduled for dedicted fsck, because we could have performed an operation 
-            # that added blobs to the Dx8Unit but currently only sitting on local. Fsck will fix that. We are listing them because 
-            # running those dedicated fsck is part of the librarian Dx8Units maintenance, instead of having to wait for the next scheduled
-            # global fsck.
-
-            Mercury::postValue("055e1acb-164c-49cd-b17a-7946ba02c583", dx8UnitId)
-        end
-    end
-
-    def commitBlob(blob)
-        Librarian23Dx8UnitsBlobsService::putBlob(@mode, @dx8UnitId, blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = Librarian23Dx8UnitsBlobsService::getBlobOrNull(@mode, @dx8UnitId, nhash)
-        return blob if blob
-        puts "(error: 226a8374-bcc9-4b8c-97cd-ec57df17003d) could not find blob, nhash: #{nhash}"
-        raise "(error: ae3735b2-87a8-4e13-b2ca-f5b93069e297, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: 4b6590da-c62c-43e8-90fc-3893f0e4ac7d) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
-    end
-end
-
-# ---------------------------------------------------------------------------
 # 
 # ---------------------------------------------------------------------------
 
@@ -979,34 +806,6 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "Dx8Units-Maintenance" then
-            while dx8UnitId = Mercury::dequeueFirstValueOrNull("055e1acb-164c-49cd-b17a-7946ba02c583") do
-                puts "Dx8Unit Maintenance for dx8UnitId: #{dx8UnitId}"
-                # We now need to determine the item by a Dx8Unit Id
-
-                getItemOrNull = lambda{|dx8UnitId|
-                    Librarian6ObjectsLocal::objects().each{|item|
-                        next if item["iam"].nil?
-                        next if item["iam"][0] != "Dx8Unit"
-                        configuration = item["iam"][1]
-                        next if configuration["unitId"] != dx8UnitId
-                        return item
-                    }
-                    nil
-                }
-
-                item = getItemOrNull.call(dx8UnitId)
-
-                next if item.nil?
-
-                puts "Dx8Unit maintenance (fsck) for item: #{item["description"].green}"
-
-                InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-
-            end
-            exit
-        end
-
         puts "usage:"
         puts "    librarian alexandra-sync"
         puts "    librarian infinity-fsck"
@@ -1016,7 +815,6 @@ class LibrarianCLI
         puts "    librarian prob-blob-i"
         puts "    librarian echo-blob-i"
         puts "    librarian desktop-aion-export-pickup-i"
-        puts "    librarian Dx8Units-Maintenance"
     end
 end
 

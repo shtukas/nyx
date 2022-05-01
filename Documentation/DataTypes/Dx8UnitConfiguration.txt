@@ -3,11 +3,5 @@ Dx8UnitConfiguration
 
 {
     "unitId"    : String,
-    "Dx8Type"   : "aion"
-    "rootnhash" : String
-}
-
-{
-    "unitId"    : String,
     "Dx8Type"   : "unique-file-on-infinity-drive"
 }

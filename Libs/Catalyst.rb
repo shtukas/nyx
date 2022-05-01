@@ -422,12 +422,6 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 2
         end
 
-        if !Mercury::isEmpty("055e1acb-164c-49cd-b17a-7946ba02c583") then
-            puts ""
-            puts "You have pending Dx8Units maintenance (run: librarian Dx8Units-Maintenance)"
-            vspaceleft = vspaceleft - 2
-        end
-
         if floats.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
