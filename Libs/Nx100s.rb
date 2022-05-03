@@ -435,4 +435,15 @@ class Nx100s
             }
         }
     end
+
+    # Nx100s::nx20sAddition1()
+    def self.nx20sAddition1()
+        Nx100s::items().map{|item| 
+            {
+                "announce" => "(#{item["uuid"][0, 4]}) #{item["uuid"]} #{Nx100s::toString(item)}",
+                "unixtime" => item["unixtime"],
+                "payload"  => item
+            }
+        }
+    end
 end
