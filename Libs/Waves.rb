@@ -307,6 +307,12 @@ class Waves
         }
     end
 
+    # Waves::isStickyWave(wave)
+    def self.isStickyWave(wave)
+        return true if wave["repeatType"] == "sticky"
+        false
+    end
+
     # Waves::isPriorityWave(wave)
     def self.isPriorityWave(wave)
         return true if wave["repeatType"] == "sticky"
@@ -318,40 +324,55 @@ class Waves
     # Waves::toNS16(wave)
     def self.toNS16(wave)
         uuid = wave["uuid"]
-        height = if Waves::isPriorityWave(wave) then
-                    Heights::height1("f0047af0", uuid)
-                 else
-                    Heights::height1("beca7cc9", uuid)
-                 end
+        getHeight = lambda {|wave|
+            uuid = wave["uuid"]
+            if Waves::isStickyWave(wave) then
+                return Heights::height1("e58635d6", uuid)
+            end
+            if Waves::isPriorityWave(wave) then
+                return Heights::height1("f0047af0", uuid)
+            end
+            Heights::height1("beca7cc9", uuid)
+        }
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:Wave",
             "announce" => Waves::toString(wave),
-            "height"   => height,
+            "height"   => getHeight.call(wave),
             "wave"     => wave
         }
     end
 
     # Waves::ns16s(universe)
     def self.ns16s(universe)
-        items1, items2 = Waves::items()
+        items = Waves::items()
             .select{|item| 
                 objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
                 universe.nil? or objuniverse.nil? or (objuniverse == universe) 
             }
-            .partition{|wave| Waves::isPriorityWave(wave) }
 
-        items2 = items2
-                .sort{|w1, w2| w1["lastDoneDateTime"] <=> w2["lastDoneDateTime"] }
+        priority, rest = items.partition{|wave| Waves::isPriorityWave(wave) }
 
         if Beatrice::stdRecoveredHourlyAverage("waves-unit-4602-ba7c-beecdd9e14f8") > 6 then
-            items2 = []
+            rest = []
         end
 
-        (items1 + items2)
+        ns16sp1 = priority
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
             .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }
+
+        ns16sp2 = rest
+            .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
+            .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
+            .map{|wave| Waves::toNS16(wave) }
+
+        # At this point the priority elements (including the sticky), now ns16sp1, and the rest, now ns16sp2, all have their heights
+        # But we insist in the ns16sp2 being ordered by lastDoneDateTime and being presented as such
+        ns16sp2 = ns16sp2.sort{|n1, n2| n1["wave"]["lastDoneDateTime"] <=> n2["wave"]["lastDoneDateTime"] }
+        ns16sp2 = Heights::markSequenceOfNS16sWithDecreasingHeights("beca7cc9", ns16sp2)
+
+        ns16sp1 + ns16sp2
     end
 
     # Waves::nx20s()

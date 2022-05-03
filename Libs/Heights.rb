@@ -6,12 +6,13 @@
 This class provides functions to compute heights
 
 [0.9, 1.0[ "75519078" Ultra priority, should have been done already
-[0.8, 0.9[ "f0047af0" Priority to do now.
-[0.6, 7.0[ "141de8cf" To do today.
+[0.8, 0.9[ "e58635d6" Sticky waves
+[0.7, 0.8[ "f0047af0" Priority to do now
+[0.6, 7.0[ "141de8cf" To do today
 [0.5, 0.6[ "beca7cc9" Ideally done today, but could be done tomorrow
 
-[0.3, 0.4[ "24e25774" Really nice if done.
-[0.1, 0.2[ "11d1e8e2" No need to be done but if it's done nobody will mind.
+[0.3, 0.4[ "24e25774" Really nice if done
+[0.1, 0.2[ "11d1e8e2" No need to be done but if it's done nobody will mind
 
 =end
 
@@ -21,7 +22,8 @@ class Heights
     def self.map()
         {
             "75519078" => 0.9,
-            "f0047af0" => 0.8,
+            "e58635d6" => 0.8,
+            "f0047af0" => 0.7,
             "141de8cf" => 0.6,
             "beca7cc9" => 0.5,
             "24e25774" => 0.3,

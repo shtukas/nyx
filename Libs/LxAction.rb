@@ -194,6 +194,11 @@ class LxAction
                 LucilleCore::removeFileSystemLocation(location)
                 return
             end
+            if object["mikuType"] == "NS16:TxInbox2" then
+                item = object["item"]
+                Librarian6ObjectsLocal::destroy(item["uuid"])
+                return
+            end
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
                 if NxBallsService::isRunning(item["uuid"]) then
