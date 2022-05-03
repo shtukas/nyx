@@ -129,7 +129,7 @@ class Inbox
                 "uuid"     => uuid,
                 "mikuType" => "NS16:TxInbox2",
                 "unixtime" => item["unixtime"],
-                "announce" => item["line"],
+                "announce" => "(inbox) #{item["line"]}",
                 "height"   => Heights::height1("141de8cf", uuid),
                 "item"     => item
             }
@@ -160,5 +160,4 @@ class Inbox
         (Inbox::txInbox2NS16s()+Inbox::inboxDesktopNS16s())
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
-
 end

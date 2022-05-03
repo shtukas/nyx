@@ -322,10 +322,11 @@ class TxFyres
                     "announce" => announce,
                     "height"   => 1,
                     "TxFyre"   => item,
-                    "rt"       => rt
+                    "rt"       => rt,
+                    "unixtime" => item["unixtime"]
                 }
             }
-            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # TxFyres::section3(universe)
