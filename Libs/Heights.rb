@@ -46,4 +46,34 @@ class Heights
         Heights::map()[code] + Heights::getShift(uuid)
     end
 
+    # Heights::markSequenceOfNS16sWithDecreasingHeights(code, sequence: Array[NS16]) # Array[NS16]
+    def self.markSequenceOfNS16sWithDecreasingHeights(code, sequence)
+        
+        return [] if sequence.empty?
+
+        getPreviouslyRecordedHeightForItemOrNull = lambda {|uuid|
+            value = XCache::getOrNull("7fbafe5a-ecd3-497f-ab18-51a3119500bf:#{uuid}")
+            return nil if value.nil?
+            value.to_f
+        }
+
+        setHeightForItem = lambda {|uuid, value|
+            XCache::set("7fbafe5a-ecd3-497f-ab18-51a3119500bf:#{uuid}", value)
+        }
+
+        height1 = getPreviouslyRecordedHeightForItemOrNull.call(sequence[0]["uuid"]) || (Heights::map()[code] + 0.08)
+        height0 = Heights::map()[code]
+        differential = height1 - height0
+
+        count = sequence.size
+        sequence
+            .each_with_index.map
+            .map{|ns16, indx|
+                height = height0 + differential - differential*(indx.to_f/count)
+                setHeightForItem.call(ns16["uuid"], height)
+                ns16["height"] = height
+                ns16
+            }
+    end
+
 end

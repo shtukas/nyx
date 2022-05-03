@@ -315,14 +315,17 @@ class TxFyres
             .map{|item|
                 uuid = item["uuid"]
                 announce = toStringForSection2(item)
+                rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
                 {
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
                     "announce" => announce,
                     "height"   => 1,
-                    "TxFyre"   => item
+                    "TxFyre"   => item,
+                    "rt"       => rt
                 }
             }
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # TxFyres::section3(universe)
@@ -334,7 +337,7 @@ class TxFyres
             (tx["status"] == "time-commitment") and (BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < tx["hours"])
         }
 
-        TxFyres::itemsForUniverse(universe)
+        ns16s = TxFyres::itemsForUniverse(universe)
             .select{|item| txFy36Filter.call(item) }
             .map{|item| 
                 uuid = item["uuid"]
@@ -344,11 +347,14 @@ class TxFyres
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
                     "announce" => announce,
-                    "height"   => Heights::height1("f0047af0", uuid),
+                    "height"   => nil,
                     "TxFyre"   => item,
                     "rt"       => rt
                 }
             }
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+
+        Heights::markSequenceOfNS16sWithDecreasingHeights("f0047af0", ns16s)
     end
 
     # --------------------------------------------------
