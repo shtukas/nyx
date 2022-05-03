@@ -220,8 +220,8 @@ class InfinityDatablobs_PureDrive
         InfinityDrive::ensureInfinityDrive()
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filepath = InfinityDatablobsUtils::decideFilepathForBlob(nhash)
-        if !File.exists?(File.dirname(filepath2)) then
-            FileUtils.mkdir(File.dirname(filepath2))
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
         end
         File.open(filepath, "w"){|f| f.write(blob) }
 
