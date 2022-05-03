@@ -270,9 +270,20 @@ class InfinityDatablobs_DriveWithLocalXCache
 
     # InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
+
+        # We first try XCache
         blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
         return blob if blob
 
+        # Then we try the buffer out
+        filepath = "#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut/#{nhash[7, 2]}/#{nhash}.data"
+        if File.exists?(filepath) then
+            blob = IO.read(filepath)
+            Librarian2DatablobsXCache::putBlob(blob)
+            return blob
+        end
+
+        # Then we look up the drive
         InfinityDrive::ensureInfinityDrive()
 
         filepath = InfinityDatablobsUtils::decideFilepathForBlob(nhash)
