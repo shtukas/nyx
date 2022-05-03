@@ -87,7 +87,7 @@ class Nx111
     # Nx111::aionPointIamValueFromLocationOrError(location)
     def self.aionPointIamValueFromLocationOrError(location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(Librarian14InfinityElizabethXCached.new(), location)
+        rootnhash = AionCore::commitLocationReturnHash(InfinityElizabeth_DriveWithLocalXCache.new(), location)
         ["aion-point", rootnhash]
     end
 
@@ -109,7 +109,7 @@ class Nx111
         end
         if type == "text" then
             text = Librarian0Utils::editTextSynchronously("")
-            nhash = Librarian12InfinityBlobsServiceXCached::putBlob(text)
+            nhash = InfinityDatablobs_DriveWithLocalXCache::putBlob(text)
             return ["text", nhash]
         end
         if type == "url" then
@@ -158,11 +158,11 @@ class Nx111
         end
         if iAmValue[0] == "text" then
             nhash = iAmValue[1]
-            text1 = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
+            text1 = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
             puts "Editing text"
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
-                iAmValue[1] = Librarian12InfinityBlobsServiceXCached::putBlob(text2)
+                iAmValue[1] = InfinityDatablobs_DriveWithLocalXCache::putBlob(text2)
                 item["iam"] = iAmValue
                 Librarian6ObjectsLocal::commit(item)
             end
@@ -177,7 +177,7 @@ class Nx111
         end
         if iAmValue[0] == "aion-point" then
             tx46 = Librarian15BecauseReadWrite::issueTx46(item)
-            operator = Librarian14InfinityElizabethXCached.new() 
+            operator = InfinityElizabeth_DriveWithLocalXCache.new() 
             rootnhash = iAmValue[1]
             newTopNameMainPart = "#{item["description"]} (#{tx46["identifier"]})"
             rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newTopNameMainPart)
@@ -257,7 +257,7 @@ class Nx111
         if answer then
             return JSON.parse(answer)[0]
         end
-        object = AionCore::getAionObjectByHash(Librarian14InfinityElizabethXCached.new(), nhash)
+        object = AionCore::getAionObjectByHash(InfinityElizabeth_DriveWithLocalXCache.new(), nhash)
         answer = Nx111::uniqueStringIsInAionPointObject(object, uniquestring)
         XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
         answer

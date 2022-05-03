@@ -34,7 +34,7 @@ class AlexandraDidactSynchronization
             next if path[-5, 5] != ".data"
             puts "Uploading blob: #{path}"
             blob = IO.read(path)
-            InfinityFsckBlobsService::putBlob(blob)
+            InfinityDatablobs_PureDrive::putBlob(blob)
             FileUtils.rm(path)
         end
 

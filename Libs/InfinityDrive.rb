@@ -5,16 +5,16 @@ class InfinityDrive
 
     # InfinityDrive::driveIsPlugged()
     def self.driveIsPlugged()
-        File.exists?(Dx8UnitsUtils::infinityRepository())
+        File.exists?(Config::pathToInfinityDidact())
     end
 
     # InfinityDrive::ensureInfinityDrive()
     def self.ensureInfinityDrive()
-        if !File.exists?(InfinityFsckBlobsService::infinityDatablobsRepository()) then
+        if !InfinityDrive::driveIsPlugged() then
             puts "I need Infinity. Please plug 🙏"
             LucilleCore::pressEnterToContinue()
-            if !File.exists?(InfinityFsckBlobsService::infinityDatablobsRepository()) then
-                puts "Could not find Infinity. Exiting"
+            if !InfinityDrive::driveIsPlugged() then
+                puts "Could not find Infinity 😞 Exiting."
                 exit
             end
         end

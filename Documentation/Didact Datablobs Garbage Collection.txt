@@ -1,0 +1,27 @@
+
+# Didact Datablobs Garbage Collection
+
+### General Principles
+
+The XCache storage by date (at the time, May 1st 2022, these lines are written) is simple. We keep close to the current date the values are are being used (read or written). The garbage collection happens by virtue of values not being used naturally fading in the past, until the date folder that contains them is deleted after 60 days.
+
+The garbage collection of the Didact datablobs could easily operate the same way, and make garbage collection after a file system check something easy to implement, but we want to avoid the XCache method of moving the blobs. This is simply to help with backups. If we move the blobs, rsync will take longer and archives/snapshot will take much more space.
+
+Instead the Didact Datablobs storage is organised in buckets. The rules are 
+
+- Each bucket has an integer index. 
+- When a new bucket is created it named after the next avalaible, hence: 1, 2, 3, etc...
+- New blobs are written in the latest index. Until it becomes "full" (see definition of "full" below)
+- When a bucket is full, the next one is created.
+- When blobs are read, they are read from the bucket where there are without being moved.
+- The previous rule is overriden by this: If a blob is read from the oldest blucket, then it is moved to the newest one (or the one after if the current one is full). 
+
+The above ensures two things:
+
+1. Blobs do not move after they are created
+2. After a full file system check the oldest bucket can be deleted. 
+
+### Inplementation details
+
+We limit the number of blobs into a bucket to a thousand. Since the blobs are up to 1Mb, this limits the weight of a bucket to a Gb. (Therefore at first we will be start with about 200 of them.)
+

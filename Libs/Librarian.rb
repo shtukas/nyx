@@ -12,7 +12,7 @@ require 'securerandom'
 
 require 'find'
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/KeyValueStore.rb"
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 =begin
     XCache::setFlagTrue(key)
     XCache::setFlagFalse(key)
@@ -348,86 +348,6 @@ class Librarian7ObjectsInfinity
 end
 
 # ---------------------------------------------------------------------------
-# Local blob services and Elizabeth
-# ---------------------------------------------------------------------------
-
-class Librarian12InfinityBlobsServiceXCached
-
-    # Librarian12InfinityBlobsServiceXCached::infinityDatablobsRepository()
-    def self.infinityDatablobsRepository()
-        "#{Config::pathToInfinityDidact()}/DatablobsDepth2"
-    end
-
-    # -----------------------------------------------------------------------------
-
-    # Librarian12InfinityBlobsServiceXCached::commitToDatablobsInfinityBufferOut(blob)
-    def self.commitToDatablobsInfinityBufferOut(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = "#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut/#{nhash[7, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.write(blob) }
-    end
-
-    # Librarian12InfinityBlobsServiceXCached::putBlob(blob) # nhash
-    def self.putBlob(blob)
-        Librarian12InfinityBlobsServiceXCached::commitToDatablobsInfinityBufferOut(blob)
-        Librarian2DatablobsXCache::putBlob(blob)
-    end
-
-    # Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-
-        blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-        return blob if blob
-
-        InfinityDrive::ensureInfinityDrive()
-
-        puts "Librarian12InfinityBlobsServiceXCached: downloading and caching missing blob: #{nhash}"
-
-        filepath = "#{Librarian12InfinityBlobsServiceXCached::infinityDatablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if File.exists?(filepath) then
-            blob = IO.read(filepath)
-            Librarian2DatablobsXCache::putBlob(blob)
-            return blob
-        end
-        nil
-    end
-end
-
-class Librarian14InfinityElizabethXCached
-
-    def commitBlob(blob)
-        Librarian12InfinityBlobsServiceXCached::putBlob(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
-        return blob if blob
-        puts "(error: 7ffc6f95-4977-47a2-b9fd-eecd8312ebbe) could not find blob, nhash: #{nhash}"
-        raise "(error: 47f74e9a-0255-44e6-bf04-f12ff7786c65, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: 479c057e-d77b-4cd9-a6ba-df082e93f6b5) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
-    end
-end
-
-# ---------------------------------------------------------------------------
 # 
 # ---------------------------------------------------------------------------
 
@@ -539,7 +459,7 @@ class Librarian15BecauseReadWrite
         end
 
         if item["iam"][0] == "aion-point" then
-            operator = Librarian14InfinityElizabethXCached.new()
+            operator = InfinityElizabeth_DriveWithLocalXCache.new()
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             puts "rootnhash1: #{rootnhash1}"
             rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
@@ -655,7 +575,7 @@ class Librarian17PrimitiveFilesAndCarriers
         nhash = Librarian0Utils::filepathToContentHash(filepath)
  
         lambdaBlobCommitReturnNhash = lambda {|blob|
-            Librarian12InfinityBlobsServiceXCached::putBlob(blob)
+            InfinityDatablobs_DriveWithLocalXCache::putBlob(blob)
         }
         parts = Librarian0Utils::commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
  
@@ -667,7 +587,7 @@ class Librarian17PrimitiveFilesAndCarriers
         targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
+                blob = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -777,7 +697,7 @@ class LibrarianCLI
 
         if ARGV[0] == "prob-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
             if blob then
                 puts "Found a blob of size #{blob.size}"
                 LucilleCore::pressEnterToContinue()
@@ -790,7 +710,7 @@ class LibrarianCLI
 
         if ARGV[0] == "echo-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = Librarian12InfinityBlobsServiceXCached::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
             if blob then
                 puts JSON.pretty_generate(JSON.parse(blob))
                 LucilleCore::pressEnterToContinue()

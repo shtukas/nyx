@@ -1,56 +1,10 @@
 
 # encoding: UTF-8
 
-class InfinityFsckBlobsService
-
-    # InfinityFsckBlobsService::infinityDatablobsRepository()
-    def self.infinityDatablobsRepository()
-        "#{Config::pathToInfinityDidact()}/DatablobsDepth2"
-    end
-
-    # -----------------------------------------------------------------------------
-
-    # InfinityFsckBlobsService::putBlob(blob) # nhash
-    def self.putBlob(blob)
-
-        InfinityDrive::ensureInfinityDrive()
-
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = "#{InfinityFsckBlobsService::infinityDatablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.write(blob) }
-
-        nhash
-    end
-
-    # InfinityFsckBlobsService::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-
-        InfinityDrive::ensureInfinityDrive()
-
-        filepath = "#{InfinityFsckBlobsService::infinityDatablobsRepository()}/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if File.exists?(filepath) then
-            blob = IO.read(filepath)
-            return blob
-        end
-
-        blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-        if blob then
-            puts "InfinityFsckBlobsService: uploading missing blob: #{nhash}"
-            InfinityFsckBlobsService::putBlob(blob)
-            return blob
-        end
-
-        nil
-    end
-end
-
 class InfinityElizabethFsck
 
     def commitBlob(blob)
-        InfinityFsckBlobsService::putBlob(blob)
+        InfinityDatablobs_PureDrive::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -58,7 +12,7 @@ class InfinityElizabethFsck
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = InfinityFsckBlobsService::getBlobOrNull(nhash)
+        blob = InfinityDatablobs_PureDrive::getBlobOrNull(nhash)
         return blob if blob
         puts "(error: 69f99c35-5560-44fb-b463-903e9850bc93) could not find blob, nhash: #{nhash}"
         raise "(error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash})" if blob.nil?
@@ -80,30 +34,6 @@ end
 
 class InfinityFileSystemCheck
 
-    # InfinityFileSystemCheck::fsckAtomReturnBoolean(atom) : Boolean
-    def self.fsckAtomReturnBoolean(atom)
-        puts JSON.pretty_generate(atom)
-        if atom["type"] == "description-only" then
-            return true
-        end
-        if atom["type"] == "text" then
-            return !InfinityFsckBlobsService::getBlobOrNull(atom["payload"]).nil?
-        end
-        if atom["type"] == "url" then
-            return true
-        end
-        if atom["type"] == "aion-point" then
-            nhash = atom["rootnhash"]
-            status = AionFsck::structureCheckAionHash(InfinityElizabethFsck.new(), nhash)
-            return status
-        end
-        if atom["type"] == "unique-string" then
-            # Technically we should be checking if the target exists, but that takes too long
-            return true
-        end
-        raise "(F446B5E4-A795-415D-9D33-3E6B5E8E0AFF: non recognised atom type: #{atom})"
-    end
-
     # InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111)
     def self.fsckExitAtFirstFailureIamValue(object, nx111)
         if !Nx111::iamTypes().include?(nx111[0]) then
@@ -122,7 +52,7 @@ class InfinityFileSystemCheck
         end
         if nx111[0] == "text" then
             nhash = nx111[1]
-            if InfinityFsckBlobsService::getBlobOrNull(nhash).nil? then
+            if InfinityDatablobs_PureDrive::getBlobOrNull(nhash).nil? then
                 puts "object, could not find the text data".red
                 puts JSON.pretty_generate(object).red
                 exit
@@ -154,7 +84,7 @@ class InfinityFileSystemCheck
                 exit
             end
             parts.each{|nhash|
-                blob = InfinityFsckBlobsService::getBlobOrNull(nhash)
+                blob = InfinityDatablobs_PureDrive::getBlobOrNull(nhash)
                 next if blob
                 puts "object".red
                 puts JSON.pretty_generate(object).red
@@ -247,37 +177,31 @@ class InfinityFileSystemCheck
     # InfinityFileSystemCheck::fsckExitAtFirstFailure()
     def self.fsckExitAtFirstFailure()
 
-        runhash = XCache::getOrNull("1A07231B-8535-499B-BB2C-89A4EB429F49")
+        if LucilleCore::askQuestionAnswerAsBoolean("reset run hash ? ", true) then
+            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", SecureRandom.hex)
+        end
+
+        runhash = XCache::getBlobOrNull("1A07231B-8535-499B-BB2C-89A4EB429F51")
+
         if runhash.nil? then
             runhash = SecureRandom.hex
-            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F49", runhash)
-        else
-            if LucilleCore::askQuestionAnswerAsBoolean("We have a run in progress, continue ? ") then
-                # Nothing to do, we run with the existing hash
-            else
-                # We make a register a new hash
-                runhash = SecureRandom.hex
-                XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F49", runhash)
-            end
+            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", runhash)
         end
 
         Librarian7ObjectsInfinity::objects()
-            .sort{|o1, o2| o1["unixtime"] <=> o2["unixtime"] }
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .reverse
             .each{|item|
+                if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
+                    puts "Interrupted after missing canary file.".green
+                    return 
+                end
                 next if XCache::flagIsTrue("#{runhash}:#{item["uuid"]}")
-
                 puts JSON.pretty_generate(item)
                 InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-
                 XCache::setFlagTrue("#{runhash}:#{item["uuid"]}")
-
-                return if !File.exists?("/Users/pascal/Desktop/Pascal.png") # We use this file to interrupt long runs at a place where it would not corrupt any file system.
             }
 
-        XCache::destroy("1A07231B-8535-499B-BB2C-89A4EB429F49")
-
         puts "Fsck completed successfully".green
-        LucilleCore::pressEnterToContinue()
     end
 end

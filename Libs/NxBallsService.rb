@@ -7,7 +7,7 @@ class NxBallsService
 
     # NxBallsService::issue(uuid, description, accounts)
     def self.issue(uuid, description, accounts)
-        return if BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        return if XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         start = Time.new.to_f
         nxball = {
             "uuid" => uuid,
@@ -21,19 +21,19 @@ class NxBallsService
             },
             "accounts" => accounts
         }
-        BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
+        XCacheSets::set("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
 
     # NxBallsService::isRunning(uuid)
     def self.isRunning(uuid)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return false if nxball.nil?
         nxball["status"]["type"] == "running"
     end
 
     # NxBallsService::marginCall(uuid)
     def self.marginCall(uuid)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
         timespan = Time.new.to_f - nxball["status"]["cursorUnixtime"]
@@ -42,12 +42,12 @@ class NxBallsService
             Bank::put(account, timespan)
         }
         nxball["status"]["cursorUnixtime"] = Time.new.to_i
-        BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
+        XCacheSets::set("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
 
     # NxBallsService::pursue(uuid)
     def self.pursue(uuid)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
         NxBallsService::close(uuid, true)
         NxBallsService::issue(uuid, nxball["description"], nxball["accounts"])
@@ -55,7 +55,7 @@ class NxBallsService
 
     # NxBallsService::pause(uuid)
     def self.pause(uuid)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
         NxBallsService::close(uuid, true)
         nxball = {
@@ -68,12 +68,12 @@ class NxBallsService
             },
             "accounts" => nxball["accounts"]
         }
-        BTreeSets::set(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
+        XCacheSets::set("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
     end
 
     # NxBallsService::close(uuid, verbose)
     def self.close(uuid, verbose)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
         if nxball["status"]["type"] == "running" then
             if verbose then
@@ -91,12 +91,12 @@ class NxBallsService
                 puts "(#{Time.new.to_s}) Closing paused NxBall"
             end
         end
-        BTreeSets::destroy(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        XCacheSets::destroy("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
     end
 
     # NxBallsService::closeWithAsking(uuid)
     def self.closeWithAsking(uuid)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         return if nxball.nil?
         if !LucilleCore::askQuestionAnswerAsBoolean("(#{Time.new.to_s}) Running '#{nxball["description"]}'. Continue ? ", false) then
             NxBallsService::close(uuid, true)
@@ -107,7 +107,7 @@ class NxBallsService
 
     # NxBallsService::cursorUnixtimeOrNow(uuid)
     def self.cursorUnixtimeOrNow(uuid)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         if nxball.nil? then
             return Time.new.to_i 
         end
@@ -119,7 +119,7 @@ class NxBallsService
 
     # NxBallsService::startUnixtimeOrNow(uuid)
     def self.startUnixtimeOrNow(uuid)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         if nxball.nil? then
             return Time.new.to_i 
         end
@@ -131,7 +131,7 @@ class NxBallsService
 
     # NxBallsService::runningStringOrEmptyString(leftSide, uuid, rightSide)
     def self.runningStringOrEmptyString(leftSide, uuid, rightSide)
-        nxball = BTreeSets::getOrNull(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         if nxball.nil? then
             return ""
         end
@@ -143,7 +143,7 @@ class NxBallsService
 
     # NxBallsService::somethingIsRunning()
     def self.somethingIsRunning()
-        nxballs = BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68")
+        nxballs = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
                     .select{|nxball| NxBallsService::isRunning(nxball["uuid"]) }
         !nxballs.empty?
     end
@@ -153,13 +153,13 @@ Thread.new {
     loop {
         sleep 60
 
-        BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
+        XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
             uuid = nxball["uuid"]
             next if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) < 600
             NxBallsService::marginCall(uuid)
         }
 
-        BTreeSets::values(nil, "a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
+        XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
             uuid = nxball["uuid"]
             next if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) < 3600
             Utils::onScreenNotification("Catalyst", "NxBall running for more than an hour")
