@@ -662,7 +662,8 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "fsck@infinity" then
+        if ARGV[0] == "alexandra-sync+fsck@infinity" then
+            AlexandraDidactSynchronization::run()
             InfinityFileSystemCheck::fsckExitAtFirstFailure()
             exit
         end
@@ -732,7 +733,7 @@ class LibrarianCLI
 
         puts "usage:"
         puts "    librarian alexandra-sync"
-        puts "    librarian fsck@infinity"
+        puts "    librarian alexandra-sync+fsck@infinity"
         puts "    librarian show-object-i"
         puts "    librarian edit-object-i"
         puts "    librarian destroy-object-by-uuid-i"

@@ -175,34 +175,16 @@ class InfinityFileSystemCheck
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
     end
 
-    # InfinityFileSystemCheck::fsckObjectDeltaExitAtFirstFailure()
-    def self.fsckObjectDeltaExitAtFirstFailure()
+    # InfinityFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
+    def self.fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
 
-        Librarian7ObjectsInfinity::objects()
-            .shuffle.first(2000)
-            .each{|item|
-                if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
-                    puts "Interrupted after missing canary file.".green
-                    return 
-                end
-                objectKey =  "7486e27ef6d4a56dbe84f2e608:#{JSON.generate(item)}"
-                next if XCache::flagIsTrue(objectKey)
-                puts JSON.pretty_generate(item)
-                InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-                XCache::setFlagTrue(objectKey)
-            }
+        puts "For every fsck run hash, we check every object and then each of the object's next versions"
 
-        puts "Fsck completed successfully".green
-    end
-
-    # InfinityFileSystemCheck::fsckFullExitAtFirstFailure()
-    def self.fsckFullExitAtFirstFailure()
-
-        if LucilleCore::askQuestionAnswerAsBoolean("reset run hash ? ", true) then
+        if LucilleCore::askQuestionAnswerAsBoolean("reset fsck run hash ? ", false) then
             XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", SecureRandom.hex)
         end
 
-        fsckrunhash = XCache::getBlobOrNull("1A07231B-8535-499B-BB2C-89A4EB429F51")
+        fsckrunhash = XCache::getOrNull("1A07231B-8535-499B-BB2C-89A4EB429F51")
 
         if fsckrunhash.nil? then
             fsckrunhash = SecureRandom.hex
@@ -217,10 +199,11 @@ class InfinityFileSystemCheck
                     puts "Interrupted after missing canary file.".green
                     return 
                 end
-                next if XCache::flagIsTrue("#{fsckrunhash}:#{item["uuid"]}")
+                objectKey =  "#{fsckrunhash}:#{JSON.generate(item)}"
+                next if XCache::flagIsTrue(objectKey)
                 puts JSON.pretty_generate(item)
                 InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-                XCache::setFlagTrue("#{fsckrunhash}:#{item["uuid"]}")
+                XCache::setFlagTrue(objectKey)
             }
 
         puts "Fsck completed successfully".green
@@ -228,17 +211,6 @@ class InfinityFileSystemCheck
 
     # InfinityFileSystemCheck::fsckExitAtFirstFailure()
     def self.fsckExitAtFirstFailure()
-        modes = [
-            "new and modified objects only",
-            "fully scale"
-        ]
-        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-        return if mode.nil?
-        if mode == "new and modified objects only" then
-            InfinityFileSystemCheck::fsckObjectDeltaExitAtFirstFailure()
-        end
-        if mode == "fully scale" then
-            InfinityFileSystemCheck::fsckFullExitAtFirstFailure()
-        end
+        InfinityFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
     end
 end
