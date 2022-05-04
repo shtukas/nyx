@@ -61,7 +61,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "iam2"        => nx111,
+            "iam"        => nx111,
             "flavour"     => flavour
         }
         Librarian6ObjectsLocal::commit(item)
@@ -84,7 +84,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "iam2"        => nx111,
+            "iam"        => nx111,
             "flavour"     => flavour
         }
         Librarian6ObjectsLocal::commit(item)
@@ -112,7 +112,7 @@ class Nx100s
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "description" => description,
-          "iam2"        => nx111,
+          "iam"        => nx111,
           "flavour"     => flavour
         }
         Librarian6ObjectsLocal::commit(item)
@@ -182,7 +182,7 @@ class Nx100s
 
     # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
     def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
-        if item["iam2"]["type"] != "aion-point" then
+        if item["iam"]["type"] != "aion-point" then
             puts "I can only do that with aion-points"
             LucilleCore::pressEnterToContinue()
             return
@@ -193,7 +193,7 @@ class Nx100s
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => "Genesis",
-            "iam2"        => item["iam2"].clone,
+            "iam"        => item["iam"].clone,
             "flavour"     => {
                 "type" => "encyclopedia"
             }
@@ -201,7 +201,7 @@ class Nx100s
         puts JSON.pretty_generate(item2)
         Librarian6ObjectsLocal::commit(item2)
         Links::link(item["uuid"], item2["uuid"], false)
-        item["iam2"] = {
+        item["iam"] = {
             "uuid" => SecureRandom.uuid,
             "type" => "navigation"
         }
@@ -259,7 +259,7 @@ class Nx100s
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-            puts "iam2: #{item["iam2"]}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "flavour: #{item["flavour"]}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
@@ -279,12 +279,12 @@ class Nx100s
             commands << "access"
             commands << "description"
 
-            if item["iam2"]["type"] == "carrier-of-primitive-files" then
+            if item["iam"]["type"] == "carrier-of-primitive-files" then
                 commands << "upload (primitive files)"
             end
 
             commands << "datetime"
-            commands << "iam2"
+            commands << "iam"
             commands << "flavour"
             commands << "attachment"
             commands << "link"
@@ -324,7 +324,7 @@ class Nx100s
             end
 
             if Interpreting::match("upload", command) then
-                if item["iam2"]["type"] != "carrier-of-primitive-files" then
+                if item["iam"]["type"] != "carrier-of-primitive-files" then
                     puts "(this should not have happened)"
                     puts "I can only upload a carrier-of-primitive-files"
                     LucilleCore::pressEnterToContinue()
@@ -341,12 +341,12 @@ class Nx100s
                 Librarian6ObjectsLocal::commit(item)
             end
 
-            if Interpreting::match("iam2", command) then
+            if Interpreting::match("iam", command) then
                 nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes())
                 next if nx111.nil?
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam2"] = nx111
+                    item["iam"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end

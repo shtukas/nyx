@@ -101,7 +101,7 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam2"        => nx111
+          "iam"        => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -130,7 +130,7 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam2"        => nx111
+          "iam"        => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -142,21 +142,21 @@ class TxFyres
 
     # TxFyres::toString(item)
     def self.toString(item)
-        "(fyre) #{item["description"]} (#{item["iam2"]["type"]})"
+        "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
     end
 
     # TxFyres::toStringForSection2(item)
     def self.toStringForSection2(item)
-        "(fyre) #{item["description"]} (#{item["iam2"]["type"]}) #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"])}"
+        "(fyre) #{item["description"]} (#{item["iam"]["type"]}) #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"])}"
     end
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
         txFy36 = TxFyres::getTxFy36ForTodayOrNull(item["uuid"])
         if txFy36 then
-            "(fyre) #{item["description"]} (#{item["iam2"]["type"]}) (#{"%4.2f" % rt} of #{txFy36["hours"]} hours)"
+            "(fyre) #{item["description"]} (#{item["iam"]["type"]}) (#{"%4.2f" % rt} of #{txFy36["hours"]} hours)"
         else
-            "(fyre) #{item["description"]} (#{item["iam2"]["type"]})"
+            "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
         end
     end
 
@@ -186,7 +186,7 @@ class TxFyres
 
             puts TxFyres::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "iam2: #{item["iam2"]}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "TxFy36: #{TxFyres::getTxFy36ForTodayOrNull(uuid)}".yellow
 
@@ -233,12 +233,12 @@ class TxFyres
                 next
             end
 
-            if Interpreting::match("iam2", command) then
+            if Interpreting::match("iam", command) then
                 nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
                 next if nx111.nil?
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam2"] = nx111
+                    item["iam"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end
@@ -271,7 +271,7 @@ class TxFyres
                     "unixtime"    => item["unixtime"],
                     "datetime"    => item["datetime"],
                     "description" => item["description"],
-                    "iam2"        => item["iam2"],
+                    "iam"        => item["iam"],
                     "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
                 }
                 Librarian6ObjectsLocal::commit(ix)

@@ -6,7 +6,7 @@ Wave {
     "unixtime"    : unixtime,
     "description" : description,
     
-    "iam2"        : Nx111
+    "iam"         : Nx111
 
     "repeatType"       : repeatType,
     "repeatValue"      : repeatValue,

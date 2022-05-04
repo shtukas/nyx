@@ -33,7 +33,7 @@ class TxFloats
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam2"        => nx111
+          "iam"        => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::interactivelySetObjectUniverseMapping(uuid)
@@ -45,7 +45,7 @@ class TxFloats
 
     # TxFloats::toString(item)
     def self.toString(item)
-        "(item) #{item["description"]} (#{item["iam2"]["type"]})"
+        "(item) #{item["description"]} (#{item["iam"]["type"]})"
     end
 
     # TxFloats::toStringForNS19(item)
@@ -74,7 +74,7 @@ class TxFloats
 
             puts TxFloats::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "iam2: #{item["iam2"]}".yellow
+            puts "iam: #{item["iam"]}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
@@ -112,12 +112,12 @@ class TxFloats
                 next
             end
 
-            if Interpreting::match("iam2", command) then
+            if Interpreting::match("iam", command) then
                 nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
                 next if nx111.nil?
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam2"] = nx111
+                    item["iam"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end
@@ -175,7 +175,7 @@ class TxFloats
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFloat",
-            "announce" => "#{item["description"]} (#{item["iam2"]["type"]})",
+            "announce" => "#{item["description"]} (#{item["iam"]["type"]})",
             "TxFloat"  => item
         }
     end

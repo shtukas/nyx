@@ -7,7 +7,7 @@ class Transmutation
     def self.interactivelyNx50ToNyx(todo)
 
         description = todo["description"]
-        nx111 = todo["iam2"]
+        nx111 = todo["iam"]
 
 
         flavourMaker = lambda {|nx111|
@@ -31,7 +31,7 @@ class Transmutation
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "iam2"        => nx111,
+            "iam"        => nx111,
             "flavour"     => flavour
         }
         Librarian6ObjectsLocal::commit(item)

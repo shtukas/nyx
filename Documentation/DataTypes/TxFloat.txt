@@ -4,5 +4,5 @@ TxFloat = {
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "iam2"           : Nx111
+  "iam"            : Nx111
 }

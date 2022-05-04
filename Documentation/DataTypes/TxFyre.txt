@@ -4,7 +4,7 @@ TxFyre = {
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "iam2"           : Nx111
+  "iam"            : Nx111
 }
 
 TxFy36 indicates the time commitment for the day or that the item is done for the day

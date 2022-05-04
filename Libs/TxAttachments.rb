@@ -48,7 +48,7 @@ class TxAttachments
           "owneruuid"   => owneruuid,
           "unixtime"    => unixtime,
           "description" => description,
-          "iam2"        => nx111
+          "iam"        => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         item
@@ -64,7 +64,7 @@ class TxAttachments
 
     # TxAttachments::toString(item)
     def self.toString(item)
-        "(attachment) #{item["description"]} (#{item["iam2"]["type"]})"
+        "(attachment) #{item["description"]} (#{item["iam"]["type"]})"
     end
 
     # ----------------------------------------------------------------------

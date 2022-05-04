@@ -35,7 +35,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam2"        => nx111,
+          "iam"        => nx111,
         }
         Librarian6ObjectsLocal::commit(item)
         item
@@ -59,7 +59,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam2"         => nx111
+          "iam"         => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         item
@@ -70,7 +70,7 @@ class TxDateds
 
     # TxDateds::toString(item)
     def self.toString(item)
-        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{item["iam2"]["type"]})"
+        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{item["iam"]["type"]})"
     end
 
     # TxDateds::toStringForNS19(item)
@@ -92,7 +92,7 @@ class TxDateds
 
             puts TxDateds::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "iam2: #{item["iam2"]}".yellow
+            puts "iam: #{item["iam"]}".yellow
             puts "date: #{item["datetime"][0, 10]}".yellow
 
             store = ItemStore.new()
@@ -137,12 +137,12 @@ class TxDateds
                 next
             end
 
-            if Interpreting::match("iam2", command) then
+            if Interpreting::match("iam", command) then
                 nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
                 next if nx111.nil?
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam2"] = nx111
+                    item["iam"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end

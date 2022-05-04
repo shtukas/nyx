@@ -454,26 +454,26 @@ class Librarian15BecauseReadWrite
         puts "item: #{JSON.pretty_generate(item)}"
         puts "location: #{location}"
 
-        if !item["iam2"] then
+        if !item["iam"] then
             raise "(error: 4f8aa915-0c22-43a8-99ca-81958ead8fa6) We have an expectation that #{item} would have a 'iam' attribute"
         end
 
-        if item["iam2"]["type"] == "aion-point" then
+        if item["iam"]["type"] == "aion-point" then
             operator = InfinityElizabeth_DriveWithLocalXCache.new()
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             puts "rootnhash1: #{rootnhash1}"
             rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
             puts "rootnhash2: #{rootnhash2}"
             return if rootnhash1 == rootnhash2
-            item["iam2"]["rootnhash"] = rootnhash2
+            item["iam"]["rootnhash"] = rootnhash2
             Librarian6ObjectsLocal::commit(item)
             return
         end
-        if item["iam2"]["type"] == "primitive-file" then
+        if item["iam"]["type"] == "primitive-file" then
             puts "We are not yet picking up modifications of primitive files (#{location})"
             return
         end
-        if item["iam2"]["type"] == "carrier-of-primitive-files" then
+        if item["iam"]["type"] == "carrier-of-primitive-files" then
             # We scan the location and upload any file that wasn't there before
 
             locations = LucilleCore::locationsAtFolder(location)
@@ -505,9 +505,9 @@ class Librarian15BecauseReadWrite
                     Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
 
                     puts "Writing #{primitiveFileObject["uuid"]}"
-                    dottedExtension = primitiveFileObject["iam2"]["dottedExtension"]
-                    nhash = primitiveFileObject["iam2"]["nhash"]
-                    parts = primitiveFileObject["iam2"]["parts"]
+                    dottedExtension = primitiveFileObject["iam"]["dottedExtension"]
+                    nhash = primitiveFileObject["iam"]["nhash"]
+                    parts = primitiveFileObject["iam"]["parts"]
                     Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(primitiveFileObject["uuid"], dottedExtension, parts, location)
 
                     puts "Removing #{filepath}"
@@ -517,7 +517,7 @@ class Librarian15BecauseReadWrite
 
             return
         end
-        raise "(error: 68436fbf-745f-4a02-8912-a04279c122c1) I don't know how to pickup #{item["iam2"]}"
+        raise "(error: 68436fbf-745f-4a02-8912-a04279c122c1) I don't know how to pickup #{item["iam"]}"
     end
 
     # Librarian15BecauseReadWrite::desktopDataPickups()
@@ -613,9 +613,9 @@ class Librarian17PrimitiveFilesAndCarriers
         FileUtils.mkdir(exportFolderpath)
         Librarian17PrimitiveFilesAndCarriers::carrierContents(item["uuid"])
             .each{|ix|
-                dottedExtension = ix["iam2"]["dottedExtension"]
-                nhash = ix["iam2"]["nhash"]
-                parts = ix["iam2"]["parts"]
+                dottedExtension = ix["iam"]["dottedExtension"]
+                nhash = ix["iam"]["nhash"]
+                parts = ix["iam"]["parts"]
                 Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(ix["uuid"], dottedExtension, parts, exportFolderpath)
             }
     end

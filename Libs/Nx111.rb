@@ -140,7 +140,7 @@ class Nx111
 
     # Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
     def self.accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
-        nx111 = item["iam2"]
+        nx111 = item["iam"]
         if nx111["type"] == "navigation" then
             puts "This is a navigation node"
             LucilleCore::pressEnterToContinue()
@@ -163,7 +163,7 @@ class Nx111
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
                 nx111["nhash"] = InfinityDatablobs_DriveWithLocalXCache::putBlob(text2)
-                item["iam2"] = nx111
+                item["iam"] = nx111
                 Librarian6ObjectsLocal::commit(item)
             end
             return

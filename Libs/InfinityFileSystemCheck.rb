@@ -37,7 +37,7 @@ class InfinityFileSystemCheck
     # InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111)
     def self.fsckExitAtFirstFailureIamValue(object, nx111)
         if !Nx111::iamTypes().include?(nx111["type"]) then
-            puts "object has an incorrect iam2 value type".red
+            puts "object has an incorrect iam value type".red
             puts JSON.pretty_generate(object).red
             exit
         end
@@ -125,29 +125,29 @@ class InfinityFileSystemCheck
             return
         end
         if item["mikuType"] == "Nx100" then
-            if item["iam2"].nil? then
-                puts "Nx100 has not iam2 value".red
+            if item["iam"].nil? then
+                puts "Nx100 has not iam value".red
                 puts JSON.pretty_generate(item).red
                 exit
             end
-            puts JSON.pretty_generate(item["iam2"])
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
+            puts JSON.pretty_generate(item["iam"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxAttachment" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxDated" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxFloat" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxFyre" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxInbox2" then
@@ -163,11 +163,11 @@ class InfinityFileSystemCheck
             return
         end
         if item["mikuType"] == "TxTodo" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "Wave" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
 
