@@ -86,8 +86,8 @@ class TxFyres
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-        return nil if iAmValue.nil?
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if nx111.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -101,7 +101,7 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue
+          "iam2"        => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -116,7 +116,11 @@ class TxFyres
         datetime    = Time.new.utc.iso8601
 
         rootnhash   = AionCore::commitLocationReturnHash(InfinityElizabeth_DriveWithLocalXCache.new(), location)
-        iAmValue    = ["aion-point", rootnhash]
+        nx111 = {
+            "uuid"      => SecureRandom.uuid,
+            "type"      => "aion-point",
+            "rootnhash" => rootnhash
+        }
 
         universe    = Multiverse::interactivelySelectUniverse()
 
@@ -126,7 +130,7 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue
+          "iam2"        => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
@@ -138,21 +142,21 @@ class TxFyres
 
     # TxFyres::toString(item)
     def self.toString(item)
-        "(fyre) #{item["description"]} (#{item["iam"][0]})"
+        "(fyre) #{item["description"]} (#{item["iam2"]["type"]})"
     end
 
     # TxFyres::toStringForSection2(item)
     def self.toStringForSection2(item)
-        "(fyre) #{item["description"]} (#{item["iam"][0]}) #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"])}"
+        "(fyre) #{item["description"]} (#{item["iam2"]["type"]}) #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"])}"
     end
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
         txFy36 = TxFyres::getTxFy36ForTodayOrNull(item["uuid"])
         if txFy36 then
-            "(fyre) #{item["description"]} (#{item["iam"][0]}) (#{"%4.2f" % rt} of #{txFy36["hours"]} hours)"
+            "(fyre) #{item["description"]} (#{item["iam2"]["type"]}) (#{"%4.2f" % rt} of #{txFy36["hours"]} hours)"
         else
-            "(fyre) #{item["description"]} (#{item["iam"][0]})"
+            "(fyre) #{item["description"]} (#{item["iam2"]["type"]})"
         end
     end
 
@@ -182,7 +186,7 @@ class TxFyres
 
             puts TxFyres::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "iam2: #{item["iam2"]}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
             puts "TxFy36: #{TxFyres::getTxFy36ForTodayOrNull(uuid)}".yellow
 
@@ -229,12 +233,12 @@ class TxFyres
                 next
             end
 
-            if Interpreting::match("iam", command) then
-                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-                next if iAmValue.nil?
-                puts JSON.pretty_generate(iAmValue)
+            if Interpreting::match("iam2", command) then
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if nx111.nil?
+                puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = iAmValue
+                    item["iam2"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end
@@ -267,7 +271,7 @@ class TxFyres
                     "unixtime"    => item["unixtime"],
                     "datetime"    => item["datetime"],
                     "description" => item["description"],
-                    "iam"         => item["iam"],
+                    "iam2"        => item["iam2"],
                     "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
                 }
                 Librarian6ObjectsLocal::commit(ix)

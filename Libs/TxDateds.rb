@@ -23,8 +23,8 @@ class TxDateds
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-        return nil if iAmValue.nil?
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if nx111.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -35,7 +35,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue,
+          "iam2"        => nx111,
         }
         Librarian6ObjectsLocal::commit(item)
         item
@@ -46,8 +46,8 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-        return nil if iAmValue.nil?
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if nx111.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -59,7 +59,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue
+          "iam2"         => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         item
@@ -70,7 +70,7 @@ class TxDateds
 
     # TxDateds::toString(item)
     def self.toString(item)
-        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{item["iam"][0]})"
+        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{item["iam2"]["type"]})"
     end
 
     # TxDateds::toStringForNS19(item)
@@ -92,7 +92,7 @@ class TxDateds
 
             puts TxDateds::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "iam2: #{item["iam2"]}".yellow
             puts "date: #{item["datetime"][0, 10]}".yellow
 
             store = ItemStore.new()
@@ -137,12 +137,12 @@ class TxDateds
                 next
             end
 
-            if Interpreting::match("iam", command) then
-                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-                next if iAmValue.nil?
-                puts JSON.pretty_generate(iAmValue)
+            if Interpreting::match("iam2", command) then
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if nx111.nil?
+                puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = iAmValue
+                    item["iam2"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end

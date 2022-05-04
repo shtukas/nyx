@@ -36,8 +36,8 @@ class TxAttachments
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodesAttachment())
-        return nil if iAmValue.nil?
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodesAttachment())
+        return nil if nx111.nil?
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -48,7 +48,7 @@ class TxAttachments
           "owneruuid"   => owneruuid,
           "unixtime"    => unixtime,
           "description" => description,
-          "iam"         => iAmValue
+          "iam2"        => nx111
         }
         Librarian6ObjectsLocal::commit(item)
         item
@@ -64,7 +64,7 @@ class TxAttachments
 
     # TxAttachments::toString(item)
     def self.toString(item)
-        "(attachment) #{item["description"]} (#{item["iam"][0]})"
+        "(attachment) #{item["description"]} (#{item["iam2"]["type"]})"
     end
 
     # ----------------------------------------------------------------------

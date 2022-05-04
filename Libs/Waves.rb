@@ -110,8 +110,8 @@ class Waves
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-        return nil if iAmValue.nil?
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if nx111.nil?
 
         schedule = Waves::makeScheduleParametersInteractivelyOrNull()
         return nil if schedule.nil?
@@ -121,7 +121,7 @@ class Waves
             "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "iam"         => iAmValue,
+            "iam2"        => nx111,
         }
 
         wave["repeatType"]       = schedule[0]
@@ -139,7 +139,7 @@ class Waves
     def self.toString(item)
         lastDoneDateTime = item["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "[wave] #{item["description"]} (#{item["iam"][0]}) (#{Waves::scheduleString(item)}) (#{ago})"
+        "[wave] #{item["description"]} (#{item["iam2"]["type"]}) (#{Waves::scheduleString(item)}) (#{ago})"
     end
 
     # Waves::performDone(item)
@@ -170,7 +170,7 @@ class Waves
             puts "#{Waves::toString(item)}".green
 
             puts "uuid: #{item["uuid"]}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "iam2: #{item["iam2"]}".yellow
             puts "schedule: #{Waves::scheduleString(item)}".yellow
             puts "last done: #{item["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
@@ -216,12 +216,12 @@ class Waves
                 next
             end
 
-            if Interpreting::match("iam", command) then
-                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-                next if iAmValue.nil?
-                puts JSON.pretty_generate(iAmValue)
+            if Interpreting::match("iam2", command) then
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if nx111.nil?
+                puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = iAmValue
+                    item["iam2"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end

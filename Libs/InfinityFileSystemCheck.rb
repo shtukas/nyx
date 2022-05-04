@@ -36,22 +36,22 @@ class InfinityFileSystemCheck
 
     # InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111)
     def self.fsckExitAtFirstFailureIamValue(object, nx111)
-        if !Nx111::iamTypes().include?(nx111[0]) then
-            puts "object has an incorrect iam value type".red
+        if !Nx111::iamTypes().include?(nx111["type"]) then
+            puts "object has an incorrect iam2 value type".red
             puts JSON.pretty_generate(object).red
             exit
         end
-        if nx111[0] == "navigation" then
+        if nx111["type"] == "navigation" then
             return
         end
-        if nx111[0] == "log" then
+        if nx111["type"] == "log" then
             return
         end
-        if nx111[0] == "description-only" then
+        if nx111["type"] == "description-only" then
             return
         end
-        if nx111[0] == "text" then
-            nhash = nx111[1]
+        if nx111["type"] == "text" then
+            nhash = nx111["nhash"]
             if InfinityDatablobs_PureDrive::getBlobOrNull(nhash).nil? then
                 puts "object, could not find the text data".red
                 puts JSON.pretty_generate(object).red
@@ -59,11 +59,11 @@ class InfinityFileSystemCheck
             end
             return
         end
-        if nx111[0] == "url" then
+        if nx111["type"] == "url" then
             return
         end
-        if nx111[0] == "aion-point" then
-            rootnhash = nx111[1]
+        if nx111["type"] == "aion-point" then
+            rootnhash = nx111["rootnhash"]
             status = AionFsck::structureCheckAionHash(InfinityElizabethFsck.new(), rootnhash)
             if !status then
                 puts "object, could not validate aion-point".red
@@ -72,11 +72,13 @@ class InfinityFileSystemCheck
             end
             return
         end
-        if nx111[0] == "unique-string" then
+        if nx111["type"] == "unique-string" then
             return
         end
-        if nx111[0] == "primitive-file" then
-            _, dottedExtension, nhash, parts = nx111
+        if nx111["type"] == "primitive-file" then
+            dottedExtension = nx111["dottedExtension"]
+            nhash = nx111["nhash"]
+            parts = nx111["parts"]
             if dottedExtension[0, 1] != "." then
                 puts "object".red
                 puts JSON.pretty_generate(object).red
@@ -93,11 +95,11 @@ class InfinityFileSystemCheck
             }
             return
         end
-        if nx111[0] == "carrier-of-primitive-files" then
+        if nx111["type"] == "carrier-of-primitive-files" then
             return
         end
-        if nx111[0] == "Dx8Unit" and nx111[1] == "unique-file-on-infinity-drive" then
-            unitId = nx111[2]
+        if nx111["type"] == "Dx8Unit" then
+            unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
             status = File.exists?(location)
@@ -123,30 +125,29 @@ class InfinityFileSystemCheck
             return
         end
         if item["mikuType"] == "Nx100" then
-            if item["iam"].nil? then
-                puts "Nx100 has not iam value".red
+            if item["iam2"].nil? then
+                puts "Nx100 has not iam2 value".red
                 puts JSON.pretty_generate(item).red
                 exit
             end
-            iAmValue = item["iam"]
-            puts JSON.pretty_generate(iAmValue)
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, iAmValue)
+            puts JSON.pretty_generate(item["iam2"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
             return
         end
         if item["mikuType"] == "TxAttachment" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
             return
         end
         if item["mikuType"] == "TxDated" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
             return
         end
         if item["mikuType"] == "TxFloat" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
             return
         end
         if item["mikuType"] == "TxFyre" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
             return
         end
         if item["mikuType"] == "TxInbox2" then
@@ -162,11 +163,11 @@ class InfinityFileSystemCheck
             return
         end
         if item["mikuType"] == "TxTodo" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
             return
         end
         if item["mikuType"] == "Wave" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam2"])
             return
         end
 
@@ -174,18 +175,38 @@ class InfinityFileSystemCheck
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
     end
 
-    # InfinityFileSystemCheck::fsckExitAtFirstFailure()
-    def self.fsckExitAtFirstFailure()
+    # InfinityFileSystemCheck::fsckObjectDeltaExitAtFirstFailure()
+    def self.fsckObjectDeltaExitAtFirstFailure()
+
+        Librarian7ObjectsInfinity::objects()
+            .shuffle.first(2000)
+            .each{|item|
+                if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
+                    puts "Interrupted after missing canary file.".green
+                    return 
+                end
+                objectKey =  "7486e27ef6d4a56dbe84f2e608:#{JSON.generate(item)}"
+                next if XCache::flagIsTrue(objectKey)
+                puts JSON.pretty_generate(item)
+                InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+                XCache::setFlagTrue(objectKey)
+            }
+
+        puts "Fsck completed successfully".green
+    end
+
+    # InfinityFileSystemCheck::fsckFullExitAtFirstFailure()
+    def self.fsckFullExitAtFirstFailure()
 
         if LucilleCore::askQuestionAnswerAsBoolean("reset run hash ? ", true) then
             XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", SecureRandom.hex)
         end
 
-        runhash = XCache::getBlobOrNull("1A07231B-8535-499B-BB2C-89A4EB429F51")
+        fsckrunhash = XCache::getBlobOrNull("1A07231B-8535-499B-BB2C-89A4EB429F51")
 
-        if runhash.nil? then
-            runhash = SecureRandom.hex
-            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", runhash)
+        if fsckrunhash.nil? then
+            fsckrunhash = SecureRandom.hex
+            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", fsckrunhash)
         end
 
         Librarian7ObjectsInfinity::objects()
@@ -196,12 +217,28 @@ class InfinityFileSystemCheck
                     puts "Interrupted after missing canary file.".green
                     return 
                 end
-                next if XCache::flagIsTrue("#{runhash}:#{item["uuid"]}")
+                next if XCache::flagIsTrue("#{fsckrunhash}:#{item["uuid"]}")
                 puts JSON.pretty_generate(item)
                 InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-                XCache::setFlagTrue("#{runhash}:#{item["uuid"]}")
+                XCache::setFlagTrue("#{fsckrunhash}:#{item["uuid"]}")
             }
 
         puts "Fsck completed successfully".green
+    end
+
+    # InfinityFileSystemCheck::fsckExitAtFirstFailure()
+    def self.fsckExitAtFirstFailure()
+        modes = [
+            "new and modified objects only",
+            "fully scale"
+        ]
+        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
+        return if mode.nil?
+        if mode == "new and modified objects only" then
+            InfinityFileSystemCheck::fsckObjectDeltaExitAtFirstFailure()
+        end
+        if mode == "fully scale" then
+            InfinityFileSystemCheck::fsckFullExitAtFirstFailure()
+        end
     end
 end

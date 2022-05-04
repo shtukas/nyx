@@ -89,8 +89,8 @@ class TxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-        return nil if iAmValue.nil?
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+        return nil if nx111.nil?
 
         uuid       = SecureRandom.uuid
         unixtime   = Time.new.to_i
@@ -104,7 +104,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue,
+          "iam2"        => nx111,
           "ordinal"     => ordinal
         }
         Librarian6ObjectsLocal::commit(item)
@@ -120,7 +120,11 @@ class TxTodos
         datetime    = Time.new.utc.iso8601
 
         rootnhash   = AionCore::commitLocationReturnHash(InfinityElizabeth_DriveWithLocalXCache.new(), location)
-        iAmValue    = ["aion-point", rootnhash]
+        nx111 = {
+            "uuid"      => SecureRandom.uuid,
+            "type"      => "aion-point",
+            "rootnhash" => rootnhash
+        }
 
         universe    = Multiverse::interactivelySelectUniverse()
         ordinal     = TxTodos::interactivelyDecideNewOrdinal(universe)
@@ -131,7 +135,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => iAmValue,
+          "iam2"        => nx111,
           "ordinal"     => ordinal
         }
         Librarian6ObjectsLocal::commit(item)
@@ -146,6 +150,12 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
+        nx111 = {
+            "uuid" => SecureRandom.uuid,
+            "type" => "url",
+            "url"  => url
+        }
+
         ordinal     = TxTodos::ordinalBetweenN1thAndN2th("backlog", 20, 30)
 
         item = {
@@ -154,7 +164,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => ["url", url],
+          "iam2"        => nx111,
           "ordinal"     => ordinal
         }
         Librarian6ObjectsLocal::commit(item)
@@ -167,17 +177,17 @@ class TxTodos
 
     # TxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]} (#{item["iam"][0]})"
+        "(todo) #{item["description"]} (#{item["iam2"]["type"]})"
     end
 
     # TxTodos::toStringWithOrdinal(item)
     def self.toStringWithOrdinal(item)
-        "(todo) (ord: #{item["ordinal"]}) #{item["description"]} (#{item["iam"][0]})"
+        "(todo) (ord: #{item["ordinal"]}) #{item["description"]} (#{item["iam2"]["type"]})"
     end
 
     # TxTodos::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(todo) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"][0]})"
+        "(todo) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam2"]["type"]})"
     end
 
     # TxTodos::toStringForNS19(item)
@@ -201,7 +211,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(item)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "iam2: #{item["iam2"]}".yellow
             puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)}".yellow
             puts "ordinal: #{item["ordinal"]}".yellow
 
@@ -251,12 +261,12 @@ class TxTodos
                 next
             end
 
-            if Interpreting::match("iam", command) then
-                iAmValue = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
-                next if iAmValue.nil?
-                puts JSON.pretty_generate(iAmValue)
+            if Interpreting::match("iam2", command) then
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
+                next if nx111.nil?
+                puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = iAmValue
+                    item["iam2"] = nx111
                     Librarian6ObjectsLocal::commit(item)
                 end
             end

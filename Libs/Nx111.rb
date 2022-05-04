@@ -140,45 +140,45 @@ class Nx111
 
     # Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
     def self.accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
-        iAmValue = item["iam"]
-        if iAmValue[0] == "navigation" then
+        nx111 = item["iam2"]
+        if nx111["type"] == "navigation" then
             puts "This is a navigation node"
             LucilleCore::pressEnterToContinue()
             return
         end
-        if iAmValue[0] == "log" then
+        if nx111["type"] == "log" then
             puts "This is a log"
             LucilleCore::pressEnterToContinue()
             return
         end
-        if iAmValue[0] == "description-only" then
+        if nx111["type"] == "description-only" then
             puts "This is a description-only"
             LucilleCore::pressEnterToContinue()
             return
         end
-        if iAmValue[0] == "text" then
-            nhash = iAmValue[1]
+        if nx111["type"] == "text" then
+            nhash = nx111["nhash"]
             text1 = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
             puts "Editing text"
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
-                iAmValue[1] = InfinityDatablobs_DriveWithLocalXCache::putBlob(text2)
-                item["iam"] = iAmValue
+                nx111["nhash"] = InfinityDatablobs_DriveWithLocalXCache::putBlob(text2)
+                item["iam2"] = nx111
                 Librarian6ObjectsLocal::commit(item)
             end
             return
         end
-        if iAmValue[0] == "url" then
-            url = iAmValue[1]
+        if nx111["type"] == "url" then
+            url = nx111["url"]
             puts "url: #{url}"
             Librarian0Utils::openUrlUsingSafari(url)
             LucilleCore::pressEnterToContinue()
             return
         end
-        if iAmValue[0] == "aion-point" then
+        if nx111["type"] == "aion-point" then
             tx46 = Librarian15BecauseReadWrite::issueTx46(item)
             operator = InfinityElizabeth_DriveWithLocalXCache.new() 
-            rootnhash = iAmValue[1]
+            rootnhash = nx111["rootnhash"]
             newTopNameMainPart = "#{item["description"]} (#{tx46["identifier"]})"
             rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newTopNameMainPart)
             newTopNameCompleteWithExtension = Librarian15BecauseReadWrite::extractTopName(operator, rootnhash)
@@ -187,13 +187,13 @@ class Nx111
             puts "Item exported on Desktop at #{newTopNameCompleteWithExtension.green}"
             return
         end
-        if iAmValue[0] == "unique-string" then
-            uniquestring = iAmValue[1]
+        if nx111["type"] == "unique-string" then
+            uniquestring = nx111["unique-string"]
             Nx111::findAndAccessUniqueString(uniquestring)
             return
         end
-        if iAmValue[0] == "primitive-file" then
-            _, dottedExtension, nhash, parts = iAmValue
+        if nx111["type"] == "primitive-file" then
+            _, dottedExtension, nhash, parts = nx111
             location = "/Users/pascal/Desktop"
             filepath = Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(item["uuid"], dottedExtension, parts, location)
             LucilleCore::pressEnterToContinue()
@@ -202,12 +202,12 @@ class Nx111
             end
             return
         end
-        if iAmValue[0] == "carrier-of-primitive-files" then
+        if nx111["type"] == "carrier-of-primitive-files" then
             Librarian17PrimitiveFilesAndCarriers::exportCarrier(item)
             return
         end
-        if iAmValue[0] == "Dx8Unit" and iAmValue[1] == "unique-file-on-infinity-drive" then
-            unitId = iAmValue[2]
+        if nx111["type"] == "Dx8Unit" then
+            unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
             if File.exists?(Dx8UnitsUtils::infinityRepository()) then

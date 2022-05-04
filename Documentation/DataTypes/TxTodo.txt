@@ -4,6 +4,6 @@ TxTodo = {
   "description"    : String
   "unixtime"       : Float
   "datetime"       : DateTime Iso8601
-  "iam"            : Nx111
+  "iam2"           : Nx111
   "ordinal"        : Float
 }
