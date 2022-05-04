@@ -287,6 +287,7 @@ class Nx100s
             commands << "link"
             commands << "relink"
             commands << "unlink"
+            commands << "network transforms"
             commands << "json"
             commands << "special circumstances"
             commands << "destroy"
@@ -395,6 +396,32 @@ class Nx100s
                 end
                 if operation == "upload all locations of a folder as primitive files children" then
                     Nx100s::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+                end
+            end
+
+            if Interpreting::match("network transforms", command) then
+                operations = [
+                    "select target node, select subset from linked and move subset to that node as children"
+                ]
+                operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+                next if operation.nil?
+                if operation == "select target node, select subset from linked and move subset to that node as children" then
+                    targetnode = NyxNetwork::architectOneOrNull()
+
+                    if targetnode["uuid"] == item["uuid"] then
+                        puts "The target node cannot be the node we are landed on"
+                        LucilleCore::pressEnterToContinue()
+                        next
+                    end
+
+                    linked = Links::linked(item["uuid"])
+                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    nodessubset, _ = LucilleCore::selectZeroOrMore("linked", [], linked, lambda{ |i| LxFunction::function("toString", i) })
+                    nodessubset.each{|nodex|
+                        puts "relocating: #{LxFunction::function("toString", nodex)}"
+                        Links::unlink(item["uuid"], nodex["uuid"])
+                        Links::link(targetnode["uuid"], nodex["uuid"], false)
+                    }
                 end
             end
 
