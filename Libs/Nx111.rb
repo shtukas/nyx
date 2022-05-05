@@ -188,7 +188,7 @@ class Nx111
             return
         end
         if nx111["type"] == "unique-string" then
-            uniquestring = nx111["unique-string"]
+            uniquestring = nx111["uniquestring"]
             Nx111::findAndAccessUniqueString(uniquestring)
             return
         end
