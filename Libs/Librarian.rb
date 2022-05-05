@@ -459,7 +459,7 @@ class Librarian15BecauseReadWrite
         end
 
         if item["iam"]["type"] == "aion-point" then
-            operator = InfinityElizabeth_DriveWithLocalXCache.new()
+            operator = InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching.new()
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             puts "rootnhash1: #{rootnhash1}"
             rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
@@ -577,7 +577,7 @@ class Librarian17PrimitiveFilesAndCarriers
         nhash = Librarian0Utils::filepathToContentHash(filepath)
  
         lambdaBlobCommitReturnNhash = lambda {|blob|
-            InfinityDatablobs_DriveWithLocalXCache::putBlob(blob)
+            InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
         }
         parts = Librarian0Utils::commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
  
@@ -589,7 +589,7 @@ class Librarian17PrimitiveFilesAndCarriers
         targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
+                blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -685,8 +685,9 @@ class LibrarianCLI
             uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
             object = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
             if object then
-                puts JSON.pretty_generate(object)
-                LucilleCore::pressEnterToContinue()
+                object = Utils::editTextSynchronously(JSON.pretty_generate(object))
+                object = JSON.parse(object)
+                Librarian6ObjectsLocal::commit(object)
             else
                 puts "I could not find an object with this uuid"
                 LucilleCore::pressEnterToContinue()
@@ -702,7 +703,7 @@ class LibrarianCLI
 
         if ARGV[0] == "prob-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts "Found a blob of size #{blob.size}"
                 LucilleCore::pressEnterToContinue()
@@ -715,7 +716,7 @@ class LibrarianCLI
 
         if ARGV[0] == "echo-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts JSON.pretty_generate(JSON.parse(blob))
                 LucilleCore::pressEnterToContinue()

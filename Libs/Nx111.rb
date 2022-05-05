@@ -81,14 +81,24 @@ class Nx111
         data = Librarian17PrimitiveFilesAndCarriers::readPrimitiveFileOrNull(location)
         return nil if data.nil?
         dottedExtension, nhash, parts = data
-        ["primitive-file", dottedExtension, nhash, parts]
+        {
+            "uuid"  => SecureRandom.uuid,
+            "type"  => "primitive-file",
+            "dottedExtension" => dottedExtension,
+            "nhash" => nhash,
+            "parts" => parts
+        }
     end
 
     # Nx111::aionPointIamValueFromLocationOrError(location)
     def self.aionPointIamValueFromLocationOrError(location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(InfinityElizabeth_DriveWithLocalXCache.new(), location)
-        ["aion-point", rootnhash]
+        rootnhash = AionCore::commitLocationReturnHash(InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching.new(), location)
+        {
+            "uuid"      => SecureRandom.uuid,
+            "type"      => "aion-point",
+            "rootnhash" => rootnhash
+        }
     end
 
     # Nx111::interactivelyCreateNewIamValueOrNull(types)
@@ -96,26 +106,46 @@ class Nx111
         type = Nx111::interactivelySelectIamTypeOrNull(types)
         return nil if type.nil?
         if type == "navigation" then
-            return ["navigation"]
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "navigation"
+            }
         end
         if type == "log" then
-            return ["log"]
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "log"
+            }
         end
         if type == "description-only" then
-            return ["description-only"]
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "description-only"
+            }
         end
         if type == "description-only (default)" then
-            return ["description-only"]
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "description-only"
+            }
         end
         if type == "text" then
             text = Librarian0Utils::editTextSynchronously("")
-            nhash = InfinityDatablobs_DriveWithLocalXCache::putBlob(text)
-            return ["text", nhash]
+            nhash = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(text)
+            return {
+                "uuid"  => SecureRandom.uuid,
+                "type"  => "text",
+                "nhash" => nhash
+            }
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            return ["url", url]
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "url",
+                "url"  => url
+            }
         end
         if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
@@ -125,7 +155,11 @@ class Nx111
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
             return nil if uniquestring == ""
-            return ["unique-string", uniquestring]
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "unique-string",
+                "uniquestring" => uniquestring
+            }
         end
         if type == "primitive-file" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
@@ -133,7 +167,10 @@ class Nx111
             return Nx111::primitiveFileIamValueFromLocationOrNull(location)
         end
         if type == "carrier-of-primitive-files" then
-            return ["carrier-of-primitive-files"]
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "carrier-of-primitive-files"
+            }
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
@@ -158,11 +195,11 @@ class Nx111
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            text1 = InfinityDatablobs_DriveWithLocalXCache::getBlobOrNull(nhash)
+            text1 = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             puts "Editing text"
             text2 = Librarian0Utils::editTextSynchronously(text1)
             if text1 != text2 then
-                nx111["nhash"] = InfinityDatablobs_DriveWithLocalXCache::putBlob(text2)
+                nx111["nhash"] = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(text2)
                 item["iam"] = nx111
                 Librarian6ObjectsLocal::commit(item)
             end
@@ -177,7 +214,7 @@ class Nx111
         end
         if nx111["type"] == "aion-point" then
             tx46 = Librarian15BecauseReadWrite::issueTx46(item)
-            operator = InfinityElizabeth_DriveWithLocalXCache.new() 
+            operator = InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching.new() 
             rootnhash = nx111["rootnhash"]
             newTopNameMainPart = "#{item["description"]} (#{tx46["identifier"]})"
             rootnhash = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, newTopNameMainPart)
@@ -257,7 +294,7 @@ class Nx111
         if answer then
             return JSON.parse(answer)[0]
         end
-        object = AionCore::getAionObjectByHash(InfinityElizabeth_DriveWithLocalXCache.new(), nhash)
+        object = AionCore::getAionObjectByHash(InfinityElizabethPureDrive.new(), nhash)
         answer = Nx111::uniqueStringIsInAionPointObject(object, uniquestring)
         XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
         answer
@@ -276,10 +313,18 @@ class Nx111
         end
         puts "Unique string not found in Galaxy"
         puts "Looking inside aion-points..."
+        
         puts "" # To accomodate Utils::putsOnPreviousLine
-
-        puts "This functionality needs implementing (a2af6b27-132b-44c1-935a-739df2eaf627)"
-        LucilleCore::pressEnterToContinue()
+        Librarian6ObjectsLocal::objects().each{|item|
+            Utils::putsOnPreviousLine("looking into #{item["uuid"]}")
+            next if item["iam"].nil?
+            next if item["iam"]["type"] != "aion-point"
+            rootnhash = item["iam"]["rootnhash"]
+            if Nx111::uniqueStringIsInNhash(rootnhash, uniquestring) then
+                LxAction::action("landing", item)
+                return
+            end
+        }
 
         puts "I could not find the unique string inside aion-points"
         LucilleCore::pressEnterToContinue()

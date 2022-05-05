@@ -1,37 +1,6 @@
 
 # encoding: UTF-8
 
-class InfinityElizabethFsck
-
-    def commitBlob(blob)
-        InfinityDatablobs_PureDrive::putBlob(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = InfinityDatablobs_PureDrive::getBlobOrNull(nhash)
-        return blob if blob
-        puts "(error: 69f99c35-5560-44fb-b463-903e9850bc93) could not find blob, nhash: #{nhash}"
-        raise "(error: 0573a059-5ca2-431d-a4b4-ab8f4a0a34fe, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: 36d664ef-0731-4a00-ba0d-b5a7fb7cf941) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
-    end
-end
-
 class InfinityFileSystemCheck
 
     # InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111)
@@ -64,7 +33,7 @@ class InfinityFileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            status = AionFsck::structureCheckAionHash(InfinityElizabethFsck.new(), rootnhash)
+            status = AionFsck::structureCheckAionHash(InfinityElizabethPureDrive.new(), rootnhash)
             if !status then
                 puts "object, could not validate aion-point".red
                 puts JSON.pretty_generate(object).red
