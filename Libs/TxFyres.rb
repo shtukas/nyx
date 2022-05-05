@@ -359,7 +359,7 @@ class TxFyres
             }
             .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-        Heights::markSequenceOfNS16sWithDecreasingHeights("f0047af0", ns16s)
+        Heights::markSequenceOfNS16sWithDecreasingHeights("141de8cf", ns16s)
     end
 
     # --------------------------------------------------
