@@ -209,7 +209,7 @@ class TxTodos
 
             store = ItemStore.new()
 
-            puts "#{TxTodos::toString(item)}#{NxBallsService::runningStringOrEmptyString(" (", uuid, ")")}".green
+            puts "#{TxTodos::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "iam: #{item["iam"]}".yellow
             puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)}".yellow

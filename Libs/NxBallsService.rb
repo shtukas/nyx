@@ -31,6 +31,18 @@ class NxBallsService
         nxball["status"]["type"] == "running"
     end
 
+    # NxBallsService::isPaused(uuid)
+    def self.isPaused(uuid)
+        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        return false if nxball.nil?
+        nxball["status"]["type"] == "paused"
+    end
+
+    # NxBallsService::isActive(uuid)
+    def self.isActive(uuid)
+        NxBallsService::isRunning(uuid) or NxBallsService::isPaused(uuid)
+    end
+
     # NxBallsService::marginCall(uuid)
     def self.marginCall(uuid)
         nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
@@ -129,8 +141,8 @@ class NxBallsService
         nxball["status"]["startUnixtime"]
     end
 
-    # NxBallsService::runningStringOrEmptyString(leftSide, uuid, rightSide)
-    def self.runningStringOrEmptyString(leftSide, uuid, rightSide)
+    # NxBallsService::activityStringOrEmptyString(leftSide, uuid, rightSide)
+    def self.activityStringOrEmptyString(leftSide, uuid, rightSide)
         nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
         if nxball.nil? then
             return ""
