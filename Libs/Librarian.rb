@@ -351,220 +351,6 @@ end
 # 
 # ---------------------------------------------------------------------------
 
-class Librarian15BecauseReadWrite
-
-    # Librarian15BecauseReadWrite::utils_getAllTheSubstrings(str)
-    def self.utils_getAllTheSubstrings(str)
-        indx1 = 0
-        substrings = []
-        loop {
-            break if indx1 >= str.length
-            length = 1
-            loop {
-                break if length > str.length
-                substring = str[indx1, length]
-                substrings << substring
-                length = length + 1
-            }
-            indx1 = indx1 + 1
-        }
-        substrings.uniq
-    end
-
-    # Librarian15BecauseReadWrite::utils_getAllTheSubstringsOfSize8(str)
-    def self.utils_getAllTheSubstringsOfSize8(str)
-        Librarian15BecauseReadWrite::utils_getAllTheSubstrings(str)
-            .select{|str| str.size == 8 }
-    end
-
-    # Librarian15BecauseReadWrite::getLocationForThisTx46IdentiferOrNull(identifier)
-    def self.getLocationForThisTx46IdentiferOrNull(identifier)
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
-            return location if location.include?(identifier)
-        }
-        nil
-    end
-
-    # Librarian15BecauseReadWrite::utils_getAllTheTx46IdsLocationPairsFromDesktop()
-    def self.utils_getAllTheTx46IdsLocationPairsFromDesktop()
-        answer = []
-        LucilleCore::locationsAtFolder("/Users/pascal/Desktop").each{|location|
-            substrings = Librarian15BecauseReadWrite::utils_getAllTheSubstringsOfSize8(File.basename(location))
-            substring = substrings.select{|ss| XCache::getOrNull("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{ss}") }.first
-            if substring then
-                pair = {
-                    "identifier" => substring,
-                    "location"   => location
-                }
-                answer << pair
-            end
-        }
-        answer
-    end
-
-    # Librarian15BecauseReadWrite::extractTopName(operator, rootnhash)
-    def self.extractTopName(operator, rootnhash)
-        AionCore::getAionObjectByHash(operator, rootnhash)["name"]
-    end
-
-    # Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, name1)
-    def self.utils_rewriteThisAionRootWithNewTopName(operator, rootnhash, name1)
-        aionObject = AionCore::getAionObjectByHash(operator, rootnhash)
-        name2 = aionObject["name"]
-        # name1 : name we want
-        # name2 : name we have, possibly with an .extension
-        if File.extname(name2) then
-            aionObject["name"] = "#{name1}#{File.extname(name2)}"
-        else
-            aionObject["name"] = name1
-        end
-        blob = JSON.generate(aionObject)
-        operator.commitBlob(blob)
-    end
-
-    # The purpose of this class is to provide edition of objects that have been exported to the desktop
-
-    # Tx46 {
-    #     "identifier" : String # This is the fragment that was used as name for the export folder on the desktop
-    #     "itemuuid"   : String # UUID of the main object
-    # }   
-
-    # When we export, we generate an identififer, put the Tx46 into XCache and let it be. 
-    # If somebody wants to update the object, then depending on the type, they will know what to do
-
-    # Librarian15BecauseReadWrite::issueTx46(item)
-    def self.issueTx46(item)
-        tx = {
-            "identifier" => SecureRandom.hex[0, 8],
-            "mikuType"   => "Tx46",
-            "itemuuid"   => item["uuid"]
-        }
-        XCache::set("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{tx["identifier"]}", JSON.generate(tx))
-        tx
-    end
-
-    # Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
-    def self.issueTx46ReturnIdentifier(item)
-        Librarian15BecauseReadWrite::issueTx46(item)["identifier"]
-    end
-
-    # Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
-    def self.pickupItem(tx46, item, location)
-        puts "> Librarian15BecauseReadWrite::pickupItem(item, location)"
-        puts "item: #{JSON.pretty_generate(item)}"
-        puts "location: #{location}"
-
-        if !item["iam"] then
-            raise "(error: 4f8aa915-0c22-43a8-99ca-81958ead8fa6) We have an expectation that #{item} would have a 'iam' attribute"
-        end
-
-        if item["iam"]["type"] == "aion-point" then
-            operator = InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching.new()
-            rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-            puts "rootnhash1: #{rootnhash1}"
-            rootnhash2 = Librarian15BecauseReadWrite::utils_rewriteThisAionRootWithNewTopName(operator, rootnhash1, item["description"])
-            puts "rootnhash2: #{rootnhash2}"
-            return if rootnhash1 == rootnhash2
-            item["iam"]["rootnhash"] = rootnhash2
-            Librarian6ObjectsLocal::commit(item)
-            return
-        end
-        if item["iam"]["type"] == "primitive-file" then
-            puts "We are not yet picking up modifications of primitive files (#{location})"
-            return
-        end
-        if item["iam"]["type"] == "carrier-of-primitive-files" then
-            # We scan the location and upload any file that wasn't there before
-
-            locations = LucilleCore::locationsAtFolder(location)
-            # We make a fiirst pass to ensure everything is a file
-            status = locations.all?{|loc| File.file?(loc) }
-            if !status then
-                puts "The folder has elements that are not files!"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            locations.each{|filepath|
-
-                # So..... unlike a regular upload, some of the files in there can already be existing 
-                # primitive files tht were exported.
-
-                # The nice thing is that primitive files carry their own uuid as Nyx objects.
-                # We can use that to know if the location is an existing primitive file and can be ignored
-
-                id = File.basename(filepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
-                if Librarian6ObjectsLocal::getObjectByUUIDOrNull(id) then
-                    puts "#{File.basename(filepath)} is already a node"
-                    # Note that in this case we are not picking up possible modifications of the primitive files
-                else
-                    puts "#{File.basename(filepath)} is new and needs upload"
-                    primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(filepath)
-                    puts "Primitive file:"
-                    puts JSON.pretty_generate(primitiveFileObject)
-                    puts "Link: (owner: #{item["uuid"]}, file: #{primitiveFileObject["uuid"]})"
-                    Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
-
-                    puts "Writing #{primitiveFileObject["uuid"]}"
-                    dottedExtension = primitiveFileObject["iam"]["dottedExtension"]
-                    nhash = primitiveFileObject["iam"]["nhash"]
-                    parts = primitiveFileObject["iam"]["parts"]
-                    Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(primitiveFileObject["uuid"], dottedExtension, parts, location)
-
-                    puts "Removing #{filepath}"
-                    FileUtils.rm(filepath)
-                end
-            }
-
-            return
-        end
-        raise "(error: 68436fbf-745f-4a02-8912-a04279c122c1) I don't know how to pickup #{item["iam"]}"
-    end
-
-    # Librarian15BecauseReadWrite::desktopDataPickups()
-    def self.desktopDataPickups()
-        Librarian15BecauseReadWrite::utils_getAllTheTx46IdsLocationPairsFromDesktop()
-            .each{|pair|
-                identifier = pair["identifier"]
-                location   = pair["location"]
-                tx46       = XCache::getOrNull("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{identifier}")
-                # We will be asuming that tx46 is not null, otherwise this is too wierd and we deserve to crash
-                tx46       = JSON.parse(tx46)
-                puts JSON.pretty_generate(tx46)
-                itemuuid   = tx46["itemuuid"]
-                item       = Librarian6ObjectsLocal::getObjectByUUIDOrNull(itemuuid)
-                if item then
-                    Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
-                else
-                    puts "I could not find a nyx node for itemuuid: #{itemuuid}, that is associated with location: #{location}. Is that expected ?"
-                    LucilleCore::pressEnterToContinue()
-                end
-            }
-    end
-
-    # Librarian15BecauseReadWrite::pickupInteractiveInterface()
-    def self.pickupInteractiveInterface()
-        pairs = Librarian15BecauseReadWrite::utils_getAllTheTx46IdsLocationPairsFromDesktop()
-        selected, _ = LucilleCore::selectZeroOrMore("pickups", [], pairs, lambda{ |pair| File.basename(pair["location"]) })
-        selected.each{|pair|
-            identifier = pair["identifier"]
-            location   = pair["location"]
-            tx46       = XCache::getOrNull("fa2e7141-f1f2-4d2c-b9e9-f51cf6a0da9b:#{identifier}")
-            # We will be asuming that tx46 is not null, otherwise this is too wierd and we deserve to crash
-            tx46       = JSON.parse(tx46)
-            puts JSON.pretty_generate(tx46)
-            itemuuid   = tx46["itemuuid"]
-            item       = Librarian6ObjectsLocal::getObjectByUUIDOrNull(itemuuid)
-            if item then
-                Librarian15BecauseReadWrite::pickupItem(tx46, item, location)
-                LucilleCore::removeFileSystemLocation(location)
-            else
-                puts "I could not find a nyx node for itemuuid: #{itemuuid}, that is associated with location: #{location}. Is that expected ?"
-                LucilleCore::pressEnterToContinue()
-            end
-        }
-    end
-end
-
 class Librarian17PrimitiveFilesAndCarriers
 
     # Librarian17PrimitiveFilesAndCarriers::readPrimitiveFileOrNull(filepath) # [dottedExtension, nhash, parts]
@@ -584,19 +370,6 @@ class Librarian17PrimitiveFilesAndCarriers
         return [dottedExtension, nhash, parts]
     end
 
-    # Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(someuuid, dottedExtension, parts, location) # targetFilepath
-    def self.exportPrimitiveFileAtLocation(someuuid, dottedExtension, parts, location)
-        targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
-        File.open(targetFilepath, "w"){|f|  
-            parts.each{|nhash|
-                blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
-                raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
-                f.write(blob)
-            }
-        }
-        targetFilepath
-    end
-
     # Librarian17PrimitiveFilesAndCarriers::carrierContents(owneruuid)
     def self.carrierContents(owneruuid)
         Librarian6ObjectsLocal::getObjectsByMikuType("Nx60")
@@ -604,20 +377,6 @@ class Librarian17PrimitiveFilesAndCarriers
             .map{|claim| claim["targetuuid"] }
             .map{|uuid| Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid) }
             .compact
-    end
-
-    # Librarian17PrimitiveFilesAndCarriers::exportCarrier(item)
-    def self.exportCarrier(item)
-        tx46Id = Librarian15BecauseReadWrite::issueTx46ReturnIdentifier(item)
-        exportFolderpath = "/Users/pascal/Desktop/#{item["description"]} (#{tx46Id})"
-        FileUtils.mkdir(exportFolderpath)
-        Librarian17PrimitiveFilesAndCarriers::carrierContents(item["uuid"])
-            .each{|ix|
-                dottedExtension = ix["iam"]["dottedExtension"]
-                nhash = ix["iam"]["nhash"]
-                parts = ix["iam"]["parts"]
-                Librarian17PrimitiveFilesAndCarriers::exportPrimitiveFileAtLocation(ix["uuid"], dottedExtension, parts, exportFolderpath)
-            }
     end
 
     # Librarian17PrimitiveFilesAndCarriers::uploadCarrierOrNothing(uuid)
@@ -727,8 +486,9 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "desktop-aion-export-pickup-i" then
-            Librarian15BecauseReadWrite::pickupInteractiveInterface()
+        if ARGV[0] == "EditionDesktopSync" then
+            puts "To be implemented"
+            LucilleCore::pressEnterToContinue()
             exit
         end
 
@@ -740,7 +500,7 @@ class LibrarianCLI
         puts "    librarian destroy-object-by-uuid-i"
         puts "    librarian prob-blob-i"
         puts "    librarian echo-blob-i"
-        puts "    librarian desktop-aion-export-pickup-i"
+        puts "    librarian EditionDesktopSync"
     end
 end
 

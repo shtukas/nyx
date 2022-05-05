@@ -141,6 +141,8 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 
+require_relative "EditionDesk.rb"
+
 require_relative "Galaxy.rb"
 
 require_relative "Heights.rb"

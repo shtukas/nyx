@@ -259,7 +259,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                Nx111::accessIamData_PossibleMutationInStorage_ExportsAreTx46Compatible(item)
+                EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
                 next
             end
 
