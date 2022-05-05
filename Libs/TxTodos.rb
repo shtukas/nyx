@@ -52,16 +52,6 @@ class TxTodos
         (biggest + 1).floor
     end
 
-    # TxTodos::ordinalBetweenN1thAndN2th(universe, n1, n2)
-    def self.ordinalBetweenN1thAndN2th(universe, n1, n2)
-        nx50s = TxTodos::itemsForUniverse(universe).first(n2)
-        if nx50s.size < n1+2 then
-            return TxTodos::nextOrdinal(universe)
-        end
-        ordinals = nx50s.map{|nx50| nx50["ordinal"] }.sort.drop(n1).take(n2-n1)
-        ordinals.min + rand*(ordinals.max-ordinals.min)
-    end
-
     # TxTodos::interactivelyDecideNewOrdinal(universe)
     def self.interactivelyDecideNewOrdinal(universe)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["genesis injection (default)", "fine selection near the top", "next"])
@@ -157,35 +147,6 @@ class TxTodos
         }
         Librarian6ObjectsLocal::commit(item)
         ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
-        item
-    end
-
-    # TxTodos::issueViennaURL(url)
-    def self.issueViennaURL(url)
-        uuid        = SecureRandom.uuid
-        description = url
-        unixtime    = Time.new.to_i
-        datetime    = Time.new.utc.iso8601
-
-        nx111 = {
-            "uuid" => SecureRandom.uuid,
-            "type" => "url",
-            "url"  => url
-        }
-
-        ordinal     = TxTodos::ordinalBetweenN1thAndN2th("backlog", 20, 30)
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxTodo",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "iam"         => nx111,
-          "ordinal"     => ordinal
-        }
-        Librarian6ObjectsLocal::commit(item)
-        ObjectUniverseMapping::setObjectUniverseMapping(uuid, "backlog")
         item
     end
 
