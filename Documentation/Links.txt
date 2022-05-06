@@ -1,4 +1,0 @@
-
-links2.sqlite3
-create table _links_ (_sourceuuid_ text, _targetuuid_ text, _bidirectional_ integer);
-There isn't a boolean datatype in sqlite, so we use 1 (true) and 0 (false)
