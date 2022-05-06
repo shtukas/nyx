@@ -140,7 +140,7 @@ class Inbox
     def self.landingInbox2(item)
         puts item["line"]
         if item["aionrootnhash"] then
-            AionCore::exportHashAtFolder(Librarian3ElizabethXCache.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
         end
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["exit (default)", "destroy"])
         if action.nil? or action == "exit" then
