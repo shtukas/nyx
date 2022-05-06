@@ -82,7 +82,7 @@ class TxAttachments
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit" then
-                EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TxAttachments::toString(item)}' ? ") then

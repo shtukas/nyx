@@ -400,12 +400,12 @@ class LibrarianCLI
     # LibrarianCLI::main()
     def self.main()
 
-        if ARGV[0] == "alexandra-sync" then
+        if ARGV[0] == "alexandra-infinity-sync" then
             AlexandraDidactSynchronization::run()
             exit
         end
 
-        if ARGV[0] == "alexandra-sync+fsck@infinity" then
+        if ARGV[0] == "alexandra-infinity-sync+fsck@infinity" then
             AlexandraDidactSynchronization::run()
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
             exit
@@ -470,15 +470,9 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "EditionDesktopSync" then
-            puts "To be implemented"
-            LucilleCore::pressEnterToContinue()
-            exit
-        end
-
         puts "usage:"
-        puts "    librarian alexandra-sync"
-        puts "    librarian alexandra-sync+fsck@infinity"
+        puts "    librarian alexandra-infinity-sync"
+        puts "    librarian alexandra-infinity-sync+fsck@infinity"
         puts "    librarian show-object-i"
         puts "    librarian edit-object-i"
         puts "    librarian destroy-object-by-uuid-i"

@@ -122,6 +122,7 @@ class EditionDesk
     end
 
     # ----------------------------------------------------
+    # Read and Write, the basics.
 
     # EditionDesk::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts) # targetFilepath
     def self.exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts)
@@ -168,8 +169,8 @@ class EditionDesk
         filepath
     end
 
-    # EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
-    def self.exportIfNotAlreadyExportedAndAccess(item)
+    # EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
+    def self.exportItemToDeskIfNotAlreadyExportedAndAccess(item)
         if item["iam"].nil? then
             puts "For the moment I can only EditionDesk::exportAndAccess iam's nx111 elements "
         end
@@ -273,8 +274,8 @@ class EditionDesk
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
     end
 
-    # EditionDesk::updateItemNx111FromLocationOrNothing(location)
-    def self.updateItemNx111FromLocationOrNothing(location)
+    # EditionDesk::updateItemFromDeskLocationOrNothing(location)
+    def self.updateItemFromDeskLocationOrNothing(location)
         filename = File.basename(location)
         description, itemuuid, nx111uuid = filename.split("|")
         if nx111uuid.include?(".") then
@@ -286,6 +287,8 @@ class EditionDesk
         return if nx111.nil?
         return if nx111["uuid"] != nx111uuid
         # At this time we have the item and the item has a nx111 that has the same uuid as the location on disk
+
+        puts "EditionDesk: Updating from #{File.basename(location)}"
 
         if nx111["type"] == "navigation" then
             puts "This should not happen because nothing was exported."
@@ -302,7 +305,9 @@ class EditionDesk
         if nx111["type"] == "text" then
             text = IO.read(location)
             nhash = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(text)
+            return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
+            puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
             Librarian6ObjectsLocal::commit(item)
             return
@@ -315,7 +320,9 @@ class EditionDesk
             operator = InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, Utils::sanitiseStringForFilenaming(item["description"]))
+            return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
+            puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
             Librarian6ObjectsLocal::commit(item)
             return
@@ -328,6 +335,8 @@ class EditionDesk
         if nx111["type"] == "primitive-file" then
             nx111v2 = Nx111::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
             return if nx111v2.nil?
+            puts JSON.pretty_generate(nx111v2)
+            return if item["iam"].to_s = nx111v2.to_s
             item["iam"] = nx111v2
             Librarian6ObjectsLocal::commit(item)
             return
@@ -351,7 +360,7 @@ class EditionDesk
 
                 id = File.basename(innerFilepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
                 if Librarian6ObjectsLocal::getObjectByUUIDOrNull(id) then
-                    puts "#{File.basename(innerFilepath)} is already a node"
+                    # puts "#{File.basename(innerFilepath)} is already a node"
                     # Note that in this case we are not picking up possible modifications of the primitive files
                 else
                     puts "#{File.basename(innerFilepath)} is new and needs upload"

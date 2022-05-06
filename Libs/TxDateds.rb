@@ -142,7 +142,7 @@ class TxDateds
             end
 
             if Interpreting::match("access", command) then
-                EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
                 next
             end
 

@@ -105,25 +105,25 @@ class LxAction
 
             if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
-                EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxFyre" then
                 item = object["TxFyre"]
-                EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxFloat" then
                 item = object["TxFloat"]
-                EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
                 return
             end
 
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
-                EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
                 return
             end
 
@@ -133,7 +133,7 @@ class LxAction
             end
 
             if object["mikuType"] == "TxTodo" then
-                EditionDesk::exportIfNotAlreadyExportedAndAccess(object)
+                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(object)
                 return
             end
         end

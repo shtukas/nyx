@@ -80,12 +80,6 @@ class Utils
         displayStr.lines.map{|line| line.size/Utils::screenWidth() + 1 }.inject(0, :+)
     end
 
-    # Utils::locationByUniqueStringOrNull(uniquestring)
-    def self.locationByUniqueStringOrNull(uniquestring)
-        location = `atlas '#{uniquestring}'`.strip
-        location.size > 0 ? location : nil
-    end
-
     # Utils::sanitiseStringForFilenaming(str)
     def self.sanitiseStringForFilenaming(str)
         str
@@ -93,17 +87,6 @@ class Utils
             .gsub("/", "-")
             .gsub("'", "")
             .strip
-    end
-
-    # Utils::codeTrace()
-    def self.codeTrace()
-        trace = []
-        Find.find(File.dirname(__FILE__)) do |location|
-            next if !File.file?(location)
-            next if location[-3, 3] != ".rb"
-            trace << Digest::SHA1.hexdigest(IO.read(location))
-        end
-        Digest::SHA1.hexdigest(trace.join(":"))
     end
 
     # Utils::fileByFilenameIsSafelyOpenable(filename)
@@ -136,10 +119,29 @@ class Utils
     # ----------------------------------------------------
     # File System Routines
 
-    # Utils::locationByUniqueStringOrNull(uniquestring)
-    def self.locationByUniqueStringOrNull(uniquestring)
-        location = `atlas '#{uniquestring}'`.strip
-        location.size > 0 ? location : nil
+    # Utils::codeTrace()
+    def self.codeTrace()
+        trace = []
+        Find.find(File.dirname(__FILE__)) do |location|
+            next if !File.file?(location)
+            next if location[-3, 3] != ".rb"
+            trace << Digest::SHA1.hexdigest(IO.read(location))
+        end
+        Digest::SHA1.hexdigest(trace.join(":"))
+    end
+
+    # Utils::locationTrace(location)
+    def self.locationTrace(location)
+        raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
+        if File.file?(location) then
+            Digest::SHA256.hexdigest("#{File.basename(location)}:#{Digest::SHA256.file(location).hexdigest}")
+        else
+            t1 = File.basename(location)
+            t2 = LucilleCore::locationsAtFolder(location)
+                    .map{|loc| Utils::locationTrace(loc) }
+                    .join(":")
+            Digest::SHA256.hexdigest([t1, t2].join(":"))
+        end
     end
 
     # ----------------------------------------------------
