@@ -59,7 +59,7 @@ class AlexandraDidactSynchronization
             puts "tx46: #{JSON.pretty_generate(tx46)}"
             if (Time.new.to_i - tx46["unixtime"]) > 86400*7 then
                 puts "Deleting Edition Desk location: #{File.basename(location)}"
-                puts "... needs to be implemented."
+                puts "... needs to be implemented (13189a04-26a2-42a7-b1d8-9ee388cc2962)."
                 LucilleCore::pressEnterToContinue()
             end
         }
