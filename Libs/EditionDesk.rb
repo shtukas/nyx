@@ -110,7 +110,7 @@ class EditionDesk
 
     # EditionDesk::exportLocationName(item)
     def self.exportLocationName(item)
-        description = item["description"].gsub("|", "-")
+        description = item["description"] ? item["description"].gsub("|", "-") : item["uuid"]
         itemuuid = item["uuid"]
         nx111uuid = item["iam"]["uuid"]
         "#{description}|#{itemuuid}|#{nx111uuid}"
@@ -123,17 +123,49 @@ class EditionDesk
 
     # ----------------------------------------------------
 
-    # EditionDesk::exportPrimitiveFileAtLocation(someuuid, dottedExtension, parts, location) # targetFilepath
-    def self.exportPrimitiveFileAtLocation(someuuid, dottedExtension, parts, location)
-        targetFilepath = "#{location}/#{someuuid}#{dottedExtension}"
+    # EditionDesk::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts) # targetFilepath
+    def self.exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts)
+        targetFilepath = "#{exportFolderpath}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
         }
         targetFilepath
+    end
+
+    # EditionDesk::writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111) # Often the nx111 is the nx111 of the item
+    def self.writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111)
+        dottedExtension = nx111["dottedExtension"]
+        nhash = nx111["nhash"]
+        parts = nx111["parts"]
+        filepath = "#{EditionDesk::exportLocation(item)}#{dottedExtension}"
+        File.open(filepath, "w"){|f|  
+            parts.each{|nhash|
+                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
+                f.write(blob)
+            }
+        }
+        filepath
+    end
+
+    # EditionDesk::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(item, dirname, nx111) # Often the nx111 is the nx111 of the item
+    def self.writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(item, dirname, nx111)
+        dottedExtension = nx111["dottedExtension"]
+        nhash = nx111["nhash"]
+        parts = nx111["parts"]
+        filepath = "#{EditionDesk::pathToEditionDesk()}/#{dirname}/#{item["uuid"]}#{dottedExtension}"
+        File.open(filepath, "w"){|f|  
+            parts.each{|nhash|
+                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
+                f.write(blob)
+            }
+        }
+        filepath
     end
 
     # EditionDesk::exportIfNotAlreadyExportedAndAccess(item)
@@ -164,7 +196,7 @@ class EditionDesk
                 return
             end
             nhash = nx111["nhash"]
-            text = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            text = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             system("open '#{location}'")
             return
@@ -176,7 +208,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching.new() 
+            operator = InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new() 
             rootnhash = nx111["rootnhash"]
             exportLocation = EditionDesk::exportLocation(item)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, File.basename(exportLocation))
@@ -199,8 +231,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "primitive-file" then
-            _, dottedExtension, nhash, parts = nx111
-            filepath = EditionDesk::exportPrimitiveFileAtLocation(item["uuid"], dottedExtension, parts, EditionDesk::pathToEditionDesk())
+            filepath = EditionDesk::writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111)
             system("open '#{filepath}'")
             return
         end
@@ -211,12 +242,12 @@ class EditionDesk
                 return
             end
             FileUtils.mkdir(exportFolderpath)
-            Librarian17PrimitiveFilesAndCarriers::carrierContents(item["uuid"])
+            Librarian17Carriers::getCarrierContents(item["uuid"])
                 .each{|ix|
                     dottedExtension = ix["iam"]["dottedExtension"]
                     nhash = ix["iam"]["nhash"]
                     parts = ix["iam"]["parts"]
-                    EditionDesk::exportPrimitiveFileAtLocation(ix["uuid"], dottedExtension, parts, exportFolderpath)
+                    EditionDesk::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, ix["uuid"], dottedExtension, parts)
                 }
             system("open '#{exportFolderpath}'")
             return
@@ -239,6 +270,111 @@ class EditionDesk
             end
             return
         end
-        raise "(error: 3cbb1e64-0d18-48c5-bd28-f4ba584659a3): #{item}"
+        raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
+    end
+
+    # EditionDesk::updateItemNx111FromLocationOrNothing(location)
+    def self.updateItemNx111FromLocationOrNothing(location)
+        filename = File.basename(location)
+        description, itemuuid, nx111uuid = filename.split("|")
+        if nx111uuid.include?(".") then
+            nx111uuid, _ = nx111uuid.split(".")
+        end
+        item = Librarian7ObjectsInfinity::getObjectByUUIDOrNull(itemuuid)
+        return if item.nil?
+        nx111 = item["iam"]
+        return if nx111.nil?
+        return if nx111["uuid"] != nx111uuid
+        # At this time we have the item and the item has a nx111 that has the same uuid as the location on disk
+
+        if nx111["type"] == "navigation" then
+            puts "This should not happen because nothing was exported."
+            raise "(error: 81a685a2-ef9f-4ba3-9559-08905e718a3d)"
+        end
+        if nx111["type"] == "log" then
+            puts "This should not happen because nothing was exported."
+            raise "(error: 6750eb47-2227-4755-a7b1-8eda4c4d5d18)"
+        end
+        if nx111["type"] == "description-only" then
+            puts "This should not happen because nothing was exported."
+            raise "(error: 10930cec-07b5-451d-a648-85f72899ee73)"
+        end
+        if nx111["type"] == "text" then
+            text = IO.read(location)
+            nhash = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(text)
+            nx111["nhash"] = nhash
+            item["iam"] = nx111
+            Librarian6ObjectsLocal::commit(item)
+            return
+        end
+        if nx111["type"] == "url" then
+            puts "This should not happen because nothing was exported."
+            raise "(error: 563d3ad6-7d82-485b-afc5-b9aeba6fb88b)"
+        end
+        if nx111["type"] == "aion-point" then
+            operator = InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new()
+            rootnhash = AionCore::commitLocationReturnHash(operator, location)
+            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, Utils::sanitiseStringForFilenaming(item["description"]))
+            nx111["rootnhash"] = rootnhash
+            item["iam"] = nx111
+            Librarian6ObjectsLocal::commit(item)
+            return
+        end
+        if nx111["type"] == "unique-string" then
+            puts "This should not happen because nothing was exported."
+            raise "(error: 00aa930f-eedc-4a95-bb0d-fecc3387ae03)"
+            return
+        end
+        if nx111["type"] == "primitive-file" then
+            nx111v2 = Nx111::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
+            return if nx111v2.nil?
+            item["iam"] = nx111v2
+            Librarian6ObjectsLocal::commit(item)
+            return
+        end
+        if nx111["type"] == "carrier-of-primitive-files" then
+
+            innerLocations = LucilleCore::locationsAtFolder(location)
+            # We make a fiirst pass to ensure everything is a file
+            status = innerLocations.all?{|loc| File.file?(loc) }
+            if !status then
+                puts "The folder (#{location}) has elements that are not files!"
+                return
+            end
+            innerLocations.each{|innerFilepath|
+
+                # So..... unlike a regular upload, some of the files in there can already be existing 
+                # primitive files that were exported.
+
+                # The nice thing is that primitive files carry their own uuid as Nyx objects.
+                # We can use that to know if the location is an existing primitive file and can be ignored
+
+                id = File.basename(innerFilepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
+                if Librarian6ObjectsLocal::getObjectByUUIDOrNull(id) then
+                    puts "#{File.basename(innerFilepath)} is already a node"
+                    # Note that in this case we are not picking up possible modifications of the primitive files
+                else
+                    puts "#{File.basename(innerFilepath)} is new and needs upload"
+                    primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(innerFilepath)
+                    puts "Primitive file:"
+                    puts JSON.pretty_generate(primitiveFileObject)
+                    puts "Link: (owner: #{item["uuid"]}, file: #{primitiveFileObject["uuid"]})"
+                    Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
+
+                    puts "Writing #{primitiveFileObject["uuid"]}"
+                    EditionDesk::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(primitiveFileObject, File.basename(location), primitiveFileObject["iam"])
+
+                    puts "Removing #{innerFilepath}"
+                    FileUtils.rm(innerFilepath)
+                end
+            }
+
+            return
+        end
+        if nx111["type"] == "Dx8Unit" then
+            puts "This should not happen because nothing was exported."
+            raise "(error: 44dd0a3e-9c18-4936-a0fa-cf3b5ef6d19f)"
+        end
+        raise "(error: 69fcf4bf-347a-4e5f-91f8-3a97d6077c98): nx111: #{nx111}"
     end
 end

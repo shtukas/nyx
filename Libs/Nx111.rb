@@ -76,13 +76,30 @@ class Nx111
         type
     end
 
-    # Nx111::primitiveFileIamValueFromLocationOrNull(location)
-    def self.primitiveFileIamValueFromLocationOrNull(location)
-        data = Librarian17PrimitiveFilesAndCarriers::readPrimitiveFileOrNull(location)
+    # Nx111::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]
+    def self.locationToPrimitiveFileDataArrayOrNull(filepath)
+        return nil if !File.exists?(filepath)
+        return nil if !File.file?(filepath)
+ 
+        dottedExtension = File.extname(filepath)
+ 
+        nhash = Librarian0Utils::filepathToContentHash(filepath)
+ 
+        lambdaBlobCommitReturnNhash = lambda {|blob|
+            InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
+        }
+        parts = Librarian0Utils::commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
+ 
+        return [dottedExtension, nhash, parts]
+    end
+
+    # Nx111::locationToPrimitiveFileNx111OrNull(uuid, filepath)
+    def self.locationToPrimitiveFileNx111OrNull(uuid, filepath)
+        data = Nx111::locationToPrimitiveFileDataArrayOrNull(filepath)
         return nil if data.nil?
         dottedExtension, nhash, parts = data
         {
-            "uuid"  => SecureRandom.uuid,
+            "uuid"  => uuid,
             "type"  => "primitive-file",
             "dottedExtension" => dottedExtension,
             "nhash" => nhash,
@@ -90,10 +107,10 @@ class Nx111
         }
     end
 
-    # Nx111::aionPointIamValueFromLocationOrError(location)
-    def self.aionPointIamValueFromLocationOrError(location)
+    # Nx111::locationToAionPointNx111OrNull(location)
+    def self.locationToAionPointNx111OrNull(location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching.new(), location)
+        rootnhash = AionCore::commitLocationReturnHash(InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new(), location)
         {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",
@@ -131,7 +148,7 @@ class Nx111
         end
         if type == "text" then
             text = Librarian0Utils::editTextSynchronously("")
-            nhash = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(text)
+            nhash = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(text)
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",
@@ -150,7 +167,7 @@ class Nx111
         if type == "aion-point" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::aionPointIamValueFromLocationOrError(location)
+            return Nx111::locationToAionPointNx111OrNull(location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
@@ -164,7 +181,7 @@ class Nx111
         if type == "primitive-file" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::primitiveFileIamValueFromLocationOrNull(location)
+            return Nx111::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
         end
         if type == "carrier-of-primitive-files" then
             return {
@@ -174,5 +191,4 @@ class Nx111
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
-
 end

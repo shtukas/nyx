@@ -251,7 +251,7 @@ class LxAction
         end
 
         if command == "fsck" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailure()
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
             return
         end
 

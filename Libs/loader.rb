@@ -150,7 +150,7 @@ require_relative "Heights.rb"
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
-require_relative "InfinityFileSystemCheck.rb"
+require_relative "InfinityDriveFileSystemCheck.rb"
 require_relative "InfinityDrive.rb"
 require_relative "InfinityDatablobs.rb"
 

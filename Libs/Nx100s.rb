@@ -71,7 +71,7 @@ class Nx100s
     # Nx100s::issueNewItemAionPointFromLocation(location)
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
-        nx111 = Nx111::aionPointIamValueFromLocationOrError(location)
+        nx111 = Nx111::locationToAionPointNx111OrNull(location)
         flavour = {
             "type" => "encyclopedia"
         }
@@ -95,14 +95,15 @@ class Nx100s
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
 
-        nx111 = Nx111::primitiveFileIamValueFromLocationOrNull(location)
+        uuid = Utils::nx45()
+
+        nx111 = Nx111::locationToPrimitiveFileNx111OrNull(uuid, location)
         return nil if nx111.nil?
 
         flavour = {
             "type" => "pure-data"
         }
 
-        uuid       = Utils::nx45()
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
@@ -112,7 +113,7 @@ class Nx100s
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "description" => description,
-          "iam"        => nx111,
+          "iam"         => nx111,
           "flavour"     => flavour
         }
         Librarian6ObjectsLocal::commit(item)
@@ -219,7 +220,6 @@ class Nx100s
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
             child = Nx100s::issueNewItemAionPointFromLocation(location)
-            InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
             Links::link(item["uuid"], child["uuid"], false)
         }
     end
@@ -233,7 +233,6 @@ class Nx100s
             puts "processing: #{location}"
             child = Nx100s::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
-            InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
             Links::link(item["uuid"], child["uuid"], false)
         }
     end
@@ -330,7 +329,7 @@ class Nx100s
                     LucilleCore::pressEnterToContinue()
                     next
                 end
-                Librarian17PrimitiveFilesAndCarriers::uploadCarrierOrNothing(item["uuid"])
+                Librarian17Carriers::addPrimitiveFilesToCarrierOrNothing(item["uuid"])
                 next
             end
 

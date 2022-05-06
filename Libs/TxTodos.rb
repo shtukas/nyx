@@ -126,7 +126,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        rootnhash   = AionCore::commitLocationReturnHash(InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching.new(), location)
+        rootnhash   = AionCore::commitLocationReturnHash(InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new(), location)
         nx111 = {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",

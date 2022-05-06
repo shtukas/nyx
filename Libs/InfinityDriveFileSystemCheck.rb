@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class InfinityFileSystemCheck
+class InfinityDriveFileSystemCheck
 
-    # InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111)
+    # InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111)
     def self.fsckExitAtFirstFailureIamValue(object, nx111)
         if !Nx111::iamTypes().include?(nx111["type"]) then
             puts "object has an incorrect iam value type".red
@@ -88,7 +88,7 @@ class InfinityFileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end
 
-    # InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+    # InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
     def self.fsckExitAtFirstFailureLibrarianMikuObject(item)
         if item["mikuType"] == "Nx60" then
             return
@@ -100,23 +100,23 @@ class InfinityFileSystemCheck
                 exit
             end
             puts JSON.pretty_generate(item["iam"])
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxAttachment" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxDated" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxFloat" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxFyre" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "TxInbox2" then
@@ -132,11 +132,11 @@ class InfinityFileSystemCheck
             return
         end
         if item["mikuType"] == "TxTodo" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
         if item["mikuType"] == "Wave" then
-            InfinityFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
 
@@ -144,7 +144,7 @@ class InfinityFileSystemCheck
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
     end
 
-    # InfinityFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
+    # InfinityDriveFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
     def self.fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
 
         puts "For every fsck run hash, we check every object and then each of the object's next versions"
@@ -171,15 +171,15 @@ class InfinityFileSystemCheck
                 objectKey =  "#{fsckrunhash}:#{JSON.generate(item)}"
                 next if XCache::flagIsTrue(objectKey)
                 puts JSON.pretty_generate(item)
-                InfinityFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+                InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
                 XCache::setFlagTrue(objectKey)
             }
 
         puts "Fsck completed successfully".green
     end
 
-    # InfinityFileSystemCheck::fsckExitAtFirstFailure()
+    # InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
     def self.fsckExitAtFirstFailure()
-        InfinityFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
+        InfinityDriveFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
     end
 end

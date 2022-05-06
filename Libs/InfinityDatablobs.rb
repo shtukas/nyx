@@ -280,9 +280,9 @@ class InfinityElizabethPureDrive
     end
 end
 
-class InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching
+class InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching
 
-    # InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
+    # InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
     def self.commitToDatablobsInfinityBufferOut(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filepath = "#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut/#{nhash[7, 2]}/#{nhash}.data"
@@ -292,13 +292,13 @@ class InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching
         File.open(filepath, "w"){|f| f.write(blob) }
     end
 
-    # InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
+    # InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
     def self.putBlob(blob)
-        InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
+        InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
         Librarian2DatablobsXCache::putBlob(blob)
     end
 
-    # InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+    # InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
 
         # We first try XCache
@@ -327,10 +327,10 @@ class InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching
     end
 end
 
-class InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching
+class InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching
 
     def commitBlob(blob)
-        InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
+        InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -338,7 +338,7 @@ class InfinityElizabeth_XCacheLookupThenDriveLookupWithLocalXCaching
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+        blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
         return blob if blob
         puts "(error: 7ffc6f95-4977-47a2-b9fd-eecd8312ebbe) could not find blob, nhash: #{nhash}"
         raise "(error: 47f74e9a-0255-44e6-bf04-f12ff7786c65, nhash: #{nhash})" if blob.nil?

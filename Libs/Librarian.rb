@@ -223,6 +223,7 @@ class Librarian6ObjectsLocal
 
     # Librarian6ObjectsLocal::commit(object)
     def self.commit(object)
+
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
 
@@ -351,27 +352,10 @@ end
 # 
 # ---------------------------------------------------------------------------
 
-class Librarian17PrimitiveFilesAndCarriers
+class Librarian17Carriers
 
-    # Librarian17PrimitiveFilesAndCarriers::readPrimitiveFileOrNull(filepath) # [dottedExtension, nhash, parts]
-    def self.readPrimitiveFileOrNull(filepath)
-        return nil if !File.exists?(filepath)
-        return nil if !File.file?(filepath)
- 
-        dottedExtension = File.extname(filepath)
- 
-        nhash = Librarian0Utils::filepathToContentHash(filepath)
- 
-        lambdaBlobCommitReturnNhash = lambda {|blob|
-            InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
-        }
-        parts = Librarian0Utils::commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
- 
-        return [dottedExtension, nhash, parts]
-    end
-
-    # Librarian17PrimitiveFilesAndCarriers::carrierContents(owneruuid)
-    def self.carrierContents(owneruuid)
+    # Librarian17Carriers::getCarrierContents(owneruuid)
+    def self.getCarrierContents(owneruuid)
         Librarian6ObjectsLocal::getObjectsByMikuType("Nx60")
             .select{|claim| claim["owneruuid"] == owneruuid }
             .map{|claim| claim["targetuuid"] }
@@ -379,8 +363,8 @@ class Librarian17PrimitiveFilesAndCarriers
             .compact
     end
 
-    # Librarian17PrimitiveFilesAndCarriers::uploadCarrierOrNothing(uuid)
-    def self.uploadCarrierOrNothing(uuid)
+    # Librarian17Carriers::addPrimitiveFilesToCarrierOrNothing(uuid)
+    def self.addPrimitiveFilesToCarrierOrNothing(uuid)
         uploadFolder = LucilleCore::askQuestionAnswerAsString("upload folder: ")
         if !File.exists?(uploadFolder) then
             puts "This upload folder does not exists!"
@@ -423,7 +407,7 @@ class LibrarianCLI
 
         if ARGV[0] == "alexandra-sync+fsck@infinity" then
             AlexandraDidactSynchronization::run()
-            InfinityFileSystemCheck::fsckExitAtFirstFailure()
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
             exit
         end
 
@@ -462,7 +446,7 @@ class LibrarianCLI
 
         if ARGV[0] == "prob-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts "Found a blob of size #{blob.size}"
                 LucilleCore::pressEnterToContinue()
@@ -475,7 +459,7 @@ class LibrarianCLI
 
         if ARGV[0] == "echo-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = InfinityDatablobs_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts JSON.pretty_generate(JSON.parse(blob))
                 LucilleCore::pressEnterToContinue()

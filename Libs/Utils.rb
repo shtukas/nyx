@@ -92,6 +92,7 @@ class Utils
             .gsub(":", "-")
             .gsub("/", "-")
             .gsub("'", "")
+            .strip
     end
 
     # Utils::codeTrace()
