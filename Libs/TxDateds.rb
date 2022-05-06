@@ -68,7 +68,7 @@ class TxDateds
     # TxDateds::issueViennaURL(url)
     def self.issueViennaURL(url)
         uuid        = SecureRandom.uuid
-        description = url
+        description = "(vienna) #{url}"
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
