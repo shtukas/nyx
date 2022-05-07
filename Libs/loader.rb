@@ -170,7 +170,9 @@ require_relative "Nx102Flavors.rb"
 require_relative "Nyx.rb"
 
 require_relative "ProgrammableBooleans.rb"
+require_relative "PrimitiveFiles.rb"
 
+require_relative "Snapshots.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 

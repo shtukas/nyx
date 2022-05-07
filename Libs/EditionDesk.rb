@@ -124,51 +124,6 @@ class EditionDesk
     # ----------------------------------------------------
     # Read and Write, the basics.
 
-    # EditionDesk::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts) # targetFilepath
-    def self.exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts)
-        targetFilepath = "#{exportFolderpath}/#{someuuid}#{dottedExtension}"
-        File.open(targetFilepath, "w"){|f|  
-            parts.each{|nhash|
-                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
-                raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
-                f.write(blob)
-            }
-        }
-        targetFilepath
-    end
-
-    # EditionDesk::writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111) # Often the nx111 is the nx111 of the item
-    def self.writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111)
-        dottedExtension = nx111["dottedExtension"]
-        nhash = nx111["nhash"]
-        parts = nx111["parts"]
-        filepath = "#{EditionDesk::exportLocation(item)}#{dottedExtension}"
-        File.open(filepath, "w"){|f|  
-            parts.each{|nhash|
-                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
-                raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
-                f.write(blob)
-            }
-        }
-        filepath
-    end
-
-    # EditionDesk::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(item, dirname, nx111) # Often the nx111 is the nx111 of the item
-    def self.writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(item, dirname, nx111)
-        dottedExtension = nx111["dottedExtension"]
-        nhash = nx111["nhash"]
-        parts = nx111["parts"]
-        filepath = "#{EditionDesk::pathToEditionDesk()}/#{dirname}/#{item["uuid"]}#{dottedExtension}"
-        File.open(filepath, "w"){|f|  
-            parts.each{|nhash|
-                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
-                raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
-                f.write(blob)
-            }
-        }
-        filepath
-    end
-
     # EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
     def self.exportItemToDeskIfNotAlreadyExportedAndAccess(item)
         if item["iam"].nil? then
@@ -232,7 +187,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "primitive-file" then
-            filepath = EditionDesk::writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111)
+            filepath = PrimitiveFiles::writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111)
             system("open '#{filepath}'")
             return
         end
@@ -248,7 +203,7 @@ class EditionDesk
                     dottedExtension = ix["iam"]["dottedExtension"]
                     nhash = ix["iam"]["nhash"]
                     parts = ix["iam"]["parts"]
-                    EditionDesk::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, ix["uuid"], dottedExtension, parts)
+                    PrimitiveFiles::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, ix["uuid"], dottedExtension, parts)
                 }
             system("open '#{exportFolderpath}'")
             return
@@ -333,7 +288,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "primitive-file" then
-            nx111v2 = Nx111::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
+            nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
             return if nx111v2.nil?
             puts JSON.pretty_generate(nx111v2)
             return if item["iam"].to_s = nx111v2.to_s
@@ -371,7 +326,7 @@ class EditionDesk
                     Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
 
                     puts "Writing #{primitiveFileObject["uuid"]}"
-                    EditionDesk::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(primitiveFileObject, File.basename(location), primitiveFileObject["iam"])
+                    PrimitiveFiles::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(primitiveFileObject, File.basename(location), primitiveFileObject["iam"])
 
                     puts "Removing #{innerFilepath}"
                     FileUtils.rm(innerFilepath)

@@ -76,37 +76,6 @@ class Nx111
         type
     end
 
-    # Nx111::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]
-    def self.locationToPrimitiveFileDataArrayOrNull(filepath)
-        return nil if !File.exists?(filepath)
-        return nil if !File.file?(filepath)
- 
-        dottedExtension = File.extname(filepath)
- 
-        nhash = Librarian0Utils::filepathToContentHash(filepath)
- 
-        lambdaBlobCommitReturnNhash = lambda {|blob|
-            InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
-        }
-        parts = Librarian0Utils::commitFileToXCacheReturnPartsHashsImproved(filepath, lambdaBlobCommitReturnNhash)
- 
-        return [dottedExtension, nhash, parts]
-    end
-
-    # Nx111::locationToPrimitiveFileNx111OrNull(uuid, filepath)
-    def self.locationToPrimitiveFileNx111OrNull(uuid, filepath)
-        data = Nx111::locationToPrimitiveFileDataArrayOrNull(filepath)
-        return nil if data.nil?
-        dottedExtension, nhash, parts = data
-        {
-            "uuid"  => uuid,
-            "type"  => "primitive-file",
-            "dottedExtension" => dottedExtension,
-            "nhash" => nhash,
-            "parts" => parts
-        }
-    end
-
     # Nx111::locationToAionPointNx111OrNull(location)
     def self.locationToAionPointNx111OrNull(location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
@@ -181,7 +150,7 @@ class Nx111
         if type == "primitive-file" then
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
+            return PrimitiveFiles::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
         end
         if type == "carrier-of-primitive-files" then
             return {

@@ -97,7 +97,7 @@ class Nx100s
 
         uuid = Utils::nx45()
 
-        nx111 = Nx111::locationToPrimitiveFileNx111OrNull(uuid, location)
+        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
         return nil if nx111.nil?
 
         flavour = {
