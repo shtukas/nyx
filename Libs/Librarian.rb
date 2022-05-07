@@ -397,6 +397,11 @@ class LibrarianCLI
             exit
         end
 
+        if ARGV[0] == "reset-fsck-run-hash" then
+            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", SecureRandom.hex)
+            exit
+        end
+
         if ARGV[0] == "show-object-i" then
             uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
             object = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
@@ -459,6 +464,7 @@ class LibrarianCLI
         puts "usage:"
         puts "    librarian alexandra-infinity-sync"
         puts "    librarian alexandra-infinity-sync+fsck@infinity"
+        puts "    librarian reset-fsck-run-hash"
         puts "    librarian show-object-i"
         puts "    librarian edit-object-i"
         puts "    librarian destroy-object-by-uuid-i"

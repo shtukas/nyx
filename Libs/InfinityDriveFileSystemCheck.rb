@@ -149,10 +149,6 @@ class InfinityDriveFileSystemCheck
 
         puts "For every fsck run hash, we check every object and then each of the object's next versions"
 
-        if LucilleCore::askQuestionAnswerAsBoolean("reset fsck run hash ? ", false) then
-            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", SecureRandom.hex)
-        end
-
         fsckrunhash = XCache::getOrNull("1A07231B-8535-499B-BB2C-89A4EB429F51")
 
         if fsckrunhash.nil? then
@@ -161,8 +157,6 @@ class InfinityDriveFileSystemCheck
         end
 
         Librarian7ObjectsInfinity::objects()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .reverse
             .each{|item|
                 if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
                     puts "Interrupted after missing canary file.".green
