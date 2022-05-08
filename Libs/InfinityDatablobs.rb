@@ -27,7 +27,7 @@ class InfinityDatablobsConfig
 
     # InfinityDatablobsConfig::accelerationIxD01PrimaryCacheKey()
     def self.accelerationIxD01PrimaryCacheKey()
-        "0739d998-b931-4d40-a79f-c360eb65035e"
+        "0739d998-b931-4d40-a79f-c360eb65035e:#{Utils::today()}"
     end
 end
 
@@ -162,8 +162,8 @@ class InfinityDatablobsUtils
     # ------------------------------------------------------------
     # Accelerated Functions without Disk IO
 
-    # InfinityInMemory::blobIsInBucket_useAcceleration?(bucketPath, nhash)
-    def self.blobIsInBucket_useAcceleration?(bucketPath, nhash)
+    # InfinityInMemory::blobIsInBucket_useAcceleration(bucketPath, nhash)
+    def self.blobIsInBucket_useAcceleration(bucketPath, nhash)
         item = InfinityDatablobsAcceleration::getIxD01(idx)
         item["filenames"].include?("#{nhash}.data")
     end
