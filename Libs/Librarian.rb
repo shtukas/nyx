@@ -398,7 +398,9 @@ class LibrarianCLI
         end
 
         if ARGV[0] == "reset-fsck-run-hash" then
-            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", SecureRandom.hex)
+            fsckrunhash = SecureRandom.hex
+            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", fsckrunhash)
+            puts "fsck run hash (re)set to #{fsckrunhash}"
             exit
         end
 

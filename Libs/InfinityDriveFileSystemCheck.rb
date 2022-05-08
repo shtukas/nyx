@@ -139,6 +139,9 @@ class InfinityDriveFileSystemCheck
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
+        if item["mikuType"] == "Lx21" then
+            return
+        end
 
         puts JSON.pretty_generate(item).red
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
