@@ -228,6 +228,7 @@ class InfinityDatablobs_PureDrive
         idx = File.basename(File.dirname(filepath)).to_i
         filename = File.basename(filepath)
         InfinityDatablobsAcceleration::addFilenameAtIndex(idx, filename)
+        nhash
     end
 
     # InfinityDatablobs_PureDrive::getBlobOrNull(nhash)
@@ -290,6 +291,7 @@ class InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWi
             FileUtils.mkpath(File.dirname(filepath))
         end
         File.open(filepath, "w"){|f| f.write(blob) }
+        nhash
     end
 
     # InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)

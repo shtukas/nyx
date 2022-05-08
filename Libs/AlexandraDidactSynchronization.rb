@@ -76,8 +76,13 @@ class AlexandraDidactSynchronization
         Find.find("#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut") do |path|
             next if !File.file?(path)
             next if path[-5, 5] != ".data"
-            puts "Uploading blob: #{path}"
             blob = IO.read(path)
+            nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+            if InfinityDatablobs_PureDrive::getBlobOrNull(nhash) then
+                FileUtils.rm(path)
+                next
+            end
+            puts "Uploading blob: #{path}"
             InfinityDatablobs_PureDrive::putBlob(blob)
             FileUtils.rm(path)
         end
