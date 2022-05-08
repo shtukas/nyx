@@ -402,8 +402,8 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "show-object-i" then
-            uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+        if ARGV[0] == "show-object" and ARGV[1] then
+            uuid = ARGV[1]
             object = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
             if object then
                 puts JSON.pretty_generate(object)
@@ -415,8 +415,8 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "edit-object-i" then
-            uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
+        if ARGV[0] == "edit-object" and ARGV[1] then
+            uuid = ARGV[1]
             object = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
             if object then
                 object = Utils::editTextSynchronously(JSON.pretty_generate(object))
@@ -435,8 +435,8 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "prob-blob-i" then
-            nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
+        if ARGV[0] == "prob-blob" and ARGV[1] then
+            nhash = ARGV[1]
             blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts "Found a blob of size #{blob.size}"
@@ -448,8 +448,8 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "echo-blob-i" then
-            nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
+        if ARGV[0] == "echo-blob" and ARGV[1] then
+            nhash = ARGV[1]
             blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts JSON.pretty_generate(JSON.parse(blob))
@@ -461,16 +461,28 @@ class LibrarianCLI
             exit
         end
 
+        if ARGV[0] == "fsck-object" then
+            uuid = ARGV[1]
+            item = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
+            if item then
+                InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+            else
+                puts "I could not find an item with this uuid"
+                LucilleCore::pressEnterToContinue()
+            end
+            exit
+        end
+
         puts "usage:"
         puts "    librarian alexandra-infinity-sync"
         puts "    librarian alexandra-infinity-sync+fsck@infinity"
+        puts "    librarian show-object <uuid>"
+        puts "    librarian edit-object <uuid>"
+        puts "    librarian prob-blob <nhash>"
+        puts "    librarian echo-blob <nhash>"
         puts "    librarian reset-fsck-run-hash"
-        puts "    librarian show-object-i"
-        puts "    librarian edit-object-i"
+        puts "    librarian fsck-object <uuid>"
         puts "    librarian destroy-object-by-uuid-i"
-        puts "    librarian prob-blob-i"
-        puts "    librarian echo-blob-i"
-        puts "    librarian EditionDesktopSync"
     end
 end
 

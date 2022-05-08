@@ -144,8 +144,8 @@ class InfinityDriveFileSystemCheck
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
     end
 
-    # InfinityDriveFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
-    def self.fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
+    # InfinityDriveFileSystemCheck::fsck_SingleRunHashObjectTrace_ExitAtFirstFailure()
+    def self.fsck_SingleRunHashObjectTrace_ExitAtFirstFailure()
 
         puts "For every fsck run hash, we check every object and then each of the object's next versions"
 
@@ -157,6 +157,7 @@ class InfinityDriveFileSystemCheck
         end
 
         Librarian7ObjectsInfinity::objects()
+            .shuffle
             .each{|item|
                 if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
                     puts "Interrupted after missing canary file.".green
@@ -174,6 +175,6 @@ class InfinityDriveFileSystemCheck
 
     # InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
     def self.fsckExitAtFirstFailure()
-        InfinityDriveFileSystemCheck::fsck_OnePreciseObjectCheckPerFsckRunHash_ExitAtFirstFailure()
+        InfinityDriveFileSystemCheck::fsck_SingleRunHashObjectTrace_ExitAtFirstFailure()
     end
 end
