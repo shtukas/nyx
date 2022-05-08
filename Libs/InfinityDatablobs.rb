@@ -1,225 +1,18 @@
 
 # encoding: UTF-8
 
-=begin
-
-IxD01 represents the state of a Bucket
-
-{
-    "index"     : Integer
-    "filenames" : Array[Nhash]
-    "isOldest"  : Boolean
-}
-
-=end
-
-class InfinityDatablobsConfig
-
-    # InfinityDatablobsConfig::sequenceFolderpath()
-    def self.sequenceFolderpath()
-        "#{Config::pathToInfinityDidact()}/DatablobsVx20220501/Sequence"
-    end
-
-    # InfinityDatablobsConfig::maxBucketSize()
-    def self.maxBucketSize()
-        1000
-    end
-
-    # InfinityDatablobsConfig::accelerationIxD01PrimaryCacheKey()
-    def self.accelerationIxD01PrimaryCacheKey()
-        "0739d998-b931-4d40-a79f-c360eb65035e:#{Utils::today()}"
-    end
-end
-
-$InfinityDatablobsAcceleration1 = {}
-$InfinityDatablobsAccelerationSequenceOfIntegers = nil
-
-class InfinityDatablobsAcceleration
-
-    # This class privides in memory structures to speed up blobs finding and management
-
-    # InfinityDatablobsAcceleration::orderedSequenceOfIntegersFromDisk()
-    def self.orderedSequenceOfIntegersFromDisk()
-        LucilleCore::locationsAtFolder(InfinityDatablobsConfig::sequenceFolderpath())
-            .map{|location| File.basename(location).to_i }
-            .sort
-    end
-
-    # InfinityDatablobsAcceleration::getOrderedSequenceOfIntegers()
-    def self.getOrderedSequenceOfIntegers()
-        if $InfinityDatablobsAccelerationSequenceOfIntegers then
-            return $InfinityDatablobsAccelerationSequenceOfIntegers
-        end
-        $InfinityDatablobsAccelerationSequenceOfIntegers = InfinityDatablobsAcceleration::orderedSequenceOfIntegersFromDisk()
-        $InfinityDatablobsAccelerationSequenceOfIntegers
-    end
-
-    # InfinityDatablobsAcceleration::computeIxD01FromInfinityDrive(idx)
-    def self.computeIxD01FromInfinityDrive(idx)
-        # We need to compute it and store it.
-        puts "Computing IxD01 from drive (index: #{idx})"
-        filenames = LucilleCore::locationsAtFolder("#{InfinityDatablobsConfig::sequenceFolderpath()}/#{idx}")
-            .map{|location|
-                File.basename(location)
-            }
-        sequenceOfIntegers = InfinityDatablobsAcceleration::getOrderedSequenceOfIntegers()
-        isOldest = sequenceOfIntegers.first == idx
-        item = {
-            "index"     => idx,
-            "filenames" => filenames,
-            "isOldest"  => isOldest
-        }
-        puts JSON.pretty_generate(item)
-        item
-    end
-
-    # InfinityDatablobsAcceleration::getIxD01(idx)
-    def self.getIxD01(idx)
-
-        if $InfinityDatablobsAcceleration1[idx.to_s] then
-            return $InfinityDatablobsAcceleration1[idx.to_s]
-        end
-
-        item = XCache::getOrNull("#{InfinityDatablobsConfig::accelerationIxD01PrimaryCacheKey()}:#{idx}")
-        if item then
-            item = JSON.parse(item)
-            $InfinityDatablobsAcceleration1[idx.to_s] = item
-            return item
-        end
-
-        item = InfinityDatablobsAcceleration::computeIxD01FromInfinityDrive(idx)
-        XCache::set("#{InfinityDatablobsConfig::accelerationIxD01PrimaryCacheKey()}:#{idx}", JSON.generate(item))
-        $InfinityDatablobsAcceleration1[idx.to_s] = item
-        item
-    end
-
-    # InfinityDatablobsAcceleration::destroyIxD01OnMemoryAndOnDisk(idx)
-    def self.destroyIxD01OnMemoryAndOnDisk(idx)
-        XCache::destroy("#{InfinityDatablobsConfig::accelerationIxD01PrimaryCacheKey()}:#{idx}")
-        $InfinityDatablobsAcceleration1[idx.to_s] = nil
-    end
-
-    # InfinityDatablobsAcceleration::addFilenameAtIndex(idx, filename)
-    def self.addFilenameAtIndex(idx, filename)
-        item = InfinityDatablobsAcceleration::getIxD01(idx)
-        item["filenames"] << filename
-        $InfinityDatablobsAcceleration1[idx.to_s] = item
-        XCache::set("#{InfinityDatablobsConfig::accelerationIxD01PrimaryCacheKey()}:#{idx}", JSON.generate(item))
-    end
-
-    # InfinityDatablobsAcceleration::getBucketSize(idx)
-    def self.getBucketSize(idx)
-        InfinityDatablobsAcceleration::getIxD01(idx)["filenames"].size
-    end
-
-    # InfinityDatablobsAcceleration::updateStructuresAfterNewBucketCreation()
-    def self.updateStructuresAfterNewBucketCreation()
-        $InfinityDatablobsAccelerationSequenceOfIntegers = InfinityDatablobsAcceleration::orderedSequenceOfIntegersFromDisk()
-        $InfinityDatablobsAccelerationSequenceOfIntegers.each{|idx|
-            InfinityDatablobsAcceleration::getIxD01(idx) # The side effect of this is that $InfinityDatablobsAcceleration1 XCache are going to be updated with the new IxD01 corresponding to the newly created bucket
-        }
-    end
-
-    # InfinityDatablobsAcceleration::getExistingIndexForBlobOrNull(nhash)
-    def self.getExistingIndexForBlobOrNull(nhash)
-        InfinityDatablobsAcceleration::getOrderedSequenceOfIntegers()
-            .each{|idx|
-                item = InfinityDatablobsAcceleration::getIxD01(idx)
-                if item["filenames"].include?("#{nhash}.data") then
-                    return idx
-                end
-            }
-        nil
-    end
-
-    # InfinityDatablobsAcceleration::indexIsFirst?(idx)
-    def self.indexIsFirst?(idx)
-        InfinityDatablobsAcceleration::getOrderedSequenceOfIntegers().first == idx
-    end
-
-    # InfinityDatablobsAcceleration::getLastIndex()
-    def self.getLastIndex()
-        InfinityDatablobsAcceleration::getOrderedSequenceOfIntegers().last
-    end
-
-end
-
-class InfinityDatablobsUtils
-
-    # ------------------------------------------------------------
-    # Pure Functions
-
-    # InfinityDatablobsUtils::computeBucketPathForIndex(idx)
-    def self.computeBucketPathForIndex(idx)
-        "#{InfinityDatablobsConfig::sequenceFolderpath()}/#{idx}"
-    end
-
-    # InfinityDatablobsUtils::computeFilepathForBucketAndNhash(bucketPath, nhash)
-    def self.computeFilepathForBucketAndNhash(bucketPath, nhash)
-        "#{bucketPath}/#{nhash}.data"
-    end
-
-    # ------------------------------------------------------------
-    # Accelerated Functions without Disk IO
-
-    # InfinityInMemory::blobIsInBucket_useAcceleration(bucketPath, nhash)
-    def self.blobIsInBucket_useAcceleration(bucketPath, nhash)
-        item = InfinityDatablobsAcceleration::getIxD01(idx)
-        item["filenames"].include?("#{nhash}.data")
-    end
-
-    # InfinityDatablobsUtils::getOrderedSequenceOfBucketPaths()
-    def self.getOrderedSequenceOfBucketPaths()
-        InfinityDatablobsAcceleration::getOrderedSequenceOfIntegers().map{|idx| InfinityDatablobsUtils::computeBucketPathForIndex(idx) }
-    end
-
-    # ------------------------------------------------------------
-    # IO
-
-    # InfinityDatablobsUtils::createNewBucket()
-    def self.createNewBucket()
-        idx = InfinityDatablobsAcceleration::getOrderedSequenceOfIntegers().last + 1
-        folderpath = InfinityDatablobsUtils::computeBucketPathForIndex(idx)
-        if File.exists?(folderpath) then
-            raise "(error: 892d5ea2-aa28-44de-83de-28c7cdc011f5) idx: #{idx}, folderpath: #{folderpath}"
-        end
-        FileUtils.mkdir(folderpath)
-        [idx, folderpath]
-    end
-
-    # ------------------------------------------------------------------
-
-    # InfinityDatablobsUtils::decideFilepathForBlob(nhash)
-    def self.decideFilepathForBlob(nhash)
-        idx = InfinityDatablobsAcceleration::getExistingIndexForBlobOrNull(nhash)
-
-        if idx.nil? then
-            idx = InfinityDatablobsAcceleration::getLastIndex()
-            if InfinityDatablobsAcceleration::getBucketSize(idx) >= InfinityDatablobsConfig::maxBucketSize() then
-                idx, filename = InfinityDatablobsUtils::createNewBucket()
-            end
-            return InfinityDatablobsUtils::computeFilepathForBucketAndNhash(InfinityDatablobsUtils::computeBucketPathForIndex(idx), nhash)
-        end
-
-        if InfinityDatablobsAcceleration::indexIsFirst?(idx) then
-            idx = InfinityDatablobsAcceleration::getLastIndex()
-            if InfinityDatablobsAcceleration::getBucketSize(idx) >= InfinityDatablobsConfig::maxBucketSize() then
-                idx, filename = InfinityDatablobsUtils::createNewBucket()
-            end
-            return InfinityDatablobsUtils::computeFilepathForBucketAndNhash(InfinityDatablobsUtils::computeBucketPathForIndex(idx), nhash)
-        end
-
-        InfinityDatablobsUtils::computeFilepathForBucketAndNhash(InfinityDatablobsUtils::computeBucketPathForIndex(idx), nhash)
-    end
-end
-
 class InfinityDatablobs_PureDrive
+
+    # InfinityDatablobs_PureDrive::decideFilepathForBlob(nhash)
+    def self.decideFilepathForBlob(nhash)
+        "#{Config::pathToInfinityDidact()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+    end
 
     # InfinityDatablobs_PureDrive::putBlob(blob)
     def self.putBlob(blob)
         InfinityDrive::ensureInfinityDrive()
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = "#{Config::pathToInfinityDidact()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        filepath = InfinityDatablobs_PureDrive::decideFilepathForBlob(nhash)
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
@@ -231,18 +24,9 @@ class InfinityDatablobs_PureDrive
     def self.getBlobOrNull(nhash)
         InfinityDrive::ensureInfinityDrive()
 
-        filepath1 = "#{Config::pathToInfinityDidact()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
-        if File.exists?(filepath1) then
-            return IO.read(filepath1)
-        end
-
-        filepath2 = InfinityDatablobsUtils::decideFilepathForBlob(nhash)
-        if File.exists?(filepath2) then
-            if !File.exists?(File.dirname(filepath1)) then
-                FileUtils.mkpath(File.dirname(filepath1))
-            end
-            FileUtils.mv(filepath2, filepath1)
-            return IO.read(filepath1)
+        filepath = InfinityDatablobs_PureDrive::decideFilepathForBlob(nhash)
+        if File.exists?(filepath) then
+            return IO.read(filepath)
         end
 
         blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
@@ -286,9 +70,9 @@ class InfinityElizabethPureDrive
     end
 end
 
-class InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching
+class InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching
 
-    # InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
+    # InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
     def self.commitToDatablobsInfinityBufferOut(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filepath = "#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut/#{nhash[7, 2]}/#{nhash}.data"
@@ -299,13 +83,13 @@ class InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWi
         nhash
     end
 
-    # InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
+    # InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(blob)
     def self.putBlob(blob)
-        InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
+        InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::commitToDatablobsInfinityBufferOut(blob)
         Librarian2DatablobsXCache::putBlob(blob)
     end
 
-    # InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+    # InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
 
         # We first try XCache
@@ -323,7 +107,7 @@ class InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWi
         # Then we look up the drive
         InfinityDrive::ensureInfinityDrive()
 
-        filepath = InfinityDatablobsUtils::decideFilepathForBlob(nhash)
+        filepath = InfinityDatablobs_PureDrive::decideFilepathForBlob(nhash)
         if File.exists?(filepath) then
             blob = IO.read(filepath)
             Librarian2DatablobsXCache::putBlob(blob)
@@ -334,10 +118,10 @@ class InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWi
     end
 end
 
-class InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching
+class InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching
 
     def commitBlob(blob)
-        InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
+        InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(blob)
     end
 
     def filepathToContentHash(filepath)
@@ -345,7 +129,7 @@ class InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWi
     end
 
     def readBlobErrorIfNotFound(nhash)
-        blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+        blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
         return blob if blob
         puts "(error: 7ffc6f95-4977-47a2-b9fd-eecd8312ebbe) could not find blob, nhash: #{nhash}"
         raise "(error: 47f74e9a-0255-44e6-bf04-f12ff7786c65, nhash: #{nhash})" if blob.nil?

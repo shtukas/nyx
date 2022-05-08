@@ -152,7 +152,7 @@ class EditionDesk
                 return
             end
             nhash = nx111["nhash"]
-            text = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            text = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             system("open '#{location}'")
             return
@@ -164,7 +164,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new() 
+            operator = InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new() 
             rootnhash = nx111["rootnhash"]
             exportLocation = EditionDesk::exportLocation(item)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, File.basename(exportLocation))
@@ -259,7 +259,7 @@ class EditionDesk
         end
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(text)
+            nhash = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             puts JSON.pretty_generate(nx111)
@@ -272,7 +272,7 @@ class EditionDesk
             raise "(error: 563d3ad6-7d82-485b-afc5-b9aeba6fb88b)"
         end
         if nx111["type"] == "aion-point" then
-            operator = InfinityElizabeth_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching.new()
+            operator = InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, Utils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash

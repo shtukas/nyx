@@ -30,7 +30,7 @@ class PrimitiveFiles
         nhash = Librarian0Utils::filepathToContentHash(filepath)
  
         committer = lambda {|blob|
-            InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::putBlob(blob)
+            InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(blob)
         }
         parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, committer)
  
@@ -59,7 +59,7 @@ class PrimitiveFiles
         targetFilepath = "#{exportFolderpath}/#{someuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -75,7 +75,7 @@ class PrimitiveFiles
         filepath = "#{EditionDesk::exportLocation(item)}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
-                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
                 raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
                 f.write(blob)
             }
@@ -91,7 +91,7 @@ class PrimitiveFiles
         filepath = "#{EditionDesk::pathToEditionDesk()}/#{dirname}/#{item["uuid"]}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
-                blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
                 raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
                 f.write(blob)
             }

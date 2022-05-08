@@ -437,7 +437,7 @@ class LibrarianCLI
 
         if ARGV[0] == "prob-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts "Found a blob of size #{blob.size}"
                 LucilleCore::pressEnterToContinue()
@@ -450,7 +450,7 @@ class LibrarianCLI
 
         if ARGV[0] == "echo-blob-i" then
             nhash = LucilleCore::askQuestionAnswerAsString("nhash: ")
-            blob = InfinityDatablobs_InfinityBufferOutAndXCache_XCacheLookupThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
                 puts JSON.pretty_generate(JSON.parse(blob))
                 LucilleCore::pressEnterToContinue()
