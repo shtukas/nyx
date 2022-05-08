@@ -219,15 +219,11 @@ class InfinityDatablobs_PureDrive
     def self.putBlob(blob)
         InfinityDrive::ensureInfinityDrive()
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = InfinityDatablobsUtils::decideFilepathForBlob(nhash)
+        filepath = "#{Config::pathToInfinityDidact()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkdir(File.dirname(filepath))
+            FileUtils.mkpath(File.dirname(filepath))
         end
         File.open(filepath, "w"){|f| f.write(blob) }
-
-        idx = File.basename(File.dirname(filepath)).to_i
-        filename = File.basename(filepath)
-        InfinityDatablobsAcceleration::addFilenameAtIndex(idx, filename)
         nhash
     end
 
@@ -235,9 +231,18 @@ class InfinityDatablobs_PureDrive
     def self.getBlobOrNull(nhash)
         InfinityDrive::ensureInfinityDrive()
 
-        filepath = InfinityDatablobsUtils::decideFilepathForBlob(nhash)
-        if File.exists?(filepath) then
-            return IO.read(filepath)
+        filepath1 = "#{Config::pathToInfinityDidact()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if File.exists?(filepath1) then
+            return IO.read(filepath1)
+        end
+
+        filepath2 = InfinityDatablobsUtils::decideFilepathForBlob(nhash)
+        if File.exists?(filepath2) then
+            if !File.exists?(File.dirname(filepath1)) then
+                FileUtils.mkpath(File.dirname(filepath1))
+            end
+            FileUtils.mv(filepath2, filepath1)
+            return IO.read(filepath1)
         end
 
         blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
