@@ -31,7 +31,7 @@ class AlexandraDidactSynchronization
             tx46
         }
 
-        getLocationTx46OrNull = lambda{|location|
+        getLocationTx46 = lambda{|location|
             item = XCache::getOrNull("5981674c-998c-4275-9890-b33ee4a6486f:#{location}")
             if item then
                 tx46 = JSON.parse(item)
@@ -49,8 +49,9 @@ class AlexandraDidactSynchronization
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk()).each{|location|
             puts "AlexandraDidactSynchronization: Updating desk item from location: #{File.basename(location)}"
             EditionDesk::updateItemFromDeskLocationOrNothing(location)
-            tx46 = getLocationTx46OrNull.call(location)
+            tx46 = getLocationTx46.call(location)
             puts "tx46: #{JSON.pretty_generate(tx46)}"
+            puts "last change #{(Time.new.to_i - tx46["unixtime"]).to_f/86400} days ago"
             if (Time.new.to_i - tx46["unixtime"]) > 86400*7 then
                 puts "Deleting Edition Desk location: #{File.basename(location)}"
                 puts "... needs to be implemented (13189a04-26a2-42a7-b1d8-9ee388cc2962)."
