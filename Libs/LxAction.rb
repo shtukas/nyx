@@ -20,6 +20,15 @@ class LxAction
 
         if command == ".." then
 
+            if object["mikuType"] == "NS16:TxDated" and object["announce"].include?("(vienna)") then
+                LxAction::action("access", object)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
+                    item = object["TxDated"]
+                    TxDateds::destroy(item["uuid"])
+                end
+                return
+            end
+
             if object["mikuType"] == "NS16:TxFyre" then
                 if !NxBallsService::isRunning(object["uuid"]) then
                     LxAction::action("start", object)
