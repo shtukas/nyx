@@ -94,6 +94,11 @@ class Inbox
             unixtime
         }
 
+        if !File.exists?(Inbox::repository()) then
+            # Added to simplify the Desktop during the aion techtime
+            return []
+        end
+
         LucilleCore::locationsAtFolder(Inbox::repository())
             .map{|location|
                 if File.basename(location).include?("'") then
