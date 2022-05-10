@@ -274,7 +274,7 @@ class LxAction
             aionrootnhash = nil
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull() 
             if location then
-                aionrootnhash = AionCore::commitLocationReturnHash(Librarian3ElizabethXCache.new(), location)
+                aionrootnhash = AionCore::commitLocationReturnHash(InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new(), location)
             end
 
             item = {

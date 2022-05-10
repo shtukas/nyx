@@ -121,7 +121,6 @@ class InfinityDriveFileSystemCheck
         end
         if item["mikuType"] == "TxInbox2" then
             if item["aionrootnhash"] then
-                # Librarian3ElizabethXCache is correct here
                 status = AionFsck::structureCheckAionHash(InfinityElizabethPureDrive.new(), item["aionrootnhash"])
                 if !status then
                     puts "aionrootnhash does not validate".red
