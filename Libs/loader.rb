@@ -185,6 +185,7 @@ require_relative "TxFyres.rb"
 require_relative "TxFloats.rb"
 require_relative "TxDateds.rb"
 require_relative "TxTodos.rb"
+require_relative "TxObjectSnapshots.rb"
 
 require_relative "Utils.rb"
 

@@ -375,8 +375,15 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "Wave" then
-                Waves::landing(object)
+            if object["mikuType"] == "TxAttachment" then
+                TxAttachments::landing(object)
+                return
+            end
+
+            if object["mikuType"] == "TxOS01" then
+                o = object["payload"]
+                o["isSnapshot"] = true
+                LxAction::action("landing", o)
                 return
             end
         end

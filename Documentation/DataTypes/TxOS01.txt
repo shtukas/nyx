@@ -1,0 +1,8 @@
+Object Snapshots
+
+TxOS01 {
+    "uuid"       : UUID,
+    "mikuType"   : "TxOS01"
+    "unixtime"   : Float
+    "payload"    : Object
+}

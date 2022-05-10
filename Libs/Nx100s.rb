@@ -240,8 +240,14 @@ class Nx100s
     # Nx100s::landing(item)
     def self.landing(item)
         loop {
-            item = Nx100s::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             return if item.nil?
+
+            if !item["isSnapshot"] then
+                item = Nx100s::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
+            end
+
+            TxObjectSnapshots::recordVariant(item)
+
             system("clear")
 
             Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
@@ -256,7 +262,9 @@ class Nx100s
                 puts ""
             end
 
-            puts "(Nx100, Nyx Node) #{Nx100s::toString(item)}".green
+            snapshotString = item["isSnapshot"] ? "[!! SNAPSHOT !!] ".white : ""
+
+            puts snapshotString + "(Nx100, Nyx Node) #{Nx100s::toString(item)}".green
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
@@ -293,6 +301,7 @@ class Nx100s
             commands << "unlink"
             commands << "network transforms"
             commands << "json"
+            commands << "snapshots"
             commands << "special circumstances"
             commands << "destroy"
             commands << "stack: add [this]"
@@ -382,6 +391,13 @@ class Nx100s
             if Interpreting::match("json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
+            end
+
+            if Interpreting::match("snapshots", command) then
+                variants = TxObjectSnapshots::getObjectSnapshots(item["uuid"])
+                variant = LucilleCore::selectEntityFromListOfEntitiesOrNull("variant", variants, lambda{|i| LxFunction::function("toString", i) })
+                next if variant.nil?
+                LxAction::action("landing", variant)
             end
 
             if Interpreting::match("special circumstances", command) then

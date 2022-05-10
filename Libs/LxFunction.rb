@@ -30,6 +30,9 @@ class LxFunction
             if object["mikuType"] == "Nx100" then
                 return Nx100s::toString(object)
             end
+            if object["mikuType"] == "TxOS01" then
+                return TxObjectSnapshots::toString(object)
+            end
         end
 
         puts "I do not know how to LxFunction::function (command: #{command}, object: #{JSON.pretty_generate(object)})"
