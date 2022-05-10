@@ -88,8 +88,19 @@ class InfinityDriveFileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end
 
-    # InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-    def self.fsckExitAtFirstFailureLibrarianMikuObject(item)
+    # InfinityDriveFileSystemCheck::exitIfMissingCanary()
+    def self.exitIfMissingCanary()
+        if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
+            puts "Interrupted after missing canary file.".green
+            exit
+        end
+    end
+
+    # InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, fsckrunhash)
+    def self.fsckExitAtFirstFailureLibrarianMikuObject(item, fsckrunhash)
+
+        puts JSON.pretty_generate(item)
+
         if item["mikuType"] == "Nx60" then
             return
         end
@@ -141,6 +152,15 @@ class InfinityDriveFileSystemCheck
         if item["mikuType"] == "Lx21" then
             return
         end
+        if item["mikuType"] == "Sx01" then
+            Sx01Snapshots::snapshotToLibrarianObjects(item)
+                .each{|i2|
+                    InfinityDriveFileSystemCheck::exitIfMissingCanary()
+                    next if XCache::flagIsTrue("#{fsckrunhash}:#{JSON.generate(item)}")
+                    InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(i2, fsckrunhash) 
+                }
+            return
+        end
 
         puts JSON.pretty_generate(item).red
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
@@ -161,15 +181,9 @@ class InfinityDriveFileSystemCheck
         Librarian7ObjectsInfinity::objects()
             .shuffle
             .each{|item|
-                if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
-                    puts "Interrupted after missing canary file.".green
-                    return 
-                end
-                objectKey =  "#{fsckrunhash}:#{JSON.generate(item)}"
-                next if XCache::flagIsTrue(objectKey)
-                puts JSON.pretty_generate(item)
-                InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
-                XCache::setFlagTrue(objectKey)
+                InfinityDriveFileSystemCheck::exitIfMissingCanary()
+                next if XCache::flagIsTrue("#{fsckrunhash}:#{JSON.generate(item)}") # We do a first check here to avoid displaying the object if it would not be fsck'ed
+                InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, fsckrunhash)
             }
 
         puts "Fsck completed successfully".green

@@ -167,6 +167,11 @@ class Librarian6ObjectsLocal
 
     # Librarian6ObjectsLocal::objects()
     def self.objects()
+
+        if Sx01Snapshots::snapshotIsDeployed() then
+            return Sx01Snapshots::getDeployedSnapshotLibrarianObjects().map{|object| object.clone }
+        end
+
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -181,6 +186,13 @@ class Librarian6ObjectsLocal
 
     # Librarian6ObjectsLocal::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
+
+        if Sx01Snapshots::snapshotIsDeployed() then
+            return Sx01Snapshots::getDeployedSnapshotLibrarianObjects()
+                    .select{|object| object["mikuType"] == mikuType }
+                    .map{|object| object.clone }
+        end
+
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -195,6 +207,14 @@ class Librarian6ObjectsLocal
 
     # Librarian6ObjectsLocal::getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
     def self.getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
+
+        if Sx01Snapshots::snapshotIsDeployed() then
+            return Sx01Snapshots::getDeployedSnapshotLibrarianObjects()
+                    .select{|object| object["mikuType"] == mikuType }
+                    .first(n)
+                    .map{|object| object.clone }
+        end
+
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -213,6 +233,12 @@ class Librarian6ObjectsLocal
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
 
+        if Sx01Snapshots::snapshotIsDeployed() then
+            puts "We are not expecting to commit objects while a snapshot is deployed".yellow
+            puts JSON.pretty_generate(object).yellow
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Commit anyway ? ")
+        end
+
         ordinal = object["ordinal"] || 0
 
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
@@ -223,6 +249,14 @@ class Librarian6ObjectsLocal
 
     # Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
+
+        if Sx01Snapshots::snapshotIsDeployed() then
+            return Sx01Snapshots::getDeployedSnapshotLibrarianObjects()
+                    .select{|object| object["uuid"] == uuid }
+                    .map{|object| object.clone }
+                    .first
+        end
+
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -237,6 +271,13 @@ class Librarian6ObjectsLocal
 
     # Librarian6ObjectsLocal::destroy(uuid)
     def self.destroy(uuid)
+
+        if Sx01Snapshots::snapshotIsDeployed() then
+            puts "We are not allowing object deletion while a snapshot is deployed".yellow
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -267,70 +308,6 @@ class Librarian7ObjectsInfinity
         end
         db.close
         answer
-    end
-
-    # Librarian7ObjectsInfinity::getObjectsByMikuType(mikuType)
-    def self.getObjectsByMikuType(mikuType)
-        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-
-    # Librarian7ObjectsInfinity::getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
-    def self.getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
-        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_ limit ?", [mikuType, n]) do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-
-    # Librarian7ObjectsInfinity::commit(object)
-    def self.commit(object)
-        raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
-        raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
-
-        ordinal = object["ordinal"] || 0
-
-        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
-        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_) values (?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal]
-        db.close
-    end
-
-    # Librarian7ObjectsInfinity::getObjectByUUIDOrNull(uuid)
-    def self.getObjectByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
-            answer = JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-
-    # Librarian7ObjectsInfinity::destroy(uuid)
-    def self.destroy(uuid)
-        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
-        db.close
     end
 end
 
@@ -467,7 +444,7 @@ class LibrarianCLI
             uuid = ARGV[1]
             item = Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
             if item then
-                InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item)
+                InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, SecureRandom.hex)
             else
                 puts "I could not find an item with this uuid"
                 LucilleCore::pressEnterToContinue()
@@ -475,9 +452,16 @@ class LibrarianCLI
             exit
         end
 
+        if ARGV[0] == "make-system-snapshot" then
+            item = Sx01Snapshots::issueNewSnapshotUsingCurrentDatabaseObjects()
+            puts JSON.pretty_generate(item)
+            exit
+        end
+
         puts "usage:"
         puts "    librarian alexandra-infinity-sync"
         puts "    librarian alexandra-infinity-sync+fsck@infinity"
+        puts "    librarian make-system-snapshot"
         puts "    librarian show-object <uuid>"
         puts "    librarian edit-object <uuid>"
         puts "    librarian prob-blob <nhash>"
@@ -487,5 +471,3 @@ class LibrarianCLI
         puts "    librarian destroy-object-by-uuid-i"
     end
 end
-
-

@@ -394,6 +394,11 @@ class TerminalDisplayOperator
 
         vspaceleft = Utils::screenHeight()-3
 
+        s = Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
+        if s then 
+            vspaceleft = vspaceleft - 1
+        end
+
         puts ""
         reference = getReference.call()
         current   = getCurrent.call()

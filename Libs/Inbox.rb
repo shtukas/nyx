@@ -37,6 +37,7 @@ class Inbox
     # Inbox::landingInbox1(location)
     def self.landingInbox1(location)
         system("clear")
+        Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
         puts location.green
         loop {
 
@@ -143,6 +144,7 @@ class Inbox
 
     # Inbox::landingInbox2(item)
     def self.landingInbox2(item)
+        Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
         puts item["line"]
         if item["aionrootnhash"] then
             AionCore::exportHashAtFolder(InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new(), item["aionrootnhash"], "/Users/pascal/Desktop")

@@ -163,6 +163,8 @@ class Waves
 
             system("clear")
 
+            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
+
             store = ItemStore.new()
 
             uuid = item["uuid"]

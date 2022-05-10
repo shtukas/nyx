@@ -68,6 +68,8 @@ class TxFloats
 
             system("clear")
 
+            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
+
             uuid = item["uuid"]
 
             store = ItemStore.new()

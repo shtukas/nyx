@@ -113,6 +113,8 @@ class TxDateds
 
             system("clear")
 
+            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
+
             uuid = item["uuid"]
 
             puts TxDateds::toString(item).green

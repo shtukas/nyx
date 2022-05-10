@@ -244,6 +244,8 @@ class Nx100s
             return if item.nil?
             system("clear")
 
+            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
+
             uuid = item["uuid"]
 
             store = ItemStore.new()

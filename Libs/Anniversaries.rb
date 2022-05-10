@@ -198,6 +198,8 @@ class Anniversaries
     def self.landing(anniversary)
         loop {
 
+            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
+
             puts Anniversaries::toString(anniversary).green
 
             puts "description | update start date | destroy".yellow

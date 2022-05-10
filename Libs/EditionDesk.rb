@@ -236,7 +236,7 @@ class EditionDesk
         if nx111uuid.include?(".") then
             nx111uuid, _ = nx111uuid.split(".")
         end
-        item = Librarian7ObjectsInfinity::getObjectByUUIDOrNull(itemuuid)
+        item = Librarian6ObjectsLocal::getObjectByUUIDOrNull(itemuuid)
         return if item.nil?
         nx111 = item["iam"]
         return if nx111.nil?
