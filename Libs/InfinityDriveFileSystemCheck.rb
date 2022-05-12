@@ -101,9 +101,14 @@ class InfinityDriveFileSystemCheck
 
         puts JSON.pretty_generate(item)
 
+        if item["mikuType"] == "Lx21" then
+            return
+        end
+
         if item["mikuType"] == "Nx60" then
             return
         end
+
         if item["mikuType"] == "Nx100" then
             if item["iam"].nil? then
                 puts "Nx100 has not iam value".red
@@ -114,22 +119,27 @@ class InfinityDriveFileSystemCheck
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
+
         if item["mikuType"] == "TxAttachment" then
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
+
         if item["mikuType"] == "TxDated" then
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
+
         if item["mikuType"] == "TxFloat" then
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
+
         if item["mikuType"] == "TxFyre" then
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
+
         if item["mikuType"] == "TxInbox2" then
             if item["aionrootnhash"] then
                 status = AionFsck::structureCheckAionHash(InfinityElizabethPureDrive.new(), item["aionrootnhash"])
@@ -141,23 +151,29 @@ class InfinityDriveFileSystemCheck
             end
             return
         end
+
+        if item["mikuType"] == "TxOS01" then
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item["payload"], fsckrunhash)
+            return
+        end
+
         if item["mikuType"] == "TxTodo" then
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
+
         if item["mikuType"] == "Wave" then
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"])
             return
         end
-        if item["mikuType"] == "Lx21" then
-            return
-        end
+
         if item["mikuType"] == "Sx01" then
             Sx01Snapshots::snapshotToLibrarianObjects(item)
                 .each{|i2|
                     InfinityDriveFileSystemCheck::exitIfMissingCanary()
-                    next if XCache::flagIsTrue("#{fsckrunhash}:#{JSON.generate(item)}")
-                    InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(i2, fsckrunhash) 
+                    next if XCache::flagIsTrue("#{fsckrunhash}:#{JSON.generate(i2)}")
+                    InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(i2, fsckrunhash)
+                    XCache::setFlagTrue("#{fsckrunhash}:#{JSON.generate(i2)}")
                 }
             return
         end
@@ -184,6 +200,7 @@ class InfinityDriveFileSystemCheck
                 InfinityDriveFileSystemCheck::exitIfMissingCanary()
                 next if XCache::flagIsTrue("#{fsckrunhash}:#{JSON.generate(item)}") # We do a first check here to avoid displaying the object if it would not be fsck'ed
                 InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, fsckrunhash)
+                XCache::setFlagTrue("#{fsckrunhash}:#{JSON.generate(item)}")
             }
 
         puts "Fsck completed successfully".green
