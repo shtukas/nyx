@@ -20,12 +20,12 @@ class Links
         Librarian6ObjectsLocal::commit(item)
     end
 
-    # Links::unlink(sourceuuid, targetuuid)
-    def self.unlink(sourceuuid, targetuuid)
+    # Links::unlink(uuid1, uuid2)
+    def self.unlink(uuid1, uuid2)
         Librarian6ObjectsLocal::getObjectsByMikuType("Lx21")
             .select{|item|
-                b1 = (item["sourceuuid"] == sourceuuid and item["targetuuid"] == targetuuid)
-                b2 = (item["sourceuuid"] == targetuuid and item["targetuuid"] == sourceuuid)
+                b1 = (item["sourceuuid"] == uuid1 and item["targetuuid"] == uuid2)
+                b2 = (item["sourceuuid"] == uuid2 and item["targetuuid"] == uuid1)
                 b1 or b2
             }
             .each{|item| Librarian6ObjectsLocal::destroy(item["uuid"]) }
