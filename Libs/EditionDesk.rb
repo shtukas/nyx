@@ -97,28 +97,39 @@ Conventions:
 
 Each item is exported at a location with a basename of the form <description>|itemuuid|nx111uuid<optional dotted extension>
 
-The type (file versus folder) of the location as well as the structure of the folder are nx11 type dependent.
+The type (file versus folder) of the location as well as the structure of the folder are nx111 type dependent.
 
 =end
 
 class EditionDesk
+
+    # ----------------------------------------------------
+    # Utils
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
         "#{Config::pathToLocalDidact()}/EditionDesk"
     end
 
-    # EditionDesk::exportLocationName(item)
-    def self.exportLocationName(item)
+    # EditionDesk::decideEditionLocation(item)
+    def self.decideEditionLocation(item)
+        # This function returns the location if there already is one, or otherwise returns a new one.
+
         description = item["description"] ? item["description"].gsub("|", "-") : item["uuid"]
         itemuuid = item["uuid"]
         nx111uuid = item["iam"]["uuid"]
-        "#{description}|#{itemuuid}|#{nx111uuid}"
-    end
 
-    # EditionDesk::exportLocation(item)
-    def self.exportLocation(item)
-        "#{EditionDesk::pathToEditionDesk()}/#{EditionDesk::exportLocationName(item)}"
+        part2and3 = "#{itemuuid}|#{nx111uuid}"
+        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+            .each{|location|
+                if File.basename(location).include?(part2and3) then
+                    return location
+                end
+            }
+
+        name1 = "#{description}|#{part2and3}"
+
+        "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
 
     # ----------------------------------------------------
@@ -127,7 +138,7 @@ class EditionDesk
     # EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
     def self.exportItemToDeskIfNotAlreadyExportedAndAccess(item)
         if item["iam"].nil? then
-            puts "For the moment I can only EditionDesk::exportAndAccess iam's nx111 elements "
+            puts "For the moment I can only EditionDesk::exportAndAccess iam's nx111 elements"
         end
         nx111 = item["iam"]
         if nx111["type"] == "navigation" then
@@ -146,7 +157,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "text" then
-            location = "#{EditionDesk::exportLocation(item)}.txt"
+            location = "#{EditionDesk::decideEditionLocation(item)}.txt"
             if File.exists?(location) then
                 system("open '#{location}'")
                 return
@@ -166,7 +177,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new() 
             rootnhash = nx111["rootnhash"]
-            exportLocation = EditionDesk::exportLocation(item)
+            exportLocation = EditionDesk::decideEditionLocation(item)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
             # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
@@ -192,7 +203,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "carrier-of-primitive-files" then
-            exportFolderpath = EditionDesk::exportLocation(item)
+            exportFolderpath = EditionDesk::decideEditionLocation(item)
             if File.exists?(exportFolderpath) then
                 system("open '#{exportFolderpath}'")
                 return

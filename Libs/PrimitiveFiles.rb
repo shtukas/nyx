@@ -72,7 +72,7 @@ class PrimitiveFiles
         dottedExtension = nx111["dottedExtension"]
         nhash = nx111["nhash"]
         parts = nx111["parts"]
-        filepath = "#{EditionDesk::exportLocation(item)}#{dottedExtension}"
+        filepath = "#{EditionDesk::decideEditionLocation(item)}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
                 blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
