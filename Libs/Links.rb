@@ -1,6 +1,23 @@
 
 # encoding: UTF-8
 
+class LinkCache
+
+    # LinkCache::getPointer(uuid)
+    def self.getPointer(uuid)
+        pointer = XCache::getOrNull("93c6fa61-bb04-4115-8823-980d47eca494:#{uuid}")
+        return pointer if pointer
+        pointer = SecureRandom.hex
+        XCache::set("93c6fa61-bb04-4115-8823-980d47eca494:#{uuid}", pointer)
+        pointer
+    end
+
+    # LinkCache::resetPointer(uuid)
+    def self.resetPointer(uuid)
+        XCache::set("93c6fa61-bb04-4115-8823-980d47eca494:#{uuid}", SecureRandom.hex)
+    end
+end
+
 class Links
 
     # Links::link(sourceuuid: String, targetuuid: String, isBidirectional: Boolean)
@@ -18,6 +35,9 @@ class Links
         }
         #puts JSON.pretty_generate(item)
         Librarian6ObjectsLocal::commit(item)
+
+        LinkCache::resetPointer(sourceuuid)
+        LinkCache::resetPointer(targetuuid)
     end
 
     # Links::unlink(uuid1, uuid2)
@@ -29,6 +49,9 @@ class Links
                 b1 or b2
             }
             .each{|item| Librarian6ObjectsLocal::destroy(item["uuid"]) }
+
+        LinkCache::resetPointer(uuid1)
+        LinkCache::resetPointer(uuid2)
     end
 
     # ------------------------------------------------
@@ -36,6 +59,13 @@ class Links
 
     # Links::relatedUUIDs(uuid)
     def self.relatedUUIDs(uuid)
+
+        pointer = LinkCache::getPointer(uuid)
+        data = XCache::getOrNull("9ae2a347-954e-45ff-8171-30452e594101:#{pointer}")
+        if data then
+            return JSON.parse(data)
+        end
+
         uuids1 = Librarian6ObjectsLocal::getObjectsByMikuType("Lx21")
                     .select{|item| item["sourceuuid"] == uuid and item["bidirectional"] }
                     .map{|item| item["targetuuid"] }
@@ -43,21 +73,47 @@ class Links
         uuids2 = Librarian6ObjectsLocal::getObjectsByMikuType("Lx21")
                     .select{|item| item["targetuuid"] == uuid and item["bidirectional"] }
                     .map{|item| item["sourceuuid"] }
-        uuids1 + uuids2
+        data = uuids1 + uuids2
+
+        XCache::set("9ae2a347-954e-45ff-8171-30452e594101:#{pointer}", JSON.generate(data))
+
+        data
     end
 
     # Links::parentUUIDs(uuid)
     def self.parentUUIDs(uuid)
-        Librarian6ObjectsLocal::getObjectsByMikuType("Lx21")
+
+        pointer = LinkCache::getPointer(uuid)
+        data = XCache::getOrNull("7e6cd588-bef8-4f48-b282-3e87fa98fb22:#{pointer}")
+        if data then
+            return JSON.parse(data)
+        end
+
+        data = Librarian6ObjectsLocal::getObjectsByMikuType("Lx21")
             .select{|item| item["targetuuid"] == uuid and !item["bidirectional"] }
             .map{|item| item["sourceuuid"] }
+
+        XCache::set("7e6cd588-bef8-4f48-b282-3e87fa98fb22:#{pointer}", JSON.generate(data))
+
+        data
     end
 
     # Links::childrenUUIDs(uuid)
     def self.childrenUUIDs(uuid)
-        Librarian6ObjectsLocal::getObjectsByMikuType("Lx21")
+
+        pointer = LinkCache::getPointer(uuid)
+        data = XCache::getOrNull("cb32d910-cf11-466b-8f08-eacf361a0195:#{pointer}")
+        if data then
+            return JSON.parse(data)
+        end
+
+        data = Librarian6ObjectsLocal::getObjectsByMikuType("Lx21")
             .select{|item| item["sourceuuid"] == uuid and !item["bidirectional"] }
             .map{|item| item["targetuuid"] }
+
+        XCache::set("cb32d910-cf11-466b-8f08-eacf361a0195:#{pointer}", JSON.generate(data))
+
+        data
     end
 
     # ------------------------------------------------
