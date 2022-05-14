@@ -240,6 +240,7 @@ class Librarian6ObjectsLocal
         end
 
         ordinal = object["ordinal"] || 0
+        object["librarianStorageTime"] = (1000*Time.new.to_f).to_i
 
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
