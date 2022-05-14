@@ -111,23 +111,33 @@ class EditionDesk
         "#{Config::pathToLocalDidact()}/EditionDesk"
     end
 
+    # EditionDesk::getMaxIndex()
+    def self.getMaxIndex()
+        locations = LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+        return 1 if locations.empty?
+        locations
+            .map{|location| File.basename(location).split("|").first.to_i }
+            .max
+    end
+
     # EditionDesk::decideEditionLocation(item)
     def self.decideEditionLocation(item)
         # This function returns the location if there already is one, or otherwise returns a new one.
 
+        index1 = EditionDesk::getMaxIndex() + 1
         description = item["description"] ? item["description"].gsub("|", "-") : item["uuid"]
         itemuuid = item["uuid"]
         nx111uuid = item["iam"]["uuid"]
 
-        part2and3 = "#{itemuuid}|#{nx111uuid}"
+        part3and4 = "#{itemuuid}|#{nx111uuid}"
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
             .each{|location|
-                if File.basename(location).include?(part2and3) then
+                if File.basename(location).include?(part3and4) then
                     return location
                 end
             }
 
-        name1 = "#{description}|#{part2and3}"
+        name1 = "#{index1}|#{description}|#{part3and4}"
 
         "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
@@ -243,7 +253,7 @@ class EditionDesk
     # EditionDesk::updateItemFromDeskLocationOrNothing(location)
     def self.updateItemFromDeskLocationOrNothing(location)
         filename = File.basename(location)
-        description, itemuuid, nx111uuid = filename.split("|")
+        inedx1, description, itemuuid, nx111uuid = filename.split("|")
         if nx111uuid.include?(".") then
             nx111uuid, _ = nx111uuid.split(".")
         end
@@ -254,7 +264,7 @@ class EditionDesk
         return if nx111["uuid"] != nx111uuid
         # At this time we have the item and the item has a nx111 that has the same uuid as the location on disk
 
-        puts "EditionDesk: Updating from #{File.basename(location)}"
+        #puts "EditionDesk: Updating #{File.basename(location)}"
 
         if nx111["type"] == "navigation" then
             puts "This should not happen because nothing was exported."
@@ -288,7 +298,7 @@ class EditionDesk
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, Utils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
-            puts JSON.pretty_generate(nx111)
+            #puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
             Librarian6ObjectsLocal::commit(item)
             return
@@ -301,7 +311,7 @@ class EditionDesk
         if nx111["type"] == "primitive-file" then
             nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
             return if nx111v2.nil?
-            puts JSON.pretty_generate(nx111v2)
+            #puts JSON.pretty_generate(nx111v2)
             return if item["iam"].to_s = nx111v2.to_s
             item["iam"] = nx111v2
             Librarian6ObjectsLocal::commit(item)
@@ -314,6 +324,7 @@ class EditionDesk
             status = innerLocations.all?{|loc| File.file?(loc) }
             if !status then
                 puts "The folder (#{location}) has elements that are not files!"
+                LucilleCore::pressEnterToContinue()
                 return
             end
             innerLocations.each{|innerFilepath|
@@ -331,15 +342,15 @@ class EditionDesk
                 else
                     puts "#{File.basename(innerFilepath)} is new and needs upload"
                     primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(innerFilepath)
-                    puts "Primitive file:"
-                    puts JSON.pretty_generate(primitiveFileObject)
-                    puts "Link: (owner: #{item["uuid"]}, file: #{primitiveFileObject["uuid"]})"
+                    #puts "Primitive file:"
+                    #puts JSON.pretty_generate(primitiveFileObject)
+                    #puts "Link: (owner: #{item["uuid"]}, file: #{primitiveFileObject["uuid"]})"
                     Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
 
-                    puts "Writing #{primitiveFileObject["uuid"]}"
+                    #puts "Writing #{primitiveFileObject["uuid"]}"
                     PrimitiveFiles::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(primitiveFileObject, File.basename(location), primitiveFileObject["iam"])
 
-                    puts "Removing #{innerFilepath}"
+                    #puts "Removing #{innerFilepath}"
                     FileUtils.rm(innerFilepath)
                 end
             }

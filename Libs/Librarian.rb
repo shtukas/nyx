@@ -368,6 +368,11 @@ class LibrarianCLI
             exit
         end
 
+        if ARGV[0] == "fsck@infinity" then
+            InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
+            exit
+        end
+
         if ARGV[0] == "alexandra-infinity-sync+fsck@infinity" then
             AlexandraDidactSynchronization::run()
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
@@ -460,6 +465,7 @@ class LibrarianCLI
 
         puts "usage:"
         puts "    librarian alexandra-infinity-sync"
+        puts "    librarian fsck@infinity"
         puts "    librarian alexandra-infinity-sync+fsck@infinity"
         puts "    librarian make-system-snapshot"
         puts "    librarian show-object <uuid>"
