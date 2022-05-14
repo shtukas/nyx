@@ -22,63 +22,6 @@ class TxFyres
     end
 
     # --------------------------------------------------
-    # TxFy36
-
-    # TxFyres::getTxFy36ForTodayOrNull(uuid)
-    def self.getTxFy36ForTodayOrNull(uuid)
-        obj = XCache::getOrNull("c57f60cd-7d03-4d8f-a7e3-a420a7c136ce:#{uuid}:#{Utils::today()}")
-        return nil if obj.nil?
-        return JSON.parse(obj)
-    end
-
-    # TxFyres::setTxFy36ForToday(uuid, tx)
-    def self.setTxFy36ForToday(uuid, tx)
-        XCache::set("c57f60cd-7d03-4d8f-a7e3-a420a7c136ce:#{uuid}:#{Utils::today()}", JSON.generate(tx))
-    end
-
-    # TxFyres::interactivelyMakeTxFy36()
-    def self.interactivelyMakeTxFy36()
-        modes = [
-            "time commitment for today (default)",
-            "done for today"
-        ]
-        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", modes)
-        if mode.nil? or mode == "time commitment for today (default)" then
-            hours = LucilleCore::askQuestionAnswerAsString("hours (default to 1) : ")
-            if hours == "" then
-                hours = "1"
-            end
-            hours = hours.to_f
-            return {
-                "status" => "time-commitment",
-                "hours"  => hours
-            }
-        end
-        if mode == "done for today" then
-            return {
-                "status" => "done"
-            }
-        end
-
-        raise "()"
-    end
-
-    # TxFyres::ensureTxFy36sForUniverseForToday(universe)
-    def self.ensureTxFy36sForUniverseForToday(universe)
-        return if TxFyres::itemsForUniverse(universe).all?{|item| TxFyres::getTxFy36ForTodayOrNull(item["uuid"]) }
-        puts "--------------------------------------"
-        items = TxFyres::itemsForUniverse(universe)
-        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| "#{item["description"]} : #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"]).to_s.green}" })
-        if item.nil? then
-            return TxFyres::ensureTxFy36sForUniverseForToday(universe)
-        end
-        puts "#{item["description"]}"
-        tx = TxFyres::interactivelyMakeTxFy36()
-        TxFyres::setTxFy36ForToday(item["uuid"], tx)
-        TxFyres::ensureTxFy36sForUniverseForToday(universe)
-    end
-
-    # --------------------------------------------------
     # Makers
 
     # TxFyres::interactivelyCreateNewOrNull()
@@ -147,17 +90,12 @@ class TxFyres
 
     # TxFyres::toStringForSection2(item)
     def self.toStringForSection2(item)
-        "(fyre) #{item["description"]} (#{item["iam"]["type"]}) #{TxFyres::getTxFy36ForTodayOrNull(item["uuid"])}"
+        "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
     end
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        txFy36 = TxFyres::getTxFy36ForTodayOrNull(item["uuid"])
-        if txFy36 then
-            "(fyre) #{item["description"]} (#{item["iam"]["type"]}) (#{"%4.2f" % rt} of #{txFy36["hours"]} hours)"
-        else
-            "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
-        end
+        "(fyre) #{item["description"]} (#{item["iam"]["type"]}) (#{"%4.2f" % rt} of 1 hour)"
     end
 
     # TxFyres::toStringForNS19(item)
@@ -190,7 +128,6 @@ class TxFyres
             puts "uuid: #{uuid}".yellow
             puts "iam: #{item["iam"]}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
-            puts "TxFy36: #{TxFyres::getTxFy36ForTodayOrNull(uuid)}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
@@ -337,11 +274,10 @@ class TxFyres
 
     # TxFyres::section3(universe)
     def self.section3(universe)
-        TxFyres::ensureTxFy36sForUniverseForToday(universe)
 
         txFy36Filter = lambda {|item|
-            tx = TxFyres::getTxFy36ForTodayOrNull(item["uuid"])
-            (tx["status"] == "time-commitment") and (BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < tx["hours"])
+            return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{item["uuid"]}")
+            BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
         }
 
         ns16s = TxFyres::itemsForUniverse(universe)

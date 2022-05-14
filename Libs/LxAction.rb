@@ -182,8 +182,9 @@ class LxAction
                 return
             end
             if object["mikuType"] == "NS16:TxFyre" then
-                puts "You cannot done a fyre from the main listing you need to land on them to do that"
-                LucilleCore::pressEnterToContinue()
+                item = object["TxFyre"]
+                NxBallsService::close(item["uuid"], true)
+                XCache::setFlagTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{item["uuid"]}")
                 return
             end
             if object["mikuType"] == "NS16:Inbox1" then

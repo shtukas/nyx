@@ -6,13 +6,3 @@ TxFyre = {
   "datetime"       : DateTime Iso8601
   "iam"            : Nx111
 }
-
-TxFy36 indicates the time commitment for the day or that the item is done for the day
-{
-    "status" : "time-commitment",
-    "hours"  : Float
-}
-{
-    "status" : "done"
-}
-
