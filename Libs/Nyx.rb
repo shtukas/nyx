@@ -13,6 +13,7 @@ class Nyx
             operations = [
                 "search (interactive)",
                 "search (classic)",
+                "display nodes in timeline order",
                 "make new entity",
                 "special ops"
             ]
@@ -23,6 +24,12 @@ class Nyx
             end
             if operation == "search (classic)" then
                 Search::classicInterface()
+            end
+            if operation == "display nodes in timeline order" then
+                Nx100s::items()
+                    .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+                    .each{|item| puts Nx100s::toString(item) }
+                LucilleCore::pressEnterToContinue()
             end
             if operation == "make new entity" then
                 item = NyxNetwork::interactivelyMakeNewOrNull()
