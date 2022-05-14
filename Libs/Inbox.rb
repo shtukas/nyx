@@ -43,9 +43,9 @@ class Inbox
 
             actions = 
                 if File.file?(location) then
-                    ["open", "copy to desktop", "datecode", "transmute", ">nyx", "destroy", "exit (default)"]
+                    ["open", "copy to desktop", "datecode", ">todo", ">fyre", ">nyx", "destroy", "exit (default)"]
                 else
-                    ["open", "datecode", "transmute", ">nyx", "destroy", "exit (default)"]
+                    ["open", "datecode", ">todo", ">fyre", ">nyx", "destroy", "exit (default)"]
                 end
 
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
