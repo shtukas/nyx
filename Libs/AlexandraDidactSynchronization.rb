@@ -31,6 +31,14 @@ class AlexandraDidactSynchronization
             tx46
         }
 
+        getExistingLocationTx46OrNull = lambda{|location|
+            item = XCache::getOrNull("5981674c-998c-4275-9890-b33ee4a6486f:#{location}")
+            if item then
+                return JSON.parse(item)
+            end
+            nil
+        }
+
         getLocationTx46 = lambda{|location|
             item = XCache::getOrNull("5981674c-998c-4275-9890-b33ee4a6486f:#{location}")
             if item then
@@ -43,18 +51,21 @@ class AlexandraDidactSynchronization
                 end
             else
                 issueNewTx46.call(location)
-            end   
+            end
         }
 
+        puts "Edition Desk processing".green
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk()).each{|location|
-            puts "AlexandraDidactSynchronization: Updating item from location: #{File.basename(location)}"
+            puts "Edition Desk processing: #{File.basename(location)}"
+            tx46 = getExistingLocationTx46OrNull.call(location)
+            next if (tx46 and Utils::locationTrace(location) == tx46["trace"])
             EditionDesk::updateItemFromDeskLocationOrNothing(location)
             tx46 = getLocationTx46.call(location)
             #puts "tx46: #{JSON.pretty_generate(tx46)}"
             #puts "last change #{(Time.new.to_i - tx46["unixtime"]).to_f/86400} days ago"
             if (Time.new.to_i - tx46["unixtime"]) > 86400*14 then # 2 weeks
-                puts "Last change #{(Time.new.to_i - tx46["unixtime"]).to_f/86400} days ago"
-                puts "Deleting Edition Desk location: #{File.basename(location)}"
+                puts "    Last change was #{(Time.new.to_i - tx46["unixtime"]).to_f/86400} days ago"
+                puts "    Deleting Edition Desk location: #{File.basename(location)}"
                 LucilleCore::removeFileSystemLocation(location)
             end
         }
@@ -62,28 +73,29 @@ class AlexandraDidactSynchronization
         # --------------------------------------------------------------------------------------
 
         # At the moment, objects are held in a sqlite database. We simply override it.
-        puts "Update objects database on drive"
+        puts "Update objects database on drive".green
         FileUtils.cp(Librarian6ObjectsLocal::databaseFilepath(), Librarian7ObjectsInfinity::databaseFilepath())
 
         # --------------------------------------------------------------------------------------
 
-        puts "Rsync Catalyst data"
+        puts "Rsync Didact / Catalyst data".green
         system($AlexandraDidactSynchronizationCatalystDataRsync) or raise "(error: 7bf44899-8bb2-47f2-be7b-c38e95b8543c)"
 
         # --------------------------------------------------------------------------------------
 
-        puts "Process DatablobsInfinityBufferOut"
+        puts "Process DatablobsInfinityBufferOut".green
         Find.find("#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut") do |path|
             next if !File.file?(path)
             next if path[-5, 5] != ".data"
             blob = IO.read(path)
             nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-            if InfinityDatablobs_PureDrive::getBlobOrNull(nhash) then
+            driveFilePath = InfinityDatablobs_PureDrive::decideFilepathForBlob(nhash)
+            if File.exists?(driveFilePath) then
                 FileUtils.rm(path)
                 next
             end
             puts "Uploading blob: #{path}"
-            InfinityDatablobs_PureDrive::putBlob(blob)
+            FileUtils.cp(path, driveFilePath)
             FileUtils.rm(path)
         end
     end
