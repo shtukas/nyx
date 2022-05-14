@@ -91,10 +91,14 @@ class TxTodos
     # --------------------------------------------------
     # Makers
 
-    # TxTodos::interactivelyCreateNewOrNull()
-    def self.interactivelyCreateNewOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
+    # TxTodos::interactivelyCreateNewOrNull(description = nil)
+    def self.interactivelyCreateNewOrNull(description = nil)
+        if description.nil? or description == "" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+        else
+            puts "description: #{description}"
+        end
 
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
         return nil if nx111.nil?

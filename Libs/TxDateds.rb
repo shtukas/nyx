@@ -15,10 +15,14 @@ class TxDateds
     # --------------------------------------------------
     # Makers
 
-    # TxDateds::interactivelyCreateNewOrNull()
-    def self.interactivelyCreateNewOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
+    # TxDateds::interactivelyCreateNewOrNull(description = nil)
+    def self.interactivelyCreateNewOrNull(description = nil)
+        if description.nil? or description == "" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+        else
+            puts "description: #{description}"
+        end
 
         datetime = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
@@ -41,10 +45,14 @@ class TxDateds
         item
     end
 
-    # TxDateds::interactivelyCreateNewTodayOrNull()
-    def self.interactivelyCreateNewTodayOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
+    # TxDateds::interactivelyCreateNewTodayOrNull(description = nil)
+    def self.interactivelyCreateNewTodayOrNull(description = nil)
+        if description.nil? or description == "" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
+        else
+            puts "description: #{description}"
+        end
 
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
         return nil if nx111.nil?

@@ -159,18 +159,6 @@ class LxAction
             return
         end
 
-        if command == "commands" then
-            puts [
-                    "      " + Commands::terminalDisplayCommand(),
-                    "      " + Commands::makersCommands(),
-                    "      " + Commands::diversCommands(),
-                    "      internet on | internet off | require internet",
-                    "      universe (set the universe of the dafault item) (<n>)  | >> (switch universe)"
-                 ].join("\n").yellow
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if command == "done" then
 
             # If the object was running, then we stop it

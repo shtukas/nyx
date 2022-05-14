@@ -115,6 +115,18 @@ class TerminalUtils
             return ["fsck", nil]
         end
 
+        if Interpreting::match("help", input) then
+            puts [
+                    "      " + Commands::terminalDisplayCommand(),
+                    "      " + Commands::makersCommands(),
+                    "      " + Commands::diversCommands(),
+                    "      internet on | internet off | require internet",
+                    "      universe (set the universe of the dafault item) (<n>)  | >> (switch universe)"
+                 ].join("\n").yellow
+            LucilleCore::pressEnterToContinue()
+            return [nil, nil]
+        end
+
         if Interpreting::match("inbox", input) then
             return ["inbox", nil]
         end
@@ -146,6 +158,13 @@ class TerminalUtils
 
         if Interpreting::match("ondate", input) then
             return ["ondate", nil]
+        end
+
+        if input.start_with?("ondate:") then
+            message = input[7, input.length].strip
+            item = TxDateds::interactivelyCreateNewOrNull(message)
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
         end
 
         if Interpreting::match("ondates", input) then
@@ -217,8 +236,22 @@ class TerminalUtils
             return ["today", nil]
         end
 
+        if input.start_with?("today:") then
+            message = input[6, input.length].strip
+            item = TxDateds::interactivelyCreateNewTodayOrNull(message)
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
+        end
+
         if Interpreting::match("todo", input) then
             return ["todo", store.getDefault()]
+        end
+
+        if input.start_with?("todo:") then
+            message = input[5, input.length].strip
+            item = TxTodos::interactivelyCreateNewOrNull(message)
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
         end
 
         if Interpreting::match("transmute", input) then
@@ -256,7 +289,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | calendar item | float | fyre | today | ondate | todo"
+        "wave | anniversary | calendar item | float | fyre | today | ondate | ondate: <message> | todo | todo: <description>"
     end
 
     # Commands::diversCommands()
@@ -496,7 +529,7 @@ class TerminalDisplayOperator
 
         return if input == ""
 
-        if (unixtime = Utils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+        if !input.start_with?("today:") and (unixtime = Utils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
