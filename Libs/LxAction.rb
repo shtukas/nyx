@@ -81,11 +81,15 @@ class LxAction
         end
 
         if command == ">todo" then
-            ns16 = object
-            if ns16["mikuType"] == "NS16:Inbox1" then
-                location = ns16["location"]
+            if object["mikuType"] == "NS16:Inbox1" then
+                location = object["location"]
                 TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
                 LucilleCore::removeFileSystemLocation(location)
+                return
+            end
+            if object["mikuType"] == "NS16:TxDated" then
+                item = object["TxDated"]
+                Transmutation::transmutation1(item, "TxDated", "TxTodo")
                 return
             end
         end
