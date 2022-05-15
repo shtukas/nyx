@@ -252,6 +252,12 @@ class TxFyres
     # --------------------------------------------------
     # nx16s
 
+    # TxFyres::section3Filter(item)
+    def self.section3Filter(item)
+        return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{item["uuid"]}")
+        BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1 or NxBallsService::isRunning(item["uuid"])
+    end
+
     # TxFyres::section2(universe)
     def self.section2(universe)
         TxFyres::itemsForUniverse(universe)
@@ -274,14 +280,8 @@ class TxFyres
 
     # TxFyres::section3(universe)
     def self.section3(universe)
-
-        txFy36Filter = lambda {|item|
-            return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{item["uuid"]}")
-            BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
-        }
-
         ns16s = TxFyres::itemsForUniverse(universe)
-            .select{|item| txFy36Filter.call(item) }
+            .select{|item| TxFyres::section3Filter(item) }
             .map{|item| 
                 uuid = item["uuid"]
                 rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)

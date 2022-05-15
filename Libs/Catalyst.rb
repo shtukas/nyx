@@ -370,7 +370,11 @@ class NS16sOperator
     # NS16sOperator::section2(universe)
     def self.section2(universe)
         # Section 2 shows what's current, fyres and todos with more than an hour in their Bank
-        TxFyres::section2(universe)
+        [
+            TxFyres::section2(universe),
+            TxTodos::section2(universe)
+        ]
+            .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
@@ -384,7 +388,7 @@ class NS16sOperator
             Waves::ns16s(universe),
             Inbox::ns16s(),
             TxFyres::section3(universe),
-            TxTodos::ns16s(universe)
+            TxTodos::section3(universe)
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

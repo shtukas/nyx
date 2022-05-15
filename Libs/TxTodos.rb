@@ -369,39 +369,40 @@ class TxTodos
         }
     end
 
-    # TxTodos::ns16s(universe)
-    def self.ns16s(universe)
-        ns16s = TxTodos::itemsForNS16s(universe)
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
+    # TxTodos::section2(universe)
+    def self.section2(universe)
+        TxTodos::itemsForNS16s(universe)
             .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .map{|item| TxTodos::ns16(item) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            .select{|item| item["rt"] > 1 }
+    end
 
-        ns16s1 = ns16s
-                    .take(5)
-                    .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+    # TxTodos::section3(universe)
+    def self.section3(universe)
+        ns16s = TxTodos::itemsForNS16s(universe)
+                    .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+                    .map{|item| TxTodos::ns16(item) }
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
                     .select{|item| item["rt"] < 1 or NxBallsService::isRunning(item["uuid"]) }
 
-        ns16s2 = ns16s.drop(5)
-
-        Heights::markSequenceOfNS16sWithDecreasingHeights("beca7cc9", ns16s1 + ns16s2)
+        Heights::markSequenceOfNS16sWithDecreasingHeights("beca7cc9", ns16s)
     end
 
     # --------------------------------------------------
 
     # TxTodos::nx20s()
     def self.nx20s()
-        Librarian6ObjectsLocal::getObjectsByMikuType("TxTodo").map{|item|
-            {
-                "announce" => TxTodos::toStringForNS19(item),
-                "unixtime" => item["unixtime"],
-                "payload"  => item
+        Librarian6ObjectsLocal::getObjectsByMikuType("TxTodo")
+            .map{|item|
+                {
+                    "announce" => TxTodos::toStringForNS19(item),
+                    "unixtime" => item["unixtime"],
+                    "payload"  => item
+                }
             }
-        }
     end
 end
 
