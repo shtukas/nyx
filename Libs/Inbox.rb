@@ -22,14 +22,9 @@ class Inbox
     # Inbox::interactivelyDecideBestDescriptionForLocation(location)
     def self.interactivelyDecideBestDescriptionForLocation(location)
         description = File.basename(location)
-        b1 = LucilleCore::askQuestionAnswerAsBoolean("Do you want to run with description '#{description}' ? ", true)
-        return description if b1
-        description = nil
-        while description.nil? do
-            dx = LucilleCore::askQuestionAnswerAsString("description: ")
-            if dx.size > 0 then
-                description = dx
-            end
+        description2 = LucilleCore::askQuestionAnswerAsString("New description (if needed, otherwise empty for default): ")
+        if description2 != "" then
+            description = description2
         end
         description
     end
@@ -70,8 +65,7 @@ class Inbox
                 return
             end
             if action == ">nyx" then
-                puts "(19f8c2ce-a9b6-44b1-8a37-3d734aa282b7: This has not been implemented, need re-implementation after refactoring)"
-                LucilleCore::pressEnterToContinue()
+                Transmutation::transmutation1(location, "inbox", "Nx100")
                 return
             end
             if action == "destroy" then

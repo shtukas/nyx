@@ -64,6 +64,14 @@ class Transmutation
             return
         end
 
+        if source == "inbox" and target == "Nx100" then
+            location = object
+            item = Nx100s::issueNewItemAionPointFromLocation(location)
+            Nx100s::landing(item)
+            LucilleCore::removeFileSystemLocation(location)
+            return
+        end
+
         if source == "TxDated" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
