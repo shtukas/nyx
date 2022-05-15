@@ -71,11 +71,14 @@ class LxAction
         end
 
         if command == ">nyx" then
-            ns16 = object
-            if ns16["mikuType"] == "NS16:Inbox1" then
-                location = ns16["location"]
-                puts "(711d6220-1970-44ff-b017-cc65bd8bdaad: This has not been implemented, need re-implementation after refactoring)"
-                LucilleCore::pressEnterToContinue()
+            if object["mikuType"] == "NS16:Inbox1" then
+                location = object["location"]
+                Transmutation::transmutation1(location, "inbox", "Nx100")
+                return
+            end
+            if object["mikuType"] == "NS16:TxTodo" then
+                item = object["TxTodo"]
+                Transmutation::transmutation1(item, "TxTodo", "Nx100")
                 return
             end
         end

@@ -149,6 +149,17 @@ class Transmutation
             return
         end
 
+        if source == "TxTodo" and target == "Nx100" then
+            nx100 = object.clone
+            nx100["uuid"] = SecureRandom.uuid
+            nx100["mikuType"] = "Nx100"
+            nx100["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
+            Librarian6ObjectsLocal::commit(nx100)
+            TxTodos::destroy(object["uuid"])
+            Nx100s::landing(nx100)
+            return
+        end
+
         puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
         LucilleCore::pressEnterToContinue()
     end

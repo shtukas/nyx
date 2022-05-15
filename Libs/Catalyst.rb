@@ -52,6 +52,10 @@ class TerminalUtils
             return [">todo", store.getDefault()]
         end
 
+        if Interpreting::match(">nyx", input) then
+            return [">nyx", store.getDefault()]
+        end
+
         if Interpreting::match("access", input) then
             return ["access", store.getDefault()]
         end

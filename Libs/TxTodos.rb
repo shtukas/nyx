@@ -386,12 +386,9 @@ class TxTodos
                     .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
                     .select{|item| item["rt"] < 1 or NxBallsService::isRunning(item["uuid"]) }
 
-        ns16s1 = Heights::markSequenceOfNS16sWithDecreasingHeights("beca7cc9", ns16s1)
-
         ns16s2 = ns16s.drop(5)
-        ns16s2 = Heights::markSequenceOfNS16sWithDecreasingHeights("24e25774", ns16s2)
 
-        ns16s1 + ns16s2
+        Heights::markSequenceOfNS16sWithDecreasingHeights("beca7cc9", ns16s1 + ns16s2)
     end
 
     # --------------------------------------------------

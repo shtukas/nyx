@@ -33,16 +33,7 @@ class Nx100s
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes())
         return nil if nx111.nil?
 
-        flavourMaker = lambda {|nx111|
-            if nx111["type"] == "primitive-file"  then
-                return {
-                    "type" => "pure-data"
-                }
-            end
-            Nx102Flavor::interactivelyCreateNewFlavour()
-        }
-
-        flavour = flavourMaker.call(nx111)
+        flavour = Nx102Flavor::interactivelyCreateNewFlavour()
 
         uuidMaker = lambda {|nx111|
             if nx111["type"] == "primitive-file" then
