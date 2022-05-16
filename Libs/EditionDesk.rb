@@ -137,7 +137,7 @@ class EditionDesk
                 end
             }
 
-        name1 = "#{index1}|#{description}|#{part3and4}"
+        name1 = "#{index1.to_s.rjust(6, "0")}|#{description}|#{part3and4}"
 
         "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
