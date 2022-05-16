@@ -283,6 +283,11 @@ class LxAction
 
         if command == "landing" then
 
+            if object["mikuType"] == "Ax1Text" then
+                Ax1Text::landing(object)
+                return
+            end
+
             if object["mikuType"] == "NS16:Anniversary1" then
                 Anniversaries::landing(object["anniversary"])
                 return

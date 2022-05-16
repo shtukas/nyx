@@ -266,6 +266,10 @@ class Nx100s
                 indx = store.register(attachment, false)
                 puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
             }
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
+            }
 
             Links::linked(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
@@ -286,6 +290,7 @@ class Nx100s
             commands << "datetime"
             commands << "iam"
             commands << "flavour"
+            commands << "note"
             commands << "attachment"
             commands << "link"
             commands << "relink"
@@ -362,8 +367,15 @@ class Nx100s
                 end
             end
 
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                puts JSON.pretty_generate(ox)
+                next
+            end
+
             if Interpreting::match("attachment", command) then
-                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
+                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                puts JSON.pretty_generate(ox)
                 next
             end
 

@@ -1,29 +1,29 @@
 
 # encoding: UTF-8
 
-class TxAttachments
+class Ax1Text
 
     # ----------------------------------------------------------------------
     # IO
 
-    # TxAttachments::items()
+    # Ax1Text::items()
     def self.items()
-        Librarian6ObjectsLocal::getObjectsByMikuType("TxAttachment")
+        Librarian6ObjectsLocal::getObjectsByMikuType("Ax1Text")
     end
 
-    # TxAttachments::itemsForOwner(owneruuid)
+    # Ax1Text::itemsForOwner(owneruuid)
     def self.itemsForOwner(owneruuid)
-        TxAttachments::items()
+        Ax1Text::items()
             .select{|item| item["owneruuid"] == owneruuid }
             .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
     end
 
-    # TxAttachments::getOrNull(uuid): null or TxAttachment
+    # Ax1Text::getOrNull(uuid): null or Ax1Text
     def self.getOrNull(uuid)
         Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
     end
 
-    # TxAttachments::destroy(uuid)
+    # Ax1Text::destroy(uuid)
     def self.destroy(uuid)
         Librarian6ObjectsLocal::destroy(uuid)
     end
@@ -31,24 +31,18 @@ class TxAttachments
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # TxAttachments::interactivelyIssueNewOrNullForOwner(owneruuid)
+    # Ax1Text::interactivelyIssueNewOrNullForOwner(owneruuid)
     def self.interactivelyIssueNewOrNullForOwner(owneruuid)
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodesAttachment())
-        return nil if nx111.nil?
-
+        text = Utils::editTextSynchronously("")
+        nhash = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(text)
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
-
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxAttachment",
+          "mikuType"    => "Ax1Text",
           "owneruuid"   => owneruuid,
           "unixtime"    => unixtime,
-          "description" => description,
-          "iam"         => nx111
+          "nhash"       => nhash
         }
         Librarian6ObjectsLocal::commit(item)
         item
@@ -57,20 +51,23 @@ class TxAttachments
     # ----------------------------------------------------------------------
     # Data
 
-    # TxAttachments::toString(item)
+    # Ax1Text::toString(item)
     def self.toString(item)
-        "(attachment) #{item["description"]} (#{item["iam"]["type"]})"
+        nhash = item["nhash"]
+        text = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+        description = (text != "") ? text.lines.first : "(empty text)"
+        "(note) #{description}"
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # TxAttachments::landing(item)
+    # Ax1Text::landing(item)
     def self.landing(item)
         loop {
             system("clear")
             Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
-            puts TxAttachments::toString(item)
+            puts Ax1Text::toString(item)
             operations = [
                 "access/edit",
                 "destroy"
@@ -78,11 +75,16 @@ class TxAttachments
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit" then
-                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
+                nhash = item["nhash"]
+                text = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                text = Utils::editTextSynchronously(text)
+                nhash = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(text)
+                item["nhash"] = nhash
+                Librarian6ObjectsLocal::commit(item)
             end
             if operation == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TxAttachments::toString(item)}' ? ") then
-                    TxAttachments::destroy(item["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
+                    Ax1Text::destroy(item["uuid"])
                     break
                 end
             end

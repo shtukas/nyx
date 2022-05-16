@@ -125,7 +125,8 @@ class TxFloats
             end
 
             if Interpreting::match("attachment", command) then
-                TxAttachments::interactivelyCreateNewOrNullForOwner(item["uuid"])
+                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                puts JSON.pretty_generate(ox)
                 next
             end
 
