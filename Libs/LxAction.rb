@@ -175,7 +175,7 @@ class LxAction
             if object["mikuType"] == "NS16:TxFyre" then
                 item = object["TxFyre"]
                 NxBallsService::close(item["uuid"], true)
-                XCache::setFlagTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{item["uuid"]}")
+                XCache::setFlagTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{item["uuid"]}")
                 return
             end
             if object["mikuType"] == "NS16:TxInbox2" then
