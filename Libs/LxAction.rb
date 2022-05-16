@@ -70,20 +70,7 @@ class LxAction
             return
         end
 
-        if command == ">fyre" then
-            if object["mikuType"] == "NS16:Inbox1" then
-                location = object["location"]
-                Transmutation::transmutation1(location, "inbox", "TxFyre")
-                return
-            end
-        end
-
         if command == ">nyx" then
-            if object["mikuType"] == "NS16:Inbox1" then
-                location = object["location"]
-                Transmutation::transmutation1(location, "inbox", "Nx100")
-                return
-            end
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
                 Transmutation::transmutation1(item, "TxTodo", "Nx100")
@@ -92,26 +79,9 @@ class LxAction
         end
 
         if command == ">todo" then
-            if object["mikuType"] == "NS16:Inbox1" then
-                location = object["location"]
-                item2 = TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
-                puts JSON.pretty_generate(item2)
-                LucilleCore::removeFileSystemLocation(location)
-                return
-            end
             if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
                 Transmutation::transmutation1(item, "TxDated", "TxTodo")
-                return
-            end
-        end
-
-        if command == ">pile" then
-            if object["mikuType"] == "NS16:Inbox1" then
-                location = object["location"]
-                item2 = TxTodos::issuePile(location)
-                puts JSON.pretty_generate(item2)
-                LucilleCore::removeFileSystemLocation(location)
                 return
             end
         end
@@ -125,11 +95,6 @@ class LxAction
 
             if object["mikuType"] == "NS16:fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
-                return
-            end
-
-            if object["mikuType"] == "NS16:Inbox1" then
-                Inbox::landingInbox1(object["location"])
                 return
             end
 
@@ -211,11 +176,6 @@ class LxAction
                 item = object["TxFyre"]
                 NxBallsService::close(item["uuid"], true)
                 XCache::setFlagTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{item["uuid"]}")
-                return
-            end
-            if object["mikuType"] == "NS16:Inbox1" then
-                location = object["location"]
-                LucilleCore::removeFileSystemLocation(location)
                 return
             end
             if object["mikuType"] == "NS16:TxInbox2" then
@@ -330,11 +290,6 @@ class LxAction
 
             if object["mikuType"] == "NS16:fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
-                return
-            end
-
-            if object["mikuType"] == "NS16:Inbox1" then
-                Inbox::landingInbox1(object["location"])
                 return
             end
 
@@ -517,27 +472,20 @@ class LxAction
         end
 
         if command == "transmute" then
-            ns16 = object
-            if ns16["mikuType"] == "NS16:Inbox1" then
-                location = ns16["location"]
-                Transmutation::transmutation2(location, "inbox")
-                return
-            end
-
-            if ns16["mikuType"] == "NS16:TxDated" then
-                mx49 = ns16["TxDated"]
+            if object["mikuType"] == "NS16:TxDated" then
+                mx49 = object["TxDated"]
                 Transmutation::transmutation2(mx49, "TxDated")
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxFyre" then
-                nx70 = ns16["TxFyre"]
+            if object["mikuType"] == "NS16:TxFyre" then
+                nx70 = object["TxFyre"]
                 Transmutation::transmutation2(nx70, "TxFyre")
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxTodo" then
-                nx70 = ns16["TxTodo"]
+            if object["mikuType"] == "NS16:TxTodo" then
+                nx70 = object["TxTodo"]
                 Transmutation::transmutation2(nx70, "TxTodo")
                 return
             end

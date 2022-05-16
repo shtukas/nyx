@@ -51,35 +51,6 @@ class TxFyres
         item
     end
 
-    # TxFyres::interactivelyIssueItemUsingInboxLocation(location)
-    def self.interactivelyIssueItemUsingInboxLocation(location)
-        uuid        = SecureRandom.uuid
-        description = Inbox::interactivelyDecideBestDescriptionForLocation(location)
-        unixtime    = Time.new.to_i
-        datetime    = Time.new.utc.iso8601
-
-        rootnhash   = AionCore::commitLocationReturnHash(InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new(), location)
-        nx111 = {
-            "uuid"      => SecureRandom.uuid,
-            "type"      => "aion-point",
-            "rootnhash" => rootnhash
-        }
-
-        universe    = Multiverse::interactivelySelectUniverse()
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxFyre",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "iam"        => nx111
-        }
-        Librarian6ObjectsLocal::commit(item)
-        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
-        item
-    end
-
     # --------------------------------------------------
     # toString
 

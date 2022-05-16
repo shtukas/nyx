@@ -579,7 +579,23 @@ class Catalyst
             end
 
             universe = StoredUniverse::getUniverseOrNull()
-            
+
+            pileFilepath = "/Users/pascal/Desktop/Inbox/>pile"
+            if File.exists?(pileFilepath) then
+                LucilleCore::locationsAtFolder(pileFilepath)
+                    .map{|location|
+                        if File.basename(location).include?("'") then
+                            location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", "")}"
+                            #puts "Inbox renaming:"
+                            #puts "    #{location}"
+                            #puts "    #{location2}"
+                            #FileUtils.mv(location, location2)
+                            location = location2
+                        end
+                        TxTodos::issuePile(location)
+                    }
+            end
+
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }

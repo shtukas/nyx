@@ -50,28 +50,6 @@ class Transmutation
     # target: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
     def self.transmutation1(object, source, target)
 
-        if source == "inbox" and target == "TxTodo" then
-            location = object
-            TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
-            LucilleCore::removeFileSystemLocation(location)
-            return
-        end
-
-        if source == "inbox" and target == "TxFyre" then
-            location = object
-            TxFyres::interactivelyIssueItemUsingInboxLocation(location)
-            LucilleCore::removeFileSystemLocation(location)
-            return
-        end
-
-        if source == "inbox" and target == "Nx100" then
-            location = object
-            item = Nx100s::issueNewItemAionPointFromLocation(location)
-            Nx100s::landing(item)
-            LucilleCore::removeFileSystemLocation(location)
-            return
-        end
-
         if source == "TxDated" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
