@@ -242,18 +242,16 @@ class TxDateds
             "uuid"     => uuid,
             "mikuType" => "NS16:TxDated",
             "announce" => TxDateds::toString(item),
-            "height"   => nil,
             "TxDated"  => item
         }
     end
 
     # TxDateds::ns16s()
     def self.ns16s()
-        ns16s = TxDateds::items()
+        TxDateds::items()
             .select{|item| item["datetime"][0, 10] <= Utils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .map{|item| TxDateds::ns16(item) }
-        Heights::markSequenceOfNS16sWithDecreasingHeights("97f0669d", ns16s)
     end
 
     # --------------------------------------------------

@@ -89,7 +89,7 @@ class AlexandraDidactSynchronization
             next if path[-5, 5] != ".data"
             blob = IO.read(path)
             nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-            driveFilePath = InfinityDatablobs_PureDrive::decideFilepathForBlob(nhash)
+            driveFilePath = InfinityDatablobs_PureDrive::prepareFilepathForBlob(nhash)
             if File.exists?(driveFilePath) then
                 FileUtils.rm(path)
                 next

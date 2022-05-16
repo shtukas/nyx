@@ -176,7 +176,6 @@ class Anniversaries
                     "uuid"        => uuid,
                     "mikuType"    => "NS16:Anniversary1",
                     "announce"    => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "height"      => Heights::height1("141de8cf", uuid),
                     "anniversary" => anniversary
                 }
             }

@@ -48,8 +48,16 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("..", ordinal, store)
         end
 
+        if Interpreting::match(">fyre", input) then
+            return [">fyre", store.getDefault()]
+        end
+
         if Interpreting::match(">todo", input) then
             return [">todo", store.getDefault()]
+        end
+
+        if Interpreting::match(">pile", input) then
+            return [">pile", store.getDefault()]
         end
 
         if Interpreting::match(">nyx", input) then
@@ -377,6 +385,7 @@ class NS16sOperator
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
     # NS16sOperator::section3(universe)
@@ -385,8 +394,9 @@ class NS16sOperator
             Anniversaries::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
-            Waves::ns16s(universe),
+            Waves::ns16sHighPriority(universe),
             Inbox::ns16s(),
+            Waves::ns16sLowerPriority(universe),
             TxFyres::section3(universe),
             TxTodos::section3(universe)
         ]
@@ -522,7 +532,7 @@ class TerminalDisplayOperator
             .each{|ns16|
                 store.register(ns16, Defaultability::isDefaultable(ns16))
                 line = ns16["announce"]
-                line = "#{store.prefixString()} (#{"%.3f" % ns16["height"]}) #{line}"
+                line = "#{store.prefixString()} #{line}"
                 break if (vspaceleft - Utils::verticalSize(line)) < 0
                 if NxBallsService::isActive(ns16["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
@@ -579,7 +589,7 @@ class Catalyst
 
             # If some section3 items are running we show them first
             section3_1, section3_2 = section3.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-            section3 = section3_1 + section3_2.sort{|i1, i2| i1["height"] <=> i2["height"] }.reverse
+            section3 = section3_1 + section3_2
 
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
         }

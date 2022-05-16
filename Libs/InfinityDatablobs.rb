@@ -8,14 +8,20 @@ class InfinityDatablobs_PureDrive
         "#{Config::pathToInfinityDidact()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
     end
 
+    # InfinityDatablobs_PureDrive::prepareFilepathForBlob(nhash)
+    def self.prepareFilepathForBlob(nhash)
+        filepath = "#{Config::pathToInfinityDidact()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        filepath
+    end
+
     # InfinityDatablobs_PureDrive::putBlob(blob)
     def self.putBlob(blob)
         InfinityDrive::ensureInfinityDrive()
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = InfinityDatablobs_PureDrive::decideFilepathForBlob(nhash)
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
+        filepath = InfinityDatablobs_PureDrive::prepareFilepathForBlob(nhash)
         File.open(filepath, "w"){|f| f.write(blob) }
         nhash
     end

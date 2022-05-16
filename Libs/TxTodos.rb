@@ -154,6 +154,37 @@ class TxTodos
         item
     end
 
+    # TxTodos::issuePile(location)
+    def self.issuePile(location)
+        uuid        = SecureRandom.uuid
+        description = File.basename(location)
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+
+        rootnhash   = AionCore::commitLocationReturnHash(InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new(), location)
+        nx111 = {
+            "uuid"      => SecureRandom.uuid,
+            "type"      => "aion-point",
+            "rootnhash" => rootnhash
+        }
+
+        universe    = "backlog"
+        ordinal     = TxTodos::getNewGenesisOrdinal(universe)
+
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxTodo",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "iam"         => nx111,
+          "ordinal"     => ordinal
+        }
+        Librarian6ObjectsLocal::commit(item)
+        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
+        item
+    end
+
     # --------------------------------------------------
     # toString
 
@@ -362,7 +393,6 @@ class TxTodos
             "uuid"     => uuid,
             "mikuType" => "NS16:TxTodo",
             "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
-            "height"   => Heights::height1("beca7cc9", uuid),
             "ordinal"  => nx50["ordinal"],
             "TxTodo"   => nx50,
             "rt"       => rt
@@ -381,14 +411,12 @@ class TxTodos
 
     # TxTodos::section3(universe)
     def self.section3(universe)
-        ns16s = TxTodos::itemsForNS16s(universe)
-                    .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
-                    .map{|item| TxTodos::ns16(item) }
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-                    .select{|item| item["rt"] < 1 or NxBallsService::isRunning(item["uuid"]) }
-
-        Heights::markSequenceOfNS16sWithDecreasingHeights("beca7cc9", ns16s)
+        TxTodos::itemsForNS16s(universe)
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+            .map{|item| TxTodos::ns16(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            .select{|item| item["rt"] < 1 or NxBallsService::isRunning(item["uuid"]) }
     end
 
     # --------------------------------------------------

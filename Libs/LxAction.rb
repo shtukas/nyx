@@ -70,6 +70,14 @@ class LxAction
             return
         end
 
+        if command == ">fyre" then
+            if object["mikuType"] == "NS16:Inbox1" then
+                location = object["location"]
+                Transmutation::transmutation1(location, "inbox", "TxFyre")
+                return
+            end
+        end
+
         if command == ">nyx" then
             if object["mikuType"] == "NS16:Inbox1" then
                 location = object["location"]
@@ -86,13 +94,24 @@ class LxAction
         if command == ">todo" then
             if object["mikuType"] == "NS16:Inbox1" then
                 location = object["location"]
-                TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
+                item2 = TxTodos::interactivelyIssueItemUsingInboxLocation2(location)
+                puts JSON.pretty_generate(item2)
                 LucilleCore::removeFileSystemLocation(location)
                 return
             end
             if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
                 Transmutation::transmutation1(item, "TxDated", "TxTodo")
+                return
+            end
+        end
+
+        if command == ">pile" then
+            if object["mikuType"] == "NS16:Inbox1" then
+                location = object["location"]
+                item2 = TxTodos::issuePile(location)
+                puts JSON.pretty_generate(item2)
+                LucilleCore::removeFileSystemLocation(location)
                 return
             end
         end

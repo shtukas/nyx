@@ -88,14 +88,9 @@ class TxFyres
         "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
     end
 
-    # TxFyres::toStringForSection2(item)
-    def self.toStringForSection2(item)
-        "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
-    end
-
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(fyre) #{item["description"]} (#{item["iam"]["type"]}) (#{"%4.2f" % rt} of 1 hour)"
+        "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"]["type"]}) (#{"%4.2f" % rt} of 1 hour)"
     end
 
     # TxFyres::toStringForNS19(item)
@@ -263,24 +258,22 @@ class TxFyres
         TxFyres::itemsForUniverse(universe)
             .map{|item|
                 uuid = item["uuid"]
-                announce = toStringForSection2(item)
                 rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+                announce = TxFyres::toStringForNS16(item, rt).gsub("(0.00)", "      ")
                 {
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
                     "announce" => announce,
-                    "height"   => 1,
                     "TxFyre"   => item,
                     "rt"       => rt,
                     "unixtime" => item["unixtime"]
                 }
             }
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # TxFyres::section3(universe)
     def self.section3(universe)
-        ns16s = TxFyres::itemsForUniverse(universe)
+        TxFyres::itemsForUniverse(universe)
             .select{|item| TxFyres::section3Filter(item) }
             .map{|item| 
                 uuid = item["uuid"]
@@ -290,14 +283,11 @@ class TxFyres
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
                     "announce" => announce,
-                    "height"   => nil,
                     "TxFyre"   => item,
                     "rt"       => rt
                 }
             }
             .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-
-        Heights::markSequenceOfNS16sWithDecreasingHeights("141de8cf", ns16s)
     end
 
     # --------------------------------------------------
