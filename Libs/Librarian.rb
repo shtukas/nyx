@@ -205,6 +205,28 @@ class Librarian6ObjectsLocal
         answer
     end
 
+    # Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverse(mikuType, universe)
+    def self.getObjectsByMikuTypeAndUniverse(mikuType, universe)
+
+        if Sx01Snapshots::snapshotIsDeployed() then
+            return Sx01Snapshots::getDeployedSnapshotLibrarianObjects()
+                    .select{|object| object["mikuType"] == mikuType }
+                    .first(n)
+                    .map{|object| object.clone }
+        end
+
+        db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_", [mikuType, universe]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
     # Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverseLimitByOrdinal(mikuType, universe, n)
     def self.getObjectsByMikuTypeAndUniverseLimitByOrdinal(mikuType, universe, n)
 

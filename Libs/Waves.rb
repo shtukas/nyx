@@ -11,8 +11,7 @@ class Waves
 
     # Waves::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        Waves::items()
-            .select{|item| item["universe"] == universe }
+        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverse("Wave", universe)
     end
 
     # Waves::destroy(uuid)

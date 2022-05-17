@@ -9,8 +9,7 @@ class TxTodos
 
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        TxTodos::items()
-            .select{|item| item["universe"] == universe }
+        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
     end
 
     # TxTodos::destroy(uuid)

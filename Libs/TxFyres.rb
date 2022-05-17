@@ -9,8 +9,7 @@ class TxFyres
 
     # TxFyres::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        TxFyres::items()
-            .select{|item| item["universe"] == universe }
+        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverse("TxFyre", universe)
     end
 
     # TxFyres::destroy(uuid)
