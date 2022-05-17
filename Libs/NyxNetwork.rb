@@ -2,11 +2,12 @@
 
 class NyxNetwork
 
-    # NyxNetwork::selectEntityFromGivenEntitiesOrNull(items)
-    def self.selectEntityFromGivenEntitiesOrNull(items)
-        item = Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| LxFunction::function("toString", item) })
-        return nil if item.nil?
-        item
+    # ---------------------------------------------------------------------
+    # Select (1)
+
+    # NyxNetwork::selectEntityFromGivenEntitiesOrNullUsingInteractiveInterface(items)
+    def self.selectEntityFromGivenEntitiesOrNullUsingInteractiveInterface(items)
+        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| LxFunction::function("toString", item) })
     end
 
     # NyxNetwork::selectExistingNetworkElementOrNull()
@@ -20,6 +21,27 @@ class NyxNetwork
     def self.interactivelyMakeNewOrNull()
         Nx100s::interactivelyIssueNewItemOrNull()
     end
+
+    # ---------------------------------------------------------------------
+    # Select (2)
+
+    # NyxNetwork::selectOneLinkedOrNull(uuid)
+    def self.selectOneLinkedOrNull(uuid)
+        linked = Links::linked(uuid)
+            .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("linked", linked, lambda{ |i| LxFunction::function("toString", i) })
+    end
+
+    # NyxNetwork::selectSubsetOfLinked(uuid)
+    def self.selectSubsetOfLinked(uuid)
+        linked = Links::linked(uuid)
+            .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        nodessubset, _ = LucilleCore::selectZeroOrMore("linked", [], linked, lambda{ |i| LxFunction::function("toString", i) })
+        nodessubset
+    end
+
+    # ---------------------------------------------------------------------
+    # Architect
 
     # NyxNetwork::architectOneOrNull()
     def self.architectOneOrNull()
@@ -63,8 +85,11 @@ class NyxNetwork
         end
     end
 
-    # NyxNetwork::linkToDesignatedOther(item, other)
-    def self.linkToDesignatedOther(item, other)
+    # ---------------------------------------------------------------------
+    # Link
+
+    # NyxNetwork::interactivelySelectLinkTypeAndLink(item, other)
+    def self.interactivelySelectLinkTypeAndLink(item, other)
         connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related (default)", "other is child"])
         if connectionType.nil? or connectionType == "other is related (default)" then
             Links::link(item["uuid"], other["uuid"], true)

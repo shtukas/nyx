@@ -424,27 +424,38 @@ class Nx100s
 
             if Interpreting::match("network transforms", command) then
                 operations = [
+                    "select linked subset and move to one of the linked",
                     "select target node, select subset from linked and move subset to that node as children"
                 ]
                 operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                 next if operation.nil?
-                if operation == "select target node, select subset from linked and move subset to that node as children" then
-                    targetnode = NyxNetwork::architectOneOrNull()
-
-                    if targetnode["uuid"] == item["uuid"] then
+                if operation == "select linked subset and move to one of the linked" then
+                    subset = NyxNetwork::selectSubsetOfLinked(item["uuid"])
+                    target = NyxNetwork::selectOneLinkedOrNull(item["uuid"])
+                    if target["uuid"] == item["uuid"] then
                         puts "The target node cannot be the node we are landed on"
                         LucilleCore::pressEnterToContinue()
                         next
                     end
-
-                    linked = Links::linked(item["uuid"])
-                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    nodessubset, _ = LucilleCore::selectZeroOrMore("linked", [], linked, lambda{ |i| LxFunction::function("toString", i) })
-                    nodessubset.each{|nodex|
-                        puts "relocating: #{LxFunction::function("toString", nodex)}"
-                        Links::unlink(item["uuid"], nodex["uuid"])
-                        Links::link(targetnode["uuid"], nodex["uuid"], false)
+                    subset.each{|i1|
+                        puts "relocating: #{LxFunction::function("toString", i1)}"
+                        Links::unlink(item["uuid"], i1["uuid"])
+                        Links::link(target["uuid"], i1["uuid"], false)
                     }
+                end
+                if operation == "select target node, select subset from linked and move subset to that node as children" then
+                    target = NyxNetwork::architectOneOrNull()
+                    if target["uuid"] == item["uuid"] then
+                        puts "The target node cannot be the node we are landed on"
+                        LucilleCore::pressEnterToContinue()
+                        next
+                    end
+                    NyxNetwork::selectSubsetOfLinked(item["uuid"])
+                        .each{|i1|
+                            puts "relocating: #{LxFunction::function("toString", i1)}"
+                            Links::link(target["uuid"], i1["uuid"], false)
+                            Links::unlink(item["uuid"], i1["uuid"])
+                        }
                 end
             end
 

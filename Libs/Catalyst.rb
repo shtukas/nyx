@@ -592,10 +592,10 @@ class Catalyst
 
             universe = StoredUniverse::getUniverseOrNull()
 
-            pileFilepath = "/Users/pascal/Desktop/Inbox/>pile"
+            pileFilepath = "/Users/pascal/Desktop/>pile"
             if File.exists?(pileFilepath) then
                 LucilleCore::locationsAtFolder(pileFilepath)
-                    .map{|location|
+                    .each{|location|
                         if File.basename(location).include?("'") then
                             location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", "")}"
                             #puts "Inbox renaming:"
@@ -604,7 +604,10 @@ class Catalyst
                             #FileUtils.mv(location, location2)
                             location = location2
                         end
-                        TxTodos::issuePile(location)
+                        puts "Issuing todo item from pile: #{File.basename(location)}"
+                        item = TxTodos::issuePile(location)
+                        puts JSON.pretty_generate(item)
+                        LucilleCore::removeFileSystemLocation(location)
                     }
             end
 
