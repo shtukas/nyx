@@ -169,7 +169,7 @@ class TxTodos
 
     # TxTodos::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(todo) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"]["type"]})"
+        "(todo) #{item["description"]} (#{item["iam"]["type"]})"
     end
 
     # TxTodos::toStringForNS19(item)
@@ -362,31 +362,36 @@ class TxTodos
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxTodo",
-            "announce" => TxTodos::toStringForNS16(nx50, rt).gsub("(0.00)", "      "),
+            "announce" => TxTodos::toStringForNS16(nx50, rt),
             "ordinal"  => nx50["ordinal"],
             "TxTodo"   => nx50,
             "rt"       => rt
         }
     end
 
+    # TxTodos::filterSection3(ns16)
+    def self.filterSection3(ns16)
+        ns16["rt"] < 1 or NxBallsService::isRunning(ns16["uuid"])
+    end
+
     # TxTodos::section2(universe)
     def self.section2(universe)
         TxTodos::itemsForNS16s(universe)
-            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .map{|item| TxTodos::ns16(item) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| !TxTodos::filterSection3(ns16) }
+            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .select{|item| item["rt"] > 1 }
+
     end
 
     # TxTodos::section3(universe)
     def self.section3(universe)
         TxTodos::itemsForNS16s(universe)
-            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .map{|item| TxTodos::ns16(item) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| TxTodos::filterSection3(ns16) }
+            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .select{|item| item["rt"] < 1 or NxBallsService::isRunning(item["uuid"]) }
+
     end
 
     # --------------------------------------------------

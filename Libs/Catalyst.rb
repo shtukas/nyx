@@ -524,13 +524,8 @@ class TerminalDisplayOperator
         end
         section2.each{|ns16|
             store.register(ns16, false)
-            line = nil
-            if NxBallsService::isActive(ns16["uuid"]) then
-                line = "#{store.prefixString()} #{ns16["announce"]} #{NxBallsService::activityStringOrEmptyString("(", ns16["uuid"], ")")}".green
-            else
-                line = "#{store.prefixString()} #{ns16["announce"]}".yellow
-            end
-            puts line
+            line = "#{store.prefixString()} #{ns16["announce"]}"
+            puts line.yellow
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
 

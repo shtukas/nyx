@@ -63,7 +63,7 @@ class TxFyres
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(fyre) (#{"%4.2f" % rt}) #{item["description"]} (#{item["iam"]["type"]}) (#{"%4.2f" % rt} of 1 hour)"
+        "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
     end
 
     # TxFyres::toStringForNS19(item)
@@ -223,17 +223,19 @@ class TxFyres
 
     # TxFyres::section3Filter(item)
     def self.section3Filter(item)
+        return true if NxBallsService::isRunning(item["uuid"])
         return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{item["uuid"]}")
-        BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1 or NxBallsService::isRunning(item["uuid"])
+        BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
     end
 
     # TxFyres::section2(universe)
     def self.section2(universe)
         TxFyres::itemsForUniverse(universe)
+            .select{|item| !TxFyres::section3Filter(item) }
             .map{|item|
                 uuid = item["uuid"]
                 rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                announce = TxFyres::toStringForNS16(item, rt).gsub("(0.00)", "      ")
+                announce = TxFyres::toStringForNS16(item, rt)
                 {
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
@@ -252,7 +254,7 @@ class TxFyres
             .map{|item| 
                 uuid = item["uuid"]
                 rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                announce = TxFyres::toStringForNS16(item, rt).gsub("(0.00)", "      ")
+                announce = TxFyres::toStringForNS16(item, rt)
                 {
                     "uuid"     => uuid,
                     "mikuType" => "NS16:TxFyre",
