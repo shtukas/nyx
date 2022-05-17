@@ -63,7 +63,8 @@ class Nx111
             "text",
             "url",
             "aion-point",
-            "unique-string"
+            "unique-string",
+            "primitive-file",
         ]
     end
 
