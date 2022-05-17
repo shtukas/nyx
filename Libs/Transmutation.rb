@@ -55,22 +55,22 @@ class Transmutation
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
         if source == "TxDated" and target == "TxFyre" then
             object["mikuType"] = "TxFyre"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::interactivelySetObjectUniverseMapping(object["uuid"])
             return
         end
 
         if source == "TxDated" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::interactivelySetObjectUniverseMapping(object["uuid"])
             return
         end
 
@@ -78,16 +78,16 @@ class Transmutation
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxDated"
             object["datetime"] = Utils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
         if source == "TxFloat" and target == "TxFyre" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
@@ -96,8 +96,8 @@ class Transmutation
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
@@ -106,24 +106,24 @@ class Transmutation
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
         if source == "TxFyre" and target == "TxFloat" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFloat"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 
         if source == "TxTodo" and target == "TxFyre" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
+            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian6ObjectsLocal::commit(object)
-            ObjectUniverseMapping::setObjectUniverseMapping(object["uuid"], universe)
             return
         end
 

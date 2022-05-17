@@ -10,10 +10,7 @@ class TxFyres
     # TxFyres::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
         TxFyres::items()
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
+            .select{|item| item["universe"] == universe }
     end
 
     # TxFyres::destroy(uuid)
@@ -46,10 +43,10 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"        => nx111
+          "iam"         => nx111,
+          "universe"    => universe
         }
         Librarian6ObjectsLocal::commit(item)
-        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
 
@@ -162,7 +159,8 @@ class TxFyres
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
+                item["universe"] = Multiverse::interactivelySelectUniverse()
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 

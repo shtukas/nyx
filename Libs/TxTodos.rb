@@ -10,10 +10,7 @@ class TxTodos
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
         TxTodos::items()
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
+            .select{|item| item["universe"] == universe }
     end
 
     # TxTodos::destroy(uuid)
@@ -23,24 +20,9 @@ class TxTodos
 
     # --------------------------------------------------
 
-    # TxTodos::itemsForNS16sMaintenance()
-    def self.itemsForNS16sMaintenance()
-        Multiverse::universes()
-            .each{|universe|
-                items = TxTodos::itemsForUniverse(universe).first(100)
-                XCache::set("13016616-9244-443e-86b5-24bbaea2b5b1:#{universe}", JSON.generate(items))
-            }
-    end
-
     # TxTodos::itemsForNS16s(universe)
     def self.itemsForNS16s(universe)
-        items = XCache::getOrNull("13016616-9244-443e-86b5-24bbaea2b5b1:#{universe}")
-        if items.nil? then
-            return []
-        end
-        JSON.parse(items)
-            .map{|item| Librarian6ObjectsLocal::getObjectByUUIDOrNull(item["uuid"]) }
-            .compact
+        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverseLimitByOrdinal("TxTodo", universe, 100)
     end
 
     # --------------------------------------------------
@@ -116,10 +98,10 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "iam"         => nx111,
-          "ordinal"     => ordinal
+          "ordinal"     => ordinal,
+          "universe"    => universe
         }
         Librarian6ObjectsLocal::commit(item)
-        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
 
@@ -147,10 +129,10 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "iam"         => nx111,
-          "ordinal"     => ordinal
+          "ordinal"     => ordinal,
+          "universe"    => universe
         }
         Librarian6ObjectsLocal::commit(item)
-        ObjectUniverseMapping::setObjectUniverseMapping(uuid, universe)
         item
     end
 
@@ -196,7 +178,7 @@ class TxTodos
             puts "#{TxTodos::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "iam: #{item["iam"]}".yellow
-            puts "universe: #{ObjectUniverseMapping::getObjectUniverseMappingOrNull(uuid)}".yellow
+            puts "universe: #{item["universe"]}".yellow
             puts "ordinal: #{item["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
@@ -262,7 +244,8 @@ class TxTodos
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
+                item["universe"] = Multiverse::interactivelySelectUniverse()
+                Librarian6ObjectsLocal::commit(item)
                 break
             end
 
@@ -270,8 +253,8 @@ class TxTodos
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 item["ordinal"] = ordinal
+                item["universe"] = Multiverse::interactivelySelectUniverse()
                 Librarian6ObjectsLocal::commit(item)
-                ObjectUniverseMapping::setObjectUniverseMapping(item["uuid"], universe)
                 next
             end
 
@@ -279,8 +262,8 @@ class TxTodos
                 universe = Multiverse::interactivelySelectUniverse()
                 ordinal = TxTodos::nextOrdinal(universe)
                 item["ordinal"] = ordinal
+                item["universe"] = Multiverse::interactivelySelectUniverse()
                 Librarian6ObjectsLocal::commit(item)
-                ObjectUniverseMapping::setObjectUniverseMapping(item["uuid"], universe)
                 break
             end
 
@@ -408,11 +391,3 @@ class TxTodos
             }
     end
 end
-
-Thread.new {
-    sleep 60 # 1 min
-    loop {
-        TxTodos::itemsForNS16sMaintenance()
-        sleep 600 # 10 mins
-    }
-}

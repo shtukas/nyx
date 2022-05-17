@@ -205,8 +205,8 @@ class Librarian6ObjectsLocal
         answer
     end
 
-    # Librarian6ObjectsLocal::getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
-    def self.getObjectsByMikuTypeLimitByOrdinal(mikuType, n)
+    # Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverseLimitByOrdinal(mikuType, universe, n)
+    def self.getObjectsByMikuTypeAndUniverseLimitByOrdinal(mikuType, universe, n)
 
         if Sx01Snapshots::snapshotIsDeployed() then
             return Sx01Snapshots::getDeployedSnapshotLibrarianObjects()
@@ -220,7 +220,7 @@ class Librarian6ObjectsLocal
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_ limit ?", [mikuType, n]) do |row|
+        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", [mikuType, universe, n]) do |row|
             answer << JSON.parse(row['_object_'])
         end
         db.close
@@ -240,11 +240,13 @@ class Librarian6ObjectsLocal
         end
 
         ordinal = object["ordinal"] || 0
-        object["librarianStorageTime"] = (1000*Time.new.to_f).to_i
+        if object["universe"].nil? then
+            object["universe"] = "backlog"
+        end
 
         db = SQLite3::Database.new(Librarian6ObjectsLocal::databaseFilepath())
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_) values (?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, object["universe"]]
         db.close
     end
 

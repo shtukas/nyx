@@ -12,10 +12,7 @@ class Waves
     # Waves::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
         Waves::items()
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe) 
-            }
+            .select{|item| item["universe"] == universe }
     end
 
     # Waves::destroy(uuid)
@@ -253,7 +250,8 @@ class Waves
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
+                item["universe"] = Multiverse::interactivelySelectUniverse()
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 

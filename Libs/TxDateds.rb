@@ -208,7 +208,8 @@ class TxDateds
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
+                item["universe"] = Multiverse::interactivelySelectUniverse()
+                Librarian6ObjectsLocal::commit(item)
                 next
             end
 

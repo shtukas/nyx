@@ -27,16 +27,18 @@ class TxFloats
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
 
+        universe = Multiverse::interactivelySelectUniverse()
+
         item = {
           "uuid"        => uuid,
           "mikuType"    => "TxFloat",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"        => nx111
+          "iam"         => nx111,
+          "universe"    => universe
         }
         Librarian6ObjectsLocal::commit(item)
-        ObjectUniverseMapping::interactivelySetObjectUniverseMapping(uuid)
         item
     end
 
@@ -131,7 +133,8 @@ class TxFloats
             end
 
             if Interpreting::match("universe", command) then
-                ObjectUniverseMapping::interactivelySetObjectUniverseMapping(item["uuid"])
+                item["universe"] = Multiverse::interactivelySelectUniverse()
+                Librarian6ObjectsLocal::commit(item)
                 break
             end
 
@@ -187,10 +190,7 @@ class TxFloats
     def self.ns16s(universe)
         return [] if universe.nil?
         TxFloats::items()
-            .select{|item| 
-                objuniverse = ObjectUniverseMapping::getObjectUniverseMappingOrNull(item["uuid"])
-                universe.nil? or objuniverse.nil? or (objuniverse == universe)
-            }
+            .select{|item| item["universe"] == universe }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }
     end
