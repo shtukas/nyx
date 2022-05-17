@@ -98,10 +98,6 @@ class TerminalUtils
             exit
         end
 
-        if Interpreting::match("fyre", input) then
-            return ["fyre", nil]
-        end
-
         if Interpreting::match("expose", input) then
             return ["expose", store.getDefault()]
         end
@@ -109,6 +105,17 @@ class TerminalUtils
         if Interpreting::match("expose *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
+        end
+
+        if Interpreting::match("fyre", input) then
+            return ["fyre", nil]
+        end
+
+        if input.start_with?("fyre:") then
+            message = input[5, input.length].strip
+            item = TxFyres::interactivelyCreateNewOrNull(message)
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
         end
 
         if Interpreting::match("rstream", input) then
