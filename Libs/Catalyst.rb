@@ -248,6 +248,18 @@ class TerminalUtils
             return ["today", nil]
         end
 
+        if Interpreting::match("time * *", input) then
+            _, ordinal, timenHours = Interpreting::tokenizer(input)
+            ns16 = store.get(ordinal.to_i)
+            return if ns16.nil?
+            object = {
+                "mikuType"    => "TimeInstructionAdd",
+                "ns16"        => ns16,
+                "timeInHours" => timenHours.to_f
+            }
+            return ["time", object]
+        end
+
         if input.start_with?("today:") then
             message = input[6, input.length].strip
             item = TxDateds::interactivelyCreateNewTodayOrNull(message)

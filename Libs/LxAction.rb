@@ -439,6 +439,25 @@ class LxAction
             return
         end
 
+        if command == "time" and object["mikuType"] == "TimeInstructionAdd" then
+            ns16 = object["ns16"]
+            timeInHours = object["timeInHours"]
+
+            if ns16["mikuType"] == "NS16:TxTodo" then
+                todo = ns16["TxTodo"]
+                puts "Adding #{timeInHours} hours to #{todo["uuid"]}"
+                Bank::put(todo["uuid"], timeInHours*3600)
+                return
+            end
+
+            if ns16["mikuType"] == "NS16:TxFyre" then
+                fyre = ns16["TxFyre"]
+                puts "Adding #{timeInHours} hours to #{fyre["uuid"]}"
+                Bank::put(fyre["uuid"], timeInHours*3600)
+                return
+            end
+        end
+
         if command == "today" then
             mx49 = TxDateds::interactivelyCreateNewTodayOrNull()
             return if mx49.nil?
