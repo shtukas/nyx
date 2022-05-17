@@ -420,25 +420,11 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "prob-blob" and ARGV[1] then
+        if ARGV[0] == "get-blob" and ARGV[1] then
             nhash = ARGV[1]
             blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
             if blob then
-                puts "Found a blob of size #{blob.size}"
-                LucilleCore::pressEnterToContinue()
-            else
-                puts "I could not find a blob with nhash: #{nhash}"
-                LucilleCore::pressEnterToContinue()
-            end
-            exit
-        end
-
-        if ARGV[0] == "echo-blob" and ARGV[1] then
-            nhash = ARGV[1]
-            blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
-            if blob then
-                puts JSON.pretty_generate(JSON.parse(blob))
-                LucilleCore::pressEnterToContinue()
+                puts blob
             else
                 puts "I could not find a blob with nhash: #{nhash}"
                 LucilleCore::pressEnterToContinue()
@@ -469,10 +455,9 @@ class LibrarianCLI
         puts "    librarian fsck@infinity"
         puts "    librarian alexandra-infinity-sync+fsck@infinity"
         puts "    librarian make-system-snapshot"
+        puts "    librarian get-blob <nhash>"
         puts "    librarian show-object <uuid>"
         puts "    librarian edit-object <uuid>"
-        puts "    librarian prob-blob <nhash>"
-        puts "    librarian echo-blob <nhash>"
         puts "    librarian reset-fsck-run-hash"
         puts "    librarian fsck-object <uuid>"
         puts "    librarian destroy-object-by-uuid-i"
