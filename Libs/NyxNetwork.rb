@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$NavigationSandboxState = nil
+
 class NyxNetwork
 
     # ---------------------------------------------------------------------
@@ -15,6 +17,25 @@ class NyxNetwork
         nx20 = Search::interativeInterfaceSelectNx20OrNull()
         return nil if nx20.nil?
         nx20["payload"]
+    end
+
+    # NyxNetwork::selectNodesUsingNavigationSandboxOrNull()
+    def self.selectNodesUsingNavigationSandboxOrNull()
+        system("clear")
+        puts "Navigation sandbox for selecting a node. When found type 'found' in a landing position, otherwise type 'exit'".green
+        LucilleCore::pressEnterToContinue()
+        $NavigationSandboxState = ["active"]
+        loop {
+            nx20 = Search::interativeInterfaceSelectNx20OrNull()
+            next if nx20.nil?
+            LxAction::action("landing", nx20["payload"])
+            if $NavigationSandboxState[0] == "found" then
+                return $NavigationSandboxState[1]
+            end
+            if $NavigationSandboxState[0] == "exit" then
+                return nil
+            end
+        }
     end
 
     # NyxNetwork::interactivelyMakeNewOrNull()
@@ -51,7 +72,7 @@ class NyxNetwork
         if operation == "existing || new" then
             puts "-> existing"
             sleep 1
-            entity = NyxNetwork::selectExistingNetworkElementOrNull()
+            entity = NyxNetwork::selectNodesUsingNavigationSandboxOrNull()
             return entity if entity
             puts "-> new"
             sleep 1
@@ -70,7 +91,7 @@ class NyxNetwork
         if operation == "existing || new" then
             puts "-> existing"
             sleep 1
-            entity = NyxNetwork::selectExistingNetworkElementOrNull()
+            entity = NyxNetwork::selectNodesUsingNavigationSandboxOrNull()
             return [entity] if entity
             puts "-> new"
             sleep 1

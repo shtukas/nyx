@@ -243,6 +243,10 @@ class Nx100s
 
             Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
 
+            if $NavigationSandboxState then
+                puts "!! Selection sandbox, type `found` or `exit` !!".green
+            end
+
             uuid = item["uuid"]
 
             store = ItemStore.new()
@@ -309,6 +313,16 @@ class Nx100s
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == ""
+
+            if $NavigationSandboxState and command == "found" then
+                $NavigationSandboxState = ["found", item.clone]
+                return
+            end
+
+            if $NavigationSandboxState and command == "exit" then
+                $NavigationSandboxState = ["exit"]
+                return
+            end
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
