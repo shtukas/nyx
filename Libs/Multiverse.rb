@@ -48,6 +48,9 @@ class UniverseMonitor
 
     # UniverseMonitor::naturalUniverseForThisTime()
     def self.naturalUniverseForThisTime()
+        return "backlog" if [6, 0].include?(Time.new.wday) # week end
+        return "backlog" if Time.new.hour < 9
+        return "backlog" if Time.new.hour >= 16
         "work"
     end
 
