@@ -482,9 +482,13 @@ class TerminalDisplayOperator
         store = ItemStore.new()
 
         if !InternetStatus::internetIsActive() then
-            puts ""
             puts "INTERNET IS OFF".green
             vspaceleft = vspaceleft - 2
+        end
+
+        if (message = UniverseMonitor::listingMessageOrNull()) then
+            puts "-> #{message}".green
+            vspaceleft = vspaceleft - 1
         end
 
         if floats.size>0 then

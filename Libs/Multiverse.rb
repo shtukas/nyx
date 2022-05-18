@@ -43,3 +43,21 @@ class StoredUniverse
         StoredUniverse::setUniverse(universe)
     end
 end
+
+class UniverseMonitor
+
+    # UniverseMonitor::naturalUniverseForThisTime()
+    def self.naturalUniverseForThisTime()
+        "work"
+    end
+
+    # UniverseMonitor::listingMessageOrNull()
+    def self.listingMessageOrNull()
+        universe = UniverseMonitor::naturalUniverseForThisTime()
+        if universe != StoredUniverse::getUniverseOrNull() then
+            "We should be on universe #{universe}"
+        else
+            nil
+        end
+    end
+end
