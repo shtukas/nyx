@@ -30,9 +30,12 @@ class NyxNetwork
             next if nx20.nil?
             LxAction::action("landing", nx20["payload"])
             if $NavigationSandboxState[0] == "found" then
-                return $NavigationSandboxState[1]
+                found = $NavigationSandboxState[1]
+                $NavigationSandboxState = nil
+                return found
             end
             if $NavigationSandboxState[0] == "exit" then
+                $NavigationSandboxState = nil
                 return nil
             end
         }
