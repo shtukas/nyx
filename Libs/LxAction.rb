@@ -361,6 +361,11 @@ class LxAction
                 LxAction::action("landing", o)
                 return
             end
+
+            if object["mikuType"] == "Wave" then
+                Waves::landing(object)
+                return
+            end
         end
 
         if command == "librarian" then
