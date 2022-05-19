@@ -1,0 +1,31 @@
+
+The following instructions have been taken from "How to Write Go Code" ( https://golang.org/doc/code )
+
+So go now uses this notion of modules
+
+$ mkdir hello
+$ cd hello
+$ go mod init example.com/user/hello
+$ go mod init github.com/shtukas/didact
+
+-- hello.go ------------------
+
+package main
+
+import "fmt"
+
+func main() {
+    fmt.Println("Hello, world.")
+}
+
+------------------------------
+
+$ go run hello.go
+
+$ go run . # Noticed that here: https://golang.org/doc/tutorial/call-module-code
+
+$ go test
+
+$ go build
+
+$ go install # moves the file to $GOBIN, currently set to /Users/pascal/.local/bin

@@ -1,9 +1,0 @@
-
-# The below only runs the thing without building the executable
-$ go run hello-world.go
-
-# This builds and creates the file "hello-world"
-
-$ go build hello-world.go
-$ ./hello-world
-

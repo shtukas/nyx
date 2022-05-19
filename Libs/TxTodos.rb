@@ -373,7 +373,6 @@ class TxTodos
             .select{|ns16| TxTodos::filterSection3(ns16) }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-
     end
 
     # --------------------------------------------------
