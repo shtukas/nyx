@@ -353,7 +353,7 @@ class TxTodos
 
     # TxTodos::filterSection3(ns16)
     def self.filterSection3(ns16)
-        ns16["rt"] < 1 or NxBallsService::isRunning(ns16["uuid"])
+        ns16["rt"] < 1 or NxBallsService::isActive(ns16["uuid"])
     end
 
     # TxTodos::section2(universe)

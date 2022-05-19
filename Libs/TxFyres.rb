@@ -220,7 +220,7 @@ class TxFyres
 
     # TxFyres::section3Filter(item)
     def self.section3Filter(item)
-        return true if NxBallsService::isRunning(item["uuid"])
+        return true if NxBallsService::isActive(item["uuid"])
         return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{item["uuid"]}")
         BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
     end
