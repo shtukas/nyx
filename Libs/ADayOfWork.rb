@@ -2,6 +2,15 @@
 
 class ADayOfWork
 
+    # ADayOfWork::universes()
+    def self.universes()
+        if Time.new.hour >= 8 and Time.new.hour <= 16 then
+            ["work", "backlog"]
+        else
+            ["backlog"]
+        end
+    end
+
     # ADayOfWork::workExpectationInHours()
     def self.workExpectationInHours()
         5
@@ -9,6 +18,7 @@ class ADayOfWork
 
     # ADayOfWork::getTodayWorkGlobalCommitmentOrNull()
     def self.getTodayWorkGlobalCommitmentOrNull()
+        return nil if !ADayOfWork::universes().include?("work")
         date = Utils::today()
         object = XCache::getOrNull("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}")
         if object then
@@ -81,7 +91,7 @@ class ADayOfWork
     def self.getCoreUUIDs(date)
         uuids = XCache::getOrNull("276dc0b9-222c-4dd7-ba8f-88561678ab4a:#{date}")
         return JSON.parse(uuids) if uuids
-        ns16s = ADayOfWork::getNS16sForUniverse("backlog") + ADayOfWork::getNS16sForUniverse("work")
+        ns16s = ADayOfWork::universes().map{|universe| ADayOfWork::getNS16sForUniverse(universe) }.flatten
         ns16s = ADayOfWork::removeRedundancy(ns16s)
         uuids = ns16s.map{|ns16| ns16["uuid"] }
         XCache::set("276dc0b9-222c-4dd7-ba8f-88561678ab4a:#{date}", JSON.generate(uuids))
@@ -93,8 +103,8 @@ class ADayOfWork
         date = Utils::today()
         coreuuids = ADayOfWork::getCoreUUIDs(date)
         ns16s0 = [ADayOfWork::getTodayWorkGlobalCommitmentOrNull()].compact
-        ns16s1 = (ADayOfWork::getHighPriorityNS16sForUniverse("backlog") + ADayOfWork::getHighPriorityNS16sForUniverse("work"))
-        ns16s2 = (ADayOfWork::getNS16sForUniverse("backlog") + ADayOfWork::getNS16sForUniverse("work"))
+        ns16s1 = ADayOfWork::universes().map{|universe| ADayOfWork::getHighPriorityNS16sForUniverse(universe) }.flatten
+        ns16s2 = ADayOfWork::universes().map{|universe| ADayOfWork::getNS16sForUniverse(universe) }.flatten
                     .select{|ns16| coreuuids.include?(ns16["uuid"]) }
         ADayOfWork::removeRedundancy(ns16s0+ns16s1+ns16s2)
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
