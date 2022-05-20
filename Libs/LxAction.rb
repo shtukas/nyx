@@ -469,6 +469,12 @@ class LxAction
                 Bank::put(fyre["uuid"], timeInHours*3600)
                 return
             end
+
+            if ns16["mikuType"] == "Tx0930" then
+                puts "Adding #{timeInHours} hours to work global commitment"
+                Bank::put(ns16["uuid"], timeInHours*3600)
+                return
+            end
         end
 
         if command == "today" then

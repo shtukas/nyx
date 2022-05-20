@@ -681,7 +681,6 @@ class Catalyst
             ns16s = ADayOfWork::getNS16s()
 
             section2Filter = lambda {|ns16|
-                return true if ns16["mikuType"] == "Tx0930"
                 return false if NxBallsService::isActive(ns16["uuid"])
                 return false if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
                 return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{ns16["uuid"]}")
