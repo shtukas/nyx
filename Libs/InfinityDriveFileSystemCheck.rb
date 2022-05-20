@@ -178,6 +178,16 @@ class InfinityDriveFileSystemCheck
             return
         end
 
+        if item["mikuType"] == "Ax1Text" then
+            nhash = item["nhash"]
+            if InfinityDatablobs_PureDrive::getBlobOrNull(nhash).nil? then
+                puts "nhash, blob not found".red
+                puts JSON.pretty_generate(item).red
+                exit
+            end
+            return
+        end
+
         puts JSON.pretty_generate(item).red
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
     end
