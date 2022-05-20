@@ -4,7 +4,7 @@
 $AlexandraDidactSynchronizationCatalystDataRsync = <<COMMAND
 /usr/local/bin/rsync --xattrs --times --recursive --omit-dir-times --links --hard-links --delete --delete-excluded --verbose --human-readable --itemize-changes \
     "/Users/pascal/Galaxy/DataBank/Didact/Catalyst/" \
-    "/Volumes/Infinity/Data/Pascal/Ur-Didact/Catalyst"
+    "/Volumes/Infinity/Data/Pascal/Ur-Didact-Central/Catalyst"
 COMMAND
 
 class AlexandraDidactSynchronization
