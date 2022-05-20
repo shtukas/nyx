@@ -10,7 +10,7 @@ class ADayOfWork
     # ADayOfWork::getTodayWorkGlobalCommitmentOrNull()
     def self.getTodayWorkGlobalCommitmentOrNull()
         date = Utils::today()
-        object = XCache::getOrNull("0b75dc91-a4ef-4f88-8a35-9fd033aaf0a9:#{date}")
+        object = XCache::getOrNull("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}")
         if object then
             object = JSON.parse(object)
             done_ = Bank::valueAtDate(object["uuid"], date)
@@ -22,9 +22,10 @@ class ADayOfWork
         object = {
             "uuid"        => SecureRandom.hex,
             "mikuType"    => "Tx0930",
-            "announce"    => "Work global commitment (awaiting first start)"
+            "announce"    => "Work global commitment (awaiting first start)",
+            "nonListingDefaultable" => true
         }
-        XCache::set("0b75dc91-a4ef-4f88-8a35-9fd033aaf0a9:#{date}", JSON.generate(object))
+        XCache::set("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}", JSON.generate(object))
         object
     end
 
@@ -33,7 +34,7 @@ class ADayOfWork
         object = ADayOfWork::getTodayWorkGlobalCommitmentOrNull()
         return if object.nil?
         object["secondsleft"] = object["secondsleft"] - timeInSeconds
-        XCache::set("0b75dc91-a4ef-4f88-8a35-9fd033aaf0a9:#{date}", JSON.generate(object))
+        XCache::set("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}", JSON.generate(object))
     end
 
     # ---------------------------------------------------------------------------------------------

@@ -427,6 +427,23 @@ end
 
 class TerminalDisplayOperator
 
+    # TerminalDisplayOperator::printSection(store, ns16s, vspaceleft)
+    def self.printSection(store, ns16s, vspaceleft)
+        ns16s
+            .each{|ns16|
+                store.register(ns16, Defaultability::isDefaultable(ns16))
+                line = ns16["announce"]
+                line = "#{store.prefixString()} #{line}"
+                break if (vspaceleft - Utils::verticalSize(line)) < 0
+                if NxBallsService::isActive(ns16["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - Utils::verticalSize(line)
+            }
+        vspaceleft
+    end
+
     # TerminalDisplayOperator::standardDisplay(programname, universe, floats, section2, section3)
     def self.standardDisplay(programname, universe, floats, section2, section3)
         system("clear")
@@ -531,20 +548,6 @@ class TerminalDisplayOperator
                     vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
 
-        if section2.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-        section2.each{|ns16|
-            store.register(ns16, false)
-            line = "#{store.prefixString()} #{ns16["announce"]}"
-            if NxBallsService::isActive(ns16["uuid"]) then
-                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
-            end
-            puts line
-            vspaceleft = vspaceleft - Utils::verticalSize(line)
-        }
-
         top = Topping::getText(universe)
         if top and top.strip.size > 0 then
             puts ""
@@ -554,22 +557,12 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
         end
 
-        if section3.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
+        vspaceleft = TerminalDisplayOperator::printSection(store, section2, vspaceleft)
+
+        if section3.size > 0 then
+            puts "-------------------------------------------------------------------------"
+            vspaceleft = TerminalDisplayOperator::printSection(store, section3, vspaceleft)
         end
-        section3
-            .each{|ns16|
-                store.register(ns16, Defaultability::isDefaultable(ns16))
-                line = ns16["announce"]
-                line = "#{store.prefixString()} #{line}"
-                break if (vspaceleft - Utils::verticalSize(line)) < 0
-                if NxBallsService::isActive(ns16["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
-            }
 
         puts ""
 
@@ -681,27 +674,17 @@ class Catalyst
             ns16s = ADayOfWork::getNS16s()
 
             section2Filter = lambda {|ns16|
-                return false if NxBallsService::isActive(ns16["uuid"])
-                return false if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
-                return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{ns16["uuid"]}")
-                BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) > 1
+                return true if NxBallsService::isActive(ns16["uuid"])
+                return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{ns16["uuid"]}")
+                !( ["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"]) and BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) > 1 )
             }
 
             section2, section3 = ns16s.partition{|ns16| section2Filter.call(ns16) }
+            p1, p2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
+            section2 = p1 + p2
+            section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-            section2BottomFilter = lambda {|ns16|
-                !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
-            }
-
-            section3_p1, section3_p2 = section3.partition{|ns16| section2BottomFilter.call(ns16) }
-
-            section3_p2 = section3_p2.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-
-            section3 = section3_p1 + section3_p2
-
-            section3_p1, section3_p2 = section3.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-
-            TerminalDisplayOperator::standardDisplay("program2", universe, floats, section2, section3_p1 + section3_p2)
+            TerminalDisplayOperator::standardDisplay("program2", universe, floats, section2, section3)
         }
     end
 end
