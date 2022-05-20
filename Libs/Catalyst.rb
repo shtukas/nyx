@@ -587,8 +587,8 @@ end
 
 class Catalyst
 
-    # Catalyst::program()
-    def self.program()
+    # Catalyst::program1()
+    def self.program1()
         initialCodeTrace = Utils::codeTrace()
         loop {
             if Utils::codeTrace() != initialCodeTrace then
@@ -629,6 +629,63 @@ class Catalyst
             section3 = section3_1 + section3_2
 
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
+        }
+    end
+
+    # Catalyst::program2()
+    def self.program2()
+        initialCodeTrace = Utils::codeTrace()
+        loop {
+            if Utils::codeTrace() != initialCodeTrace then
+                puts "Code change detected"
+                break
+            end
+
+            universe = StoredUniverse::getUniverseOrNull()
+
+            pileFilepath = "/Users/pascal/Desktop/>pile"
+            if File.exists?(pileFilepath) then
+                LucilleCore::locationsAtFolder(pileFilepath)
+                    .each{|location|
+                        if File.basename(location).include?("'") then
+                            location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", "")}"
+                            #puts "Inbox renaming:"
+                            #puts "    #{location}"
+                            #puts "    #{location2}"
+                            #FileUtils.mv(location, location2)
+                            location = location2
+                        end
+                        puts "Issuing todo item from pile: #{File.basename(location)}"
+                        item = TxTodos::issuePile(location)
+                        puts JSON.pretty_generate(item)
+                        LucilleCore::removeFileSystemLocation(location)
+                    }
+            end
+
+            floats = (TxFloats::ns16s("backlog") + TxFloats::ns16s("work"))
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                        .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+
+            ns16s = ADayOfWork::getNS16s()
+
+            section2Filter = lambda {|ns16|
+                return false if NxBallsService::isActive(ns16["uuid"])
+                return false if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
+                return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{ns16["uuid"]}")
+                BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) > 1
+            }
+
+            section2, section3 = ns16s.partition{|ns16| section2Filter.call(ns16) }
+
+            section2BottomFilter = lambda {|ns16|
+                !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
+            }
+
+            section3_p1, section3_p2 = section3.partition{|ns16| section2BottomFilter.call(ns16) }
+
+            section3_p2 = section3_p2.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+
+            TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3_p1 + section3_p2)
         }
     end
 end

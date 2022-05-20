@@ -1,0 +1,16 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+Thread.new {
+    loop {
+        sleep 3600
+        system("#{File.dirname(__FILE__)}/vienna-import")
+    }
+}
+
+Catalyst::program2()

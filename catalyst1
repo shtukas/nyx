@@ -13,4 +13,4 @@ Thread.new {
     }
 }
 
-Catalyst::program()
+Catalyst::program1()

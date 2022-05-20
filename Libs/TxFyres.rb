@@ -263,6 +263,24 @@ class TxFyres
             .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
     end
 
+    # TxFyres::ns16s(universe)
+    def self.ns16s(universe)
+        TxFyres::itemsForUniverse(universe)
+            .map{|item| 
+                uuid = item["uuid"]
+                rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+                announce = TxFyres::toStringForNS16(item, rt)
+                {
+                    "uuid"     => uuid,
+                    "mikuType" => "NS16:TxFyre",
+                    "announce" => announce,
+                    "TxFyre"   => item,
+                    "rt"       => rt
+                }
+            }
+            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+    end
+
     # --------------------------------------------------
 
     # TxFyres::nx20s()

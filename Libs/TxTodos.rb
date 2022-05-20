@@ -375,6 +375,14 @@ class TxTodos
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end
 
+    # TxTodos::ns16s(universe)
+    def self.ns16s(universe)
+        TxTodos::itemsForNS16s(universe)
+            .map{|item| TxTodos::ns16(item) }
+            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    end
+
     # --------------------------------------------------
 
     # TxTodos::nx20s()

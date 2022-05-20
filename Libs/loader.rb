@@ -129,6 +129,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 # ------------------------------------------------------------
 
+require_relative "ADayOfWork.rb"
 require_relative "AlexandraDidactSynchronization.rb"
 require_relative "Anniversaries.rb"
 require_relative "Ax1Text.rb"
