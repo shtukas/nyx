@@ -270,6 +270,8 @@ class Librarian6ObjectsLocal
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, object["universe"]]
         db.close
+
+        Librarian18ObjectLog::logObject(object)
     end
 
     # Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
@@ -308,6 +310,13 @@ class Librarian6ObjectsLocal
         db.busy_handler { |count| true }
         db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
         db.close
+
+        deletionObject = {
+            "uuid"     => uuid,
+            "deletion" => true
+        }
+        Librarian18ObjectLog::logObject(deletionObject)
+
     end
 end
 
@@ -382,6 +391,23 @@ end
 # ---------------------------------------------------------------------------
 # 
 # ---------------------------------------------------------------------------
+
+class Librarian18ObjectLog
+
+    # Librarian18ObjectLog::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Config::pathToLocalDidact()}/objects-global-log.sqlite3"
+    end
+
+    # Librarian18ObjectLog::logObject(object)
+    def self.logObject(object)
+        recorduuid = SecureRandom.uuid
+        recordtime = Time.new.to_f
+        db = SQLite3::Database.new(Librarian18ObjectLog::databaseFilepath())
+        db.execute "insert into _objectslog_ (_recorduuid_, _recordtime_, _objectuuid_, _object_) values (?,?,?,?)", [recorduuid, recordtime, object["uuid"], JSON.generate(object)]
+        db.close
+    end
+end
 
 class LibrarianCLI
 
