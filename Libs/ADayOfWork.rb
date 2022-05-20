@@ -44,8 +44,8 @@ class ADayOfWork
         [
             Anniversaries::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            TxDateds::ns16s(),
             Waves::ns16sHighPriority(universe),
+            TxDateds::ns16s(),
             Inbox::ns16s(),
             Waves::ns16sLowerPriority(universe),
             TxFyres::ns16s(universe),
@@ -58,8 +58,8 @@ class ADayOfWork
         [
             Anniversaries::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            TxDateds::ns16s(),
             Waves::ns16sHighPriority(universe),
+            TxDateds::ns16s(),
             Inbox::ns16s(),
             TxFyres::ns16s(universe)
         ].flatten
@@ -93,9 +93,9 @@ class ADayOfWork
         date = Utils::today()
         coreuuids = ADayOfWork::getCoreUUIDs(date)
         ns16s0 = [ADayOfWork::getTodayWorkGlobalCommitmentOrNull()].compact
-        ns16s1 = (ADayOfWork::getNS16sForUniverse("backlog") + ADayOfWork::getNS16sForUniverse("work"))
+        ns16s1 = (ADayOfWork::getHighPriorityNS16sForUniverse("backlog") + ADayOfWork::getHighPriorityNS16sForUniverse("work"))
+        ns16s2 = (ADayOfWork::getNS16sForUniverse("backlog") + ADayOfWork::getNS16sForUniverse("work"))
                     .select{|ns16| coreuuids.include?(ns16["uuid"]) }
-        ns16s2 = (ADayOfWork::getHighPriorityNS16sForUniverse("backlog") + ADayOfWork::getHighPriorityNS16sForUniverse("work"))
         ADayOfWork::removeRedundancy(ns16s0+ns16s1+ns16s2)
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
