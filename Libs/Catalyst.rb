@@ -427,8 +427,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
-    def self.standardDisplay(universe, floats, section2, section3)
+    # TerminalDisplayOperator::standardDisplay(programname, universe, floats, section2, section3)
+    def self.standardDisplay(programname, universe, floats, section2, section3)
         system("clear")
 
         #reference = {
@@ -470,6 +470,13 @@ class TerminalDisplayOperator
         end
 
         puts ""
+
+        if programname == "program2" then
+            puts ":: program2 ::"
+            puts ""
+            vspaceleft = vspaceleft - 2
+        end
+
         reference = getReference.call()
         current   = getCurrent.call()
         ratio     = current.to_f/reference["count"]
@@ -486,9 +493,11 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 2
         end
 
-        if (message = UniverseMonitor::listingMessageOrNull()) then
-            puts "-> #{message}".green
-            vspaceleft = vspaceleft - 1
+        if programname == "program1" then
+            if (message = UniverseMonitor::listingMessageOrNull()) then
+                puts "-> #{message}".green
+                vspaceleft = vspaceleft - 1
+            end
         end
 
         if floats.size>0 then
@@ -631,7 +640,7 @@ class Catalyst
             section3_1, section3_2 = section3.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
             section3 = section3_1 + section3_2
 
-            TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3)
+            TerminalDisplayOperator::standardDisplay("program1", universe, floats, section2, section3)
         }
     end
 
@@ -693,7 +702,7 @@ class Catalyst
 
             section3_p1, section3_p2 = section3.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
 
-            TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3_p1 + section3_p2)
+            TerminalDisplayOperator::standardDisplay("program2", universe, floats, section2, section3_p1 + section3_p2)
         }
     end
 end
