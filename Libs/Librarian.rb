@@ -324,7 +324,7 @@ class Librarian7ObjectsInfinity
 
     # Librarian7ObjectsInfinity::databaseFilepath()
     def self.databaseFilepath()
-        "#{Config::pathToInfinityDidact()}/objects.sqlite3"
+        "#{Config::pathToInfinityDidactDataBankType1()}/objects.sqlite3"
     end
 
     # ------------------------------------------------------------------------

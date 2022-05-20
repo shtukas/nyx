@@ -1,12 +1,6 @@
 
 # encoding: UTF-8
 
-$AlexandraDidactSynchronizationCatalystDataRsync = <<COMMAND
-/usr/local/bin/rsync --xattrs --times --recursive --omit-dir-times --links --hard-links --delete --delete-excluded --verbose --human-readable --itemize-changes \
-    "/Users/pascal/Galaxy/DataBank/Didact/Catalyst/" \
-    "/Volumes/Infinity/Data/Pascal/Ur-Didact-Central/Catalyst"
-COMMAND
-
 class AlexandraDidactSynchronization
 
     # AlexandraDidactSynchronization::run()
@@ -75,11 +69,6 @@ class AlexandraDidactSynchronization
         # At the moment, objects are held in a sqlite database. We simply override it.
         puts "Update objects database on drive".green
         FileUtils.cp(Librarian6ObjectsLocal::databaseFilepath(), Librarian7ObjectsInfinity::databaseFilepath())
-
-        # --------------------------------------------------------------------------------------
-
-        puts "Rsync Didact / Catalyst data".green
-        system($AlexandraDidactSynchronizationCatalystDataRsync) or raise "(error: 7bf44899-8bb2-47f2-be7b-c38e95b8543c)"
 
         # --------------------------------------------------------------------------------------
 

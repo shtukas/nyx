@@ -4,7 +4,7 @@
 class Dx8UnitsUtils
     # Dx8UnitsUtils::infinityRepository()
     def self.infinityRepository()
-        "#{Config::pathToInfinityDidact()}/Dx8Units"
+        "#{Config::pathToInfinityDidactDataBankType1()}/Dx8Units"
     end
 
     # Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)
