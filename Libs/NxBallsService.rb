@@ -65,11 +65,11 @@ class NxBallsService
         NxBallsService::issue(uuid, nxball["description"], nxball["accounts"])
     end
 
-    # NxBallsService::pause(uuid)
+    # NxBallsService::pause(uuid) # timespan in seconds or null
     def self.pause(uuid)
         nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
-        return if nxball.nil?
-        NxBallsService::close(uuid, true)
+        return nil if nxball.nil?
+        timespan = NxBallsService::close(uuid, true)
         nxball = {
             "uuid" => nxball["uuid"],
             "mikuType" => "NxBall.v2",
@@ -81,12 +81,14 @@ class NxBallsService
             "accounts" => nxball["accounts"]
         }
         XCacheSets::set("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
+        timespan
     end
 
-    # NxBallsService::close(uuid, verbose)
+    # NxBallsService::close(uuid, verbose) # timespan in seconds or null
     def self.close(uuid, verbose)
         nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
-        return if nxball.nil?
+        return nil if nxball.nil?
+        timespan = nil
         if nxball["status"]["type"] == "running" then
             if verbose then
                 puts "(#{Time.new.to_s}) Running for #{((Time.new.to_i-nxball["status"]["startUnixtime"]).to_f/3600).round(2)} hours"
@@ -104,6 +106,7 @@ class NxBallsService
             end
         end
         XCacheSets::destroy("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        timespan
     end
 
     # NxBallsService::closeWithAsking(uuid)

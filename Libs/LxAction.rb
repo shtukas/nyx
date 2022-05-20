@@ -391,8 +391,12 @@ class LxAction
         end
 
         if command == "pause" then
-            ns16 = object
-            NxBallsService::pause(ns16["uuid"])
+            timespan = NxBallsService::pause(object["uuid"])
+            if timespan then
+                if object["mikuType"] == "Tx0930" then
+                    ADayOfWork::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
+                end
+            end
             return
         end
 
@@ -439,8 +443,12 @@ class LxAction
         end
 
         if command == "stop" then
-            ns16 = object
-            NxBallsService::close(ns16["uuid"], true)
+            timespan = NxBallsService::close(object["uuid"], true)
+            if timespan then
+                if object["mikuType"] == "Tx0930" then
+                    ADayOfWork::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
+                end
+            end
             return
         end
 

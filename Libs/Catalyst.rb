@@ -517,7 +517,7 @@ class TerminalDisplayOperator
                         "mikuType"   => "NxBallNS16Delegate1" 
                     }
                     store.register(delegate, true)
-                    line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})".green
+                    line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                     puts line
                     vspaceleft = vspaceleft - Utils::verticalSize(line)
                 }
@@ -529,7 +529,10 @@ class TerminalDisplayOperator
         section2.each{|ns16|
             store.register(ns16, false)
             line = "#{store.prefixString()} #{ns16["announce"]}"
-            puts line.yellow
+            if NxBallsService::isActive(ns16["uuid"]) then
+                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
+            end
+            puts line
             vspaceleft = vspaceleft - Utils::verticalSize(line)
         }
 
@@ -669,6 +672,7 @@ class Catalyst
             ns16s = ADayOfWork::getNS16s()
 
             section2Filter = lambda {|ns16|
+                return true if ns16["mikuType"] == "Tx0930"
                 return false if NxBallsService::isActive(ns16["uuid"])
                 return false if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
                 return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{ns16["uuid"]}")
@@ -684,6 +688,10 @@ class Catalyst
             section3_p1, section3_p2 = section3.partition{|ns16| section2BottomFilter.call(ns16) }
 
             section3_p2 = section3_p2.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+
+            section3 = section3_p1 + section3_p2
+
+            section3_p1, section3_p2 = section3.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
 
             TerminalDisplayOperator::standardDisplay(universe, floats, section2, section3_p1 + section3_p2)
         }
