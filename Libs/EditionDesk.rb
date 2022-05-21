@@ -230,17 +230,24 @@ class EditionDesk
             return
         end
         if nx111["type"] == "Dx8Unit" then
+
+            accessDx8UnitFolderLocation = lambda {|location|
+                InfinityDrive::ensureInfinityDrive()
+                system("open '#{location}'")
+                LucilleCore::pressEnterToContinue()
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy Dx8Unit folder ? ") then
+                    LucilleCore::removeFileSystemLocation(location)
+                end
+            }
+
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
             if File.exists?(Dx8UnitsUtils::infinityRepository()) then
-                system("open '#{location}'")
-                LucilleCore::pressEnterToContinue()
+                accessDx8UnitFolderLocation.call(location)
             else
                 if LucilleCore::askQuestionAnswerAsBoolean("Infinity drive is not connected, want to access ? ") then
-                    InfinityDrive::ensureInfinityDrive()
-                    system("open '#{location}'")
-                    LucilleCore::pressEnterToContinue()
+                    accessDx8UnitFolderLocation.call(location)
                 else
                     puts "Ok, not accessing the file."
                 end
