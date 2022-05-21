@@ -301,6 +301,7 @@ class TxTodos
             LxAction::action("start", item)
             LxAction::action("access", item)
             loop {
+                return if The99Percent::ratio() < 0.99
                 command = LucilleCore::askQuestionAnswerAsString("next (default), done, landing (and back), exit, run (and exit rstream): ")
                 if command == "" then
                     LxAction::action("stop", item)

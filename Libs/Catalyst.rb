@@ -460,6 +460,13 @@ class The99Percent
     def self.getCurrentCount()
         TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
     end
+
+    # The99Percent::ratio()
+    def self.ratio()
+        reference = The99Percent::getReference()
+        current   = The99Percent::getCurrentCount()
+        current.to_f/reference["count"]
+    end
 end
 
 class TerminalDisplayOperator
