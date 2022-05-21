@@ -4,24 +4,24 @@ class TxTodos
 
     # TxTodos::items()
     def self.items()
-        Librarian6ObjectsLocal::getObjectsByMikuType("TxTodo")
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("TxTodo")
     end
 
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
     end
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6ObjectsLocal::destroy(uuid)
+        Librarian19InMemoryObjectDatabase::destroy(uuid)
     end
 
     # --------------------------------------------------
 
     # TxTodos::itemsForNS16s(universe)
     def self.itemsForNS16s(universe)
-        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverseLimitByOrdinal("TxTodo", universe, 100)
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuTypeAndUniverseByOrdinalLimit("TxTodo", universe, 100)
     end
 
     # --------------------------------------------------
@@ -100,7 +100,7 @@ class TxTodos
           "ordinal"     => ordinal,
           "universe"    => universe
         }
-        Librarian6ObjectsLocal::commit(item)
+        Librarian19InMemoryObjectDatabase::commit(item)
         item
     end
 
@@ -131,7 +131,7 @@ class TxTodos
           "ordinal"     => ordinal,
           "universe"    => universe
         }
-        Librarian6ObjectsLocal::commit(item)
+        Librarian19InMemoryObjectDatabase::commit(item)
         item
     end
 
@@ -222,7 +222,7 @@ class TxTodos
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 next
             end
 
@@ -232,7 +232,7 @@ class TxTodos
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian6ObjectsLocal::commit(item)
+                    Librarian19InMemoryObjectDatabase::commit(item)
                 end
             end
 
@@ -244,7 +244,7 @@ class TxTodos
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 break
             end
 
@@ -253,7 +253,7 @@ class TxTodos
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 item["ordinal"] = ordinal
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 next
             end
 
@@ -262,7 +262,7 @@ class TxTodos
                 ordinal = TxTodos::nextOrdinal(universe)
                 item["ordinal"] = ordinal
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 break
             end
 
@@ -317,7 +317,7 @@ class TxTodos
                 end
                 if command == "landing" then
                     LxAction::action("landing", item)
-                    item = Librarian6ObjectsLocal::getObjectByUUIDOrNull(item["uuid"])
+                    item = Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(item["uuid"])
                     if item["mikuType"] != "TxTodo" then
                         break
                     end
@@ -387,7 +387,7 @@ class TxTodos
 
     # TxTodos::nx20s()
     def self.nx20s()
-        Librarian6ObjectsLocal::getObjectsByMikuType("TxTodo")
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("TxTodo")
             .map{|item|
                 {
                     "announce" => TxTodos::toStringForNS19(item),

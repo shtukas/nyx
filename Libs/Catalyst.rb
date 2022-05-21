@@ -444,8 +444,8 @@ class TerminalDisplayOperator
         vspaceleft
     end
 
-    # TerminalDisplayOperator::standardDisplay(programname, universe, floats, section2, section3)
-    def self.standardDisplay(programname, universe, floats, section2, section3)
+    # TerminalDisplayOperator::printListing(programname, universe, floats, section2, section3)
+    def self.printListing(programname, universe, floats, section2, section3)
         system("clear")
 
         #reference = {
@@ -559,7 +559,7 @@ class TerminalDisplayOperator
 
         vspaceleft = TerminalDisplayOperator::printSection(store, section2, vspaceleft)
 
-        if section3.size > 0 then
+        if section3.size > 0 and vspaceleft > 1 then
             puts "-------------------------------------------------------------------------"
             vspaceleft = TerminalDisplayOperator::printSection(store, section3, vspaceleft)
         end
@@ -633,7 +633,7 @@ class Catalyst
             section3_1, section3_2 = section3.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
             section3 = section3_1 + section3_2
 
-            TerminalDisplayOperator::standardDisplay("program1", universe, floats, section2, section3)
+            TerminalDisplayOperator::printListing("program1", universe, floats, section2, section3)
         }
     end
 
@@ -684,7 +684,7 @@ class Catalyst
             section2 = p1 + p2
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-            TerminalDisplayOperator::standardDisplay("program2", universe, floats, section2, section3)
+            TerminalDisplayOperator::printListing("program2", universe, floats, section2, section3)
         }
     end
 end

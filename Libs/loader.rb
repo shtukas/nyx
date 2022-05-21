@@ -192,3 +192,7 @@ require_relative "Utils.rb"
 require_relative "Waves.rb"
 
 # ------------------------------------------------------------
+
+Librarian19InMemoryObjectDatabase::loadInMemoryDatabaseFromLog()
+
+# ------------------------------------------------------------

@@ -72,7 +72,7 @@ class UniqueStringsFunctions
         puts "Looking inside aion-points..."
         
         puts "" # To accomodate Utils::putsOnPreviousLine
-        Librarian6ObjectsLocal::objects().each{|item|
+        Librarian19InMemoryObjectDatabase::objects().each{|item|
             Utils::putsOnPreviousLine("looking into #{item["uuid"]}")
             next if item["iam"].nil?
             next if item["iam"]["type"] != "aion-point"
@@ -124,8 +124,10 @@ class EditionDesk
     def self.decideEditionLocation(item)
         # This function returns the location if there already is one, or otherwise returns a new one.
 
+        
+
         index1 = EditionDesk::getMaxIndex() + 1
-        description = item["description"] ? item["description"].gsub("|", "-") : item["uuid"]
+        description = item["description"] ? Utils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
         itemuuid = item["uuid"]
         nx111uuid = item["iam"]["uuid"]
 
@@ -264,7 +266,7 @@ class EditionDesk
         if nx111uuid.include?(".") then
             nx111uuid, _ = nx111uuid.split(".")
         end
-        item = Librarian6ObjectsLocal::getObjectByUUIDOrNull(itemuuid)
+        item = Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(itemuuid)
         return if item.nil?
         nx111 = item["iam"]
         return if nx111.nil?
@@ -292,7 +294,7 @@ class EditionDesk
             nx111["nhash"] = nhash
             puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
-            Librarian6ObjectsLocal::commit(item)
+            Librarian19InMemoryObjectDatabase::commit(item)
             return
         end
         if nx111["type"] == "url" then
@@ -307,7 +309,7 @@ class EditionDesk
             nx111["rootnhash"] = rootnhash
             #puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
-            Librarian6ObjectsLocal::commit(item)
+            Librarian19InMemoryObjectDatabase::commit(item)
             return
         end
         if nx111["type"] == "unique-string" then
@@ -321,7 +323,7 @@ class EditionDesk
             #puts JSON.pretty_generate(nx111v2)
             return if item["iam"].to_s = nx111v2.to_s
             item["iam"] = nx111v2
-            Librarian6ObjectsLocal::commit(item)
+            Librarian19InMemoryObjectDatabase::commit(item)
             return
         end
         if nx111["type"] == "carrier-of-primitive-files" then
@@ -343,7 +345,7 @@ class EditionDesk
                 # We can use that to know if the location is an existing primitive file and can be ignored
 
                 id = File.basename(innerFilepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
-                if Librarian6ObjectsLocal::getObjectByUUIDOrNull(id) then
+                if Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(id) then
                     # puts "#{File.basename(innerFilepath)} is already a node"
                     # Note that in this case we are not picking up possible modifications of the primitive files
                 else

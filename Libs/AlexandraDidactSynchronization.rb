@@ -66,12 +66,6 @@ class AlexandraDidactSynchronization
 
         # --------------------------------------------------------------------------------------
 
-        # At the moment, objects are held in a sqlite database. We simply override it.
-        puts "Update objects database on drive".green
-        FileUtils.cp(Librarian6ObjectsLocal::databaseFilepath(), Librarian7ObjectsInfinity::databaseFilepath())
-
-        # --------------------------------------------------------------------------------------
-
         puts "Process DatablobsInfinityBufferOut".green
         Find.find("#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut") do |path|
             next if !File.file?(path)

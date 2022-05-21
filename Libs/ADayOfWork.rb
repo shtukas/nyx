@@ -4,6 +4,7 @@ class ADayOfWork
 
     # ADayOfWork::universes()
     def self.universes()
+        return ["backlog"] if [0, 6].include?(Time.new.wday)
         if Time.new.hour >= 8 and Time.new.hour <= 16 then
             ["work", "backlog"]
         else

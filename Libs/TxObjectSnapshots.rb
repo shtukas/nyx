@@ -5,7 +5,7 @@ class TxObjectSnapshots
 
     # TxObjectSnapshots::items()
     def self.items()
-        Librarian6ObjectsLocal::getObjectsByMikuType("TxOS01")
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("TxOS01")
     end
 
     # TxObjectSnapshots::getObjectSnapshots(objectuuid)
@@ -24,7 +24,7 @@ class TxObjectSnapshots
             "unixtime"   => Time.new.to_f,
             "payload"    => object
         }
-        Librarian6ObjectsLocal::commit(item)
+        Librarian19InMemoryObjectDatabase::commit(item)
     end
 
     # TxObjectSnapshots::toString(item)

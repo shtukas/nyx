@@ -4,17 +4,17 @@ class TxFyres
 
     # TxFyres::items()
     def self.items()
-        Librarian6ObjectsLocal::getObjectsByMikuType("TxFyre")
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("TxFyre")
     end
 
     # TxFyres::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverse("TxFyre", universe)
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuTypeAndUniverse("TxFyre", universe)
     end
 
     # TxFyres::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6ObjectsLocal::destroy(uuid)
+        Librarian19InMemoryObjectDatabase::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -45,7 +45,7 @@ class TxFyres
           "iam"         => nx111,
           "universe"    => universe
         }
-        Librarian6ObjectsLocal::commit(item)
+        Librarian19InMemoryObjectDatabase::commit(item)
         item
     end
 
@@ -132,7 +132,7 @@ class TxFyres
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 next
             end
 
@@ -142,7 +142,7 @@ class TxFyres
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian6ObjectsLocal::commit(item)
+                    Librarian19InMemoryObjectDatabase::commit(item)
                 end
             end
 
@@ -159,7 +159,7 @@ class TxFyres
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 next
             end
 
@@ -179,7 +179,7 @@ class TxFyres
                     "iam"        => item["iam"],
                     "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
                 }
-                Librarian6ObjectsLocal::commit(ix)
+                Librarian19InMemoryObjectDatabase::commit(ix)
                 LxAction::action("landing", ix)
 
                 TxFyres::complete(item)

@@ -6,17 +6,17 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Librarian6ObjectsLocal::getObjectsByMikuType("Wave")
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("Wave")
     end
 
     # Waves::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        Librarian6ObjectsLocal::getObjectsByMikuTypeAndUniverse("Wave", universe)
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuTypeAndUniverse("Wave", universe)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6ObjectsLocal::destroy(uuid)
+        Librarian19InMemoryObjectDatabase::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -133,7 +133,7 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        Librarian6ObjectsLocal::commit(wave)
+        Librarian19InMemoryObjectDatabase::commit(wave)
         wave
     end
 
@@ -151,7 +151,7 @@ class Waves
     def self.performDone(item)
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        Librarian6ObjectsLocal::commit(item)
+        Librarian19InMemoryObjectDatabase::commit(item)
 
         unixtime = Waves::computeNextShowUp(item)
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -219,7 +219,7 @@ class Waves
 
             if Interpreting::match("description", command) then
                 item["description"] = Utils::editTextSynchronously(item["description"])
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 next
             end
 
@@ -229,7 +229,7 @@ class Waves
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian6ObjectsLocal::commit(item)
+                    Librarian19InMemoryObjectDatabase::commit(item)
                 end
             end
 
@@ -244,13 +244,13 @@ class Waves
                 return if schedule.nil?
                 item["repeatType"] = schedule[0]
                 item["repeatValue"] = schedule[1]
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 next
             end
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian6ObjectsLocal::commit(item)
+                Librarian19InMemoryObjectDatabase::commit(item)
                 next
             end
 
@@ -305,7 +305,7 @@ class Waves
                 Waves::landing(item)
 
                 # the landing could result in a destruction of the object
-                if Librarian6ObjectsLocal::getObjectByUUIDOrNull(item["uuid"]).nil? then
+                if Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(item["uuid"]).nil? then
                     break
                 end
             end

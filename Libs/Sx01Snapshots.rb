@@ -1,12 +1,5 @@
 # encoding: UTF-8
 
-#$Sx01SnapshotsSuperStructure1 = {
-#    "snapshot" => nil,
-#    "objects"  => nil # Array[Objects]
-#}
-
-$Sx01SnapshotsSuperStructure1 = nil
-
 class Sx01Snapshots
 
     # ----------------------------------------------------------------------
@@ -14,17 +7,17 @@ class Sx01Snapshots
 
     # Sx01Snapshots::items()
     def self.items()
-        Librarian6ObjectsLocal::getObjectsByMikuType("Sx01")
+        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("Sx01")
     end
 
     # Sx01Snapshots::getOrNull(uuid)
     def self.getOrNull(uuid)
-        Librarian6ObjectsLocal::getObjectByUUIDOrNull(uuid)
+        Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
     end
 
     # Sx01Snapshots::destroy(uuid)
     def self.destroy(uuid)
-        Librarian6ObjectsLocal::destroy(uuid)
+        Librarian19InMemoryObjectDatabase::destroy(uuid)
     end
 
     # Sx01Snapshots::snapshotToLibrarianObjects(snapshot)
@@ -40,7 +33,7 @@ class Sx01Snapshots
     # Sx01Snapshots::buildSnapshotTxtFileFromCurrentDatabaseObjects() 
     def self.buildSnapshotTxtFileFromCurrentDatabaseObjects()
         # We take the objects and dump them into a file
-        objects = Librarian6ObjectsLocal::objects()
+        objects = Librarian19InMemoryObjectDatabase::objects()
         objects
             .map{|object|
                 JSON.generate(object)
@@ -61,7 +54,7 @@ class Sx01Snapshots
             "datetime" => Time.new.utc.iso8601,
             "objects"  => InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(blob)
         }
-        Librarian6ObjectsLocal::commit(item)
+        Librarian19InMemoryObjectDatabase::commit(item)
         item
     end
 
@@ -78,23 +71,9 @@ class Sx01Snapshots
         LucilleCore::selectEntityFromListOfEntitiesOrNull("snapshot", Sx01Snapshots::items(), lambda{|item| Sx01Snapshots::toString(item) })
     end
 
-    # Sx01Snapshots::getDeployedSnapshotOrNull()
-    def self.getDeployedSnapshotOrNull()
-        return nil if $Sx01SnapshotsSuperStructure1.nil?
-        $Sx01SnapshotsSuperStructure1["snapshot"].clone
-    end
-
     # Sx01Snapshots::snapshotIsDeployed()
     def self.snapshotIsDeployed()
-        !$Sx01SnapshotsSuperStructure1.nil?
-    end
-
-    # Sx01Snapshots::getDeployedSnapshotLibrarianObjects()
-    def self.getDeployedSnapshotLibrarianObjects()
-        if $Sx01SnapshotsSuperStructure1.nil? then
-            raise "(error: a0283249-be4c-4bdf-ba50-e72836376120)"
-        end
-        $Sx01SnapshotsSuperStructure1["objects"]
+        !$Librarian19DeployedSnapshot.nil?
     end
 
     # ----------------------------------------------------------------------
@@ -102,7 +81,7 @@ class Sx01Snapshots
 
     # Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant() # boolean indicated if something was printed
     def self.printSnapshotDeploymentStatusIfRelevant()
-        snapshot = Sx01Snapshots::getDeployedSnapshotOrNull()
+        snapshot = $Librarian19DeployedSnapshot
         return false if snapshot.nil?
         puts "Deployed Snapshot: #{snapshot["datetime"]} 🕗".green
         true
@@ -112,9 +91,8 @@ class Sx01Snapshots
     def self.interactivelySelectAndDeploySnapshot()
         snapshot = Sx01Snapshots::interactivelySelectSnapshotOrNull()
         return if snapshot.nil?
-        $Sx01SnapshotsSuperStructure1 = {
-            "snapshot" => snapshot,
-            "objects"  => Sx01Snapshots::snapshotToLibrarianObjects(snapshot)
-        }
+        objects = Sx01Snapshots::snapshotToLibrarianObjects(snapshot)
+        Librarian19InMemoryObjectDatabase::rebuildInMemoryDatabaseFromObjects(objects)
+        $Librarian19DeployedSnapshot = snapshot
     end
 end
