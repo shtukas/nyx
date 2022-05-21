@@ -188,10 +188,10 @@ class Librarian17Carriers
 
     # Librarian17Carriers::getCarrierContents(owneruuid)
     def self.getCarrierContents(owneruuid)
-        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("Nx60")
+        Librarian20ObjectsStore::getObjectsByMikuType("Nx60")
             .select{|claim| claim["owneruuid"] == owneruuid }
             .map{|claim| claim["targetuuid"] }
-            .map{|uuid| Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
@@ -258,135 +258,264 @@ class Librarian18ObjectLog
     end
 end
 
-$Librarian19InMemoryObjectDatabase = nil
-$Librarian19DeletedObjectsUUIDs = []
+$Librarian19DB = nil
 $Librarian19DeployedSnapshot = nil
 
-class Librarian19InMemoryObjectDatabase
+class Librarian19InMemoryDatabase
 
-    # Librarian19InMemoryObjectDatabase::createInMemoryDatabase()
-    def self.createInMemoryDatabase()
-        $Librarian19InMemoryObjectDatabase = SQLite3::Database.new(":memory:")
-        $Librarian19InMemoryObjectDatabase.results_as_hash = true
-        $Librarian19InMemoryObjectDatabase.busy_timeout = 117
-        $Librarian19InMemoryObjectDatabase.busy_handler { |count| true }
-        $Librarian19InMemoryObjectDatabase.execute "CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);"
-    end
-
-    # Librarian19InMemoryObjectDatabase::processObjectFromLogStream(object)
-    def self.processObjectFromLogStream(object)
-        if object["deletion"] then
-            $Librarian19DeletedObjectsUUIDs << object["uuid"]
-            $Librarian19InMemoryObjectDatabase.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-            return
-        end
-        if $Librarian19DeletedObjectsUUIDs.include?(object["uuid"]) then
-            # The object has already been deleted, so we ignore this one
-            return
-        end
-        ordinal = object["ordinal"] || 0
-        $Librarian19InMemoryObjectDatabase.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        $Librarian19InMemoryObjectDatabase.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, object["universe"]]
-    end
-
-    # Librarian19InMemoryObjectDatabase::loadInMemoryDatabaseFromLog()
-    def self.loadInMemoryDatabaseFromLog()
-        Librarian19InMemoryObjectDatabase::createInMemoryDatabase()
-        Librarian18ObjectLog::log().each{|item|
-            Librarian19InMemoryObjectDatabase::processObjectFromLogStream(item)
-        }
-    end
-
-    # Librarian19InMemoryObjectDatabase::rebuildInMemoryDatabaseFromObjects(objects)
+    # Librarian19InMemoryDatabase::rebuildInMemoryDatabaseFromObjects(objects)
     def self.rebuildInMemoryDatabaseFromObjects(objects)
-        Librarian19InMemoryObjectDatabase::createInMemoryDatabase()
+        $Librarian19DB = SQLite3::Database.new(":memory:")
+        $Librarian19DB.results_as_hash = true
+        $Librarian19DB.busy_timeout = 117
+        $Librarian19DB.busy_handler { |count| true }
+        $Librarian19DB.execute "CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);"
+
         objects.each{|object|
             ordinal = object["ordinal"] || 0
-            $Librarian19InMemoryObjectDatabase.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, object["universe"]]
+            $Librarian19DB.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, object["universe"]]
         }
     end
 
-    # -----------------------------------------------------------------
+    # ---------------------------------------------------
+    # Reading
 
-    # Librarian19InMemoryObjectDatabase::objects()
+    # Librarian19InMemoryDatabase::objects()
     def self.objects()
         answer = []
-        $Librarian19InMemoryObjectDatabase.execute("select * from _objects_ order by _ordinal_", []) do |row|
+        $Librarian19DB.execute("select * from _objects_ order by _ordinal_", []) do |row|
             answer << JSON.parse(row['_object_'])
         end
         answer
     end
 
-    # Librarian19InMemoryObjectDatabase::getObjectsByMikuType(mikuType)
+    # Librarian19InMemoryDatabase::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
         answer = []
-        $Librarian19InMemoryObjectDatabase.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
+        $Librarian19DB.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
             answer << JSON.parse(row['_object_'])
         end
         answer
     end
 
-    # Librarian19InMemoryObjectDatabase::getObjectsByMikuTypeAndUniverse(mikuType, universe)
+    # Librarian19InMemoryDatabase::getObjectsByMikuTypeAndUniverse(mikuType, universe)
     def self.getObjectsByMikuTypeAndUniverse(mikuType, universe)
         answer = []
-        $Librarian19InMemoryObjectDatabase.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_", [mikuType, universe]) do |row|
+        $Librarian19DB.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_", [mikuType, universe]) do |row|
             answer << JSON.parse(row['_object_'])
         end
         answer
     end
 
-    # Librarian19InMemoryObjectDatabase::getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
+    # Librarian19InMemoryDatabase::getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
     def self.getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
         answer = []
-        $Librarian19InMemoryObjectDatabase.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", [mikuType, universe, n]) do |row|
+        $Librarian19DB.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", [mikuType, universe, n]) do |row|
             answer << JSON.parse(row['_object_'])
         end
         answer
     end
 
-    # Librarian19InMemoryObjectDatabase::commit(object)
-    def self.commit(object)
-
-        raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
-        raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
-
-        if Sx01Snapshots::snapshotIsDeployed() then
-            puts "We are not expecting to commit objects while a snapshot is deployed".yellow
-            puts JSON.pretty_generate(object).yellow
-            LucilleCore::pressEnterToContinue()
-            puts "Exiting"
-            exit
-        end
-
-        ordinal = object["ordinal"] || 0
-        if object["universe"].nil? then
-            object["universe"] = "backlog"
-        end
-
-        $Librarian19InMemoryObjectDatabase.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        $Librarian19InMemoryObjectDatabase.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, object["universe"]]
-
-
-        Librarian18ObjectLog::logObject(object)
-    end
-
-    # Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+    # Librarian19InMemoryDatabase::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
         answer = nil
-        $Librarian19InMemoryObjectDatabase.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
+        $Librarian19DB.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
             answer = JSON.parse(row['_object_'])
         end
         answer
     end
 
-    # Librarian19InMemoryObjectDatabase::destroy(uuid)
+    # ---------------------------------------------------
+    # Writing
+
+    # Librarian19InMemoryDatabase::commit(object)
+    def self.commit(object)
+
+        raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
+        raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
+
+        puts "We are not expecting to commit objects while a snapshot is deployed".yellow
+        puts JSON.pretty_generate(object).yellow
+        LucilleCore::pressEnterToContinue()
+        puts "Exiting"
+        exit
+
+        #ordinal = object["ordinal"] || 0
+        #if object["universe"].nil? then
+        #    object["universe"] = "backlog"
+        #end
+
+        #$Librarian19DB.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        #$Librarian19DB.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), ordinal, object["universe"]]
+    end
+
+    # Librarian19InMemoryDatabase::destroy(uuid)
     def self.destroy(uuid)
-        $Librarian19InMemoryObjectDatabase.execute "delete from _objects_ where _objectuuid_=?", [uuid]
-        deletionObject = {
-            "uuid"     => uuid,
-            "deletion" => true
-        }
-        Librarian18ObjectLog::logObject(deletionObject)
+        puts "We are not expecting to destroy objects while a snapshot is deployed".yellow
+        puts "uuid: #{uuid}"
+        puts "Exiting".yellow
+        exit
+
+        #$Librarian19DB.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+    end
+end
+
+class Librarian20ObjectsStore
+
+    # Librarian20ObjectsStore::pathToObjectsStoreDatabase()
+    def self.pathToObjectsStoreDatabase()
+        "#{Config::pathToLocalDidact()}/objects-store.sqlite3"
+    end
+
+    # ---------------------------------------------------
+    # Reading
+
+    # Librarian20ObjectsStore::objects()
+    def self.objects()
+
+        if $Librarian19DB then
+            return Librarian19InMemoryDatabase::objects()
+        end
+
+        db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        answer = []
+        db.execute("select * from _objects_ order by _ordinal_", []) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian20ObjectsStore::getObjectsByMikuType(mikuType)
+    def self.getObjectsByMikuType(mikuType)
+
+        if $Librarian19DB then
+            return Librarian19InMemoryDatabase::getObjectsByMikuType(mikuType)
+        end
+
+        db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian20ObjectsStore::getObjectsByMikuTypeAndUniverse(mikuType, universe)
+    def self.getObjectsByMikuTypeAndUniverse(mikuType, universe)
+
+        if $Librarian19DB then
+            return Librarian19InMemoryDatabase::getObjectsByMikuTypeAndUniverse(mikuType, universe)
+        end
+
+        db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_", [mikuType, universe]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian20ObjectsStore::getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
+    def self.getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
+
+        if $Librarian19DB then
+            return Librarian19InMemoryDatabase::getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
+        end
+
+        db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", [mikuType, universe, n]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
+    def self.getObjectByUUIDOrNull(uuid)
+
+        if $Librarian19DB then
+            return Librarian19InMemoryDatabase::getObjectByUUIDOrNull(uuid)
+        end
+
+        db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        answer = nil
+        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
+            answer = JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # ---------------------------------------------------
+    # Writing
+
+    # Librarian20ObjectsStore::commit(object)
+    def self.commit(object)
+
+        raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
+        raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
+
+        if $Librarian19DB then
+            puts "We are not expecting to commit objects while a snapshot is deployed".yellow
+            puts JSON.pretty_generate(object).yellow
+            puts "Exiting".yellow
+            exit
+        end
+
+        if object["ordinal"].nil? then
+            object["ordinal"] = 0
+        end
+
+        if object["universe"].nil? then
+            object["universe"] = "backlog"
+        end
+
+        db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
+
+        db.close
+    end
+
+    # Librarian20ObjectsStore::destroy(uuid)
+    def self.destroy(uuid)
+
+        if $Librarian19DB then
+            puts "We are not expecting to destroy objects while a snapshot is deployed".yellow
+            puts "uuid: #{uuid}"
+            puts "Exiting".yellow
+            exit
+        end
+
+        db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+        db.close
     end
 end
 
@@ -420,7 +549,7 @@ class LibrarianCLI
 
         if ARGV[0] == "show-object" and ARGV[1] then
             uuid = ARGV[1]
-            object = Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+            object = Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
             if object then
                 puts JSON.pretty_generate(object)
                 LucilleCore::pressEnterToContinue()
@@ -433,11 +562,11 @@ class LibrarianCLI
 
         if ARGV[0] == "edit-object" and ARGV[1] then
             uuid = ARGV[1]
-            object = Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+            object = Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
             if object then
                 object = Utils::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
-                Librarian19InMemoryObjectDatabase::commit(object)
+                Librarian20ObjectsStore::commit(object)
             else
                 puts "I could not find an object with this uuid"
                 LucilleCore::pressEnterToContinue()
@@ -447,7 +576,7 @@ class LibrarianCLI
 
         if ARGV[0] == "destroy-object-by-uuid-i" then
             uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-            Librarian19InMemoryObjectDatabase::destroy(uuid)
+            Librarian20ObjectsStore::destroy(uuid)
             exit
         end
 
@@ -465,7 +594,7 @@ class LibrarianCLI
 
         if ARGV[0] == "fsck-object" then
             uuid = ARGV[1]
-            item = Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+            item = Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
             if item then
                 InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, SecureRandom.hex)
             else

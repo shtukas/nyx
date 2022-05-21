@@ -1,11 +1,21 @@
 
 ### Librarian Objects
 
-To be Librarian acceptable, an object must have at least the two keys: 
+To be Librarian compatible, an object must have the following keys: 
     - "uuid" 
     - "mikuType"
+    - "lxVariantId" (a uuid) uniquely identifies this version of the object [1]
+    - "lxGenealogy" (the nhash of an array of lxVariantId), this array specifies, during synchronization with the DataBank, which objects it can replace [1] [2]
 
-We can retrieve objects individually by "uuid" or collectively by MikuTypes.
+[1] lxVariantId and lxGenealogy are automatically set by the Librariant onto the object when the object is stored to the local objects-store.
+
+[2] Essentially, ObjectB can replace ObjectA if their uuid is the same and ObjectA's lxVariantId appears in ObjectB's lxGenealogy. 
+
+We can retrieve objects individually by "uuid" or collectively by "MikuTypes".
+
+Items also carry a "universe" attribute (notably the Catalyst items). If there isn't one, the Librarian will set a default one. 
+
+### Objects of the Nyx's network
 
 Objects of the Nyx Network, so essentially Nx100 must have: 
     - "uuid" 
@@ -15,21 +25,26 @@ Objects of the Nyx Network, so essentially Nx100 must have:
 
 The unixtime (integer, but also float) should represent the time the object was created, and the datetime (DateTime Iso 8601 UTC Zulu) should represent the logical position of the object on the Nyx timeline.
 
-Some items carry a "universe" attribute (notably the Catalyst items). If there isn't one, the Librarian will set a default one. 
+### The Objects Store
 
-Database:
-
-objects.sqlite3
+objects-store.sqlite3
 CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);
 
-### Librarian Log
+### The Ur-Didact-DataBank-Type1
 
-objects-global-log.sqlite3
-CREATE TABLE _objectslog_ (_recorduuid_ text primary key, _recordtime_ float, _objectuuid_ text, _object_ text);
+Is where the datablobs are stored, where the primary objects-store is stored and where the Dx8Units are. We do not access it directly but talk to an interface, which abstracts away the operation of talking to it.
 
-When an object is deleted, we specify this in the log with a special object
+With the interface we can
 
-{
-    "uuid"     : String # same uuid as the object being deleted.
-    "deletion" : true
-}
+    - Ask for the list of objects contained in the DataBank's object log. We work with `uuid` and `lxVariantId` and inject into our own log, the ones we don't have. Note that for each object we inject, we need to fsck it first and ask for the missing blobs before we store the object.
+
+    - Ask for a specific blob
+
+    - Submit new objects to the DataBank. We also need to send the blobs that come with the object, so we need a new data format for that.
+
+### Synchronization with the Ur-Didact-DataBank-Type1
+
+Step 1: The client asks for the list of objects from the server.
+Step 2: The client identifies the ones it didn't have, and for each object: fsck the object (notably to retrive the blobs that it needs)
+Step 3: The client sends its new objects to the interface
+

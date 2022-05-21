@@ -566,9 +566,10 @@ class TerminalDisplayOperator
         if top and top.strip.size > 0 then
             puts ""
             puts "(top)"
-            top = top.lines.first(10).join()
+            top = top.lines.first(10).join().strip
             puts top
-            vspaceleft = vspaceleft - Utils::verticalSize(top) - 2
+            puts ""
+            vspaceleft = vspaceleft - Utils::verticalSize(top) - 3
         end
 
         vspaceleft = TerminalDisplayOperator::printSection(store, section2, vspaceleft)

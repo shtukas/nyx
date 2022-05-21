@@ -7,17 +7,17 @@ class Sx01Snapshots
 
     # Sx01Snapshots::items()
     def self.items()
-        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("Sx01")
+        Librarian20ObjectsStore::getObjectsByMikuType("Sx01")
     end
 
     # Sx01Snapshots::getOrNull(uuid)
     def self.getOrNull(uuid)
-        Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+        Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Sx01Snapshots::destroy(uuid)
     def self.destroy(uuid)
-        Librarian19InMemoryObjectDatabase::destroy(uuid)
+        Librarian20ObjectsStore::destroy(uuid)
     end
 
     # Sx01Snapshots::snapshotToLibrarianObjects(snapshot)
@@ -33,7 +33,7 @@ class Sx01Snapshots
     # Sx01Snapshots::buildSnapshotTxtFileFromCurrentDatabaseObjects() 
     def self.buildSnapshotTxtFileFromCurrentDatabaseObjects()
         # We take the objects and dump them into a file
-        objects = Librarian19InMemoryObjectDatabase::objects()
+        objects = Librarian20ObjectsStore::objects()
         objects
             .map{|object|
                 JSON.generate(object)
@@ -54,7 +54,7 @@ class Sx01Snapshots
             "datetime" => Time.new.utc.iso8601,
             "objects"  => InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(blob)
         }
-        Librarian19InMemoryObjectDatabase::commit(item)
+        Librarian20ObjectsStore::commit(item)
         item
     end
 
@@ -92,7 +92,7 @@ class Sx01Snapshots
         snapshot = Sx01Snapshots::interactivelySelectSnapshotOrNull()
         return if snapshot.nil?
         objects = Sx01Snapshots::snapshotToLibrarianObjects(snapshot)
-        Librarian19InMemoryObjectDatabase::rebuildInMemoryDatabaseFromObjects(objects)
+        Librarian19InMemoryDatabase::rebuildInMemoryDatabaseFromObjects(objects)
         $Librarian19DeployedSnapshot = snapshot
     end
 end

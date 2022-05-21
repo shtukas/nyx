@@ -8,7 +8,7 @@ class Ax1Text
 
     # Ax1Text::items()
     def self.items()
-        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("Ax1Text")
+        Librarian20ObjectsStore::getObjectsByMikuType("Ax1Text")
     end
 
     # Ax1Text::itemsForOwner(owneruuid)
@@ -20,12 +20,12 @@ class Ax1Text
 
     # Ax1Text::getOrNull(uuid): null or Ax1Text
     def self.getOrNull(uuid)
-        Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+        Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Ax1Text::destroy(uuid)
     def self.destroy(uuid)
-        Librarian19InMemoryObjectDatabase::destroy(uuid)
+        Librarian20ObjectsStore::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ class Ax1Text
           "unixtime"    => unixtime,
           "nhash"       => nhash
         }
-        Librarian19InMemoryObjectDatabase::commit(item)
+        Librarian20ObjectsStore::commit(item)
         item
     end
 
@@ -80,7 +80,7 @@ class Ax1Text
                 text = Utils::editTextSynchronously(text)
                 nhash = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(text)
                 item["nhash"] = nhash
-                Librarian19InMemoryObjectDatabase::commit(item)
+                Librarian20ObjectsStore::commit(item)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then

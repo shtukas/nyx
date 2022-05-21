@@ -8,17 +8,17 @@ class Nx60s
 
     # Nx60s::items()
     def self.items()
-        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("Nx60")
+        Librarian20ObjectsStore::getObjectsByMikuType("Nx60")
     end
 
     # Nx60s::getOrNull(uuid): null or Nx60
     def self.getOrNull(uuid)
-        Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+        Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Nx60s::destroy(uuid)
     def self.destroy(uuid)
-        Librarian19InMemoryObjectDatabase::destroy(uuid)
+        Librarian20ObjectsStore::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -35,7 +35,7 @@ class Nx60s
           "owneruuid"  => owneruuid,
           "targetuuid" => targetuuid
         }
-        Librarian19InMemoryObjectDatabase::commit(item)
+        Librarian20ObjectsStore::commit(item)
         item
     end
 end

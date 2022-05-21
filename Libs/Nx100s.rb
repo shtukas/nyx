@@ -8,17 +8,17 @@ class Nx100s
 
     # Nx100s::items()
     def self.items()
-        Librarian19InMemoryObjectDatabase::getObjectsByMikuType("Nx100")
+        Librarian20ObjectsStore::getObjectsByMikuType("Nx100")
     end
 
     # Nx100s::getOrNull(uuid): null or Nx100
     def self.getOrNull(uuid)
-        Librarian19InMemoryObjectDatabase::getObjectByUUIDOrNull(uuid)
+        Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Nx100s::destroy(uuid)
     def self.destroy(uuid)
-        Librarian19InMemoryObjectDatabase::destroy(uuid)
+        Librarian20ObjectsStore::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -55,7 +55,7 @@ class Nx100s
             "iam"        => nx111,
             "flavour"     => flavour
         }
-        Librarian19InMemoryObjectDatabase::commit(item)
+        Librarian20ObjectsStore::commit(item)
         item
     end
 
@@ -78,7 +78,7 @@ class Nx100s
             "iam"        => nx111,
             "flavour"     => flavour
         }
-        Librarian19InMemoryObjectDatabase::commit(item)
+        Librarian20ObjectsStore::commit(item)
         item
     end
 
@@ -107,7 +107,7 @@ class Nx100s
           "iam"         => nx111,
           "flavour"     => flavour
         }
-        Librarian19InMemoryObjectDatabase::commit(item)
+        Librarian20ObjectsStore::commit(item)
         item
     end
 
@@ -191,14 +191,14 @@ class Nx100s
             }
         }
         puts JSON.pretty_generate(item2)
-        Librarian19InMemoryObjectDatabase::commit(item2)
+        Librarian20ObjectsStore::commit(item2)
         Links::link(item["uuid"], item2["uuid"], false)
         item["iam"] = {
             "uuid" => SecureRandom.uuid,
             "type" => "navigation"
         }
         puts JSON.pretty_generate(item)
-        Librarian19InMemoryObjectDatabase::commit(item)
+        Librarian20ObjectsStore::commit(item)
         puts "Operation completed"
         LucilleCore::pressEnterToContinue()
     end
@@ -236,8 +236,6 @@ class Nx100s
             if !item["isSnapshot"] then
                 item = Nx100s::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
             end
-
-            TxObjectSnapshots::recordVariant(item)
 
             system("clear")
 
@@ -301,7 +299,6 @@ class Nx100s
             commands << "unlink"
             commands << "network transforms"
             commands << "json"
-            commands << "snapshots"
             commands << "special circumstances"
             commands << "destroy"
             commands << "stack: add [this]"
@@ -339,7 +336,7 @@ class Nx100s
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian19InMemoryObjectDatabase::commit(item)
+                Librarian20ObjectsStore::commit(item)
                 next
             end
 
@@ -358,7 +355,7 @@ class Nx100s
                 datetime = Utils::editTextSynchronously(item["datetime"]).strip
                 next if !Utils::isDateTime_UTC_ISO8601(datetime)
                 item["datetime"] = datetime
-                Librarian19InMemoryObjectDatabase::commit(item)
+                Librarian20ObjectsStore::commit(item)
             end
 
             if Interpreting::match("iam", command) then
@@ -367,7 +364,7 @@ class Nx100s
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian19InMemoryObjectDatabase::commit(item)
+                    Librarian20ObjectsStore::commit(item)
                 end
             end
 
@@ -377,7 +374,7 @@ class Nx100s
                 puts JSON.pretty_generate(flavour)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["flavour"] = flavour
-                    Librarian19InMemoryObjectDatabase::commit(item) 
+                    Librarian20ObjectsStore::commit(item) 
                 end
             end
 
@@ -408,13 +405,6 @@ class Nx100s
             if Interpreting::match("json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-            end
-
-            if Interpreting::match("snapshots", command) then
-                variants = TxObjectSnapshots::getObjectSnapshots(item["uuid"])
-                variant = LucilleCore::selectEntityFromListOfEntitiesOrNull("variant", variants, lambda{|i| LxFunction::function("toString", i) })
-                next if variant.nil?
-                LxAction::action("landing", variant)
             end
 
             if Interpreting::match("special circumstances", command) then
