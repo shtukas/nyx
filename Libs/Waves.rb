@@ -156,8 +156,6 @@ class Waves
         unixtime = Waves::computeNextShowUp(item)
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-
-        Bank::put("waves-unit-4602-ba7c-beecdd9e14f8", 1)
     end
 
     # Waves::landing(item)
@@ -353,9 +351,6 @@ class Waves
 
     # Waves::ns16sLowerPriority(universe)
     def self.ns16sLowerPriority(universe)
-        if Beatrice::stdRecoveredHourlyAverage("waves-unit-4602-ba7c-beecdd9e14f8") > 8 then
-            return []
-        end
         Waves::itemsForUniverse(universe)
             .select{|wave| !Waves::isPriorityWave(wave) }
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
