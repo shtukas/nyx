@@ -425,6 +425,43 @@ class NS16sOperator
     end
 end
 
+class The99Percent
+
+    # reference = {
+    #     "count"    =>
+    #     "datetime" =>
+    # }
+
+    # The99Percent::issueNewReference()
+    def self.issueNewReference()
+        count = TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
+        reference = {
+            "count"    => count,
+            "datetime" => Time.new.to_s
+        }
+        puts "Issuing a new reference:".green
+        puts JSON.pretty_generate(reference).green
+        LucilleCore::pressEnterToContinue()
+        XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
+        reference
+    end
+
+    # The99Percent::getReference()
+    def self.getReference()
+        reference = XCache::getOrNull("002c358b-e6ee-41bd-9bee-105396a6349a")
+        if reference then
+            JSON.parse(reference)
+        else
+            The99Percent::issueNewReference()
+        end
+    end
+
+    # The99Percent::getCurrentCount()
+    def self.getCurrentCount()
+        TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
+    end
+end
+
 class TerminalDisplayOperator
 
     # TerminalDisplayOperator::printSection(store, ns16s, vspaceleft)
@@ -448,38 +485,7 @@ class TerminalDisplayOperator
     def self.printListing(programname, universe, floats, section2, section3)
         system("clear")
 
-        #reference = {
-        #    "count"    =>
-        #    "datetime" =>
-        #}
-
-        issueNewReference = lambda {
-            count = TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
-            reference = {
-                "count"    => count,
-                "datetime" => Time.new.to_s
-            }
-            puts "Issuing a new reference:"
-            puts JSON.pretty_generate(reference)
-            LucilleCore::pressEnterToContinue()
-            XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
-            reference
-        }
-
-        getReference = lambda {
-            reference = XCache::getOrNull("002c358b-e6ee-41bd-9bee-105396a6349a")
-            if reference then
-                JSON.parse(reference)
-            else
-                issueNewReference.call()
-            end
-        }
-
-        getCurrent = lambda {
-            TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
-        }
-
-        vspaceleft = Utils::screenHeight()-3
+        vspaceleft = Utils::screenHeight()-4
 
         s = Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
         if s then 
@@ -494,14 +500,15 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 2
         end
 
-        reference = getReference.call()
-        current   = getCurrent.call()
+        reference = The99Percent::getReference()
+        current   = The99Percent::getCurrentCount()
         ratio     = current.to_f/reference["count"]
         puts "(#{universe}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
+        vspaceleft = vspaceleft - 1
         if ratio < 0.99 then
-            issueNewReference.call()
+            The99Percent::issueNewReference()
+            return
         end
-        vspaceleft = vspaceleft - 2
 
         store = ItemStore.new()
 
