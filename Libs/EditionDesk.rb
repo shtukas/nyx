@@ -221,7 +221,7 @@ class EditionDesk
                 return
             end
             FileUtils.mkdir(exportFolderpath)
-            Librarian17Carriers::getCarrierContents(item["uuid"])
+            Carriers::getCarrierContents(item["uuid"])
                 .each{|ix|
                     dottedExtension = ix["iam"]["dottedExtension"]
                     nhash = ix["iam"]["nhash"]

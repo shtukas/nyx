@@ -106,6 +106,10 @@ class Librarian0Utils
     end
 end
 
+# ---------------------------------------------------------------------------
+# XCache Datablobs and Elizabeth
+# ---------------------------------------------------------------------------
+
 class Librarian2DatablobsXCache
 
     # Librarian2DatablobsXCache::putBlob(blob)
@@ -155,108 +159,9 @@ class Librarian3ElizabethXCache
     end
 end
 
-class Librarian7ObjectsInfinity
-
-    # Librarian7ObjectsInfinity::databaseFilepath()
-    def self.databaseFilepath()
-        "#{Config::pathToInfinityDidactDataBankType1()}/objects.sqlite3"
-    end
-
-    # ------------------------------------------------------------------------
-    # Below: Public Interface
-
-    # Librarian7ObjectsInfinity::objects()
-    def self.objects()
-        db = SQLite3::Database.new(Librarian7ObjectsInfinity::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _objects_ order by _ordinal_", []) do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-end
-
 # ---------------------------------------------------------------------------
-# 
+# Objects
 # ---------------------------------------------------------------------------
-
-class Librarian17Carriers
-
-    # Librarian17Carriers::getCarrierContents(owneruuid)
-    def self.getCarrierContents(owneruuid)
-        Librarian20ObjectsStore::getObjectsByMikuType("Nx60")
-            .select{|claim| claim["owneruuid"] == owneruuid }
-            .map{|claim| claim["targetuuid"] }
-            .map{|uuid| Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid) }
-            .compact
-    end
-
-    # Librarian17Carriers::addPrimitiveFilesToCarrierOrNothing(uuid)
-    def self.addPrimitiveFilesToCarrierOrNothing(uuid)
-        uploadFolder = LucilleCore::askQuestionAnswerAsString("upload folder: ")
-        if !File.exists?(uploadFolder) then
-            puts "This upload folder does not exists!"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        locations = LucilleCore::locationsAtFolder(uploadFolder)
-        # We make a fiirst pass to ensure everything is a file
-        status = locations.all?{|location| File.file?(location) }
-        if !status then
-            puts "The upload folder has elements that are not files!"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        locations.each{|filepath|
-            primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(filepath)
-            puts "Primitive file:"
-            puts JSON.pretty_generate(primitiveFileObject)
-            puts "Link: (owner: #{uuid}, file: #{primitiveFileObject["uuid"]})"
-            Nx60s::issueClaim(uuid, primitiveFileObject["uuid"])
-        }
-        puts "Upload completed"
-        LucilleCore::pressEnterToContinue()
-    end
-end
-
-# ---------------------------------------------------------------------------
-# 
-# ---------------------------------------------------------------------------
-
-class Librarian18ObjectLog
-
-    # Librarian18ObjectLog::databaseFilepath()
-    def self.databaseFilepath()
-        "#{Config::pathToLocalDidact()}/objects-global-log.sqlite3"
-    end
-
-    # Librarian18ObjectLog::logObject(object)
-    def self.logObject(object)
-        recorduuid = SecureRandom.uuid
-        recordtime = Time.new.to_f
-        db = SQLite3::Database.new(Librarian18ObjectLog::databaseFilepath())
-        db.execute "insert into _objectslog_ (_recorduuid_, _recordtime_, _objectuuid_, _object_) values (?,?,?,?)", [recorduuid, recordtime, object["uuid"], JSON.generate(object)]
-        db.close
-    end
-
-    # Librarian18ObjectLog::log()
-    def self.log()
-        db = SQLite3::Database.new(Librarian18ObjectLog::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _objectslog_ order by _recordtime_", []) do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-end
 
 $Librarian19DB = nil
 $Librarian19DeployedSnapshot = nil
@@ -518,6 +423,48 @@ class Librarian20ObjectsStore
         db.close
     end
 end
+
+class Librarian7ObjectsInfinity
+
+    # Librarian7ObjectsInfinity::pathToObjectStore1()
+    def self.pathToObjectStore1()
+        "#{Config::pathToInfinityDidactDataBankType1()}/ObjectsStore1"
+    end
+
+    # Librarian7ObjectsInfinity::putObject(object)
+    def self.putObject(object)
+        uuid = object["uuid"]
+        filename = "#{Digest::SHA1.hexdigest(uuid)}.object"
+        filepath = "#{Librarian7ObjectsInfinity::pathToObjectStore1()}/#{filename[0, 2]}/#{filename[2, 2]}/#{filename}"
+        if !File.exists?(filepath) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
+    end
+
+    # Librarian7ObjectsInfinity::getObjectByUUIDOrNull(uuid)
+    def self.getObjectByUUIDOrNull(uuid)
+        filename = "#{Digest::SHA1.hexdigest(uuid)}.object"
+        filepath = "#{Librarian7ObjectsInfinity::pathToObjectStore1()}/#{filename[0, 2]}/#{filename[2, 2]}/#{filename}"
+        return nil if !File.exists?(filepath)
+        JSON.parse(IO.read(filepath))
+    end
+
+    # Librarian7ObjectsInfinity::objects()
+    def self.objects()
+        objects = []
+        Find.find(Librarian7ObjectsInfinity::pathToObjectStore1()) do |path|
+            next if !File.file?(path)
+            next if path[-7, 7] != ".object"
+            objects << JSON.parse(IO.read(path))
+        end
+        objects
+    end
+end
+
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
 
 class LibrarianCLI
 
