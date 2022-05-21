@@ -48,6 +48,16 @@ class ADayOfWork
         XCache::set("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}", JSON.generate(object))
     end
 
+    # ADayOfWork::getEndOfDayRStream()
+    def self.getEndOfDayRStream()
+        {
+            "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{Utils::today()}",
+            "mikuType" => "Tx0938",
+            "announce" => "rstream",
+            "lambda"   => lambda { TxTodos::rstream() }
+        }
+    end
+
     # ---------------------------------------------------------------------------------------------
 
     # ADayOfWork::getNS16sForUniverse(universe)
@@ -105,9 +115,11 @@ class ADayOfWork
         coreuuids = ADayOfWork::getCoreUUIDs(date)
         ns16s0 = [ADayOfWork::getTodayWorkGlobalCommitmentOrNull()].compact
         ns16s1 = ADayOfWork::universes().map{|universe| ADayOfWork::getHighPriorityNS16sForUniverse(universe) }.flatten
-        ns16s2 = ADayOfWork::universes().map{|universe| ADayOfWork::getNS16sForUniverse(universe) }.flatten
+        ns16s2 = ADayOfWork::universes().map{|universe| ADayOfWork::getNS16sForUniverse(universe) }
+                    .flatten
                     .select{|ns16| coreuuids.include?(ns16["uuid"]) }
-        ADayOfWork::removeRedundancy(ns16s0+ns16s1+ns16s2)
+        ns16s3 = [ADayOfWork::getEndOfDayRStream()]
+        ADayOfWork::removeRedundancy(ns16s0+ns16s1+ns16s2+ns16s3)
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
     end

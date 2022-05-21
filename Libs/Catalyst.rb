@@ -586,6 +586,12 @@ class TerminalDisplayOperator
 
         command, objectOpt = TerminalUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
+
+        if objectOpt and objectOpt["lambda"] then
+            objectOpt["lambda"].call()
+            return
+        end
+
         LxAction::action(command, objectOpt)
     end
 end

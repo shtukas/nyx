@@ -4,4 +4,5 @@ NS16 {
     "announce" : String
 
     "nonListingDefaultable" : Boolean # Optional
+    "lambda"   : Lambda # executed when present, no other processing
 }
