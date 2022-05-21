@@ -5,7 +5,7 @@ To be Librarian compatible, an object must have the following keys:
     - "uuid" 
     - "mikuType"
     - "lxVariantId" (a uuid) uniquely identifies this version of the object [1]
-    - "lxGenealogy" (the nhash of an array of lxVariantId), this array specifies, during synchronization with the DataBank, which objects it can replace [1] [2]
+    - "lxGenealogy" (array of lxVariantId) this array specifies, during synchronization with the DataBank, which objects it can replace [1] [2]
 
 [1] lxVariantId and lxGenealogy are automatically set by the Librariant onto the object when the object is stored to the local objects-store.
 

@@ -341,6 +341,10 @@ class Librarian20ObjectsStore
             object["universe"] = "backlog"
         end
 
+        object["lxVariantId"] = SecureRandom.uuid
+
+        # TODO: implement lxGenealogy
+
         db = SQLite3::Database.new(Librarian20ObjectsStore::pathToObjectsStoreDatabase())
         db.results_as_hash = true
         db.busy_timeout = 117
