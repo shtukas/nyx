@@ -84,7 +84,7 @@ class Librarian0Utils
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            hashes << Librarian2DatablobsXCache::putBlob(blob)
+            hashes << XCacheExtensionsDatablobs::putBlob(blob)
         end
         f.close()
         hashes
@@ -103,59 +103,6 @@ class Librarian0Utils
             end
         }
         nil
-    end
-end
-
-# ---------------------------------------------------------------------------
-# XCache Datablobs and Elizabeth
-# ---------------------------------------------------------------------------
-
-class Librarian2DatablobsXCache
-
-    # Librarian2DatablobsXCache::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        XCache::set("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}", blob)
-        nhash
-    end
-
-    # Librarian2DatablobsXCache::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        XCache::getOrNull("FAF57B05-2EF0-4F49-B1C8-9E73D03939DE:#{nhash}")
-    end
-end
-
-class Librarian3ElizabethXCache
-
-    def initialize()
-    end
-
-    def commitBlob(blob)
-        Librarian2DatablobsXCache::putBlob(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = Librarian2DatablobsXCache::getBlobOrNull(nhash)
-        return blob if blob
-        puts "(error: c052116a-dd92-47a8-88e4-22d7516863d1) could not find blob, nhash: #{nhash}"
-        raise "(error: 521d8f17-a958-44ba-97c2-ffacbbca9724, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: 4a667893-8d05-4bae-8ea8-d415066ac443) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
     end
 end
 
@@ -424,44 +371,6 @@ class Librarian20ObjectsStore
     end
 end
 
-class Librarian7ObjectsInfinity
-
-    # Librarian7ObjectsInfinity::pathToObjectStore1()
-    def self.pathToObjectStore1()
-        "#{Config::pathToInfinityDidactDataBankType1()}/ObjectsStore1"
-    end
-
-    # Librarian7ObjectsInfinity::putObject(object)
-    def self.putObject(object)
-        uuid = object["uuid"]
-        filename = "#{Digest::SHA1.hexdigest(uuid)}.object"
-        filepath = "#{Librarian7ObjectsInfinity::pathToObjectStore1()}/#{filename[0, 2]}/#{filename[2, 2]}/#{filename}"
-        if !File.exists?(filepath) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(object)) }
-    end
-
-    # Librarian7ObjectsInfinity::getObjectByUUIDOrNull(uuid)
-    def self.getObjectByUUIDOrNull(uuid)
-        filename = "#{Digest::SHA1.hexdigest(uuid)}.object"
-        filepath = "#{Librarian7ObjectsInfinity::pathToObjectStore1()}/#{filename[0, 2]}/#{filename[2, 2]}/#{filename}"
-        return nil if !File.exists?(filepath)
-        JSON.parse(IO.read(filepath))
-    end
-
-    # Librarian7ObjectsInfinity::objects()
-    def self.objects()
-        objects = []
-        Find.find(Librarian7ObjectsInfinity::pathToObjectStore1()) do |path|
-            next if !File.file?(path)
-            next if path[-7, 7] != ".object"
-            objects << JSON.parse(IO.read(path))
-        end
-        objects
-    end
-end
-
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
@@ -477,11 +386,20 @@ class LibrarianCLI
         end
 
         if ARGV[0] == "fsck@infinity" then
+
+            puts "librarian fsck@infinity is not going to run until we implement the new Didact-DataBank-Type1-Interface"
+            LucilleCore::pressEnterToContinue()
+            return
+
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
             exit
         end
 
         if ARGV[0] == "alexandra-infinity-sync+fsck@infinity" then
+            puts "librarian alexandra-infinity-sync+fsck@infinity is not going to run until we implement the new Didact-DataBank-Type1-Interface"
+            LucilleCore::pressEnterToContinue()
+            return
+
             AlexandraDidactSynchronization::run()
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
             exit
@@ -529,7 +447,7 @@ class LibrarianCLI
 
         if ARGV[0] == "get-blob" and ARGV[1] then
             nhash = ARGV[1]
-            blob = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            blob = EnergyGridDatablobs::getBlobOrNull(nhash)
             if blob then
                 puts blob
             else
@@ -540,6 +458,12 @@ class LibrarianCLI
         end
 
         if ARGV[0] == "fsck-object" then
+            puts "librarian fsck-object is not going to run until we implement the new Didact-DataBank-Type1-Interface"
+            LucilleCore::pressEnterToContinue()
+            return
+
+            # This fsck needs to run on Local, not remote.
+
             uuid = ARGV[1]
             item = Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
             if item then

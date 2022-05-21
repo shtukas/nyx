@@ -30,7 +30,7 @@ The unixtime (integer, but also float) should represent the time the object was 
 objects-store.sqlite3
 CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);
 
-### The Ur-Didact-DataBank-Type1
+### The Didact-DataBank-Type1
 
 Is where the datablobs are stored, where the primary objects-store is stored and where the Dx8Units are. We do not access it directly but talk to an interface, which abstracts away the operation of talking to it.
 
@@ -42,7 +42,7 @@ With the interface we can
 
     - Submit new objects to the DataBank. We also need to send the blobs that come with the object, so we need a new data format for that.
 
-### Synchronization with the Ur-Didact-DataBank-Type1
+### Synchronization with the Didact-DataBank-Type1
 
 Step 1: The client asks for the list of objects from the server.
 Step 2: The client identifies the ones it didn't have, and for each object: fsck the object (notably to retrive the blobs that it needs)

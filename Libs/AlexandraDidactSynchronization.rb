@@ -6,6 +6,10 @@ class AlexandraDidactSynchronization
     # AlexandraDidactSynchronization::run()
     def self.run()
 
+        puts "AlexandraDidactSynchronization::run() is not going to run until we implement the new Didact-DataBank-Type1-Interface"
+        LucilleCore::pressEnterToContinue()
+        return
+
         # --------------------------------------------------------------------------------------
 
         # Tx46 track the state, more exactly the trace, of a Edition Desk location. This is how we detect which ones have been dead for a while and can be deleted
@@ -72,7 +76,7 @@ class AlexandraDidactSynchronization
             next if path[-5, 5] != ".data"
             blob = IO.read(path)
             nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-            driveFilePath = InfinityDatablobs_PureDrive::prepareFilepathForBlob(nhash)
+            driveFilePath = InfinityDriveDatablobs::prepareFilepathForBlob(nhash)
             if File.exists?(driveFilePath) then
                 FileUtils.rm(path)
                 next

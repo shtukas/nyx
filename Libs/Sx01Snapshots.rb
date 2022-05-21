@@ -22,7 +22,7 @@ class Sx01Snapshots
 
     # Sx01Snapshots::snapshotToLibrarianObjects(snapshot)
     def self.snapshotToLibrarianObjects(snapshot)
-        InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(snapshot["objects"])
+        EnergyGridDatablobs::getBlobOrNull(snapshot["objects"])
             .lines
             .map{|line| JSON.parse(line) }
     end
@@ -52,7 +52,7 @@ class Sx01Snapshots
             "mikuType" => "Sx01",
             "unixtime" => Time.new.to_i,
             "datetime" => Time.new.utc.iso8601,
-            "objects"  => InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(blob)
+            "objects"  => EnergyGridDatablobs::putBlob(blob)
         }
         Librarian20ObjectsStore::commit(item)
         item

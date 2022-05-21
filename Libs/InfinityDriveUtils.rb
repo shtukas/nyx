@@ -1,19 +1,19 @@
 
 # encoding: UTF-8
 
-class InfinityDrive
+class InfinityDriveUtils
 
-    # InfinityDrive::driveIsPlugged()
+    # InfinityDriveUtils::driveIsPlugged()
     def self.driveIsPlugged()
         File.exists?(Config::pathToInfinityDidactDataBankType1())
     end
 
-    # InfinityDrive::ensureInfinityDrive()
+    # InfinityDriveUtils::ensureInfinityDrive()
     def self.ensureInfinityDrive()
-        if !InfinityDrive::driveIsPlugged() then
+        if !InfinityDriveUtils::driveIsPlugged() then
             puts "I need Infinity. Please plug 🙏"
             LucilleCore::pressEnterToContinue()
-            if !InfinityDrive::driveIsPlugged() then
+            if !InfinityDriveUtils::driveIsPlugged() then
                 puts "Could not find Infinity 😞 Exiting."
                 exit
             end

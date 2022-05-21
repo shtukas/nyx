@@ -24,7 +24,7 @@ class Inbox
         Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
         puts item["line"]
         if item["aionrootnhash"] then
-            AionCore::exportHashAtFolder(InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(EnergyGridElizabeth.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
         end
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["exit (default)", "destroy"])
         if action.nil? or action == "exit" then

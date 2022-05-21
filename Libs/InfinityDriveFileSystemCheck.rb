@@ -21,7 +21,7 @@ class InfinityDriveFileSystemCheck
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            if InfinityDatablobs_PureDrive::getBlobOrNull(nhash).nil? then
+            if InfinityDriveDatablobs::getBlobOrNull(nhash).nil? then
                 puts "object, could not find the text data".red
                 puts JSON.pretty_generate(object).red
                 exit
@@ -33,7 +33,7 @@ class InfinityDriveFileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            status = AionFsck::structureCheckAionHash(InfinityElizabethPureDrive.new(), rootnhash)
+            status = AionFsck::structureCheckAionHash(InfinityDriveElizabeth.new(), rootnhash)
             if !status then
                 puts "object, could not validate aion-point".red
                 puts JSON.pretty_generate(object).red
@@ -55,7 +55,7 @@ class InfinityDriveFileSystemCheck
                 exit
             end
             parts.each{|nhash|
-                blob = InfinityDatablobs_PureDrive::getBlobOrNull(nhash)
+                blob = InfinityDriveDatablobs::getBlobOrNull(nhash)
                 next if blob
                 puts "object".red
                 puts JSON.pretty_generate(object).red
@@ -142,7 +142,7 @@ class InfinityDriveFileSystemCheck
 
         if item["mikuType"] == "TxInbox2" then
             if item["aionrootnhash"] then
-                status = AionFsck::structureCheckAionHash(InfinityElizabethPureDrive.new(), item["aionrootnhash"])
+                status = AionFsck::structureCheckAionHash(InfinityDriveElizabeth.new(), item["aionrootnhash"])
                 if !status then
                     puts "aionrootnhash does not validate".red
                     puts JSON.pretty_generate(item).red
@@ -180,7 +180,7 @@ class InfinityDriveFileSystemCheck
 
         if item["mikuType"] == "Ax1Text" then
             nhash = item["nhash"]
-            if InfinityDatablobs_PureDrive::getBlobOrNull(nhash).nil? then
+            if InfinityDriveDatablobs::getBlobOrNull(nhash).nil? then
                 puts "nhash, blob not found".red
                 puts JSON.pretty_generate(item).red
                 exit

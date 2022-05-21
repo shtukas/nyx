@@ -145,6 +145,7 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 
 require_relative "EditionDesk.rb"
+require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
 
@@ -152,8 +153,8 @@ require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 require_relative "InfinityDriveFileSystemCheck.rb"
-require_relative "InfinityDrive.rb"
-require_relative "InfinityDatablobs.rb"
+require_relative "InfinityDriveUtils.rb"
+require_relative "InfinityDriveDatablobs.rb"
 
 require_relative "Librarian.rb"
 require_relative "Links.rb"
@@ -190,5 +191,7 @@ require_relative "TxTodos.rb"
 require_relative "Utils.rb"
 
 require_relative "Waves.rb"
+
+require_relative "XCacheExtensions.rb"
 
 # ------------------------------------------------------------

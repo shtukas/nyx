@@ -249,7 +249,7 @@ class LxAction
             aionrootnhash = nil
             location = Librarian0Utils::interactivelySelectDesktopLocationOrNull() 
             if location then
-                aionrootnhash = AionCore::commitLocationReturnHash(InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new(), location)
+                aionrootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
             end
 
             item = {

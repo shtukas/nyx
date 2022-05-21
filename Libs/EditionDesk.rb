@@ -51,7 +51,7 @@ class UniqueStringsFunctions
         if answer then
             return JSON.parse(answer)[0]
         end
-        object = AionCore::getAionObjectByHash(InfinityElizabethPureDrive.new(), nhash)
+        object = AionCore::getAionObjectByHash(InfinityDriveElizabeth.new(), nhash)
         answer = UniqueStringsFunctions::uniqueStringIsInAionPointObject(object, uniquestring)
         XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
         answer
@@ -175,7 +175,7 @@ class EditionDesk
                 return
             end
             nhash = nx111["nhash"]
-            text = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+            text = EnergyGridDatablobs::getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             system("open '#{location}'")
             return
@@ -187,7 +187,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new() 
+            operator = EnergyGridElizabeth.new() 
             rootnhash = nx111["rootnhash"]
             exportLocation = EditionDesk::decideEditionLocation(item)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, File.basename(exportLocation))
@@ -234,7 +234,7 @@ class EditionDesk
         if nx111["type"] == "Dx8Unit" then
 
             accessDx8UnitFolderLocation = lambda {|location|
-                InfinityDrive::ensureInfinityDrive()
+                InfinityDriveUtils::ensureInfinityDrive()
                 system("open '#{location}'")
                 LucilleCore::pressEnterToContinue()
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy Dx8Unit folder ? ") then
@@ -289,7 +289,7 @@ class EditionDesk
         end
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(text)
+            nhash = EnergyGridDatablobs::putBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             puts JSON.pretty_generate(nx111)
@@ -302,7 +302,7 @@ class EditionDesk
             raise "(error: 563d3ad6-7d82-485b-afc5-b9aeba6fb88b)"
         end
         if nx111["type"] == "aion-point" then
-            operator = InfinityElizabeth_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching.new()
+            operator = EnergyGridElizabeth.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, Utils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash

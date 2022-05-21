@@ -34,7 +34,7 @@ class Ax1Text
     # Ax1Text::interactivelyIssueNewOrNullForOwner(owneruuid)
     def self.interactivelyIssueNewOrNullForOwner(owneruuid)
         text = Utils::editTextSynchronously("")
-        nhash = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(text)
+        nhash = EnergyGridDatablobs::putBlob(text)
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
         item = {
@@ -54,7 +54,7 @@ class Ax1Text
     # Ax1Text::toString(item)
     def self.toString(item)
         nhash = item["nhash"]
-        text = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+        text = EnergyGridDatablobs::getBlobOrNull(nhash)
         description = (text != "") ? text.lines.first : "(empty text)"
         "(note) #{description}"
     end
@@ -76,9 +76,9 @@ class Ax1Text
             break if operation.nil?
             if operation == "access/edit" then
                 nhash = item["nhash"]
-                text = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::getBlobOrNull(nhash)
+                text = EnergyGridDatablobs::getBlobOrNull(nhash)
                 text = Utils::editTextSynchronously(text)
-                nhash = InfinityDatablobs_XCacheAndInfinityBufferOut_ThenDriveLookupWithLocalXCaching::putBlob(text)
+                nhash = EnergyGridDatablobs::putBlob(text)
                 item["nhash"] = nhash
                 Librarian20ObjectsStore::commit(item)
             end
