@@ -84,7 +84,7 @@ class Librarian0Utils
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            hashes << XCacheExtensionsDatablobs::putBlob(blob)
+            hashes << XCacheDatablobs::putBlob(blob)
         end
         f.close()
         hashes

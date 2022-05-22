@@ -5,14 +5,14 @@ class EnergyGridDatablobs
 
     # EnergyGridDatablobs::putBlob(blob)
     def self.putBlob(blob)
-        XCacheExtensionsDatablobs::putBlob(blob)
+        XCacheDatablobs::putBlob(blob)
     end
 
     # EnergyGridDatablobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
 
         # We first try XCache
-        blob = XCacheExtensionsDatablobs::getBlobOrNull(nhash)
+        blob = XCacheDatablobs::getBlobOrNull(nhash)
         return blob if blob
 
         # Then we look up the drive
@@ -21,7 +21,7 @@ class EnergyGridDatablobs
         filepath = InfinityDriveDatablobs::decideFilepathForBlob(nhash)
         if File.exists?(filepath) then
             blob = IO.read(filepath)
-            XCacheExtensionsDatablobs::putBlob(blob)
+            XCacheDatablobs::putBlob(blob)
             return blob
         end
 
