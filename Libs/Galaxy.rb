@@ -23,15 +23,4 @@ class Galaxy
             }
         end
     end
-
-    # Galaxy::nx20sAtRoot(root)
-    def self.nx20sAtRoot(root)
-        Galaxy::locationEnumerator([root]).map{|location|
-            {
-                "announce" => "#{File.basename(location)}",
-                "type"     => "GalaxyLocation",
-                "payload"  => location
-            }
-        }
-    end
 end

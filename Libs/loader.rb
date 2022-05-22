@@ -127,6 +127,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
+require_relative "../../didact/Code/InfinityDriveDatablobsAndElizabeth.rb"
+
 # ------------------------------------------------------------
 
 require_relative "ADayOfWork.rb"
@@ -154,7 +156,6 @@ require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
 require_relative "InfinityDriveFileSystemCheck.rb"
 require_relative "InfinityDriveUtils.rb"
-require_relative "InfinityDriveDatablobs.rb"
 
 require_relative "Librarian.rb"
 require_relative "Links.rb"
