@@ -67,23 +67,5 @@ class AlexandraDidactSynchronization
                 LucilleCore::removeFileSystemLocation(location)
             end
         }
-
-        # --------------------------------------------------------------------------------------
-
-        puts "Process DatablobsInfinityBufferOut".green
-        Find.find("#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut") do |path|
-            next if !File.file?(path)
-            next if path[-5, 5] != ".data"
-            blob = IO.read(path)
-            nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-            driveFilePath = InfinityDriveDatablobs::prepareFilepathForBlob(nhash)
-            if File.exists?(driveFilePath) then
-                FileUtils.rm(path)
-                next
-            end
-            puts "Uploading blob: #{path}"
-            FileUtils.cp(path, driveFilePath)
-            FileUtils.rm(path)
-        end
     end
 end

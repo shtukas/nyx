@@ -3,20 +3,8 @@
 
 class EnergyGridDatablobs
 
-    # EnergyGridDatablobs::commitToDatablobsInfinityBufferOut(blob)
-    def self.commitToDatablobsInfinityBufferOut(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = "#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut/#{nhash[7, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        File.open(filepath, "w"){|f| f.write(blob) }
-        nhash
-    end
-
     # EnergyGridDatablobs::putBlob(blob)
     def self.putBlob(blob)
-        EnergyGridDatablobs::commitToDatablobsInfinityBufferOut(blob)
         XCacheExtensionsDatablobs::putBlob(blob)
     end
 
@@ -26,14 +14,6 @@ class EnergyGridDatablobs
         # We first try XCache
         blob = XCacheExtensionsDatablobs::getBlobOrNull(nhash)
         return blob if blob
-
-        # Then we try the buffer out
-        filepath = "#{Config::pathToLocalDidact()}/DatablobsInfinityBufferOut/#{nhash[7, 2]}/#{nhash}.data"
-        if File.exists?(filepath) then
-            blob = IO.read(filepath)
-            XCacheExtensionsDatablobs::putBlob(blob)
-            return blob
-        end
 
         # Then we look up the drive
         InfinityDriveUtils::ensureInfinityDrive()

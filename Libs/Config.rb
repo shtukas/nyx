@@ -12,6 +12,6 @@ class Config
 
     # Config::pathToInfinityDidactDataBankType1()
     def self.pathToInfinityDidactDataBankType1()
-        "/Volumes/Infinity/Data/Pascal/Didact-DataBank-Type1"
+        "/Volumes/Infinity/Data/Pascal/TheLibrarian"
     end
 end
