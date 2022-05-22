@@ -76,6 +76,12 @@ class LibrarianSynchronization
             end
         }
 
+        puts "Get new object or updated objects from the Librarian".green
+        librarianObjects = TheLibrarian1::getObjects()
+        librarianObjects.each{|obj|
+            puts "Should import ?: #{obj}".green
+        }
+
         puts "Deleting extra objects on local".green
         ourObjects = Librarian20LocalObjectsStore::objects()
         librarianObjects = TheLibrarian1::getObjects()
