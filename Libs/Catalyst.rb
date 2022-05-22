@@ -130,10 +130,6 @@ class TerminalUtils
             return ["float", nil]
         end
 
-        if Interpreting::match("fsck", input) then
-            return ["fsck", nil]
-        end
-
         if Interpreting::match("help", input) then
             puts [
                     "      " + Commands::terminalDisplayCommand(),

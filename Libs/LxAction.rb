@@ -234,11 +234,6 @@ class LxAction
             return
         end
 
-        if command == "fsck" then
-            InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
-            return
-        end
-
         if command == "inbox" then
             
             # This function creates a TxInbox2 object that is going to be dropped into the Inbox folder. 

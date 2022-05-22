@@ -400,33 +400,6 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "fsck@infinity" then
-
-            puts "librarian fsck@infinity is not going to run until we implement the new Didact-DataBank-Type1-Interface"
-            LucilleCore::pressEnterToContinue()
-            return
-
-            InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
-            exit
-        end
-
-        if ARGV[0] == "alexandra-infinity-sync+fsck@infinity" then
-            puts "librarian alexandra-infinity-sync+fsck@infinity is not going to run until we implement the new Didact-DataBank-Type1-Interface"
-            LucilleCore::pressEnterToContinue()
-            return
-
-            LibrarianSynchronization::run()
-            InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
-            exit
-        end
-
-        if ARGV[0] == "reset-fsck-run-hash" then
-            fsckrunhash = SecureRandom.hex
-            XCache::set("1A07231B-8535-499B-BB2C-89A4EB429F51", fsckrunhash)
-            puts "fsck run hash (re)set to #{fsckrunhash}"
-            exit
-        end
-
         if ARGV[0] == "show-object" and ARGV[1] then
             uuid = ARGV[1]
             object = Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
@@ -472,24 +445,6 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "fsck-object" then
-            puts "librarian fsck-object is not going to run until we implement the new Didact-DataBank-Type1-Interface"
-            LucilleCore::pressEnterToContinue()
-            return
-
-            # This fsck needs to run on Local, not remote.
-
-            uuid = ARGV[1]
-            item = Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
-            if item then
-                InfinityDriveFileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, SecureRandom.hex)
-            else
-                puts "I could not find an item with this uuid"
-                LucilleCore::pressEnterToContinue()
-            end
-            exit
-        end
-
         if ARGV[0] == "make-system-snapshot" then
             item = Sx01Snapshots::issueNewSnapshotUsingCurrentDatabaseObjects()
             puts JSON.pretty_generate(item)
@@ -498,14 +453,10 @@ class LibrarianCLI
 
         puts "usage:"
         puts "    librarian alexandra-infinity-sync"
-        puts "    librarian fsck@infinity"
-        puts "    librarian alexandra-infinity-sync+fsck@infinity"
         puts "    librarian make-system-snapshot"
         puts "    librarian get-blob <nhash>"
         puts "    librarian show-object <uuid>"
         puts "    librarian edit-object <uuid>"
-        puts "    librarian reset-fsck-run-hash"
-        puts "    librarian fsck-object <uuid>"
         puts "    librarian destroy-object-by-uuid-i"
     end
 end
