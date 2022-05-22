@@ -4,8 +4,9 @@
 To be Librarian compatible, an object must have the following keys: 
     - "uuid" 
     - "mikuType"
-    - "lxVariantId" (a uuid) uniquely identifies this version of the object [1]
-    - "lxGenealogy" (array of lxVariantId) this array specifies, during synchronization with the DataBank, which objects it can replace [1] [2]
+    - "lxVariantId" : UUID # uniquely identifies this version of the object [1]
+    - "lxGenealogy" : Array[lxVariantId] # this array specifies, during synchronization with the Librarian, which objects it can replace [1] [2]
+    - "lxDeleted"   : Boolean # Indicates if the object has been logically deleted. (Logical Delete below)
 
 [1] lxVariantId and lxGenealogy are automatically set by the Librariant onto the object when the object is stored to the local objects-store.
 
@@ -14,6 +15,10 @@ To be Librarian compatible, an object must have the following keys:
 We can retrieve objects individually by "uuid" or collectively by "MikuTypes".
 
 Items also carry a "universe" attribute (notably the Catalyst items). If there isn't one, the Librarian will set a default one. 
+
+### Logical Delete
+
+Objects are not immediately erased from the local database. They are first logically deleted, until they are deleted by the Librarian, at which point they can be deleted from the local database.
 
 ### Objects of the Nyx's network
 

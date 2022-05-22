@@ -8,17 +8,17 @@ class Nx100s
 
     # Nx100s::items()
     def self.items()
-        Librarian20ObjectsStore::getObjectsByMikuType("Nx100")
+        Librarian20LocalObjectsStore::getObjectsByMikuType("Nx100")
     end
 
     # Nx100s::getOrNull(uuid): null or Nx100
     def self.getOrNull(uuid)
-        Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
+        Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Nx100s::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20ObjectsStore::destroy(uuid)
+        Librarian20LocalObjectsStore::logicaldelete(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -55,7 +55,7 @@ class Nx100s
             "iam"        => nx111,
             "flavour"     => flavour
         }
-        Librarian20ObjectsStore::commit(item)
+        Librarian20LocalObjectsStore::commit(item)
         item
     end
 
@@ -78,7 +78,7 @@ class Nx100s
             "iam"        => nx111,
             "flavour"     => flavour
         }
-        Librarian20ObjectsStore::commit(item)
+        Librarian20LocalObjectsStore::commit(item)
         item
     end
 
@@ -107,7 +107,7 @@ class Nx100s
           "iam"         => nx111,
           "flavour"     => flavour
         }
-        Librarian20ObjectsStore::commit(item)
+        Librarian20LocalObjectsStore::commit(item)
         item
     end
 
@@ -191,14 +191,14 @@ class Nx100s
             }
         }
         puts JSON.pretty_generate(item2)
-        Librarian20ObjectsStore::commit(item2)
+        Librarian20LocalObjectsStore::commit(item2)
         Links::link(item["uuid"], item2["uuid"], false)
         item["iam"] = {
             "uuid" => SecureRandom.uuid,
             "type" => "navigation"
         }
         puts JSON.pretty_generate(item)
-        Librarian20ObjectsStore::commit(item)
+        Librarian20LocalObjectsStore::commit(item)
         puts "Operation completed"
         LucilleCore::pressEnterToContinue()
     end
@@ -336,7 +336,7 @@ class Nx100s
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian20ObjectsStore::commit(item)
+                Librarian20LocalObjectsStore::commit(item)
                 next
             end
 
@@ -355,7 +355,7 @@ class Nx100s
                 datetime = Utils::editTextSynchronously(item["datetime"]).strip
                 next if !Utils::isDateTime_UTC_ISO8601(datetime)
                 item["datetime"] = datetime
-                Librarian20ObjectsStore::commit(item)
+                Librarian20LocalObjectsStore::commit(item)
             end
 
             if Interpreting::match("iam", command) then
@@ -364,7 +364,7 @@ class Nx100s
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian20ObjectsStore::commit(item)
+                    Librarian20LocalObjectsStore::commit(item)
                 end
             end
 
@@ -374,7 +374,7 @@ class Nx100s
                 puts JSON.pretty_generate(flavour)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["flavour"] = flavour
-                    Librarian20ObjectsStore::commit(item) 
+                    Librarian20LocalObjectsStore::commit(item) 
                 end
             end
 

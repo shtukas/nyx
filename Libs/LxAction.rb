@@ -180,7 +180,7 @@ class LxAction
             end
             if object["mikuType"] == "NS16:TxInbox2" then
                 item = object["item"]
-                Librarian20ObjectsStore::destroy(item["uuid"])
+                Librarian20LocalObjectsStore::logicaldelete(item["uuid"])
                 return
             end
             if object["mikuType"] == "NS16:TxTodo" then
@@ -262,7 +262,7 @@ class LxAction
 
             puts JSON.pretty_generate(item)
 
-            Librarian20ObjectsStore::commit(item)
+            Librarian20LocalObjectsStore::commit(item)
 
             if location then
                 LucilleCore::removeFileSystemLocation(location)
@@ -412,7 +412,7 @@ class LxAction
                 mx49 = ns16["TxDated"]
                 datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
                 mx49["datetime"] = datetime
-                Librarian20ObjectsStore::commit(mx49)
+                Librarian20LocalObjectsStore::commit(mx49)
                 return
             end
         end

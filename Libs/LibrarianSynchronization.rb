@@ -66,7 +66,7 @@ class LibrarianSynchronization
 
         require_relative "../thelibrarian1/thelibrarian1.rb"
 
-        Librarian20ObjectsStore::objects().each{|item|
+        Librarian20LocalObjectsStore::objects().each{|item|
             puts JSON.pretty_generate(item)
             TheLibrarian1::putObject(item)
         }

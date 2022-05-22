@@ -7,17 +7,17 @@ class Sx01Snapshots
 
     # Sx01Snapshots::items()
     def self.items()
-        Librarian20ObjectsStore::getObjectsByMikuType("Sx01")
+        Librarian20LocalObjectsStore::getObjectsByMikuType("Sx01")
     end
 
     # Sx01Snapshots::getOrNull(uuid)
     def self.getOrNull(uuid)
-        Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid)
+        Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Sx01Snapshots::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20ObjectsStore::destroy(uuid)
+        Librarian20LocalObjectsStore::logicaldelete(uuid)
     end
 
     # Sx01Snapshots::snapshotToLibrarianObjects(snapshot)
@@ -33,7 +33,7 @@ class Sx01Snapshots
     # Sx01Snapshots::buildSnapshotTxtFileFromCurrentDatabaseObjects() 
     def self.buildSnapshotTxtFileFromCurrentDatabaseObjects()
         # We take the objects and dump them into a file
-        objects = Librarian20ObjectsStore::objects()
+        objects = Librarian20LocalObjectsStore::objects()
         objects
             .map{|object|
                 JSON.generate(object)
@@ -54,7 +54,7 @@ class Sx01Snapshots
             "datetime" => Time.new.utc.iso8601,
             "objects"  => EnergyGridDatablobs::putBlob(blob)
         }
-        Librarian20ObjectsStore::commit(item)
+        Librarian20LocalObjectsStore::commit(item)
         item
     end
 

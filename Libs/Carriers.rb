@@ -5,10 +5,10 @@ class Carriers
 
     # Carriers::getCarrierContents(owneruuid)
     def self.getCarrierContents(owneruuid)
-        Librarian20ObjectsStore::getObjectsByMikuType("Nx60")
+        Librarian20LocalObjectsStore::getObjectsByMikuType("Nx60")
             .select{|claim| claim["owneruuid"] == owneruuid }
             .map{|claim| claim["targetuuid"] }
-            .map{|uuid| Librarian20ObjectsStore::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 

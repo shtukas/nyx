@@ -4,12 +4,12 @@ class TxFloats
 
     # TxFloats::items()
     def self.items()
-        Librarian20ObjectsStore::getObjectsByMikuType("TxFloat")
+        Librarian20LocalObjectsStore::getObjectsByMikuType("TxFloat")
     end
 
     # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20ObjectsStore::destroy(uuid)
+        Librarian20LocalObjectsStore::logicaldelete(uuid)
     end
 
     # --------------------------------------------------
@@ -38,7 +38,7 @@ class TxFloats
           "iam"         => nx111,
           "universe"    => universe
         }
-        Librarian20ObjectsStore::commit(item)
+        Librarian20LocalObjectsStore::commit(item)
         item
     end
 
@@ -112,7 +112,7 @@ class TxFloats
                 description = Utils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian20ObjectsStore::commit(item)
+                Librarian20LocalObjectsStore::commit(item)
                 next
             end
 
@@ -122,7 +122,7 @@ class TxFloats
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian20ObjectsStore::commit(item)
+                    Librarian20LocalObjectsStore::commit(item)
                 end
             end
 
@@ -134,7 +134,7 @@ class TxFloats
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian20ObjectsStore::commit(item)
+                Librarian20LocalObjectsStore::commit(item)
                 break
             end
 
@@ -189,7 +189,7 @@ class TxFloats
     # TxFloats::ns16s(universe)
     def self.ns16s(universe)
         return [] if universe.nil?
-        Librarian20ObjectsStore::getObjectsByMikuTypeAndUniverse("TxFloat", universe)
+        Librarian20LocalObjectsStore::getObjectsByMikuTypeAndUniverse("TxFloat", universe)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }
     end

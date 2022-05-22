@@ -7,7 +7,7 @@ class Inbox
 
     # Inbox::txInbox2NS16s()
     def self.txInbox2NS16s()
-        Librarian20ObjectsStore::getObjectsByMikuType("TxInbox2").map{|item|
+        Librarian20LocalObjectsStore::getObjectsByMikuType("TxInbox2").map{|item|
             uuid = item["uuid"]
             {
                 "uuid"     => uuid,
@@ -31,7 +31,7 @@ class Inbox
             return
         end
         if action == "destroy" then
-            Librarian20ObjectsStore::destroy(item["uuid"])
+            Librarian20LocalObjectsStore::logicaldelete(item["uuid"])
             return
         end
     end
