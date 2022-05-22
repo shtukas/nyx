@@ -68,7 +68,11 @@ class LibrarianSynchronization
 
         Librarian20LocalObjectsStore::objects().each{|item|
             puts JSON.pretty_generate(item)
-            TheLibrarian1::putObject(item)
+            answer = TheLibrarian1::putObject(item)
+            if item["lxDeleted"] and answer == "deleted" then
+                puts "destroying local item: #{item["uuid"]}"
+                Librarian20LocalObjectsStore::destroy(item["uuid"])
+            end
         }
     end
 end
