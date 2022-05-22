@@ -132,7 +132,6 @@ require_relative "../../didact/Code/InfinityDriveDatablobsAndElizabeth.rb"
 # ------------------------------------------------------------
 
 require_relative "ADayOfWork.rb"
-require_relative "LibrarianSynchronization.rb"
 require_relative "Anniversaries.rb"
 require_relative "Ax1Text.rb"
 

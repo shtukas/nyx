@@ -253,11 +253,6 @@ class LibrarianCLI
     # LibrarianCLI::main()
     def self.main()
 
-        if ARGV[0] == "alexandra-infinity-sync" then
-            LibrarianSynchronization::run()
-            exit
-        end
-
         if ARGV[0] == "show-object" and ARGV[1] then
             uuid = ARGV[1]
             object = Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
@@ -304,7 +299,6 @@ class LibrarianCLI
         end
 
         puts "usage:"
-        puts "    librarian alexandra-infinity-sync"
         puts "    librarian get-blob <nhash>"
         puts "    librarian show-object <uuid>"
         puts "    librarian edit-object <uuid>"
