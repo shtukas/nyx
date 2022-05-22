@@ -80,6 +80,7 @@ class LibrarianSynchronization
         librarianObjects = TheLibrarian1::getObjects()
         librarianObjects.each{|obj|
             puts "Should import ?: #{obj}".green
+            exit
         }
 
         puts "Deleting extra objects on local".green
@@ -89,6 +90,7 @@ class LibrarianSynchronization
         extraObjects = ourObjects.select{|obj| !librarianObjectsUUIDs.include?(obj["uuid"]) }
         extraObjects.each{|obj|
             puts "Would delete: #{obj}".green
+            exit
         }
     end
 end
