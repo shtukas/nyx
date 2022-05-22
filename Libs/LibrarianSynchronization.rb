@@ -66,6 +66,7 @@ class LibrarianSynchronization
 
         require_relative "../thelibrarian1/thelibrarian1.rb"
 
+        puts "Sending our objects to the Librarian".green
         Librarian20LocalObjectsStore::objects().each{|item|
             puts JSON.pretty_generate(item)
             answer = TheLibrarian1::putObject(item)
@@ -73,6 +74,15 @@ class LibrarianSynchronization
                 puts "destroying local item: #{item["uuid"]}"
                 Librarian20LocalObjectsStore::destroy(item["uuid"])
             end
+        }
+
+        puts "Deleting extra objects on local".green
+        ourObjects = Librarian20LocalObjectsStore::objects()
+        librarianObjects = TheLibrarian1::getObjects()
+        librarianObjectsUUIDs = librarianObjects.map{|o| o["uuid"] }
+        extraObjects = ourObjects.select{|obj| !librarianObjectsUUIDs.include?(obj["uuid"]) }
+        extraObjects.each{|obj|
+            puts "Would delete: #{obj}".green
         }
     end
 end
