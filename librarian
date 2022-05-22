@@ -6,6 +6,4 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
-Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
-
 LibrarianCLI::main()

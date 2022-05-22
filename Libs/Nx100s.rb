@@ -239,8 +239,6 @@ class Nx100s
 
             system("clear")
 
-            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
-
             if $NavigationSandboxState then
                 puts "!! Selection sandbox, type `found` or `exit` !!".green
             end

@@ -21,7 +21,6 @@ class Inbox
 
     # Inbox::landingInbox2(item)
     def self.landingInbox2(item)
-        Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
         puts item["line"]
         if item["aionrootnhash"] then
             AionCore::exportHashAtFolder(EnergyGridElizabeth.new(), item["aionrootnhash"], "/Users/pascal/Desktop")

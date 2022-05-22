@@ -176,7 +176,6 @@ require_relative "PrimitiveFiles.rb"
 require_relative "Snapshots.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
-require_relative "Sx01Snapshots.rb"
 
 require_relative "TheNetworkStack.rb"
 require_relative "Topping.rb"

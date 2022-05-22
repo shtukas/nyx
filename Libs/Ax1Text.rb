@@ -66,7 +66,6 @@ class Ax1Text
     def self.landing(item)
         loop {
             system("clear")
-            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
             puts Ax1Text::toString(item)
             operations = [
                 "access/edit",

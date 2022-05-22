@@ -490,11 +490,6 @@ class TerminalDisplayOperator
 
         vspaceleft = Utils::screenHeight()-4
 
-        s = Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
-        if s then 
-            vspaceleft = vspaceleft - 1
-        end
-
         puts ""
 
         if programname == "program2" then
