@@ -1,8 +1,0 @@
-Sx01 = {
-  "uuid"     : String
-  "mikuType" : "Sx01"
-  "unixtime" : Float # Time at which the object was created.
-  "datetime" : DateTime Iso8601 # Snapshot reference time. 
-               Expected (but not enforced) to be the same instant as a the unixtime 
-  "objects"  : nhash of the jsonlist (txt) file
-}

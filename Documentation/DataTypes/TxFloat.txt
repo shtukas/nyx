@@ -1,8 +1,0 @@
-TxFloat = {
-  "uuid"           : String
-  "mikuType"       : "TxFloat"
-  "description"    : String
-  "unixtime"       : Float
-  "datetime"       : DateTime Iso8601
-  "iam"            : Nx111
-}

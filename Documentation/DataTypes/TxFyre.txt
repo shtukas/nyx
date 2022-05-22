@@ -1,8 +1,0 @@
-TxFyre = {
-  "uuid"           : String
-  "mikuType"       : "TxFyre"
-  "description"    : String
-  "unixtime"       : Float
-  "datetime"       : DateTime Iso8601
-  "iam"            : Nx111
-}

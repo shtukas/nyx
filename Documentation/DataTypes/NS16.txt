@@ -1,8 +1,0 @@
-NS16 {
-    "uuid"     : String # used by DoNotShowUntil
-    "mikuType" : String # type of NS16 used for dispatch
-    "announce" : String
-
-    "nonListingDefaultable" : Boolean # Optional
-    "lambda"   : Lambda # executed when present, no other processing
-}
