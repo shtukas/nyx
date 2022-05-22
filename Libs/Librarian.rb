@@ -385,7 +385,7 @@ class LibrarianCLI
     def self.main()
 
         if ARGV[0] == "alexandra-infinity-sync" then
-            AlexandraDidactSynchronization::run()
+            LibrarianSynchronization::run()
             exit
         end
 
@@ -404,7 +404,7 @@ class LibrarianCLI
             LucilleCore::pressEnterToContinue()
             return
 
-            AlexandraDidactSynchronization::run()
+            LibrarianSynchronization::run()
             InfinityDriveFileSystemCheck::fsckExitAtFirstFailure()
             exit
         end

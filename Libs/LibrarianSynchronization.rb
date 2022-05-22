@@ -1,14 +1,10 @@
 
 # encoding: UTF-8
 
-class AlexandraDidactSynchronization
+class LibrarianSynchronization
 
-    # AlexandraDidactSynchronization::run()
+    # LibrarianSynchronization::run()
     def self.run()
-
-        puts "AlexandraDidactSynchronization::run() is not going to run until we implement the new Didact-DataBank-Type1-Interface"
-        LucilleCore::pressEnterToContinue()
-        return
 
         # --------------------------------------------------------------------------------------
 
@@ -66,6 +62,13 @@ class AlexandraDidactSynchronization
                 puts "    Deleting Edition Desk location: #{File.basename(location)}"
                 LucilleCore::removeFileSystemLocation(location)
             end
+        }
+
+        require_relative "../thelibrarian1/thelibrarian1.rb"
+
+        Librarian20ObjectsStore::objects().each{|item|
+            puts JSON.pretty_generate(item)
+            TheLibrarian1::putObject(item)
         }
     end
 end
