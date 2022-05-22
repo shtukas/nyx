@@ -5,12 +5,12 @@ class InfinityDriveDatablobs
 
     # InfinityDriveDatablobs::decideFilepathForBlob(nhash)
     def self.decideFilepathForBlob(nhash)
-        "#{Config::pathToInfinityDidactDataBankType1()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        "#{Config::pathToInfinityLibrarian()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
     end
 
     # InfinityDriveDatablobs::prepareFilepathForBlob(nhash)
     def self.prepareFilepathForBlob(nhash)
-        filepath = "#{Config::pathToInfinityDidactDataBankType1()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        filepath = "#{Config::pathToInfinityLibrarian()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end

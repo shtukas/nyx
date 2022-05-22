@@ -10,8 +10,8 @@ class Config
         "/Users/pascal/Galaxy/DataBank/Didact"
     end
 
-    # Config::pathToInfinityDidactDataBankType1()
-    def self.pathToInfinityDidactDataBankType1()
+    # Config::pathToInfinityLibrarian()
+    def self.pathToInfinityLibrarian()
         "/Volumes/Infinity/Data/Pascal/TheLibrarian"
     end
 end

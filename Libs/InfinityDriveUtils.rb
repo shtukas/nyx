@@ -5,7 +5,7 @@ class InfinityDriveUtils
 
     # InfinityDriveUtils::driveIsPlugged()
     def self.driveIsPlugged()
-        File.exists?(Config::pathToInfinityDidactDataBankType1())
+        File.exists?(Config::pathToInfinityLibrarian())
     end
 
     # InfinityDriveUtils::ensureInfinityDrive()
