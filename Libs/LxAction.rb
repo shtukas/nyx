@@ -374,7 +374,8 @@ class LxAction
         end
 
         if command == "nyx" then
-            Nyx::program()
+            puts "(info: 4B14BAB4-7414-4090-982D-29C218EB5408) command nyx: to be written, call the executable"
+            exit
             return
         end
 

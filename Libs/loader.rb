@@ -169,7 +169,6 @@ require_relative "Nx60s.rb"
 require_relative "Nx100s.rb"
 require_relative "Nx111.rb"
 require_relative "Nx102Flavors.rb"
-require_relative "Nyx.rb"
 
 require_relative "ProgrammableBooleans.rb"
 require_relative "PrimitiveFiles.rb"
