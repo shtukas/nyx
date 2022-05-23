@@ -4,24 +4,24 @@ class TxTodos
 
     # TxTodos::items()
     def self.items()
-        Librarian20LocalObjectsStore::getObjectsByMikuType("TxTodo")
+        LocalObjectsStore::getObjectsByMikuType("TxTodo")
     end
 
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        Librarian20LocalObjectsStore::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
+        LocalObjectsStore::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
     end
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20LocalObjectsStore::logicaldelete(uuid)
+        LocalObjectsStore::logicaldelete(uuid)
     end
 
     # --------------------------------------------------
 
     # TxTodos::itemsForNS16s(universe)
     def self.itemsForNS16s(universe)
-        Librarian20LocalObjectsStore::getObjectsByMikuTypeAndUniverseByOrdinalLimit("TxTodo", universe, 100)
+        LocalObjectsStore::getObjectsByMikuTypeAndUniverseByOrdinalLimit("TxTodo", universe, 100)
     end
 
     # --------------------------------------------------
@@ -100,7 +100,7 @@ class TxTodos
           "ordinal"     => ordinal,
           "universe"    => universe
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 
@@ -131,7 +131,7 @@ class TxTodos
           "ordinal"     => ordinal,
           "universe"    => universe
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 
@@ -220,7 +220,7 @@ class TxTodos
                 description = DidactUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
                 next
             end
 
@@ -230,7 +230,7 @@ class TxTodos
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian20LocalObjectsStore::commit(item)
+                    LocalObjectsStore::commit(item)
                 end
             end
 
@@ -242,7 +242,7 @@ class TxTodos
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
                 break
             end
 
@@ -251,7 +251,7 @@ class TxTodos
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 item["ordinal"] = ordinal
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
                 next
             end
 
@@ -260,7 +260,7 @@ class TxTodos
                 ordinal = TxTodos::nextOrdinal(universe)
                 item["ordinal"] = ordinal
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
                 break
             end
 
@@ -316,7 +316,7 @@ class TxTodos
                 end
                 if command == "landing" then
                     LxAction::action("landing", item)
-                    item = Librarian20LocalObjectsStore::getObjectByUUIDOrNull(item["uuid"])
+                    item = LocalObjectsStore::getObjectByUUIDOrNull(item["uuid"])
                     if item["mikuType"] != "TxTodo" then
                         break
                     end
@@ -386,7 +386,7 @@ class TxTodos
 
     # TxTodos::nx20s()
     def self.nx20s()
-        Librarian20LocalObjectsStore::getObjectsByMikuType("TxTodo")
+        LocalObjectsStore::getObjectsByMikuType("TxTodo")
             .map{|item|
                 {
                     "announce" => TxTodos::toStringForNS19(item),

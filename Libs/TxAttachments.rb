@@ -8,7 +8,7 @@ class TxAttachments
 
     # TxAttachments::items()
     def self.items()
-        Librarian20LocalObjectsStore::getObjectsByMikuType("TxAttachment")
+        LocalObjectsStore::getObjectsByMikuType("TxAttachment")
     end
 
     # TxAttachments::itemsForOwner(owneruuid)
@@ -20,12 +20,12 @@ class TxAttachments
 
     # TxAttachments::getOrNull(uuid): null or TxAttachment
     def self.getOrNull(uuid)
-        Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
+        LocalObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # TxAttachments::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20LocalObjectsStore::logicaldelete(uuid)
+        LocalObjectsStore::logicaldelete(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -50,7 +50,7 @@ class TxAttachments
           "description" => description,
           "iam"         => nx111
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 

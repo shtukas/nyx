@@ -8,7 +8,7 @@ class Ax1Text
 
     # Ax1Text::items()
     def self.items()
-        Librarian20LocalObjectsStore::getObjectsByMikuType("Ax1Text")
+        LocalObjectsStore::getObjectsByMikuType("Ax1Text")
     end
 
     # Ax1Text::itemsForOwner(owneruuid)
@@ -20,12 +20,12 @@ class Ax1Text
 
     # Ax1Text::getOrNull(uuid): null or Ax1Text
     def self.getOrNull(uuid)
-        Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
+        LocalObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Ax1Text::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20LocalObjectsStore::logicaldelete(uuid)
+        LocalObjectsStore::logicaldelete(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ class Ax1Text
           "unixtime"    => unixtime,
           "nhash"       => nhash
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 
@@ -79,7 +79,7 @@ class Ax1Text
                 text = DidactUtils::editTextSynchronously(text)
                 nhash = EnergyGridDatablobs::putBlob(text)
                 item["nhash"] = nhash
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then

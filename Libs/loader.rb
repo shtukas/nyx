@@ -116,6 +116,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 require_relative "../../didact/Code/InfinityDriveDatablobsAndElizabeth.rb"
 require_relative "../../didact/Code/XCacheDatablobsAndElizabeth.rb"
 require_relative "../../didact/Code/DidactUtils.rb"
+require_relative "../../didact/Code/LocalObjectsStore.rb"
 
 # ------------------------------------------------------------
 
@@ -126,7 +127,6 @@ require_relative "Ax1Text.rb"
 require_relative "Bank.rb"
 
 require_relative "Carriers.rb"
-require_relative "Config.rb"
 require_relative "Catalyst.rb"
 
 require_relative "DoNotShowUntil.rb"

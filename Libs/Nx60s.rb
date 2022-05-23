@@ -8,17 +8,17 @@ class Nx60s
 
     # Nx60s::items()
     def self.items()
-        Librarian20LocalObjectsStore::getObjectsByMikuType("Nx60")
+        LocalObjectsStore::getObjectsByMikuType("Nx60")
     end
 
     # Nx60s::getOrNull(uuid): null or Nx60
     def self.getOrNull(uuid)
-        Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
+        LocalObjectsStore::getObjectByUUIDOrNull(uuid)
     end
 
     # Nx60s::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20LocalObjectsStore::logicaldelete(uuid)
+        LocalObjectsStore::logicaldelete(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -35,7 +35,7 @@ class Nx60s
           "owneruuid"  => owneruuid,
           "targetuuid" => targetuuid
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 end

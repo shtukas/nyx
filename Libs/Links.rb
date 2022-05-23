@@ -34,7 +34,7 @@ class Links
             "bidirectional" => isBidirectional
         }
         #puts JSON.pretty_generate(item)
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
 
         LinkCache::resetPointer(sourceuuid)
         LinkCache::resetPointer(targetuuid)
@@ -42,13 +42,13 @@ class Links
 
     # Links::unlink(uuid1, uuid2)
     def self.unlink(uuid1, uuid2)
-        Librarian20LocalObjectsStore::getObjectsByMikuType("Lx21")
+        LocalObjectsStore::getObjectsByMikuType("Lx21")
             .select{|item|
                 b1 = (item["sourceuuid"] == uuid1 and item["targetuuid"] == uuid2)
                 b2 = (item["sourceuuid"] == uuid2 and item["targetuuid"] == uuid1)
                 b1 or b2
             }
-            .each{|item| Librarian20LocalObjectsStore::logicaldelete(item["uuid"]) }
+            .each{|item| LocalObjectsStore::logicaldelete(item["uuid"]) }
 
         LinkCache::resetPointer(uuid1)
         LinkCache::resetPointer(uuid2)
@@ -66,11 +66,11 @@ class Links
             return JSON.parse(data)
         end
 
-        uuids1 = Librarian20LocalObjectsStore::getObjectsByMikuType("Lx21")
+        uuids1 = LocalObjectsStore::getObjectsByMikuType("Lx21")
                     .select{|item| item["sourceuuid"] == uuid and item["bidirectional"] }
                     .map{|item| item["targetuuid"] }
 
-        uuids2 = Librarian20LocalObjectsStore::getObjectsByMikuType("Lx21")
+        uuids2 = LocalObjectsStore::getObjectsByMikuType("Lx21")
                     .select{|item| item["targetuuid"] == uuid and item["bidirectional"] }
                     .map{|item| item["sourceuuid"] }
         data = uuids1 + uuids2
@@ -89,7 +89,7 @@ class Links
             return JSON.parse(data)
         end
 
-        data = Librarian20LocalObjectsStore::getObjectsByMikuType("Lx21")
+        data = LocalObjectsStore::getObjectsByMikuType("Lx21")
             .select{|item| item["targetuuid"] == uuid and !item["bidirectional"] }
             .map{|item| item["sourceuuid"] }
 
@@ -107,7 +107,7 @@ class Links
             return JSON.parse(data)
         end
 
-        data = Librarian20LocalObjectsStore::getObjectsByMikuType("Lx21")
+        data = LocalObjectsStore::getObjectsByMikuType("Lx21")
             .select{|item| item["sourceuuid"] == uuid and !item["bidirectional"] }
             .map{|item| item["targetuuid"] }
 
@@ -122,21 +122,21 @@ class Links
     # Links::related(uuid)
     def self.related(uuid)
         Links::relatedUUIDs(uuid)
-            .map{|uuid| Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
     # Links::parents(uuid)
     def self.parents(uuid)
         Links::parentUUIDs(uuid)
-            .map{|uuid| Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
     # Links::children(uuid)
     def self.children(uuid)
         Links::childrenUUIDs(uuid)
-            .map{|uuid| Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 

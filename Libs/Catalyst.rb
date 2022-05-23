@@ -2,7 +2,7 @@
 
 class TerminalUtils
 
-    # TerminalDidactUtils::removeDuplicatesOnAttribute(array, attribute)
+    # TerminalUtils::removeDuplicatesOnAttribute(array, attribute)
     def self.removeDuplicatesOnAttribute(array, attribute)
         array.reduce([]){|selected, element|
             if selected.none?{|x| x[attribute] == element[attribute] } then
@@ -13,13 +13,13 @@ class TerminalUtils
         }
     end
 
-    # TerminalDidactUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
+    # TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
     def self.removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
         uuids1 = array1.map{|ns16| ns16["uuid"] }
         array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
     end
 
-    # TerminalDidactUtils::inputParser(input, store)
+    # TerminalUtils::inputParser(input, store)
     def self.inputParser(input, store) # [command or null, ns16 or null]
         # This function take an input from the prompt and 
         # attempt to retrieve a command and optionaly an object (from the store)
@@ -590,7 +590,7 @@ class TerminalDisplayOperator
             end
         end
 
-        command, objectOpt = TerminalDidactUtils::inputParser(input, store)
+        command, objectOpt = TerminalUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 
         if objectOpt and objectOpt["lambda"] then

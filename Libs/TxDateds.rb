@@ -4,12 +4,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        Librarian20LocalObjectsStore::getObjectsByMikuType("TxDated")
+        LocalObjectsStore::getObjectsByMikuType("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Librarian20LocalObjectsStore::logicaldelete(uuid)
+        LocalObjectsStore::logicaldelete(uuid)
     end
 
     # --------------------------------------------------
@@ -41,7 +41,7 @@ class TxDateds
           "datetime"    => datetime,
           "iam"        => nx111,
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 
@@ -69,7 +69,7 @@ class TxDateds
           "datetime"    => datetime,
           "iam"         => nx111
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 
@@ -94,7 +94,7 @@ class TxDateds
           "datetime"    => datetime,
           "iam"         => nx111,
         }
-        Librarian20LocalObjectsStore::commit(item)
+        LocalObjectsStore::commit(item)
         item
     end
 
@@ -158,7 +158,7 @@ class TxDateds
                 datetime = DidactUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
                 item["datetime"] = datetime
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
                 next
             end
 
@@ -166,7 +166,7 @@ class TxDateds
                 description = DidactUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
                 next
             end
 
@@ -176,7 +176,7 @@ class TxDateds
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    Librarian20LocalObjectsStore::commit(item)
+                    LocalObjectsStore::commit(item)
                 end
             end
 
@@ -207,7 +207,7 @@ class TxDateds
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian20LocalObjectsStore::commit(item)
+                LocalObjectsStore::commit(item)
                 next
             end
 

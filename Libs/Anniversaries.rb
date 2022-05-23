@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::itemsFolderPath()
     def self.itemsFolderPath()
-        "#{Config::pathToLocalDidact()}/Catalyst/Anniversaries"
+        "/Users/pascal/Galaxy/DataBank/Didact/Catalyst/Anniversaries"
     end
 
     # Anniversaries::anniversaries()

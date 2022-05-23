@@ -4,7 +4,7 @@ class DoNotShowUntil
 
     # DoNotShowUntil::databaseFilepath()
     def self.databaseFilepath()
-        "#{Config::pathToLocalDidact()}/Catalyst/DoNotShowUntil.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Didact/Catalyst/DoNotShowUntil.sqlite3"
     end
 
     # DoNotShowUntil::setUnixtime(uid, unixtime)

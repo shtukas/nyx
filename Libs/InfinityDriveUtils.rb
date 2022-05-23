@@ -5,7 +5,7 @@ class InfinityDriveUtils
 
     # InfinityDriveDidactUtils::driveIsPlugged()
     def self.driveIsPlugged()
-        File.exists?(Config::pathToInfinityLibrarian())
+        File.exists?("/Volumes/Infinity/Data/Pascal/TheLibrarian")
     end
 
     # InfinityDriveDidactUtils::ensureInfinityDrive()
