@@ -27,7 +27,7 @@ class PrimitiveFiles
  
         dottedExtension = File.extname(filepath)
  
-        nhash = Librarian0DidactUtils::filepathToContentHash(filepath)
+        nhash = DidactUtils::filepathToContentHash(filepath)
  
         committer = lambda {|blob|
             EnergyGridDatablobs::putBlob(blob)

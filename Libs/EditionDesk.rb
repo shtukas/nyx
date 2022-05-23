@@ -60,7 +60,7 @@ class UniqueStringsFunctions
     # UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
     def self.findAndAccessUniqueString(uniquestring)
         puts "unique string: #{uniquestring}"
-        location = Librarian0DidactUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+        location = DidactUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
         if location then
             puts "location: #{location}"
             if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
@@ -183,7 +183,7 @@ class EditionDesk
         if nx111["type"] == "url" then
             url = nx111["url"]
             puts "url: #{url}"
-            Librarian0DidactUtils::openUrlUsingSafari(url)
+            DidactUtils::openUrlUsingSafari(url)
             return
         end
         if nx111["type"] == "aion-point" then

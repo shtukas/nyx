@@ -242,7 +242,7 @@ class LxAction
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             aionrootnhash = nil
-            location = Librarian0DidactUtils::interactivelySelectDesktopLocationOrNull() 
+            location = DidactUtils::interactivelySelectDesktopLocationOrNull() 
             if location then
                 aionrootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
             end
