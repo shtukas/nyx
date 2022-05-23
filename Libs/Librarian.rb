@@ -193,6 +193,20 @@ class Librarian20LocalObjectsStore
         object
     end
 
+    # Librarian20LocalObjectsStore::getObjectIncludedDeletedByUUIDOrNull(uuid)
+    def self.getObjectIncludedDeletedByUUIDOrNull(uuid)
+        db = SQLite3::Database.new(Librarian20LocalObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        object = nil
+        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
+            object = JSON.parse(row['_object_'])
+        end
+        db.close
+        object
+    end
+
     # ---------------------------------------------------
     # Writing
 
@@ -210,9 +224,61 @@ class Librarian20LocalObjectsStore
             object["universe"] = "backlog"
         end
 
-        object["lxVariantId"] = SecureRandom.uuid
+        if object["lxVariantId"].nil? then
+            object["lxVariantId"] = SecureRandom.uuid
+        end
 
-        # TODO: implement lxGenealogy
+        existingObject = Librarian20LocalObjectsStore::getObjectByUUIDOrNull(object["uuid"])
+        if existingObject then
+            if existingObject["lxVariantId"] == object["lxVariantId"] then
+                # The existing object is being sent to disk, maybe updated
+                if existingObject.to_s == object.to_s then
+                    # The existing object is being sent to disk identically. There is nothing to do, we return
+                    return
+                else
+                    # The existing object is being sent t0 disk modified
+                    if object["lxGenealogy"].nil? then
+                        object["lxGenealogy"] = []
+                    end
+                    object["lxGenealogy"] << existingObject["lxVariantId"]
+                    object["lxVariantId"] = SecureRandom.uuid
+                end
+            else
+                # The existing object and the new object do not have the same lxVariantId...
+                # I don't know what to do here ? 🤔
+                # It could be that the object is coming from the Librarian
+                # Well, I'll take it.
+                if object["lxGenealogy"].nil? then
+                    object["lxGenealogy"] = []
+                end
+                # We do not do anything with the "lxGenealogy" beside just making sure it exists.
+            end
+        else
+            # No existing object
+            object["lxVariantId"] = SecureRandom.uuid
+            object["lxGenealogy"] = []
+        end
+
+        db = SQLite3::Database.new(Librarian20LocalObjectsStore::pathToObjectsStoreDatabase())
+        db.results_as_hash = true
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
+
+        db.close
+    end
+
+    # Librarian20LocalObjectsStore::commitWithoutModifications(object)
+    def self.commitWithoutModifications(object)
+        raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
+        raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
+
+        raise "(error: 7fb476dc-94ce-4ef9-8253-04776dd550fb, missing attribute ordinal)" if object["ordinal"].nil?
+        raise "(error: bcc0e0f0-b4cf-4815-ae70-0c4cf834bf8f, missing attribute universe)" if object["universe"].nil?
+        raise "(error: 6b521c4a-03a3-4b14-98f3-5176cdb9a599, missing attribute universe)" if object["universe"].nil?
+        raise "(error: 9fd3f77b-25a5-4fc1-b481-074f4d5444ce, missing attribute lxGenealogy)" if object["lxGenealogy"].nil?
 
         db = SQLite3::Database.new(Librarian20LocalObjectsStore::pathToObjectsStoreDatabase())
         db.results_as_hash = true
@@ -255,7 +321,7 @@ class LibrarianCLI
 
         if ARGV[0] == "show-object" and ARGV[1] then
             uuid = ARGV[1]
-            object = Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
+            object = Librarian20LocalObjectsStore::getObjectIncludedDeletedByUUIDOrNull(uuid)
             if object then
                 puts JSON.pretty_generate(object)
                 LucilleCore::pressEnterToContinue()
@@ -268,11 +334,11 @@ class LibrarianCLI
 
         if ARGV[0] == "edit-object" and ARGV[1] then
             uuid = ARGV[1]
-            object = Librarian20LocalObjectsStore::getObjectByUUIDOrNull(uuid)
+            object = Librarian20LocalObjectsStore::getObjectIncludedDeletedByUUIDOrNull(uuid)
             if object then
                 object = Utils::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
-                Librarian20LocalObjectsStore::commit(object)
+                Librarian20LocalObjectsStore::commitWithoutModifications(object)
             else
                 puts "I could not find an object with this uuid"
                 LucilleCore::pressEnterToContinue()

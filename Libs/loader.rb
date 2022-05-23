@@ -128,6 +128,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 =end
 
 require_relative "../../didact/Code/InfinityDriveDatablobsAndElizabeth.rb"
+require_relative "../../didact/Code/XCacheDatablobsAndElizabeth.rb"
 
 # ------------------------------------------------------------
 
