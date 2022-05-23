@@ -42,9 +42,9 @@ class ADayOfWork
 
     # ADayOfWork::updateWorkGlobalCommitmentWithDoneSeconds(timeInSeconds)
     def self.updateWorkGlobalCommitmentWithDoneSeconds(timeInSeconds)
+        date = Utils::today()
         object = ADayOfWork::getTodayWorkGlobalCommitmentOrNull()
         return if object.nil?
-        object["secondsleft"] = object["secondsleft"] - timeInSeconds
         XCache::set("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}", JSON.generate(object))
     end
 
