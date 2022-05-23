@@ -163,10 +163,6 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("landing", ordinal, store)
         end
 
-        if Interpreting::match("librarian", input) then
-            return ["librarian", nil]
-        end
-
         if Interpreting::match("nyx", input) then
             return ["nyx", nil]
         end

@@ -363,11 +363,6 @@ class LxAction
             end
         end
 
-        if command == "librarian" then
-            LibrarianCLI::main()
-            return
-        end
-
         if command == "nyx" then
             puts "(info: 4B14BAB4-7414-4090-982D-29C218EB5408) command nyx: to be written, call the executable"
             exit
