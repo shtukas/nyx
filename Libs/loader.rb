@@ -35,20 +35,6 @@ require 'thread'
 
 require 'colorize'
 
-# -----------------------------------------------------------------------
-# require 'curses' # I commented that out, thereby disabling 
-# Utils::ncurseSelection1410(lambda1, lambda2) ,
-# when I introduced pepin 
-
-require 'pepin'
-
-=begin
-list = Array[String]
-item = Pepin.search(list) # Launches interactive window and returns selected item
-=end
-
-# -----------------------------------------------------------------------
-
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
