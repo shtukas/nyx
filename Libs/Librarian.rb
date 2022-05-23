@@ -28,17 +28,17 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 
 class Librarian0Utils
 
-    # Librarian0Utils::filepathToContentHash(filepath) # nhash
+    # Librarian0DidactUtils::filepathToContentHash(filepath) # nhash
     def self.filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
-    # Librarian0Utils::openUrlUsingSafari(url)
+    # Librarian0DidactUtils::openUrlUsingSafari(url)
     def self.openUrlUsingSafari(url)
         system("open -a Safari '#{url}'")
     end
 
-    # Librarian0Utils::editTextSynchronously(text)
+    # Librarian0DidactUtils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = "#{SecureRandom.uuid}.txt"
         filepath = "/tmp/#{filename}"
@@ -49,18 +49,18 @@ class Librarian0Utils
         IO.read(filepath)
     end
 
-    # Librarian0Utils::timeStringL22()
+    # Librarian0DidactUtils::timeStringL22()
     def self.timeStringL22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # Librarian0Utils::atlas(pattern)
+    # Librarian0DidactUtils::atlas(pattern)
     def self.atlas(pattern)
         location = `/Users/pascal/Galaxy/LucilleOS/Binaries/atlas '#{pattern}'`.strip
         (location != "") ? location : nil
     end
 
-    # Librarian0Utils::interactivelySelectDesktopLocationOrNull() 
+    # Librarian0DidactUtils::interactivelySelectDesktopLocationOrNull() 
     def self.interactivelySelectDesktopLocationOrNull()
         entries = Dir.entries("/Users/pascal/Desktop").select{|filename| !filename.start_with?(".") }.sort
         locationNameOnDesktop = LucilleCore::selectEntityFromListOfEntitiesOrNull("locationname", entries)
@@ -68,7 +68,7 @@ class Librarian0Utils
         "/Users/pascal/Desktop/#{locationNameOnDesktop}"
     end
 
-    # Librarian0Utils::moveFileToBinTimeline(location)
+    # Librarian0DidactUtils::moveFileToBinTimeline(location)
     def self.moveFileToBinTimeline(location)
         return if !File.exists?(location)
         directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
@@ -76,7 +76,7 @@ class Librarian0Utils
         FileUtils.mv(location, directory)
     end
 
-    # Librarian0Utils::commitFileToXCacheReturnPartsHashs(filepath)
+    # Librarian0DidactUtils::commitFileToXCacheReturnPartsHashs(filepath)
     def self.commitFileToXCacheReturnPartsHashs(filepath)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
         raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
@@ -90,7 +90,7 @@ class Librarian0Utils
         hashes
     end
 
-    # Librarian0Utils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+    # Librarian0DidactUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
     def self.uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
         roots = [
             "/Users/pascal/Desktop"
@@ -336,7 +336,7 @@ class LibrarianCLI
             uuid = ARGV[1]
             object = Librarian20LocalObjectsStore::getObjectIncludedDeletedByUUIDOrNull(uuid)
             if object then
-                object = Utils::editTextSynchronously(JSON.pretty_generate(object))
+                object = DidactUtils::editTextSynchronously(JSON.pretty_generate(object))
                 object = JSON.parse(object)
                 Librarian20LocalObjectsStore::commitWithoutModifications(object)
             else

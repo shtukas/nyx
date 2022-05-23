@@ -13,7 +13,7 @@ puts [
 
 input = LucilleCore::askQuestionAnswerAsString("> ")
 
-command, objectOpt = TerminalUtils::inputParser(input, nil)
+command, objectOpt = TerminalDidactUtils::inputParser(input, nil)
 #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 LxAction::action(command, objectOpt)
 

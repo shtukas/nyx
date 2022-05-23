@@ -175,7 +175,7 @@ class LxAction
             if object["mikuType"] == "NS16:TxFyre" then
                 item = object["TxFyre"]
                 NxBallsService::close(item["uuid"], true)
-                XCache::setFlagTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{item["uuid"]}")
+                XCache::setFlagTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{item["uuid"]}")
                 return
             end
             if object["mikuType"] == "NS16:TxInbox2" then
@@ -242,7 +242,7 @@ class LxAction
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             aionrootnhash = nil
-            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull() 
+            location = Librarian0DidactUtils::interactivelySelectDesktopLocationOrNull() 
             if location then
                 aionrootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
             end
@@ -406,7 +406,7 @@ class LxAction
             ns16 = object
             if ns16["mikuType"] == "NS16:TxDated" then
                 mx49 = ns16["TxDated"]
-                datetime = (Utils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
+                datetime = (DidactUtils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
                 mx49["datetime"] = datetime
                 Librarian20LocalObjectsStore::commit(mx49)
                 return
@@ -495,7 +495,7 @@ class LxAction
         if command == "todos" then
             nx50s = TxTodos::items()
             if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
-                nx50s = nx50s.first(Utils::screenHeight()-2)
+                nx50s = nx50s.first(DidactUtils::screenHeight()-2)
             end
             loop {
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })

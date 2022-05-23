@@ -15,14 +15,14 @@ class Bank
         return if setuuid.nil?
         operationuuid = SecureRandom.uuid
         unixtime = Time.new.to_i
-        date = Utils::today()
+        date = DidactUtils::today()
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
 
-        $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{Utils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, Utils::today())
+        $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{DidactUtils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, DidactUtils::today())
 
         nil
     end
@@ -86,11 +86,11 @@ class Bank
             answer
         }
 
-        if $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{date}"].nil? then
-            $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
+        if $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{date}"].nil? then
+            $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
         end
         
-        $BankInMemorySetuuidDateToValueStore["#{Utils::today()}-#{setuuid}-#{date}"]
+        $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{date}"]
     end
 end
 
@@ -99,7 +99,7 @@ class BankExtended
     # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
     def self.timeRatioOverDayCount(setuuid, daysCount)
         value = (0..(daysCount-1))
-                    .map{|i| Utils::nDaysInTheFuture(-i) }
+                    .map{|i| DidactUtils::nDaysInTheFuture(-i) }
                     .map{|date| Bank::valueAtDate(setuuid, date) }
                     .inject(0, :+)
         value.to_f/(daysCount*86400)

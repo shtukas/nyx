@@ -60,7 +60,7 @@ class UniqueStringsFunctions
     # UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
     def self.findAndAccessUniqueString(uniquestring)
         puts "unique string: #{uniquestring}"
-        location = Librarian0Utils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+        location = Librarian0DidactUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
         if location then
             puts "location: #{location}"
             if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
@@ -71,9 +71,9 @@ class UniqueStringsFunctions
         puts "Unique string not found in Galaxy"
         puts "Looking inside aion-points..."
         
-        puts "" # To accomodate Utils::putsOnPreviousLine
+        puts "" # To accomodate DidactUtils::putsOnPreviousLine
         Librarian20LocalObjectsStore::objects().each{|item|
-            Utils::putsOnPreviousLine("looking into #{item["uuid"]}")
+            DidactUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
             next if item["iam"].nil?
             next if item["iam"]["type"] != "aion-point"
             rootnhash = item["iam"]["rootnhash"]
@@ -127,7 +127,7 @@ class EditionDesk
         
 
         index1 = EditionDesk::getMaxIndex() + 1
-        description = item["description"] ? Utils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
+        description = item["description"] ? DidactUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
         itemuuid = item["uuid"]
         nx111uuid = item["iam"]["uuid"]
 
@@ -183,7 +183,7 @@ class EditionDesk
         if nx111["type"] == "url" then
             url = nx111["url"]
             puts "url: #{url}"
-            Librarian0Utils::openUrlUsingSafari(url)
+            Librarian0DidactUtils::openUrlUsingSafari(url)
             return
         end
         if nx111["type"] == "aion-point" then
@@ -234,7 +234,7 @@ class EditionDesk
         if nx111["type"] == "Dx8Unit" then
 
             accessDx8UnitFolderLocation = lambda {|location|
-                InfinityDriveUtils::ensureInfinityDrive()
+                InfinityDriveDidactUtils::ensureInfinityDrive()
                 system("open '#{location}'")
                 LucilleCore::pressEnterToContinue()
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy Dx8Unit folder ? ") then
@@ -243,9 +243,9 @@ class EditionDesk
             }
 
             unitId = nx111["unitId"]
-            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+            location = Dx8UnitsDidactUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
-            if File.exists?(Dx8UnitsUtils::infinityRepository()) then
+            if File.exists?(Dx8UnitsDidactUtils::infinityRepository()) then
                 accessDx8UnitFolderLocation.call(location)
             else
                 if LucilleCore::askQuestionAnswerAsBoolean("Infinity drive is not connected, want to access ? ") then
@@ -304,7 +304,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, Utils::sanitiseStringForFilenaming(item["description"]))
+            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfTheresOne(operator, rootnhash, DidactUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
             #puts JSON.pretty_generate(nx111)

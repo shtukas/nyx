@@ -9,7 +9,7 @@ class NyxNetwork
 
     # NyxNetwork::selectEntityFromGivenEntitiesOrNullUsingInteractiveInterface(items)
     def self.selectEntityFromGivenEntitiesOrNullUsingInteractiveInterface(items)
-        Utils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| LxFunction::function("toString", item) })
+        DidactUtils::selectOneObjectUsingInteractiveInterfaceOrNull(items, lambda{|item| LxFunction::function("toString", item) })
     end
 
     # NyxNetwork::selectExistingNetworkElementOrNull()

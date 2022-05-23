@@ -115,6 +115,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require_relative "../../didact/Code/InfinityDriveDatablobsAndElizabeth.rb"
 require_relative "../../didact/Code/XCacheDatablobsAndElizabeth.rb"
+require_relative "../../didact/Code/DidactUtils.rb"
 
 # ------------------------------------------------------------
 
@@ -170,8 +171,6 @@ require_relative "TxFyres.rb"
 require_relative "TxFloats.rb"
 require_relative "TxDateds.rb"
 require_relative "TxTodos.rb"
-
-require_relative "Utils.rb"
 
 require_relative "Waves.rb"
 

@@ -109,7 +109,7 @@ class TxFyres
                 LxAction::action("landing", entity)
             end
 
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+            if (unixtime = DidactUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
             end
@@ -127,7 +127,7 @@ class TxFyres
             end
 
             if Interpreting::match("description", command) then
-                description = Utils::editTextSynchronously(item["description"]).strip
+                description = DidactUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
                 Librarian20LocalObjectsStore::commit(item)
@@ -219,7 +219,7 @@ class TxFyres
     # TxFyres::section3Filter(item)
     def self.section3Filter(item)
         return true if NxBallsService::isActive(item["uuid"])
-        return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{item["uuid"]}")
+        return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{item["uuid"]}")
         BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
     end
 

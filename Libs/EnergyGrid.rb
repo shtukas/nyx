@@ -16,7 +16,7 @@ class EnergyGridDatablobs
         return blob if blob
 
         # Then we look up the drive
-        InfinityDriveUtils::ensureInfinityDrive()
+        InfinityDriveDidactUtils::ensureInfinityDrive()
 
         filepath = InfinityDriveDatablobs::decideFilepathForBlob(nhash)
         if File.exists?(filepath) then

@@ -2,14 +2,14 @@
 # encoding: UTF-8
 
 class Dx8UnitsUtils
-    # Dx8UnitsUtils::infinityRepository()
+    # Dx8UnitsDidactUtils::infinityRepository()
     def self.infinityRepository()
         "#{Config::pathToInfinityLibrarian()}/Dx8Units"
     end
 
-    # Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)
+    # Dx8UnitsDidactUtils::dx8UnitFolder(dx8UnitId)
     def self.dx8UnitFolder(dx8UnitId)
-        "#{Dx8UnitsUtils::infinityRepository()}/#{dx8UnitId}"
+        "#{Dx8UnitsDidactUtils::infinityRepository()}/#{dx8UnitId}"
     end
 end
 
@@ -117,7 +117,7 @@ class Nx111
             }
         end
         if type == "text" then
-            text = Librarian0Utils::editTextSynchronously("")
+            text = Librarian0DidactUtils::editTextSynchronously("")
             nhash = EnergyGridDatablobs::putBlob(text)
             return {
                 "uuid"  => SecureRandom.uuid,
@@ -135,7 +135,7 @@ class Nx111
             }
         end
         if type == "aion-point" then
-            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
+            location = Librarian0DidactUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return Nx111::locationToAionPointNx111OrNull(location)
         end
@@ -149,7 +149,7 @@ class Nx111
             }
         end
         if type == "primitive-file" then
-            location = Librarian0Utils::interactivelySelectDesktopLocationOrNull()
+            location = Librarian0DidactUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return PrimitiveFiles::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
         end

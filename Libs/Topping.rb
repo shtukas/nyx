@@ -32,7 +32,7 @@ class Topping
         return if universe.nil?
         text = Topping::getText(universe)
         Topping::putTextToDataBank(text, universe)
-        text = Utils::editTextSynchronously(text)
+        text = DidactUtils::editTextSynchronously(text)
         Topping::setText(universe, text)
     end
 

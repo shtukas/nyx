@@ -20,7 +20,7 @@ class ADayOfWork
     # ADayOfWork::getTodayWorkGlobalCommitmentOrNull()
     def self.getTodayWorkGlobalCommitmentOrNull()
         return nil if !ADayOfWork::universes().include?("work")
-        date = Utils::today()
+        date = DidactUtils::today()
         object = XCache::getOrNull("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}")
         if object then
             object = JSON.parse(object)
@@ -42,7 +42,7 @@ class ADayOfWork
 
     # ADayOfWork::updateWorkGlobalCommitmentWithDoneSeconds(timeInSeconds)
     def self.updateWorkGlobalCommitmentWithDoneSeconds(timeInSeconds)
-        date = Utils::today()
+        date = DidactUtils::today()
         object = ADayOfWork::getTodayWorkGlobalCommitmentOrNull()
         return if object.nil?
         XCache::set("0b75dc91-a4ef-4f88-8a35-9fd033aaf1a9:#{date}", JSON.generate(object))
@@ -51,7 +51,7 @@ class ADayOfWork
     # ADayOfWork::getEndOfDayRStream()
     def self.getEndOfDayRStream()
         {
-            "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{Utils::today()}",
+            "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{DidactUtils::today()}",
             "mikuType" => "Tx0938",
             "announce" => "rstream",
             "lambda"   => lambda { TxTodos::rstream() }
@@ -111,7 +111,7 @@ class ADayOfWork
 
     # ADayOfWork::getNS16s()
     def self.getNS16s()
-        date = Utils::today()
+        date = DidactUtils::today()
         coreuuids = ADayOfWork::getCoreUUIDs(date)
         ns16s0 = [ADayOfWork::getTodayWorkGlobalCommitmentOrNull()].compact
         ns16s1 = ADayOfWork::universes().map{|universe| ADayOfWork::getHighPriorityNS16sForUniverse(universe) }.flatten

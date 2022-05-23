@@ -2,7 +2,7 @@
 
 class TerminalUtils
 
-    # TerminalUtils::removeDuplicatesOnAttribute(array, attribute)
+    # TerminalDidactUtils::removeDuplicatesOnAttribute(array, attribute)
     def self.removeDuplicatesOnAttribute(array, attribute)
         array.reduce([]){|selected, element|
             if selected.none?{|x| x[attribute] == element[attribute] } then
@@ -13,13 +13,13 @@ class TerminalUtils
         }
     end
 
-    # TerminalUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
+    # TerminalDidactUtils::removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
     def self.removeRedundanciesInSecondArrayRelativelyToFirstArray(array1, array2)
         uuids1 = array1.map{|ns16| ns16["uuid"] }
         array2.select{|ns16| !uuids1.include?(ns16["uuid"]) }
     end
 
-    # TerminalUtils::inputParser(input, store)
+    # TerminalDidactUtils::inputParser(input, store)
     def self.inputParser(input, store) # [command or null, ns16 or null]
         # This function take an input from the prompt and 
         # attempt to retrieve a command and optionaly an object (from the store)
@@ -474,12 +474,12 @@ class TerminalDisplayOperator
                 store.register(ns16, Defaultability::isDefaultable(ns16))
                 line = ns16["announce"]
                 line = "#{store.prefixString()} #{line}"
-                break if (vspaceleft - Utils::verticalSize(line)) < 0
+                break if (vspaceleft - DidactUtils::verticalSize(line)) < 0
                 if NxBallsService::isActive(ns16["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
                 end
                 puts line
-                vspaceleft = vspaceleft - Utils::verticalSize(line)
+                vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
             }
         vspaceleft
     end
@@ -488,7 +488,7 @@ class TerminalDisplayOperator
     def self.printListing(programname, universe, floats, section2, section3)
         system("clear")
 
-        vspaceleft = Utils::screenHeight()-4
+        vspaceleft = DidactUtils::screenHeight()-4
 
         puts ""
 
@@ -530,7 +530,7 @@ class TerminalDisplayOperator
             store.register(ns16, false)
             line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
             puts line
-            vspaceleft = vspaceleft - Utils::verticalSize(line)
+            vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
         }
 
         running = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
@@ -550,7 +550,7 @@ class TerminalDisplayOperator
                     store.register(delegate, true)
                     line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                     puts line
-                    vspaceleft = vspaceleft - Utils::verticalSize(line)
+                    vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
                 }
 
         top = Topping::getText(universe)
@@ -560,7 +560,7 @@ class TerminalDisplayOperator
             top = top.lines.first(10).join().strip
             puts top
             puts ""
-            vspaceleft = vspaceleft - Utils::verticalSize(top) - 3
+            vspaceleft = vspaceleft - DidactUtils::verticalSize(top) - 3
         end
 
         vspaceleft = TerminalDisplayOperator::printSection(store, section2, vspaceleft)
@@ -576,7 +576,7 @@ class TerminalDisplayOperator
 
         return if input == ""
 
-        if !input.start_with?("today:") and (unixtime = Utils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+        if !input.start_with?("today:") and (unixtime = DidactUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
@@ -590,7 +590,7 @@ class TerminalDisplayOperator
             end
         end
 
-        command, objectOpt = TerminalUtils::inputParser(input, store)
+        command, objectOpt = TerminalDidactUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 
         if objectOpt and objectOpt["lambda"] then
@@ -606,9 +606,9 @@ class Catalyst
 
     # Catalyst::program1()
     def self.program1()
-        initialCodeTrace = Utils::codeTrace()
+        initialCodeTrace = DidactUtils::codeTrace()
         loop {
-            if Utils::codeTrace() != initialCodeTrace then
+            if DidactUtils::codeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
@@ -651,9 +651,9 @@ class Catalyst
 
     # Catalyst::program2()
     def self.program2()
-        initialCodeTrace = Utils::codeTrace()
+        initialCodeTrace = DidactUtils::codeTrace()
         loop {
-            if Utils::codeTrace() != initialCodeTrace then
+            if DidactUtils::codeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
@@ -687,7 +687,7 @@ class Catalyst
 
             section2Filter = lambda {|ns16|
                 return true if NxBallsService::isActive(ns16["uuid"])
-                return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{Utils::today()}:#{ns16["uuid"]}")
+                return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{ns16["uuid"]}")
                 !( ["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"]) and BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) > 1 )
             }
 

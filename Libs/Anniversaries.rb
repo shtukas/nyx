@@ -124,7 +124,7 @@ class Anniversaries
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
-            lastCelebrationDate = Utils::today()
+            lastCelebrationDate = DidactUtils::today()
         end
 
         item = {
@@ -169,7 +169,7 @@ class Anniversaries
     # Anniversaries::ns16s()
     def self.ns16s()
         Anniversaries::anniversaries()
-            .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= Utils::today() }
+            .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= DidactUtils::today() }
             .map{|anniversary|
                 uuid = anniversary["uuid"]
                 {
@@ -212,7 +212,7 @@ class Anniversaries
             end
 
             if Interpreting::match("update start date", command) then
-                startdate = Utils::editTextSynchronously(anniversary["startdate"])
+                startdate = DidactUtils::editTextSynchronously(anniversary["startdate"])
                 return if startdate == ""
                 anniversary["startdate"] = startdate
                 Anniversaries::commitAnniversaryToDisk(anniversary)

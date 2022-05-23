@@ -71,12 +71,12 @@ class Waves
         if item["repeatType"] == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
-            unixtime1 = (Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) - 86400) + item["repeatValue"].to_i*3600
+            unixtime1 = (DidactUtils::unixtimeAtComingMidnightAtGivenTimeZone(DidactUtils::getLocalTimeZone()) - 86400) + item["repeatValue"].to_i*3600
             if unixtime1 > Time.new.to_i then
                 return unixtime1
             end
             # We return the event happening tomorrow
-            return Utils::unixtimeAtComingMidnightAtGivenTimeZone(Utils::getLocalTimeZone()) + item["repeatValue"].to_i*3600
+            return DidactUtils::unixtimeAtComingMidnightAtGivenTimeZone(DidactUtils::getLocalTimeZone()) + item["repeatValue"].to_i*3600
         end
         if item["repeatType"] == 'every-n-hours' then
             return Time.new.to_i+3600 * item["repeatValue"].to_f
@@ -208,13 +208,13 @@ class Waves
                 break
             end
 
-            if (unixtime = Utils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+            if (unixtime = DidactUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
             end
 
             if Interpreting::match("description", command) then
-                item["description"] = Utils::editTextSynchronously(item["description"])
+                item["description"] = DidactUtils::editTextSynchronously(item["description"])
                 Librarian20LocalObjectsStore::commit(item)
                 next
             end
