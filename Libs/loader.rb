@@ -117,6 +117,7 @@ require_relative "../../didact/Code/InfinityDriveDatablobsAndElizabeth.rb"
 require_relative "../../didact/Code/XCacheDatablobsAndElizabeth.rb"
 require_relative "../../didact/Code/DidactUtils.rb"
 require_relative "../../didact/Code/LocalObjectsStore.rb"
+require_relative "../../didact/Code/EnergyGrid.rb"
 
 # ------------------------------------------------------------
 
@@ -134,7 +135,6 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 
 require_relative "EditionDesk.rb"
-require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
 
