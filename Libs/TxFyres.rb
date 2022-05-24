@@ -216,51 +216,6 @@ class TxFyres
     # --------------------------------------------------
     # nx16s
 
-    # TxFyres::section3Filter(item)
-    def self.section3Filter(item)
-        return true if NxBallsService::isActive(item["uuid"])
-        return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{item["uuid"]}")
-        BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
-    end
-
-    # TxFyres::section2(universe)
-    def self.section2(universe)
-        TxFyres::itemsForUniverse(universe)
-            .select{|item| !TxFyres::section3Filter(item) }
-            .map{|item|
-                uuid = item["uuid"]
-                rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                announce = TxFyres::toStringForNS16(item, rt)
-                {
-                    "uuid"     => uuid,
-                    "mikuType" => "NS16:TxFyre",
-                    "announce" => announce,
-                    "TxFyre"   => item,
-                    "rt"       => rt,
-                    "unixtime" => item["unixtime"]
-                }
-            }
-    end
-
-    # TxFyres::section3(universe)
-    def self.section3(universe)
-        TxFyres::itemsForUniverse(universe)
-            .select{|item| TxFyres::section3Filter(item) }
-            .map{|item| 
-                uuid = item["uuid"]
-                rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                announce = TxFyres::toStringForNS16(item, rt)
-                {
-                    "uuid"     => uuid,
-                    "mikuType" => "NS16:TxFyre",
-                    "announce" => announce,
-                    "TxFyre"   => item,
-                    "rt"       => rt
-                }
-            }
-            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-    end
-
     # TxFyres::ns16s(universe)
     def self.ns16s(universe)
         TxFyres::itemsForUniverse(universe)

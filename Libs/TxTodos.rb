@@ -350,30 +350,6 @@ class TxTodos
         }
     end
 
-    # TxTodos::filterSection3(ns16)
-    def self.filterSection3(ns16)
-        ns16["rt"] < 1 or NxBallsService::isActive(ns16["uuid"])
-    end
-
-    # TxTodos::section2(universe)
-    def self.section2(universe)
-        TxTodos::itemsForNS16s(universe)
-            .map{|item| TxTodos::ns16(item) }
-            .select{|ns16| !TxTodos::filterSection3(ns16) }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-
-    end
-
-    # TxTodos::section3(universe)
-    def self.section3(universe)
-        TxTodos::itemsForNS16s(universe)
-            .map{|item| TxTodos::ns16(item) }
-            .select{|ns16| TxTodos::filterSection3(ns16) }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-    end
-
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
         TxTodos::itemsForNS16s(universe)
