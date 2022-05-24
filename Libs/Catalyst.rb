@@ -561,7 +561,19 @@ class Catalyst
 
     # Catalyst::program2()
     def self.program2()
+        roots = [
+            "catalyst",
+            "didact",
+            "librarian",
+            "nyx"
+        ].map{|n| "/Users/pascal/Galaxy/Software/catalyst+nyx/#{n}" }
+        initialCodeTrace = DidactUtils::codeTraceWithMultipleRoots(roots)
         loop {
+
+            if DidactUtils::codeTraceWithMultipleRoots(roots) != initialCodeTrace then
+                puts "Code change detected"
+                break
+            end
 
             universe = StoredUniverse::getUniverseOrNull()
 
