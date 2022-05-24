@@ -601,7 +601,6 @@ class Catalyst
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
             rstreamOrNull = lambda {
-                return nil if The99Percent::ratio() < 1
                 {
                     "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{DidactUtils::today()}",
                     "mikuType" => "Tx0938", # Common type to NS16s with a lambda
@@ -620,8 +619,8 @@ class Catalyst
                 [ UniverseMonitor::switchInvitationNS16OrNull() ].compact,
                 TxFyres::ns16s(universe),
                 Waves::ns16sLowerPriority(universe),
-                [rstreamOrNull.call()].compact,
                 TxTodos::ns16s(universe).first(5)
+                [rstreamOrNull.call()],
             ]
                 .flatten
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

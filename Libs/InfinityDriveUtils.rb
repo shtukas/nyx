@@ -3,17 +3,17 @@
 
 class InfinityDriveUtils
 
-    # InfinityDriveDidactUtils::driveIsPlugged()
+    # InfinityDriveUtils::driveIsPlugged()
     def self.driveIsPlugged()
         File.exists?("/Volumes/Infinity/Data/Pascal/TheLibrarian")
     end
 
-    # InfinityDriveDidactUtils::ensureInfinityDrive()
+    # InfinityDriveUtils::ensureInfinityDrive()
     def self.ensureInfinityDrive()
-        if !InfinityDriveDidactUtils::driveIsPlugged() then
+        if !InfinityDriveUtils::driveIsPlugged() then
             puts "I need Infinity. Please plug 🙏"
             LucilleCore::pressEnterToContinue()
-            if !InfinityDriveDidactUtils::driveIsPlugged() then
+            if !InfinityDriveUtils::driveIsPlugged() then
                 puts "Could not find Infinity 😞 Exiting."
                 exit
             end

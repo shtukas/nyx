@@ -234,7 +234,7 @@ class EditionDesk
         if nx111["type"] == "Dx8Unit" then
 
             accessDx8UnitFolderLocation = lambda {|location|
-                InfinityDriveDidactUtils::ensureInfinityDrive()
+                InfinityDriveUtils::ensureInfinityDrive()
                 system("open '#{location}'")
                 LucilleCore::pressEnterToContinue()
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy Dx8Unit folder ? ") then
