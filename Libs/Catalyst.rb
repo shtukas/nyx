@@ -563,10 +563,10 @@ class Catalyst
     def self.program2()
         roots = [
             "catalyst",
-            "didact",
+            "common",
             "librarian",
             "nyx"
-        ].map{|n| "/Users/pascal/Galaxy/Software/catalyst+nyx/#{n}" }
+        ].map{|n| "/Users/pascal/Galaxy/Software/github.com/shtukas/#{n}" }
         initialCodeTrace = DidactUtils::codeTraceWithMultipleRoots(roots)
         loop {
 
