@@ -382,12 +382,7 @@ class LxAction
         end
 
         if command == "pause" then
-            timespan = NxBallsService::pause(object["uuid"])
-            if timespan then
-                if object["mikuType"] == "Tx0930" then
-                    GlobalWorkCommitment::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
-                end
-            end
+            NxBallsService::pause(object["uuid"])
             return
         end
 
@@ -434,12 +429,7 @@ class LxAction
         end
 
         if command == "stop" then
-            timespan = NxBallsService::close(object["uuid"], true)
-            if timespan then
-                if object["mikuType"] == "Tx0930" then
-                    GlobalWorkCommitment::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
-                end
-            end
+            NxBallsService::close(object["uuid"], true)
             return
         end
 

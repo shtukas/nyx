@@ -621,9 +621,16 @@ class Catalyst
                 BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) < 1
             }
 
+            rstream = {
+                "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{DidactUtils::today()}",
+                "mikuType" => "Tx0938",
+                "announce" => "rstream",
+                "lambda"   => lambda { TxTodos::rstream() }
+            }
+
             section2, section3 = ns16s.partition{|ns16| section2Filter.call(ns16) }
             section2_p1, section2_p2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-            section2 = [GlobalWorkCommitment::getTodayWorkGlobalCommitmentOrNull()].compact + section2_p1 + section2_p2 + [GlobalWorkCommitment::getEndOfDayRStream()]
+            section2 = section2_p1 + section2_p2 + [rstream]
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
             TerminalDisplayOperator::printListing(universe, floats, section2, section3)
