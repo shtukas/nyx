@@ -616,8 +616,9 @@ class Catalyst
 
             section2Filter = lambda {|ns16|
                 return true if NxBallsService::isActive(ns16["uuid"])
+                return true if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
                 return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{ns16["uuid"]}")
-                !( ["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"]) and BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) > 1 )
+                BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) < 1
             }
 
             section2, section3 = ns16s.partition{|ns16| section2Filter.call(ns16) }
