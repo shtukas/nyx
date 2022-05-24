@@ -272,7 +272,7 @@ class TxTodos
             if Interpreting::match("show json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                break
+                next
             end
 
             if command == "destroy" or command == "gg" then
