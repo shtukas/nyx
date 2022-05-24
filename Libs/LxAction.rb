@@ -66,7 +66,7 @@ class LxAction
         end
 
         if command == "[]" then
-            Topping::applyTransformation(StoredUniverse::getUniverseOrNull())
+            Topping::applyTransformation(ActiveUniverse::getUniverseOrNull())
             return
         end
 
@@ -491,7 +491,7 @@ class LxAction
         end
 
         if command == "top" then
-            Topping::top(StoredUniverse::getUniverseOrNull())
+            Topping::top(ActiveUniverse::getUniverseOrNull())
             return
         end
 
@@ -516,7 +516,7 @@ class LxAction
         end
 
         if command == "universe" then
-            StoredUniverse::interactivelySetUniverse()
+            ActiveUniverse::interactivelySetUniverse()
             return
         end
 

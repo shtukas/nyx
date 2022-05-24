@@ -21,9 +21,9 @@ class Multiverse
     end
 end
 
-class StoredUniverse
+class ActiveUniverse
 
-    # StoredUniverse::setUniverse(universe or null)
+    # ActiveUniverse::setUniverse(universe or null)
     def self.setUniverse(universe)
         if universe.nil? then
             XCache::destroy("5117D42F-8542-4D74-A219-47AF3C58F22B")
@@ -32,15 +32,15 @@ class StoredUniverse
         XCache::set("5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
     end
 
-    # StoredUniverse::getUniverseOrNull()
+    # ActiveUniverse::getUniverseOrNull()
     def self.getUniverseOrNull()
         XCache::getOrNull("5117D42F-8542-4D74-A219-47AF3C58F22B")
     end
 
-    # StoredUniverse::interactivelySetUniverse()
+    # ActiveUniverse::interactivelySetUniverse()
     def self.interactivelySetUniverse()
         universe = Multiverse::interactivelySelectUniverse()
-        StoredUniverse::setUniverse(universe)
+        ActiveUniverse::setUniverse(universe)
     end
 end
 
@@ -54,13 +54,15 @@ class UniverseMonitor
         "work"
     end
 
-    # UniverseMonitor::listingMessageOrNull()
-    def self.listingMessageOrNull()
-        universe = UniverseMonitor::naturalUniverseForThisTime()
-        if universe != StoredUniverse::getUniverseOrNull() then
-            "We should be on universe #{universe}"
-        else
-            nil
-        end
+    # UniverseMonitor::switchInvitationNS16OrNull()
+    def self.switchInvitationNS16OrNull()
+        natural = UniverseMonitor::naturalUniverseForThisTime()
+        return nil if ActiveUniverse::getUniverseOrNull() == natural
+        {
+            "uuid"     => "66a9b7b7-073f-49c3-81a1-395b00ed55e6:#{DidactUtils::today()}",
+            "mikuType" => "Tx0938", # Common type to NS16s with a lambda
+            "announce" => "(multiverse) switch to #{natural}",
+            "lambda"   => lambda { ActiveUniverse::setUniverse(natural) }
+        }
     end
 end
