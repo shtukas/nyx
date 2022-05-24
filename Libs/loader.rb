@@ -113,11 +113,11 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
-require_relative "../../didact/Code/InfinityDriveDatablobsAndElizabeth.rb"
-require_relative "../../didact/Code/XCacheDatablobsAndElizabeth.rb"
-require_relative "../../didact/Code/DidactUtils.rb"
-require_relative "../../didact/Code/LocalObjectsStore.rb"
-require_relative "../../didact/Code/EnergyGrid.rb"
+require_relative "../../common/Code/InfinityDriveDatablobsAndElizabeth.rb"
+require_relative "../../common/Code/XCacheDatablobsAndElizabeth.rb"
+require_relative "../../common/Code/DidactUtils.rb"
+require_relative "../../common/Code/LocalObjectsStore.rb"
+require_relative "../../common/Code/EnergyGrid.rb"
 
 # ------------------------------------------------------------
 
