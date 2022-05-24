@@ -616,10 +616,10 @@ class Catalyst
                 Waves::ns16sHighPriority(universe),
                 TxDateds::ns16s(),
                 Inbox::ns16s(),
-                [ UniverseMonitor::switchInvitationNS16OrNull() ].compact,
+                [UniverseMonitor::switchInvitationNS16OrNull()].compact,
                 TxFyres::ns16s(universe),
                 Waves::ns16sLowerPriority(universe),
-                TxTodos::ns16s(universe).first(5)
+                TxTodos::ns16s(universe).first(5),
                 [rstreamOrNull.call()],
             ]
                 .flatten
