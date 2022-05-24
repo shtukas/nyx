@@ -384,39 +384,6 @@ class Defaultability
     end
 end
 
-class NS16sOperator
-
-    # NS16sOperator::section2(universe)
-    def self.section2(universe)
-        # Section 2 shows what's current, fyres and todos with more than an hour in their Bank
-        [
-            TxFyres::section2(universe),
-            TxTodos::section2(universe)
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-    end
-
-    # NS16sOperator::section3(universe)
-    def self.section3(universe)
-        [
-            Anniversaries::ns16s(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            TxDateds::ns16s(),
-            Waves::ns16sHighPriority(universe),
-            Inbox::ns16s(),
-            Waves::ns16sLowerPriority(universe),
-            TxFyres::section3(universe),
-            TxTodos::section3(universe)
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-    end
-end
-
 class The99Percent
 
     # reference = {
@@ -600,59 +567,9 @@ end
 
 class Catalyst
 
-    # Catalyst::program1()
-    def self.program1()
-        initialCodeTrace = DidactUtils::codeTrace()
-        loop {
-            if DidactUtils::codeTrace() != initialCodeTrace then
-                puts "Code change detected"
-                break
-            end
-
-            universe = StoredUniverse::getUniverseOrNull()
-
-            pileFilepath = "/Users/pascal/Desktop/>pile"
-            if File.exists?(pileFilepath) then
-                LucilleCore::locationsAtFolder(pileFilepath)
-                    .each{|location|
-                        if File.basename(location).include?("'") then
-                            location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", "")}"
-                            #puts "Inbox renaming:"
-                            #puts "    #{location}"
-                            #puts "    #{location2}"
-                            #FileUtils.mv(location, location2)
-                            location = location2
-                        end
-                        puts "Issuing todo item from pile: #{File.basename(location)}"
-                        item = TxTodos::issuePile(location)
-                        puts JSON.pretty_generate(item)
-                        LucilleCore::removeFileSystemLocation(location)
-                    }
-            end
-
-            floats = TxFloats::ns16s(universe)
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                        .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-
-            section2 = NS16sOperator::section2(universe)
-            section3 = NS16sOperator::section3(universe)
-
-            # If some section3 items are running we show them first
-            section3_1, section3_2 = section3.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-            section3 = section3_1 + section3_2
-
-            TerminalDisplayOperator::printListing("program1", universe, floats, section2, section3)
-        }
-    end
-
     # Catalyst::program2()
     def self.program2()
-        initialCodeTrace = DidactUtils::codeTrace()
         loop {
-            if DidactUtils::codeTrace() != initialCodeTrace then
-                puts "Code change detected"
-                break
-            end
 
             universe = StoredUniverse::getUniverseOrNull()
 
@@ -679,7 +596,19 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            ns16s = ADayOfWork::getNS16s()
+            ns16s = [
+                Anniversaries::ns16s(),
+                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+                Waves::ns16sHighPriority(universe),
+                TxDateds::ns16s(),
+                Inbox::ns16s(),
+                Waves::ns16sLowerPriority(universe),
+                TxFyres::ns16s(universe),
+                TxTodos::ns16s(universe).first(5)
+            ]
+                .flatten
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
             section2Filter = lambda {|ns16|
                 return true if NxBallsService::isActive(ns16["uuid"])
@@ -688,8 +617,8 @@ class Catalyst
             }
 
             section2, section3 = ns16s.partition{|ns16| section2Filter.call(ns16) }
-            p1, p2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-            section2 = p1 + p2
+            section2_p1, section2_p2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
+            section2 = [GlobalWorkCommitment::getTodayWorkGlobalCommitmentOrNull()].compact + section2_p1 + section2_p2 + [GlobalWorkCommitment::getEndOfDayRStream()]
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
             TerminalDisplayOperator::printListing("program2", universe, floats, section2, section3)

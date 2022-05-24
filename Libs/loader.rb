@@ -121,7 +121,7 @@ require_relative "../../didact/Code/EnergyGrid.rb"
 
 # ------------------------------------------------------------
 
-require_relative "ADayOfWork.rb"
+require_relative "GlobalWorkCommitment.rb"
 require_relative "Anniversaries.rb"
 require_relative "Ax1Text.rb"
 

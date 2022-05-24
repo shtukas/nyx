@@ -385,7 +385,7 @@ class LxAction
             timespan = NxBallsService::pause(object["uuid"])
             if timespan then
                 if object["mikuType"] == "Tx0930" then
-                    ADayOfWork::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
+                    GlobalWorkCommitment::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
                 end
             end
             return
@@ -437,7 +437,7 @@ class LxAction
             timespan = NxBallsService::close(object["uuid"], true)
             if timespan then
                 if object["mikuType"] == "Tx0930" then
-                    ADayOfWork::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
+                    GlobalWorkCommitment::updateWorkGlobalCommitmentWithDoneSeconds(timespan)
                 end
             end
             return
