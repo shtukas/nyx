@@ -447,19 +447,13 @@ class TerminalDisplayOperator
         vspaceleft
     end
 
-    # TerminalDisplayOperator::printListing(programname, universe, floats, section2, section3)
-    def self.printListing(programname, universe, floats, section2, section3)
+    # TerminalDisplayOperator::printListing(universe, floats, section2, section3)
+    def self.printListing(universe, floats, section2, section3)
         system("clear")
 
         vspaceleft = DidactUtils::screenHeight()-4
 
         puts ""
-
-        if programname == "program2" then
-            puts ":: program2 ::"
-            puts ""
-            vspaceleft = vspaceleft - 2
-        end
 
         reference = The99Percent::getReference()
         current   = The99Percent::getCurrentCount()
@@ -478,11 +472,9 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 2
         end
 
-        if programname == "program1" then
-            if (message = UniverseMonitor::listingMessageOrNull()) then
-                puts "-> #{message}".green
-                vspaceleft = vspaceleft - 1
-            end
+        if (message = UniverseMonitor::listingMessageOrNull()) then
+            puts "-> #{message}".green
+            vspaceleft = vspaceleft - 1
         end
 
         if floats.size>0 then
@@ -621,7 +613,7 @@ class Catalyst
             section2 = [GlobalWorkCommitment::getTodayWorkGlobalCommitmentOrNull()].compact + section2_p1 + section2_p2 + [GlobalWorkCommitment::getEndOfDayRStream()]
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-            TerminalDisplayOperator::printListing("program2", universe, floats, section2, section3)
+            TerminalDisplayOperator::printListing(universe, floats, section2, section3)
         }
     end
 end
