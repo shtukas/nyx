@@ -483,6 +483,11 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
         }
 
+        if floats.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
         running = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
         listingUUIDs = (section2+section3).map{|item| item["uuid"] }
         running = running.select{|nxball| !listingUUIDs.include?(nxball["uuid"]) }
@@ -595,14 +600,27 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
+            rstreamOrNull = lambda {
+                return nil if The99Percent::ratio() < 1
+                {
+                    "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{DidactUtils::today()}",
+                    "mikuType" => "Tx0938", # Common type to NS16s with a lambda
+                    "announce" => "(rstream)",
+                    "lambda"   => lambda { TxTodos::rstream() }
+                }
+
+            }
+
             section2 = [
                 Anniversaries::ns16s(),
                 JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
                 Waves::ns16sHighPriority(universe),
                 TxDateds::ns16s(),
                 Inbox::ns16s(),
-                Waves::ns16sLowerPriority(universe),
+                [ UniverseMonitor::switchInvitationNS16OrNull() ].compact,
                 TxFyres::ns16s(universe),
+                Waves::ns16sLowerPriority(universe),
+                [rstreamOrNull.call()].compact,
                 TxTodos::ns16s(universe).first(5)
             ]
                 .flatten
@@ -616,20 +634,9 @@ class Catalyst
                 BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) < 1
             }
 
-            section2prefix = [ UniverseMonitor::switchInvitationNS16OrNull() ].compact
-
-            rstream = {
-                "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{DidactUtils::today()}",
-                "mikuType" => "Tx0938", # Common type to NS16s with a lambda
-                "announce" => "(rstream)",
-                "lambda"   => lambda { TxTodos::rstream() }
-            }
-
-            section2suffix = [rstream]
-
             section2, section3 = section2.partition{|ns16| section2select.call(ns16) }
             section2_p1, section2_p2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-            section2 = section2prefix + section2_p1 + section2_p2 + section2suffix
+            section2 = section2_p1 + section2_p2
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
             TerminalDisplayOperator::printListing(universe, floats, section2, section3)
