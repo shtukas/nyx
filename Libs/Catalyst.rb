@@ -581,12 +581,11 @@ class Catalyst
             if File.exists?(pileFilepath) then
                 LucilleCore::locationsAtFolder(pileFilepath)
                     .each{|location|
-                        if File.basename(location).include?("'") then
-                            location2 = "#{File.dirname(location)}/#{File.basename(location).gsub("'", "")}"
-                            #puts "Inbox renaming:"
-                            #puts "    #{location}"
-                            #puts "    #{location2}"
-                            #FileUtils.mv(location, location2)
+                        name1 = File.basename(location)
+                        safename = DidactUtils::sanitiseStringForFilenaming(name1)
+                        if safename != name1 then
+                            location2 = "#{File.dirname(location)}/#{safename}"
+                            FileUtils.mv(location, location2)
                             location = location2
                         end
                         puts "Issuing todo item from pile: #{File.basename(location)}"
