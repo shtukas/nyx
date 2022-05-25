@@ -561,23 +561,13 @@ class Catalyst
 
     # Catalyst::applyOrder(elements)
     def self.applyOrder(elements)
-
-        extractElementByUUID = lambda{|uuid, elements|
-            # returns: [element | null, elements']
-            e = elements.select{|e| e["uuid"] == uuid }.first
-            els = elements.select{|e| e["uuid"] != uuid }
-            [e, els]
-        }
-
         order = XCache::getOrDefaultValue("7a66b5ef-39c2-4e11-af49-4bea0f8705fd", "").split(",")
-
-        elements2 = order.map{|uuid| elements.select{|e| e["uuid"] == uuid }.first }.compact
-        elements3 = elements.select{|element| !elements2.map{|e| e["uuid"] }.include?(element["uuid"]) }
+        elements2 = order.map{|uuid| elements.select{|e| e["uuid"] == uuid }.first}.compact
+        uuids2 = elements2.map{|e| e["uuid"] }
+        elements3 = elements.select{|e| !uuids2.include?(e["uuid"])}
         elements = elements2 + elements3
-
-        uuids = elements.map{|element| element["uuid"]}
+        uuids = elements.map{|e| e["uuid"]}
         XCache::set("7a66b5ef-39c2-4e11-af49-4bea0f8705fd", uuids.join(","))
-
         elements
     end
 
