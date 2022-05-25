@@ -243,9 +243,9 @@ class EditionDesk
             }
 
             unitId = nx111["unitId"]
-            location = Dx8UnitsDidactUtils::dx8UnitFolder(unitId)
+            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
-            if File.exists?(Dx8UnitsDidactUtils::infinityRepository()) then
+            if File.exists?(Dx8UnitsUtils::infinityRepository()) then
                 accessDx8UnitFolderLocation.call(location)
             else
                 if LucilleCore::askQuestionAnswerAsBoolean("Infinity drive is not connected, want to access ? ") then
