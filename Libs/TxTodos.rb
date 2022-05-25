@@ -298,9 +298,9 @@ class TxTodos
             puts item["description"].green
             LxAction::action("start", item)
             LxAction::action("access", item)
-            startRatio = The99Percent::ratio()
+            startTime = Time.new.to_i
             loop {
-                break if ( The99Percent::ratio() < startRatio - 0.001 )
+                break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
                 command = LucilleCore::askQuestionAnswerAsString("next (default), done, landing (and back), exit, run (and exit rstream): ")
                 if command == "" then
                     LxAction::action("stop", item)
