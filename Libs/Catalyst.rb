@@ -595,7 +595,7 @@ class Catalyst
                     }
             end
 
-            floats = (TxFloats::ns16s("backlog") + TxFloats::ns16s("work"))
+            floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
