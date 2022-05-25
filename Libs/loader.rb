@@ -119,6 +119,7 @@ require_relative "../../common/Code/DidactUtils.rb"
 require_relative "../../common/Code/LocalObjectsStore.rb"
 require_relative "../../common/Code/EnergyGrid.rb"
 require_relative "../../common/Code/InfinityDriveUtils.rb"
+require_relative "../../common/Code/EditionDesk.rb"
 
 # ------------------------------------------------------------
 
@@ -133,8 +134,6 @@ require_relative "Catalyst.rb"
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
-
-require_relative "EditionDesk.rb"
 
 require_relative "Galaxy.rb"
 
