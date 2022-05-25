@@ -118,6 +118,7 @@ require_relative "../../common/Code/XCacheDatablobsAndElizabeth.rb"
 require_relative "../../common/Code/DidactUtils.rb"
 require_relative "../../common/Code/LocalObjectsStore.rb"
 require_relative "../../common/Code/EnergyGrid.rb"
+require_relative "../../common/Code/InfinityDriveUtils.rb"
 
 # ------------------------------------------------------------
 
@@ -140,7 +141,6 @@ require_relative "Galaxy.rb"
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
-require_relative "InfinityDriveUtils.rb"
 
 require_relative "Links.rb"
 require_relative "LxAction.rb"
