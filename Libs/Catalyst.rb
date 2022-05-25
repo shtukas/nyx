@@ -559,6 +559,28 @@ end
 
 class Catalyst
 
+    # Catalyst::applyOrder(elements)
+    def self.applyOrder(elements)
+
+        extractElementByUUID = lambda{|uuid, elements|
+            # returns: [element | null, elements']
+            e = elements.select{|e| e["uuid"] == uuid }.first
+            els = elements.select{|e| e["uuid"] != uuid }
+            [e, els]
+        }
+
+        order = XCache::getOrDefaultValue("7a66b5ef-39c2-4e11-af49-4bea0f8705fd", "").split(",")
+
+        elements2 = order.map{|uuid| elements.select{|e| e["uuid"] == uuid }.first }.compact
+        elements3 = elements.select{|element| !elements2.map{|e| e["uuid"] }.include?(element["uuid"]) }
+        elements = elements2 + elements3
+
+        uuids = elements.map{|element| element["uuid"]}
+        XCache::set("7a66b5ef-39c2-4e11-af49-4bea0f8705fd", uuids.join(","))
+
+        elements
+    end
+
     # Catalyst::program2()
     def self.program2()
         roots = [
@@ -632,12 +654,12 @@ class Catalyst
                 BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) < 1
             }
 
+            running, section2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
             section2, section3 = section2.partition{|ns16| section2select.call(ns16) }
-            section2_p1, section2_p2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-            section2 = section2_p1 + section2_p2
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+            section2 = Catalyst::applyOrder(section2)
 
-            TerminalDisplayOperator::printListing(universe, floats, section2, section3)
+            TerminalDisplayOperator::printListing(universe, floats, running + section2, section3)
         }
     end
 end
