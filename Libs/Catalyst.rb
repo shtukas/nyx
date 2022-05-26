@@ -559,16 +559,76 @@ end
 
 class Catalyst
 
-    # Catalyst::applyOrder(elements)
-    def self.applyOrder(elements)
-        order = XCache::getOrDefaultValue("7a66b5ef-39c2-4e11-af49-4bea0f8705fd", "").split(",")
-        elements2 = order.map{|uuid| elements.select{|e| e["uuid"] == uuid }.first}.compact
-        uuids2 = elements2.map{|e| e["uuid"] }
-        elements3 = elements.select{|e| !uuids2.include?(e["uuid"])}
-        elements = elements2 + elements3
-        uuids = elements.map{|e| e["uuid"]}
-        XCache::set("7a66b5ef-39c2-4e11-af49-4bea0f8705fd", uuids.join(","))
-        elements
+    # Sx90: Array[Sx89]
+    # Sx89: { type, ns16 }
+    # type: "regular", "todo-injected"
+
+    # Catalyst::applySx89Restruturation(ns16s)
+    def self.applySx89Restruturation(ns16s)
+        extractNS16FromInputByUUIDOrNull = lambda{|uuid|
+            ns16s.select{|ns16| ns16["uuid"] == uuid}.first
+        }
+
+        sx90 = JSON.parse(XCache::getOrDefaultValue("7a66b5ef-39c2-4e11-af49-4bea0f8705fe", "[]"))
+
+        sx90p1 = sx90
+                        .map{|sx89|
+                            type = sx89["type"]
+                            ns16 = sx89["ns16"]
+                            if type == "regular" then
+                                ns16 = extractNS16FromInputByUUIDOrNull.call(ns16["uuid"])
+                                if ns16 then
+                                    {
+                                        "type" => "regular",
+                                        "ns16" => ns16
+                                    }
+                                else
+                                    nil
+                                end
+                            elsif type == "todo-injected" then
+                                todo = LocalObjectsStore::getObjectByUUIDOrNull(ns16["uuid"])
+                                if todo then
+                                    {
+                                        "type" => "todo-injected",
+                                        "ns16" => TxTodos::ns16(todo)
+                                    }
+                                else
+                                    nil
+                                end
+                            else
+                                raise "(error: 28eae917-1138-424a-9bd0-d2a2ed0a5128) bad type: #{type}"
+                            end
+                        }
+                        .compact
+
+        sx90p1uuids = sx90p1.map{|sx89| sx89["ns16"]["uuid"] }
+
+        sx90p2 = ns16s
+                        .select{|ns16| !sx90p1uuids.include?(ns16["uuid"]) }
+                        .map{|ns16|
+                            {
+                                "type" => "regular",
+                                "ns16" => ns16
+                            }
+                        }
+
+        sx90p3 =
+            if !sx90p2.empty? and sx90p2.last["type"] == "regular" then
+                [
+                    {
+                        "type" => "todo-injected",
+                        "ns16" => TxTodos::ns16(TxTodos::items().sample)
+                    }
+                ]
+            else
+                []
+            end
+
+        sx90 = sx90p1 + sx90p2 + sx90p3
+
+        XCache::set("7a66b5ef-39c2-4e11-af49-4bea0f8705fe", JSON.generate(sx90))
+        
+        sx90.map{|sx89| sx89["ns16"] }
     end
 
     # Catalyst::program2()
@@ -611,16 +671,6 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            rstreamOrNull = lambda {
-                {
-                    "uuid"     => "23f00ec1-b901-4e74-943f-fd5604c4fa33:#{DidactUtils::today()}",
-                    "mikuType" => "Tx0938", # Common type to NS16s with a lambda
-                    "announce" => "(rstream)",
-                    "lambda"   => lambda { TxTodos::rstream() }
-                }
-
-            }
-
             section2 = [
                 Anniversaries::ns16s(),
                 JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
@@ -631,7 +681,6 @@ class Catalyst
                 TxFyres::ns16s(universe),
                 Waves::ns16sLowerPriority(universe),
                 TxTodos::ns16s(universe).first(5),
-                [rstreamOrNull.call()],
             ]
                 .flatten
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -646,8 +695,8 @@ class Catalyst
 
             running, section2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
             section2, section3 = section2.partition{|ns16| section2select.call(ns16) }
+            section2 = Catalyst::applySx89Restruturation(section2)
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-            section2 = Catalyst::applyOrder(section2)
 
             TerminalDisplayOperator::printListing(universe, floats, running + section2, section3)
         }
