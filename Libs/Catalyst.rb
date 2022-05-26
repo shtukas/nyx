@@ -612,8 +612,10 @@ class Catalyst
                             }
                         }
 
+        sx90 = sx90p1 + sx90p2
+
         sx90p3 =
-            if !sx90p2.empty? and sx90p2.last["type"] == "regular" then
+            if sx90.none?{|sx89| sx89["type"] == "regular"} then
                 [
                     {
                         "type" => "todo-injected",
@@ -624,7 +626,7 @@ class Catalyst
                 []
             end
 
-        sx90 = sx90p1 + sx90p2 + sx90p3
+        sx90 = sx90 + sx90p3
 
         XCache::set("7a66b5ef-39c2-4e11-af49-4bea0f8705fe", JSON.generate(sx90))
         
