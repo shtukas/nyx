@@ -120,6 +120,9 @@ require_relative "../../common/Code/LocalObjectsStore.rb"
 require_relative "../../common/Code/EnergyGrid.rb"
 require_relative "../../common/Code/InfinityDriveUtils.rb"
 require_relative "../../common/Code/EditionDesk.rb"
+require_relative "../../common/Code/Nx100s.rb"
+require_relative "../../common/Code/PrimitiveFiles.rb"
+require_relative "../../common/Code/Nx60s.rb"
 
 # ------------------------------------------------------------
 
@@ -149,13 +152,10 @@ require_relative "Multiverse.rb"
 
 require_relative "NxBallsService.rb"
 require_relative "NyxNetwork.rb"
-require_relative "Nx60s.rb"
-require_relative "Nx100s.rb"
 require_relative "Nx111.rb"
 require_relative "Nx102Flavors.rb"
 
 require_relative "ProgrammableBooleans.rb"
-require_relative "PrimitiveFiles.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"

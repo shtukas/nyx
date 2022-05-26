@@ -615,7 +615,7 @@ class Catalyst
         sx90 = sx90p1 + sx90p2
 
         sx90p3 =
-            if sx90.none?{|sx89| sx89["type"] == "regular"} then
+            if sx90.none?{|sx89| sx89["type"] == "todo-injected"} then
                 [
                     {
                         "type" => "todo-injected",
