@@ -35,7 +35,7 @@ class LxAction
                 end
                 LxAction::action("access", object)
                 if NxBallsService::isRunning(object["uuid"]) then
-                    if !LucilleCore::askQuestionAnswerAsBoolean("continue ? ") then
+                    if !LucilleCore::askQuestionAnswerAsBoolean("continue running ? ") then
                         LxAction::action("stop", object)
                     end
                 end
@@ -48,7 +48,7 @@ class LxAction
                 end
                 LxAction::action("access", object)
                 if NxBallsService::isRunning(object["uuid"]) then
-                    if LucilleCore::askQuestionAnswerAsBoolean("continue ? ") then
+                    if LucilleCore::askQuestionAnswerAsBoolean("continue running ? ") then
                         # Nothing else to do, we return
                     else
                         LxAction::action("stop", object)
