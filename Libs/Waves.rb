@@ -312,12 +312,6 @@ class Waves
         }
     end
 
-    # Waves::isStickyWave(wave)
-    def self.isStickyWave(wave)
-        return true if wave["repeatType"] == "sticky"
-        false
-    end
-
     # Waves::isPriorityWave(wave)
     def self.isPriorityWave(wave)
         return true if wave["repeatType"] == "sticky"
@@ -330,30 +324,21 @@ class Waves
     def self.toNS16(wave)
         uuid = wave["uuid"]
         {
-            "uuid"     => uuid,
-            "mikuType" => "NS16:Wave",
-            "announce" => Waves::toString(wave),
-            "wave"     => wave
+            "uuid"       => uuid,
+            "mikuType"   => "NS16:Wave",
+            "announce"   => Waves::toString(wave),
+            "wave"       => wave,
+            "isPriority" => Waves::isPriorityWave(wave)
         }
     end
 
-    # Waves::ns16sHighPriority(universe)
-    def self.ns16sHighPriority(universe)
+    # Waves::ns16s(universe)
+    def self.ns16s(universe)
         Waves::itemsForUniverse(universe)
-            .select{|wave| Waves::isPriorityWave(wave) }
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
             .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }
             .sort{|n1, n2| n1["wave"]["lastDoneDateTime"] <=> n2["wave"]["lastDoneDateTime"] }
-    end
-
-    # Waves::ns16sLowerPriority(universe)
-    def self.ns16sLowerPriority(universe)
-        Waves::itemsForUniverse(universe)
-            .select{|wave| !Waves::isPriorityWave(wave) }
-            .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
-            .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
-            .map{|wave| Waves::toNS16(wave) }
     end
 
     # Waves::nx20s()

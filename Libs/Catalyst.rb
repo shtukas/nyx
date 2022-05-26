@@ -676,26 +676,30 @@ class Catalyst
             section2 = [
                 Anniversaries::ns16s(),
                 JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-                Waves::ns16sHighPriority(universe),
+                Waves::ns16s(universe),
                 TxDateds::ns16s(),
                 Inbox::ns16s(),
                 [UniverseMonitor::switchInvitationNS16OrNull()].compact,
                 TxFyres::ns16s(universe),
-                Waves::ns16sLowerPriority(universe),
                 TxTodos::ns16s(universe).first(5),
             ]
                 .flatten
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                 .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2select = lambda {|ns16|
+            section2prioritySelect = lambda {|ns16|
                 return true if NxBallsService::isActive(ns16["uuid"])
+                return true if (ns16["NS16:Wave"] and ns16["isPriority"])
+                false
+            }
+
+            section2select = lambda {|ns16|
                 return true if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
                 return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{ns16["uuid"]}")
                 BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) < 1
             }
 
-            running, section2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
+            running, section2 = section2.partition{|ns16| section2prioritySelect.call(ns16) }
             section2, section3 = section2.partition{|ns16| section2select.call(ns16) }
             section2 = Catalyst::applySx89Restruturation(section2)
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
