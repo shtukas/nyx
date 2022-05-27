@@ -688,8 +688,7 @@ class Catalyst
                 .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
             section2prioritySelect = lambda {|ns16|
-                return true if NxBallsService::isActive(ns16["uuid"])
-                return true if (ns16["NS16:Wave"] and ns16["isPriority"])
+                return true if (ns16["mikuType"] == "NS16:Wave" and ns16["isPriority"])
                 false
             }
 
@@ -699,12 +698,13 @@ class Catalyst
                 BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) < 1
             }
 
-            running, section2 = section2.partition{|ns16| section2prioritySelect.call(ns16) }
+            running, section2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
+            section2_priority, section2 = section2.partition{|ns16| section2prioritySelect.call(ns16) }
             section2, section3 = section2.partition{|ns16| section2select.call(ns16) }
             section2 = Catalyst::applySx89Restruturation(section2)
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
-            TerminalDisplayOperator::printListing(universe, floats, running + section2, section3)
+            TerminalDisplayOperator::printListing(universe, floats, running + section2_priority + section2, section3)
         }
     end
 end
