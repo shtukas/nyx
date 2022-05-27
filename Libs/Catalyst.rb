@@ -572,45 +572,45 @@ class Catalyst
         sx90 = JSON.parse(XCache::getOrDefaultValue("7a66b5ef-39c2-4e11-af49-4bea0f8705fe", "[]"))
 
         sx90p1 = sx90
-                        .map{|sx89|
-                            type = sx89["type"]
-                            ns16 = sx89["ns16"]
-                            if type == "regular" then
-                                ns16 = extractNS16FromInputByUUIDOrNull.call(ns16["uuid"])
-                                if ns16 then
-                                    {
-                                        "type" => "regular",
-                                        "ns16" => ns16
-                                    }
-                                else
-                                    nil
-                                end
-                            elsif type == "todo-injected" then
-                                todo = LocalObjectsStore::getObjectByUUIDOrNull(ns16["uuid"])
-                                if todo then
-                                    {
-                                        "type" => "todo-injected",
-                                        "ns16" => TxTodos::ns16(todo)
-                                    }
-                                else
-                                    nil
-                                end
+                    .map{|sx89|
+                        type = sx89["type"]
+                        ns16 = sx89["ns16"]
+                        if type == "regular" then
+                            ns16 = extractNS16FromInputByUUIDOrNull.call(ns16["uuid"])
+                            if ns16 then
+                                {
+                                    "type" => "regular",
+                                    "ns16" => ns16
+                                }
                             else
-                                raise "(error: 28eae917-1138-424a-9bd0-d2a2ed0a5128) bad type: #{type}"
+                                nil
                             end
-                        }
-                        .compact
+                        elsif type == "todo-injected" then
+                            todo = LocalObjectsStore::getObjectByUUIDOrNull(ns16["uuid"])
+                            if todo then
+                                {
+                                    "type" => "todo-injected",
+                                    "ns16" => TxTodos::ns16(todo)
+                                }
+                            else
+                                nil
+                            end
+                        else
+                            raise "(error: 28eae917-1138-424a-9bd0-d2a2ed0a5128) bad type: #{type}"
+                        end
+                    }
+                    .compact
 
         sx90p1uuids = sx90p1.map{|sx89| sx89["ns16"]["uuid"] }
 
         sx90p2 = ns16s
-                        .select{|ns16| !sx90p1uuids.include?(ns16["uuid"]) }
-                        .map{|ns16|
-                            {
-                                "type" => "regular",
-                                "ns16" => ns16
-                            }
+                    .select{|ns16| !sx90p1uuids.include?(ns16["uuid"]) }
+                    .map{|ns16|
+                        {
+                            "type" => "regular",
+                            "ns16" => ns16
                         }
+                    }
 
         sx90 = sx90p1 + sx90p2
 
