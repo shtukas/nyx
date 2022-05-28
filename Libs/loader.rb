@@ -126,6 +126,7 @@ require_relative "../../common/Code/Nx60s.rb"
 require_relative "../../common/Code/Nx111.rb"
 require_relative "../../common/Code/Nx102Flavors.rb"
 require_relative "../../common/Code/LibrarianObjectsFileSystemCheck2.rb"
+require_relative "../../common/Code/Dx8UnitsUtils.rb"
 
 # ------------------------------------------------------------
 
