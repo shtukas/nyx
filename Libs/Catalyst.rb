@@ -349,38 +349,40 @@ class Defaultability
     end
 end
 
+class NS16s
+
+    # NS16s::ns16s(universe)
+    def self.ns16s(universe)
+        [
+            Anniversaries::ns16s(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            Waves::ns16s(universe),
+            TxDateds::ns16s(),
+            Inbox::ns16s(),
+            [UniverseMonitor::switchInvitationNS16OrNull()].compact,
+            TxFyres::ns16s(universe),
+            TxTodos::ns16s(universe).first(5),
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    end
+end
+
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::printSection(store, ns16s, vspaceleft)
-    def self.printSection(store, ns16s, vspaceleft)
-        ns16s
-            .each{|ns16|
-                store.register(ns16, Defaultability::isDefaultable(ns16))
-                line = ns16["announce"]
-                line = "#{store.prefixString()} #{line}"
-                break if (vspaceleft - DidactUtils::verticalSize(line)) < 0
-                if NxBallsService::isActive(ns16["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
-            }
-        vspaceleft
-    end
-
-    # TerminalDisplayOperator::printListing(universe, floats, section2, section3)
-    def self.printListing(universe, floats, section2, section3)
+    # TerminalDisplayOperator::printListing(universe, floats, section2)
+    def self.printListing(universe, floats, section2)
         system("clear")
 
-        vspaceleft = DidactUtils::screenHeight()-4
-
-        puts ""
+        vspaceleft = DidactUtils::screenHeight()-3
 
         reference = The99Percent::getReference()
         current   = The99Percent::getCurrentCount()
         ratio     = current.to_f/reference["count"]
+        puts ""
         puts "(#{universe}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
-        vspaceleft = vspaceleft - 1
+        vspaceleft = vspaceleft - 2
         if ratio < 0.99 then
             The99Percent::issueNewReference()
             return
@@ -396,38 +398,33 @@ class TerminalDisplayOperator
         if floats.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
-        end
-        floats.each{|ns16|
-            store.register(ns16, false)
-            line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
-            puts line
-            vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
-        }
-
-        if floats.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
+            floats.each{|ns16|
+                store.register(ns16, false)
+                line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+                puts line
+                vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
+            }
         end
 
         running = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
-        listingUUIDs = (section2+section3).map{|item| item["uuid"] }
-        running = running.select{|nxball| !listingUUIDs.include?(nxball["uuid"]) }
-        if running.size>0 then
+        running = running.select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
+        if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-        end
-        running
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
-                .each{|nxball|
-                    delegate = {
-                        "uuid"       => nxball["uuid"],
-                        "mikuType"   => "NxBallNS16Delegate1" 
+            running
+                    .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
+                    .each{|nxball|
+                        delegate = {
+                            "uuid"       => nxball["uuid"],
+                            "mikuType"   => "NxBallNS16Delegate1" 
+                        }
+                        store.register(delegate, true)
+                        line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                        puts line
+                        vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
                     }
-                    store.register(delegate, true)
-                    line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                    puts line
-                    vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
-                }
+        end
+
 
         top = Topping::getText(universe)
         if top and top.strip.size > 0 then
@@ -435,19 +432,27 @@ class TerminalDisplayOperator
             puts "(top)"
             top = top.lines.first(10).join().strip
             puts top
-            puts ""
             vspaceleft = vspaceleft - DidactUtils::verticalSize(top) - 3
         end
 
-        vspaceleft = TerminalDisplayOperator::printSection(store, section2, vspaceleft)
-
-        if section3.size > 0 and vspaceleft > 1 then
-            puts "-------------------------------------------------------------------------"
-            vspaceleft = TerminalDisplayOperator::printSection(store, section3, vspaceleft)
+        if section2.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            section2
+                .each{|ns16|
+                    store.register(ns16, Defaultability::isDefaultable(ns16))
+                    line = ns16["announce"]
+                    line = "#{store.prefixString()} #{line}"
+                    break if (vspaceleft - DidactUtils::verticalSize(line)) < 0
+                    if NxBallsService::isActive(ns16["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
+                }
         end
 
         puts ""
-
         input = LucilleCore::askQuestionAnswerAsString("> ")
 
         return if input == ""
@@ -478,98 +483,98 @@ class TerminalDisplayOperator
     end
 end
 
-class Catalyst
+class ListingDataDriver
 
-    # Catalyst::ns16s(universe)
-    def self.ns16s(universe)
-        [
-            Anniversaries::ns16s(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Waves::ns16s(universe),
-            TxDateds::ns16s(),
-            Inbox::ns16s(),
-            [UniverseMonitor::switchInvitationNS16OrNull()].compact,
-            TxFyres::ns16s(universe),
-            TxTodos::ns16s(universe).first(5),
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    # Data = Array[NS16]
+
+    # -------------------------------------
+    # Basic IO
+
+    # ListingDataDriver::getData()
+    def self.getData()
+        JSON.parse(XCache::getOrDefaultValue("cf7c57fe-c53d-407b-8a13-b70e3ce48bfb", "[]"))
     end
 
-    # Sx90: Array[Sx89]
-    # Sx89: { type, ns16 }
-    # type: "regular", "todo-injected"
+    # ListingDataDriver::storeData(data)
+    def self.storeData(data)
+        XCache::set("cf7c57fe-c53d-407b-8a13-b70e3ce48bfb", JSON.generate(data))
+    end
 
-    # Catalyst::applySx89Restructuration(ns16s)
-    def self.applySx89Restructuration(ns16s)
-        extractNS16FromInputByUUIDOrNull = lambda{|uuid|
-            ns16s.select{|ns16| ns16["uuid"] == uuid}.first
-        }
+    # -------------------------------------
+    # Transforms
 
-        sx90 = JSON.parse(XCache::getOrDefaultValue("7a66b5ef-39c2-4e11-af49-4bea0f8705fe", "[]"))
-
-        sx90p1 = sx90
-                    .map{|sx89|
-                        type = sx89["type"]
-                        ns16 = sx89["ns16"]
-                        if type == "regular" then
-                            ns16 = extractNS16FromInputByUUIDOrNull.call(ns16["uuid"])
-                            if ns16 then
-                                {
-                                    "type" => "regular",
-                                    "ns16" => ns16
-                                }
-                            else
-                                nil
-                            end
-                        elsif type == "todo-injected" then
-                            todo = LocalObjectsStore::getObjectByUUIDOrNull(ns16["uuid"])
-                            if todo then
-                                {
-                                    "type" => "todo-injected",
-                                    "ns16" => TxTodos::ns16(todo)
-                                }
-                            else
-                                nil
-                            end
-                        else
-                            raise "(error: 28eae917-1138-424a-9bd0-d2a2ed0a5128) bad type: #{type}"
-                        end
-                    }
-                    .compact
-
-        sx90p1uuids = sx90p1.map{|sx89| sx89["ns16"]["uuid"] }
-
-        sx90p2 = ns16s
-                    .select{|ns16| !sx90p1uuids.include?(ns16["uuid"]) }
-                    .map{|ns16|
-                        {
-                            "type" => "regular",
-                            "ns16" => ns16
-                        }
-                    }
-
-        sx90 = sx90p1 + sx90p2
-
-        sx90p3 =
-            if sx90.none?{|sx89| sx89["type"] == "todo-injected"} then
-                [
-                    {
-                        "type" => "todo-injected",
-                        "ns16" => TxTodos::ns16(TxTodos::items().sample)
-                    }
-                ]
+    # ListingDataDriver::removeDuplicates(data)
+    def self.removeDuplicates(data)
+        data.reduce([]){|selected, item|
+            if selected.map{|i| i["uuid"] }.include?(item["uuid"]) then
+                selected
             else
-                []
+                selected + [ item ]
             end
-
-        sx90 = sx90 + sx90p3
-
-        XCache::set("7a66b5ef-39c2-4e11-af49-4bea0f8705fe", JSON.generate(sx90))
-        
-        sx90.map{|sx89| sx89["ns16"] }
+        }
     end
+
+    # ListingDataDriver::removeDeadItems(data, ns16s)
+    def self.removeDeadItems(data, ns16s)
+        data.select{|item| ns16s.map{|i| i["uuid"]}.include?(item["uuid"]) }
+    end
+
+    # ListingDataDriver::ensureRunningItemsAreFirst(data)
+    def self.ensureRunningItemsAreFirst(data)
+        running, rest = data.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
+        running + rest
+    end
+
+    # ListingDataDriver::rstreamToken()
+    def self.rstreamToken()
+        {
+            "uuid" => "1ee2805a-f8ee-4a73-a92a-c76d9d45359a",
+            "mikuType" => "ADE4F121",
+            "announce" => "(rstream)",
+            "lambda" => lambda { TxTodos::rstream() }
+        }
+    end
+
+    # -------------------------------------
+    # Update
+
+    # ListingDataDriver::update(universe)
+    def self.update(universe)
+        data = ListingDataDriver::getData()
+        ns16s = NS16s::ns16s(universe)
+
+        # We remove any item that has been deleted
+        while (uuid = Mercury::dequeueFirstValueOrNull("2d70b692-49f0-4a11-85a9-c378537f8ef1")) do
+            data = data.select{|item| item["uuid"] != uuid}
+        end
+
+        # We remove any item that has gone the done message
+        while (uuid = Mercury::dequeueFirstValueOrNull("b6156390-059d-446e-ad51-adfc9f91abf1")) do
+            data = data.select{|item| item["uuid"] != uuid}
+        end
+
+        # We make sure that we have any new item
+        data = ListingDataDriver::removeDuplicates(data + ns16s + [ListingDataDriver::rstreamToken()])
+
+        # We remove the items that are alive but no longer occur in ns16s
+        data = ListingDataDriver::removeDeadItems(data, ns16s)
+
+        # Ensure that priority waves come first
+        section2prioritySelect = lambda {|ns16|
+            return true if (ns16["mikuType"] == "NS16:Wave" and ns16["isPriority"])
+            false
+        }
+        p1, p2 = data.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
+        data = p1 + p2
+
+        # Ensure that running items come first
+        data = ListingDataDriver::ensureRunningItemsAreFirst(data)
+
+        ListingDataDriver::storeData(data)
+    end
+end
+
+class Catalyst
 
     # Catalyst::program2()
     def self.program2()
@@ -605,26 +610,11 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = Catalyst::ns16s(universe)
+            ListingDataDriver::update(universe)
 
-            section2prioritySelect = lambda {|ns16|
-                return true if (ns16["mikuType"] == "NS16:Wave" and ns16["isPriority"])
-                false
-            }
+            section2 = ListingDataDriver::getData()
 
-            section2select = lambda {|ns16|
-                return true if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
-                return false if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{ns16["uuid"]}")
-                BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) < 1
-            }
-
-            running, section2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-            section2_priority, section2 = section2.partition{|ns16| section2prioritySelect.call(ns16) }
-            section2, section3 = section2.partition{|ns16| section2select.call(ns16) }
-            section2 = Catalyst::applySx89Restructuration(section2)
-            section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-
-            TerminalDisplayOperator::printListing(universe, floats, running + section2_priority + section2, section3)
+            TerminalDisplayOperator::printListing(universe, floats, section2)
         }
     end
 end

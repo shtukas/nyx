@@ -152,6 +152,8 @@ class LxAction
 
         if command == "done" then
 
+            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", object["uuid"]) # done deletion for ListingDataDriver
+
             # If the object was running, then we stop it
             if NxBallsService::isRunning(object["uuid"]) then
                 LxAction::action("stop", object)
