@@ -52,7 +52,7 @@ class LxAction
                         # Nothing else to do, we return
                     else
                         LxAction::action("stop", object)
-                        if LucilleCore::askQuestionAnswerAsBoolean("done/destroy ? ") then
+                        if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
                             item = object["TxTodo"]
                             TxTodos::destroy(item["uuid"])
                         end
