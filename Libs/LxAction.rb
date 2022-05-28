@@ -480,11 +480,13 @@ class LxAction
         end
 
         if command == "todos" then
-            nx50s = TxTodos::items()
+            universe = ActiveUniverse::getUniverseOrNull()
+            nx50s =  TxTodos::itemsForUniverse(universe)
             if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
-                nx50s = nx50s.first(DidactUtils::screenHeight()-2)
+                nx50s = nx50s.first(DidactUtils::screenHeight()-4)
             end
             loop {
+                system("clear")
                 nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| TxTodos::toString(nx50) })
                 return if nx50.nil?
                 TxTodos::landing(nx50)

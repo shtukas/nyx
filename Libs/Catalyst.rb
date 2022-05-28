@@ -277,6 +277,10 @@ class TerminalUtils
             return [nil, nil]
         end
 
+        if Interpreting::match("todos", input) then
+            return ["todos", nil]
+        end
+
         if Interpreting::match("transmute", input) then
             return ["transmute", store.getDefault()]
         end
