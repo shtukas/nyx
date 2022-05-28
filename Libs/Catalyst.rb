@@ -321,41 +321,6 @@ class Commands
     end
 end
 
-class ItemStore
-
-    def initialize() # : Integer
-        @items = []
-        @defaultItem = nil
-    end
-
-    def register(item, canBeDefault)
-        cursor = @items.size
-        @items << item
-        if @defaultItem.nil? and canBeDefault then
-            @defaultItem = item
-        end
-        @items.size-1
-    end
-
-    def latestEnteredItemIsDefault()
-        return false if @defaultItem.nil?
-        @items.last["uuid"] == @defaultItem["uuid"]
-    end
-
-    def prefixString()
-        indx = @items.size-1
-        latestEnteredItemIsDefault() ? "(-->)".green : "(#{"%3d" % indx})"
-    end
-
-    def get(indx)
-        @items[indx].clone
-    end
-
-    def getDefault()
-        @defaultItem.clone
-    end
-end
-
 class Defaultability
     
     # Defaultability::advance(uuid)
@@ -381,50 +346,6 @@ class Defaultability
         return false if ns16["nonListingDefaultable"]
         return false if Defaultability::isAdvanced(ns16["uuid"])
         true
-    end
-end
-
-class The99Percent
-
-    # reference = {
-    #     "count"    =>
-    #     "datetime" =>
-    # }
-
-    # The99Percent::issueNewReference()
-    def self.issueNewReference()
-        count = TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
-        reference = {
-            "count"    => count,
-            "datetime" => Time.new.to_s
-        }
-        puts "Issuing a new reference:".green
-        puts JSON.pretty_generate(reference).green
-        LucilleCore::pressEnterToContinue()
-        XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
-        reference
-    end
-
-    # The99Percent::getReference()
-    def self.getReference()
-        reference = XCache::getOrNull("002c358b-e6ee-41bd-9bee-105396a6349a")
-        if reference then
-            JSON.parse(reference)
-        else
-            The99Percent::issueNewReference()
-        end
-    end
-
-    # The99Percent::getCurrentCount()
-    def self.getCurrentCount()
-        TxDateds::items().size + TxFyres::items().size + TxTodos::items().size
-    end
-
-    # The99Percent::ratio()
-    def self.ratio()
-        reference = The99Percent::getReference()
-        current   = The99Percent::getCurrentCount()
-        current.to_f/reference["count"]
     end
 end
 
@@ -559,12 +480,29 @@ end
 
 class Catalyst
 
+    # Catalyst::ns16s(universe)
+    def self.ns16s(universe)
+        [
+            Anniversaries::ns16s(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            Waves::ns16s(universe),
+            TxDateds::ns16s(),
+            Inbox::ns16s(),
+            [UniverseMonitor::switchInvitationNS16OrNull()].compact,
+            TxFyres::ns16s(universe),
+            TxTodos::ns16s(universe).first(5),
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    end
+
     # Sx90: Array[Sx89]
     # Sx89: { type, ns16 }
     # type: "regular", "todo-injected"
 
-    # Catalyst::applySx89Restruturation(ns16s)
-    def self.applySx89Restruturation(ns16s)
+    # Catalyst::applySx89Restructuration(ns16s)
+    def self.applySx89Restructuration(ns16s)
         extractNS16FromInputByUUIDOrNull = lambda{|uuid|
             ns16s.select{|ns16| ns16["uuid"] == uuid}.first
         }
@@ -673,19 +611,7 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = [
-                Anniversaries::ns16s(),
-                JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-                Waves::ns16s(universe),
-                TxDateds::ns16s(),
-                Inbox::ns16s(),
-                [UniverseMonitor::switchInvitationNS16OrNull()].compact,
-                TxFyres::ns16s(universe),
-                TxTodos::ns16s(universe).first(5),
-            ]
-                .flatten
-                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+            section2 = Catalyst::ns16s(universe)
 
             section2prioritySelect = lambda {|ns16|
                 return true if (ns16["mikuType"] == "NS16:Wave" and ns16["isPriority"])
@@ -701,7 +627,7 @@ class Catalyst
             running, section2 = section2.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
             section2_priority, section2 = section2.partition{|ns16| section2prioritySelect.call(ns16) }
             section2, section3 = section2.partition{|ns16| section2select.call(ns16) }
-            section2 = Catalyst::applySx89Restruturation(section2)
+            section2 = Catalyst::applySx89Restructuration(section2)
             section3 = section3.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
 
             TerminalDisplayOperator::printListing(universe, floats, running + section2_priority + section2, section3)

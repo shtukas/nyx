@@ -205,7 +205,7 @@ class TxTodos
             end
 
             if Interpreting::match("access", command) then
-                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::accessItem(item)
                 next
             end
 
@@ -294,44 +294,71 @@ class TxTodos
 
     # TxTodos::rstream()
     def self.rstream()
-        TxTodos::itemsForUniverse("backlog").shuffle.each{|item|
-            puts item["description"].green
-            LxAction::action("start", item)
-            LxAction::action("access", item)
-            startTime = Time.new.to_i
-            loop {
-                break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
-                command = LucilleCore::askQuestionAnswerAsString("next (default), done, landing (and back), exit, run (and exit rstream): ")
-                if command == "" then
-                    LxAction::action("stop", item)
-                    break
+        items = TxTodos::itemsForUniverse("backlog").first(2000)
+
+        # -----------------------------------------------------------------
+        # Some gratuituous optimization
+        # (comment group: 3e6f8340-1d1e-400d-8209-5cec545c0e80)
+        if InfinityDriveUtils::driveIsPlugged() then
+            items.each {|item|
+                next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca2:#{JSON.generate(item)}")
+                puts "Caching: #{item["description"]}"
+                if item["iam"]["type"] == "aion-point" then
+                    # We do this to essentially download the blob from infinity to local cache
+                    LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item, EnergyGridElizabeth.new())
                 end
-                if command == "next" then
-                    LxAction::action("stop", item)
-                    break
+                if item["iam"]["type"] == "Dx8Unit" then
+                    unitId = item["iam"]["unitId"]
+                    location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+                    rootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
+                    XCache::set("dbe424a9-a360-4f66-9ad1-d16b2475c069:#{unitId}", rootnhash)
                 end
-                if command == "done" then
-                    LxAction::action("stop", item)
-                    TxTodos::destroy(item["uuid"])
-                    break
-                end
-                if command == "landing" then
-                    LxAction::action("landing", item)
-                    item = LocalObjectsStore::getObjectByUUIDOrNull(item["uuid"])
-                    if item["mikuType"] != "TxTodo" then
+                XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca2:#{JSON.generate(item)}")
+            }
+        end
+        # -----------------------------------------------------------------
+
+        items
+            .first(1000)
+            .shuffle
+            .each{|item|
+                puts item["description"].green
+                LxAction::action("start", item)
+                LxAction::action("access", item)
+                startTime = Time.new.to_i
+                loop {
+                    break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
+                    command = LucilleCore::askQuestionAnswerAsString("next (default), done, landing (and back), exit, run (and exit rstream): ")
+                    if command == "" then
+                        LxAction::action("stop", item)
                         break
                     end
-                    next
-                end
-                if command == "exit" then
-                    LxAction::action("stop", item)
-                    return
-                end
-                if command == "run" then
-                    return
-                end
+                    if command == "next" then
+                        LxAction::action("stop", item)
+                        break
+                    end
+                    if command == "done" then
+                        LxAction::action("stop", item)
+                        TxTodos::destroy(item["uuid"])
+                        break
+                    end
+                    if command == "landing" then
+                        LxAction::action("landing", item)
+                        item = LocalObjectsStore::getObjectByUUIDOrNull(item["uuid"])
+                        if item["mikuType"] != "TxTodo" then
+                            break
+                        end
+                        next
+                    end
+                    if command == "exit" then
+                        LxAction::action("stop", item)
+                        return
+                    end
+                    if command == "run" then
+                        return
+                    end
+                }
             }
-        }
     end
 
     # --------------------------------------------------

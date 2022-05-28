@@ -199,7 +199,7 @@ class Waves
             end
 
             if command == "access" then
-                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::accessItem(item)
                 next
             end
 
@@ -287,7 +287,7 @@ class Waves
         puts Waves::toString(item)
         puts "Starting at #{Time.new.to_s}"
 
-        EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
+        EditionDesk::accessItem(item)
 
         loop {
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["done (default)", "landing", "exit"])

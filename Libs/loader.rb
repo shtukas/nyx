@@ -123,6 +123,9 @@ require_relative "../../common/Code/EditionDesk.rb"
 require_relative "../../common/Code/Nx100s.rb"
 require_relative "../../common/Code/PrimitiveFiles.rb"
 require_relative "../../common/Code/Nx60s.rb"
+require_relative "../../common/Code/Nx111.rb"
+require_relative "../../common/Code/Nx102Flavors.rb"
+require_relative "../../common/Code/LibrarianObjectsFileSystemCheck2.rb"
 
 # ------------------------------------------------------------
 
@@ -143,6 +146,7 @@ require_relative "Galaxy.rb"
 require_relative "Interpreting.rb"
 require_relative "Inbox.rb"
 require_relative "InternetStatus.rb"
+require_relative "ItemStore.rb"
 
 require_relative "Links.rb"
 require_relative "LxAction.rb"
@@ -152,8 +156,6 @@ require_relative "Multiverse.rb"
 
 require_relative "NxBallsService.rb"
 require_relative "NyxNetwork.rb"
-require_relative "Nx111.rb"
-require_relative "Nx102Flavors.rb"
 
 require_relative "ProgrammableBooleans.rb"
 
@@ -168,6 +170,7 @@ require_relative "TxFyres.rb"
 require_relative "TxFloats.rb"
 require_relative "TxDateds.rb"
 require_relative "TxTodos.rb"
+require_relative "The99Percent.rb"
 
 require_relative "Waves.rb"
 

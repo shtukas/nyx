@@ -115,7 +115,7 @@ class TxFyres
             end
 
             if Interpreting::match("access", command) then
-                EditionDesk::exportItemToDeskIfNotAlreadyExportedAndAccess(item)
+                EditionDesk::accessItem(item)
                 next
             end
 
@@ -174,7 +174,7 @@ class TxFyres
                     "unixtime"    => item["unixtime"],
                     "datetime"    => item["datetime"],
                     "description" => item["description"],
-                    "iam"        => item["iam"],
+                    "iam"         => item["iam"],
                     "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
                 }
                 LocalObjectsStore::commit(ix)
