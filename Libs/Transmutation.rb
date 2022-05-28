@@ -55,14 +55,15 @@ class Transmutation
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxFyre" then
+            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
@@ -78,7 +79,7 @@ class Transmutation
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxDated"
             object["datetime"] = DidactUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
@@ -86,7 +87,7 @@ class Transmutation
         if source == "TxFloat" and target == "TxFyre" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
@@ -96,7 +97,7 @@ class Transmutation
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
@@ -106,7 +107,7 @@ class Transmutation
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
@@ -114,7 +115,7 @@ class Transmutation
         if source == "TxFyre" and target == "TxFloat" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFloat"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
@@ -122,7 +123,7 @@ class Transmutation
         if source == "TxTodo" and target == "TxFyre" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
+            object["universe"] = universe
             LocalObjectsStore::commit(object)
             return
         end
