@@ -362,6 +362,7 @@ class NS16s
             [UniverseMonitor::switchInvitationNS16OrNull()].compact,
             TxFyres::ns16s(universe),
             TxTodos::ns16s(universe).first(5),
+            [ListingDataDriver::rstreamToken()]
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -554,7 +555,7 @@ class ListingDataDriver
         end
 
         # We make sure that we have any new item
-        data = ListingDataDriver::removeDuplicates(data + ns16s + [ListingDataDriver::rstreamToken()])
+        data = ListingDataDriver::removeDuplicates(data + ns16s)
 
         # We remove the items that are alive but no longer occur in ns16s
         data = ListingDataDriver::removeDeadItems(data, ns16s)
