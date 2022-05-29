@@ -15,7 +15,7 @@ class LocalObjectsStore
 
     # LocalObjectsStore::pathToObjectsStoreDatabase()
     def self.pathToObjectsStoreDatabase()
-        "/Users/pascal/Galaxy/DataBank/Didact/objects-store.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/objects-store.sqlite3"
     end
 
     # ---------------------------------------------------

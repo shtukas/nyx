@@ -78,7 +78,7 @@ class Transmutation
         if source == "TxFloat" and target == "TxDated" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxDated"
-            object["datetime"] = DidactUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            object["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
             object["universe"] = universe
             LocalObjectsStore::commit(object)
             return

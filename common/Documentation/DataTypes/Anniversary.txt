@@ -1,5 +1,5 @@
 
-# /Users/pascal/Galaxy/DataBank/Didact/Catalyst/Anniversaries
+# /Users/pascal/Galaxy/DataBank/Catalyst/Catalyst/Anniversaries
 
 Anniversary {
   "uuid"        : String,

@@ -105,7 +105,7 @@ class Nx111
             }
         end
         if type == "text" then
-            text = DidactUtils::editTextSynchronously("")
+            text = CommonUtils::editTextSynchronously("")
             nhash = EnergyGridDatablobs::putBlob(text)
             return {
                 "uuid"  => SecureRandom.uuid,
@@ -123,7 +123,7 @@ class Nx111
             }
         end
         if type == "aion-point" then
-            location = DidactUtils::interactivelySelectDesktopLocationOrNull()
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return Nx111::locationToAionPointNx111OrNull(location)
         end
@@ -137,7 +137,7 @@ class Nx111
             }
         end
         if type == "primitive-file" then
-            location = DidactUtils::interactivelySelectDesktopLocationOrNull()
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return PrimitiveFiles::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
         end

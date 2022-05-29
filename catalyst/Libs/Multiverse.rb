@@ -59,7 +59,7 @@ class UniverseMonitor
         natural = UniverseMonitor::naturalUniverseForThisTime()
         return nil if ActiveUniverse::getUniverseOrNull() == natural
         {
-            "uuid"     => "66a9b7b7-073f-49c3-81a1-395b00ed55e6:#{DidactUtils::today()}",
+            "uuid"     => "66a9b7b7-073f-49c3-81a1-395b00ed55e6:#{CommonUtils::today()}",
             "mikuType" => "Tx0938", # Common type to NS16s with a lambda
             "announce" => "(multiverse) switch to #{natural}",
             "lambda"   => lambda { ActiveUniverse::setUniverse(natural) }

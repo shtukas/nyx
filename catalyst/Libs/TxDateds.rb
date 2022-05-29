@@ -24,7 +24,7 @@ class TxDateds
             puts "description: #{description}"
         end
 
-        datetime = DidactUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+        datetime = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
         return nil if datetime.nil?
 
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems())
@@ -155,7 +155,7 @@ class TxDateds
             end
 
             if Interpreting::match("date", command) then
-                datetime = DidactUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+                datetime = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
                 next if datetime.nil?
                 item["datetime"] = datetime
                 LocalObjectsStore::commit(item)
@@ -163,7 +163,7 @@ class TxDateds
             end
 
             if Interpreting::match("description", command) then
-                description = DidactUtils::editTextSynchronously(item["description"]).strip
+                description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
                 LocalObjectsStore::commit(item)
@@ -249,7 +249,7 @@ class TxDateds
     # TxDateds::ns16s()
     def self.ns16s()
         TxDateds::items()
-            .select{|item| item["datetime"][0, 10] <= DidactUtils::today() }
+            .select{|item| item["datetime"][0, 10] <= CommonUtils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .map{|item| TxDateds::ns16(item) }
     end

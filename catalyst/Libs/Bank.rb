@@ -7,7 +7,7 @@ class Bank
 
     # Bank::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Didact/Catalyst/Bank.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Catalyst/Bank.sqlite3"
     end
 
     # Bank::put(setuuid, weight: Float)
@@ -15,14 +15,14 @@ class Bank
         return if setuuid.nil?
         operationuuid = SecureRandom.uuid
         unixtime = Time.new.to_i
-        date = DidactUtils::today()
+        date = CommonUtils::today()
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
 
-        $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{DidactUtils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, DidactUtils::today())
+        $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{CommonUtils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, CommonUtils::today())
 
         nil
     end
@@ -86,11 +86,11 @@ class Bank
             answer
         }
 
-        if $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{date}"].nil? then
-            $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
+        if $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{date}"].nil? then
+            $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
         end
         
-        $BankInMemorySetuuidDateToValueStore["#{DidactUtils::today()}-#{setuuid}-#{date}"]
+        $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{date}"]
     end
 end
 
@@ -99,7 +99,7 @@ class BankExtended
     # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
     def self.timeRatioOverDayCount(setuuid, daysCount)
         value = (0..(daysCount-1))
-                    .map{|i| DidactUtils::nDaysInTheFuture(-i) }
+                    .map{|i| CommonUtils::nDaysInTheFuture(-i) }
                     .map{|date| Bank::valueAtDate(setuuid, date) }
                     .inject(0, :+)
         value.to_f/(daysCount*86400)

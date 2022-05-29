@@ -380,7 +380,7 @@ class TerminalDisplayOperator
     def self.printListing(universe, floats, section2)
         system("clear")
 
-        vspaceleft = DidactUtils::screenHeight()-3
+        vspaceleft = CommonUtils::screenHeight()-3
 
         reference = The99Percent::getReference()
         current   = The99Percent::getCurrentCount()
@@ -407,7 +407,7 @@ class TerminalDisplayOperator
                 store.register(ns16, false)
                 line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
                 puts line
-                vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
         end
 
@@ -426,7 +426,7 @@ class TerminalDisplayOperator
                         store.register(delegate, true)
                         line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                         puts line
-                        vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
+                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     }
         end
 
@@ -437,7 +437,7 @@ class TerminalDisplayOperator
             puts "(top)"
             top = top.lines.first(10).join().strip
             puts top
-            vspaceleft = vspaceleft - DidactUtils::verticalSize(top) - 3
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(top) - 3
         end
 
         if section2.size > 0 then
@@ -448,12 +448,12 @@ class TerminalDisplayOperator
                     store.register(ns16, Defaultability::isDefaultable(ns16))
                     line = ns16["announce"]
                     line = "#{store.prefixString()} #{line}"
-                    break if (vspaceleft - DidactUtils::verticalSize(line)) < 0
+                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(ns16["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
                     end
                     puts line
-                    vspaceleft = vspaceleft - DidactUtils::verticalSize(line)
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
 
@@ -462,7 +462,7 @@ class TerminalDisplayOperator
 
         return if input == ""
 
-        if !input.start_with?("today:") and (unixtime = DidactUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+        if !input.start_with?("today:") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
@@ -576,7 +576,7 @@ class ListingDataDriver
         selectOverflowingOrDoneForTodayTodosAndFyres = lambda {|ns16|
             return false if NxBallsService::isActive(ns16["uuid"])
             return false if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
-            return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{ns16["uuid"]}")
+            return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{ns16["uuid"]}")
             BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) >= 1
         }
 
@@ -594,10 +594,10 @@ class Catalyst
 
     # Catalyst::program2()
     def self.program2()
-        initialCodeTrace = DidactUtils::generalCodeTrace()
+        initialCodeTrace = CommonUtils::generalCodeTrace()
         loop {
 
-            if DidactUtils::generalCodeTrace() != initialCodeTrace then
+            if CommonUtils::generalCodeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
@@ -609,7 +609,7 @@ class Catalyst
                 LucilleCore::locationsAtFolder(pileFilepath)
                     .each{|location|
                         name1 = File.basename(location)
-                        safename = DidactUtils::sanitiseStringForFilenaming(name1)
+                        safename = CommonUtils::sanitiseStringForFilenaming(name1)
                         if safename != name1 then
                             location2 = "#{File.dirname(location)}/#{safename}"
                             FileUtils.mv(location, location2)

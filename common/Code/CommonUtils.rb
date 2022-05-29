@@ -3,9 +3,9 @@
 
 # -----------------------------------------------------------------------
 
-class DidactUtils
+class CommonUtils
 
-    # DidactUtils::editTextSynchronously(text)
+    # CommonUtils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.uuid
         filepath = "/tmp/#{filename}.txt"
@@ -16,33 +16,33 @@ class DidactUtils
         IO.read(filepath)
     end
 
-    # DidactUtils::isInteger(str)
+    # CommonUtils::isInteger(str)
     def self.isInteger(str)
         str == str.to_i.to_s
     end
 
-    # DidactUtils::getNewValueEveryNSeconds(uuid, n)
+    # CommonUtils::getNewValueEveryNSeconds(uuid, n)
     def self.getNewValueEveryNSeconds(uuid, n)
       Digest::SHA1.hexdigest("6bb2e4cf-f627-43b3-812d-57ff93012588:#{uuid}:#{(Time.new.to_f/n).to_i.to_s}")
     end
 
-    # DidactUtils::openFilepath(filepath)
+    # CommonUtils::openFilepath(filepath)
     def self.openFilepath(filepath)
         system("open '#{filepath}'")
     end
 
-    # DidactUtils::openFilepathWithInvite(filepath)
+    # CommonUtils::openFilepathWithInvite(filepath)
     def self.openFilepathWithInvite(filepath)
         system("open '#{filepath}'")
         LucilleCore::pressEnterToContinue()
     end
 
-    # DidactUtils::openUrlUsingSafari(url)
+    # CommonUtils::openUrlUsingSafari(url)
     def self.openUrlUsingSafari(url)
         system("open -a Safari '#{url}'")
     end
 
-    # DidactUtils::onScreenNotification(title, message)
+    # CommonUtils::onScreenNotification(title, message)
     def self.onScreenNotification(title, message)
         title = title.gsub("'","")
         message = message.gsub("'","")
@@ -52,7 +52,7 @@ class DidactUtils
         system(command)
     end
 
-    # DidactUtils::selectDateOfNextNonTodayWeekDay(weekday) #2
+    # CommonUtils::selectDateOfNextNonTodayWeekDay(weekday) #2
     def self.selectDateOfNextNonTodayWeekDay(weekday)
         weekDayIndexToStringRepresentation = lambda {|indx|
             weekdayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"]
@@ -65,22 +65,22 @@ class DidactUtils
         }
     end
 
-    # DidactUtils::screenHeight()
+    # CommonUtils::screenHeight()
     def self.screenHeight()
         `/usr/bin/env tput lines`.to_i
     end
 
-    # DidactUtils::screenWidth()
+    # CommonUtils::screenWidth()
     def self.screenWidth()
         `/usr/bin/env tput cols`.to_i
     end
 
-    # DidactUtils::verticalSize(displayStr)
+    # CommonUtils::verticalSize(displayStr)
     def self.verticalSize(displayStr)
-        displayStr.lines.map{|line| line.size/DidactUtils::screenWidth() + 1 }.inject(0, :+)
+        displayStr.lines.map{|line| line.size/CommonUtils::screenWidth() + 1 }.inject(0, :+)
     end
 
-    # DidactUtils::sanitiseStringForFilenaming(str)
+    # CommonUtils::sanitiseStringForFilenaming(str)
     def self.sanitiseStringForFilenaming(str)
         str
             .gsub(":", "-")
@@ -89,13 +89,13 @@ class DidactUtils
             .strip
     end
 
-    # DidactUtils::fileByFilenameIsSafelyOpenable(filename)
+    # CommonUtils::fileByFilenameIsSafelyOpenable(filename)
     def self.fileByFilenameIsSafelyOpenable(filename)
         safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
         safelyOpeneableExtensions.any?{|extension| filename.downcase[-extension.size, extension.size] == extension }
     end
 
-    # DidactUtils::putsOnPreviousLine(str)
+    # CommonUtils::putsOnPreviousLine(str)
     def self.putsOnPreviousLine(str)
         # \r move to the beginning \033[1A move up \033[0K erase to the end
         print "\r"
@@ -104,7 +104,7 @@ class DidactUtils
         puts str
     end
 
-    # DidactUtils::nx45()
+    # CommonUtils::nx45()
     def self.nx45()
         str1 = Time.new.strftime("%Y%m%d%H%M%S%6N")
         str2 = str1[0, 6]
@@ -119,7 +119,7 @@ class DidactUtils
     # ----------------------------------------------------
     # File System Routines
 
-    # DidactUtils::locationTrace(location)
+    # CommonUtils::locationTrace(location)
     def self.locationTrace(location)
         raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
         if File.file?(location) then
@@ -127,13 +127,13 @@ class DidactUtils
         else
             t1 = File.basename(location)
             t2 = LucilleCore::locationsAtFolder(location)
-                    .map{|loc| DidactUtils::locationTrace(loc) }
+                    .map{|loc| CommonUtils::locationTrace(loc) }
                     .join(":")
             Digest::SHA1.hexdigest([t1, t2].join(":"))
         end
     end
 
-    # DidactUtils::locationTraceCode(location)
+    # CommonUtils::locationTraceCode(location)
     def self.locationTraceCode(location)
         raise "(error: 4d172723-3748-4f0b-a309-3944e4f352d9)" if !File.exists?(location)
         if File.file?(location) then
@@ -143,19 +143,19 @@ class DidactUtils
             t2 = LucilleCore::locationsAtFolder(location)
                     .select{|loc| File.basename(loc)[0, 1] != "." }
                     .select{|loc| File.directory?(loc) or File.basename(loc)[-3, 3] == ".rb" }
-                    .map{|loc| DidactUtils::locationTraceCode(loc) }
+                    .map{|loc| CommonUtils::locationTraceCode(loc) }
                     .join(":")
             Digest::SHA1.hexdigest([t1, t2].join(":"))
         end
     end
 
-    # DidactUtils::codeTraceWithMultipleRoots(roots)
+    # CommonUtils::codeTraceWithMultipleRoots(roots)
     def self.codeTraceWithMultipleRoots(roots)
-        rtraces = roots.map{|root| DidactUtils::locationTraceCode(root) }
+        rtraces = roots.map{|root| CommonUtils::locationTraceCode(root) }
         Digest::SHA1.hexdigest(rtraces.join(":"))
     end
 
-    # DidactUtils::generalCodeTrace()
+    # CommonUtils::generalCodeTrace()
     def self.generalCodeTrace()
         roots = [
             "catalyst",
@@ -163,65 +163,65 @@ class DidactUtils
             "librarian",
             "nyx"
         ].map{|n| "#{File.dirname(__FILE__)}/../../#{n}" }
-        DidactUtils::codeTraceWithMultipleRoots(roots)
+        CommonUtils::codeTraceWithMultipleRoots(roots)
     end
 
     # ----------------------------------------------------
     # Date Routines
 
-    # DidactUtils::isWeekday()
+    # CommonUtils::isWeekday()
     def self.isWeekday()
         ![6, 0].include?(Time.new.wday)
     end
 
-    # DidactUtils::isWeekend()
+    # CommonUtils::isWeekend()
     def self.isWeekend()
-        !DidactUtils::isWeekday()
+        !CommonUtils::isWeekday()
     end
 
-    # DidactUtils::getLocalTimeZone()
+    # CommonUtils::getLocalTimeZone()
     def self.getLocalTimeZone()
         `date`.strip[-3 , 3]
     end
 
-    # DidactUtils::todayAsLowercaseEnglishWeekDayName()
+    # CommonUtils::todayAsLowercaseEnglishWeekDayName()
     def self.todayAsLowercaseEnglishWeekDayName()
         ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"][Time.new.wday]
     end
 
-    # DidactUtils::interactivelySelectUnixtimeOrNull()
+    # CommonUtils::interactivelySelectUnixtimeOrNull()
     def self.interactivelySelectUnixtimeOrNull()
         datecode = LucilleCore::askQuestionAnswerAsString("date code: +today, +tomorrow, +<weekdayname>, +<integer>hours(s), +<integer>day(s), +<integer>@HH:MM, +YYYY-MM-DD (empty to abort): ")
-        unixtime = DidactUtils::codeToUnixtimeOrNull(datecode)
+        unixtime = CommonUtils::codeToUnixtimeOrNull(datecode)
         return nil if unixtime.nil?
         unixtime
     end
 
-    # DidactUtils::interactivelySelectADateOrNull()
+    # CommonUtils::interactivelySelectADateOrNull()
     def self.interactivelySelectADateOrNull()
-        unixtime = DidactUtils::interactivelySelectUnixtimeOrNull()
+        unixtime = CommonUtils::interactivelySelectUnixtimeOrNull()
         return nil if unixtime.nil?
         Time.at(unixtime).to_s[0, 10]
     end
 
-    # DidactUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+    # CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
     def self.interactivelySelectAUTCIso8601DateTimeOrNull()
-        unixtime = DidactUtils::interactivelySelectUnixtimeOrNull()
+        unixtime = CommonUtils::interactivelySelectUnixtimeOrNull()
         return nil if unixtime.nil?
         Time.at(unixtime).utc.iso8601
     end
 
-    # DidactUtils::nDaysInTheFuture(n)
+    # CommonUtils::nDaysInTheFuture(n)
     def self.nDaysInTheFuture(n)
         (Time.now+86400*n).to_s[0,10]
     end
 
-    # DidactUtils::dateIsWeekEnd(date)
+    # CommonUtils::dateIsWeekEnd(date)
     def self.dateIsWeekEnd(date)
         [6, 0].include?(Date.parse(date).to_time.wday)
     end
 
-    # DidactUtils::codeToUnixtimeOrNull(code)
+    # CommonUtils::codeToUnixtimeOrNull(code)
     def self.codeToUnixtimeOrNull(code)
 
         return nil if code.nil?
@@ -245,7 +245,7 @@ class DidactUtils
         # +1@12:34
 
 
-        return DidactUtils::unixtimeAtComingMidnightAtGivenTimeZone(DidactUtils::getLocalTimeZone()) if code == "+++"
+        return CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone()) if code == "+++"
         return (Time.new.to_i+3600) if code == "++"
 
         code = code[1,99].strip
@@ -264,7 +264,7 @@ class DidactUtils
         if weekdayNames.include?(code) then
             # We have a week day
             weekdayName = code
-            date = DidactUtils::selectDateOfNextNonTodayWeekDay(weekdayName)
+            date = CommonUtils::selectDateOfNextNonTodayWeekDay(weekdayName)
             return dateToMorningUnixtime.call(date)
         end
 
@@ -273,11 +273,11 @@ class DidactUtils
         end
 
         if code == "today" then
-            return dateToMorningUnixtime.call(DidactUtils::today())
+            return dateToMorningUnixtime.call(CommonUtils::today())
         end
 
         if code == "tomorrow" then
-            return dateToMorningUnixtime.call(DidactUtils::nDaysInTheFuture(1))
+            return dateToMorningUnixtime.call(CommonUtils::nDaysInTheFuture(1))
         end
 
         if code.include?("day") then
@@ -290,18 +290,18 @@ class DidactUtils
 
         if code.include?('@') then
             p1, p2 = code.split('@') # 1 12:34
-            return DateTime.parse("#{DidactUtils::nDaysInTheFuture(p1.to_i)[0, 10]} #{p2}:00 #{localsuffix}").to_time.to_i
+            return DateTime.parse("#{CommonUtils::nDaysInTheFuture(p1.to_i)[0, 10]} #{p2}:00 #{localsuffix}").to_time.to_i
         end
 
         nil
     end
 
-    # DidactUtils::today()
+    # CommonUtils::today()
     def self.today()
         Time.new.to_s[0, 10]
     end
 
-    # DidactUtils::unixtimeAtComingMidnightAtGivenTimeZone(timezone)
+    # CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(timezone)
     def self.unixtimeAtComingMidnightAtGivenTimeZone(timezone)
         supportedTimeZones = ["BST", "GMT"]
         if !supportedTimeZones.include?(timezone) then
@@ -310,11 +310,11 @@ class DidactUtils
         DateTime.parse("#{(DateTime.now.to_date+1).to_s} 00:00:00 #{timezone}").to_time.to_i
     end
 
-    # DidactUtils::datesSinceLastSaturday()
+    # CommonUtils::datesSinceLastSaturday()
     def self.datesSinceLastSaturday()
         dateIsSaturday = lambda{|date| Date.parse(date).to_time.wday == 6}
         (0..6)
-            .map{|i| DidactUtils::nDaysInTheFuture(-i) }
+            .map{|i| CommonUtils::nDaysInTheFuture(-i) }
             .reduce([]){|days, day|
                 if days.none?{|d| dateIsSaturday.call(d) } then
                     days + [day]
@@ -324,7 +324,7 @@ class DidactUtils
             }
     end
 
-    # DidactUtils::isDateTime_UTC_ISO8601(datetime)
+    # CommonUtils::isDateTime_UTC_ISO8601(datetime)
     def self.isDateTime_UTC_ISO8601(datetime)
         begin
             DateTime.parse(datetime).to_time.utc.iso8601 == datetime
@@ -333,10 +333,10 @@ class DidactUtils
         end
     end
 
-    # DidactUtils::updateDateTimeWithANewDate(datetime, date)
+    # CommonUtils::updateDateTimeWithANewDate(datetime, date)
     def self.updateDateTimeWithANewDate(datetime, date)
         datetime = "#{date}#{datetime[10, 99]}"
-        if !DidactUtils::isDateTime_UTC_ISO8601(datetime) then
+        if !CommonUtils::isDateTime_UTC_ISO8601(datetime) then
             raise "(error: 32c505fa-4168, #{datetime})"
         end
         datetime
@@ -345,7 +345,7 @@ class DidactUtils
     # ----------------------------------------------------
     # String Utilities
 
-    # DidactUtils::levenshteinDistance(s, t)
+    # CommonUtils::levenshteinDistance(s, t)
     def self.levenshteinDistance(s, t)
       # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
       m = s.length
@@ -371,30 +371,30 @@ class DidactUtils
       d[m][n]
     end
 
-    # DidactUtils::stringDistance1(str1, str2)
+    # CommonUtils::stringDistance1(str1, str2)
     def self.stringDistance1(str1, str2)
         # This metric takes values between 0 and 1
         return 1 if str1.size == 0
         return 1 if str2.size == 0
-        DidactUtils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
+        CommonUtils::levenshteinDistance(str1, str2).to_f/[str1.size, str2.size].max
     end
 
-    # DidactUtils::stringDistance2(str1, str2)
+    # CommonUtils::stringDistance2(str1, str2)
     def self.stringDistance2(str1, str2)
         # We need the smallest string to come first
         if str1.size > str2.size then
             str1, str2 = str2, str1
         end
         diff = str2.size - str1.size
-        (0..diff).map{|i| DidactUtils::levenshteinDistance(str1, str2[i, str1.size]) }.min
+        (0..diff).map{|i| CommonUtils::levenshteinDistance(str1, str2[i, str1.size]) }.min
     end
 
     # ----------------------------------------------------
     # Selection routines (0)
 
-    # DidactUtils::selectLineOrNullUsingInteractiveInterface(lines) : String
+    # CommonUtils::selectLineOrNullUsingInteractiveInterface(lines) : String
     def self.selectLineOrNullUsingInteractiveInterface(lines)
-        lines = DidactUtils::selectLinesUsingInteractiveInterface(lines)
+        lines = CommonUtils::selectLinesUsingInteractiveInterface(lines)
         if lines.size == 0 then
             return nil
         end
@@ -404,10 +404,10 @@ class DidactUtils
         LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
     end
 
-    # DidactUtils::selectOneObjectUsingInteractiveInterfaceOrNull(items, toString = lambda{|item| item })
+    # CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(items, toString = lambda{|item| item })
     def self.selectOneObjectUsingInteractiveInterfaceOrNull(items, toString = lambda{|item| item })
         lines = items.map{|item| toString.call(item) }
-        line = DidactUtils::selectLineOrNullUsingInteractiveInterface(lines)
+        line = CommonUtils::selectLineOrNullUsingInteractiveInterface(lines)
         return nil if line.nil?
         items
             .select{|item| toString.call(item) == line }
@@ -417,7 +417,7 @@ class DidactUtils
     # ----------------------------------------------------
     # Selection routines (1)
 
-    # DidactUtils::pecoStyleSelectionOrNull(lines)
+    # CommonUtils::pecoStyleSelectionOrNull(lines)
     def self.pecoStyleSelectionOrNull(lines)
         lines  = [""] + lines
         line = `echo '#{lines.join("\n")}' | /usr/local/bin/peco`.strip
@@ -425,7 +425,7 @@ class DidactUtils
         nil
     end
 
-    # DidactUtils::ncurseSelection1410(lambda1, lambda2)
+    # CommonUtils::ncurseSelection1410(lambda1, lambda2)
     # lambda1: pattern: String -> Array[String]
     # lambda2: string:  String -> Object or null
     def self.ncurseSelection1410(lambda1, lambda2)
@@ -449,8 +449,8 @@ class DidactUtils
         inputString_lastModificationUnixtime = nil
         currentLines = []
 
-        win1 = Curses::Window.new(1, DidactUtils::screenWidth(), 0, 0)
-        win2 = Curses::Window.new(DidactUtils::screenHeight()-1, DidactUtils::screenWidth(), 1, 0)
+        win1 = Curses::Window.new(1, CommonUtils::screenWidth(), 0, 0)
+        win2 = Curses::Window.new(CommonUtils::screenHeight()-1, CommonUtils::screenWidth(), 1, 0)
 
         win1.refresh
         win2.refresh
@@ -527,7 +527,7 @@ class DidactUtils
     # ----------------------------------------------------
     # Selection routines (2)
 
-    # DidactUtils::selectLinesUsingInteractiveInterface(lines) : Array[String]
+    # CommonUtils::selectLinesUsingInteractiveInterface(lines) : Array[String]
     def self.selectLinesUsingInteractiveInterface(lines)
         # Some lines break peco, so we need to be a bit clever here...
         linesX = lines.map{|line|
@@ -544,14 +544,14 @@ class DidactUtils
         .compact
     end
 
-    # DidactUtils::selectLineOrNullUsingInteractiveInterface(lines) : String
+    # CommonUtils::selectLineOrNullUsingInteractiveInterface(lines) : String
     def self.selectLineOrNullUsingInteractiveInterface(lines)
 
-        # Temporary measure to remove stress on DidactUtils::selectLinesUsingInteractiveInterface / peco after 
+        # Temporary measure to remove stress on CommonUtils::selectLinesUsingInteractiveInterface / peco after 
         # we added the videos from video stream
         lines = lines.reject{|line| line.include?('.mkv') }
         
-        lines = DidactUtils::selectLinesUsingInteractiveInterface(lines)
+        lines = CommonUtils::selectLinesUsingInteractiveInterface(lines)
         if lines.size == 0 then
             return nil
         end
@@ -561,10 +561,10 @@ class DidactUtils
         LucilleCore::selectEntityFromListOfEntitiesOrNull("select", lines)
     end
 
-    # DidactUtils::selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
+    # CommonUtils::selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
     def self.selectOneObjectOrNullUsingInteractiveInterface(items, toString = lambda{|item| item })
         lines = items.map{|item| toString.call(item) }
-        line = DidactUtils::selectLineOrNullUsingInteractiveInterface(lines)
+        line = CommonUtils::selectLineOrNullUsingInteractiveInterface(lines)
         return nil if line.nil?
         items
             .select{|item| toString.call(item) == line }
@@ -574,17 +574,17 @@ class DidactUtils
     # ----------------------------------------------------
     # Inherited from the old Librarian
 
-    # DidactUtils::filepathToContentHash(filepath) # nhash
+    # CommonUtils::filepathToContentHash(filepath) # nhash
     def self.filepathToContentHash(filepath)
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
-    # DidactUtils::openUrlUsingSafari(url)
+    # CommonUtils::openUrlUsingSafari(url)
     def self.openUrlUsingSafari(url)
         system("open -a Safari '#{url}'")
     end
 
-    # DidactUtils::editTextSynchronously(text)
+    # CommonUtils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = "#{SecureRandom.uuid}.txt"
         filepath = "/tmp/#{filename}"
@@ -595,18 +595,18 @@ class DidactUtils
         IO.read(filepath)
     end
 
-    # DidactUtils::timeStringL22()
+    # CommonUtils::timeStringL22()
     def self.timeStringL22()
         "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
     end
 
-    # DidactUtils::atlas(pattern)
+    # CommonUtils::atlas(pattern)
     def self.atlas(pattern)
         location = `/Users/pascal/Galaxy/LucilleOS/Binaries/atlas '#{pattern}'`.strip
         (location != "") ? location : nil
     end
 
-    # DidactUtils::interactivelySelectDesktopLocationOrNull() 
+    # CommonUtils::interactivelySelectDesktopLocationOrNull() 
     def self.interactivelySelectDesktopLocationOrNull()
         entries = Dir.entries("/Users/pascal/Desktop").select{|filename| !filename.start_with?(".") }.sort
         locationNameOnDesktop = LucilleCore::selectEntityFromListOfEntitiesOrNull("locationname", entries)
@@ -614,7 +614,7 @@ class DidactUtils
         "/Users/pascal/Desktop/#{locationNameOnDesktop}"
     end
 
-    # DidactUtils::moveFileToBinTimeline(location)
+    # CommonUtils::moveFileToBinTimeline(location)
     def self.moveFileToBinTimeline(location)
         return if !File.exists?(location)
         directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
@@ -622,7 +622,7 @@ class DidactUtils
         FileUtils.mv(location, directory)
     end
 
-    # DidactUtils::commitFileToXCacheReturnPartsHashs(filepath)
+    # CommonUtils::commitFileToXCacheReturnPartsHashs(filepath)
     def self.commitFileToXCacheReturnPartsHashs(filepath)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
         raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
@@ -636,7 +636,7 @@ class DidactUtils
         hashes
     end
 
-    # DidactUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+    # CommonUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
     def self.uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
         roots = [
             "/Users/pascal/Desktop"

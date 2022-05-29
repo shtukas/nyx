@@ -37,7 +37,7 @@ class Nx100s
 
         uuidMaker = lambda {|nx111|
             if nx111["type"] == "primitive-file" then
-                return DidactUtils::nx45()
+                return CommonUtils::nx45()
             end
             SecureRandom.uuid
         }
@@ -86,7 +86,7 @@ class Nx100s
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
 
-        uuid = DidactUtils::nx45()
+        uuid = CommonUtils::nx45()
 
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
         return nil if nx111.nil?
@@ -331,7 +331,7 @@ class Nx100s
             end
 
             if Interpreting::match("description", command) then
-                description = DidactUtils::editTextSynchronously(item["description"]).strip
+                description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
                 LocalObjectsStore::commit(item)
@@ -350,8 +350,8 @@ class Nx100s
             end
 
             if Interpreting::match("datetime", command) then
-                datetime = DidactUtils::editTextSynchronously(item["datetime"]).strip
-                next if !DidactUtils::isDateTime_UTC_ISO8601(datetime)
+                datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
+                next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
                 item["datetime"] = datetime
                 LocalObjectsStore::commit(item)
             end

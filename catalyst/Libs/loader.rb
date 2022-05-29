@@ -115,7 +115,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require_relative "../../common/Code/InfinityDriveDatablobsAndElizabeth.rb"
 require_relative "../../common/Code/XCacheDatablobsAndElizabeth.rb"
-require_relative "../../common/Code/DidactUtils.rb"
+require_relative "../../common/Code/CommonUtils.rb"
 require_relative "../../common/Code/LocalObjectsStore.rb"
 require_relative "../../common/Code/EnergyGrid.rb"
 require_relative "../../common/Code/InfinityDriveUtils.rb"

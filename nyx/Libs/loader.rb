@@ -37,7 +37,7 @@ require 'colorize'
 
 # -----------------------------------------------------------------------
 # require 'curses' # I commented that out, thereby disabling 
-# DidactUtils::ncurseSelection1410(lambda1, lambda2) ,
+# CommonUtils::ncurseSelection1410(lambda1, lambda2) ,
 # when I introduced pepin 
 
 require 'pepin'
@@ -129,7 +129,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require_relative "../../common/Code/InfinityDriveDatablobsAndElizabeth.rb"
 require_relative "../../common/Code/XCacheDatablobsAndElizabeth.rb"
-require_relative "../../common/Code/DidactUtils.rb"
+require_relative "../../common/Code/CommonUtils.rb"
 require_relative "../../common/Code/LocalObjectsStore.rb"
 require_relative "../../common/Code/EnergyGrid.rb"
 require_relative "../../common/Code/EditionDesk.rb"

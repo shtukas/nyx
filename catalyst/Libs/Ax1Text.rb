@@ -33,7 +33,7 @@ class Ax1Text
 
     # Ax1Text::interactivelyIssueNewOrNullForOwner(owneruuid)
     def self.interactivelyIssueNewOrNullForOwner(owneruuid)
-        text = DidactUtils::editTextSynchronously("")
+        text = CommonUtils::editTextSynchronously("")
         nhash = EnergyGridDatablobs::putBlob(text)
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -76,7 +76,7 @@ class Ax1Text
             if operation == "access/edit" then
                 nhash = item["nhash"]
                 text = EnergyGridDatablobs::getBlobOrNull(nhash)
-                text = DidactUtils::editTextSynchronously(text)
+                text = CommonUtils::editTextSynchronously(text)
                 nhash = EnergyGridDatablobs::putBlob(text)
                 item["nhash"] = nhash
                 LocalObjectsStore::commit(item)

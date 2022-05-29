@@ -4,7 +4,7 @@
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 
-require_relative "DidactUtils.rb"
+require_relative "CommonUtils.rb"
 require_relative "EnergyGrid.rb"
 require_relative "XCacheDatablobsAndElizabeth.rb"
 
@@ -67,7 +67,7 @@ class UniqueStringsFunctions
     # UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
     def self.findAndAccessUniqueString(uniquestring)
         puts "unique string: #{uniquestring}"
-        location = DidactUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+        location = CommonUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
         if location then
             puts "location: #{location}"
             if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
@@ -78,9 +78,9 @@ class UniqueStringsFunctions
         puts "Unique string not found in Galaxy"
         puts "Looking inside aion-points..."
         
-        puts "" # To accomodate DidactUtils::putsOnPreviousLine
+        puts "" # To accomodate CommonUtils::putsOnPreviousLine
         LocalObjectsStore::objects().each{|item|
-            DidactUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
+            CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
             next if item["iam"].nil?
             next if item["iam"]["type"] != "aion-point"
             rootnhash = item["iam"]["rootnhash"]
@@ -115,7 +115,7 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        "/Users/pascal/Galaxy/DataBank/Didact/EditionDesk"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/EditionDesk"
     end
 
     # EditionDesk::getMaxIndex()
@@ -131,7 +131,7 @@ class EditionDesk
     def self.decideEditionLocation(item)
         # This function returns the location if there already is one, or otherwise returns a new one.
         index1 = EditionDesk::getMaxIndex() + 1
-        description = item["description"] ? DidactUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
+        description = item["description"] ? CommonUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
         itemuuid = item["uuid"]
         nx111uuid = item["iam"]["uuid"]
 
@@ -187,7 +187,7 @@ class EditionDesk
         if nx111["type"] == "url" then
             url = nx111["url"]
             puts "url: #{url}"
-            DidactUtils::openUrlUsingSafari(url)
+            CommonUtils::openUrlUsingSafari(url)
             return
         end
         if nx111["type"] == "aion-point" then
@@ -311,7 +311,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, DidactUtils::sanitiseStringForFilenaming(item["description"]))
+            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
             #puts JSON.pretty_generate(nx111)
@@ -382,7 +382,7 @@ class EditionDesk
 
     # EditionDesk::updateAndGarbageCollection()
     def self.updateAndGarbageCollection()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Didact/EditionDesk").each{|location|
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/EditionDesk").each{|location|
             puts "Edition desk processing location: #{File.basename(location)}"
 
             # We associate a unixtime to a particular location trace. 
@@ -401,7 +401,7 @@ class EditionDesk
                 unixtime
             }
 
-            unixtime = getUnixtimeForLocationTrace.call(DidactUtils::locationTrace(location))
+            unixtime = getUnixtimeForLocationTrace.call(CommonUtils::locationTrace(location))
 
             next if (Time.new.to_i - unixtime) < 86400*30 # We keep them for 30 days
 

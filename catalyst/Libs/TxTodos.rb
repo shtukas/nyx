@@ -199,7 +199,7 @@ class TxTodos
                 LxAction::action("landing", entity)
             end
 
-            if (unixtime = DidactUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+            if (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 DoNotShowUntil::setUnixtime(uuid, unixtime)
                 break
             end
@@ -217,7 +217,7 @@ class TxTodos
             end
 
             if Interpreting::match("description", command) then
-                description = DidactUtils::editTextSynchronously(item["description"]).strip
+                description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
                 LocalObjectsStore::commit(item)

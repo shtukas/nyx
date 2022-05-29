@@ -21,7 +21,7 @@ class Search
 
     # Search::interativeInterfaceSelectNx20OrNull()
     def self.interativeInterfaceSelectNx20OrNull()
-        DidactUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::nx20sForInteractiveSearch(), lambda{|item| item["announce"] })
+        CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::nx20sForInteractiveSearch(), lambda{|item| item["announce"] })
     end
 
     # Search::interativeInterface()

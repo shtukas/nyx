@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::itemsFolderPath()
     def self.itemsFolderPath()
-        "/Users/pascal/Galaxy/DataBank/Didact/Catalyst/Anniversaries"
+        "/Users/pascal/Galaxy/DataBank/Catalyst/Catalyst/Anniversaries"
     end
 
     # Anniversaries::anniversaries()
@@ -124,7 +124,7 @@ class Anniversaries
 
         lastCelebrationDate = LucilleCore::askQuestionAnswerAsString("lastCelebrationDate (default to today): ")
         if lastCelebrationDate == "" then
-            lastCelebrationDate = DidactUtils::today()
+            lastCelebrationDate = CommonUtils::today()
         end
 
         item = {
@@ -169,7 +169,7 @@ class Anniversaries
     # Anniversaries::ns16s()
     def self.ns16s()
         Anniversaries::anniversaries()
-            .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= DidactUtils::today() }
+            .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
             .map{|anniversary|
                 uuid = anniversary["uuid"]
                 {
@@ -212,7 +212,7 @@ class Anniversaries
             end
 
             if Interpreting::match("update start date", command) then
-                startdate = DidactUtils::editTextSynchronously(anniversary["startdate"])
+                startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
                 return if startdate == ""
                 anniversary["startdate"] = startdate
                 Anniversaries::commitAnniversaryToDisk(anniversary)

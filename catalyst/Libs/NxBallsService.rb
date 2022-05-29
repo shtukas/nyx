@@ -177,7 +177,7 @@ Thread.new {
         XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
             uuid = nxball["uuid"]
             next if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) < 3600
-            DidactUtils::onScreenNotification("Catalyst", "NxBall running for more than an hour")
+            CommonUtils::onScreenNotification("Catalyst", "NxBall running for more than an hour")
         }
         
     }
