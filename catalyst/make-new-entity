@@ -1,0 +1,19 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "Libs/loader.rb"
+
+# ----------------------------------------------------------------------------
+
+puts [
+    Commands::makersCommands(),
+    Commands::diversCommands()
+].join(" | ").yellow
+
+input = LucilleCore::askQuestionAnswerAsString("> ")
+
+command, objectOpt = TerminalUtils::inputParser(input, nil)
+#puts "parser: command:#{command}, objectOpt: #{objectOpt}"
+LxAction::action(command, objectOpt)
+
