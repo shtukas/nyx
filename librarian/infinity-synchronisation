@@ -1,0 +1,75 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'colorize'
+
+require_relative "../common/Code/LocalObjectsStore.rb"
+require_relative "../common/Code/InfinityObjectsStore.rb"
+require_relative "../common/Code/Genealogy.rb"
+require_relative "../common/Code/CompositeElizabeth.rb"
+require_relative "../common/Code/InfinityDriveDatablobsAndElizabeth.rb"
+require_relative "../common/Code/XCacheDatablobsAndElizabeth.rb"
+require_relative "../common/Code/LibrarianObjectsFileSystemCheck2.rb"
+require_relative "../common/Code/Dx8UnitsUtils.rb"
+
+# ------------------------------------------------------------------------------------
+
+LocalObjectsStore::objectsIncludingLogicallyDeleted().each{|localobject|
+
+    librarianobject = InfinityObjectsStore::getObjectByUUIDOrNull(localobject["uuid"])
+
+    next if (librarianobject and !Genealogy::firstIsStrictAncestorOfSecond(librarianobject, localobject))
+
+    # We are going to update the Librarian version
+
+    puts "local object: #{JSON.pretty_generate(localobject)}"
+    puts "librarian object: #{JSON.pretty_generate(librarianobject)}"
+
+    # fsck
+    # We perform the fsck to ensure that Infinity has all the datablobs
+    elizabeth = CompositeElizabeth.new(InfinityDriveElizabeth.new(), [XCacheElizabeth.new()])
+
+    LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(localobject, elizabeth)
+    
+    puts "Updating Librarian version"
+    InfinityObjectsStore::commit(localobject)
+
+    if localobject["lxDeleted"] then
+        puts "Deleting local version"
+        LocalObjectsStore::destroy(localobject["uuid"])
+    end
+}
+
+InfinityObjectsStore::objects().each{|librarianobject|
+
+    localobject = LocalObjectsStore::getObjectIncludedLogicallyDeletedByUUIDOrNull(librarianobject["uuid"])
+
+    if librarianobject["lxDeleted"] and localobject.nil? then
+        next
+    end
+
+    next if (localobject and !Genealogy::firstIsStrictAncestorOfSecond(localobject, librarianobject))
+
+    puts "librarian object: #{JSON.pretty_generate(librarianobject)}"
+    puts "local object: #{JSON.pretty_generate(localobject)}"
+
+    if librarianobject["lxDeleted"] then
+        puts "Deleting local version"
+        LocalObjectsStore::destroy(librarianobject["uuid"])
+        next
+    end
+
+    puts "Updating local version"
+    LocalObjectsStore::commitWithoutUpdates(librarianobject)
+}
+
+puts "Finished!".green

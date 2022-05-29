@@ -1,0 +1,24 @@
+A Nx45 is a string that looks like a UUID, but is designed so ids are generated in alphabetical order. 
+
+An example is 
+    "10202204-1119-1148-7589-31c4efd4c7ae"
+
+And another example is 
+    "10202204-1119-1157-9991-74a317bab15b"
+
+(Note that the second is lexicografically after the first)
+
+Compare with a proper uuid
+    "4703b12d-bf92-45f0-98be-bfc606d901e4"
+
+
+-----------------------
+
+```
+10202204-1119-1725-4167-495591adaf32
+  202204 1119 1725 4167 49
+```
+
+Always starts with 10 and may contain the higher hexadecimal characters in the latter part, otherwise is build off a L22
+
+See source code for details.

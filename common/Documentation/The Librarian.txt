@@ -1,0 +1,57 @@
+
+### Librarian Objects
+
+To be Librarian compatible, an object must have the following keys: 
+    - "uuid" 
+    - "mikuType"
+
+    - "lxHistory"   : Array[Id]
+    - "lxDeleted"   : Boolean # Indicates if the object has been logically deleted. (Logical Delete below)
+
+lxHistory is automatically updated by the Librarian when the object is stored.
+
+Everytime time the object is stored, a new random Id is decided and added at the end of the history.
+
+Essentially, ObjectB can replace ObjectA if the history of ObjectA is a (strict) subset of the history of ObjectB.
+
+We can retrieve objects individually by "uuid" or collectively by "MikuTypes".
+
+Items also carry an "ordinal" attribute and a "universe" attribute (both for the Catalyst items). If there isn't one, the Librarian will set a default one. 
+
+### Logical Delete
+
+Objects are not immediately erased from the local database. They are first logically deleted, until they are deleted by the Librarian, at which point they can be deleted from the local database.
+
+### Objects of the Nyx's network
+
+Objects of the Nyx Network, so essentially Nx100 must have: 
+    - "uuid" 
+    - "mikuType"
+    - "unixtime"
+    - "datetime"
+
+The unixtime (integer, but also float) should represent the time the object was created, and the datetime (DateTime Iso 8601 UTC Zulu) should represent the logical position of the object on the Nyx timeline.
+
+### The Objects Store
+
+objects-store.sqlite3
+CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);
+
+### The Didact-DataBank-Type1
+
+Is where the datablobs are stored, where the primary objects-store is stored and where the Dx8Units are. We do not access it directly but talk to an interface, which abstracts away the operation of talking to it.
+
+With the interface we can
+
+    - Ask for the list of objects contained in the DataBank's object log. We work with `uuid` and `lxVariantId` and inject into our own log, the ones we don't have. Note that for each object we inject, we need to fsck it first and ask for the missing blobs before we store the object.
+
+    - Ask for a specific blob
+
+    - Submit new objects to the DataBank. We also need to send the blobs that come with the object, so we need a new data format for that.
+
+### Synchronization with the Didact-DataBank-Type1
+
+Step 1: The client asks for the list of objects from the server.
+Step 2: The client identifies the ones it didn't have, and for each object: fsck the object (notably to retrive the blobs that it needs)
+Step 3: The client sends its new objects to the interface
+

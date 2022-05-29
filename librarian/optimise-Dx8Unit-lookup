@@ -1,0 +1,41 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require 'securerandom'
+# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
+# SecureRandom.hex(4) #=> "eb693123"
+# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
+
+require 'json'
+# JSON.pretty_generate(object)
+
+require 'colorize'
+
+require_relative "../common/Code/LocalObjectsStore.rb"
+require_relative "../common/Code/EditionDesk.rb"
+require_relative "../common/Code/Nx100s.rb"
+require_relative "../common/Code/PrimitiveFiles.rb"
+require_relative "../common/Code/Nx60s.rb"
+require_relative "../common/Code/Dx8UnitsUtils.rb"
+require_relative "../common/Code/LibrarianObjectsFileSystemCheck2.rb"
+
+# ------------------------------------------------------------------------------------
+
+LocalObjectsStore::getObjectsByMikuTypeAndUniverse("TxTodo", "backlog")
+    .first(2000)
+    .each {|item|
+        next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca2:#{JSON.generate(item)}")
+        puts "Caching: #{item["description"]}"
+        if item["iam"]["type"] == "aion-point" then
+            # We do this to essentially download the blob from infinity to local cache
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item, EnergyGridElizabeth.new())
+        end
+        if item["iam"]["type"] == "Dx8Unit" then
+            unitId = item["iam"]["unitId"]
+            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+            rootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
+            XCache::set("dbe424a9-a360-4f66-9ad1-d16b2475c069:#{unitId}", rootnhash)
+        end
+        XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca2:#{JSON.generate(item)}")
+    }

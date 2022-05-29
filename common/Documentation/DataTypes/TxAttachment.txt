@@ -1,0 +1,11 @@
+TxAttachment
+
+{
+    "uuid"        : String
+    "mikuType"    : "TxAttachment"
+    "owneruuid"   : String
+    "unixtime"    : Float
+    "description" : String
+    "iam"         : Nx111
+}
+
