@@ -131,12 +131,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
-require_relative "../common/Code/InfinityDriveDatablobsAndElizabeth.rb"
-require_relative "../common/Code/XCacheDatablobsAndElizabeth.rb"
-require_relative "../common/Code/CommonUtils.rb"
-require_relative "../common/Code/LocalObjectsStore.rb"
-require_relative "../common/Code/Sx01Snapshots.rb"
-require_relative "../common/Code/Dx8UnitsUtils.rb"
+require_relative "../common/Code/loader.rb"
 
 # ---------------------------------------------------------------------------
 # CLI
@@ -192,14 +187,7 @@ class LibrarianCLI
             exit
         end
 
-        if ARGV[0] == "make-system-snapshot" then
-            item = Sx01Snapshots::issueNewSnapshotUsingCurrentDatabaseObjects()
-            puts JSON.pretty_generate(item)
-            exit
-        end
-
         puts "usage:"
-        puts "    librarian make-system-snapshot"
         puts "    librarian get-blob <nhash>"
         puts "    librarian show-object <uuid>"
         puts "    librarian edit-object <uuid>"

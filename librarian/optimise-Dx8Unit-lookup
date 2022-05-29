@@ -12,13 +12,7 @@ require 'json'
 
 require 'colorize'
 
-require_relative "../common/Code/LocalObjectsStore.rb"
-require_relative "../common/Code/EditionDesk.rb"
-require_relative "../common/Code/Nx100s.rb"
-require_relative "../common/Code/PrimitiveFiles.rb"
-require_relative "../common/Code/Nx60s.rb"
-require_relative "../common/Code/Dx8UnitsUtils.rb"
-require_relative "../common/Code/LibrarianObjectsFileSystemCheck2.rb"
+require_relative "../common/Code/loader.rb"
 
 # ------------------------------------------------------------------------------------
 

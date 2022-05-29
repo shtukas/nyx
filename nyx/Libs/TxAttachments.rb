@@ -69,7 +69,6 @@ class TxAttachments
     def self.landing(item)
         loop {
             system("clear")
-            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
             puts TxAttachments::toString(item)
             operations = [
                 "access/edit",

@@ -127,37 +127,16 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
-require_relative "../../common/Code/InfinityDriveDatablobsAndElizabeth.rb"
-require_relative "../../common/Code/XCacheDatablobsAndElizabeth.rb"
-require_relative "../../common/Code/CommonUtils.rb"
-require_relative "../../common/Code/LocalObjectsStore.rb"
-require_relative "../../common/Code/EnergyGrid.rb"
-require_relative "../../common/Code/EditionDesk.rb"
-require_relative "../../common/Code/Nx100s.rb"
-require_relative "../../common/Code/PrimitiveFiles.rb"
-require_relative "../../common/Code/Nx60s.rb"
-require_relative "../../common/Code/Nx111.rb"
-require_relative "../../common/Code/Nx102Flavors.rb"
-require_relative "../../common/Code/Dx8UnitsUtils.rb"
+require_relative "../../common/Code/loader.rb"
 
 # ------------------------------------------------------------
 
-require_relative "Ax1Text.rb"
-
-require_relative "Carriers.rb"
-
-require_relative "Interpreting.rb"
-require_relative "ItemStore.rb"
-
 require_relative "Links.rb"
-require_relative "LxAction.rb"
-require_relative "LxFunction.rb"
 
 require_relative "NyxNetwork.rb"
 require_relative "Nyx.rb"
 
 require_relative "Search.rb"
-require_relative "Sx01Snapshots.rb"
 
 require_relative "TheNetworkStack.rb"
 require_relative "TxAttachments.rb"

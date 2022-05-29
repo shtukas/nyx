@@ -8,8 +8,6 @@ class Nyx
         loop {
             system("clear")
 
-            Sx01Snapshots::printSnapshotDeploymentStatusIfRelevant()
-
             operations = [
                 "search (interactive)",
                 "search (classic)",
@@ -59,9 +57,6 @@ class Nyx
                             markHasHavingBeenDatetimeChecked.call(item)
                         }
 
-                end
-                if op == "select and deploy snapshot" then
-                    Sx01Snapshots::interactivelySelectAndDeploySnapshot()
                 end
             end
         }
