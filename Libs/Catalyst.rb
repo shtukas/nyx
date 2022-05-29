@@ -572,6 +572,17 @@ class ListingDataDriver
         p1, p2 = data.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
         data = p1 + p2
 
+        # Ensure that overflowing, non running, todos and fyres are last
+        selectOverflowingOrDoneForTodayTodosAndFyres = lambda {|ns16|
+            return false if NxBallsService::isActive(ns16["uuid"])
+            return false if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
+            return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{DidactUtils::today()}:#{ns16["uuid"]}")
+            BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) >= 1
+        }
+
+        overflowing, p0 = data.partition{|ns16| selectOverflowingOrDoneForTodayTodosAndFyres.call(ns16) }
+        data = p0 + overflowing.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
+
         # Ensure that running items come first
         data = ListingDataDriver::ensureRunningItemsAreFirst(data)
 
