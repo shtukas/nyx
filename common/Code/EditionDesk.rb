@@ -299,7 +299,7 @@ class EditionDesk
             nhash = EnergyGridDatablobs::putBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
-            puts JSON.pretty_generate(nx111)
+            #puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
             LocalObjectsStore::commit(item)
             return
@@ -383,13 +383,22 @@ class EditionDesk
     # EditionDesk::updateAndGarbageCollection()
     def self.updateAndGarbageCollection()
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/EditionDesk").each{|location|
-            puts "Edition desk processing location: #{File.basename(location)}"
 
             # We associate a unixtime to a particular location trace. 
             # Since the location name start with a index, the locationname is unique and the resulting trace
             # specific to that export and its current status.
 
             # Essentially the following lambda finds something in the cache as long as the export has not changed
+
+            locationtrace = CommonUtils::locationTrace(location)
+
+            getUnixtimeForLocationTraceOrNull = lambda {|locationtrace|
+                XCache::getOrNull("50b218b8-b69d-4f7e-b503-39b0f8abf29a:#{locationtrace}")
+            }
+
+            next if !getUnixtimeForLocationTraceOrNull.call(locationtrace).nil? # location has not moved since last time we checked and set a time
+
+            puts "Edition desk updating location: #{File.basename(location)}"
 
             EditionDesk::updateItemFromDeskLocationOrNothing(location)
 

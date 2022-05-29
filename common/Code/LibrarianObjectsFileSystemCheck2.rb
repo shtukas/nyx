@@ -75,7 +75,7 @@ class LibrarianObjectsFileSystemCheck2
         if !$LibrarianObjectsFileSystemCheck2_IamTypes.include?(nx111["type"]) then
             puts "object has an incorrect iam value type".red
             puts JSON.pretty_generate(object).red
-            exit
+            exit 1
         end
         if nx111["type"] == "navigation" then
             return
@@ -91,7 +91,7 @@ class LibrarianObjectsFileSystemCheck2
             if elizabeth.getBlobOrNull(nhash).nil? then
                 puts "object, could not find the text data".red
                 puts JSON.pretty_generate(object).red
-                exit
+                exit 1
             end
             return
         end
@@ -104,7 +104,7 @@ class LibrarianObjectsFileSystemCheck2
             if !status then
                 puts "object, could not validate aion-point".red
                 puts JSON.pretty_generate(object).red
-                exit
+                exit 1
             end
             return
         end
@@ -119,14 +119,14 @@ class LibrarianObjectsFileSystemCheck2
                 puts "object".red
                 puts JSON.pretty_generate(object).red
                 puts "primitive parts, dotted extension is malformed".red
-                exit
+                exit 1
             end
             parts.each{|nhash|
                 if elizabeth.getBlobOrNull(nhash).nil? then
                     puts "object".red
                     puts JSON.pretty_generate(object).red
                     puts "primitive parts, nhash not found: #{nhash}".red
-                    exit
+                    exit 1
                 end
             }
             return
@@ -135,6 +135,7 @@ class LibrarianObjectsFileSystemCheck2
             return
         end
         if nx111["type"] == "Dx8Unit" then
+            return if object["lxDeleted"]
             unitId = nx111["unitId"]
             location = "/Volumes/Infinity/Data/Pascal/TheLibrarian/Dx8Units/#{unitId}"
             puts "location: #{location}"
@@ -142,13 +143,13 @@ class LibrarianObjectsFileSystemCheck2
             if !status then
                 puts "could not find location".red
                 puts JSON.pretty_generate(object).red
-                exit
+                exit 1
             end
             status = LucilleCore::locationsAtFolder(location).size == 1
             if !status then
                 puts "expecting only one file at location".red
                 puts JSON.pretty_generate(object).red
-                exit
+                exit 1
             end
             return
         end
@@ -180,7 +181,7 @@ class LibrarianObjectsFileSystemCheck2
             if item["iam"].nil? then
                 puts "Nx100 has not iam value".red
                 puts JSON.pretty_generate(item).red
-                exit
+                exit 1
             end
             puts JSON.pretty_generate(item["iam"])
             LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
@@ -213,7 +214,7 @@ class LibrarianObjectsFileSystemCheck2
                 if !status then
                     puts "aionrootnhash does not validate".red
                     puts JSON.pretty_generate(item).red
-                    exit
+                    exit 1
                 end
             end
             return
@@ -234,22 +235,6 @@ class LibrarianObjectsFileSystemCheck2
             return
         end
 
-        if item["mikuType"] == "Sx01" then
-            # We are not doing snapshots
-            return
-            snapshotToLibrarianObjects = lambda{|snapshot, elizabeth|
-                elizabeth.getBlobOrNull(snapshot["objects"])
-                    .lines
-                    .map{|line| JSON.parse(line) }
-            }
-            snapshotToLibrarianObjects.call(item, elizabeth)
-                .each{|i2|
-                    LibrarianObjectsFileSystemCheck2::exitIfMissingCanary()
-                    LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(i2, elizabeth)
-                }
-            return
-        end
-
         if item["mikuType"] == "Ax1Text" then
             nhash = item["nhash"]
             begin
@@ -257,7 +242,7 @@ class LibrarianObjectsFileSystemCheck2
             rescue
                 puts "nhash, blob not found".red
                 puts JSON.pretty_generate(item).red
-                exit
+                exit 1
             end
             return
         end
