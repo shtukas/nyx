@@ -226,6 +226,7 @@ class Librarian
     def self.destroy(uuid)
         filepath = Librarian::getFx12Filepath(uuid)
         if File.exists?(filepath) then
+            puts "removing file: #{filepath}"
             FileUtils.rm(filepath)
         end
 

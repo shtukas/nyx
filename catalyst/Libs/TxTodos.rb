@@ -295,43 +295,46 @@ class TxTodos
 
     # TxTodos::rstream()
     def self.rstream()
+        startTime = Time.new.to_i
         TxTodos::itemsForUniverse("backlog")
             .first(1000)
             .shuffle
             .each{|item|
-                puts item["description"].green
-                LxAction::action("start", item)
-                LxAction::action("access", item)
-                startTime = Time.new.to_i
+                break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
                 loop {
-                    break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
-                    command = LucilleCore::askQuestionAnswerAsString("next (default), done, landing (and back), exit, run (and exit rstream): ")
-                    if command == "" then
-                        LxAction::action("stop", item)
-                        break
-                    end
-                    if command == "next" then
-                        LxAction::action("stop", item)
-                        break
-                    end
-                    if command == "done" then
-                        LxAction::action("stop", item)
-                        TxTodos::destroy(item["uuid"])
-                        break
+                    command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), next, exit (rstream): ")
+                    if command == "" or command == "run" then
+                        LxAction::action("start", item)
+                        LxAction::action("access", item)
+                        command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done (default), detach, stop: ")
+                        if command == "" or command == "done" then
+                            LxAction::action("stop", item)
+                            TxTodos::destroy(item["uuid"])
+                            break
+                        end
+                        if command == "detach" then
+                            return
+                        end
+                        if command == "stop" then
+                            LxAction::action("stop", item)
+                            break
+                        end
                     end
                     if command == "landing" then
                         LxAction::action("landing", item)
                         item = Librarian::getObjectByUUIDOrNull(item["uuid"])
+                        if iten.nil? then
+                            break
+                        end
                         if item["mikuType"] != "TxTodo" then
                             break
                         end
-                        next
+                        # Otherwise we restart the loop
+                    end
+                    if command == "next" then
+                        break
                     end
                     if command == "exit" then
-                        LxAction::action("stop", item)
-                        return
-                    end
-                    if command == "run" then
                         return
                     end
                 }
