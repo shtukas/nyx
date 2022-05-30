@@ -355,6 +355,16 @@ end
 
 class NS16s
 
+    # NS16s::rstreamToken()
+    def self.rstreamToken()
+        {
+            "uuid"     => "1ee2805a-f8ee-4a73-a92a-c76d9d45359a",
+            "mikuType" => "ADE4F121",
+            "announce" => "(rstream)",
+            "lambda"   => lambda { TxTodos::rstream() }
+        }
+    end
+
     # NS16s::ns16s(universe)
     def self.ns16s(universe)
         [
@@ -366,7 +376,7 @@ class NS16s
             [UniverseMonitor::switchInvitationNS16OrNull()].compact,
             TxFyres::ns16s(universe),
             TxTodos::ns16s(universe).first(5),
-            [ListingDataDriver::rstreamToken()]
+            [NS16s::rstreamToken()]
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -495,8 +505,8 @@ class ListingDataDriver
     # -------------------------------------
     # Basic IO
 
-    # ListingDataDriver::getData()
-    def self.getData()
+    # ListingDataDriver::getDataFromDisk()
+    def self.getDataFromDisk()
         JSON.parse(XCache::getOrDefaultValue("cf7c57fe-c53d-407b-8a13-b70e3ce48bfb", "[]"))
     end
 
@@ -530,16 +540,6 @@ class ListingDataDriver
         running + rest
     end
 
-    # ListingDataDriver::rstreamToken()
-    def self.rstreamToken()
-        {
-            "uuid" => "1ee2805a-f8ee-4a73-a92a-c76d9d45359a",
-            "mikuType" => "ADE4F121",
-            "announce" => "(rstream)",
-            "lambda" => lambda { TxTodos::rstream() }
-        }
-    end
-
     # ListingDataDriver::actualUpdate(data, ns16s)
     def self.actualUpdate(data, ns16s)
         getItemFromCollectionOrNull = lambda{|ns16s, uuid|
@@ -559,9 +559,9 @@ class ListingDataDriver
     # -------------------------------------
     # Update
 
-    # ListingDataDriver::update(universe)
-    def self.update(universe)
-        data = ListingDataDriver::getData()
+    # ListingDataDriver::getLiveData(universe)
+    def self.getLiveData(universe)
+        data = ListingDataDriver::getDataFromDisk()
         ns16s = NS16s::ns16s(universe)
 
         # Actual update
@@ -606,6 +606,8 @@ class ListingDataDriver
         data = ListingDataDriver::ensureRunningItemsAreFirst(data)
 
         ListingDataDriver::storeData(data)
+
+        data
     end
 end
 
@@ -645,9 +647,7 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            ListingDataDriver::update(universe)
-
-            section2 = ListingDataDriver::getData()
+            section2 = ListingDataDriver::getLiveData(universe)
 
             TerminalDisplayOperator::printListing(universe, floats, section2)
         }
