@@ -140,11 +140,11 @@ require_relative "../common/Code/loader.rb"
 exit if ARGV[0].nil?
 
 uuid = ARGV[0]
-object = LocalObjectsStore::getObjectIncludedLogicallyDeletedByUUIDOrNull(uuid)
+object = Librarian::getObjectIncludedLogicallyDeletedByUUIDOrNull(uuid)
 if object then
     object = CommonUtils::editTextSynchronously(JSON.pretty_generate(object))
     object = JSON.parse(object)
-    LocalObjectsStore::commitWithoutUpdates(object)
+    Librarian::commitWithoutUpdates(object)
 else
     puts "I could not find an object with this uuid"
     LucilleCore::pressEnterToContinue()

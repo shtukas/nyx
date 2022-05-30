@@ -18,12 +18,12 @@ class InfinityDriveDatablobs
 
     # InfinityDriveDatablobs::decideFilepathForBlob(nhash)
     def self.decideFilepathForBlob(nhash)
-        "/Volumes/Infinity/Data/Pascal/TheLibrarian/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        "/Volumes/Infinity/Data/Pascal/Librarian/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
     end
 
     # InfinityDriveDatablobs::prepareFilepathForBlob(nhash)
     def self.prepareFilepathForBlob(nhash)
-        filepath = "/Volumes/Infinity/Data/Pascal/TheLibrarian/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
+        filepath = "/Volumes/Infinity/Data/Pascal/Librarian/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{nhash}.data"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end

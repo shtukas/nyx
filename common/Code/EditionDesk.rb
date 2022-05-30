@@ -1,13 +1,6 @@
 
 # encoding: UTF-8
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
-
-require_relative "CommonUtils.rb"
-require_relative "EnergyGrid.rb"
-require_relative "XCacheDatablobsAndElizabeth.rb"
-
 class AionTransforms
 
     # AionTransforms::extractTopName(operator, rootnhash)
@@ -79,7 +72,7 @@ class UniqueStringsFunctions
         puts "Looking inside aion-points..."
         
         puts "" # To accomodate CommonUtils::putsOnPreviousLine
-        LocalObjectsStore::objects().each{|item|
+        Librarian::objects().each{|item|
             CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
             next if item["iam"].nil?
             next if item["iam"]["type"] != "aion-point"
@@ -115,7 +108,7 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        "/Users/pascal/Galaxy/DataBank/Catalyst/EditionDesk"
+        "#{Config::pathToDataBankCatalyst()}/EditionDesk"
     end
 
     # EditionDesk::getMaxIndex()
@@ -179,7 +172,7 @@ class EditionDesk
                 return
             end
             nhash = nx111["nhash"]
-            text = EnergyGridDatablobs::getBlobOrNull(nhash)
+            text = Librarian::getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             system("open '#{location}'")
             return
@@ -191,7 +184,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridElizabeth.new() 
+            operator = LibrarianFx12Elizabeth.new(item["uuid"]) 
             rootnhash = nx111["rootnhash"]
             exportLocation = EditionDesk::decideEditionLocation(item)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, File.basename(exportLocation))
@@ -243,7 +236,7 @@ class EditionDesk
             # See code (comment group: 3e6f8340-1d1e-400d-8209-5cec545c0e80)
             rootnhash = XCache::getOrNull("dbe424a9-a360-4f66-9ad1-d16b2475c069:#{unitId}")
             if rootnhash then
-                operator = EnergyGridElizabeth.new() 
+                operator = LibrarianFx12Elizabeth.new(item["uuid"]) 
                 AionCore::exportHashAtFolder(operator, rootnhash, "/Users/pascal/Desktop")
                 puts "Exported to Desktop"
                 LucilleCore::pressEnterToContinue()
@@ -273,7 +266,7 @@ class EditionDesk
         if nx111uuid.include?(".") then
             nx111uuid, _ = nx111uuid.split(".")
         end
-        item = LocalObjectsStore::getObjectByUUIDOrNull(itemuuid)
+        item = Librarian::getObjectByUUIDOrNull(itemuuid)
         return if item.nil?
         nx111 = item["iam"]
         return if nx111.nil?
@@ -296,12 +289,12 @@ class EditionDesk
         end
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = EnergyGridDatablobs::putBlob(text)
+            nhash = Librarian::putBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             #puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
-            LocalObjectsStore::commit(item)
+            Librarian::commit(item)
             return
         end
         if nx111["type"] == "url" then
@@ -309,14 +302,14 @@ class EditionDesk
             raise "(error: 563d3ad6-7d82-485b-afc5-b9aeba6fb88b)"
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridElizabeth.new()
+            operator = LibrarianFx12Elizabeth.new(item["uuid"])
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
             #puts JSON.pretty_generate(nx111)
             item["iam"] = nx111
-            LocalObjectsStore::commit(item)
+            Librarian::commit(item)
             return
         end
         if nx111["type"] == "unique-string" then
@@ -330,7 +323,7 @@ class EditionDesk
             #puts JSON.pretty_generate(nx111v2)
             return if item["iam"].to_s = nx111v2.to_s
             item["iam"] = nx111v2
-            LocalObjectsStore::commit(item)
+            Librarian::commit(item)
             return
         end
         if nx111["type"] == "carrier-of-primitive-files" then
@@ -352,7 +345,7 @@ class EditionDesk
                 # We can use that to know if the location is an existing primitive file and can be ignored
 
                 id = File.basename(innerFilepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
-                if LocalObjectsStore::getObjectByUUIDOrNull(id) then
+                if Librarian::getObjectByUUIDOrNull(id) then
                     # puts "#{File.basename(innerFilepath)} is already a node"
                     # Note that in this case we are not picking up possible modifications of the primitive files
                 else
@@ -382,7 +375,7 @@ class EditionDesk
 
     # EditionDesk::updateAndGarbageCollection()
     def self.updateAndGarbageCollection()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Catalyst/EditionDesk").each{|location|
+        LucilleCore::locationsAtFolder("#{Config::pathToDataBankCatalyst()}/EditionDesk").each{|location|
 
             # We associate a unixtime to a particular location trace. 
             # Since the location name start with a index, the locationname is unique and the resulting trace

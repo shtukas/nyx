@@ -7,7 +7,7 @@ class InfinityObjectsStore
 
     # InfinityObjectsStore::pathToObjectsStoreDatabase()
     def self.pathToObjectsStoreDatabase()
-        "/Volumes/Infinity/Data/Pascal/TheLibrarian/objects-store.sqlite3"
+        "/Volumes/Infinity/Data/Pascal/Librarian/objects-store.sqlite3"
     end
 
     # ---------------------------------------------------

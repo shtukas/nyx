@@ -157,13 +157,7 @@ class CommonUtils
 
     # CommonUtils::generalCodeTrace()
     def self.generalCodeTrace()
-        roots = [
-            "catalyst",
-            "common",
-            "librarian",
-            "nyx"
-        ].map{|n| "#{File.dirname(__FILE__)}/../../#{n}" }
-        CommonUtils::codeTraceWithMultipleRoots(roots)
+        CommonUtils::locationTraceCode("#{File.dirname(__FILE__)}/../../..")
     end
 
     # ----------------------------------------------------

@@ -4,24 +4,24 @@ class TxTodos
 
     # TxTodos::items()
     def self.items()
-        LocalObjectsStore::getObjectsByMikuType("TxTodo")
+        Librarian::getObjectsByMikuType("TxTodo")
     end
 
     # TxTodos::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        LocalObjectsStore::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
+        Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
     end
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        LocalObjectsStore::logicaldelete(uuid)
+        Librarian::logicaldelete(uuid)
     end
 
     # --------------------------------------------------
 
     # TxTodos::itemsForNS16s(universe)
     def self.itemsForNS16s(universe)
-        LocalObjectsStore::getObjectsByMikuTypeAndUniverseByOrdinalLimit("TxTodo", universe, 100)
+        Librarian::getObjectsByMikuTypeAndUniverseByOrdinalLimit("TxTodo", universe, 100)
     end
 
     # --------------------------------------------------
@@ -100,7 +100,7 @@ class TxTodos
           "ordinal"     => ordinal,
           "universe"    => universe
         }
-        LocalObjectsStore::commit(item)
+        Librarian::commit(item)
         item
     end
 
@@ -111,7 +111,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        rootnhash   = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
+        rootnhash   = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(uuid), location)
         nx111 = {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",
@@ -131,7 +131,7 @@ class TxTodos
           "ordinal"     => ordinal,
           "universe"    => universe
         }
-        LocalObjectsStore::commit(item)
+        Librarian::commit(item)
         item
     end
 
@@ -220,7 +220,7 @@ class TxTodos
                 description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 next
             end
 
@@ -230,7 +230,7 @@ class TxTodos
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    LocalObjectsStore::commit(item)
+                    Librarian::commit(item)
                 end
             end
 
@@ -242,7 +242,7 @@ class TxTodos
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 break
             end
 
@@ -251,7 +251,7 @@ class TxTodos
                 ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
                 item["ordinal"] = ordinal
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 next
             end
 
@@ -260,7 +260,7 @@ class TxTodos
                 ordinal = TxTodos::nextOrdinal(universe)
                 item["ordinal"] = ordinal
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 break
             end
 
@@ -294,31 +294,7 @@ class TxTodos
 
     # TxTodos::rstream()
     def self.rstream()
-        items = TxTodos::itemsForUniverse("backlog").first(2000)
-
-        # -----------------------------------------------------------------
-        # Some gratuituous optimization
-        # (comment group: 3e6f8340-1d1e-400d-8209-5cec545c0e80)
-        if InfinityDriveUtils::driveIsPlugged() then
-            items.each {|item|
-                next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca2:#{JSON.generate(item)}")
-                puts "Caching: #{item["description"]}"
-                if item["iam"]["type"] == "aion-point" then
-                    # We do this to essentially download the blob from infinity to local cache
-                    LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item, EnergyGridElizabeth.new())
-                end
-                if item["iam"]["type"] == "Dx8Unit" then
-                    unitId = item["iam"]["unitId"]
-                    location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-                    rootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
-                    XCache::set("dbe424a9-a360-4f66-9ad1-d16b2475c069:#{unitId}", rootnhash)
-                end
-                XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca2:#{JSON.generate(item)}")
-            }
-        end
-        # -----------------------------------------------------------------
-
-        items
+        TxTodos::itemsForUniverse("backlog")
             .first(1000)
             .shuffle
             .each{|item|
@@ -344,7 +320,7 @@ class TxTodos
                     end
                     if command == "landing" then
                         LxAction::action("landing", item)
-                        item = LocalObjectsStore::getObjectByUUIDOrNull(item["uuid"])
+                        item = Librarian::getObjectByUUIDOrNull(item["uuid"])
                         if item["mikuType"] != "TxTodo" then
                             break
                         end
@@ -390,7 +366,7 @@ class TxTodos
 
     # TxTodos::nx20s()
     def self.nx20s()
-        LocalObjectsStore::getObjectsByMikuType("TxTodo")
+        Librarian::getObjectsByMikuType("TxTodo")
             .map{|item|
                 {
                     "announce" => TxTodos::toStringForNS19(item),

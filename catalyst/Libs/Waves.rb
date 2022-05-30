@@ -6,17 +6,17 @@ class Waves
 
     # Waves::items()
     def self.items()
-        LocalObjectsStore::getObjectsByMikuType("Wave")
+        Librarian::getObjectsByMikuType("Wave")
     end
 
     # Waves::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        LocalObjectsStore::getObjectsByMikuTypeAndUniverse("Wave", universe)
+        Librarian::getObjectsByMikuTypeAndUniverse("Wave", universe)
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        LocalObjectsStore::logicaldelete(uuid)
+        Librarian::logicaldelete(uuid)
     end
 
     # --------------------------------------------------
@@ -133,7 +133,7 @@ class Waves
         wave["repeatValue"]      = schedule[1]
         wave["lastDoneDateTime"] = "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
 
-        LocalObjectsStore::commit(wave)
+        Librarian::commit(wave)
         wave
     end
 
@@ -151,7 +151,7 @@ class Waves
     def self.performDone(item)
         puts "done-ing: #{Waves::toString(item)}"
         item["lastDoneDateTime"] = Time.now.utc.iso8601
-        LocalObjectsStore::commit(item)
+        Librarian::commit(item)
 
         unixtime = Waves::computeNextShowUp(item)
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -215,7 +215,7 @@ class Waves
 
             if Interpreting::match("description", command) then
                 item["description"] = CommonUtils::editTextSynchronously(item["description"])
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 next
             end
 
@@ -225,7 +225,7 @@ class Waves
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    LocalObjectsStore::commit(item)
+                    Librarian::commit(item)
                 end
             end
 
@@ -240,13 +240,13 @@ class Waves
                 return if schedule.nil?
                 item["repeatType"] = schedule[0]
                 item["repeatValue"] = schedule[1]
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 next
             end
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 next
             end
 
@@ -301,7 +301,7 @@ class Waves
                 Waves::landing(item)
 
                 # the landing could result in a destruction of the object
-                if LocalObjectsStore::getObjectByUUIDOrNull(item["uuid"]).nil? then
+                if Librarian::getObjectByUUIDOrNull(item["uuid"]).nil? then
                     break
                 end
             end

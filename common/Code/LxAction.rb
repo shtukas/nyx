@@ -182,7 +182,7 @@ class LxAction
             end
             if object["mikuType"] == "NS16:TxInbox2" then
                 item = object["item"]
-                LocalObjectsStore::logicaldelete(item["uuid"])
+                Librarian::logicaldelete(item["uuid"])
                 return
             end
             if object["mikuType"] == "NS16:TxTodo" then
@@ -243,14 +243,17 @@ class LxAction
 
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
+            uuid = SecureRandom.uuid
+
             aionrootnhash = nil
+
             location = CommonUtils::interactivelySelectDesktopLocationOrNull() 
             if location then
-                aionrootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
+                aionrootnhash = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(uuid), location)
             end
 
             item = {
-                "uuid"          => SecureRandom.uuid,
+                "uuid"          => uuid,
                 "mikuType"      => "TxInbox2",
                 "unixtime"      => Time.new.to_i,
                 "line"          => line,
@@ -259,7 +262,7 @@ class LxAction
 
             puts JSON.pretty_generate(item)
 
-            LocalObjectsStore::commit(item)
+            Librarian::commit(item)
 
             if location then
                 LucilleCore::removeFileSystemLocation(location)
@@ -400,7 +403,7 @@ class LxAction
                 mx49 = ns16["TxDated"]
                 datetime = (CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
                 mx49["datetime"] = datetime
-                LocalObjectsStore::commit(mx49)
+                Librarian::commit(mx49)
                 return
             end
         end

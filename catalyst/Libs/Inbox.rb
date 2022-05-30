@@ -7,7 +7,7 @@ class Inbox
 
     # Inbox::txInbox2NS16s()
     def self.txInbox2NS16s()
-        LocalObjectsStore::getObjectsByMikuType("TxInbox2").map{|item|
+        Librarian::getObjectsByMikuType("TxInbox2").map{|item|
             uuid = item["uuid"]
             {
                 "uuid"     => uuid,
@@ -23,14 +23,14 @@ class Inbox
     def self.landingInbox2(item)
         puts item["line"]
         if item["aionrootnhash"] then
-            AionCore::exportHashAtFolder(EnergyGridElizabeth.new(), item["aionrootnhash"], "/Users/pascal/Desktop")
+            AionCore::exportHashAtFolder(LibrarianFx12Elizabeth.new(item["uuid"]), item["aionrootnhash"], "/Users/pascal/Desktop")
         end
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["exit (default)", "destroy"])
         if action.nil? or action == "exit" then
             return
         end
         if action == "destroy" then
-            LocalObjectsStore::logicaldelete(item["uuid"])
+            Librarian::logicaldelete(item["uuid"])
             return
         end
     end

@@ -1,5 +1,5 @@
 
-# /Users/pascal/Galaxy/DataBank/Catalyst/Catalyst/Anniversaries
+# #{Config::pathToDataBankCatalyst()}/Catalyst/Anniversaries
 
 Anniversary {
   "uuid"        : String,

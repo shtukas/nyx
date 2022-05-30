@@ -34,7 +34,7 @@ class Transmutation
             "iam"        => nx111,
             "flavour"     => flavour
         }
-        LocalObjectsStore::commit(item)
+        Librarian::commit(item)
         item
 
     end
@@ -56,7 +56,7 @@ class Transmutation
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -64,14 +64,14 @@ class Transmutation
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
             object["universe"] = Multiverse::interactivelySelectUniverse()
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -80,7 +80,7 @@ class Transmutation
             object["mikuType"] = "TxDated"
             object["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -88,7 +88,7 @@ class Transmutation
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -98,7 +98,7 @@ class Transmutation
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -108,7 +108,7 @@ class Transmutation
             object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -116,7 +116,7 @@ class Transmutation
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFloat"
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -124,7 +124,7 @@ class Transmutation
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFyre"
             object["universe"] = universe
-            LocalObjectsStore::commit(object)
+            Librarian::commit(object)
             return
         end
 
@@ -133,7 +133,7 @@ class Transmutation
             nx100["uuid"] = SecureRandom.uuid
             nx100["mikuType"] = "Nx100"
             nx100["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
-            LocalObjectsStore::commit(nx100)
+            Librarian::commit(nx100)
             TxTodos::destroy(object["uuid"])
             Nx100s::landing(nx100)
             return

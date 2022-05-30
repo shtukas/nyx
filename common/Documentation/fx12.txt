@@ -1,5 +1,5 @@
 
-On May 29th 2022, the decision was taken to make each node of the Nyx network its own file, called a Nyx Point. They are invariably SQLite files, with a `.nyx-point` suffix.
+On May 29th 2022, the decision was taken to make each node of the Nyx network its own file, called a fx12. They are invariably SQLite files, with a `.fx12` suffix.
 
 Each file has at least a _filetype_ table, with the schema 
 

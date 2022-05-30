@@ -66,12 +66,10 @@ $LibrarianObjectsFileSystemCheck2_IamTypes = [
     "Dx8Unit"
 ]
 
-
-
 class LibrarianObjectsFileSystemCheck2
 
-    # LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(object, nx111, elizabeth)
-    def self.fsckExitAtFirstFailureIamValue(object, nx111, elizabeth)
+    # LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(object, nx111, operator)
+    def self.fsckExitAtFirstFailureIamValue(object, nx111, operator)
         if !$LibrarianObjectsFileSystemCheck2_IamTypes.include?(nx111["type"]) then
             puts "object has an incorrect iam value type".red
             puts JSON.pretty_generate(object).red
@@ -88,7 +86,7 @@ class LibrarianObjectsFileSystemCheck2
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            if elizabeth.getBlobOrNull(nhash).nil? then
+            if operator.getBlobOrNull(nhash).nil? then
                 puts "object, could not find the text data".red
                 puts JSON.pretty_generate(object).red
                 exit 1
@@ -100,7 +98,7 @@ class LibrarianObjectsFileSystemCheck2
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            status = AionFsck::structureCheckAionHash(elizabeth, rootnhash)
+            status = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
                 puts "object, could not validate aion-point".red
                 puts JSON.pretty_generate(object).red
@@ -122,7 +120,7 @@ class LibrarianObjectsFileSystemCheck2
                 exit 1
             end
             parts.each{|nhash|
-                if elizabeth.getBlobOrNull(nhash).nil? then
+                if operator.getBlobOrNull(nhash).nil? then
                     puts "object".red
                     puts JSON.pretty_generate(object).red
                     puts "primitive parts, nhash not found: #{nhash}".red
@@ -136,20 +134,24 @@ class LibrarianObjectsFileSystemCheck2
         end
         if nx111["type"] == "Dx8Unit" then
             return if object["lxDeleted"]
-            unitId = nx111["unitId"]
-            location = "/Volumes/Infinity/Data/Pascal/TheLibrarian/Dx8Units/#{unitId}"
-            puts "location: #{location}"
-            status = File.exists?(location)
-            if !status then
-                puts "could not find location".red
-                puts JSON.pretty_generate(object).red
-                exit 1
-            end
-            status = LucilleCore::locationsAtFolder(location).size == 1
-            if !status then
-                puts "expecting only one file at location".red
-                puts JSON.pretty_generate(object).red
-                exit 1
+            if File.exists?(Dx8UnitsUtils::infinityRepository()) then
+                unitId = nx111["unitId"]
+                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+                puts "location: #{location}"
+                status = File.exists?(location)
+                if !status then
+                    puts "could not find location".red
+                    puts JSON.pretty_generate(object).red
+                    exit 1
+                end
+                status = LucilleCore::locationsAtFolder(location).size == 1
+                if !status then
+                    puts "expecting only one file at location".red
+                    puts JSON.pretty_generate(object).red
+                    exit 1
+                end
+            else
+                puts "(warning) Infinity drive not visible. Skipping full Dx8Unit check."
             end
             return
         end
@@ -164,8 +166,8 @@ class LibrarianObjectsFileSystemCheck2
         end
     end
 
-    # LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item, elizabeth)
-    def self.fsckExitAtFirstFailureLibrarianMikuObject(item, elizabeth)
+    # LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item, operator)
+    def self.fsckExitAtFirstFailureLibrarianMikuObject(item, operator)
 
         puts JSON.pretty_generate(item)
 
@@ -184,33 +186,33 @@ class LibrarianObjectsFileSystemCheck2
                 exit 1
             end
             puts JSON.pretty_generate(item["iam"])
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxAttachment" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxDated" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxFloat" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxFyre" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxInbox2" then
             if item["aionrootnhash"] then
-                status = AionFsck::structureCheckAionHash(elizabeth, item["aionrootnhash"])
+                status = AionFsck::structureCheckAionHash(operator, item["aionrootnhash"])
                 if !status then
                     puts "aionrootnhash does not validate".red
                     puts JSON.pretty_generate(item).red
@@ -221,24 +223,24 @@ class LibrarianObjectsFileSystemCheck2
         end
 
         if item["mikuType"] == "TxOS01" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item["payload"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item["payload"], operator)
             return
         end
 
         if item["mikuType"] == "TxTodo" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "Wave" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], elizabeth)
+            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "Ax1Text" then
             nhash = item["nhash"]
             begin
-                elizabeth.readBlobErrorIfNotFound(nhash)
+                operator.readBlobErrorIfNotFound(nhash)
             rescue
                 puts "nhash, blob not found".red
                 puts JSON.pretty_generate(item).red
@@ -249,16 +251,5 @@ class LibrarianObjectsFileSystemCheck2
 
         puts JSON.pretty_generate(item).red
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
-    end
-
-    # LibrarianObjectsFileSystemCheck2::fsck_SingleRunHashObjectTrace_ExitAtFirstFailure()
-    def self.fsck_SingleRunHashObjectTrace_ExitAtFirstFailure()
-        []
-            .shuffle
-            .each{|item|
-                LibrarianObjectsFileSystemCheck2::exitIfMissingCanary()
-                LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item)
-            }
-        puts "Fsck completed successfully".green
     end
 end

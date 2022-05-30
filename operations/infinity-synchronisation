@@ -16,7 +16,7 @@ require_relative "../common/Code/loader.rb"
 
 # ------------------------------------------------------------------------------------
 
-LocalObjectsStore::objectsIncludingLogicallyDeleted().each{|localobject|
+Librarian::objectsIncludingLogicallyDeleted().each{|localobject|
 
     librarianobject = InfinityObjectsStore::getObjectByUUIDOrNull(localobject["uuid"])
 
@@ -38,13 +38,13 @@ LocalObjectsStore::objectsIncludingLogicallyDeleted().each{|localobject|
 
     if localobject["lxDeleted"] then
         puts "Deleting local version"
-        LocalObjectsStore::destroy(localobject["uuid"])
+        Librarian::destroy(localobject["uuid"])
     end
 }
 
 InfinityObjectsStore::objects().each{|librarianobject|
 
-    localobject = LocalObjectsStore::getObjectIncludedLogicallyDeletedByUUIDOrNull(librarianobject["uuid"])
+    localobject = Librarian::getObjectIncludedLogicallyDeletedByUUIDOrNull(librarianobject["uuid"])
 
     if librarianobject["lxDeleted"] and localobject.nil? then
         next
@@ -57,12 +57,12 @@ InfinityObjectsStore::objects().each{|librarianobject|
 
     if librarianobject["lxDeleted"] then
         puts "Deleting local version"
-        LocalObjectsStore::destroy(librarianobject["uuid"])
+        Librarian::destroy(librarianobject["uuid"])
         next
     end
 
     puts "Updating local version"
-    LocalObjectsStore::commitWithoutUpdates(librarianobject)
+    Librarian::commitWithoutUpdates(librarianobject)
 }
 
 puts "Finished!".green

@@ -540,6 +540,22 @@ class ListingDataDriver
         }
     end
 
+    # ListingDataDriver::actualUpdate(data, ns16s)
+    def self.actualUpdate(data, ns16s)
+        getItemFromCollectionOrNull = lambda{|ns16s, uuid|
+            ns16s.select{|item| item["uuid"] == uuid }.first
+        }
+
+        data.map{|ns16|
+            replacement = getItemFromCollectionOrNull.call(ns16s, ns16["uuid"])
+            if replacement then
+                replacement
+            else
+                ns16
+            end
+        }
+    end
+
     # -------------------------------------
     # Update
 
@@ -547,6 +563,9 @@ class ListingDataDriver
     def self.update(universe)
         data = ListingDataDriver::getData()
         ns16s = NS16s::ns16s(universe)
+
+        # Actual update
+        data = ListingDataDriver::actualUpdate(data, ns16s)
 
         # We remove any item that has been deleted
         while (uuid = Mercury::dequeueFirstValueOrNull("2d70b692-49f0-4a11-85a9-c378537f8ef1")) do

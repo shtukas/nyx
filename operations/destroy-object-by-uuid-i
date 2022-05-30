@@ -138,4 +138,4 @@ require_relative "../common/Code/loader.rb"
 # ---------------------------------------------------------------------------
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-LocalObjectsStore::logicaldelete(uuid)
+Librarian::logicaldelete(uuid)

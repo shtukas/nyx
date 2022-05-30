@@ -4,17 +4,17 @@ class TxFyres
 
     # TxFyres::items()
     def self.items()
-        LocalObjectsStore::getObjectsByMikuType("TxFyre")
+        Librarian::getObjectsByMikuType("TxFyre")
     end
 
     # TxFyres::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        LocalObjectsStore::getObjectsByMikuTypeAndUniverse("TxFyre", universe)
+        Librarian::getObjectsByMikuTypeAndUniverse("TxFyre", universe)
     end
 
     # TxFyres::destroy(uuid)
     def self.destroy(uuid)
-        LocalObjectsStore::logicaldelete(uuid)
+        Librarian::logicaldelete(uuid)
     end
 
     # --------------------------------------------------
@@ -45,7 +45,7 @@ class TxFyres
           "iam"         => nx111,
           "universe"    => universe
         }
-        LocalObjectsStore::commit(item)
+        Librarian::commit(item)
         item
     end
 
@@ -130,7 +130,7 @@ class TxFyres
                 description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
                 item["description"] = description
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 next
             end
 
@@ -140,7 +140,7 @@ class TxFyres
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
                     item["iam"] = nx111
-                    LocalObjectsStore::commit(item)
+                    Librarian::commit(item)
                 end
             end
 
@@ -157,7 +157,7 @@ class TxFyres
 
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
-                LocalObjectsStore::commit(item)
+                Librarian::commit(item)
                 next
             end
 
@@ -177,7 +177,7 @@ class TxFyres
                     "iam"         => item["iam"],
                     "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
                 }
-                LocalObjectsStore::commit(ix)
+                Librarian::commit(ix)
                 LxAction::action("landing", ix)
 
                 TxFyres::complete(item)

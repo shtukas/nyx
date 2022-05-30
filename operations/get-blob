@@ -141,7 +141,7 @@ exit if ARGV[0].nil?
 
 nhash = ARGV[1]
 
-blob = EnergyGridDatablobs::getBlobOrNull(nhash)
+blob = Librarian::getBlobOrNull(nhash)
 
 if blob.nil? then
     puts "I could not find a blob with nhash: #{nhash}"

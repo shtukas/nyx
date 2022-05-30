@@ -18,7 +18,7 @@ class TheNetworkStack
     # TheNetworkStack::getStack()
     def self.getStack()
         TheNetworkStack::getRawStack()
-            .map{|uuid| LocalObjectsStore::getObjectByUUIDOrNull(uuid) }
+            .map{|uuid| Librarian::getObjectByUUIDOrNull(uuid) }
             .compact
     end
 
