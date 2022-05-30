@@ -16,6 +16,8 @@ require_relative "../common/Code/loader.rb"
 
 # ------------------------------------------------------------------------------------
 
+exit if ! File.exists?(Dx8UnitsUtils::infinityRepository())
+
 Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", "backlog")
     .first(2000)
     .each {|item|

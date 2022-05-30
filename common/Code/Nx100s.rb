@@ -27,22 +27,16 @@ class Nx100s
     # Nx100s::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
 
+        uuid = CommonUtils::nx45()
+
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes())
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes(), uuid)
         return nil if nx111.nil?
 
         flavour = Nx102Flavor::interactivelyCreateNewFlavour()
 
-        uuidMaker = lambda {|nx111|
-            if nx111["type"] == "primitive-file" then
-                return CommonUtils::nx45()
-            end
-            SecureRandom.uuid
-        }
-
-        uuid       = uuidMaker.call(nx111)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
@@ -52,7 +46,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "iam"        => nx111,
+            "iam"         => nx111,
             "flavour"     => flavour
         }
         Librarian::commit(item)
@@ -62,11 +56,12 @@ class Nx100s
     # Nx100s::issueNewItemAionPointFromLocation(location)
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
-        nx111 = Nx111::locationToAionPointNx111OrNull(location)
+        mainObjectUUID = SecureRandom.uuid
+        nx111 = Nx111::locationToAionPointNx111OrNull(mainObjectUUID, location)
         flavour = {
             "type" => "encyclopedia"
         }
-        uuid       = SecureRandom.uuid
+        uuid       = mainObjectUUID
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         item = {
@@ -75,7 +70,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "iam"        => nx111,
+            "iam"         => nx111,
             "flavour"     => flavour
         }
         Librarian::commit(item)
@@ -357,7 +352,7 @@ class Nx100s
             end
 
             if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes())
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes(), item["uuid"])
                 next if nx111.nil?
                 puts JSON.pretty_generate(nx111)
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then

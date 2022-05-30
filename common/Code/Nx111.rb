@@ -65,20 +65,19 @@ class Nx111
         type
     end
 
-    # Nx111::locationToAionPointNx111OrNull(location)
-    def self.locationToAionPointNx111OrNull(location)
+    # Nx111::locationToAionPointNx111OrNull(mainObjectUUID, location)
+    def self.locationToAionPointNx111OrNull(mainObjectUUID, location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        uuid = SecureRandom.uuid
-        rootnhash = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(uuid), location)
+        rootnhash = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(mainObjectUUID), location)
         {
-            "uuid"      => uuid,
+            "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",
             "rootnhash" => rootnhash
         }
     end
 
-    # Nx111::interactivelyCreateNewIamValueOrNull(types)
-    def self.interactivelyCreateNewIamValueOrNull(types)
+    # Nx111::interactivelyCreateNewIamValueOrNull(types, mainObjectUUID)
+    def self.interactivelyCreateNewIamValueOrNull(types, mainObjectUUID)
         type = Nx111::interactivelySelectIamTypeOrNull(types)
         return nil if type.nil?
         if type == "navigation" then
@@ -126,7 +125,7 @@ class Nx111
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::locationToAionPointNx111OrNull(location)
+            return Nx111::locationToAionPointNx111OrNull(mainObjectUUID, location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")

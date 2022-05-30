@@ -36,10 +36,11 @@ class TxAttachments
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodesAttachment())
+        uuid = SecureRandom.uuid
+
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodesAttachment(), uuid)
         return nil if nx111.nil?
 
-        uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
 
         item = {
