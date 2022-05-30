@@ -290,9 +290,8 @@ class Nx100s
             commands << "link"
             commands << "relink"
             commands << "unlink"
-            commands << "network transforms"
+            commands << "special ops"
             commands << "json"
-            commands << "special circumstances"
             commands << "destroy"
             commands << "stack: add [this]"
             commands << "stack: add [from linked]"
@@ -400,11 +399,13 @@ class Nx100s
                 LucilleCore::pressEnterToContinue()
             end
 
-            if Interpreting::match("special circumstances", command) then
+            if Interpreting::match("special ops", command) then
                 operations = [
                     "transmute to navigation node and put contents into Genesis",
                     "upload all locations of a folder as aion-point children",
-                    "upload all locations of a folder as primitive files children"
+                    "upload all locations of a folder as primitive files children",
+                    "select linked subset and move to one of the linked",
+                    "select target node, select subset from linked and move subset to that node as children"
                 ]
                 operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                 next if operation.nil?
@@ -417,15 +418,6 @@ class Nx100s
                 if operation == "upload all locations of a folder as primitive files children" then
                     Nx100s::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
                 end
-            end
-
-            if Interpreting::match("network transforms", command) then
-                operations = [
-                    "select linked subset and move to one of the linked",
-                    "select target node, select subset from linked and move subset to that node as children"
-                ]
-                operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-                next if operation.nil?
                 if operation == "select linked subset and move to one of the linked" then
                     subset = NyxNetwork::selectSubsetOfLinked(item["uuid"])
                     target = NyxNetwork::selectOneLinkedOrNull(item["uuid"])
