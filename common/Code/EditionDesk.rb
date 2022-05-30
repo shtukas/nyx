@@ -47,14 +47,14 @@ class UniqueStringsFunctions
         # but doesn't download the data blobs
 
         # This function is memoised
-        answer = XCache::getOrNull("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
-        if answer then
-            return JSON.parse(answer)[0]
-        end
-        object = AionCore::getAionObjectByHash(InfinityDriveElizabeth.new(), nhash)
-        answer = UniqueStringsFunctions::uniqueStringIsInAionPointObject(object, uniquestring)
-        XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
-        answer
+        #answer = XCache::getOrNull("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
+        #if answer then
+        #    return JSON.parse(answer)[0]
+        #end
+        #object = AionCore::getAionObjectByHash(InfinityDriveElizabeth.new(), nhash)
+        #answer = UniqueStringsFunctions::uniqueStringIsInAionPointObject(object, uniquestring)
+        #XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
+        #answer
     end
 
     # UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
@@ -70,21 +70,25 @@ class UniqueStringsFunctions
         end
         puts "Unique string not found in Galaxy"
         puts "Looking inside aion-points..."
-        
-        puts "" # To accomodate CommonUtils::putsOnPreviousLine
-        Librarian::objects().each{|item|
-            CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
-            next if item["iam"].nil?
-            next if item["iam"]["type"] != "aion-point"
-            rootnhash = item["iam"]["rootnhash"]
-            if UniqueStringsFunctions::uniqueStringIsInNhash(rootnhash, uniquestring) then
-                LxAction::action("landing", item)
-                return
-            end
-        }
 
-        puts "I could not find the unique string inside aion-points"
+        puts "(info: ) operation not yet implemented (notably since Fx12 migration)"
         LucilleCore::pressEnterToContinue()
+        return
+
+        #puts "" # To accomodate CommonUtils::putsOnPreviousLine
+        #Librarian::objects().each{|item|
+        #    CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
+        #    next if item["iam"].nil?
+        #    next if item["iam"]["type"] != "aion-point"
+        #    rootnhash = item["iam"]["rootnhash"]
+        #    if UniqueStringsFunctions::uniqueStringIsInNhash(rootnhash, uniquestring) then
+        #        LxAction::action("landing", item)
+        #        return
+        #    end
+        #}
+
+        #puts "I could not find the unique string inside aion-points"
+        #LucilleCore::pressEnterToContinue()
     end
 end
 

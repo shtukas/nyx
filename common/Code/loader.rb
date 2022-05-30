@@ -132,7 +132,6 @@ require_relative "Genealogy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
-require_relative "InfinityDriveDatablobsAndElizabeth.rb"
 require_relative "InfinityObjectsStore.rb"
 require_relative "InMemoryObjects.rb"
 
