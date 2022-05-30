@@ -144,12 +144,6 @@ class LibrarianObjectsFileSystemCheck2
                     puts JSON.pretty_generate(object).red
                     exit 1
                 end
-                status = LucilleCore::locationsAtFolder(location).size == 1
-                if !status then
-                    puts "expecting only one file at location".red
-                    puts JSON.pretty_generate(object).red
-                    exit 1
-                end
             else
                 puts "(warning) Infinity drive not visible. Skipping full Dx8Unit check."
             end
