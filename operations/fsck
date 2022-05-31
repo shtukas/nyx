@@ -19,10 +19,10 @@ require_relative "../common/Code/loader.rb"
 Librarian::objectsIncludingLogicallyDeleted()
     .each {|object|
         exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-        next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca4:#{JSON.generate(object)}")
+        next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
         operator = Fx12sElizabethV2.new(object["uuid"])
         FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(object, operator)
-        XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca4:#{JSON.generate(object)}")
+        XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
     }
 
 puts "fsck completed successfully".green

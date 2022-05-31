@@ -137,5 +137,14 @@ require_relative "../common/Code/loader.rb"
 # CLI
 # ---------------------------------------------------------------------------
 
-uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-Librarian::destroy(uuid)
+exit if ARGV[0].nil?
+
+uuid = ARGV[0]
+object = Librarian::getObjectIncludedLogicallyDeletedByUUIDOrNull(uuid)
+if object.nil? then
+    puts "I could not find an object with this uuid"
+    exit
+end
+operator = Fx12sElizabethV2.new(object["uuid"])
+FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(object, operator)
+puts "fsck completed successfully".green

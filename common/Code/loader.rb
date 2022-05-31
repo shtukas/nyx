@@ -146,6 +146,4 @@ require_relative "PrimitiveFiles.rb"
 
 require_relative "Librarian.rb"
 
-require_relative "XCacheExtensions.rb"
-
 # ------------------------------------------------------------
