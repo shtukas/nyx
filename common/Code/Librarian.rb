@@ -184,10 +184,12 @@ class Librarian
     def self.objectIsAboutToBeDestroyed(object)
         if object["i1as"] then
             object["i1as"].each{|nx111|
-                nx111["type"] == "Dx8Unit"
-                unitId = nx111["unitId"]
-                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-                LucilleCore::removeFileSystemLocation(location)
+                if nx111["type"] == "Dx8Unit" then
+                    unitId = nx111["unitId"]
+                    location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+                    puts "removing Dx8Unit folder: #{location}"
+                    LucilleCore::removeFileSystemLocation(location)
+                end
             }
         end
     end
