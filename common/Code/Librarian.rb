@@ -266,19 +266,6 @@ class Librarian
 
         nil
     end
-
-    # ---------------------------------------------------
-    # Datablobs (Fx12)
-
-    # Librarian::putBlobFx12(filepath, blob)
-    def self.putBlobFx12(filepath, blob)
-        Fx12s::commitBlob(filepath, blob)
-    end
-
-    # Librarian::getBlobOrNullFx12(filepath, nhash)
-    def self.getBlobOrNullFx12(filepath, nhash)
-        Fx12s::getBlobOrNull(filepath, nhash)
-    end
 end
 
 class LibrarianFx12Elizabeth
@@ -288,7 +275,7 @@ class LibrarianFx12Elizabeth
     end
 
     def commitBlob(blob)
-        Librarian::putBlobFx12(@filepath, blob)
+        Fx12s::commitBlob(@filepath, blob)
     end
 
     def filepathToContentHash(filepath)
@@ -296,7 +283,7 @@ class LibrarianFx12Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        Librarian::getBlobOrNullFx12(@filepath, nhash)
+        Fx12s::getBlobOrNull(@filepath, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)
