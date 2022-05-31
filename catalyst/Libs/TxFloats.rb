@@ -9,7 +9,7 @@ class TxFloats
 
     # TxFloats::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -79,12 +79,12 @@ class TxFloats
             puts "uuid: #{uuid}".yellow
             puts "i1as: #{item["i1as"]}".yellow
 
-            TxAttachments::itemsForOwner(uuid).each{|attachment|
-                indx = store.register(attachment, false)
-                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
             }
 
-            puts "access | <datecode> | description | iam| attachment | universe | transmute | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | iam| note | universe | transmute | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -119,8 +119,8 @@ class TxFloats
                 I1as::manageI1as(item, item["i1as"])
             end
 
-            if Interpreting::match("attachment", command) then
-                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end

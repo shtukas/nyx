@@ -48,7 +48,7 @@ class Links
                 b2 = (item["sourceuuid"] == uuid2 and item["targetuuid"] == uuid1)
                 b1 or b2
             }
-            .each{|item| Librarian::logicaldelete(item["uuid"]) }
+            .each{|item| Librarian::destroy(item["uuid"]) }
 
         LinkCache::resetPointer(uuid1)
         LinkCache::resetPointer(uuid2)

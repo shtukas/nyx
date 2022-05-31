@@ -10,7 +10,6 @@ To be Librarian compatible, an object must have the following keys:
     - "mikuType"
 
     - "lxHistory"   : Array[Id]
-    - "lxDeleted"   : Boolean # Indicates if the object has been logically deleted. (see Logical Delete below)
 
 lxHistory is automatically updated by the Librarian when the object is stored.
 

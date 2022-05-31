@@ -18,7 +18,7 @@ class Nx100s
 
     # Nx100s::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -257,10 +257,6 @@ class Nx100s
             puts "i1as: #{item["i1as"]}".yellow
             puts "flavour: #{item["flavour"]}".yellow
 
-            TxAttachments::itemsForOwner(uuid).each{|attachment|
-                indx = store.register(attachment, false)
-                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
-            }
             Ax1Text::itemsForOwner(uuid).each{|note|
                 indx = store.register(note, false)
                 puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
@@ -286,7 +282,6 @@ class Nx100s
             commands << "iam"
             commands << "flavour"
             commands << "note"
-            commands << "attachment"
             commands << "link"
             commands << "relink"
             commands << "unlink"
@@ -366,12 +361,6 @@ class Nx100s
 
             if Interpreting::match("note", command) then
                 ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
-                puts JSON.pretty_generate(ox)
-                next
-            end
-
-            if Interpreting::match("attachment", command) then
-                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end

@@ -25,7 +25,7 @@ class Ax1Text
 
     # Ax1Text::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ class Ax1Text
 
     # Ax1Text::toString(item)
     def self.toString(item)
-        text = Fx12sElizabethV2.new(uuid).getBlobOrNull(getBlobOrNull)
+        text = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(item["nhash"])
         description = (text != "") ? text.lines.first : "(empty text)"
         "(note) #{description}"
     end

@@ -135,6 +135,8 @@ require_relative "ItemStore.rb"
 require_relative "I1as.rb"
 
 require_relative "FileSystemCheck.rb"
+
+require_relative "Librarian.rb"
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
 
@@ -144,7 +146,5 @@ require_relative "Nx102Flavors.rb"
 require_relative "Nx111.rb"
 
 require_relative "PrimitiveFiles.rb"
-
-require_relative "Librarian.rb"
 
 # ------------------------------------------------------------

@@ -5,6 +5,9 @@ class I1as
 
     # I1as::toStringShort(i1as)
     def self.toStringShort(i1as)
+        if i1as.size == 0 then
+            return "no nx111 found"
+        end
         if i1as.size == 1 then
             return i1as[0]["type"]
         end
@@ -39,6 +42,14 @@ class I1as
 
     # I1as::selectOneNx111OrNull(i1as)
     def self.selectOneNx111OrNull(i1as)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx111", i1as, lambda{|nx111| "#{nx111["uuid"][0, 4]} #{nx111["type"]}" })
+    end
+
+    # I1as::selectOneNx111OrNullAutoSelectIfOne(i1as)
+    def self.selectOneNx111OrNullAutoSelectIfOne(i1as)
+        if i1as.size == 1 then
+            return i1as[0]
+        end
         LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx111", i1as, lambda{|nx111| "#{nx111["uuid"][0, 4]} #{nx111["type"]}" })
     end
 end

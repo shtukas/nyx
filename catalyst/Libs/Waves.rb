@@ -16,7 +16,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -180,14 +180,14 @@ class Waves
             puts "last done: #{item["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
-            TxAttachments::itemsForOwner(uuid).each{|attachment|
-                indx = store.register(attachment, false)
-                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
             }
 
             puts ""
 
-            puts "access | done | <datecode> | description | iam | attachment | schedule | universe | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | iam | note | schedule | universe | destroy | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -225,8 +225,8 @@ class Waves
                 I1as::manageI1as(item, item["i1as"])
             end
 
-            if Interpreting::match("attachment", command) then
-                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end

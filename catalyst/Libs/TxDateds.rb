@@ -9,7 +9,7 @@ class TxDateds
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -132,12 +132,12 @@ class TxDateds
 
             store = ItemStore.new()
 
-            TxAttachments::itemsForOwner(uuid).each{|attachment|
-                indx = store.register(attachment, false)
-                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
             }
 
-            puts "access | date | description | iam | attachment | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
+            puts "access | date | description | iam | note | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -176,8 +176,8 @@ class TxDateds
                 I1as::manageI1as(item, item["i1as"])
             end
 
-            if Interpreting::match("attachment", command) then
-                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end

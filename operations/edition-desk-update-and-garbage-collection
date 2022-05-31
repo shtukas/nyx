@@ -16,4 +16,4 @@ require_relative "../common/Code/loader.rb"
 
 # ------------------------------------------------------------------------------------
 
-EditionDesk::updateAndGarbageCollection()
+EditionDesk::pickUpAndGarbageCollection()

@@ -30,7 +30,7 @@ class Inbox
             return
         end
         if action == "destroy" then
-            Librarian::logicaldelete(item["uuid"])
+            Librarian::destroy(item["uuid"])
             return
         end
     end

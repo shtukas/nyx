@@ -139,6 +139,5 @@ require_relative "Nyx.rb"
 require_relative "Search.rb"
 
 require_relative "TheNetworkStack.rb"
-require_relative "TxAttachments.rb"
 
 # ------------------------------------------------------------

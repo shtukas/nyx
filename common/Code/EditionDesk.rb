@@ -113,26 +113,24 @@ class EditionDesk
             .max
     end
 
-    # EditionDesk::decideEditionLocation(item)
-    def self.decideEditionLocation(item)
-        raise "(not available: 18ff2d11-16fc-466e-959f-5a2aaa210ebc)"
+    # EditionDesk::decideEditionLocation(item, nx111)
+    def self.decideEditionLocation(item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
-        #index1 = EditionDesk::getMaxIndex() + 1
-        #description = item["description"] ? CommonUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
-        #itemuuid = item["uuid"]
-        #nx111uuid = item["iam"]["uuid"]
+        
+        description = item["description"] ? CommonUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
 
-        #part3and4 = "#{itemuuid}|#{nx111uuid}"
-        #LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
-        #    .each{|location|
-        #        if File.basename(location).include?(part3and4) then
-        #            return location
-        #        end
-        #    }
+        part3and4 = "#{item["uuid"]}|#{nx111["uuid"]}"
+        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+            .each{|location|
+                if File.basename(location).include?(part3and4) then
+                    return location
+                end
+            }
 
-        #name1 = "#{index1}|#{description}|#{part3and4}"
+        index1 = EditionDesk::getMaxIndex() + 1
+        name1 = "#{index1}|#{description}|#{part3and4}"
 
-        #"#{EditionDesk::pathToEditionDesk()}/#{name1}"
+        "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
 
     # ----------------------------------------------------
@@ -141,9 +139,9 @@ class EditionDesk
     # EditionDesk::accessItem(item)
     def self.accessItem(item)
         if item["i1as"].nil? then
-            raise "(error:b7242cb5-2a6b-43ea-b217-ce972e1440b0) For the moment I can only EditionDesk::exportAndAccess nx111 elements"
+            raise "(error: b7242cb5-2a6b-43ea-b217-ce972e1440b0) For the moment I can only EditionDesk::exportAndAccess nx111 elements"
         end
-        nx111 = I1as::selectOneNx111OrNull(item["i1as"])
+        nx111 = I1as::selectOneNx111OrNullAutoSelectIfOne(item["i1as"])
         return if nx111.nil?
         if nx111["type"] == "navigation" then
             puts "This is a navigation node"
@@ -161,7 +159,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "text" then
-            location = "#{EditionDesk::decideEditionLocation(item)}.txt"
+            location = "#{EditionDesk::decideEditionLocation(item, nx111)}.txt"
             if File.exists?(location) then
                 system("open '#{location}'")
                 return
@@ -181,7 +179,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = Fx12sElizabethV2.new(item["uuid"]) 
             rootnhash = nx111["rootnhash"]
-            exportLocation = EditionDesk::decideEditionLocation(item)
+            exportLocation = EditionDesk::decideEditionLocation(item, nx111)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
             # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
@@ -207,7 +205,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "carrier-of-primitive-files" then
-            exportFolderpath = EditionDesk::decideEditionLocation(item)
+            exportFolderpath = EditionDesk::decideEditionLocation(item, nx111)
             if File.exists?(exportFolderpath) then
                 system("open '#{exportFolderpath}'")
                 return
@@ -250,7 +248,6 @@ class EditionDesk
 
     # EditionDesk::updateItemFromDeskLocationOrNothing(location)
     def self.updateItemFromDeskLocationOrNothing(location)
-        raise "(error: 7b527b6a-fb6b-4dea-a4bf-03c765b4e004) not ready yet"
         filename = File.basename(location)
         _, description, itemuuid, nx111uuid = filename.split("|")
         if nx111uuid.include?(".") then
@@ -258,12 +255,26 @@ class EditionDesk
         end
         item = Librarian::getObjectByUUIDOrNull(itemuuid)
         return if item.nil?
-        nx111 = item["iam"]
+
+        nx111 = item["i1as"].select{|nx111| nx111["uuid"] == nx111uuid }.first
         return if nx111.nil?
-        return if nx111["uuid"] != nx111uuid
-        # At this time we have the item and the item has a nx111 that has the same uuid as the location on disk
+
+        nx111 = nx111.clone
+
+        # At this time we have the item, and we have selected the nx111 that has the same uuid as the location on disk
 
         #puts "EditionDesk: Updating #{File.basename(location)}"
+
+        replaceNx111 = lambda {|item, nx111|
+            item["i1as"] = item["i1as"].map{|nx| 
+                if nx["uuid"] == nx111["uuid"] then
+                    nx111
+                else
+                    nx
+                end
+            }
+            item
+        }
 
         if nx111["type"] == "navigation" then
             puts "This should not happen because nothing was exported."
@@ -283,7 +294,7 @@ class EditionDesk
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             #puts JSON.pretty_generate(nx111)
-            item["iam"] = nx111
+            item = replaceNx111.call(item, nx111)
             Librarian::commit(item)
             return
         end
@@ -297,8 +308,7 @@ class EditionDesk
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
-            #puts JSON.pretty_generate(nx111)
-            item["iam"] = nx111
+            item = replaceNx111.call(item, nx111)
             Librarian::commit(item)
             return
         end
@@ -312,7 +322,7 @@ class EditionDesk
             return if nx111v2.nil?
             #puts JSON.pretty_generate(nx111v2)
             return if item["iam"].to_s = nx111v2.to_s
-            item["iam"] = nx111v2
+            item = replaceNx111.call(item, nx111v2)
             Librarian::commit(item)
             return
         end
@@ -347,7 +357,7 @@ class EditionDesk
                     Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
 
                     #puts "Writing #{primitiveFileObject["uuid"]}"
-                    PrimitiveFiles::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(primitiveFileObject, File.basename(location), primitiveFileObject["iam"])
+                    PrimitiveFiles::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(primitiveFileObject, File.basename(location), primitiveFileObject["i1as"][0])
 
                     #puts "Removing #{innerFilepath}"
                     FileUtils.rm(innerFilepath)
@@ -363,42 +373,65 @@ class EditionDesk
         raise "(error: 69fcf4bf-347a-4e5f-91f8-3a97d6077c98): nx111: #{nx111}"
     end
 
-    # EditionDesk::updateAndGarbageCollection()
-    def self.updateAndGarbageCollection()
+    # EditionDesk::pickUpAndGarbageCollection()
+    def self.pickUpAndGarbageCollection()
         LucilleCore::locationsAtFolder("#{Config::pathToDataBankCatalyst()}/EditionDesk").each{|location|
 
-            # We associate a unixtime to a particular location trace. 
-            # Since the location name start with a index, the locationname is unique and the resulting trace
-            # specific to that export and its current status.
-
-            # Essentially the following lambda finds something in the cache as long as the export has not changed
-
-            locationtrace = CommonUtils::locationTrace(location)
-
-            getUnixtimeForLocationTraceOrNull = lambda {|locationtrace|
-                XCache::getOrNull("50b218b8-b69d-4f7e-b503-39b0f8abf29a:#{locationtrace}")
+            issueTx202ForLocation = lambda{|location|
+                tx202 = {
+                    "unixtime" => Time.new.to_f,
+                    "trace"    => CommonUtils::locationTrace(location)
+                }
+                XCache::set("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}", JSON.generate(tx202))
             }
 
-            next if !getUnixtimeForLocationTraceOrNull.call(locationtrace).nil? # location has not moved since last time we checked and set a time
+            getTx202ForLocationOrNull = lambda{|location|
+                tx202 = XCache::getOrNull("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}")
+                if tx202 then
+                    return JSON.parse(tx202)
+                else
+                    return nil
+                end
+            }
+
+            getTx202ForLocation = lambda{|location|
+                tx202 = XCache::getOrNull("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}")
+                if tx202 then
+                    tx202 =  JSON.parse(tx202)
+                else
+                    tx202 = {
+                        "unixtime" => Time.new.to_f,
+                        "trace"    => CommonUtils::locationTrace(location)
+                    }
+                    XCache::set("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}", JSON.generate(tx202))
+                end
+                tx202
+            }
+
+            tx202 = getTx202ForLocationOrNull.call(location)
+
+            if tx202.nil? then
+                puts "Edition desk updating location: #{File.basename(location)}"
+                EditionDesk::updateItemFromDeskLocationOrNothing(location)
+                issueTx202ForLocation.call(location)
+                next
+            end
+
+            tx202 = getTx202ForLocation.call(location)
+
+            if tx202["trace"] == CommonUtils::locationTrace(location) then # Nothing has happened at the location since the last time we checked
+                if (Time.new.to_i - tx202["unixtime"]) > 86400*30 then # We keep them for 30 days
+                    puts "Edition desk processing location: (removing) [please update the code]: #{File.basename(location)}"
+                    #LucilleCore::removeFileSystemLocation(location)
+                end
+                next
+            end
 
             puts "Edition desk updating location: #{File.basename(location)}"
-
             EditionDesk::updateItemFromDeskLocationOrNothing(location)
 
-            getUnixtimeForLocationTrace = lambda {|locationtrace|
-                unixtime = XCache::getOrNull("50b218b8-b69d-4f7e-b503-39b0f8abf29a:#{locationtrace}")
-                return unixtime.to_f if unixtime
-                unixtime = Time.new.to_f
-                XCache::set("50b218b8-b69d-4f7e-b503-39b0f8abf29a:#{locationtrace}", unixtime)
-                unixtime
-            }
-
-            unixtime = getUnixtimeForLocationTrace.call(CommonUtils::locationTrace(location))
-
-            next if (Time.new.to_i - unixtime) < 86400*30 # We keep them for 30 days
-
-            puts "Edition desk processing location: (removing) [please update the code]: #{File.basename(location)}"
-            #LucilleCore::removeFileSystemLocation(location)
+            # And we make a new one with updated unixtime and updated trace
+            issueTx202ForLocation.call(location)
         }
     end
 

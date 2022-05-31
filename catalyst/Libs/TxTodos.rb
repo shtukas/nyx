@@ -14,7 +14,7 @@ class TxTodos
 
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -182,12 +182,12 @@ class TxTodos
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            TxAttachments::itemsForOwner(uuid).each{|attachment|
-                indx = store.register(attachment, false)
-                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
             }
 
-            puts "access | start | <datecode> | description | iam | ordinal | rotate | transmute | attachment | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | start | <datecode> | description | iam | ordinal | rotate | transmute | note | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -229,8 +229,8 @@ class TxTodos
                 I1as::manageI1as(item, item["i1as"])
             end
 
-            if Interpreting::match("attachment", command) then
-                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end

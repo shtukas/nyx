@@ -72,7 +72,7 @@ class PrimitiveFiles
         dottedExtension = nx111["dottedExtension"]
         nhash = nx111["nhash"]
         parts = nx111["parts"]
-        filepath = "#{EditionDesk::decideEditionLocation(item)}#{dottedExtension}"
+        filepath = "#{EditionDesk::decideEditionLocation(item, nx111)}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
                 blob = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)

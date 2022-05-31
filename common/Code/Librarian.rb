@@ -49,20 +49,6 @@ class Librarian
             objects << JSON.parse(row['_object_'])
         end
         db.close
-        objects.select{|object| !object["lxDeleted"] }
-    end
-
-    # Librarian::objectsIncludingLogicallyDeleted()
-    def self.objectsIncludingLogicallyDeleted()
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        objects = []
-        db.execute("select * from _objects_ order by _ordinal_", []) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        db.close
         objects
     end
 
@@ -77,7 +63,7 @@ class Librarian
             objects << JSON.parse(row['_object_'])
         end
         db.close
-        objects.select{|object| !object["lxDeleted"] }
+        objects
     end
 
     # Librarian::getObjectsByMikuTypeAndUniverse(mikuType, universe)
@@ -91,7 +77,7 @@ class Librarian
             objects << JSON.parse(row['_object_'])
         end
         db.close
-        objects.select{|object| !object["lxDeleted"] }
+        objects
     end
 
     # Librarian::getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
@@ -105,7 +91,7 @@ class Librarian
             objects << JSON.parse(row['_object_'])
         end
         db.close
-        objects.select{|object| !object["lxDeleted"] }
+        objects
     end
 
     # Librarian::getObjectByUUIDOrNull(uuid)
@@ -117,9 +103,6 @@ class Librarian
         object = nil
         db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
             object = JSON.parse(row['_object_'])
-            if object["lxDeleted"] then
-                object = nil
-            end
         end
         db.close
         object
@@ -197,8 +180,8 @@ class Librarian
         db.close
     end
 
-    # Librarian::objectIsAboutToBeLogicallyDeleted(object)
-    def self.objectIsAboutToBeLogicallyDeleted(object)
+    # Librarian::objectIsAboutToBeDestroyed(object)
+    def self.objectIsAboutToBeDestroyed(object)
         if object["i1as"] then
             object["i1as"].each{|nx111|
                 nx111["type"] == "Dx8Unit"
@@ -209,18 +192,13 @@ class Librarian
         end
     end
 
-    # Librarian::logicaldelete(uuid)
-    def self.logicaldelete(uuid)
-        object = Librarian::getObjectByUUIDOrNull(uuid)
-        return if object.nil?
-        Mercury::postValue("2d70b692-49f0-4a11-85a9-c378537f8ef1", uuid) # object deletion message for ListingDataDriver
-        Librarian::objectIsAboutToBeLogicallyDeleted(object)
-        object["lxDeleted"] = true
-        Librarian::commit(object)
-    end
-
     # Librarian::destroy(uuid)
     def self.destroy(uuid)
+
+        if object = Librarian::getObjectByUUIDOrNull(uuid) then
+            Librarian::objectIsAboutToBeDestroyed(object)
+        end
+
         filepath = Librarian::getFx12Filepath(uuid)
         if File.exists?(filepath) then
             puts "removing file: #{filepath}"

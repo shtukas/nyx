@@ -128,7 +128,6 @@ class FileSystemCheck
             return
         end
         if nx111["type"] == "Dx8Unit" then
-            return if object["lxDeleted"]
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
@@ -182,11 +181,6 @@ class FileSystemCheck
                 puts JSON.pretty_generate(item).red
                 exit 1
             end
-            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
-            return
-        end
-
-        if item["mikuType"] == "TxAttachment" then
             FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end

@@ -18,7 +18,7 @@ class Nx60s
 
     # Nx60s::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # ----------------------------------------------------------------------

@@ -182,7 +182,7 @@ class LxAction
             end
             if object["mikuType"] == "NS16:TxInbox2" then
                 item = object["item"]
-                Librarian::logicaldelete(item["uuid"])
+                Librarian::destroy(item["uuid"])
                 return
             end
             if object["mikuType"] == "NS16:TxTodo" then
@@ -330,11 +330,6 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "TxAttachment" then
-                TxAttachments::landing(object)
-                return
-            end
-
             if object["mikuType"] == "TxFyre" then
                 TxFyres::landing(object)
                 return
@@ -347,11 +342,6 @@ class LxAction
 
             if object["mikuType"] == "TxTodo" then
                 TxTodos::landing(object)
-                return
-            end
-
-            if object["mikuType"] == "TxAttachment" then
-                TxAttachments::landing(object)
                 return
             end
 

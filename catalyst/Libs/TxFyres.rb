@@ -14,7 +14,7 @@ class TxFyres
 
     # TxFyres::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::logicaldelete(uuid)
+        Librarian::destroy(uuid)
     end
 
     # --------------------------------------------------
@@ -92,12 +92,12 @@ class TxFyres
             puts "i1as: #{item["i1as"]}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            TxAttachments::itemsForOwner(uuid).each{|attachment|
-                indx = store.register(attachment, false)
-                puts "[#{indx.to_s.ljust(3)}] #{TxAttachments::toString(attachment)}" 
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
             }
 
-            puts "access | start | <datecode> | description | iam | attachment | show json | universe | transmute | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | start | <datecode> | description | iam | note | show json | universe | transmute | >nyx | destroy (gg) | exit (xx)".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -139,8 +139,8 @@ class TxFyres
                 I1as::manageI1as(item, item["i1as"])
             end
 
-            if Interpreting::match("attachment", command) then
-                ox = TxAttachments::interactivelyIssueNewOrNullForOwner(item["uuid"])
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end
