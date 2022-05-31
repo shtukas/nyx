@@ -17,14 +17,12 @@ require_relative "../common/Code/loader.rb"
 # ------------------------------------------------------------------------------------
 
 Librarian::objectsIncludingLogicallyDeleted()
-    .select{|object| object["mikuType"] == "Ax1Text" }
     .each {|object|
-        #exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-        #next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca4:#{JSON.generate(object)}")
+        exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
+        next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca4:#{JSON.generate(object)}")
         operator = Fx12sElizabethV2.new(object["uuid"])
-        #operator = CompositeElizabeth.new(Fx12sElizabethV2.new(object["uuid"]), [XCacheElizabeth.new()])
         FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(object, operator)
-        #XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca4:#{JSON.generate(object)}")
+        XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca4:#{JSON.generate(object)}")
     }
 
 puts "fsck completed successfully".green
