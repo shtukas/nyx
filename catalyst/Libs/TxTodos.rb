@@ -97,7 +97,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => nx111,
+          "i1as"        => [nx111],
           "ordinal"     => ordinal,
           "universe"    => universe
         }
@@ -128,7 +128,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => nx111,
+          "i1as"        => [nx111],
           "ordinal"     => ordinal,
           "universe"    => universe
         }
@@ -141,17 +141,17 @@ class TxTodos
 
     # TxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]} (#{item["iam"]["type"]})"
+        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxTodos::toStringWithOrdinal(item)
     def self.toStringWithOrdinal(item)
-        "(todo) (ord: #{item["ordinal"]}) #{item["description"]} (#{item["iam"]["type"]})"
+        "(todo) (ord: #{item["ordinal"]}) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxTodos::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(todo) #{item["description"]} (#{item["iam"]["type"]})"
+        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxTodos::toStringForNS19(item)
@@ -175,7 +175,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "i1as: #{item["i1as"]}".yellow
             puts "universe: #{item["universe"]}".yellow
             puts "ordinal: #{item["ordinal"]}".yellow
 
@@ -226,13 +226,7 @@ class TxTodos
             end
 
             if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
-                next if nx111.nil?
-                puts JSON.pretty_generate(nx111)
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = nx111
-                    Librarian::commit(item)
-                end
+                I1as::manageI1as(item, item["i1as"])
             end
 
             if Interpreting::match("attachment", command) then

@@ -146,5 +146,5 @@ if object.nil? then
     exit
 end
 operator = Fx12sElizabethV2.new(object["uuid"])
-FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(object, operator)
+FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, operator)
 puts "fsck completed successfully".green

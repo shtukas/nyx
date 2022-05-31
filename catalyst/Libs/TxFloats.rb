@@ -36,7 +36,7 @@ class TxFloats
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => nx111,
+          "i1as"        => [nx111],
           "universe"    => universe
         }
         Librarian::commit(item)
@@ -48,7 +48,7 @@ class TxFloats
 
     # TxFloats::toString(item)
     def self.toString(item)
-        "(item) #{item["description"]} (#{item["iam"]["type"]})"
+        "(item) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxFloats::toStringForNS19(item)
@@ -77,7 +77,7 @@ class TxFloats
 
             puts TxFloats::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "i1as: #{item["i1as"]}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
                 indx = store.register(attachment, false)
@@ -116,13 +116,7 @@ class TxFloats
             end
 
             if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
-                next if nx111.nil?
-                puts JSON.pretty_generate(nx111)
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = nx111
-                    Librarian::commit(item)
-                end
+                I1as::manageI1as(item, item["i1as"])
             end
 
             if Interpreting::match("attachment", command) then
@@ -180,7 +174,7 @@ class TxFloats
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFloat",
-            "announce" => "#{item["description"]} (#{item["iam"]["type"]})",
+            "announce" => "#{item["description"]} (#{I1as::toStringShort(item["i1as"])})",
             "TxFloat"  => item
         }
     end

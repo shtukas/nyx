@@ -43,7 +43,7 @@ class TxFyres
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "iam"         => nx111,
+          "i1as"        => [nx111],
           "universe"    => universe
         }
         Librarian::commit(item)
@@ -55,12 +55,12 @@ class TxFyres
 
     # TxFyres::toString(item)
     def self.toString(item)
-        "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
+        "(fyre) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxFyres::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(fyre) #{item["description"]} (#{item["iam"]["type"]})"
+        "(fyre) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxFyres::toStringForNS19(item)
@@ -89,7 +89,7 @@ class TxFyres
 
             puts TxFyres::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "i1as: #{item["i1as"]}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             TxAttachments::itemsForOwner(uuid).each{|attachment|
@@ -136,13 +136,7 @@ class TxFyres
             end
 
             if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
-                next if nx111.nil?
-                puts JSON.pretty_generate(nx111)
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = nx111
-                    Librarian::commit(item)
-                end
+                I1as::manageI1as(item, item["i1as"])
             end
 
             if Interpreting::match("attachment", command) then
@@ -175,12 +169,11 @@ class TxFyres
                     "unixtime"    => item["unixtime"],
                     "datetime"    => item["datetime"],
                     "description" => item["description"],
-                    "iam"         => item["iam"],
+                    "i1as"        => item["i1as"],
                     "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
                 }
                 Librarian::commit(ix)
                 LxAction::action("landing", ix)
-
                 TxFyres::complete(item)
                 break
             end

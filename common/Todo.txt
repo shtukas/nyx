@@ -4,6 +4,9 @@
         [] introduce i1am attribute where there is a iam, this is an array of Nx111s
         [] That array can have two objects with the same uuid (happens in case of conflict)
         [] In case of conflict, the user is invited to resolve it if they land on the object
+        [] 
+            Make sure that carrier-of-primitive-files, and a primitive file doesn't have more than one Nx111 in its i1as
+            Same for navigationnodes
 
     Phase 3:
         [] Introduce a lx1History for nx111s

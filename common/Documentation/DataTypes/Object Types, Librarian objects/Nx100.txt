@@ -5,7 +5,7 @@ Nx100 {
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description or null # Possibly null in the case of a primitive-file"
-    "iam"         : (Nx111)
+    "i1as"        : Array[Nx111]
     "flavour"     : (Nx102Flavor)
 }
 

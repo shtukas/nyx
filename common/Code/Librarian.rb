@@ -199,10 +199,13 @@ class Librarian
 
     # Librarian::objectIsAboutToBeLogicallyDeleted(object)
     def self.objectIsAboutToBeLogicallyDeleted(object)
-        if object["iam"] and object["iam"]["type"] == "Dx8Unit" then
-            unitId = object["iam"]["unitId"]
-            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-            LucilleCore::removeFileSystemLocation(location)
+        if object["i1as"] then
+            object["i1as"].each{|nx111|
+                nx111["type"] == "Dx8Unit"
+                unitId = nx111["unitId"]
+                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+                LucilleCore::removeFileSystemLocation(location)
+            }
         end
     end
 

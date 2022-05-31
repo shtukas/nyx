@@ -128,7 +128,7 @@ class Waves
             "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "iam"         => nx111,
+            "i1as"        => [nx111],
         }
 
         wave["repeatType"]       = schedule[0]
@@ -146,7 +146,7 @@ class Waves
     def self.toString(item)
         lastDoneDateTime = item["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]} (#{item["iam"]["type"]}) (#{Waves::scheduleString(item)}) (#{ago})"
+        "(wave) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{Waves::scheduleString(item)}) (#{ago})"
     end
 
     # Waves::performDone(item)
@@ -175,7 +175,7 @@ class Waves
             puts "#{Waves::toString(item)}".green
 
             puts "uuid: #{item["uuid"]}".yellow
-            puts "iam: #{item["iam"]}".yellow
+            puts "i1as: #{item["i1as"]}".yellow
             puts "schedule: #{Waves::scheduleString(item)}".yellow
             puts "last done: #{item["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
@@ -222,13 +222,7 @@ class Waves
             end
 
             if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
-                next if nx111.nil?
-                puts JSON.pretty_generate(nx111)
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["iam"] = nx111
-                    Librarian::commit(item)
-                end
+                I1as::manageI1as(item, item["i1as"])
             end
 
             if Interpreting::match("attachment", command) then

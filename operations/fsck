@@ -21,7 +21,7 @@ Librarian::objectsIncludingLogicallyDeleted()
         exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
         next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
         operator = Fx12sElizabethV2.new(object["uuid"])
-        FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(object, operator)
+        FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, operator)
         XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
     }
 

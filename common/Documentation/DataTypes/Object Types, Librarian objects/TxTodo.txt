@@ -1,10 +1,10 @@
 TxTodo = {
-  "uuid"           : String
-  "mikuType"       : "TxTodo"
-  "description"    : String
-  "unixtime"       : Float
-  "datetime"       : DateTime Iso8601
-  "iam"            : Nx111
-  "ordinal"        : Float
-  "genesis"        : nil or true # indicates if the item is "old" as in "made before 2022-05-05T15:13:08Z"
+  "uuid"        : String
+  "mikuType"    : "TxTodo"
+  "description" : String
+  "unixtime"    : Float
+  "datetime"    : DateTime Iso8601
+  "i1as"        : Array[Nx111]
+  "ordinal"     : Float
+  "genesis"     : nil or true # indicates if the item is "old" as in "made before 2022-05-05T15:13:08Z"
 }

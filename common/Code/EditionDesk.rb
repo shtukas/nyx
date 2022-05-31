@@ -68,7 +68,7 @@ class UniqueStringsFunctions
         #Librarian::objects().each{|item|
         #    CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
         #    next if item["iam"].nil?
-        #    next if item["iam"]["type"] != "aion-point"
+        #    next if I1as::toStringShort(item["i1as"]) != "aion-point"
         #    rootnhash = item["iam"]["rootnhash"]
         #    if UniqueStringsFunctions::uniqueStringIsInNhash(rootnhash, uniquestring) then
         #        LxAction::action("landing", item)
@@ -115,23 +115,24 @@ class EditionDesk
 
     # EditionDesk::decideEditionLocation(item)
     def self.decideEditionLocation(item)
+        raise "(not available: 18ff2d11-16fc-466e-959f-5a2aaa210ebc)"
         # This function returns the location if there already is one, or otherwise returns a new one.
-        index1 = EditionDesk::getMaxIndex() + 1
-        description = item["description"] ? CommonUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
-        itemuuid = item["uuid"]
-        nx111uuid = item["iam"]["uuid"]
+        #index1 = EditionDesk::getMaxIndex() + 1
+        #description = item["description"] ? CommonUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
+        #itemuuid = item["uuid"]
+        #nx111uuid = item["iam"]["uuid"]
 
-        part3and4 = "#{itemuuid}|#{nx111uuid}"
-        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
-            .each{|location|
-                if File.basename(location).include?(part3and4) then
-                    return location
-                end
-            }
+        #part3and4 = "#{itemuuid}|#{nx111uuid}"
+        #LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+        #    .each{|location|
+        #        if File.basename(location).include?(part3and4) then
+        #            return location
+        #        end
+        #    }
 
-        name1 = "#{index1}|#{description}|#{part3and4}"
+        #name1 = "#{index1}|#{description}|#{part3and4}"
 
-        "#{EditionDesk::pathToEditionDesk()}/#{name1}"
+        #"#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
 
     # ----------------------------------------------------
@@ -139,10 +140,11 @@ class EditionDesk
 
     # EditionDesk::accessItem(item)
     def self.accessItem(item)
-        if item["iam"].nil? then
-            puts "For the moment I can only EditionDesk::exportAndAccess iam's nx111 elements"
+        if item["i1as"].nil? then
+            raise "(error:b7242cb5-2a6b-43ea-b217-ce972e1440b0) For the moment I can only EditionDesk::exportAndAccess nx111 elements"
         end
-        nx111 = item["iam"]
+        nx111 = I1as::selectOneNx111OrNull(item["i1as"])
+        return if nx111.nil?
         if nx111["type"] == "navigation" then
             puts "This is a navigation node"
             LucilleCore::pressEnterToContinue()
@@ -213,9 +215,10 @@ class EditionDesk
             FileUtils.mkdir(exportFolderpath)
             Carriers::getCarrierContents(item["uuid"])
                 .each{|ix|
-                    dottedExtension = ix["iam"]["dottedExtension"]
-                    nhash = ix["iam"]["nhash"]
-                    parts = ix["iam"]["parts"]
+                    nx111 = ix["i1as"][0] # primitive files only have one Nx111 in their i1as
+                    dottedExtension = nx111["dottedExtension"]
+                    nhash = nx111["nhash"]
+                    parts = nx111["parts"]
                     PrimitiveFiles::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, ix["uuid"], dottedExtension, parts)
                 }
             system("open '#{exportFolderpath}'")
@@ -247,6 +250,7 @@ class EditionDesk
 
     # EditionDesk::updateItemFromDeskLocationOrNothing(location)
     def self.updateItemFromDeskLocationOrNothing(location)
+        raise "(error: 7b527b6a-fb6b-4dea-a4bf-03c765b4e004) not ready yet"
         filename = File.basename(location)
         _, description, itemuuid, nx111uuid = filename.split("|")
         if nx111uuid.include?(".") then

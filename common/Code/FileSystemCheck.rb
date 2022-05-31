@@ -55,8 +55,16 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 class FileSystemCheck
 
-    # FileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111, operator)
-    def self.fsckExitAtFirstFailureIamValue(object, nx111, operator)
+    # FileSystemCheck::exitIfMissingCanary()
+    def self.exitIfMissingCanary()
+        if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
+            puts "Interrupted after missing canary file.".green
+            exit
+        end
+    end
+
+    # FileSystemCheck::fsckNx111ExitAtFirstFailure(object, nx111, operator)
+    def self.fsckNx111ExitAtFirstFailure(object, nx111, operator)
         if !Nx111::iamTypes().include?(nx111["type"]) then
             puts "object has an incorrect iam value type".red
             puts JSON.pretty_generate(object).red
@@ -135,16 +143,16 @@ class FileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end
 
-    # FileSystemCheck::exitIfMissingCanary()
-    def self.exitIfMissingCanary()
-        if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
-            puts "Interrupted after missing canary file.".green
-            exit
-        end
+    # FileSystemCheck::fsckI1asExitAtFirstFailure(object, i1as, operator)
+    def self.fsckI1asExitAtFirstFailure(object, i1as, operator)
+        i1as.each{|nx111|
+            puts JSON.pretty_generate(nx111)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(object, nx111, operator) 
+        }
     end
 
-    # FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, operator)
-    def self.fsckExitAtFirstFailureLibrarianMikuObject(item, operator)
+    # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
+    def self.fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
 
         puts JSON.pretty_generate(item)
 
@@ -169,33 +177,32 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "Nx100" then
-            if item["iam"].nil? then
-                puts "Nx100 has not iam value".red
+            if item["i1as"].nil? then
+                puts "Item has no i1as value".red
                 puts JSON.pretty_generate(item).red
                 exit 1
             end
-            puts JSON.pretty_generate(item["iam"])
-            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end
 
         if item["mikuType"] == "TxAttachment" then
-            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end
 
         if item["mikuType"] == "TxDated" then
-            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end
 
         if item["mikuType"] == "TxFloat" then
-            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end
 
         if item["mikuType"] == "TxFyre" then
-            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end
 
@@ -212,16 +219,16 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "TxTodo" then
-            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end
 
         if item["mikuType"] == "Wave" then
-            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end
 
         puts JSON.pretty_generate(item).red
-        raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc)"
+        raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc) unsupported mikuType: #{item["mikuType"]}"
     end
 end

@@ -1,8 +1,8 @@
 TxDated = {
-  "uuid"           : String
-  "mikuType"       : "TxDated"
-  "description"    : String
-  "unixtime"       : Float
-  "datetime"       : DateTime Iso8601
-  "iam"            : Nx111
+  "uuid"        : String
+  "mikuType"    : "TxDated"
+  "description" : String
+  "unixtime"    : Float
+  "datetime"    : DateTime Iso8601
+  "i1as"        : Array[Nx111]
 }

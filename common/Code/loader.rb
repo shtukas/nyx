@@ -132,6 +132,7 @@ require_relative "Genealogy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
+require_relative "I1as.rb"
 
 require_relative "FileSystemCheck.rb"
 require_relative "LxAction.rb"
