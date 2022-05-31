@@ -53,24 +53,11 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-$LibrarianObjectsFileSystemCheck2_IamTypes = [
-    "navigation",
-    "log",
-    "description-only",
-    "text",
-    "url",
-    "aion-point",
-    "unique-string",
-    "primitive-file",
-    "carrier-of-primitive-files",
-    "Dx8Unit"
-]
+class FileSystemCheck
 
-class LibrarianObjectsFileSystemCheck2
-
-    # LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(object, nx111, operator)
+    # FileSystemCheck::fsckExitAtFirstFailureIamValue(object, nx111, operator)
     def self.fsckExitAtFirstFailureIamValue(object, nx111, operator)
-        if !$LibrarianObjectsFileSystemCheck2_IamTypes.include?(nx111["type"]) then
+        if !Nx111::iamTypes().include?(nx111["type"]) then
             puts "object has an incorrect iam value type".red
             puts JSON.pretty_generate(object).red
             exit 1
@@ -134,25 +121,21 @@ class LibrarianObjectsFileSystemCheck2
         end
         if nx111["type"] == "Dx8Unit" then
             return if object["lxDeleted"]
-            if File.exists?(Dx8UnitsUtils::infinityRepository()) then
-                unitId = nx111["unitId"]
-                location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-                puts "location: #{location}"
-                status = File.exists?(location)
-                if !status then
-                    puts "could not find location".red
-                    puts JSON.pretty_generate(object).red
-                    exit 1
-                end
-            else
-                puts "(warning) Infinity drive not visible. Skipping full Dx8Unit check."
+            unitId = nx111["unitId"]
+            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+            puts "location: #{location}"
+            status = File.exists?(location)
+            if !status then
+                puts "could not find location".red
+                puts JSON.pretty_generate(object).red
+                exit 1
             end
             return
         end
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end
 
-    # LibrarianObjectsFileSystemCheck2::exitIfMissingCanary()
+    # FileSystemCheck::exitIfMissingCanary()
     def self.exitIfMissingCanary()
         if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
             puts "Interrupted after missing canary file.".green
@@ -160,10 +143,22 @@ class LibrarianObjectsFileSystemCheck2
         end
     end
 
-    # LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item, operator)
+    # FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item, operator)
     def self.fsckExitAtFirstFailureLibrarianMikuObject(item, operator)
 
         puts JSON.pretty_generate(item)
+
+        if item["mikuType"] == "Ax1Text" then
+            nhash = item["nhash"]
+            begin
+                operator.readBlobErrorIfNotFound(nhash)
+            rescue
+                puts "nhash, blob not found".red
+                puts JSON.pretty_generate(item).red
+                exit 1
+            end
+            return
+        end
 
         if item["mikuType"] == "Lx21" then
             return
@@ -180,27 +175,27 @@ class LibrarianObjectsFileSystemCheck2
                 exit 1
             end
             puts JSON.pretty_generate(item["iam"])
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxAttachment" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxDated" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxFloat" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "TxFyre" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
@@ -217,29 +212,17 @@ class LibrarianObjectsFileSystemCheck2
         end
 
         if item["mikuType"] == "TxOS01" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureLibrarianMikuObject(item["payload"], operator)
+            FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item["payload"], operator)
             return
         end
 
         if item["mikuType"] == "TxTodo" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
+            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 
         if item["mikuType"] == "Wave" then
-            LibrarianObjectsFileSystemCheck2::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
-            return
-        end
-
-        if item["mikuType"] == "Ax1Text" then
-            nhash = item["nhash"]
-            begin
-                operator.readBlobErrorIfNotFound(nhash)
-            rescue
-                puts "nhash, blob not found".red
-                puts JSON.pretty_generate(item).red
-                exit 1
-            end
+            FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return
         end
 

@@ -26,7 +26,7 @@ Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", "backlog")
             puts "Caching: #{item["description"]}"
             unitId = item["iam"]["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-            rootnhash = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(item["uuid"]), location)
+            rootnhash = AionCore::commitLocationReturnHash(Fx12sElizabethV2.new(item["uuid"]), location)
             XCache::set("dbe424a9-a360-4f66-9ad1-d16b2475c069:#{unitId}", rootnhash)
         end
         XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca2:#{JSON.generate(item)}")

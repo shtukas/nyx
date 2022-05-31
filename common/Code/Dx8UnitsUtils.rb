@@ -4,7 +4,7 @@
 class Dx8UnitsUtils
     # Dx8UnitsUtils::infinityRepository()
     def self.infinityRepository()
-        "/Volumes/Infinity/Data/Pascal/Dx8Units"
+        "/Users/pascal/x-space/Dx8Units"
     end
 
     # Dx8UnitsUtils::dx8UnitFolder(dx8UnitId)

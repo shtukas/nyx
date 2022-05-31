@@ -43,18 +43,7 @@ class UniqueStringsFunctions
 
     # UniqueStringsFunctions::uniqueStringIsInNhash(nhash, uniquestring)
     def self.uniqueStringIsInNhash(nhash, uniquestring)
-        # This function will cause all the objects from all aion-structures to remain alive on the local cache
-        # but doesn't download the data blobs
-
-        # This function is memoised
-        #answer = XCache::getOrNull("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}")
-        #if answer then
-        #    return JSON.parse(answer)[0]
-        #end
-        #object = AionCore::getAionObjectByHash(InfinityDriveElizabeth.new(), nhash)
-        #answer = UniqueStringsFunctions::uniqueStringIsInAionPointObject(object, uniquestring)
-        #XCache::set("4cd81dd8-822b-4ec7-8065-728e2dfe2a8a:#{nhash}:#{uniquestring}", JSON.generate([answer]))
-        #answer
+        
     end
 
     # UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
@@ -176,7 +165,7 @@ class EditionDesk
                 return
             end
             nhash = nx111["nhash"]
-            text = Librarian::getBlobOrNull(nhash)
+            text = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             system("open '#{location}'")
             return
@@ -188,7 +177,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = LibrarianFx12Elizabeth.new(item["uuid"]) 
+            operator = Fx12sElizabethV2.new(item["uuid"]) 
             rootnhash = nx111["rootnhash"]
             exportLocation = EditionDesk::decideEditionLocation(item)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, File.basename(exportLocation))
@@ -240,7 +229,7 @@ class EditionDesk
             # See code (comment group: 3e6f8340-1d1e-400d-8209-5cec545c0e80)
             rootnhash = XCache::getOrNull("dbe424a9-a360-4f66-9ad1-d16b2475c069:#{unitId}")
             if rootnhash then
-                operator = LibrarianFx12Elizabeth.new(item["uuid"]) 
+                operator = Fx12sElizabethV2.new(item["uuid"]) 
                 AionCore::exportHashAtFolder(operator, rootnhash, "/Users/pascal/Desktop")
                 puts "Exported to Desktop"
                 LucilleCore::pressEnterToContinue()
@@ -250,13 +239,6 @@ class EditionDesk
 
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
-            if !File.exists?(Dx8UnitsUtils::infinityRepository()) then
-                puts "Infinity drive is not connected, do plug to access."
-                LucilleCore::pressEnterToContinue()
-            end
-            if !File.exists?(Dx8UnitsUtils::infinityRepository()) then
-                return
-            end
             system("open '#{location}'")
             return
         end
@@ -293,7 +275,7 @@ class EditionDesk
         end
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = Librarian::putBlob(text)
+            nhash = Fx12sElizabethV2.new(item["uuid"]).commitBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             #puts JSON.pretty_generate(nx111)
@@ -306,7 +288,7 @@ class EditionDesk
             raise "(error: 563d3ad6-7d82-485b-afc5-b9aeba6fb88b)"
         end
         if nx111["type"] == "aion-point" then
-            operator = LibrarianFx12Elizabeth.new(item["uuid"])
+            operator = Fx12sElizabethV2.new(item["uuid"])
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
@@ -322,7 +304,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "primitive-file" then
-            nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
+            nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(item["uuid"], nx111["uuid"], location)
             return if nx111v2.nil?
             #puts JSON.pretty_generate(nx111v2)
             return if item["iam"].to_s = nx111v2.to_s

@@ -65,10 +65,10 @@ class Nx111
         type
     end
 
-    # Nx111::locationToAionPointNx111OrNull(mainObjectUUID, location)
-    def self.locationToAionPointNx111OrNull(mainObjectUUID, location)
+    # Nx111::locationToAionPointNx111OrNull(objectuuid, location)
+    def self.locationToAionPointNx111OrNull(objectuuid, location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(mainObjectUUID), location)
+        rootnhash = AionCore::commitLocationReturnHash(Fx12sElizabethV2.new(objectuuid), location)
         {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",
@@ -76,8 +76,8 @@ class Nx111
         }
     end
 
-    # Nx111::interactivelyCreateNewIamValueOrNull(types, mainObjectUUID)
-    def self.interactivelyCreateNewIamValueOrNull(types, mainObjectUUID)
+    # Nx111::interactivelyCreateNewIamValueOrNull(types, objectuuid)
+    def self.interactivelyCreateNewIamValueOrNull(types, objectuuid)
         type = Nx111::interactivelySelectIamTypeOrNull(types)
         return nil if type.nil?
         if type == "navigation" then
@@ -106,7 +106,7 @@ class Nx111
         end
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = Librarian::putBlob(text)
+            nhash = Fx12sElizabethV2.new(objectuuid).commitBlob(text)
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",
@@ -125,7 +125,7 @@ class Nx111
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::locationToAionPointNx111OrNull(mainObjectUUID, location)
+            return Nx111::locationToAionPointNx111OrNull(objectuuid, location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
@@ -139,7 +139,7 @@ class Nx111
         if type == "primitive-file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return PrimitiveFiles::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
+            return PrimitiveFiles::locationToPrimitiveFileNx111OrNull(objectuuid, SecureRandom.uuid, location)
         end
         if type == "carrier-of-primitive-files" then
             return {

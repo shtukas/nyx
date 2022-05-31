@@ -616,20 +616,6 @@ class CommonUtils
         FileUtils.mv(location, directory)
     end
 
-    # CommonUtils::commitFileToXCacheReturnPartsHashs(filepath)
-    def self.commitFileToXCacheReturnPartsHashs(filepath)
-        raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
-        raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
-        hashes = []
-        partSizeInBytes = 1024*1024 # 1 MegaBytes
-        f = File.open(filepath)
-        while ( blob = f.read(partSizeInBytes) ) do
-            hashes << XCacheDatablobs::putBlob(blob)
-        end
-        f.close()
-        hashes
-    end
-
     # CommonUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
     def self.uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
         roots = [

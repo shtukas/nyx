@@ -132,11 +132,8 @@ require_relative "Genealogy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
-require_relative "InfinityObjectsStore.rb"
-require_relative "InMemoryObjects.rb"
 
-
-require_relative "LibrarianObjectsFileSystemCheck2.rb"
+require_relative "FileSystemCheck.rb"
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
 
@@ -149,6 +146,6 @@ require_relative "PrimitiveFiles.rb"
 
 require_relative "Librarian.rb"
 
-require_relative "XCacheDatablobsAndElizabeth.rb"
+require_relative "XCacheExtensions.rb"
 
 # ------------------------------------------------------------

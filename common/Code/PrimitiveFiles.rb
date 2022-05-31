@@ -20,8 +20,8 @@ class PrimitiveFiles
     # -------------------------------------------------
     # Import
 
-    # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]
-    def self.locationToPrimitiveFileDataArrayOrNull(filepath)
+    # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath) # [dottedExtension, nhash, parts]
+    def self.locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath)
         return nil if !File.exists?(filepath)
         return nil if !File.file?(filepath)
  
@@ -30,20 +30,20 @@ class PrimitiveFiles
         nhash = CommonUtils::filepathToContentHash(filepath)
  
         committer = lambda {|blob|
-            Librarian::putBlob(blob)
+            Fx12sElizabethV2.new(objectuuid).commitBlob(blob)
         }
         parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, committer)
  
         return [dottedExtension, nhash, parts]
     end
 
-    # PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, filepath)
-    def self.locationToPrimitiveFileNx111OrNull(uuid, filepath)
-        data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(filepath)
+    # PrimitiveFiles::locationToPrimitiveFileNx111OrNull(objectuuid, nx111uuid, filepath)
+    def self.locationToPrimitiveFileNx111OrNull(objectuuid, nx111uuid, filepath)
+        data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath)
         return nil if data.nil?
         dottedExtension, nhash, parts = data
         {
-            "uuid"  => uuid,
+            "uuid"  => nx111uuid,
             "type"  => "primitive-file",
             "dottedExtension" => dottedExtension,
             "nhash" => nhash,
@@ -54,12 +54,12 @@ class PrimitiveFiles
     # -------------------------------------------------
     # Export
 
-    # PrimitiveFiles::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts) # targetFilepath
-    def self.exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, someuuid, dottedExtension, parts)
-        targetFilepath = "#{exportFolderpath}/#{someuuid}#{dottedExtension}"
+    # PrimitiveFiles::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, itemuuid, dottedExtension, parts) # targetFilepath
+    def self.exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, itemuuid, dottedExtension, parts)
+        targetFilepath = "#{exportFolderpath}/#{itemuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Librarian::getBlobOrNull(nhash)
+                blob = Fx12sElizabethV2.new(itemuuid).getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -75,7 +75,7 @@ class PrimitiveFiles
         filepath = "#{EditionDesk::decideEditionLocation(item)}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Librarian::getBlobOrNull(nhash)
+                blob = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
                 raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
                 f.write(blob)
             }
@@ -91,7 +91,7 @@ class PrimitiveFiles
         filepath = "#{EditionDesk::pathToEditionDesk()}/#{dirname}/#{item["uuid"]}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Librarian::getBlobOrNull(nhash)
+                blob = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
                 raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
                 f.write(blob)
             }

@@ -34,15 +34,15 @@ class Ax1Text
     # Ax1Text::interactivelyIssueNewOrNullForOwner(owneruuid)
     def self.interactivelyIssueNewOrNullForOwner(owneruuid)
         text = CommonUtils::editTextSynchronously("")
-        nhash = Librarian::putBlob(text)
-        uuid     = SecureRandom.uuid
+        uuid = SecureRandom.uuid
+        nhash = Fx12sElizabethV2.new(uuid).commitBlob(text)
         unixtime = Time.new.to_i
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "Ax1Text",
-          "owneruuid"   => owneruuid,
-          "unixtime"    => unixtime,
-          "nhash"       => nhash
+          "uuid"      => uuid,
+          "mikuType"  => "Ax1Text",
+          "owneruuid" => owneruuid,
+          "unixtime"  => unixtime,
+          "nhash"     => nhash
         }
         Librarian::commit(item)
         item
@@ -53,8 +53,7 @@ class Ax1Text
 
     # Ax1Text::toString(item)
     def self.toString(item)
-        nhash = item["nhash"]
-        text = Librarian::getBlobOrNull(nhash)
+        text = Fx12sElizabethV2.new(uuid).getBlobOrNull(getBlobOrNull)
         description = (text != "") ? text.lines.first : "(empty text)"
         "(note) #{description}"
     end
@@ -75,9 +74,9 @@ class Ax1Text
             break if operation.nil?
             if operation == "access/edit" then
                 nhash = item["nhash"]
-                text = Librarian::getBlobOrNull(nhash)
+                text = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = Librarian::putBlob(text)
+                nhash = Fx12sElizabethV2.new(item["uuid"]).commitBlob(text)
                 item["nhash"] = nhash
                 Librarian::commit(item)
             end

@@ -249,7 +249,7 @@ class LxAction
 
             location = CommonUtils::interactivelySelectDesktopLocationOrNull() 
             if location then
-                aionrootnhash = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(uuid), location)
+                aionrootnhash = AionCore::commitLocationReturnHash(Fx12sElizabethV2.new(uuid), location)
             end
 
             item = {

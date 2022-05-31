@@ -43,6 +43,45 @@ class Fx12sElizabeth
     end
 end
 
+class Fx12sElizabethV2
+
+    def initialize(uuid)
+        @filepath = Librarian::getFx12Filepath(uuid)
+    end
+
+    def commitBlob(blob)
+        Fx12s::commitBlob(@filepath, blob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        Fx12s::getBlobOrNull(@filepath, nhash)
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "(error: 7ffc6f95-4977-47a2-b9fd-eecd8312ebbe) could not find blob, nhash: #{nhash}"
+        raise "(error: 47f74e9a-0255-44e6-bf04-f12ff7786c65, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 479c057e-d77b-4cd9-a6ba-df082e93f6b5) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+end
+
 class Fx12s
 
     # Fx12s::issueNewEmptyMarbleFile(filepath)

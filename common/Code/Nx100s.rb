@@ -56,16 +56,15 @@ class Nx100s
     # Nx100s::issueNewItemAionPointFromLocation(location)
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
-        mainObjectUUID = SecureRandom.uuid
-        nx111 = Nx111::locationToAionPointNx111OrNull(mainObjectUUID, location)
+        objectuuid = SecureRandom.uuid
+        nx111 = Nx111::locationToAionPointNx111OrNull(objectuuid, location)
         flavour = {
             "type" => "encyclopedia"
         }
-        uuid       = mainObjectUUID
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         item = {
-            "uuid"        => uuid,
+            "uuid"        => objectuuid,
             "mikuType"    => "Nx100",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
@@ -83,7 +82,7 @@ class Nx100s
 
         uuid = CommonUtils::nx45()
 
-        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
+        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, SecureRandom.uuid, location)
         return nil if nx111.nil?
 
         flavour = {

@@ -112,7 +112,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        rootnhash   = AionCore::commitLocationReturnHash(LibrarianFx12Elizabeth.new(uuid), location)
+        rootnhash   = AionCore::commitLocationReturnHash(Fx12sElizabethV2.new(uuid), location)
         nx111 = {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",
