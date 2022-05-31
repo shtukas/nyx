@@ -388,120 +388,6 @@ class NS16s
     end
 end
 
-class TerminalDisplayOperator
-
-    # TerminalDisplayOperator::printListing(universe, floats, section2)
-    def self.printListing(universe, floats, section2)
-        system("clear")
-
-        vspaceleft = CommonUtils::screenHeight()-3
-
-        reference = The99Percent::getReference()
-        current   = The99Percent::getCurrentCount()
-        ratio     = current.to_f/reference["count"]
-        puts ""
-        puts "(#{universe}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
-        vspaceleft = vspaceleft - 2
-        if ratio < 0.99 then
-            The99Percent::issueNewReference()
-            return
-        end
-
-        store = ItemStore.new()
-
-        if !InternetStatus::internetIsActive() then
-            puts "INTERNET IS OFF".green
-            vspaceleft = vspaceleft - 2
-        end
-
-        if floats.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            floats.each{|ns16|
-                store.register(ns16, false)
-                line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-        end
-
-        running = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
-        running = running.select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
-        if running.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            running
-                    .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
-                    .each{|nxball|
-                        delegate = {
-                            "uuid"       => nxball["uuid"],
-                            "mikuType"   => "NxBallNS16Delegate1" 
-                        }
-                        store.register(delegate, true)
-                        line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                        puts line
-                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    }
-        end
-
-
-        top = Topping::getText(universe)
-        if top and top.strip.size > 0 then
-            puts ""
-            puts "(top)"
-            top = top.lines.first(10).join().strip
-            puts top
-            vspaceleft = vspaceleft - CommonUtils::verticalSize(top) - 3
-        end
-
-        if section2.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            section2
-                .each{|ns16|
-                    store.register(ns16, Defaultability::isDefaultable(ns16))
-                    line = ns16["announce"]
-                    line = "#{store.prefixString()} #{line}"
-                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(ns16["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
-        puts ""
-        input = LucilleCore::askQuestionAnswerAsString("> ")
-
-        return if input == ""
-
-        if !input.start_with?("today:") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
-            if (item = store.getDefault()) then
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return
-            end
-        end
-
-        if input == ">>" then
-            if (item = store.getDefault()) then
-                Defaultability::advance(item["uuid"])
-                return
-            end
-        end
-
-        command, objectOpt = TerminalUtils::inputParser(input, store)
-        #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-
-        if objectOpt and objectOpt["lambda"] then
-            objectOpt["lambda"].call()
-            return
-        end
-
-        LxAction::action(command, objectOpt)
-    end
-end
-
 class ListingDataDriver
 
     # Data = Array[NS16]
@@ -612,6 +498,121 @@ class ListingDataDriver
         ListingDataDriver::storeData(data)
 
         data
+    end
+end
+
+class TerminalDisplayOperator
+
+    # TerminalDisplayOperator::printListing(universe, floats, section2)
+    def self.printListing(universe, floats, section2)
+        system("clear")
+
+        vspaceleft = CommonUtils::screenHeight()-3
+
+        reference = The99Percent::getReference()
+        current   = The99Percent::getCurrentCount()
+        ratio     = current.to_f/reference["count"]
+        puts ""
+        puts "(#{universe}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
+        vspaceleft = vspaceleft - 2
+        if ratio < 0.99 then
+            The99Percent::issueNewReference()
+            return
+        end
+
+        store = ItemStore.new()
+
+        if !InternetStatus::internetIsActive() then
+            puts "INTERNET IS OFF".green
+            vspaceleft = vspaceleft - 2
+        end
+
+        if floats.size>0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            floats.each{|ns16|
+                store.register(ns16, false)
+                line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+        end
+
+        running = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
+        running = running.select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
+        if running.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            running
+                    .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
+                    .each{|nxball|
+                        delegate = {
+                            "uuid"       => nxball["uuid"],
+                            "mikuType"   => "NxBallNS16Delegate1" 
+                        }
+                        store.register(delegate, true)
+                        line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                        puts line
+                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                    }
+        end
+
+
+        top = Topping::getText(universe)
+        if top and top.strip.size > 0 then
+            puts ""
+            puts "(top)"
+            top = top.lines.first(10).join().strip
+            puts top
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(top) - 3
+        end
+
+        if section2.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            section2
+                .each{|ns16|
+                    store.register(ns16, Defaultability::isDefaultable(ns16))
+                    line = ns16["announce"]
+                    line = "#{store.prefixString()} #{line}"
+                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                    if NxBallsService::isActive(ns16["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+        puts ""
+        input = LucilleCore::askQuestionAnswerAsString("> ")
+
+        return if input == ""
+
+        if !input.start_with?("today:") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+            if (item = store.getDefault()) then
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+        end
+
+        if input == ">>" then
+            if (item = store.getDefault()) then
+                Defaultability::advance(item["uuid"])
+                return
+            end
+        end
+
+        command, objectOpt = TerminalUtils::inputParser(input, store)
+        #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
+
+        if objectOpt and objectOpt["lambda"] then
+            objectOpt["lambda"].call()
+            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", objectOpt["uuid"]) # done deletion for ListingDataDriver
+            return
+        end
+
+        LxAction::action(command, objectOpt)
     end
 end
 
