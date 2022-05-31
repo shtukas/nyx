@@ -211,11 +211,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxOS01" then
-            FileSystemCheck::fsckExitAtFirstFailureLibrarianMikuObject(item["payload"], operator)
-            return
-        end
-
         if item["mikuType"] == "TxTodo" then
             FileSystemCheck::fsckExitAtFirstFailureIamValue(item, item["iam"], operator)
             return

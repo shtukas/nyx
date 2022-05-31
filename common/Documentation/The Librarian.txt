@@ -1,14 +1,7 @@
 
-[] Todo
+### The Librarian manipulate JSON objects which encode the stuctures used both by Catalyst and Nyx.
 
-    Phase 2:
-        [] introduce i1am attribute where there is a iam, this is an array of Nx111s
-        [] That array can have two objects with the same uuid (happens in case of conflict)
-        [] In case of conflict, the user is invited to resolve it if they land on the object
-
-    Phase 3:
-        [] Introduce a lx1History for nx111s
-        [] Introduce the replacement logic
+Those objects are stored in their own Fx1 file aong with the binary data they refer to, including but not limited to, Aion Hierarchies.
 
 ### Librarian Objects
 
@@ -25,13 +18,13 @@ Everytime time the object is stored, a new random Id is decided and added at the
 
 Essentially, ObjectB can replace ObjectA if the history of ObjectA is a (strict) subset of the history of ObjectB.
 
-We can retrieve objects individually by "uuid" or collectively by "MikuTypes".
+We can retrieve objects individually by "uuid" or collectively by "mikuType"s.
 
-Items also carry an "ordinal" attribute and a "universe" attribute (both for the Catalyst items). If there isn't one, the Librarian will set a default one. 
+Items also carry an "ordinal" attribute (float) and a "universe" (string) attribute (both for the Catalyst items). If there isn't one, the Librarian will set a default one. 
 
 ### Logical Delete
 
-Objects are not immediately erased from the local database. They are first logically deleted, until they are deleted by the Librarian, at which point they can be deleted from the local database.
+Objects are not immediately erased from the local database. They are first logically deleted. They can be destroyed later.
 
 ### Objects of the Nyx's network
 
@@ -44,6 +37,8 @@ Objects of the Nyx Network, so essentially Nx100 must have:
 The unixtime (integer, but also float) should represent the time the object was created, and the datetime (DateTime Iso 8601 UTC Zulu) should represent the logical position of the object on the Nyx timeline.
 
 ### The Objects Store
+
+The object store is a cache of the JSON objects contained in the Fx12 files. We try and keep them in sync...
 
 objects-store.sqlite3
 CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);

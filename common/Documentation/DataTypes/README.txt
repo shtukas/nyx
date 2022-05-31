@@ -1,0 +1,1 @@
+"Librarian objects" are defined as the objects that are stored in their own Fx12 files. Non Librarian objects are volatile (created on the fly for program logic purposes) eg: Nx20s, stored idependenly, eg: Anniversarys, or carried by Librarian objects, eg: Nx111s. Note that some non Librarian objects have a mikuType, eg: NS16s.

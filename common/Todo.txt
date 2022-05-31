@@ -1,0 +1,10 @@
+[] Todo
+
+    Phase 2:
+        [] introduce i1am attribute where there is a iam, this is an array of Nx111s
+        [] That array can have two objects with the same uuid (happens in case of conflict)
+        [] In case of conflict, the user is invited to resolve it if they land on the object
+
+    Phase 3:
+        [] Introduce a lx1History for nx111s
+        [] Introduce the replacement logic
