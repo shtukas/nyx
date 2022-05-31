@@ -90,9 +90,9 @@ class Fx12s
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "create table _data_ (_key_ string, _value_ blob)", []
         db.execute "create table _filetype_ (_id_ string)", []
         db.execute "insert into _filetype_ (_id_) values (?)", ["001-8b0aac1fcea0"]
+        db.execute "create table _data_ (_key_ string, _value_ blob)", []
         db.close
         nil
     end
@@ -101,21 +101,6 @@ class Fx12s
     def self.createFileIfNotCreatedYet(filepath)
         return if File.exists?(filepath)
         Fx12s::issueNewEmptyMarbleFile(filepath)
-    end
-
-    # Fx12s::keys(filepath)
-    def self.keys(filepath)
-        Fx12s::createFileIfNotCreatedYet(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        keys = []
-        db.execute("select _key_ from _data_", []) do |row|
-            keys << row['_key_']
-        end
-        db.close
-        keys
     end
 
     # Fx12s::version(filepath)
@@ -131,6 +116,21 @@ class Fx12s
         end
         db.close
         value
+    end
+
+    # Fx12s::keys(filepath)
+    def self.keys(filepath)
+        Fx12s::createFileIfNotCreatedYet(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        keys = []
+        db.execute("select _key_ from _data_", []) do |row|
+            keys << row['_key_']
+        end
+        db.close
+        keys
     end
 
     # -- key-value store --------------------------------------------------
