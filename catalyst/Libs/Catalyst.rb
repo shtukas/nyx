@@ -73,6 +73,10 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("access", ordinal, store)
         end
 
+        if Interpreting::match("anniversary", input) then
+            return ["anniversary", nil]
+        end
+
         if Interpreting::match("anniversaries", input) then
             return ["anniversaries", nil]
         end
