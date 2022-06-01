@@ -68,7 +68,6 @@ class LxAction
 
             if object["lambda"] then
                 object["lambda"].call()
-                Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", object["uuid"]) # done deletion for ListingDataDriver
                 return
             end
 
@@ -136,7 +135,7 @@ class LxAction
 
         if command == "done" then
 
-            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", object["uuid"]) # done deletion for ListingDataDriver
+            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", object["uuid"])
 
             # If the object was running, then we stop it
             if NxBallsService::isRunning(object["uuid"]) then

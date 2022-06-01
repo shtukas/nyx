@@ -1,6 +1,0 @@
-
-2d70b692-49f0-4a11-85a9-c378537f8ef1 -> uuid
-    # object deletion message for ListingDataDriver
-
-b6156390-059d-446e-ad51-adfc9f91abf1 -> uuid
-    # done deletion for ListingDataDriver

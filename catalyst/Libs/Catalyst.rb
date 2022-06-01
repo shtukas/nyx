@@ -348,138 +348,16 @@ class NS16s
         [
             Anniversaries::ns16s(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Waves::ns16s(universe),
             TxDateds::ns16s(),
-            Inbox::ns16s(),
+            Waves::ns16s(universe),
             TxFyres::ns16s(universe),
-            TxTodos::ns16s(universe).first(5),
-            [NS16s::rstreamToken()]
+            Inbox::ns16s(),
+            [NS16s::rstreamToken()],
+            TxTodos::ns16s(universe),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
-    end
-end
-
-class ListingDataDriver
-
-    # Data = Array[NS16]
-
-    # -------------------------------------
-    # Basic IO
-
-    # ListingDataDriver::getDataFromDisk()
-    def self.getDataFromDisk()
-        JSON.parse(XCache::getOrDefaultValue("cf7c57fe-c53d-407b-8a13-b70e3ce48bfb", "[]"))
-    end
-
-    # ListingDataDriver::storeData(data)
-    def self.storeData(data)
-        XCache::set("cf7c57fe-c53d-407b-8a13-b70e3ce48bfb", JSON.generate(data))
-    end
-
-    # -------------------------------------
-    # Transforms
-
-    # ListingDataDriver::removeDuplicates(data)
-    def self.removeDuplicates(data)
-        data.reduce([]){|selected, item|
-            if selected.map{|i| i["uuid"] }.include?(item["uuid"]) then
-                selected
-            else
-                selected + [ item ]
-            end
-        }
-    end
-
-    # ListingDataDriver::removeDeadItems(data, ns16s)
-    def self.removeDeadItems(data, ns16s)
-        data.select{|item| ns16s.map{|i| i["uuid"]}.include?(item["uuid"]) }
-    end
-
-    # ListingDataDriver::ensureRunningItemsAreFirst(data)
-    def self.ensureRunningItemsAreFirst(data)
-        running, rest = data.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-        running + rest
-    end
-
-    # ListingDataDriver::actualUpdate(data, ns16s)
-    def self.actualUpdate(data, ns16s)
-        getItemFromCollectionOrNull = lambda{|ns16s, uuid|
-            ns16s.select{|item| item["uuid"] == uuid }.first
-        }
-
-        data.map{|ns16|
-            replacement = getItemFromCollectionOrNull.call(ns16s, ns16["uuid"])
-            if replacement then
-                replacement
-            else
-                ns16
-            end
-        }
-    end
-
-    # ListingDataDriver::rotate()
-    def self.rotate()
-        data = ListingDataDriver::getDataFromDisk()
-        data1 = data.take(1)
-        data2 = data.drop(1)
-        data = data2 + data1
-        ListingDataDriver::storeData(data)
-    end
-
-    # -------------------------------------
-    # Update
-
-    # ListingDataDriver::getLiveData(universe)
-    def self.getLiveData(universe)
-        data = ListingDataDriver::getDataFromDisk()
-        ns16s = NS16s::ns16s(universe)
-
-        # Actual update
-        data = ListingDataDriver::actualUpdate(data, ns16s)
-
-        # We remove any item that has been deleted
-        while (uuid = Mercury::dequeueFirstValueOrNull("2d70b692-49f0-4a11-85a9-c378537f8ef1")) do
-            data = data.select{|item| item["uuid"] != uuid}
-        end
-
-        # We remove any item that has gone the done message
-        while (uuid = Mercury::dequeueFirstValueOrNull("b6156390-059d-446e-ad51-adfc9f91abf1")) do
-            data = data.select{|item| item["uuid"] != uuid}
-        end
-
-        # We make sure that we have any new item
-        data = ListingDataDriver::removeDuplicates(data + ns16s)
-
-        # We remove the items that are alive but no longer occur in ns16s
-        data = ListingDataDriver::removeDeadItems(data, ns16s)
-
-        # Ensure that priority waves come first
-        section2prioritySelect = lambda {|ns16|
-            return true if (ns16["mikuType"] == "NS16:Wave" and ns16["isPriority"])
-            false
-        }
-        p1, p2 = data.partition{|ns16| NxBallsService::isActive(ns16["uuid"]) }
-        data = p1 + p2
-
-        # Ensure that overflowing, non running, todos and fyres are last
-        selectOverflowingOrDoneForTodayTodosAndFyres = lambda {|ns16|
-            return false if NxBallsService::isActive(ns16["uuid"])
-            return false if !["NS16:TxFyre", "NS16:TxTodo"].include?(ns16["mikuType"])
-            return true if XCache::flagIsTrue("905b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{ns16["uuid"]}")
-            BankExtended::stdRecoveredDailyTimeInHours(ns16["uuid"]) >= 1
-        }
-
-        overflowing, p0 = data.partition{|ns16| selectOverflowingOrDoneForTodayTodosAndFyres.call(ns16) }
-        data = p0 + overflowing.sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-
-        # Ensure that running items come first
-        data = ListingDataDriver::ensureRunningItemsAreFirst(data)
-
-        ListingDataDriver::storeData(data)
-
-        data
     end
 end
 
@@ -529,8 +407,8 @@ class TerminalDisplayOperator
                     .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
                     .each{|nxball|
                         delegate = {
-                            "uuid"       => nxball["uuid"],
-                            "mikuType"   => "NxBallNS16Delegate1" 
+                            "uuid"     => nxball["uuid"],
+                            "mikuType" => "NxBallNS16Delegate1" 
                         }
                         store.register(delegate, true)
                         line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
@@ -588,11 +466,6 @@ class TerminalDisplayOperator
             end
         end
 
-        if input == ">>" then
-            ListingDataDriver::rotate()
-            return
-        end
-
         command, objectOpt = TerminalUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 
@@ -638,7 +511,7 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
-            section2 = ListingDataDriver::getLiveData(universe)
+            section2 = NS16s::ns16s(universe)
 
             filterSection3 = lambda{|ns16|
                 (
@@ -646,7 +519,6 @@ class Catalyst
                     ns16["mikuType"] == "NS16:TxTodo" or
                     ns16["mikuType"] == "ADE4F121" # (rstream)
                 ) and ns16["rt"] > 1
-
             }
 
             section3, section2 = section2.partition{|ns16| filterSection3.call(ns16) }
