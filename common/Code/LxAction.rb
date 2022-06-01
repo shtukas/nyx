@@ -30,6 +30,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
                     item = object["TxDated"]
                     TxDateds::destroy(item["uuid"])
+                    NxBallsService::close(item["uuid"], true)
                 end
             end
 
@@ -37,6 +38,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
                     item = object["TxTodo"]
                     TxTodos::destroy(item["uuid"])
+                    NxBallsService::close(item["uuid"], true)
                 end
             end
 
