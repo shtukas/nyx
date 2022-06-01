@@ -329,34 +329,6 @@ class Commands
     end
 end
 
-class Defaultability
-    
-    # Defaultability::advance(uuid)
-    def self.advance(uuid)
-        XCache::set("4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}", Time.new.to_i)
-    end
-
-    # Defaultability::isAdvanced(uuid)
-    def self.isAdvanced(uuid)
-        unixtime = XCache::getOrNull("4de44b69-bbcd-4d0e-9ab8-76880090cae4:#{uuid}")
-        return false if unixtime.nil?
-        unixtime = unixtime.to_i
-        if (Time.new.to_i - unixtime) < 3600*3 then
-            Defaultability::advance(uuid) # to update the timestamp
-            true
-        else
-            false
-        end
-    end
-
-    # Defaultability::isDefaultable(ns16)
-    def self.isDefaultable(ns16)
-        return false if ns16["nonListingDefaultable"]
-        return false if Defaultability::isAdvanced(ns16["uuid"])
-        true
-    end
-end
-
 class NS16s
 
     # NS16s::rstreamToken()
@@ -581,7 +553,7 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - 1
             section2
                 .each{|ns16|
-                    store.register(ns16, Defaultability::isDefaultable(ns16))
+                    store.register(ns16, true)
                     line = ns16["announce"]
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
@@ -601,13 +573,6 @@ class TerminalDisplayOperator
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return
-            end
-        end
-
-        if input == "advance" then
-            if (item = store.getDefault()) then
-                Defaultability::advance(item["uuid"])
                 return
             end
         end
