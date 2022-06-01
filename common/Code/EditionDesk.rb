@@ -326,7 +326,7 @@ class EditionDesk
             nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(item["uuid"], nx111["uuid"], location)
             return if nx111v2.nil?
             #puts JSON.pretty_generate(nx111v2)
-            return if item["iam"].to_s = nx111v2.to_s
+            return if item["i1as"].select{|nx| nx["uuid"] == nx111["uuid"] }.first["nhash"] == nx111v2["nhash"]
             item = replaceNx111.call(item, nx111v2)
             Librarian::commit(item)
             return
