@@ -175,17 +175,26 @@ class TxTodos
 
             puts "#{TxTodos::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-            puts "i1as: #{item["i1as"]}".yellow
+
+            puts "i1as:"
+            item["i1as"].each{|nx111|
+                puts "    #{Nx111::toString(nx111)}"
+            } 
+
             puts "universe: #{item["universe"]}".yellow
             puts "ordinal: #{item["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
-            Ax1Text::itemsForOwner(uuid).each{|note|
-                indx = store.register(note, false)
-                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-            }
+            notes = Ax1Text::itemsForOwner(uuid)
+            if notes.size > 0 then
+                puts "notes:"
+                notes.each{|note|
+                    indx = store.register(note, false)
+                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
+                }
+            end
 
             puts "access | start | <datecode> | description | iam | ordinal | rotate | transmute | note | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
 

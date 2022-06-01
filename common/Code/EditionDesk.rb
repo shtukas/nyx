@@ -136,13 +136,8 @@ class EditionDesk
     # ----------------------------------------------------
     # Read and Write, the basics.
 
-    # EditionDesk::accessItem(item)
-    def self.accessItem(item)
-        if item["i1as"].nil? then
-            raise "(error: b7242cb5-2a6b-43ea-b217-ce972e1440b0) For the moment I can only EditionDesk::exportAndAccess nx111 elements"
-        end
-        nx111 = I1as::selectOneNx111OrNullAutoSelectIfOne(item["i1as"])
-        return if nx111.nil?
+    # EditionDesk::accessItemNx111Pair(item, nx111)
+    def self.accessItemNx111Pair(item, nx111)
         if nx111["type"] == "navigation" then
             puts "This is a navigation node"
             LucilleCore::pressEnterToContinue()
@@ -244,6 +239,16 @@ class EditionDesk
             return
         end
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
+    end
+
+    # EditionDesk::accessItem(item)
+    def self.accessItem(item)
+        if item["i1as"].nil? then
+            raise "(error: b7242cb5-2a6b-43ea-b217-ce972e1440b0) For the moment I can only EditionDesk::exportAndAccess nx111 elements"
+        end
+        nx111 = I1as::selectOneNx111OrNullAutoSelectIfOne(item["i1as"])
+        return if nx111.nil?
+        EditionDesk::accessItemNx111Pair(item, nx111)
     end
 
     # EditionDesk::updateItemFromDeskLocationOrNothing(location)
@@ -434,5 +439,4 @@ class EditionDesk
             issueTx202ForLocation.call(location)
         }
     end
-
 end

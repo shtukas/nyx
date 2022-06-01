@@ -254,21 +254,34 @@ class Nx100s
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-            puts "i1as: #{item["i1as"]}".yellow
+
+            puts "i1as:"
+            item["i1as"].each{|nx111|
+                puts "    #{Nx111::toString(nx111)}"
+            } 
+
             puts "flavour: #{item["flavour"]}".yellow
 
-            Ax1Text::itemsForOwner(uuid).each{|note|
-                indx = store.register(note, false)
-                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-            }
-
-            Links::linked(item["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity| 
-                    indx = store.register(entity, false)
-                    linkType = Links::linkTypeOrNull(item["uuid"], entity["uuid"])
-                    puts "[#{indx.to_s.ljust(3)}] [#{linkType.ljust(7)}] #{LxFunction::function("toString", entity)}" 
+            notes = Ax1Text::itemsForOwner(uuid)
+            if notes.size > 0 then
+                puts "notes:"
+                notes.each{|note|
+                    indx = store.register(note, false)
+                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
                 }
+            end
+
+            linked = Links::linked(item["uuid"])
+            if linked.size > 0 then
+                puts "linked:"
+                linked
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity| 
+                        indx = store.register(entity, false)
+                        linkType = Links::linkTypeOrNull(item["uuid"], entity["uuid"])
+                        puts "    [#{indx.to_s.ljust(3)}] [#{linkType.ljust(7)}] #{LxFunction::function("toString", entity)}"
+                    }
+            end
 
             commands = []
             commands << "access"

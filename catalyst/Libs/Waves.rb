@@ -175,15 +175,24 @@ class Waves
             puts "#{Waves::toString(item)}".green
 
             puts "uuid: #{item["uuid"]}".yellow
-            puts "i1as: #{item["i1as"]}".yellow
+
+            puts "i1as:"
+            item["i1as"].each{|nx111|
+                puts "    #{Nx111::toString(nx111)}"
+            } 
+
             puts "schedule: #{Waves::scheduleString(item)}".yellow
             puts "last done: #{item["lastDoneDateTime"]}".yellow
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
-            Ax1Text::itemsForOwner(uuid).each{|note|
-                indx = store.register(note, false)
-                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-            }
+            notes = Ax1Text::itemsForOwner(uuid)
+            if notes.size > 0 then
+                puts "notes:"
+                notes.each{|note|
+                    indx = store.register(note, false)
+                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
+                }
+            end
 
             puts ""
 

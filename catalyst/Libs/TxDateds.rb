@@ -127,15 +127,24 @@ class TxDateds
 
             puts TxDateds::toString(item).green
             puts "uuid: #{uuid}".yellow
-            puts "i1as: #{item["i1as"]}".yellow
+
+            puts "i1as:"
+            item["i1as"].each{|nx111|
+                puts "    #{Nx111::toString(nx111)}"
+            } 
+
             puts "date: #{item["datetime"][0, 10]}".yellow
 
             store = ItemStore.new()
 
-            Ax1Text::itemsForOwner(uuid).each{|note|
-                indx = store.register(note, false)
-                puts "[#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-            }
+            notes = Ax1Text::itemsForOwner(uuid)
+            if notes.size > 0 then
+                puts "notes:"
+                notes.each{|note|
+                    indx = store.register(note, false)
+                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
+                }
+            end
 
             puts "access | date | description | iam | note | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
 

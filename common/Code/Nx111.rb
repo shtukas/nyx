@@ -137,4 +137,9 @@ class Nx111
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
+
+    # Nx111::toString(nx111)
+    def self.toString(nx111)
+        "(nx111) #{nx111["type"]}"
+    end
 end

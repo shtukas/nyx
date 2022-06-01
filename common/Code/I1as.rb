@@ -24,7 +24,7 @@ class I1as
         #    Librarian::commit(item)
         #end
 
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["add new", "remove"])
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["add new", "show json", "remove"])
         return item if option.nil?
         if option == "add new" then
             types = Nx111::iamTypesForManualMaking()
@@ -32,6 +32,13 @@ class I1as
             return item if nx111.nil?
             item["i1as"] << nx111
             Librarian::commit(item)
+            return item
+        end
+        if option == "show json" then
+            nx111 = I1as::selectOneNx111OrNull(i1as)
+            return item if nx111.nil?
+            puts JSON.pretty_generate(nx111)
+            LucilleCore::pressEnterToContinue()
             return item
         end
         if option == "remove" then
