@@ -20,48 +20,26 @@ class LxAction
 
         if command == ".." then
 
+            if !NxBallsService::isRunning(object["uuid"]) then
+                NxBallsService::issue(object["uuid"], object["announce"] ? object["announce"] : "(object: #{object["uuid"]})" , [object["uuid"]])
+            end
+
+            LxAction::action("access", object)
+
             if object["mikuType"] == "NS16:TxDated" and object["announce"].include?("(vienna)") then
-                LxAction::action("access", object)
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
                     item = object["TxDated"]
                     TxDateds::destroy(item["uuid"])
                 end
-                return
-            end
-
-            if object["mikuType"] == "NS16:TxFyre" then
-                if !NxBallsService::isRunning(object["uuid"]) then
-                    LxAction::action("start", object)
-                end
-                LxAction::action("access", object)
-                if NxBallsService::isRunning(object["uuid"]) then
-                    if !LucilleCore::askQuestionAnswerAsBoolean("continue running ? ") then
-                        LxAction::action("stop", object)
-                    end
-                end
-                return
             end
 
             if object["mikuType"] == "NS16:TxTodo" then
-                if !NxBallsService::isRunning(object["uuid"]) then
-                    LxAction::action("start", object)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+                    item = object["TxTodo"]
+                    TxTodos::destroy(item["uuid"])
                 end
-                LxAction::action("access", object)
-                if NxBallsService::isRunning(object["uuid"]) then
-                    if LucilleCore::askQuestionAnswerAsBoolean("continue running ? ") then
-                        # Nothing else to do, we return
-                    else
-                        LxAction::action("stop", object)
-                        if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
-                            item = object["TxTodo"]
-                            TxTodos::destroy(item["uuid"])
-                        end
-                    end
-                end
-                return
             end
 
-            LxAction::action("access", object)
             return
         end
 
@@ -87,6 +65,12 @@ class LxAction
         end
 
         if command == "access" then
+
+            if object["lambda"] then
+                object["lambda"].call()
+                Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", object["uuid"]) # done deletion for ListingDataDriver
+                return
+            end
 
             if object["mikuType"] == "NS16:Anniversary1" then
                 Anniversaries::access(object["anniversary"])
@@ -156,8 +140,14 @@ class LxAction
 
             # If the object was running, then we stop it
             if NxBallsService::isRunning(object["uuid"]) then
-                LxAction::action("stop", object)
+                 NxBallsService::close(object["uuid"], true)
             end
+
+            if object["mikuType"] == "ADE4F121" then
+                # That's the rstream
+                return
+            end
+
             if object["mikuType"] == "NxBallNS16Delegate1" then
                 NxBallsService::close(object["uuid"], true)
                 return
@@ -182,22 +172,13 @@ class LxAction
             end
             if object["mikuType"] == "NS16:TxInbox2" then
                 item = object["item"]
-                Librarian::destroy(item["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of inbox item '#{item["description"].green}' ? ", true) then
+                    TxTodos::destroy(item["uuid"])
+                end
                 return
             end
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
-                if NxBallsService::isRunning(item["uuid"]) then
-                    action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["stop running NxBall", "destroy item"])
-                    return if action.nil?
-                    if action == "stop running NxBall" then
-                        NxBallsService::close(item["uuid"], true)
-                        return
-                    end
-                    if action == "destroy item" then
-                        # We go through the next section
-                    end
-                end
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of todo '#{item["description"].green}' ? ", true) then
                     TxTodos::destroy(item["uuid"])
                 end
@@ -205,8 +186,9 @@ class LxAction
             end
             if object["mikuType"] == "NS16:Wave" then
                 item = object["wave"]
-                return if !LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true)
-                Waves::performDone(item)
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
+                    Waves::performDone(item)
+                end
                 return
             end
         end

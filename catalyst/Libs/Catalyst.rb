@@ -333,11 +333,13 @@ class NS16s
 
     # NS16s::rstreamToken()
     def self.rstreamToken()
+        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid also used in TxTodos
         {
-            "uuid"     => "1ee2805a-f8ee-4a73-a92a-c76d9d45359a",
+            "uuid"     => uuid,
             "mikuType" => "ADE4F121",
             "announce" => "(rstream)",
-            "lambda"   => lambda { TxTodos::rstream() }
+            "lambda"   => lambda { TxTodos::rstream() },
+            "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
         }
     end
 
@@ -595,12 +597,6 @@ class TerminalDisplayOperator
         command, objectOpt = TerminalUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 
-        if objectOpt and objectOpt["lambda"] then
-            objectOpt["lambda"].call()
-            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", objectOpt["uuid"]) # done deletion for ListingDataDriver
-            return
-        end
-
         LxAction::action(command, objectOpt)
     end
 end
@@ -644,7 +640,12 @@ class Catalyst
             section2 = ListingDataDriver::getLiveData(universe)
 
             filterSection3 = lambda{|ns16|
-                (ns16["mikuType"] == "NS16:TxFyre" or ns16["mikuType"] == "NS16:TxTodo") and ns16["rt"] > 1
+                (
+                    ns16["mikuType"] == "NS16:TxFyre" or 
+                    ns16["mikuType"] == "NS16:TxTodo" or
+                    ns16["mikuType"] == "ADE4F121" # (rstream)
+                ) and ns16["rt"] > 1
+
             }
 
             section3, section2 = section2.partition{|ns16| filterSection3.call(ns16) }

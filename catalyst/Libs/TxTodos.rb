@@ -291,50 +291,62 @@ class TxTodos
 
     # TxTodos::rstream()
     def self.rstream()
+        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the NS16s::rstreamToken()
+
+        if !NxBallsService::isRunning(uuid) then
+            NxBallsService::issue(uuid, "(rstream)" , [uuid])
+        end
+
         startTime = Time.new.to_i
-        TxTodos::itemsForUniverse("backlog")
-            .first(1000)
-            .shuffle
-            .each{|item|
-                break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
-                loop {
-                    command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), next, exit (rstream): ")
-                    if command == "" or command == "run" then
-                        LxAction::action("start", item)
-                        LxAction::action("access", item)
-                        command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done (default), detach, stop: ")
-                        if command == "" or command == "done" then
-                            LxAction::action("stop", item)
-                            TxTodos::destroy(item["uuid"])
+
+        (lambda{|startTime|
+            TxTodos::itemsForUniverse("backlog")
+                .first(1000)
+                .shuffle
+                .each{|item|
+                    break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
+                    loop {
+                        command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), next, exit (rstream): ")
+                        if command == "" or command == "run" then
+                            LxAction::action("start", item)
+                            LxAction::action("access", item)
+                            command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done (default), detach, stop: ")
+                            if command == "" or command == "done" then
+                                LxAction::action("stop", item)
+                                TxTodos::destroy(item["uuid"])
+                                break
+                            end
+                            if command == "detach" then
+                                return
+                            end
+                            if command == "stop" then
+                                LxAction::action("stop", item)
+                                break
+                            end
+                        end
+                        if command == "landing" then
+                            LxAction::action("landing", item)
+                            item = Librarian::getObjectByUUIDOrNull(item["uuid"])
+                            if iten.nil? then
+                                break
+                            end
+                            if item["mikuType"] != "TxTodo" then
+                                break
+                            end
+                            # Otherwise we restart the loop
+                        end
+                        if command == "next" then
                             break
                         end
-                        if command == "detach" then
+                        if command == "exit" then
                             return
                         end
-                        if command == "stop" then
-                            LxAction::action("stop", item)
-                            break
-                        end
-                    end
-                    if command == "landing" then
-                        LxAction::action("landing", item)
-                        item = Librarian::getObjectByUUIDOrNull(item["uuid"])
-                        if iten.nil? then
-                            break
-                        end
-                        if item["mikuType"] != "TxTodo" then
-                            break
-                        end
-                        # Otherwise we restart the loop
-                    end
-                    if command == "next" then
-                        break
-                    end
-                    if command == "exit" then
-                        return
-                    end
+                    }
                 }
-            }
+
+        }).call(startTime)
+        
+        NxBallsService::close(uuid, true)
     end
 
     # --------------------------------------------------
