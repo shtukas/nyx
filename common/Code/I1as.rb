@@ -14,7 +14,7 @@ class I1as
         "multiple nx111s"
     end
 
-    # I1as::manageI1as(item, i1as)
+    # I1as::manageI1as(item, i1as) # item ( possibly updated, commited)
     def self.manageI1as(item, i1as)
         #nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
         #next if nx111.nil?
@@ -24,20 +24,24 @@ class I1as
         #    Librarian::commit(item)
         #end
 
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["edit existing", "add", "remove"])
-        return if option.nil?
-        if option == "edit existing" then
-            puts "(warning: 06036d599) code not yet written"
-            LucilleCore::pressEnterToContinue()
-        end
-        if option == "add" then
-            puts "(warning: 5e8d-45e0-bed3) code not yet written"
-            LucilleCore::pressEnterToContinue()
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["add new", "remove"])
+        return item if option.nil?
+        if option == "add new" then
+            types = Nx111::iamTypesForManualMaking()
+            nx111 = Nx111::interactivelyCreateNewIamValueOrNull(types, item["uuid"])
+            return item if nx111.nil?
+            item["i1as"] << nx111
+            Librarian::commit(item)
+            return item
         end
         if option == "remove" then
-            puts "(warning: 8faca9821a0) code not yet written"
-            LucilleCore::pressEnterToContinue()
+            nx111 = I1as::selectOneNx111OrNull(i1as)
+            return item if nx111.nil?
+            item["i1as"] = item["i1as"].select{|nx| nx["uuid"] != nx111["uuid"] }
+            Librarian::commit(item)
+            return item
         end
+        raise "(error: f750ebaf-78aa-443c-9d49-1de7bf9f98a5)"
     end
 
     # I1as::selectOneNx111OrNull(i1as)

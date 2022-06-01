@@ -19,8 +19,8 @@ class Nx111
         ]
     end
 
-    # Nx111::iamTypesForManualMakingOfNyxNodes()
-    def self.iamTypesForManualMakingOfNyxNodes()
+    # Nx111::iamTypesForManualMaking()
+    def self.iamTypesForManualMaking()
         [
             "navigation",
             "log",
@@ -41,18 +41,6 @@ class Nx111
             "url",
             "aion-point",
             "unique-string"
-        ]
-    end
-
-    # Nx111::iamTypesForManualMakingOfNyxNodesAttachment()
-    def self.iamTypesForManualMakingOfNyxNodesAttachment()
-        [
-            "description-only (default)",
-            "text",
-            "url",
-            "aion-point",
-            "unique-string",
-            "primitive-file",
         ]
     end
 

@@ -32,7 +32,7 @@ class Nx100s
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfNyxNodes(), uuid)
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMaking(), uuid)
         return nil if nx111.nil?
 
         flavour = Nx102Flavor::interactivelyCreateNewFlavour()
@@ -346,7 +346,7 @@ class Nx100s
             end
 
             if Interpreting::match("iam", command) then
-                I1as::manageI1as(item, item["i1as"])
+                item = I1as::manageI1as(item, item["i1as"])
             end
 
             if Interpreting::match("flavour", command) then

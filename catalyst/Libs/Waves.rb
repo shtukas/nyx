@@ -222,7 +222,7 @@ class Waves
             end
 
             if Interpreting::match("iam", command) then
-                I1as::manageI1as(item, item["i1as"])
+                item = I1as::manageI1as(item, item["i1as"])
             end
 
             if Interpreting::match("note", command) then
