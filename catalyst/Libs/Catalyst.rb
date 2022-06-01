@@ -140,7 +140,7 @@ class TerminalUtils
                     "      " + Commands::makersCommands(),
                     "      " + Commands::diversCommands(),
                     "      internet on | internet off | require internet",
-                    "      universe (set the universe of the dafault item) (<n>)  | >> (switch universe)"
+                    "      universe (set the universe of the dafault item)"
                  ].join("\n").yellow
             LucilleCore::pressEnterToContinue()
             return [nil, nil]
@@ -176,7 +176,9 @@ class TerminalUtils
         end
 
         if input.start_with?("ondate:") then
+            puts "[1]: #{input}"
             message = input[7, input.length].strip
+            puts "[2]: #{message}"
             item = TxDateds::interactivelyCreateNewOrNull(message)
             puts JSON.pretty_generate(item)
             return [nil, nil]
@@ -320,7 +322,7 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | calendar item | float | fyre | today | ondate | ondate: <message> | todo | todo: <description>"
+        "wave | anniversary | calendar item | float | fyre | fyre: <line> | today | ondate | ondate: <line> | todo | todo: <line>"
     end
 
     # Commands::diversCommands()
@@ -444,6 +446,15 @@ class ListingDataDriver
                 ns16
             end
         }
+    end
+
+    # ListingDataDriver::rotate()
+    def self.rotate()
+        data = ListingDataDriver::getDataFromDisk()
+        data1 = data.take(1)
+        data2 = data.drop(1)
+        data = data2 + data1
+        ListingDataDriver::storeData(data)
     end
 
     # -------------------------------------
@@ -589,18 +600,23 @@ class TerminalDisplayOperator
 
         return if input == ""
 
-        if !input.start_with?("today:") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+        if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
         end
 
-        if input == ">>" then
+        if input == "advance" then
             if (item = store.getDefault()) then
                 Defaultability::advance(item["uuid"])
                 return
             end
+        end
+
+        if input == ">>" then
+            ListingDataDriver::rotate()
+            return
         end
 
         command, objectOpt = TerminalUtils::inputParser(input, store)
