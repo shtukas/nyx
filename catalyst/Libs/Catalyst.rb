@@ -176,9 +176,7 @@ class TerminalUtils
         end
 
         if input.start_with?("ondate:") then
-            puts "[1]: #{input}"
             message = input[7, input.length].strip
-            puts "[2]: #{message}"
             item = TxDateds::interactivelyCreateNewOrNull(message)
             puts JSON.pretty_generate(item)
             return [nil, nil]
