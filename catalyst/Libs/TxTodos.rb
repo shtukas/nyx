@@ -35,10 +35,7 @@ class TxTodos
 
     # TxTodos::interactivelyDecideNewOrdinal(universe)
     def self.interactivelyDecideNewOrdinal(universe)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["genesis injection (default)", "fine selection near the top", "next"])
-        if action == "genesis injection (default)" or action.nil? then
-            return TxTodos::getNewGenesisOrdinal(universe)
-        end
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "injection @ 10 (default)", "next"])
         if action == "fine selection near the top" then
             TxTodos::itemsForUniverse(universe).first(50)
                 .each{|nx50| 
@@ -46,26 +43,22 @@ class TxTodos
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
+        if action == "injection @ 10 (default)" or action.nil? then
+            return TxTodos::getInjectionAt10Ordinal(universe)
+        end
         if action == "next" then
             return TxTodos::nextOrdinal(universe)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
     end
 
-    # TxTodos::getNewGenesisOrdinal(universe)
-    def self.getNewGenesisOrdinal(universe)
+    # TxTodos::getInjectionAt10Ordinal(universe)
+    def self.getInjectionAt10Ordinal(universe)
         items = TxTodos::itemsForUniverse(universe)
-        while items.any?{|item| !item["genesis"] } do
-            items.shift
+        if items.size < 11 then
+            return TxTodos::nextOrdinal(universe)
         end
-        # items doesn't have new items
-        if items.size == 0 then
-            return 1
-        end
-        if items.size == 1 then
-            return (item["ordinal"] + 1).floor
-        end
-        # items has at least two elements
+        items = items.drop(9)
         ( items[0]["ordinal"]+items[1]["ordinal"] ).to_f/2
     end
 
@@ -120,7 +113,7 @@ class TxTodos
         }
 
         universe    = "backlog"
-        ordinal     = TxTodos::getNewGenesisOrdinal(universe)
+        ordinal     = TxTodos::getInjectionAt10Ordinal(universe)
 
         item = {
           "uuid"        => uuid,
