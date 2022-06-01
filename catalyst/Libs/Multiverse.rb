@@ -21,9 +21,9 @@ class Multiverse
     end
 end
 
-class ActiveUniverse
+class UniverseStorage
 
-    # ActiveUniverse::setUniverse(universe or null)
+    # UniverseStorage::setUniverse(universe or null)
     def self.setUniverse(universe)
         if universe.nil? then
             XCache::destroy("5117D42F-8542-4D74-A219-47AF3C58F22B")
@@ -32,15 +32,15 @@ class ActiveUniverse
         XCache::set("5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
     end
 
-    # ActiveUniverse::getUniverseOrNull()
+    # UniverseStorage::getUniverseOrNull()
     def self.getUniverseOrNull()
         XCache::getOrNull("5117D42F-8542-4D74-A219-47AF3C58F22B")
     end
 
-    # ActiveUniverse::interactivelySetUniverse()
+    # UniverseStorage::interactivelySetUniverse()
     def self.interactivelySetUniverse()
         universe = Multiverse::interactivelySelectUniverse()
-        ActiveUniverse::setUniverse(universe)
+        UniverseStorage::setUniverse(universe)
     end
 end
 
@@ -48,21 +48,18 @@ class UniverseMonitor
 
     # UniverseMonitor::naturalUniverseForThisTime()
     def self.naturalUniverseForThisTime()
-        return "backlog" if [6, 0].include?(Time.new.wday) # week end
-        return "backlog" if Time.new.hour < 9
-        return "backlog" if Time.new.hour >= 16
-        "work"
+        if [1, 2, 3, 4, 5].include?(Time.new.wday) and Time.new.hour >= 9 and Time.new.hour < 16 then
+            "work"
+        else
+            "backlog"
+        end
     end
 
-    # UniverseMonitor::switchInvitationNS16OrNull()
-    def self.switchInvitationNS16OrNull()
+    # UniverseMonitor::switchProcessor()
+    def self.switchProcessor()
         natural = UniverseMonitor::naturalUniverseForThisTime()
-        return nil if ActiveUniverse::getUniverseOrNull() == natural
-        {
-            "uuid"     => "66a9b7b7-073f-49c3-81a1-395b00ed55e6:#{CommonUtils::today()}",
-            "mikuType" => "Tx0938", # Common type to NS16s with a lambda
-            "announce" => "(multiverse) switch to #{natural}",
-            "lambda"   => lambda { ActiveUniverse::setUniverse(natural) }
-        }
+        if UniverseStorage::getUniverseOrNull() != natural then
+            UniverseStorage::setUniverse(natural)
+        end
     end
 end

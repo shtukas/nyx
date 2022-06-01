@@ -44,7 +44,7 @@ class LxAction
         end
 
         if command == "[]" then
-            Topping::applyTransformation(ActiveUniverse::getUniverseOrNull())
+            Topping::applyTransformation(UniverseStorage::getUniverseOrNull())
             return
         end
 
@@ -448,7 +448,7 @@ class LxAction
         end
 
         if command == "todos" then
-            universe = ActiveUniverse::getUniverseOrNull()
+            universe = UniverseStorage::getUniverseOrNull()
             nx50s =  TxTodos::itemsForUniverse(universe)
             if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
                 nx50s = nx50s.first(CommonUtils::screenHeight()-4)
@@ -463,7 +463,7 @@ class LxAction
         end
 
         if command == "top" then
-            Topping::top(ActiveUniverse::getUniverseOrNull())
+            Topping::top(UniverseStorage::getUniverseOrNull())
             return
         end
 
@@ -488,7 +488,7 @@ class LxAction
         end
 
         if command == "universe" then
-            ActiveUniverse::interactivelySetUniverse()
+            UniverseStorage::interactivelySetUniverse()
             return
         end
 

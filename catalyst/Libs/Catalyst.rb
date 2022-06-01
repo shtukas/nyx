@@ -351,7 +351,6 @@ class NS16s
             Waves::ns16s(universe),
             TxDateds::ns16s(),
             Inbox::ns16s(),
-            [UniverseMonitor::switchInvitationNS16OrNull()].compact,
             TxFyres::ns16s(universe),
             TxTodos::ns16s(universe).first(5),
             [NS16s::rstreamToken()]
@@ -613,7 +612,9 @@ class Catalyst
                 break
             end
 
-            universe = ActiveUniverse::getUniverseOrNull()
+            UniverseMonitor::switchProcessor()
+
+            universe = UniverseStorage::getUniverseOrNull()
 
             pileFilepath = "/Users/pascal/Desktop/>pile"
             if File.exists?(pileFilepath) then
