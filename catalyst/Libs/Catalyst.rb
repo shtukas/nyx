@@ -484,8 +484,8 @@ end
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::printListing(universe, floats, section2)
-    def self.printListing(universe, floats, section2)
+    # TerminalDisplayOperator::printListing(universe, floats, section2, section3)
+    def self.printListing(universe, floats, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -548,10 +548,8 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - CommonUtils::verticalSize(top) - 3
         end
 
-        if section2.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            section2
+        printSection = lambda {|section, store|
+            section
                 .each{|ns16|
                     store.register(ns16, true)
                     line = ns16["announce"]
@@ -563,6 +561,18 @@ class TerminalDisplayOperator
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
+        }
+
+        if section2.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            printSection.call(section2, store)
+        end
+
+        if section3.size > 0 then
+            puts "-" * 60
+            vspaceleft = vspaceleft - 1
+            printSection.call(section3, store)
         end
 
         puts ""
@@ -633,7 +643,13 @@ class Catalyst
 
             section2 = ListingDataDriver::getLiveData(universe)
 
-            TerminalDisplayOperator::printListing(universe, floats, section2)
+            filterSection3 = lambda{|ns16|
+                (ns16["mikuType"] == "NS16:TxFyre" or ns16["mikuType"] == "NS16:TxTodo") and ns16["rt"] > 1
+            }
+
+            section3, section2 = section2.partition{|ns16| filterSection3.call(ns16) }
+
+            TerminalDisplayOperator::printListing(universe, floats, section2, section3)
         }
     end
 end

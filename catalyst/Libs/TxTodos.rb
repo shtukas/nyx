@@ -356,7 +356,26 @@ class TxTodos
 
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
+
+        # We want the process to finish.
+        # At the beginning of the day we identify a ordinal, the 10th one, and only serve iems below that ordinal
+        # Note that the default new ordinal scheme is to put any new item between the 10th and the 11th
+
+        getTodayLimitOrdinal = lambda {|universe|
+            date = CommonUtils::today()
+            ordinal = XCache::getOrNull("a9b8acd6-a937-4388-b208-622a950f149b:#{date}")
+            return ordinal.to_f if ordinal
+            items = TxTodos::itemsForNS16s(universe)
+            return 1 if items.empty?
+            ordinal = items.take(10).map{|item| item["ordinal"] }.max
+            XCache::set("a9b8acd6-a937-4388-b208-622a950f149b:#{date}", ordinal)
+            ordinal
+        }
+
+        limitordinal = getTodayLimitOrdinal.call(universe)
+
         TxTodos::itemsForNS16s(universe)
+            .select{|item| item["ordinal"] <= limitordinal  }
             .map{|item| TxTodos::ns16(item) }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
