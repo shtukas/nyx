@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::itemsFolderPath()
     def self.itemsFolderPath()
-        "#{Config::pathToDataBankCatalyst()}/Catalyst/Anniversaries"
+        "#{Config::pathToDataBankStargate()}/Catalyst/Anniversaries"
     end
 
     # Anniversaries::anniversaries()

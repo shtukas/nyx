@@ -1,5 +1,5 @@
 
-# #{Config::pathToDataBankCatalyst()}/Catalyst/Anniversaries
+# #{Config::pathToDataBankStargate()}/Catalyst/Anniversaries
 
 Anniversary {
   "uuid"        : String,

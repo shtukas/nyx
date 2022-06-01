@@ -3,8 +3,8 @@
 
 class Config
 
-    # Config::pathToDataBankCatalyst()
-    def self.pathToDataBankCatalyst()
-        "/Users/pascal/Galaxy/DataBank/Catalyst"
+    # Config::pathToDataBankStargate()
+    def self.pathToDataBankStargate()
+        "/Users/pascal/Galaxy/DataBank/Stargate"
     end
 end

@@ -8,7 +8,7 @@ class Librarian
 
     # Librarian::pathToFx12sRepository()
     def self.pathToFx12sRepository()
-        "#{Config::pathToDataBankCatalyst()}/Fx12s"
+        "#{Config::pathToDataBankStargate()}/Fx12s"
     end
 
     # Librarian::getFx12Filepath(uuid)
@@ -32,7 +32,7 @@ class Librarian
 
     # Librarian::pathToObjectsStoreDatabase()
     def self.pathToObjectsStoreDatabase()
-        "#{Config::pathToDataBankCatalyst()}/objects-store.sqlite3"
+        "#{Config::pathToDataBankStargate()}/objects-store.sqlite3"
     end
 
     # ---------------------------------------------------

@@ -101,7 +101,7 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        "#{Config::pathToDataBankCatalyst()}/EditionDesk"
+        "#{Config::pathToDataBankStargate()}/EditionDesk"
     end
 
     # EditionDesk::getMaxIndex()
@@ -380,7 +380,7 @@ class EditionDesk
 
     # EditionDesk::pickUpAndGarbageCollection()
     def self.pickUpAndGarbageCollection()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataBankCatalyst()}/EditionDesk").each{|location|
+        LucilleCore::locationsAtFolder("#{Config::pathToDataBankStargate()}/EditionDesk").each{|location|
 
             issueTx202ForLocation = lambda{|location|
                 tx202 = {
