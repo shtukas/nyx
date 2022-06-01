@@ -417,7 +417,6 @@ class TerminalDisplayOperator
                     }
         end
 
-
         top = Topping::getText(universe)
         if top and top.strip.size > 0 then
             puts ""
@@ -466,6 +465,12 @@ class TerminalDisplayOperator
             end
         end
 
+        if input == ">>" then
+            item = store.getDefault()
+            XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7801:#{CommonUtils::today()}:#{item["uuid"]}", Time.new.to_f)
+            return
+        end
+
         command, objectOpt = TerminalUtils::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 
@@ -485,10 +490,6 @@ class Catalyst
                 break
             end
 
-            UniverseMonitor::switchProcessor()
-
-            universe = UniverseStorage::getUniverseOrNull()
-
             pileFilepath = "/Users/pascal/Desktop/>pile"
             if File.exists?(pileFilepath) then
                 LucilleCore::locationsAtFolder(pileFilepath)
@@ -507,11 +508,21 @@ class Catalyst
                     }
             end
 
+            UniverseMonitor::switchProcessor()
+
+            universe = UniverseStorage::getUniverseOrNull()
+
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
             section2 = NS16s::ns16s(universe)
+
+            getOrderingValue = lambda {|uuid|
+                XCache::getOrDefaultValue("a0e861a0-bb18-48fc-962d-e9d3367b7801:#{CommonUtils::today()}:#{uuid}", 0).to_f
+            }
+
+            section2 = section2.sort{|n1, n2| getOrderingValue.call(n1["uuid"]) <=> getOrderingValue.call(n2["uuid"]) }
 
             filterSection3 = lambda{|ns16|
                 (
