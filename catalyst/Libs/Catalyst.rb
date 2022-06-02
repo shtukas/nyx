@@ -140,7 +140,8 @@ class TerminalUtils
                     "      " + Commands::makersCommands(),
                     "      " + Commands::diversCommands(),
                     "      internet on | internet off | require internet",
-                    "      universe (set the universe of the dafault item)"
+                    "      universe",
+                    "      work: off today"
                  ].join("\n").yellow
             LucilleCore::pressEnterToContinue()
             return [nil, nil]
@@ -305,6 +306,11 @@ class TerminalUtils
 
         if Interpreting::match("wave", input) then
             return ["wave", nil]
+        end
+
+        if Interpreting::match("work: off today", input) then
+            XCache::set("multiverse-monitor-mode-1b16115590a1:#{CommonUtils::today()}", "work-off")
+            return [nil, nil]
         end
 
         [nil, nil]
@@ -519,7 +525,12 @@ class Catalyst
             section2 = NS16s::ns16s(universe)
 
             getOrderingValue = lambda {|uuid|
-                XCache::getOrDefaultValue("a0e861a0-bb18-48fc-962d-e9d3367b7801:#{CommonUtils::today()}:#{uuid}", 0).to_f
+                value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7801:#{CommonUtils::today()}:#{uuid}")
+                return value.to_f if value
+                sleep 0.01
+                value = Time.new.to_f
+                XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7801:#{CommonUtils::today()}:#{uuid}", value)
+                value
             }
 
             section2 = section2.sort{|n1, n2| getOrderingValue.call(n1["uuid"]) <=> getOrderingValue.call(n2["uuid"]) }

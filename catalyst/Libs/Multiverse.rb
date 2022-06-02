@@ -48,15 +48,22 @@ class UniverseMonitor
 
     # UniverseMonitor::naturalUniverseForThisTime()
     def self.naturalUniverseForThisTime()
-        if [1, 2, 3, 4, 5].include?(Time.new.wday) and Time.new.hour >= 9 and Time.new.hour < 16 then
-            "work"
-        else
-            "backlog"
+        mode = XCache::getOrDefaultValue("multiverse-monitor-mode-1b16115590a1:#{CommonUtils::today()}", "natural")
+        if mode == "natural" then
+            if [1, 2, 3, 4, 5].include?(Time.new.wday) and Time.new.hour >= 9 and Time.new.hour < 16 then
+                return "work"
+            else
+                return "backlog"
+            end
+        end
+        if mode == "work-off" then
+            return "backlog"
         end
     end
 
     # UniverseMonitor::switchProcessor()
     def self.switchProcessor()
+        return if NxBallsService::somethingIsRunning()
         natural = UniverseMonitor::naturalUniverseForThisTime()
         if UniverseStorage::getUniverseOrNull() != natural then
             UniverseStorage::setUniverse(natural)
