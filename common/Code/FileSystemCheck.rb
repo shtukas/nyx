@@ -195,7 +195,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxFyre" then
+        if item["mikuType"] == "TxProject" then
             FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
             return
         end

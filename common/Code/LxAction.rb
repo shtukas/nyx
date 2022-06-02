@@ -94,8 +94,8 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "NS16:TxFyre" then
-                item = object["TxFyre"]
+            if object["mikuType"] == "NS16:TxProject" then
+                item = object["TxProject"]
                 EditionDesk::accessItem(item)
                 return
             end
@@ -165,8 +165,8 @@ class LxAction
                 end
                 return
             end
-            if object["mikuType"] == "NS16:TxFyre" then
-                item = object["TxFyre"]
+            if object["mikuType"] == "NS16:TxProject" then
+                item = object["TxProject"]
                 NxBallsService::close(item["uuid"], true)
                 XCache::setFlagTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
                 return
@@ -194,8 +194,8 @@ class LxAction
             end
         end
 
-        if command == "fyre" then
-            TxFyres::interactivelyCreateNewOrNull()
+        if command == "project" then
+            TxProjects::interactivelyCreateNewOrNull()
             return
         end
 
@@ -214,8 +214,8 @@ class LxAction
             return
         end
 
-        if command == "fyres" then
-            TxFyres::dive()
+        if command == "projects" then
+            TxProjects::dive()
             return
         end
 
@@ -287,9 +287,9 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "NS16:TxFyre" then
-                nx70 = object["TxFyre"]
-                TxFyres::landing(nx70)
+            if object["mikuType"] == "NS16:TxProject" then
+                nx70 = object["TxProject"]
+                TxProjects::landing(nx70)
                 return
             end
 
@@ -313,8 +313,8 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "TxFyre" then
-                TxFyres::landing(object)
+            if object["mikuType"] == "TxProject" then
+                TxProjects::landing(object)
                 return
             end
 
@@ -415,10 +415,10 @@ class LxAction
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxFyre" then
-                fyre = ns16["TxFyre"]
-                puts "Adding #{timeInHours} hours to #{fyre["uuid"]}"
-                Bank::put(fyre["uuid"], timeInHours*3600)
+            if ns16["mikuType"] == "NS16:TxProject" then
+                project = ns16["TxProject"]
+                puts "Adding #{timeInHours} hours to #{project["uuid"]}"
+                Bank::put(project["uuid"], timeInHours*3600)
                 return
             end
 
@@ -475,9 +475,9 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "NS16:TxFyre" then
-                nx70 = object["TxFyre"]
-                Transmutation::transmutation2(nx70, "TxFyre")
+            if object["mikuType"] == "NS16:TxProject" then
+                nx70 = object["TxProject"]
+                Transmutation::transmutation2(nx70, "TxProject")
                 return
             end
 

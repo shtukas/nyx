@@ -48,8 +48,8 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("..", ordinal, store)
         end
 
-        if Interpreting::match(">fyre", input) then
-            return [">fyre", store.getDefault()]
+        if Interpreting::match(">project", input) then
+            return [">project", store.getDefault()]
         end
 
         if Interpreting::match(">todo", input) then
@@ -111,13 +111,13 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
-        if Interpreting::match("fyre", input) then
-            return ["fyre", nil]
+        if Interpreting::match("project", input) then
+            return ["project", nil]
         end
 
-        if input.start_with?("fyre:") then
+        if input.start_with?("project:") then
             message = input[5, input.length].strip
-            item = TxFyres::interactivelyCreateNewOrNull(message)
+            item = TxProjects::interactivelyCreateNewOrNull(message)
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
@@ -126,8 +126,8 @@ class TerminalUtils
             return ["rstream", nil]
         end
 
-       if Interpreting::match("fyres", input) then
-            return ["fyres", nil]
+       if Interpreting::match("projects", input) then
+            return ["projects", nil]
         end
 
         if Interpreting::match("float", input) then
@@ -326,12 +326,12 @@ class Commands
 
     # Commands::makersCommands()
     def self.makersCommands()
-        "wave | anniversary | calendar item | float | fyre | fyre: <line> | today | ondate | ondate: <line> | todo | todo: <line>"
+        "wave | anniversary | calendar item | float | project | project: <line> | today | ondate | ondate: <line> | todo | todo: <line>"
     end
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "waves | anniversaries | calendar | fyres | ondates | todos"
+        "waves | anniversaries | calendar | projects | ondates | todos"
     end
 end
 
@@ -356,7 +356,7 @@ class NS16s
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             TxDateds::ns16s(),
             Waves::ns16s(universe),
-            TxFyres::ns16s(universe),
+            TxProjects::ns16s(universe),
             Inbox::ns16s(),
             [NS16s::rstreamToken()],
             TxTodos::ns16s(universe),
@@ -538,7 +538,7 @@ class Catalyst
             filterSection3 = lambda{|ns16|
                 return false if NxBallsService::isRunning(ns16["uuid"])
                 return true if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{ns16["uuid"]}")
-                return false if !["NS16:TxFyre", "NS16:TxTodo", "ADE4F121"].include?(ns16["mikuType"])
+                return false if !["NS16:TxProject", "NS16:TxTodo", "ADE4F121"].include?(ns16["mikuType"])
                 ns16["rt"] > 1
             }
 

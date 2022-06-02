@@ -7,7 +7,7 @@ Catalyst
     - Anniversary
     - TxDated
     - TxFloat
-    - TxFyre
+    - TxProject
     - TxTodo
     - Wave
 

@@ -60,9 +60,9 @@ class Transmutation
             return
         end
 
-        if source == "TxDated" and target == "TxFyre" then
+        if source == "TxDated" and target == "TxProject" then
             universe = Multiverse::interactivelySelectUniverse()
-            object["mikuType"] = "TxFyre"
+            object["mikuType"] = "TxProject"
             object["universe"] = universe
             Librarian::commit(object)
             return
@@ -84,9 +84,9 @@ class Transmutation
             return
         end
 
-        if source == "TxFloat" and target == "TxFyre" then
+        if source == "TxFloat" and target == "TxProject" then
             universe = Multiverse::interactivelySelectUniverse()
-            object["mikuType"] = "TxFyre"
+            object["mikuType"] = "TxProject"
             object["universe"] = universe
             Librarian::commit(object)
             return
@@ -102,7 +102,7 @@ class Transmutation
             return
         end
 
-        if source == "TxFyre" and target == "TxTodo" then
+        if source == "TxProject" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
             ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
             object["ordinal"] = ordinal
@@ -112,7 +112,7 @@ class Transmutation
             return
         end
 
-        if source == "TxFyre" and target == "TxFloat" then
+        if source == "TxProject" and target == "TxFloat" then
             universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFloat"
             object["universe"] = universe
@@ -120,9 +120,9 @@ class Transmutation
             return
         end
 
-        if source == "TxTodo" and target == "TxFyre" then
+        if source == "TxTodo" and target == "TxProject" then
             universe = Multiverse::interactivelySelectUniverse()
-            object["mikuType"] = "TxFyre"
+            object["mikuType"] = "TxProject"
             object["universe"] = universe
             Librarian::commit(object)
             return
@@ -152,7 +152,7 @@ class Transmutation
 
     # Transmutation::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxFyre", "TxDated", "TxTodo" ]
+        options = ["TxFloat", "TxProject", "TxDated", "TxTodo" ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option

@@ -1,18 +1,18 @@
 j# encoding: UTF-8
 
-class TxFyres
+class TxProjects
 
-    # TxFyres::items()
+    # TxProjects::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxFyre")
+        Librarian::getObjectsByMikuType("TxProject")
     end
 
-    # TxFyres::itemsForUniverse(universe)
+    # TxProjects::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        Librarian::getObjectsByMikuTypeAndUniverse("TxFyre", universe)
+        Librarian::getObjectsByMikuTypeAndUniverse("TxProject", universe)
     end
 
-    # TxFyres::destroy(uuid)
+    # TxProjects::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
     end
@@ -20,7 +20,7 @@ class TxFyres
     # --------------------------------------------------
     # Makers
 
-    # TxFyres::interactivelyCreateNewOrNull(description = nil)
+    # TxProjects::interactivelyCreateNewOrNull(description = nil)
     def self.interactivelyCreateNewOrNull(description = nil)
         if description.nil? then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -39,7 +39,7 @@ class TxFyres
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxFyre",
+          "mikuType"    => "TxProject",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
@@ -53,30 +53,30 @@ class TxFyres
     # --------------------------------------------------
     # toString
 
-    # TxFyres::toString(item)
+    # TxProjects::toString(item)
     def self.toString(item)
-        "(fyre) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+        "(project) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
-    # TxFyres::toStringForNS16(item, rt)
+    # TxProjects::toStringForNS16(item, rt)
     def self.toStringForNS16(item, rt)
-        "(fyre) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+        "(project) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
-    # TxFyres::toStringForNS19(item)
+    # TxProjects::toStringForNS19(item)
     def self.toStringForNS19(item)
-        "(fyre) #{item["description"]}"
+        "(project) #{item["description"]}"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # TxFyres::complete(item)
+    # TxProjects::complete(item)
     def self.complete(item)
-        TxFyres::destroy(item["uuid"])
+        TxProjects::destroy(item["uuid"])
     end
 
-    # TxFyres::landing(item)
+    # TxProjects::landing(item)
     def self.landing(item)
 
         loop {
@@ -87,7 +87,7 @@ class TxFyres
 
             store = ItemStore.new()
 
-            puts TxFyres::toString(item).green
+            puts TxProjects::toString(item).green
             puts "uuid: #{uuid}".yellow
 
             puts "i1as:"
@@ -155,7 +155,7 @@ class TxFyres
             end
 
             if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(item, "TxFyre")
+                Transmutation::transmutation2(item, "TxProject")
                 break
             end
 
@@ -183,21 +183,21 @@ class TxFyres
                 }
                 Librarian::commit(ix)
                 LxAction::action("landing", ix)
-                TxFyres::complete(item)
+                TxProjects::complete(item)
                 break
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(item)}' ? ", true) then
-                    TxFyres::complete(item)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxProjects::toString(item)}' ? ", true) then
+                    TxProjects::complete(item)
                     break
                 end
                 next
             end
 
             if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFyres::toString(item)}' ? ", true) then
-                    TxFyres::complete(item)
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxProjects::toString(item)}' ? ", true) then
+                    TxProjects::complete(item)
                     break
                 end
                 next
@@ -205,32 +205,32 @@ class TxFyres
         }
     end
 
-    # TxFyres::dive()
+    # TxProjects::dive()
     def self.dive()
         loop {
             system("clear")
-            items = TxFyres::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("fyre", items, lambda{|item| TxFyres::toString(item) })
+            items = TxProjects::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", items, lambda{|item| TxProjects::toString(item) })
             break if item.nil?
-            TxFyres::landing(item)
+            TxProjects::landing(item)
         }
     end
 
     # --------------------------------------------------
     # nx16s
 
-    # TxFyres::ns16s(universe)
+    # TxProjects::ns16s(universe)
     def self.ns16s(universe)
-        TxFyres::itemsForUniverse(universe)
+        TxProjects::itemsForUniverse(universe)
             .map{|item| 
                 uuid = item["uuid"]
                 rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                announce = TxFyres::toStringForNS16(item, rt)
+                announce = TxProjects::toStringForNS16(item, rt)
                 {
                     "uuid"     => uuid,
-                    "mikuType" => "NS16:TxFyre",
+                    "mikuType" => "NS16:TxProject",
                     "announce" => announce,
-                    "TxFyre"   => item,
+                    "TxProject"   => item,
                     "rt"       => rt
                 }
             }
@@ -239,11 +239,11 @@ class TxFyres
 
     # --------------------------------------------------
 
-    # TxFyres::nx20s()
+    # TxProjects::nx20s()
     def self.nx20s()
-        TxFyres::items().map{|item|
+        TxProjects::items().map{|item|
             {
-                "announce" => TxFyres::toStringForNS19(item),
+                "announce" => TxProjects::toStringForNS19(item),
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }

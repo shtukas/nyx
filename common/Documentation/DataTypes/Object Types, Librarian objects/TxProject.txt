@@ -1,6 +1,6 @@
-TxFyre = {
+TxProject = {
   "uuid"        : String
-  "mikuType"    : "TxFyre"
+  "mikuType"    : "TxProject"
   "description" : String
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601
