@@ -297,30 +297,44 @@ class TxTodos
             NxBallsService::issue(uuid, "(rstream)" , [uuid])
         end
 
-        startTime = Time.new.to_i
+        run = lambda {|item|
+            loop {
+                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace: ")
+                next if command.nil?
+                if command == "done" then
+                    LxAction::action("stop", item)
+                    TxTodos::destroy(item["uuid"])
+                    return false
+                end
+                if command == "detach" then
+                    return true
+                end
+                if command == "next" then
+                    LxAction::action("stop", item)
+                    return false
+                end
+                if command == "replace" then
+                    TxTodos::interactivelyCreateNewOrNull()
+                    return false
+                end
+            }
+        }
 
-        (lambda{|startTime|
+        (lambda{
             TxTodos::itemsForUniverse("backlog")
                 .first(1000)
                 .shuffle
                 .each{|item|
-                    break if ( Time.new.to_i - startTime ) > 3600 # We run for an entire hour
+                    break if BankExtended::stdRecoveredDailyTimeInHours("1ee2805a-f8ee-4a73-a92a-c76d9d45359a") > 1
                     loop {
-                        command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), next, exit (rstream): ")
+                        command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), done, next, exit (rstream): ")
                         if command == "" or command == "run" then
                             LxAction::action("start", item)
                             LxAction::action("access", item)
-                            command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done (default), detach, stop: ")
-                            if command == "" or command == "done" then
-                                LxAction::action("stop", item)
-                                TxTodos::destroy(item["uuid"])
-                                break
-                            end
-                            if command == "detach" then
+                            shouldStopRStream = run.call(item)
+                            if shouldStopRStream then
                                 return
-                            end
-                            if command == "stop" then
-                                LxAction::action("stop", item)
+                            else
                                 break
                             end
                         end
@@ -335,6 +349,11 @@ class TxTodos
                             end
                             # Otherwise we restart the loop
                         end
+                        if command == "done" then
+                            LxAction::action("stop", item)
+                            TxTodos::destroy(item["uuid"])
+                            break
+                        end
                         if command == "next" then
                             break
                         end
@@ -344,7 +363,7 @@ class TxTodos
                     }
                 }
 
-        }).call(startTime)
+        }).call()
         
         NxBallsService::close(uuid, true)
     end

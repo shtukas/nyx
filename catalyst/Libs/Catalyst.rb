@@ -296,12 +296,13 @@ class TerminalUtils
         end
 
         if Interpreting::match("universe", input) then
-            return ["universe", nil]
-        end
-
-        if Interpreting::match("universe *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            return outputForCommandAndOrdinal.call("universe", ordinal, store)
+            if NxBallsService::somethingIsRunning() then
+                puts "Operation not permitted while something is running"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            UniverseStorage::interactivelySetUniverse()
+            return [nil, nil]
         end
 
         if Interpreting::match("wave", input) then
