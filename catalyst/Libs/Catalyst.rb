@@ -526,11 +526,9 @@ class Catalyst
 
             filterSection3 = lambda{|ns16|
                 return false if NxBallsService::isRunning(ns16["uuid"])
-                (
-                    ns16["mikuType"] == "NS16:TxFyre" or 
-                    ns16["mikuType"] == "NS16:TxTodo" or
-                    ns16["mikuType"] == "ADE4F121" # (rstream)
-                ) and ns16["rt"] > 1
+                return true if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{ns16["uuid"]}")
+                return false if !["NS16:TxFyre", "NS16:TxTodo", "ADE4F121"].include?(ns16["mikuType"])
+                ns16["rt"] > 1
             }
 
             section3, section2 = section2.partition{|ns16| filterSection3.call(ns16) }
