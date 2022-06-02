@@ -525,6 +525,7 @@ class Catalyst
             section2 = section2.sort{|n1, n2| getOrderingValue.call(n1["uuid"]) <=> getOrderingValue.call(n2["uuid"]) }
 
             filterSection3 = lambda{|ns16|
+                return false if NxBallsService::isRunning(ns16["uuid"])
                 (
                     ns16["mikuType"] == "NS16:TxFyre" or 
                     ns16["mikuType"] == "NS16:TxTodo" or
@@ -533,6 +534,10 @@ class Catalyst
             }
 
             section3, section2 = section2.partition{|ns16| filterSection3.call(ns16) }
+
+            section2p1, section2p2 = section2.partition{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
+
+            section2 = section2p1 + section2p2
 
             TerminalDisplayOperator::printListing(universe, floats, section2, section3)
         }
