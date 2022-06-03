@@ -21,7 +21,7 @@ class TxTodos
 
     # TxTodos::itemsForNS16s(universe)
     def self.itemsForNS16s(universe)
-        Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe).first(100)
+        Librarian::getObjectsByMikuTypeAndUniverseByOrdinalLimit("TxTodo", universe, 100)
     end
 
     # --------------------------------------------------
@@ -320,7 +320,7 @@ class TxTodos
                 if command == ">nyx" then
                     item["mikuType"] = "Nx100"
                     item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
-                    Librarian::commit(object)
+                    Librarian::commit(item)
                     Nx100s::landing(item)
                     return false
                 end

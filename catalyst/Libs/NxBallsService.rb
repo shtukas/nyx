@@ -1,13 +1,56 @@
 
 # encoding: UTF-8
 
+class NxBallsIO 
+
+    # --------------------------------------------------------------------
+    # IO
+
+    # NxBallsIO::getDataSet()
+    def self.getDataSet()
+        dataset = XCache::getOrNull("2dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9")
+        dataset ? JSON.parse(dataset) : {}
+    end
+
+    # NxBallsIO::setDataSet(dataset)
+    def self.setDataSet(dataset)
+        XCache::set("2dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", JSON.generate(dataset))
+    end
+
+    # NxBallsIO::getItemByIdOrNull(uuid)
+    def self.getItemByIdOrNull(uuid)
+        NxBallsIO::getDataSet()[uuid]
+    end
+
+    # NxBallsIO::commitItem(item)
+    def self.commitItem(item)
+        dataset = NxBallsIO::getDataSet()
+        dataset[item["uuid"]] = item
+        NxBallsIO::setDataSet(dataset)
+    end
+
+    # NxBallsIO::getItems()
+    def self.getItems()
+        NxBallsIO::getDataSet().values
+    end
+
+    # NxBallsIO::destroyItem(uuid)
+    def self.destroyItem(uuid)
+        dataset = NxBallsIO::getDataSet()
+        dataset.delete(uuid)
+        NxBallsIO::setDataSet(dataset)
+    end
+
+end
+
 class NxBallsService
 
+    # --------------------------------------------------------------------
     # Operations
 
     # NxBallsService::issue(uuid, description, accounts)
     def self.issue(uuid, description, accounts)
-        return if XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        return if NxBallsIO::getItemByIdOrNull(uuid)
         start = Time.new.to_f
         nxball = {
             "uuid" => uuid,
@@ -21,19 +64,19 @@ class NxBallsService
             },
             "accounts" => accounts
         }
-        XCacheSets::set("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
+        NxBallsIO::commitItem(nxball)
     end
 
     # NxBallsService::isRunning(uuid)
     def self.isRunning(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return false if nxball.nil?
         nxball["status"]["type"] == "running"
     end
 
     # NxBallsService::isPaused(uuid)
     def self.isPaused(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return false if nxball.nil?
         nxball["status"]["type"] == "paused"
     end
@@ -45,7 +88,7 @@ class NxBallsService
 
     # NxBallsService::marginCall(uuid)
     def self.marginCall(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
         timespan = Time.new.to_f - nxball["status"]["cursorUnixtime"]
@@ -54,12 +97,12 @@ class NxBallsService
             Bank::put(account, timespan)
         }
         nxball["status"]["cursorUnixtime"] = Time.new.to_i
-        XCacheSets::set("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
+        NxBallsIO::commitItem(nxball)
     end
 
     # NxBallsService::pursue(uuid)
     def self.pursue(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return if nxball.nil?
         NxBallsService::close(uuid, true)
         NxBallsService::issue(uuid, nxball["description"], nxball["accounts"])
@@ -67,7 +110,7 @@ class NxBallsService
 
     # NxBallsService::pause(uuid) # timespan in seconds or null
     def self.pause(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return nil if nxball.nil?
         timespan = NxBallsService::close(uuid, true)
         nxball = {
@@ -80,13 +123,13 @@ class NxBallsService
             },
             "accounts" => nxball["accounts"]
         }
-        XCacheSets::set("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid, nxball)
+        NxBallsIO::commitItem(nxball)
         timespan
     end
 
     # NxBallsService::close(uuid, verbose) # timespan in seconds or null
     def self.close(uuid, verbose)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return nil if nxball.nil?
         timespan = nil
         if nxball["status"]["type"] == "running" then
@@ -105,24 +148,25 @@ class NxBallsService
                 puts "(#{Time.new.to_s}) Closing paused NxBall"
             end
         end
-        XCacheSets::destroy("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        NxBallsIO::destroyItem(uuid)
         timespan
     end
 
     # NxBallsService::closeWithAsking(uuid)
     def self.closeWithAsking(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return if nxball.nil?
         if !LucilleCore::askQuestionAnswerAsBoolean("(#{Time.new.to_s}) Running '#{nxball["description"]}'. Continue ? ", false) then
             NxBallsService::close(uuid, true)
         end
     end
 
+    # --------------------------------------------------------------------
     # Information
 
     # NxBallsService::cursorUnixtimeOrNow(uuid)
     def self.cursorUnixtimeOrNow(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         if nxball.nil? then
             return Time.new.to_i 
         end
@@ -134,7 +178,7 @@ class NxBallsService
 
     # NxBallsService::startUnixtimeOrNow(uuid)
     def self.startUnixtimeOrNow(uuid)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         if nxball.nil? then
             return Time.new.to_i 
         end
@@ -146,7 +190,7 @@ class NxBallsService
 
     # NxBallsService::activityStringOrEmptyString(leftSide, uuid, rightSide)
     def self.activityStringOrEmptyString(leftSide, uuid, rightSide)
-        nxball = XCacheSets::getOrNull("a69583a5-8a13-46d9-a965-86f95feb6f68", uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
         if nxball.nil? then
             return ""
         end
@@ -158,7 +202,7 @@ class NxBallsService
 
     # NxBallsService::somethingIsRunning()
     def self.somethingIsRunning()
-        nxballs = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
+        nxballs = NxBallsIO::getItems()
                     .select{|nxball| NxBallsService::isRunning(nxball["uuid"]) }
         !nxballs.empty?
     end
@@ -168,13 +212,13 @@ Thread.new {
     loop {
         sleep 60
 
-        XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
+        NxBallsIO::getItems().each{|nxball|
             uuid = nxball["uuid"]
             next if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) < 600
             NxBallsService::marginCall(uuid)
         }
 
-        XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68").each{|nxball|
+        NxBallsIO::getItems().each{|nxball|
             uuid = nxball["uuid"]
             next if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) < 3600
             CommonUtils::onScreenNotification("Catalyst", "NxBall running for more than an hour")

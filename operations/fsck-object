@@ -67,14 +67,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
     XCache::destroy(key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
-=begin
-    XCacheSets::values(setuuid: String): Array[Value]
-    XCacheSets::set(setuuid: String, valueuuid: String, value)
-    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
-    XCacheSets::destroy(setuuid: String, valueuuid: String)
-=end
-
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 =begin
 

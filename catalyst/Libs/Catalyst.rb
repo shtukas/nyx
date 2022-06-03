@@ -405,8 +405,7 @@ class TerminalDisplayOperator
             }
         end
 
-        running = XCacheSets::values("a69583a5-8a13-46d9-a965-86f95feb6f68")
-        running = running.select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
+        running = NxBallsIO::getItems().select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1

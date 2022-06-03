@@ -398,8 +398,7 @@ class LxAction
         end
 
         if command == "start" then
-            ns16 = object
-            NxBallsService::issue(ns16["uuid"], ns16["announce"], [ns16["uuid"]])
+            NxBallsService::issue(object["uuid"], LxFunction::function("toString", object), [object["uuid"]])
             return
         end
 
