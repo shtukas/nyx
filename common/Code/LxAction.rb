@@ -488,11 +488,6 @@ class LxAction
             end
         end
 
-        if command == "universe" then
-            UniverseStorage::interactivelySetUniverse()
-            return
-        end
-
         if command == "wave" then
             item = Waves::issueNewWaveInteractivelyOrNull()
             return if item.nil?
