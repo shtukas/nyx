@@ -331,12 +331,8 @@ class TxTodos
             TxTodos::itemsForUniverse("backlog")
                 .first(1000)
                 .shuffle
+                .take(20)
                 .each{|item|
-                    if BankExtended::stdRecoveredDailyTimeInHours("1ee2805a-f8ee-4a73-a92a-c76d9d45359a") > 1 then
-                        puts "We have reached daily target. Returning."
-                        sleep 1
-                        break
-                    end
                     loop {
                         command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), done, next, exit (rstream): ")
                         if command == "" or command == "run" then
