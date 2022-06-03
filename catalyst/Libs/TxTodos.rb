@@ -299,7 +299,7 @@ class TxTodos
 
         run = lambda {|item|
             loop {
-                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace: ")
+                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace, >nyx: ")
                 next if command.nil?
                 if command == "done" then
                     LxAction::action("stop", item)
@@ -315,6 +315,13 @@ class TxTodos
                 end
                 if command == "replace" then
                     TxTodos::interactivelyCreateNewOrNull()
+                    return false
+                end
+                if command == ">nyx" then
+                    item["mikuType"] = "Nx100"
+                    item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
+                    Librarian::commit(object)
+                    Nx100s::landing(item)
                     return false
                 end
             }
