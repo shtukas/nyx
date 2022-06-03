@@ -48,10 +48,25 @@ class Librarian
         if $LibrarianObjects then
             return $LibrarianObjects.map{|object| object.clone }
         end
-        puts "Loading object from Fx12 files..."
+
+        # {
+        #     "unixtime" =>
+        #     "objects"  =>
+        # }
+
+        if objects = XCache::getOrNull("d78ece15-2126-46ca-9244-3eec2a76d089:#{CommonUtils::today()}") then
+            objects = JSON.parse(objects)
+            $LibrarianObjects = objects
+            return $LibrarianObjects.map{|object| object.clone }
+        end
+
+        puts "Loading objects from Fx12 files..."
         $LibrarianObjects = Librarian::fx12Filepaths()
                                 .map{|filepath| Fx12s::getObject(filepath) }
                                 .sort{|o1, o2| o1["ordinal"] <=> o2["ordinal"] }
+
+        XCache::set("d78ece15-2126-46ca-9244-3eec2a76d089:#{CommonUtils::today()}", JSON.generate($LibrarianObjects))
+
         $LibrarianObjects.map{|object| object.clone }
     end
 
@@ -98,6 +113,7 @@ class Librarian
         if $LibrarianObjects then
             $LibrarianObjects = $LibrarianObjects.select{|o| o["uuid"] != object["uuid"] }
             $LibrarianObjects << object
+            XCache::set("d78ece15-2126-46ca-9244-3eec2a76d089:#{CommonUtils::today()}", JSON.generate($LibrarianObjects))
         end
     end
 
@@ -115,6 +131,7 @@ class Librarian
         if $LibrarianObjects then
             $LibrarianObjects = $LibrarianObjects.select{|o| o["uuid"] != object["uuid"] }
             $LibrarianObjects << object
+            XCache::set("d78ece15-2126-46ca-9244-3eec2a76d089:#{CommonUtils::today()}", JSON.generate($LibrarianObjects))
         end
     end
 
@@ -147,6 +164,7 @@ class Librarian
 
         if $LibrarianObjects then
             $LibrarianObjects = $LibrarianObjects.select{|o| o["uuid"] != uuid }
+            XCache::set("d78ece15-2126-46ca-9244-3eec2a76d089:#{CommonUtils::today()}", JSON.generate($LibrarianObjects))
         end
     end
 end
