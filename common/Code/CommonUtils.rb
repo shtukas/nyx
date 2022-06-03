@@ -616,10 +616,12 @@ class CommonUtils
         FileUtils.mv(location, directory)
     end
 
-    # CommonUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
-    def self.uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
+    # CommonUtils::uniqueStringLocationUsingPartialGalaxySearchOrNull(uniquestring)
+    def self.uniqueStringLocationUsingPartialGalaxySearchOrNull(uniquestring)
         roots = [
-            "/Users/pascal/Desktop"
+            "/Users/pascal/Desktop",
+            "/Users/pascal/Galaxy/Documents",
+            EditionDesk::pathToEditionDesk()
         ]
         roots.each{|root|
             Find.find(root) do |path|

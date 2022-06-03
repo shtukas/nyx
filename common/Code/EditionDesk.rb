@@ -24,63 +24,6 @@ class AionTransforms
     end
 end
 
-class UniqueStringsFunctions
-    # UniqueStringsFunctions::uniqueStringIsInAionPointObject(object, uniquestring)
-    def self.uniqueStringIsInAionPointObject(object, uniquestring)
-        if object["aionType"] == "indefinite" then
-            return false
-        end
-        if object["aionType"] == "directory" then
-            if object["name"].downcase.include?(uniquestring.downcase) then
-                return true
-            end
-            return object["items"].any?{|nhash| UniqueStringsFunctions::uniqueStringIsInNhash(nhash, uniquestring) }
-        end
-        if object["aionType"] == "file" then
-            return object["name"].downcase.include?(uniquestring.downcase)
-        end
-    end
-
-    # UniqueStringsFunctions::uniqueStringIsInNhash(nhash, uniquestring)
-    def self.uniqueStringIsInNhash(nhash, uniquestring)
-        
-    end
-
-    # UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
-    def self.findAndAccessUniqueString(uniquestring)
-        puts "unique string: #{uniquestring}"
-        location = CommonUtils::uniqueStringLocationUsingFileSystemSearchOrNull(uniquestring)
-        if location then
-            puts "location: #{location}"
-            if LucilleCore::askQuestionAnswerAsBoolean("open ? ", true) then
-                system("open '#{location}'")
-            end
-            return
-        end
-        puts "Unique string not found in Galaxy"
-        puts "Looking inside aion-points..."
-
-        puts "(info: ) operation not yet implemented (notably since Fx12 migration)"
-        LucilleCore::pressEnterToContinue()
-        return
-
-        #puts "" # To accomodate CommonUtils::putsOnPreviousLine
-        #Librarian::objects().each{|item|
-        #    CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
-        #    next if item["iam"].nil?
-        #    next if I1as::toStringShort(item["i1as"]) != "aion-point"
-        #    rootnhash = item["iam"]["rootnhash"]
-        #    if UniqueStringsFunctions::uniqueStringIsInNhash(rootnhash, uniquestring) then
-        #        LxAction::action("landing", item)
-        #        return
-        #    end
-        #}
-
-        #puts "I could not find the unique string inside aion-points"
-        #LucilleCore::pressEnterToContinue()
-    end
-end
-
 =begin
 
 The Edition Desk replaces the original Nx111 export on the desktop, but notably allows for better editions of text elements

@@ -147,4 +147,6 @@ require_relative "Nx111.rb"
 
 require_relative "PrimitiveFiles.rb"
 
+require_relative "UniqueStringsFunctions.rb"
+
 # ------------------------------------------------------------
