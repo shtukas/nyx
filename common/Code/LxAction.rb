@@ -26,6 +26,10 @@ class LxAction
 
             LxAction::action("access", object)
 
+            if object["mikuType"] == "NS16:fitness1" then
+                NxBallsService::close(object["uuid"], true)
+            end
+
             if object["mikuType"] == "NS16:TxDated" and object["announce"].include?("(vienna)") then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
                     item = object["TxDated"]
