@@ -103,36 +103,6 @@ class Fx12s
         Fx12s::issueNewEmptyMarbleFile(filepath)
     end
 
-    # Fx12s::version(filepath)
-    def self.version(filepath)
-        Fx12s::createFileIfNotCreatedYet(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        value = nil
-        db.execute("select _id_ from _filetype_", []) do |row|
-            value = row['_id_']
-        end
-        db.close
-        value
-    end
-
-    # Fx12s::keys(filepath)
-    def self.keys(filepath)
-        Fx12s::createFileIfNotCreatedYet(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        keys = []
-        db.execute("select _key_ from _data_", []) do |row|
-            keys << row['_key_']
-        end
-        db.close
-        keys
-    end
-
     # -- key-value store --------------------------------------------------
 
     # Fx12s::kvstore_set(filepath, key, value)
@@ -225,6 +195,52 @@ class Fx12s
         blob = Fx12s::kvstore_getOrNull(filepath, nhash)
         return blob if blob
         raise "[Error: 3CCC5678-E1FE-4729-B72B-C7E5D7951983, nhash: #{nhash}]"
+    end
+
+    # -- keys --------------------------------------------------
+
+    # Fx12s::keys(filepath)
+    def self.keys(filepath)
+        Fx12s::createFileIfNotCreatedYet(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        keys = []
+        db.execute("select _key_ from _data_", []) do |row|
+            keys << row['_key_']
+        end
+        db.close
+        keys
+    end
+
+    # -- version --------------------------------------------------
+
+    # Fx12s::version(filepath)
+    def self.version(filepath)
+        Fx12s::createFileIfNotCreatedYet(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        value = nil
+        db.execute("select _id_ from _filetype_", []) do |row|
+            value = row['_id_']
+        end
+        db.close
+        value
+    end
+
+    # -- object --------------------------------------------------
+
+    # Fx12s::setObject(filepath, object)
+    def self.setObject(filepath, object)
+        Fx12s::kvstore_set(filepath, "object", JSON.generate(object))
+    end
+
+    # Fx12s::getObject(filepath)
+    def self.getObject(filepath)
+        JSON.parse(Fx12s::kvstore_get(filepath, "object"))
     end
 
     # -- tests --------------------------------------------------

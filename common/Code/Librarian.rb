@@ -1,6 +1,8 @@
 
 # encoding: UTF-8
 
+$LibrarianObjects = nil
+
 class Librarian
 
     # --------------------------------------------------
@@ -24,15 +26,18 @@ class Librarian
     # Librarian::commitObjectToFx12File(object)
     def self.commitObjectToFx12File(object)
         filepath = Librarian::getFx12Filepath(object["uuid"])
-        Fx12s::kvstore_set(filepath, "object", JSON.generate(object))
+        Fx12s::setObject(filepath, object)
     end
 
-    # ---------------------------------------------------
-    # Objects
-
-    # Librarian::pathToObjectsStoreDatabase()
-    def self.pathToObjectsStoreDatabase()
-        "#{Config::pathToDataBankStargate()}/objects-store.sqlite3"
+    # Librarian::fx12Filepaths()
+    def self.fx12Filepaths()
+        filepaths = []
+        Find.find(Librarian::pathToFx12sRepository()) do |path|
+            next if !File.file?(path)
+            next if File.basename(path)[-5, 5] != ".fx12"
+            filepaths << path
+        end
+        filepaths
     end
 
     # ---------------------------------------------------
@@ -40,86 +45,29 @@ class Librarian
 
     # Librarian::objects()
     def self.objects()
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        objects = []
-        db.execute("select * from _objects_ order by _ordinal_", []) do |row|
-            objects << JSON.parse(row['_object_'])
+        if $LibrarianObjects then
+            return $LibrarianObjects.map{|object| object.clone }
         end
-        db.close
-        objects
+        puts "Loading object from Fx12 files..."
+        $LibrarianObjects = Librarian::fx12Filepaths()
+                                .map{|filepath| Fx12s::getObject(filepath) }
+                                .sort{|o1, o2| o1["ordinal"] <=> o2["ordinal"] }
+        $LibrarianObjects.map{|object| object.clone }
     end
 
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        objects = []
-        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        db.close
-        objects
+        Librarian::objects().select{|object| object["mikuType"] == mikuType }
     end
 
     # Librarian::getObjectsByMikuTypeAndUniverse(mikuType, universe)
     def self.getObjectsByMikuTypeAndUniverse(mikuType, universe)
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        objects = []
-        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_", [mikuType, universe]) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        db.close
-        objects
-    end
-
-    # Librarian::getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
-    def self.getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        objects = []
-        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", [mikuType, universe, n]) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        db.close
-        objects
+        Librarian::objects().select{|object| object["mikuType"] == mikuType and object["universe"] == universe }
     end
 
     # Librarian::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        object = nil
-        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
-            object = JSON.parse(row['_object_'])
-        end
-        db.close
-        object
-    end
-
-    # Librarian::getObjectIncludedLogicallyDeletedByUUIDOrNull(uuid)
-    def self.getObjectIncludedLogicallyDeletedByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        object = nil
-        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
-            object = JSON.parse(row['_object_'])
-        end
-        db.close
-        object
+        Librarian::objects().select{|object| object["uuid"] == uuid }.first
     end
 
     # ---------------------------------------------------
@@ -147,15 +95,10 @@ class Librarian
 
         Librarian::commitObjectToFx12File(object)
 
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-
-        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
-
-        db.close
+        if $LibrarianObjects then
+            $LibrarianObjects = $LibrarianObjects.select{|o| o["uuid"] != object["uuid"] }
+            $LibrarianObjects << object
+        end
     end
 
     # Librarian::commitWithoutUpdates(object)
@@ -169,15 +112,10 @@ class Librarian
 
         Librarian::commitObjectToFx12File(object)
 
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-
-        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
-
-        db.close
+        if $LibrarianObjects then
+            $LibrarianObjects = $LibrarianObjects.select{|o| o["uuid"] != object["uuid"] }
+            $LibrarianObjects << object
+        end
     end
 
     # Librarian::objectIsAboutToBeDestroyed(object)
@@ -207,11 +145,8 @@ class Librarian
             FileUtils.rm(filepath)
         end
 
-        db = SQLite3::Database.new(Librarian::pathToObjectsStoreDatabase())
-        db.results_as_hash = true
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
-        db.close
+        if $LibrarianObjects then
+            $LibrarianObjects = $LibrarianObjects.select{|o| o["uuid"] != uuid }
+        end
     end
 end

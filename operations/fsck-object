@@ -140,7 +140,7 @@ require_relative "../common/Code/loader.rb"
 exit if ARGV[0].nil?
 
 uuid = ARGV[0]
-object = Librarian::getObjectIncludedLogicallyDeletedByUUIDOrNull(uuid)
+object = Librarian::getObjectByUUIDOrNull(uuid)
 if object.nil? then
     puts "I could not find an object with this uuid"
     exit

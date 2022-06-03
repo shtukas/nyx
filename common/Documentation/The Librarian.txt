@@ -34,10 +34,3 @@ Objects of the Nyx Network, so essentially Nx100 must have:
     - "datetime"
 
 The unixtime (integer, but also float) should represent the time the object was created, and the datetime (DateTime Iso 8601 UTC Zulu) should represent the logical position of the object on the Nyx timeline.
-
-### The Objects Store
-
-The object store is a cache of the JSON objects contained in the Fx12 files. We try and keep them in sync...
-
-objects-store.sqlite3
-CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);
