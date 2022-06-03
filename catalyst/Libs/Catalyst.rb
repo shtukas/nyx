@@ -417,8 +417,8 @@ class TerminalDisplayOperator
                             "mikuType" => "NxBallNS16Delegate1" 
                         }
                         store.register(delegate, true)
-                        line = "#{store.prefixString()} #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                        puts line
+                        line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                        puts line.green
                         vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     }
         end
