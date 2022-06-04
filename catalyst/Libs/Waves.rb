@@ -196,7 +196,7 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | iam | note | schedule | universe | destroy | exit".yellow
+            puts "access | done | <datecode> | description | iam | note | schedule | universe | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 

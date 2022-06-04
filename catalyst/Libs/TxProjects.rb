@@ -106,7 +106,7 @@ class TxProjects
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | note | show json | universe | transmute | >nyx | destroy | exit".yellow
+            puts "access | start | <datecode> | description | iam | note | show json | universe | transmute | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
