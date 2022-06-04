@@ -33,6 +33,9 @@ class LxFunction
             if object["mikuType"] == "TxTodo" then
                 return TxTodos::toString(object)
             end
+            if object["mikuType"] == "NS16:TxProject" then
+                return object["announce"]
+            end
         end
 
         puts "I do not know how to LxFunction::function (command: #{command}, object: #{JSON.pretty_generate(object)})"
