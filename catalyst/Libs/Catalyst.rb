@@ -485,8 +485,6 @@ class Catalyst
                     }
             end
 
-            UniverseMonitor::switchProcessor()
-
             universe = UniverseStorage::getUniverseOrNull()
 
             floats = TxFloats::ns16s(universe)
