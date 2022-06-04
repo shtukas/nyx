@@ -36,7 +36,7 @@ class TxTodos
 
     # TxTodos::itemsForNS16s(universe)
     def self.itemsForNS16s(universe)
-        Librarian::getObjectsByMikuTypeAndUniverseByOrdinalLimit("TxTodo", universe, 100)
+        Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe).first(100)
     end
 
     # --------------------------------------------------

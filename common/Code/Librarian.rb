@@ -1,7 +1,40 @@
 
 # encoding: UTF-8
 
-$LibrarianInMemoryObjectsDB = nil
+class TheLibrarianObjectCache
+    def initialize()
+        objects = XCache::getOrNull("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5")
+        if objects then
+            @objects = JSON.parse(objects)
+        else
+            objects = getObjectsFromFx12Files()
+            XCache::set("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5", JSON.generate(objects))
+            @objects = objects
+        end
+    end
+    def getObjectsFromFx12Files()
+        Librarian::fx12Filepaths()
+            .map{|filepath| Fx12s::getObject(filepath) }
+    end
+    def objects()
+        @objects
+    end
+    def commit_object(object)
+        objects = JSON.parse(XCache::getOrNull("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5"))
+        objects = objects.reject{|obj| obj["uuid"] == object["uuid"] }
+        objects << object
+        XCache::set("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5", JSON.generate(objects))
+        @objects = objects
+    end
+    def destroy_object(uuid)
+        objects = JSON.parse(XCache::getOrNull("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5"))
+        objects = objects.reject{|obj| obj["uuid"] == uuid }
+        XCache::set("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5", JSON.generate(objects))
+        @objects = objects
+    end
+end
+
+$TheLibrarianObjectCache = nil # Going to be initialised at the botton on the loader
 
 class Librarian
 
@@ -43,75 +76,24 @@ class Librarian
     # ---------------------------------------------------
     # Objects Reading
 
-    # Librarian::ensureInMemoryDatabase()
-    def self.ensureInMemoryDatabase()
-        if $LibrarianInMemoryObjectsDB.nil? then
-            puts "Loading objects from Fx12 files"
-            $LibrarianInMemoryObjectsDB = SQLite3::Database.new ":memory:"
-            $LibrarianInMemoryObjectsDB.results_as_hash = true
-            $LibrarianInMemoryObjectsDB.busy_timeout = 117
-            $LibrarianInMemoryObjectsDB.busy_handler { |count| true }
-            $LibrarianInMemoryObjectsDB.execute "CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _ordinal_ float, _universe_ text);", []
-            
-            objects = Librarian::fx12Filepaths()
-                        .map{|filepath| Fx12s::getObject(filepath) }
-                        .sort{|o1, o2| o1["ordinal"] <=> o2["ordinal"] }
-            
-            objects.each{|object|
-                $LibrarianInMemoryObjectsDB.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-                $LibrarianInMemoryObjectsDB.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
-            }
-            # $LibrarianInMemoryObjectsDB.close
-        end
-    end
-
     # Librarian::objects()
     def self.objects()
-        Librarian::ensureInMemoryDatabase()
-        objects = []
-        $LibrarianInMemoryObjectsDB.execute("select * from _objects_ order by _ordinal_", []) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        objects
+        $TheLibrarianObjectCache.objects()
     end
 
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
-        Librarian::ensureInMemoryDatabase()
-        objects = []
-        $LibrarianInMemoryObjectsDB.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        objects
+        $TheLibrarianObjectCache.objects().select{|object| object["mikuType"] == mikuType }
     end
 
     # Librarian::getObjectsByMikuTypeAndUniverse(mikuType, universe)
     def self.getObjectsByMikuTypeAndUniverse(mikuType, universe)
-        Librarian::ensureInMemoryDatabase()
-        objects = []
-        $LibrarianInMemoryObjectsDB.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_", [mikuType, universe]) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        objects
-    end
-
-    # Librarian::getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
-    def self.getObjectsByMikuTypeAndUniverseByOrdinalLimit(mikuType, universe, n)
-        objects = []
-        $LibrarianInMemoryObjectsDB.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", [mikuType, universe, n]) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        objects
+        $TheLibrarianObjectCache.objects().select{|object| object["mikuType"] == mikuType and object["universe"] == universe }
     end
 
     # Librarian::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
-        Librarian::ensureInMemoryDatabase()
-        object = nil
-        $LibrarianInMemoryObjectsDB.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
-            object = JSON.parse(row['_object_'])
-        end
-        object
+        $TheLibrarianObjectCache.objects().select{|object| object["uuid"] == uuid }.first
     end
 
     # ---------------------------------------------------
@@ -119,8 +101,6 @@ class Librarian
 
     # Librarian::commit(object)
     def self.commit(object)
-
-        Librarian::ensureInMemoryDatabase()
 
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
@@ -141,13 +121,11 @@ class Librarian
 
         Librarian::commitObjectToFx12File(object)
 
-        $LibrarianInMemoryObjectsDB.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        $LibrarianInMemoryObjectsDB.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
+        $TheLibrarianObjectCache.commit_object(object)
     end
 
     # Librarian::commitWithoutUpdates(object)
     def self.commitWithoutUpdates(object)
-        Librarian::ensureInMemoryDatabase()
 
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
@@ -158,8 +136,7 @@ class Librarian
 
         Librarian::commitObjectToFx12File(object)
 
-        $LibrarianInMemoryObjectsDB.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        $LibrarianInMemoryObjectsDB.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?,?,?,?,?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
+        $TheLibrarianObjectCache.commit_object(object)
     end
 
     # Librarian::objectIsAboutToBeDestroyed(object)
@@ -178,9 +155,6 @@ class Librarian
 
     # Librarian::destroy(uuid)
     def self.destroy(uuid)
-
-        Librarian::ensureInMemoryDatabase()
-
         if object = Librarian::getObjectByUUIDOrNull(uuid) then
             Librarian::objectIsAboutToBeDestroyed(object)
         end
@@ -191,6 +165,6 @@ class Librarian
             FileUtils.rm(filepath)
         end
 
-        $LibrarianInMemoryObjectsDB.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+        $TheLibrarianObjectCache.destroy_object(uuid)
     end
 end

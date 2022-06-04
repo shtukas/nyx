@@ -142,3 +142,7 @@ require_relative "PrimitiveFiles.rb"
 require_relative "UniqueStringsFunctions.rb"
 
 # ------------------------------------------------------------
+
+$TheLibrarianObjectCache = TheLibrarianObjectCache.new()
+
+# ------------------------------------------------------------
