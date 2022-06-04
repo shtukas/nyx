@@ -333,6 +333,7 @@ class TxTodos
                     return false
                 end
                 if command == ">nyx" then
+                    NxBallsService::close(item["uuid"], true)
                     item["mikuType"] = "Nx100"
                     item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
                     Librarian::commit(item)
