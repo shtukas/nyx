@@ -49,11 +49,6 @@ class LxAction
             return
         end
 
-        if command == "[]" then
-            Topping::applyTransformation(UniverseStorage::getUniverseOrNull())
-            return
-        end
-
         if command == ">nyx" then
             if object["mikuType"] == "NS16:TxTodo" then
                 item = object["TxTodo"]
@@ -463,11 +458,6 @@ class LxAction
                 return if nx50.nil?
                 TxTodos::landing(nx50)
             }
-            return
-        end
-
-        if command == "top" then
-            Topping::top(UniverseStorage::getUniverseOrNull())
             return
         end
 

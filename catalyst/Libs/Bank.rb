@@ -12,6 +12,7 @@ class Bank
 
     # Bank::put(setuuid, weight: Float)
     def self.put(setuuid, weight)
+        return if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
         return if setuuid.nil?
         operationuuid = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -29,6 +30,7 @@ class Bank
 
     # Bank::value(setuuid)
     def self.value(setuuid)
+        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -43,6 +45,7 @@ class Bank
 
     # Bank::valueOverTimespan(setuuid, timespanInSeconds)
     def self.valueOverTimespan(setuuid, timespanInSeconds)
+        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
         horizon = Time.new.to_i - timespanInSeconds
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117
@@ -58,6 +61,7 @@ class Bank
 
     # Bank::valueAtDateUseTheForce(setuuid, date)
     def self.valueAtDateUseTheForce(setuuid, date)
+        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -72,7 +76,7 @@ class Bank
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-
+        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
         computationCore = lambda{|setuuid, date|
             db = SQLite3::Database.new(Bank::databaseFilepath())
             db.busy_timeout = 117

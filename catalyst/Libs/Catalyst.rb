@@ -35,10 +35,6 @@ class TerminalUtils
             end
         }
 
-        if Interpreting::match("[]", input) then
-            return ["[]", nil]
-        end
-
         if Interpreting::match("..", input) then
             return ["..", store.getDefault()]
         end
@@ -244,10 +240,6 @@ class TerminalUtils
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
         end
 
-        if Interpreting::match("top", input) then
-            return ["top", nil]
-        end
-
         if Interpreting::match("today", input) then
             return ["today", nil]
         end
@@ -409,15 +401,6 @@ class TerminalDisplayOperator
                         puts line.green
                         vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     }
-        end
-
-        top = Topping::getText(universe)
-        if top and top.strip.size > 0 then
-            puts ""
-            puts "(top)"
-            top = top.lines.first(10).join().strip
-            puts top
-            vspaceleft = vspaceleft - CommonUtils::verticalSize(top) - 3
         end
 
         printSection = lambda {|section, store|

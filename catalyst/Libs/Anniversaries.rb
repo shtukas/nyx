@@ -88,6 +88,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
+        return [] if !File.exists?(Anniversaries::itemsFolderPath()) # Happens on Lucille18
         LucilleCore::locationsAtFolder(Anniversaries::itemsFolderPath())
             .select{|location| location[-5, 5] == ".json" }
             .map{|location| JSON.parse(IO.read(location)) }
