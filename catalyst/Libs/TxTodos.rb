@@ -204,12 +204,11 @@ class TxTodos
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | ordinal | rotate | transmute | note | universe | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | start | <datecode> | description | iam | ordinal | rotate | transmute | note | universe | show json | >nyx | destroy (gg) | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == "exit"
-            break if command == "xx"
+            break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
@@ -287,7 +286,7 @@ class TxTodos
                 next
             end
 
-            if command == "destroy" or command == "gg" then
+            if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(item)}' ? ", true) then
                     NxBallsService::close(item["uuid"], true)
                     TxTodos::destroy(item["uuid"])

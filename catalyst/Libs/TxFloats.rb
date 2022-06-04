@@ -92,12 +92,11 @@ class TxFloats
                 }
             end
 
-            puts "access | <datecode> | description | iam| note | universe | transmute | show json | >nyx | destroy (gg) | exit (xx)".yellow
+            puts "access | <datecode> | description | iam| note | universe | transmute | show json | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == "exit"
-            break if command == "xx"
+            break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
@@ -151,14 +150,6 @@ class TxFloats
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(item)}' ? ", true) then
-                    TxFloats::complete(item)
-                    break
-                end
-                next
-            end
-
-            if command == "gg" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxFloats::toString(item)}' ? ", true) then
                     TxFloats::complete(item)
                     break

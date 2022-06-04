@@ -196,12 +196,11 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | iam | note | schedule | universe | destroy | exit (xx)".yellow
+            puts "access | done | <datecode> | description | iam | note | schedule | universe | destroy | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == "exit"
-            break if command == "xx"
+            break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)

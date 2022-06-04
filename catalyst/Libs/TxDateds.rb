@@ -146,12 +146,11 @@ class TxDateds
                 }
             end
 
-            puts "access | date | description | iam | note | show json | transmute | universe | destroy (gg) | exit (xx)".yellow
+            puts "access | date | description | iam | note | show json | transmute | universe | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == "exit"
-            break if command == "xx"
+            break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
@@ -213,14 +212,6 @@ class TxDateds
             if Interpreting::match("universe", command) then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
                 Librarian::commit(item)
-                next
-            end
-
-            if command == "gg" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(item)}' ? ", true) then
-                    TxDateds::destroy(item["uuid"])
-                    break
-                end
                 next
             end
         }
