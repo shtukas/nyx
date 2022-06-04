@@ -338,18 +338,6 @@ end
 
 class NS16s
 
-    # NS16s::rstreamToken()
-    def self.rstreamToken()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid also used in TxTodos
-        {
-            "uuid"     => uuid,
-            "mikuType" => "ADE4F121",
-            "announce" => "(rstream)",
-            "lambda"   => lambda { TxTodos::rstream() },
-            "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        }
-    end
-
     # NS16s::ns16s(universe)
     def self.ns16s(universe)
         [
@@ -359,7 +347,7 @@ class NS16s
             Waves::ns16s(universe),
             TxProjects::ns16s(universe),
             Inbox::ns16s(),
-            [NS16s::rstreamToken()],
+            [TxTodos::rstreamToken()],
             TxTodos::ns16s(universe),
         ]
             .flatten

@@ -1,5 +1,20 @@
 # encoding: UTF-8
 
+class RStreamProgressMonitor
+    def initialize()
+        @data = JSON.parse(XCache::getOrDefaultValue("18705e17-41a7-4c7b-986b-a6a9292e8bb4", "[]"))
+    end
+    def anotherOne()
+        @data << Time.new.to_i
+        XCache::set("18705e17-41a7-4c7b-986b-a6a9292e8bb4", JSON.generate(@data))
+    end
+    def getCount()
+        @data.size
+    end
+end
+
+$RStreamProgressMonitor = RStreamProgressMonitor.new()
+
 class TxTodos
 
     # TxTodos::items()
@@ -291,7 +306,7 @@ class TxTodos
 
     # TxTodos::rstream()
     def self.rstream()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the NS16s::rstreamToken()
+        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the TxTodos::rstreamToken()
 
         if !NxBallsService::isRunning(uuid) then
             NxBallsService::issue(uuid, "(rstream)" , [uuid])
@@ -304,6 +319,7 @@ class TxTodos
                 if command == "done" then
                     LxAction::action("stop", item)
                     TxTodos::destroy(item["uuid"])
+                    $RStreamProgressMonitor.anotherOne()
                     return false
                 end
                 if command == "detach" then
@@ -322,6 +338,7 @@ class TxTodos
                     item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
                     Librarian::commit(item)
                     Nx100s::landing(item)
+                    $RStreamProgressMonitor.anotherOne()
                     return false
                 end
             }
@@ -359,6 +376,7 @@ class TxTodos
                         if command == "done" then
                             LxAction::action("stop", item)
                             TxTodos::destroy(item["uuid"])
+                            $RStreamProgressMonitor.anotherOne()
                             break
                         end
                         if command == "next" then
@@ -389,6 +407,18 @@ class TxTodos
             "ordinal"  => nx50["ordinal"],
             "TxTodo"   => nx50,
             "rt"       => rt
+        }
+    end
+
+    # TxTodos::rstreamToken()
+    def self.rstreamToken()
+        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid also used in TxTodos
+        {
+            "uuid"     => uuid,
+            "mikuType" => "ADE4F121",
+            "announce" => "(rstream) (#{$RStreamProgressMonitor.getCount()})",
+            "lambda"   => lambda { TxTodos::rstream() },
+            "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
         }
     end
 
