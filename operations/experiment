@@ -2,8 +2,13 @@
 
 # encoding: UTF-8
 
+def peerHostname()
+  computer_name = ENV["COMPUTERLUCILLENAME"]
+  (computer_name == "Lucille18") ? "Lucille20" : "Lucille18"
+end
+
 require 'socket'           # Sockets are in standard library
-hostname = 'localhost'
+hostname = "#{peerHostname().downcase}.local"
 port = 2000
 socket = TCPSocket.open(hostname, port)
 while line = socket.gets   # Read lines from the socket
