@@ -453,7 +453,7 @@ class TerminalDisplayOperator
             printSection.call(section2, store)
         end
 
-        if section3.size > 0 then
+        if section3.size > 0 and vspaceleft > 3 then
             puts "-" * 60
             vspaceleft = vspaceleft - 1
             printSection.call(section3, store)
