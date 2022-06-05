@@ -1,15 +1,17 @@
 
 Differences between Catalyst and Nyx
 
-All the objects in the universe are essentialy on the same grath and there can be a link between any two, but in practice, Catalyst naturally manipulate some types dna Nyx manipulate the other types.
+All the objects in the universe are essentialy on the same grath and there can be a link between any two, but in practice, Catalyst naturally manipulate some types dna Nyx manipulate the other types. The primary types are : 
 
 Catalyst
-    - Anniversary
+    - Anniversary (special case independently stored)
     - TxDated
     - TxFloat
+    - TxInbox2
     - TxProject
     - TxTodo
     - Wave
 
 Nyx
     - Nx100
+    - NxTimeline

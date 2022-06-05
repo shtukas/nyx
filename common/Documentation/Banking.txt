@@ -7,3 +7,4 @@ insert into _operations_ (_setuuid_, _operationuuid_ , _unixtime_, _weight_) val
 select sum(_weight_) as _sum_ from _operations_ where _setuuid_='setuuid:24979259';
 
 select sum(_weight_) as _sum_ from _operations_ where _setuuid_='setuuid:24979259' and _unixtime_ > 0;
+

@@ -1,0 +1,8 @@
+
+NxTimeline {
+    "uuid"        : uuid,
+    "mikuType"    : "NxTimeline"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : description
+}
