@@ -235,7 +235,7 @@ class Nx100s
             system("clear")
 
             if $NavigationSandboxState then
-                puts "!! Selection sandbox, type `found` or `exit` !!".green
+                puts "!! Selection sandbox, type `found` when found, or exit".green
             end
 
             uuid = item["uuid"]

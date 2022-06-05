@@ -92,7 +92,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "description-only" then
-            puts "This is a description-only"
+            puts "description only: #{item["description"].green}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -162,22 +162,19 @@ class EditionDesk
         end
         if nx111["type"] == "Dx8Unit" then
             unitId = nx111["unitId"]
-
-            # -----------------------------------------------------------------------
-            # This is a temporary optimization to help with rstream and random dones
-            # See code (comment group: 3e6f8340-1d1e-400d-8209-5cec545c0e80)
-            rootnhash = XCache::getOrNull("dbe424a9-a360-4f66-9ad1-d16b2475c069:#{unitId}")
-            if rootnhash then
-                operator = Fx12sElizabethV2.new(item["uuid"]) 
-                AionCore::exportHashAtFolder(operator, rootnhash, "/Users/pascal/Desktop")
-                puts "Exported to Desktop"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            # -----------------------------------------------------------------------
-
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
+            if LucilleCore::locationsAtFolder(location).size == 1 and LucilleCore::locationsAtFolder(location).first[-5, 5] == ".webm" then
+                location2 = LucilleCore::locationsAtFolder(location).first
+                if File.basename(location2).include?("'") then
+                    location3 = "#{File.dirname(location2)}/#{File.basename(location2).gsub("'", "-")}"
+                    FileUtils.mv(location2, location3)
+                    location2 = location3
+                end
+                puts "opening: #{location2}"
+                system("open '#{location2}'")
+                return
+            end
             system("open '#{location}'")
             return
         end

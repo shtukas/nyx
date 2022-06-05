@@ -22,21 +22,23 @@ class NyxNetwork
     # NyxNetwork::selectNodesUsingNavigationSandboxOrNull()
     def self.selectNodesUsingNavigationSandboxOrNull()
         system("clear")
-        puts "Navigation sandbox for selecting a node. When found type 'found' in a landing position, otherwise type 'exit'".green
+        puts "Navigation sandbox for selecting a node. When found type 'found' in a landing position, otherwise exit".green
         LucilleCore::pressEnterToContinue()
         $NavigationSandboxState = ["active"]
         loop {
             nx20 = Search::interativeInterfaceSelectNx20OrNull()
-            next if nx20.nil?
+            if nx20.nil? then
+                if LucilleCore::askQuestionAnswerAsBoolean("You are still in sandbox, try again ? ") then
+                    next
+                else
+                    return nil
+                end
+            end
             LxAction::action("landing", nx20["payload"])
             if $NavigationSandboxState[0] == "found" then
                 found = $NavigationSandboxState[1]
                 $NavigationSandboxState = nil
                 return found
-            end
-            if $NavigationSandboxState[0] == "exit" then
-                $NavigationSandboxState = nil
-                return nil
             end
         }
     end

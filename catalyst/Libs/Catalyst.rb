@@ -360,7 +360,7 @@ class TerminalDisplayOperator
         current   = The99Percent::getCurrentCount()
         ratio     = current.to_f/reference["count"]
         puts ""
-        puts "(#{universe}) 👩‍💻 🔥 #{current}, #{ratio}, #{reference["datetime"]}"
+        puts "(#{universe}) 👩‍💻 🔥 #{current} #{ratio}, #{reference["count"]} #{reference["datetime"]}"
         vspaceleft = vspaceleft - 2
         if ratio < 0.99 then
             The99Percent::issueNewReference()
