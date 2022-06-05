@@ -3,35 +3,6 @@
 
 class Librarian
 
-    # --------------------------------------------------
-    # Fx12
-
-    # Librarian::pathToFx12sRepository()
-    def self.pathToFx12sRepository()
-        "#{Config::pathToDataBankStargate()}/Fx12s"
-    end
-
-    # Librarian::getFx12Filepath(uuid)
-    def self.getFx12Filepath(uuid)
-        hash1 = Digest::SHA1.hexdigest(uuid)
-        folderpath = "#{Librarian::pathToFx12sRepository()}/#{hash1[0, 2]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        "#{folderpath}/#{uuid}.fx12"
-    end
-
-    # Librarian::fx12Filepaths()
-    def self.fx12Filepaths()
-        filepaths = []
-        Find.find(Librarian::pathToFx12sRepository()) do |path|
-            next if !File.file?(path)
-            next if File.basename(path)[-5, 5] != ".fx12"
-            filepaths << path
-        end
-        filepaths
-    end
-
     # ---------------------------------------------------
     # Objects Reading
 
@@ -184,11 +155,5 @@ class Librarian
         db.busy_handler { |count| true }
         db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
         db.close
-
-        filepath = Librarian::getFx12Filepath(uuid)
-        if File.exists?(filepath) then
-            puts "removing file: #{filepath}"
-            FileUtils.rm(filepath)
-        end
     end
 end

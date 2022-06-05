@@ -120,7 +120,7 @@ class TxTodos
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        rootnhash   = AionCore::commitLocationReturnHash(Fx12sElizabethV2.new(uuid), location)
+        rootnhash   = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
         nx111 = {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",

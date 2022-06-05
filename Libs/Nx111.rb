@@ -54,7 +54,7 @@ class Nx111
     # Nx111::locationToAionPointNx111OrNull(objectuuid, location)
     def self.locationToAionPointNx111OrNull(objectuuid, location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        rootnhash = AionCore::commitLocationReturnHash(Fx12sElizabethV2.new(objectuuid), location)
+        rootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
         {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",
@@ -92,7 +92,7 @@ class Nx111
         end
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = Fx12sElizabethV2.new(objectuuid).commitBlob(text)
+            nhash = EnergyGridElizabeth.new().commitBlob(text)
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",

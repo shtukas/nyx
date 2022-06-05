@@ -103,7 +103,7 @@ class EditionDesk
                 return
             end
             nhash = nx111["nhash"]
-            text = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
+            text = EnergyGridElizabeth.new().getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             system("open '#{location}'")
             return
@@ -115,7 +115,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = Fx12sElizabethV2.new(item["uuid"]) 
+            operator = EnergyGridElizabeth.new() 
             rootnhash = nx111["rootnhash"]
             exportLocation = EditionDesk::decideEditionLocation(item, nx111)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, File.basename(exportLocation))
@@ -217,7 +217,7 @@ class EditionDesk
         end
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = Fx12sElizabethV2.new(item["uuid"]).commitBlob(text)
+            nhash = EnergyGridElizabeth.new().commitBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             #puts JSON.pretty_generate(nx111)
@@ -230,7 +230,7 @@ class EditionDesk
             raise "(error: 563d3ad6-7d82-485b-afc5-b9aeba6fb88b)"
         end
         if nx111["type"] == "aion-point" then
-            operator = Fx12sElizabethV2.new(item["uuid"])
+            operator = EnergyGridElizabeth.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash

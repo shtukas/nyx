@@ -47,7 +47,7 @@ class UniqueStringsFunctions
             item["i1as"].each{|nx111|
                 if nx111["type"] == "aion-point" then
                     rootnhash = nx111["rootnhash"]
-                    operator = Fx12sElizabethV2.new(item["uuid"])
+                    operator = EnergyGridElizabeth.new()
                     if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
                         EditionDesk::accessItemNx111Pair(item, nx111)
                         return

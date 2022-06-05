@@ -35,7 +35,7 @@ class Ax1Text
     def self.interactivelyIssueNewOrNullForOwner(owneruuid)
         text = CommonUtils::editTextSynchronously("")
         uuid = SecureRandom.uuid
-        nhash = Fx12sElizabethV2.new(uuid).commitBlob(text)
+        nhash = EnergyGridElizabeth.new().commitBlob(text)
         unixtime = Time.new.to_i
         item = {
           "uuid"      => uuid,
@@ -53,7 +53,7 @@ class Ax1Text
 
     # Ax1Text::toString(item)
     def self.toString(item)
-        text = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(item["nhash"])
+        text = EnergyGridElizabeth.new().getBlobOrNull(item["nhash"])
         description = (text != "") ? text.lines.first : "(empty text)"
         "(note) #{description}"
     end
@@ -74,9 +74,9 @@ class Ax1Text
             break if operation.nil?
             if operation == "access/edit" then
                 nhash = item["nhash"]
-                text = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
+                text = EnergyGridElizabeth.new().getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = Fx12sElizabethV2.new(item["uuid"]).commitBlob(text)
+                nhash = EnergyGridElizabeth.new().commitBlob(text)
                 item["nhash"] = nhash
                 Librarian::commit(item)
             end

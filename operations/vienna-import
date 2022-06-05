@@ -2,7 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "Libs/loader.rb"
+require_relative "../Libs/loader.rb"
 
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
 

@@ -2,9 +2,7 @@
 
 # encoding: UTF-8
 
-require_relative "Libs/loader.rb"
-
-# ----------------------------------------------------------------------------
+require_relative "../Libs/loader.rb"
 
 item = NyxNetwork::interactivelyMakeNewOrNull()
 exit if item.nil?

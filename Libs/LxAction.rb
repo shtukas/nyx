@@ -231,7 +231,7 @@ class LxAction
 
             location = CommonUtils::interactivelySelectDesktopLocationOrNull() 
             if location then
-                aionrootnhash = AionCore::commitLocationReturnHash(Fx12sElizabethV2.new(uuid), location)
+                aionrootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
             end
 
             item = {

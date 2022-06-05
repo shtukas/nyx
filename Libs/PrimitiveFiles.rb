@@ -30,7 +30,7 @@ class PrimitiveFiles
         nhash = CommonUtils::filepathToContentHash(filepath)
  
         committer = lambda {|blob|
-            Fx12sElizabethV2.new(objectuuid).commitBlob(blob)
+            EnergyGridElizabeth.new().commitBlob(blob)
         }
         parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, committer)
  
@@ -59,7 +59,7 @@ class PrimitiveFiles
         targetFilepath = "#{exportFolderpath}/#{itemuuid}#{dottedExtension}"
         File.open(targetFilepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Fx12sElizabethV2.new(itemuuid).getBlobOrNull(nhash)
+                blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
                 raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
                 f.write(blob)
             }
@@ -75,7 +75,7 @@ class PrimitiveFiles
         filepath = "#{EditionDesk::decideEditionLocation(item, nx111)}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
+                blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
                 raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
                 f.write(blob)
             }
@@ -91,7 +91,7 @@ class PrimitiveFiles
         filepath = "#{EditionDesk::pathToEditionDesk()}/#{dirname}/#{item["uuid"]}#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
-                blob = Fx12sElizabethV2.new(item["uuid"]).getBlobOrNull(nhash)
+                blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
                 raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
                 f.write(blob)
             }

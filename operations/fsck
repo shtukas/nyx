@@ -2,27 +2,15 @@
 
 # encoding: UTF-8
 
-require 'securerandom'
-# SecureRandom.hex    #=> "eb693ec8252cd630102fd0d0fb7c3485"
-# SecureRandom.hex(4) #=> "eb693123"
-# SecureRandom.uuid   #=> "2d931510-d99f-494a-8c67-87feb05e1594"
-
-require 'json'
-# JSON.pretty_generate(object)
-
-require 'colorize'
-
-require_relative "../common/Code/loader.rb"
-
-# ------------------------------------------------------------------------------------
+require_relative "../Libs/loader.rb"
 
 Librarian::objects()
     .each {|object|
         exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-        next if XCache::flagIsTrue("605ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
-        operator = Fx12sElizabethV2.new(object["uuid"])
+        next if XCache::flagIsTrue("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
+        operator = EnergyGridElizabeth.new()
         FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, operator)
-        XCache::setFlagTrue("605ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
+        XCache::setFlagTrue("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
     }
 
 puts "fsck completed successfully".green
