@@ -84,15 +84,14 @@ end
 
 class Fx12s
 
-    # Fx12s::issueNewEmptyMarbleFile(filepath)
-    def self.issueNewEmptyMarbleFile(filepath)
+    # Fx12s::issueNewEmptyFx12File(filepath)
+    def self.issueNewEmptyFx12File(filepath)
         raise "[f2a0afca-e1cc-4f76-a509-d1725e8e0432: #{filepath}]" if File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "create table _filetype_ (_id_ string)", []
-        db.execute "insert into _filetype_ (_id_) values (?)", ["001-8b0aac1fcea0"]
         db.execute "create table _data_ (_key_ string, _value_ blob)", []
+        db.execute "insert into _data_ (_key_, _value_) values (?, ?)", ["schema_type", "001-8b0aac1fcea0"]
         db.close
         nil
     end
@@ -100,7 +99,7 @@ class Fx12s
     # Fx12s::createFileIfNotCreatedYet(filepath)
     def self.createFileIfNotCreatedYet(filepath)
         return if File.exists?(filepath)
-        Fx12s::issueNewEmptyMarbleFile(filepath)
+        Fx12s::issueNewEmptyFx12File(filepath)
     end
 
     # -- key-value store --------------------------------------------------
@@ -214,21 +213,21 @@ class Fx12s
         keys
     end
 
-    # -- version --------------------------------------------------
+    # -- basic attributes --------------------------------------------------
 
-    # Fx12s::version(filepath)
-    def self.version(filepath)
-        Fx12s::createFileIfNotCreatedYet(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        value = nil
-        db.execute("select _id_ from _filetype_", []) do |row|
-            value = row['_id_']
-        end
-        db.close
-        value
+    # Fx12s::schema_type(filepath)
+    def self.schema_type(filepath)
+        Fx12s::kvstore_get(filepath, "schema_type")
+    end
+
+    # Fx12s::uuid(filepath)
+    def self.uuid(filepath)
+        Fx12s::kvstore_get(filepath, "uuid")
+    end
+
+    # Fx12s::mikuType(filepath)
+    def self.mikuType(filepath)
+        Fx12s::kvstore_get(filepath, "mikuType")
     end
 
     # -- object --------------------------------------------------
@@ -248,11 +247,11 @@ class Fx12s
     # Fx12s::selfTest()
     def self.selfTest()
         filepath = "/tmp/#{SecureRandom.hex}"
-        Fx12s::issueNewEmptyMarbleFile(filepath)
+        Fx12s::issueNewEmptyFx12File(filepath)
 
         raise "1d464a8d-d4ed-4d81-8e02-1ebeae50df30" if !File.exists?(filepath)
 
-        raise "233d0296-c776-4ed8-a656-5ce7810f901c" if Fx12s::version(filepath) != "001-8b0aac1fcea0"
+        raise "233d0296-c776-4ed8-a656-5ce7810f901c" if Fx12s::schema_type(filepath) != "001-8b0aac1fcea0"
 
         Fx12s::kvstore_set(filepath, "key1", "value1")
 
