@@ -307,6 +307,11 @@ class LxAction
                 return
             end
 
+            if object["mikuType"] == "NxTimeline" then
+                NxTimelines::landing(object)
+                return
+            end
+
             if object["mikuType"] == "Nx100" then
                 Nx100s::landing(object)
                 return

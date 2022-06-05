@@ -124,9 +124,6 @@ class FileSystemCheck
             }
             return
         end
-        if nx111["type"] == "carrier-of-primitive-files" then
-            return
-        end
         if nx111["type"] == "Dx8Unit" then
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
@@ -209,6 +206,14 @@ class FileSystemCheck
                     exit 1
                 end
             end
+            return
+        end
+
+        if item["mikuType"] == "NxTimeline" then
+            return
+        end
+
+        if item["mikuType"] == "NxTimelineClaim" then
             return
         end
 

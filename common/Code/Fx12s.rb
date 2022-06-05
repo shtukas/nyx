@@ -230,18 +230,6 @@ class Fx12s
         Fx12s::kvstore_get(filepath, "mikuType")
     end
 
-    # -- object --------------------------------------------------
-
-    # Fx12s::setObject(filepath, object)
-    def self.setObject(filepath, object)
-        Fx12s::kvstore_set(filepath, "object", JSON.generate(object))
-    end
-
-    # Fx12s::getObject(filepath)
-    def self.getObject(filepath)
-        JSON.parse(Fx12s::kvstore_get(filepath, "object"))
-    end
-
     # -- tests --------------------------------------------------
 
     # Fx12s::selfTest()

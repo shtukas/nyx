@@ -25,7 +25,6 @@ class LxFunction
                 return object["description"]
             end
         end
-
         if command == "toString" then
             if object["mikuType"] == "NS16:TxDated" then
                 return object["announce"]
@@ -35,6 +34,9 @@ class LxFunction
             end
             if object["mikuType"] == "Nx100" then
                 return Nx100s::toString(object)
+            end
+            if object["mikuType"] == "NxTimeline" then
+                return object["description"]
             end
             if object["mikuType"] == "TxTodo" then
                 return TxTodos::toString(object)

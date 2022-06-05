@@ -1,9 +1,0 @@
-Nx60 is a Nx100/carrier-of-primitive-files claim on a Nx100/primitive-file
-
-Nx60 {
-    "uuid"       : UUID,
-    "mikuType"   : "Nx60"
-    "unixtime"   : Float
-    "owneruuid"  : String
-    "targetuuid" : String
-}

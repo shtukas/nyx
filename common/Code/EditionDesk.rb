@@ -142,24 +142,6 @@ class EditionDesk
             system("open '#{filepath}'")
             return
         end
-        if nx111["type"] == "carrier-of-primitive-files" then
-            exportFolderpath = EditionDesk::decideEditionLocation(item, nx111)
-            if File.exists?(exportFolderpath) then
-                system("open '#{exportFolderpath}'")
-                return
-            end
-            FileUtils.mkdir(exportFolderpath)
-            Carriers::getCarrierContents(item["uuid"])
-                .each{|ix|
-                    nx111 = ix["i1as"][0] # primitive files only have one Nx111 in their i1as
-                    dottedExtension = nx111["dottedExtension"]
-                    nhash = nx111["nhash"]
-                    parts = nx111["parts"]
-                    PrimitiveFiles::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, ix["uuid"], dottedExtension, parts)
-                }
-            system("open '#{exportFolderpath}'")
-            return
-        end
         if nx111["type"] == "Dx8Unit" then
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
@@ -269,46 +251,6 @@ class EditionDesk
             return if item["i1as"].select{|nx| nx["uuid"] == nx111["uuid"] }.first["nhash"] == nx111v2["nhash"]
             item = replaceNx111.call(item, nx111v2)
             Librarian::commit(item)
-            return
-        end
-        if nx111["type"] == "carrier-of-primitive-files" then
-
-            innerLocations = LucilleCore::locationsAtFolder(location)
-            # We make a fiirst pass to ensure everything is a file
-            status = innerLocations.all?{|loc| File.file?(loc) }
-            if !status then
-                puts "The folder (#{location}) has elements that are not files!"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            innerLocations.each{|innerFilepath|
-
-                # So..... unlike a regular upload, some of the files in there can already be existing 
-                # primitive files that were exported.
-
-                # The nice thing is that primitive files carry their own uuid as Nyx objects.
-                # We can use that to know if the location is an existing primitive file and can be ignored
-
-                id = File.basename(innerFilepath)[0, "10202204-1516-1710-9579-87e475258c29".size]
-                if Librarian::getObjectByUUIDOrNull(id) then
-                    # puts "#{File.basename(innerFilepath)} is already a node"
-                    # Note that in this case we are not picking up possible modifications of the primitive files
-                else
-                    puts "#{File.basename(innerFilepath)} is new and needs upload"
-                    primitiveFileObject = Nx100s::issuePrimitiveFileFromLocationOrNull(innerFilepath)
-                    #puts "Primitive file:"
-                    #puts JSON.pretty_generate(primitiveFileObject)
-                    #puts "Link: (owner: #{item["uuid"]}, file: #{primitiveFileObject["uuid"]})"
-                    Nx60s::issueClaim(item["uuid"], primitiveFileObject["uuid"])
-
-                    #puts "Writing #{primitiveFileObject["uuid"]}"
-                    PrimitiveFiles::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(primitiveFileObject, File.basename(location), primitiveFileObject["i1as"][0])
-
-                    #puts "Removing #{innerFilepath}"
-                    FileUtils.rm(innerFilepath)
-                end
-            }
-
             return
         end
         if nx111["type"] == "Dx8Unit" then

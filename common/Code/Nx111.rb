@@ -14,7 +14,6 @@ class Nx111
             "aion-point",
             "unique-string",
             "primitive-file",
-            "carrier-of-primitive-files",
             "Dx8Unit"
         ]
     end
@@ -29,7 +28,6 @@ class Nx111
             "aion-point",
             "unique-string",
             "primitive-file",
-            "carrier-of-primitive-files"
         ]
     end
 
@@ -128,12 +126,6 @@ class Nx111
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return PrimitiveFiles::locationToPrimitiveFileNx111OrNull(objectuuid, SecureRandom.uuid, location)
-        end
-        if type == "carrier-of-primitive-files" then
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "carrier-of-primitive-files"
-            }
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end

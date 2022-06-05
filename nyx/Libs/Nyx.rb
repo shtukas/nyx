@@ -37,7 +37,6 @@ class Nyx
             if operation == "special ops" then
                 specialOps = [
                     "game: correcting datetimes",
-                    "select and deploy snapshot"
                 ]
                 op = LucilleCore::selectEntityFromListOfEntitiesOrNull("op", specialOps)
                 if op == "game: correcting datetimes" then

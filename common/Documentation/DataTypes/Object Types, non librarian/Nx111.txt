@@ -48,11 +48,6 @@ Nx111
 }
 
 {
-    "uuid" : String
-    "type" : "carrier-of-primitive-files"
-}
-
-{
     "uuid"   : String
     "type"   : "Dx8Unit"
     "unitId" : String, Id

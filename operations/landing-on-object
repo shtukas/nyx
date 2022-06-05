@@ -1,3 +1,7 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
 
 # encoding: UTF-8
 
@@ -34,6 +38,20 @@ require 'find'
 require 'thread'
 
 require 'colorize'
+
+# -----------------------------------------------------------------------
+# require 'curses' # I commented that out, thereby disabling 
+# CommonUtils::ncurseSelection1410(lambda1, lambda2) ,
+# when I introduced pepin 
+
+require 'pepin'
+
+=begin
+list = Array[String]
+item = Pepin.search(list) # Launches interactive window and returns selected item
+=end
+
+# -----------------------------------------------------------------------
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
@@ -105,43 +123,19 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
-require_relative "../../common/Code/loader.rb"
+require_relative "../common/Code/loader.rb"
 
-# ------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# CLI
+# ---------------------------------------------------------------------------
 
-require_relative "Anniversaries.rb"
+exit if ARGV[0].nil?
 
-require_relative "Bank.rb"
-
-require_relative "Catalyst.rb"
-
-require_relative "DoNotShowUntil.rb"
-# DoNotShowUntil::setUnixtime(uid, unixtime)
-# DoNotShowUntil::isVisible(uid)
-
-require_relative "Galaxy.rb"
-
-require_relative "Inbox.rb"
-require_relative "InternetStatus.rb"
-
-require_relative "Multiverse.rb"
-
-require_relative "NxBallsService.rb"
-require_relative "NyxNetwork.rb"
-
-require_relative "ProgrammableBooleans.rb"
-
-require_relative "SectionsType0141.rb"
-require_relative "Search.rb"
-
-require_relative "TheNetworkStack.rb"
-require_relative "Transmutation.rb"
-require_relative "TxProjects.rb"
-require_relative "TxFloats.rb"
-require_relative "TxDateds.rb"
-require_relative "TxTodos.rb"
-require_relative "The99Percent.rb"
-
-require_relative "Waves.rb"
-
-# ------------------------------------------------------------
+uuid = ARGV[0]
+object = Librarian::getObjectByUUIDOrNull(uuid)
+if object.nil? then
+    puts "I could not find an object with this uuid"
+    LucilleCore::pressEnterToContinue()
+    exit
+end
+LxAction::action("landing", object)

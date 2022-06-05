@@ -1,42 +1,6 @@
 
 # encoding: UTF-8
 
-class TheLibrarianObjectCache
-    def initialize()
-        objects = XCache::getOrNull("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5")
-        if objects then
-            @objects = JSON.parse(objects)
-        else
-            objects = getObjectsFromFx12Files()
-            XCache::set("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5", JSON.generate(objects))
-            @objects = objects
-        end
-    end
-    def getObjectsFromFx12Files()
-        Librarian::fx12Filepaths()
-            .map{|filepath| Fx12s::getObject(filepath) }
-            .sort{|o1, o2| o1["ordinal"] <=> o2["ordinal"] }
-    end
-    def objects()
-        @objects
-    end
-    def commit_object(object)
-        objects = JSON.parse(XCache::getOrNull("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5"))
-        objects = objects.reject{|obj| obj["uuid"] == object["uuid"] }
-        objects << object
-        XCache::set("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5", JSON.generate(objects))
-        @objects = objects
-    end
-    def destroy_object(uuid)
-        objects = JSON.parse(XCache::getOrNull("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5"))
-        objects = objects.reject{|obj| obj["uuid"] == uuid }
-        XCache::set("eaf550b8-a8ed-42bc-8c2a-e59fac568ba5", JSON.generate(objects))
-        @objects = objects
-    end
-end
-
-$TheLibrarianObjectCache = nil # Going to be initialised at the botton on the loader
-
 class Librarian
 
     # --------------------------------------------------
@@ -57,12 +21,6 @@ class Librarian
         "#{folderpath}/#{uuid}.fx12"
     end
 
-    # Librarian::commitObjectToFx12File(object)
-    def self.commitObjectToFx12File(object)
-        filepath = Librarian::getFx12Filepath(object["uuid"])
-        Fx12s::setObject(filepath, object)
-    end
-
     # Librarian::fx12Filepaths()
     def self.fx12Filepaths()
         filepaths = []
@@ -77,24 +35,79 @@ class Librarian
     # ---------------------------------------------------
     # Objects Reading
 
+    # Librarian::pathToDatabaseFile()
+    def self.pathToDatabaseFile()
+        "/Users/pascal/Galaxy/DataBank/Stargate/objects-store.sqlite3"
+    end
+
     # Librarian::objects()
     def self.objects()
-        $TheLibrarianObjectCache.objects()
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ order by _ordinal_", []) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
     end
 
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
-        $TheLibrarianObjectCache.objects().select{|object| object["mikuType"] == mikuType }
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_", [mikuType]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
     end
 
     # Librarian::getObjectsByMikuTypeAndUniverse(mikuType, universe)
     def self.getObjectsByMikuTypeAndUniverse(mikuType, universe)
-        $TheLibrarianObjectCache.objects().select{|object| object["mikuType"] == mikuType and object["universe"] == universe }
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_", [mikuType, universe]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # Librarian::getObjectsByMikuTypeAndUniverseLimit(mikuType, universe, n)
+    def self.getObjectsByMikuTypeAndUniverseLimit(mikuType, universe, n)
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? and _universe_=? order by _ordinal_ limit ?", [mikuType, universe, n]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
     end
 
     # Librarian::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
-        $TheLibrarianObjectCache.objects().select{|object| object["uuid"] == uuid }.first
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
+            answer = JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
     end
 
     # ---------------------------------------------------
@@ -105,6 +118,8 @@ class Librarian
 
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
+
+        raise "(error: 3c0e7684-44fd-4c1d-92b9-bbc5bb15d4ba, incorrect datetime)" if (object["datetime"] and !CommonUtils::isDateTime_UTC_ISO8601(object["datetime"]))
 
         if object["ordinal"].nil? then
             object["ordinal"] = 0
@@ -120,9 +135,10 @@ class Librarian
 
         object["lxHistory"] << SecureRandom.uuid
 
-        Librarian::commitObjectToFx12File(object)
-
-        $TheLibrarianObjectCache.commit_object(object)
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?, ?, ?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
+        db.close
     end
 
     # Librarian::commitWithoutUpdates(object)
@@ -131,13 +147,16 @@ class Librarian
         raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
 
+        raise "(error: 3c0e7684-44fd-4c1d-92b9-bbc5bb15d4ba, incorrect datetime)" if (object["datetime"] and !CommonUtils::isDateTime_UTC_ISO8601(object["datetime"]))
+
         raise "(error: 7fb476dc-94ce-4ef9-8253-04776dd550fb, missing attribute ordinal)" if object["ordinal"].nil?
         raise "(error: bcc0e0f0-b4cf-4815-ae70-0c4cf834bf8f, missing attribute universe)" if object["universe"].nil?
         raise "(error: 9fd3f77b-25a5-4fc1-b481-074f4d5444ce, missing attribute lxHistory)" if object["lxHistory"].nil?
-
-        Librarian::commitObjectToFx12File(object)
-
-        $TheLibrarianObjectCache.commit_object(object)
+        
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_, _ordinal_, _universe_) values (?, ?, ?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object), object["ordinal"], object["universe"]]
+        db.close
     end
 
     # Librarian::objectIsAboutToBeDestroyed(object)
@@ -160,12 +179,16 @@ class Librarian
             Librarian::objectIsAboutToBeDestroyed(object)
         end
 
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+        db.close
+
         filepath = Librarian::getFx12Filepath(uuid)
         if File.exists?(filepath) then
             puts "removing file: #{filepath}"
             FileUtils.rm(filepath)
         end
-
-        $TheLibrarianObjectCache.destroy_object(uuid)
     end
 end

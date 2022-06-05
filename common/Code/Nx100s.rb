@@ -27,7 +27,7 @@ class Nx100s
     # Nx100s::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
 
-        uuid = CommonUtils::nx45()
+        uuid = SecureRandom.uuid
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -80,7 +80,7 @@ class Nx100s
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
 
-        uuid = CommonUtils::nx45()
+        uuid = SecureRandom.uuid
 
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, SecureRandom.uuid, location)
         return nil if nx111.nil?
@@ -228,10 +228,6 @@ class Nx100s
         loop {
             return if item.nil?
 
-            if !item["isSnapshot"] then
-                item = Nx100s::getOrNull(item["uuid"]) # Could have been destroyed or metadata updated in the previous loop
-            end
-
             system("clear")
 
             if $NavigationSandboxState then
@@ -248,9 +244,7 @@ class Nx100s
                 puts ""
             end
 
-            snapshotString = item["isSnapshot"] ? "[!! SNAPSHOT !!] ".white : ""
-
-            puts snapshotString + "(Nx100, Nyx Node) #{Nx100s::toString(item)}".green
+            puts item["description"]
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
@@ -286,11 +280,6 @@ class Nx100s
             commands = []
             commands << "access"
             commands << "description"
-
-            if I1as::toStringShort(item["i1as"]) == "carrier-of-primitive-files" then
-                commands << "upload (primitive files)"
-            end
-
             commands << "datetime"
             commands << "iam"
             commands << "flavour"
@@ -337,17 +326,6 @@ class Nx100s
                 next if description == ""
                 item["description"] = description
                 Librarian::commit(item)
-                next
-            end
-
-            if Interpreting::match("upload", command) then
-                if I1as::toStringShort(item["i1as"]) != "carrier-of-primitive-files" then
-                    puts "(this should not have happened)"
-                    puts "I can only upload a carrier-of-primitive-files"
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                Carriers::addPrimitiveFilesToCarrierOrNothing(item["uuid"])
                 next
             end
 
