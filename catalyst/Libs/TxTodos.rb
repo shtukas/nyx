@@ -311,9 +311,9 @@ class TxTodos
             NxBallsService::issue(uuid, "(rstream)" , [uuid])
         end
 
-        run = lambda {|item|
+        runItem = lambda {|item| # return should_stop_rstream
             loop {
-                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace, >nyx: ")
+                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace, universe, >nyx: ")
                 next if command.nil?
                 if command == "done" then
                     LxAction::action("stop", item)
@@ -332,6 +332,11 @@ class TxTodos
                     TxTodos::interactivelyCreateNewOrNull()
                     return false
                 end
+                if command == "universe" then
+                    item["universe"] = Multiverse::interactivelySelectUniverse()
+                    Librarian::commit(item)
+                    return false
+                end
                 if command == ">nyx" then
                     NxBallsService::close(item["uuid"], true)
                     item["mikuType"] = "Nx100"
@@ -344,50 +349,56 @@ class TxTodos
             }
         }
 
+        processItem = lambda {|item| # return should_stop_rstream
+            loop {
+                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), done, universe, next, exit (rstream): ")
+                if command == "" or command == "run" then
+                    LxAction::action("start", item)
+                    LxAction::action("access", item)
+                    return runItem.call(item) # should_stop_rstream
+                end
+                if command == "landing" then
+                    LxAction::action("landing", item)
+                    item = Librarian::getObjectByUUIDOrNull(item["uuid"])
+                    if item.nil? then
+                        return false
+                    end
+                    if item["mikuType"] != "TxTodo" then
+                        return false
+                    end
+                    # Otherwise we restart the loop
+                end
+                if command == "done" then
+                    LxAction::action("stop", item)
+                    TxTodos::destroy(item["uuid"])
+                    $RStreamProgressMonitor.anotherOne()
+                    return false
+                end
+                if command == "universe" then
+                    item["universe"] = Multiverse::interactivelySelectUniverse()
+                    Librarian::commit(item)
+                    return false
+                end
+                if command == "next" then
+                    return false
+                end
+                if command == "exit" then
+                    return true
+                end
+            }
+        }
+
         (lambda{
             TxTodos::itemsForUniverse("backlog")
                 .first(1000)
                 .shuffle
                 .take(20)
                 .each{|item|
-                    loop {
-                        command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), done, next, exit (rstream): ")
-                        if command == "" or command == "run" then
-                            LxAction::action("start", item)
-                            LxAction::action("access", item)
-                            shouldStopRStream = run.call(item)
-                            if shouldStopRStream then
-                                return
-                            else
-                                break
-                            end
-                        end
-                        if command == "landing" then
-                            LxAction::action("landing", item)
-                            item = Librarian::getObjectByUUIDOrNull(item["uuid"])
-                            if iten.nil? then
-                                break
-                            end
-                            if item["mikuType"] != "TxTodo" then
-                                break
-                            end
-                            # Otherwise we restart the loop
-                        end
-                        if command == "done" then
-                            LxAction::action("stop", item)
-                            TxTodos::destroy(item["uuid"])
-                            $RStreamProgressMonitor.anotherOne()
-                            break
-                        end
-                        if command == "next" then
-                            break
-                        end
-                        if command == "exit" then
-                            return
-                        end
-                    }
+                    should_stop_rstream = processItem.call(item)
+                    if should_stop_rstream then
+                        return
+                    end
                 }
-
         }).call()
         
         NxBallsService::close(uuid, true)
