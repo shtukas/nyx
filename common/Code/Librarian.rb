@@ -15,6 +15,7 @@ class TheLibrarianObjectCache
     def getObjectsFromFx12Files()
         Librarian::fx12Filepaths()
             .map{|filepath| Fx12s::getObject(filepath) }
+            .sort{|o1, o2| o1["ordinal"] <=> o2["ordinal"] }
     end
     def objects()
         @objects
