@@ -82,11 +82,6 @@ class LxAction
                 return
             end
 
-            if object["mikuType"] == "NS16:TxInbox2" then
-                Inbox::landingInbox2(object["item"])
-                return
-            end
-
             if object["mikuType"] == "NS16:TxDated" then
                 item = object["TxDated"]
                 EditionDesk::accessItem(item)

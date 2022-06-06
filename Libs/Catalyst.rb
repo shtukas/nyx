@@ -52,10 +52,6 @@ class TerminalUtils
             return [">todo", store.getDefault()]
         end
 
-        if Interpreting::match(">pile", input) then
-            return [">pile", store.getDefault()]
-        end
-
         if Interpreting::match(">nyx", input) then
             return [">nyx", store.getDefault()]
         end
@@ -343,7 +339,6 @@ class NS16s
             TxDateds::ns16s(),
             Waves::ns16s(universe),
             TxProjects::ns16s(universe),
-            Inbox::ns16s(),
             [TxTodos::rstreamToken()],
             TxTodos::ns16s(universe),
         ]
@@ -477,24 +472,6 @@ class Catalyst
             if CommonUtils::generalCodeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
-            end
-
-            pileFilepath = "/Users/pascal/Desktop/>pile"
-            if File.exists?(pileFilepath) then
-                LucilleCore::locationsAtFolder(pileFilepath)
-                    .each{|location|
-                        name1 = File.basename(location)
-                        safename = CommonUtils::sanitiseStringForFilenaming(name1)
-                        if safename != name1 then
-                            location2 = "#{File.dirname(location)}/#{safename}"
-                            FileUtils.mv(location, location2)
-                            location = location2
-                        end
-                        puts "Issuing todo item from pile: #{File.basename(location)}"
-                        item = TxTodos::issuePile(location)
-                        puts JSON.pretty_generate(item)
-                        LucilleCore::removeFileSystemLocation(location)
-                    }
             end
 
             universe = UniverseStorage::getUniverseOrNull()

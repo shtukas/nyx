@@ -6,4 +6,5 @@ TxTodo = {
   "datetime"    : DateTime Iso8601
   "i1as"        : Array[Nx111]
   "ordinal"     : Float
+  "universe"    : (universe)
 }

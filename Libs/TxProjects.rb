@@ -218,11 +218,12 @@ class TxProjects
                 rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
                 announce = TxProjects::toStringForNS16(item, rt)
                 {
-                    "uuid"     => uuid,
-                    "mikuType" => "NS16:TxProject",
-                    "announce" => announce,
-                    "TxProject"   => item,
-                    "rt"       => rt
+                    "uuid"      => uuid,
+                    "mikuType"  => "NS16:TxProject",
+                    "announce"  => announce,
+                    "TxProject" => item,
+                    "rt"        => rt,
+                    "universe"  => item["universe"]
                 }
             }
             .sort{|i1, i2| i1["rt"] <=> i2["rt"] }

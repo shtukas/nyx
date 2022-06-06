@@ -113,37 +113,6 @@ class TxTodos
         item
     end
 
-    # TxTodos::issuePile(location)
-    def self.issuePile(location)
-        uuid        = SecureRandom.uuid
-        description = File.basename(location)
-        unixtime    = Time.new.to_i
-        datetime    = Time.new.utc.iso8601
-
-        rootnhash   = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
-        nx111 = {
-            "uuid"      => SecureRandom.uuid,
-            "type"      => "aion-point",
-            "rootnhash" => rootnhash
-        }
-
-        universe    = "standard"
-        ordinal     = TxTodos::getInjectionAt10Ordinal(universe)
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxTodo",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "i1as"        => [nx111],
-          "ordinal"     => ordinal,
-          "universe"    => universe
-        }
-        Librarian::commit(item)
-        item
-    end
-
     # --------------------------------------------------
     # toString
 
@@ -407,16 +376,17 @@ class TxTodos
     # --------------------------------------------------
     # nx16s
 
-    # TxTodos::ns16(nx50)
-    def self.ns16(nx50)
-        uuid = nx50["uuid"]
+    # TxTodos::ns16(item)
+    def self.ns16(item)
+        uuid = item["uuid"]
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxTodo",
-            "announce" => TxTodos::toStringForNS16(nx50, rt),
-            "ordinal"  => nx50["ordinal"],
-            "TxTodo"   => nx50,
+            "universe" => item["universe"],
+            "announce" => TxTodos::toStringForNS16(item, rt),
+            "ordinal"  => item["ordinal"],
+            "TxTodo"   => item,
             "rt"       => rt
         }
     end
