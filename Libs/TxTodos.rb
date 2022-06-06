@@ -43,7 +43,7 @@ class TxTodos
 
     # TxTodos::interactivelyDecideNewOrdinal(universe)
     def self.interactivelyDecideNewOrdinal(universe)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection in the top 10", "next"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection in the top 10", "next (default)"])
         if action == "fine selection in the top 10" then
             TxTodos::itemsForUniverse(universe).first(10)
                 .each{|nx50| 
@@ -51,7 +51,7 @@ class TxTodos
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
-        if action == "next" then
+        if action == "next" or action.nil? then
             return TxTodos::nextOrdinal(universe)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
