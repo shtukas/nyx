@@ -9,7 +9,7 @@ class Streaming
         LxAction::action("access", item)
         returnvalue = nil
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace, universe, >nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next, replace, universe, >nyx: ")
             next if command.nil?
             if command == "done" then
                 LxAction::action("stop", item)
@@ -66,7 +66,7 @@ class Streaming
     # Streaming::processItem(item)
     def self.processItem(item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), done, universe, next, exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run (start and access, default), landing (and back), done, universe, next, exit (rstream): ")
             if command == "" or command == "run" then
                 return Streaming::runItem(item) # should_stop_rstream
             end

@@ -137,8 +137,7 @@ class Commands
                     "      " + Commands::makersCommands(),
                     "      " + Commands::diversCommands(),
                     "      internet on | internet off | require internet",
-                    "      universe",
-                    "      work: off today"
+                    "      universe"
                  ].join("\n").yellow
             LucilleCore::pressEnterToContinue()
             return [nil, nil]
@@ -305,11 +304,6 @@ class Commands
 
         if Interpreting::match("wave", input) then
             return ["wave", nil]
-        end
-
-        if Interpreting::match("work: off today", input) then
-            XCache::set("multiverse-monitor-mode-1b16115590a1:#{CommonUtils::today()}", "work-off")
-            return [nil, nil]
         end
 
         [nil, nil]
