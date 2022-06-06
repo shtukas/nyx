@@ -97,7 +97,7 @@ class Librarian
         end
 
         if object["universe"].nil? then
-            object["universe"] = "backlog"
+            object["universe"] = "standard"
         end
 
         if object["lxHistory"].nil? then

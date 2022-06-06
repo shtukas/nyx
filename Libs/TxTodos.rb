@@ -127,7 +127,7 @@ class TxTodos
             "rootnhash" => rootnhash
         }
 
-        universe    = "backlog"
+        universe    = "standard"
         ordinal     = TxTodos::getInjectionAt10Ordinal(universe)
 
         item = {
@@ -389,7 +389,7 @@ class TxTodos
         }
 
         (lambda{
-            TxTodos::itemsForUniverse("backlog")
+            TxTodos::itemsForUniverse("standard")
                 .first(1000)
                 .shuffle
                 .take(20)

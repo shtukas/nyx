@@ -5,7 +5,7 @@ class Multiverse
 
     # Multiverse::universes()
     def self.universes()
-        ["backlog", "work"]
+        ["standard", "theguardian"]
     end
 
     # Multiverse::interactivelySelectUniverseOrNull()
