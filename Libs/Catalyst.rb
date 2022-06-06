@@ -294,7 +294,7 @@ class TerminalUtils
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            UniverseStorage::interactivelySetUniverse()
+            UniverseStored::interactivelySetUniverse()
             return [nil, nil]
         end
 
@@ -474,7 +474,7 @@ class Catalyst
                 break
             end
 
-            universe = UniverseStorage::getUniverseOrNull()
+            universe = UniverseStored::getUniverseOrNull()
 
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

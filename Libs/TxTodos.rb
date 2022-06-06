@@ -197,7 +197,7 @@ class TxTodos
 
             if Interpreting::match("start", command) then
                 if !NxBallsService::isRunning(item["uuid"]) then
-                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
+                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"], item["universe"]])
                 end
                 next
             end
@@ -277,10 +277,13 @@ class TxTodos
         uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the TxTodos::rstreamToken()
 
         if !NxBallsService::isRunning(uuid) then
-            NxBallsService::issue(uuid, "(rstream)" , [uuid])
+            NxBallsService::issue(uuid, "(rstream)" , [uuid]) # rstream itself doesn't publish time to bank accounts.
         end
 
         runItem = lambda {|item| # return should_stop_rstream
+            LxAction::action("start", item)
+            LxAction::action("access", item)
+            returnvalue = nil
             loop {
                 command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace, universe, >nyx: ")
                 next if command.nil?
@@ -291,6 +294,9 @@ class TxTodos
                     return false
                 end
                 if command == "detach" then
+                    # We need to ensure that this thing has a low enough ordinal to be able to show up in the regular listing
+                    item["ordinal"] = 0
+                    Librarian::commit(item)
                     return true
                 end
                 if command == "next" then
@@ -299,15 +305,18 @@ class TxTodos
                 end
                 if command == "replace" then
                     TxTodos::interactivelyCreateNewOrNull()
+                    LxAction::action("stop", item)
+                    TxTodos::destroy(item["uuid"])
                     return false
                 end
                 if command == "universe" then
                     item["universe"] = Multiverse::interactivelySelectUniverse()
                     Librarian::commit(item)
+                    LxAction::action("stop", item)
                     return false
                 end
                 if command == ">nyx" then
-                    NxBallsService::close(item["uuid"], true)
+                    LxAction::action("stop", item)
                     item["mikuType"] = "Nx100"
                     item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
                     Librarian::commit(item)
@@ -322,8 +331,6 @@ class TxTodos
             loop {
                 command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), done, universe, next, exit (rstream): ")
                 if command == "" or command == "run" then
-                    LxAction::action("start", item)
-                    LxAction::action("access", item)
                     return runItem.call(item) # should_stop_rstream
                 end
                 if command == "landing" then
@@ -338,7 +345,6 @@ class TxTodos
                     # Otherwise we restart the loop
                 end
                 if command == "done" then
-                    LxAction::action("stop", item)
                     TxTodos::destroy(item["uuid"])
                     $RStreamProgressMonitor.anotherOne()
                     return false
