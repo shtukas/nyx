@@ -48,7 +48,7 @@ class TxFloats
 
     # TxFloats::toString(item)
     def self.toString(item)
-        "(item) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+        "(item) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{item["universe"]})"
     end
 
     # TxFloats::toStringForNS19(item)
@@ -173,15 +173,14 @@ class TxFloats
         {
             "uuid"     => uuid,
             "mikuType" => "NS16:TxFloat",
-            "announce" => "#{item["description"]} (#{I1as::toStringShort(item["i1as"])})",
+            "announce" => TxFloats::toString(item),
             "TxFloat"  => item
         }
     end
 
     # TxFloats::ns16s(universe)
     def self.ns16s(universe)
-        return [] if universe.nil?
-        Librarian::getObjectsByMikuTypeAndUniverse("TxFloat", universe)
+        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("TxFloat", universe)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .map{|item| TxFloats::ns16(item) }
     end

@@ -316,14 +316,6 @@ class Waves
         }
     end
 
-    # Waves::isPriorityWave(wave)
-    def self.isPriorityWave(wave)
-        return true if wave["repeatType"] == "sticky"
-        return true if wave["repeatType"] == "every-this-day-of-the-month"
-        return true if wave["repeatType"] == "every-this-day-of-the-week"
-        false
-    end
-
     # Waves::toNS16(wave)
     def self.toNS16(wave)
         uuid = wave["uuid"]
@@ -331,14 +323,13 @@ class Waves
             "uuid"       => uuid,
             "mikuType"   => "NS16:Wave",
             "announce"   => Waves::toString(wave),
-            "wave"       => wave,
-            "isPriority" => Waves::isPriorityWave(wave)
+            "wave"       => wave
         }
     end
 
     # Waves::ns16s(universe)
     def self.ns16s(universe)
-        Waves::itemsForUniverse(universe)
+        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("Wave", universe)
             .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
             .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
             .map{|wave| Waves::toNS16(wave) }

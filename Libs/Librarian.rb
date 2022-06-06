@@ -53,6 +53,37 @@ class Librarian
         answer
     end
 
+    # Librarian::getObjectByUUIDOrNull(uuid)
+    def self.getObjectByUUIDOrNull(uuid)
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = nil
+        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
+            answer = JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
+    # ---------------------------------------------------
+    # Fancy
+
+    # Librarian::getObjectsByMikuTypeLimit(mikuType, n)
+    def self.getObjectsByMikuTypeLimit(mikuType, n)
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _mikuType_=? order by _ordinal_ limit ?", [mikuType, n]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
     # Librarian::getObjectsByMikuTypeAndUniverseLimit(mikuType, universe, n)
     def self.getObjectsByMikuTypeAndUniverseLimit(mikuType, universe, n)
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
@@ -67,18 +98,22 @@ class Librarian
         answer
     end
 
-    # Librarian::getObjectByUUIDOrNull(uuid)
-    def self.getObjectByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
-            answer = JSON.parse(row['_object_'])
+    # Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse(mikuType, universe)
+    def self.getObjectsByMikuTypeAndPossiblyNullUniverse(mikuType, universe)
+        if universe then
+            Librarian::getObjectsByMikuTypeAndUniverse(mikuType, universe)
+        else
+            Librarian::getObjectsByMikuType(mikuType)
         end
-        db.close
-        answer
+    end
+
+    # Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit(mikuType, universe, n)
+    def self.getObjectsByMikuTypeAndPossiblyNullUniverseLimit(mikuType, universe, n)
+        if universe then
+            Librarian::getObjectsByMikuTypeAndUniverseLimit(mikuType, universe, n)
+        else
+            Librarian::getObjectsByMikuTypeLimit(mikuType, n)
+        end
     end
 
     # ---------------------------------------------------

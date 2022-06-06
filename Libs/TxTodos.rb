@@ -33,13 +33,6 @@ class TxTodos
     end
 
     # --------------------------------------------------
-
-    # TxTodos::itemsForNS16s(universe)
-    def self.itemsForNS16s(universe)
-        Librarian::getObjectsByMikuTypeAndUniverseLimit("TxTodo", universe, 100)
-    end
-
-    # --------------------------------------------------
     # Ordinals
 
     # TxTodos::nextOrdinal(universe)
@@ -50,31 +43,18 @@ class TxTodos
 
     # TxTodos::interactivelyDecideNewOrdinal(universe)
     def self.interactivelyDecideNewOrdinal(universe)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection near the top", "injection @ 10 (default)", "next"])
-        if action == "fine selection near the top" then
-            TxTodos::itemsForUniverse(universe).first(50)
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection in the top 10", "next"])
+        if action == "fine selection in the top 10" then
+            TxTodos::itemsForUniverse(universe).first(10)
                 .each{|nx50| 
                     puts "- #{TxTodos::toStringWithOrdinal(nx50)}"
                 }
             return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
         end
-        if action == "injection @ 10 (default)" or action.nil? then
-            return TxTodos::getInjectionAt10Ordinal(universe)
-        end
         if action == "next" then
             return TxTodos::nextOrdinal(universe)
         end
         raise "5fe95417-192b-4256-a021-447ba02be4aa"
-    end
-
-    # TxTodos::getInjectionAt10Ordinal(universe)
-    def self.getInjectionAt10Ordinal(universe)
-        items = TxTodos::itemsForUniverse(universe)
-        if items.size < 11 then
-            return TxTodos::nextOrdinal(universe)
-        end
-        items = items.drop(9)
-        ( items[0]["ordinal"]+items[1]["ordinal"] ).to_f/2
     end
 
     # --------------------------------------------------
@@ -398,7 +378,7 @@ class TxTodos
         {
             "uuid"     => uuid,
             "mikuType" => "ADE4F121",
-            "announce" => "(rstream) (#{$RStreamProgressMonitor.getCount()})",
+            "announce" => "(rstream) (#{$RStreamProgressMonitor.getCount()} last 7 days) (rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid).round(2)})",
             "lambda"   => lambda { TxTodos::rstream() },
             "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
         }
@@ -406,26 +386,7 @@ class TxTodos
 
     # TxTodos::ns16s(universe)
     def self.ns16s(universe)
-
-        # We want the process to finish.
-        # At the beginning of the day we identify a ordinal, the 10th one, and only serve iems below that ordinal
-        # Note that the default new ordinal scheme is to put any new item between the 10th and the 11th
-
-        getTodayLimitOrdinal = lambda {|universe|
-            date = CommonUtils::today()
-            ordinal = XCache::getOrNull("a9b8acd6-a937-4388-b208-622a950f149b:#{date}")
-            return ordinal.to_f if ordinal
-            items = TxTodos::itemsForNS16s(universe)
-            return 1 if items.empty?
-            ordinal = items.take(10).map{|item| item["ordinal"] }.max
-            XCache::set("a9b8acd6-a937-4388-b208-622a950f149b:#{date}", ordinal)
-            ordinal
-        }
-
-        limitordinal = getTodayLimitOrdinal.call(universe)
-
-        TxTodos::itemsForNS16s(universe)
-            .select{|item| item["ordinal"] <= limitordinal  }
+        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit("TxTodo", universe, 100)
             .map{|item| TxTodos::ns16(item) }
             .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
             .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }

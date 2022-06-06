@@ -474,27 +474,13 @@ class Catalyst
                 break
             end
 
-            universe = UniverseStored::getUniverseOrNull()
+            universe = nil # UniverseStored::getUniverseOrNull()
 
             floats = TxFloats::ns16s(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
 
             section2 = NS16s::ns16s(universe)
-
-            getOrderingValue = lambda {|uuid|
-                value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{CommonUtils::today()}:#{uuid}")
-                return value.to_f if value
-                sleep 0.01
-                value = Time.new.to_f
-                XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{CommonUtils::today()}:#{uuid}", value)
-                value
-            }
-
-            # This is to ensure that at beginning of the day, We get teh ordering naturally given by NS16s::ns16s
-            section2.each{|ns16| getOrderingValue.call(ns16["uuid"]) }
-
-            section2 = section2.sort{|n1, n2| getOrderingValue.call(n1["uuid"]) <=> getOrderingValue.call(n2["uuid"]) }
 
             filterSection3 = lambda{|ns16|
                 return false if NxBallsService::isRunning(ns16["uuid"])
