@@ -247,113 +247,6 @@ class TxTodos
         }
     end
 
-    # TxTodos::rstream()
-    def self.rstream()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the TxTodos::rstreamToken()
-
-        if !NxBallsService::isRunning(uuid) then
-            NxBallsService::issue(uuid, "(rstream)" , [uuid]) # rstream itself doesn't publish time to bank accounts.
-        end
-
-        runItem = lambda {|item| # return should_stop_rstream
-            LxAction::action("start", item)
-            LxAction::action("access", item)
-            returnvalue = nil
-            loop {
-                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) done, detach (running), (keep and) next, replace, universe, >nyx: ")
-                next if command.nil?
-                if command == "done" then
-                    LxAction::action("stop", item)
-                    TxTodos::destroy(item["uuid"])
-                    $RStreamProgressMonitor.anotherOne()
-                    return false
-                end
-                if command == "detach" then
-                    # We need to ensure that this thing has a low enough ordinal to be able to show up in the regular listing
-                    item["ordinal"] = 0
-                    Librarian::commit(item)
-                    return true
-                end
-                if command == "next" then
-                    LxAction::action("stop", item)
-                    return false
-                end
-                if command == "replace" then
-                    TxTodos::interactivelyCreateNewOrNull()
-                    LxAction::action("stop", item)
-                    TxTodos::destroy(item["uuid"])
-                    return false
-                end
-                if command == "universe" then
-                    item["universe"] = Multiverse::interactivelySelectUniverse()
-                    Librarian::commit(item)
-                    LxAction::action("stop", item)
-                    return false
-                end
-                if command == ">nyx" then
-                    LxAction::action("stop", item)
-                    item["mikuType"] = "Nx100"
-                    item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
-                    Librarian::commit(item)
-                    Nx100s::landing(item)
-                    $RStreamProgressMonitor.anotherOne()
-                    return false
-                end
-            }
-        }
-
-        processItem = lambda {|item| # return should_stop_rstream
-            loop {
-                command = LucilleCore::askQuestionAnswerAsString("(> #{item["description"].green}) run (start and access, default), landing (and back), done, universe, next, exit (rstream): ")
-                if command == "" or command == "run" then
-                    return runItem.call(item) # should_stop_rstream
-                end
-                if command == "landing" then
-                    LxAction::action("landing", item)
-                    item = Librarian::getObjectByUUIDOrNull(item["uuid"])
-                    if item.nil? then
-                        return false
-                    end
-                    if item["mikuType"] != "TxTodo" then
-                        return false
-                    end
-                    # Otherwise we restart the loop
-                end
-                if command == "done" then
-                    TxTodos::destroy(item["uuid"])
-                    $RStreamProgressMonitor.anotherOne()
-                    return false
-                end
-                if command == "universe" then
-                    item["universe"] = Multiverse::interactivelySelectUniverse()
-                    Librarian::commit(item)
-                    return false
-                end
-                if command == "next" then
-                    return false
-                end
-                if command == "exit" then
-                    return true
-                end
-            }
-        }
-
-        (lambda{
-            TxTodos::itemsForUniverse("standard")
-                .first(1000)
-                .shuffle
-                .take(20)
-                .each{|item|
-                    should_stop_rstream = processItem.call(item)
-                    if should_stop_rstream then
-                        return
-                    end
-                }
-        }).call()
-        
-        NxBallsService::close(uuid, true)
-    end
-
     # --------------------------------------------------
     # nx16s
 
@@ -369,18 +262,6 @@ class TxTodos
             "ordinal"  => item["ordinal"],
             "TxTodo"   => item,
             "rt"       => rt
-        }
-    end
-
-    # TxTodos::rstreamToken()
-    def self.rstreamToken()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid also used in TxTodos
-        {
-            "uuid"     => uuid,
-            "mikuType" => "ADE4F121",
-            "announce" => "(rstream) (#{$RStreamProgressMonitor.getCount()} last 7 days) (rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid).round(2)})",
-            "lambda"   => lambda { TxTodos::rstream() },
-            "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
         }
     end
 

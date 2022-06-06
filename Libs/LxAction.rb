@@ -443,7 +443,7 @@ class LxAction
         end
 
         if command == "rstream" then
-            TxTodos::rstream()
+            Streaming::rstream()
             return
         end
 

@@ -116,6 +116,7 @@ require_relative "Catalyst.rb"
 require_relative "Config.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
+require_relative "Commands.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -149,6 +150,7 @@ require_relative "NxTimelines.rb"
 require_relative "NyxNetwork.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
+require_relative "NS16s.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -156,6 +158,7 @@ require_relative "ProgrammableBooleans.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Slots.rb"
+require_relative "Streaming.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxProjects.rb"
