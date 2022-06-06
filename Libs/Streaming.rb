@@ -3,17 +3,6 @@
 
 class Streaming
 
-    # Streaming::doneItem(item)
-    def self.doneItem(item)
-        if item["mikuType"] == "TxTodo" then
-            TxTodos::destroy(item["uuid"])
-            $RStreamProgressMonitor.anotherOne()
-            return
-        end
-        puts "I do not know how to Streaming::doneItem #{JSON.pretty_generate(item)}"
-        exit
-    end
-
     # Streaming::runItem(item) # return should_stop_rstream
     def self.runItem(item)
         LxAction::action("start", item)
@@ -24,7 +13,10 @@ class Streaming
             next if command.nil?
             if command == "done" then
                 LxAction::action("stop", item)
-                Streaming::doneItem(item)
+                if item["mikuType"] == "TxTodo" then
+                    $RStreamProgressMonitor.anotherOne()
+                end
+                LxAction::action("done", item)
                 return false
             end
             if command == "detach" then
@@ -90,8 +82,10 @@ class Streaming
                 # Otherwise we restart the loop
             end
             if command == "done" then
-                TxTodos::destroy(item["uuid"])
-                $RStreamProgressMonitor.anotherOne()
+                LxAction::action("done", item)
+                if item["mikuType"] == "TxTodo" then
+                    $RStreamProgressMonitor.anotherOne()
+                end
                 return false
             end
             if command == "universe" then
@@ -114,6 +108,20 @@ class Streaming
             should_stop_rstream = Streaming::processItem(item)
             break if should_stop_rstream
         }
+    end
+
+    # Streaming::items()
+    def self.items()
+        [
+            Anniversaries::anniversaries().select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() },
+            TxDateds::items().select{|item| item["datetime"][0, 10] <= CommonUtils::today() }.sort{|i1, i2| i1["datetime"] <=> i2["datetime"] },
+            Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("Wave", nil),
+            TxProjects::itemsForUniverse(nil),
+            Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit("TxTodo", nil, 100),
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
     end
 
     # Streaming::rstream()
@@ -140,19 +148,5 @@ class Streaming
             "lambda"   => lambda { Streaming::rstream() },
             "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
         }
-    end
-
-    # Streaming::items()
-    def self.items()
-        [
-            Anniversaries::anniversaries().select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() },
-            TxDateds::items().select{|item| item["datetime"][0, 10] <= CommonUtils::today() }.sort{|i1, i2| i1["datetime"] <=> i2["datetime"] },
-            Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("Wave", nil),
-            TxProjects::itemsForUniverse(nil),
-            Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit("TxTodo", nil, 100),
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
     end
 end

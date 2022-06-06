@@ -43,6 +43,12 @@ class Commands
             return outputForCommandAndOrdinal.call("..", ordinal, store)
         end
 
+        if Interpreting::match(">>", input) then
+            system("clear")
+            Streaming::stream(Streaming::items())
+            return [nil, nil]
+        end
+
         if Interpreting::match(">project", input) then
             return [">project", store.getDefault()]
         end
@@ -238,11 +244,6 @@ class Commands
         if Interpreting::match("stop *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
-        end
-
-        if Interpreting::match("streaming", input) then
-            Streaming::stream(Streaming::items())
-            return [nil, nil]
         end
     
         if Interpreting::match("today", input) then

@@ -101,12 +101,6 @@ class TerminalDisplayOperator
             end
         end
 
-        if input == ">>" then
-            item = store.getDefault()
-            XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{CommonUtils::today()}:#{item["uuid"]}", Time.new.to_f)
-            return
-        end
-
         command, objectOpt = Commands::inputParser(input, store)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 
