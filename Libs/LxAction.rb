@@ -72,6 +72,11 @@ class LxAction
                 return
             end
 
+            if object["i1as"] then
+                EditionDesk::accessItem(object)
+                return
+            end
+
             if object["mikuType"] == "NS16:Anniversary1" then
                 Anniversaries::access(object["anniversary"])
                 return
@@ -184,6 +189,11 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performDone(item)
                 end
+                return
+            end
+            if object["mikuType"] == "Wave" then
+                item = object
+                Waves::performDone(item)
                 return
             end
         end

@@ -26,6 +26,11 @@ class LxFunction
             end
         end
         if command == "toString" then
+
+            if object["description"] then
+                return object["description"]
+            end
+
             if object["mikuType"] == "NS16:TxDated" then
                 return object["announce"]
             end
