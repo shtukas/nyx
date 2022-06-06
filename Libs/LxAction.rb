@@ -393,7 +393,8 @@ class LxAction
         end
 
         if command == "start" then
-            NxBallsService::issue(object["uuid"], LxFunction::function("toString", object), [object["uuid"]])
+            accounts = [object["uuid"], object["universe"]].compact
+            NxBallsService::issue(object["uuid"], LxFunction::function("toString", object), accounts)
             return
         end
 
