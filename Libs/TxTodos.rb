@@ -118,17 +118,12 @@ class TxTodos
 
     # TxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{item["universe"]})"
     end
 
     # TxTodos::toStringWithOrdinal(item)
     def self.toStringWithOrdinal(item)
         "(todo) (ord: #{item["ordinal"]}) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
-    end
-
-    # TxTodos::toStringForNS16(item, rt)
-    def self.toStringForNS16(item, rt)
-        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxTodos::toStringForNS19(item)
@@ -390,7 +385,7 @@ class TxTodos
             "uuid"     => uuid,
             "mikuType" => "NS16:TxTodo",
             "universe" => item["universe"],
-            "announce" => TxTodos::toStringForNS16(item, rt),
+            "announce" => TxTodos::toString(item),
             "ordinal"  => item["ordinal"],
             "TxTodo"   => item,
             "rt"       => rt

@@ -146,7 +146,7 @@ class Waves
     def self.toString(item)
         lastDoneDateTime = item["lastDoneDateTime"] || "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{Waves::scheduleString(item)}) (#{ago})"
+        "(wave) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{Waves::scheduleString(item)}) (#{ago}) (#{item["universe"]})"
     end
 
     # Waves::performDone(item)

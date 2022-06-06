@@ -55,13 +55,9 @@ class TxProjects
 
     # TxProjects::toString(item)
     def self.toString(item)
-        "(project) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+        "(project) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{item["universe"]})"
     end
 
-    # TxProjects::toStringForNS16(item, rt)
-    def self.toStringForNS16(item, rt)
-        "(project) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
-    end
 
     # TxProjects::toStringForNS19(item)
     def self.toStringForNS19(item)
@@ -216,7 +212,7 @@ class TxProjects
             .map{|item| 
                 uuid = item["uuid"]
                 rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                announce = TxProjects::toStringForNS16(item, rt)
+                announce = TxProjects::toString(item)
                 {
                     "uuid"      => uuid,
                     "mikuType"  => "NS16:TxProject",
