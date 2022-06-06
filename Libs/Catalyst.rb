@@ -235,6 +235,11 @@ class TerminalUtils
             return ["stop", store.getDefault()]
         end
 
+        if Interpreting::match("slots", input) then
+            Slots::editSlots()
+            return [nil, nil]
+        end
+
         if Interpreting::match("stop *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
@@ -324,7 +329,7 @@ class Commands
 
     # Commands::diversCommands()
     def self.diversCommands()
-        "waves | anniversaries | calendar | projects | ondates | todos"
+        "waves | anniversaries | calendar | projects | ondates | todos | slots"
     end
 end
 
@@ -383,6 +388,13 @@ class TerminalDisplayOperator
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
+        end
+
+        slots = Slots::getSlots().strip
+        if slots.size > 0 then
+            puts ""
+            puts slots.green
+            vspaceleft = vspaceleft - (CommonUtils::verticalSize(slots) + 1)
         end
 
         running = NxBallsIO::getItems().select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
