@@ -447,7 +447,7 @@ class LxAction
         end
 
         if command == "todos" then
-            universe = UniverseStorage::getUniverseOrNull()
+            universe = UniverseStored::getUniverseOrNull()
             nx50s =  TxTodos::itemsForUniverse(universe)
             if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
                 nx50s = nx50s.first(CommonUtils::screenHeight()-4)

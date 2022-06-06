@@ -5,7 +5,7 @@ class Multiverse
 
     # Multiverse::universes()
     def self.universes()
-        ["standard", "theguardian"]
+        ["standard", "theguardian", "jedi"]
     end
 
     # Multiverse::interactivelySelectUniverseOrNull()
@@ -21,9 +21,9 @@ class Multiverse
     end
 end
 
-class UniverseStorage
+class UniverseStored
 
-    # UniverseStorage::setUniverse(universe or null)
+    # UniverseStored::setUniverse(universe or null)
     def self.setUniverse(universe)
         if universe.nil? then
             XCache::destroy("5117D42F-8542-4D74-A219-47AF3C58F22B")
@@ -32,14 +32,14 @@ class UniverseStorage
         XCache::set("5117D42F-8542-4D74-A219-47AF3C58F22B", universe)
     end
 
-    # UniverseStorage::getUniverseOrNull()
+    # UniverseStored::getUniverseOrNull()
     def self.getUniverseOrNull()
         XCache::getOrNull("5117D42F-8542-4D74-A219-47AF3C58F22B")
     end
 
-    # UniverseStorage::interactivelySetUniverse()
+    # UniverseStored::interactivelySetUniverse()
     def self.interactivelySetUniverse()
         universe = Multiverse::interactivelySelectUniverse()
-        UniverseStorage::setUniverse(universe)
+        UniverseStored::setUniverse(universe)
     end
 end

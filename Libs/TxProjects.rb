@@ -130,7 +130,7 @@ class TxProjects
 
             if Interpreting::match("start", command) then
                 if !NxBallsService::isRunning(item["uuid"]) then
-                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
+                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"], item["universe"]])
                 end
                 next
             end
