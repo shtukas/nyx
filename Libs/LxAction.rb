@@ -191,9 +191,13 @@ class LxAction
                 end
                 return
             end
+
+            if object["mikuType"] == "TxTodo" then
+                TxTodos::destroy(object["uuid"])
+                return
+            end
             if object["mikuType"] == "Wave" then
-                item = object
-                Waves::performDone(item)
+                Waves::performDone(object)
                 return
             end
         end
