@@ -167,20 +167,10 @@ class Anniversaries
         end
     end
 
-    # Anniversaries::ns16s()
-    def self.ns16s()
+    # Anniversaries::itemsForListing()
+    def self.itemsForListing()
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
-            .map{|anniversary|
-                uuid = anniversary["uuid"]
-                {
-                    "uuid"        => uuid,
-                    "mikuType"    => "NS16:Anniversary1",
-                    "announce"    => Anniversaries::toString(anniversary).gsub("[anniversary]","[anni]"),
-                    "anniversary" => anniversary
-                }
-            }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
     end
 
     # Anniversaries::dailyBriefing()

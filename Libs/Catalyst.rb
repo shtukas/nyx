@@ -2,8 +2,8 @@
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::printListing(universe, floats, section2, section3)
-    def self.printListing(universe, floats, section2, section3)
+    # TerminalDisplayOperator::printListing(universe, floats, section2)
+    def self.printListing(universe, floats, section2)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -29,9 +29,9 @@ class TerminalDisplayOperator
         if floats.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            floats.each{|ns16|
-                store.register(ns16, false)
-                line = "#{store.prefixString()} [#{Time.at(ns16["TxFloat"]["unixtime"]).to_s[0, 10]}] #{ns16["announce"]}".yellow
+            floats.each{|item|
+                store.register(item, false)
+                line = "#{store.prefixString()} [#{Time.at(item["unixtime"]).to_s[0, 10]}] #{LxFunction::function("toString", item)}".yellow
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
@@ -51,11 +51,7 @@ class TerminalDisplayOperator
             running
                     .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
                     .each{|nxball|
-                        delegate = {
-                            "uuid"     => nxball["uuid"],
-                            "mikuType" => "NxBallNS16Delegate1" 
-                        }
-                        store.register(delegate, true)
+                        store.register(nxball, true)
                         line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                         puts line.green
                         vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
@@ -64,13 +60,13 @@ class TerminalDisplayOperator
 
         printSection = lambda {|section, store|
             section
-                .each{|ns16|
-                    store.register(ns16, true)
-                    line = ns16["announce"]
+                .each{|item|
+                    store.register(item, true)
+                    line = LxFunction::function("toString", item)
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(ns16["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", ns16["uuid"], "")})".green
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
@@ -81,12 +77,6 @@ class TerminalDisplayOperator
             puts ""
             vspaceleft = vspaceleft - 1
             printSection.call(section2, store)
-        end
-
-        if section3.size > 0 and vspaceleft > 3 then
-            puts "-" * 60
-            vspaceleft = vspaceleft - 1
-            printSection.call(section3, store)
         end
 
         puts ""
@@ -110,6 +100,18 @@ end
 
 class Catalyst
 
+    # Catalyst::itemsForListing(universe)
+    def self.itemsForListing(universe)
+        [
+            Anniversaries::itemsForListing(),
+            TxDateds::itemsForListing(),
+            Waves::itemsForListing(universe),
+            TxProjects::itemsForUniverse(universe),
+            TxTodos::itemsForListing(universe),
+        ]
+            .flatten
+    end
+
     # Catalyst::program2()
     def self.program2()
         initialCodeTrace = CommonUtils::generalCodeTrace()
@@ -120,28 +122,29 @@ class Catalyst
                 break
             end
 
-            universe = nil # UniverseStored::getUniverseOrNull()
+            universe = UniverseStored::getUniverseOrNull()
 
-            floats = TxFloats::ns16s(universe)
+            floats = TxFloats::itemsForListing(universe)
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                        .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+                        .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            section2 = NS16s::ns16s(universe)
+            section2 = Catalyst::itemsForListing(universe)
 
-            filterSection3 = lambda{|ns16|
-                return false if NxBallsService::isRunning(ns16["uuid"])
-                return true if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{ns16["uuid"]}")
-                return false if !["NS16:TxProject", "NS16:TxTodo", "ADE4F121"].include?(ns16["mikuType"])
-                ns16["rt"] > 1
+            filterNotInSection2 = lambda{|item|
+                return false if NxBallsService::isRunning(item["uuid"])
+                return true if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
+                return false if !["TxProject", "TxTodo", "(rstream)"].include?(item["mikuType"])
+                BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
             }
 
-            section3, section2 = section2.partition{|ns16| filterSection3.call(ns16) }
-
-            section2p1, section2p2 = section2.partition{|ns16| NxBallsService::isRunning(ns16["uuid"]) }
-
+            _, section2 = section2.partition{|item| filterNotInSection2.call(item) }
+            section2p1, section2p2 = section2.partition{|item| NxBallsService::isRunning(item["uuid"]) }
             section2 = section2p1 + section2p2
+            section2 = section2
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            TerminalDisplayOperator::printListing(universe, floats, section2, section3)
+            TerminalDisplayOperator::printListing(universe, floats, section2)
         }
     end
 end

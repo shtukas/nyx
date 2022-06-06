@@ -282,7 +282,6 @@ class Waves
     end
 
     # -------------------------------------------------------------------------
-    # NS16
 
     # Waves::access(item)
     def self.access(item)
@@ -316,24 +315,10 @@ class Waves
         }
     end
 
-    # Waves::toNS16(wave)
-    def self.toNS16(wave)
-        uuid = wave["uuid"]
-        {
-            "uuid"       => uuid,
-            "mikuType"   => "NS16:Wave",
-            "announce"   => Waves::toString(wave),
-            "wave"       => wave
-        }
-    end
-
-    # Waves::ns16s(universe)
-    def self.ns16s(universe)
+    # Waves::itemsForListing(universe)
+    def self.itemsForListing(universe)
         Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("Wave", universe)
-            .select{|wave| DoNotShowUntil::isVisible(wave["uuid"]) }
-            .select{|wave| InternetStatus::ns16ShouldShow(wave["uuid"]) }
-            .map{|wave| Waves::toNS16(wave) }
-            .sort{|n1, n2| n1["wave"]["lastDoneDateTime"] <=> n2["wave"]["lastDoneDateTime"] }
+            .sort{|wave1, wave2| wave1["lastDoneDateTime"] <=> wave2["lastDoneDateTime"] }
     end
 
     # Waves::nx20s()

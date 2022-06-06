@@ -1,58 +1,44 @@
 
 class LxFunction
 
-    # LxFunction::function(command, object or nil)
-    def self.function(command, object)
+    # LxFunction::function(command, item or nil)
+    def self.function(command, item)
 
         return if command.nil?
 
-        if object and object["mikuType"].nil? then
+        if item and item["mikuType"].nil? then
             puts "Objects sent to LxFunction if not null should have a mikuType attribute."
             puts "Got:"
-            puts JSON.pretty_generate(object)
+            puts JSON.pretty_generate(item)
             puts "Aborting."
             exit
         end
 
-        if command == "description" then
-            if object["mikuType"] == "Nx100" then
-                return object["description"]
-            end
-            if object["mikuType"] == "TxTodo" then
-                return object["description"]
-            end
-            if object["mikuType"] == "TxFloat" then
-                return object["description"]
-            end
-        end
         if command == "toString" then
-            if object["mikuType"] == "NS16:TxDated" then
-                return object["announce"]
+            if item["mikuType"] == "Nx100" then
+                return Nx100s::toString(item)
             end
-            if object["mikuType"] == "NS16:TxProject" then
-                return object["announce"]
+            if item["mikuType"] == "NxTimeline" then
+                return NxTimelines::toString(item)
             end
-            if object["mikuType"] == "Nx100" then
-                return Nx100s::toString(object)
+            if item["mikuType"] == "TxDated" then
+                return TxDateds::toString(item)
             end
-            if object["mikuType"] == "NxTimeline" then
-                return object["description"]
+            if item["mikuType"] == "TxTodo" then
+                return TxTodos::toString(item)
             end
-            if object["mikuType"] == "TxTodo" then
-                return TxTodos::toString(object)
+            if item["mikuType"] == "TxProject" then
+                return TxProjects::toString(item)
             end
-            if object["mikuType"] == "TxProject" then
-                return TxProjects::toString(object)
+            if item["mikuType"] == "Wave" then
+                return Waves::toString(item)
             end
-            if object["mikuType"] == "Wave" then
-                return Waves::toString(object)
-            end
-            if object["description"] then
-                return object["description"]
+            if item["description"] then
+                return item["description"]
             end
         end
 
-        puts "I do not know how to LxFunction::function (command: #{command}, object: #{JSON.pretty_generate(object)})"
+        puts "I do not know how to LxFunction::function (command: #{command}, item: #{JSON.pretty_generate(item)})"
         puts "Aborting."
         exit
     end

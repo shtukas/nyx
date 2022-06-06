@@ -3,6 +3,7 @@
 
 Anniversary {
   "uuid"        : String,
+  "mikuType"    : "Anniversary"
   "unixtime"    : Float,
   "description" : String,
   "startdate"   : Date # YYYY-MM-DD,

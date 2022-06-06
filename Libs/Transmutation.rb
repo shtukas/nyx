@@ -46,7 +46,7 @@ class Transmutation
     end
 
     # Transmutation::transmutation1(object, source, target)
-    # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float) | "inbox"
+    # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
     # target: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
     def self.transmutation1(object, source, target)
 

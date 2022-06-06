@@ -204,28 +204,6 @@ class TxProjects
     end
 
     # --------------------------------------------------
-    # nx16s
-
-    # TxProjects::ns16s(universe)
-    def self.ns16s(universe)
-        TxProjects::itemsForUniverse(universe)
-            .map{|item| 
-                uuid = item["uuid"]
-                rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-                announce = TxProjects::toString(item)
-                {
-                    "uuid"      => uuid,
-                    "mikuType"  => "NS16:TxProject",
-                    "announce"  => announce,
-                    "TxProject" => item,
-                    "rt"        => rt,
-                    "universe"  => item["universe"]
-                }
-            }
-            .sort{|i1, i2| i1["rt"] <=> i2["rt"] }
-    end
-
-    # --------------------------------------------------
 
     # TxProjects::nx20s()
     def self.nx20s()

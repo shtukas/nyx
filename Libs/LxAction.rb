@@ -1,46 +1,44 @@
 
 class LxAction
 
-    # LxAction::action(command, object or nil)
-    def self.action(command, object)
+    # LxAction::action(command, item or nil)
+    def self.action(command, item)
 
-        # All objects sent to this are expected to have an mikyType attribute
+        # All items sent to this are expected to have an mikyType attribute
 
         return if command.nil?
 
-        if object and object["mikuType"].nil? then
+        if item and item["mikuType"].nil? then
             puts "Objects sent to LxAction::action if not null should have a mikuType attribute."
             puts "Got:"
             puts "command: #{command}"
-            puts "object:"
-            puts JSON.pretty_generate(object)
+            puts "item:"
+            puts JSON.pretty_generate(item)
             puts "Aborting."
             exit
         end
 
         if command == ".." then
 
-            if !NxBallsService::isRunning(object["uuid"]) then
-                NxBallsService::issue(object["uuid"], object["announce"] ? object["announce"] : "(object: #{object["uuid"]})" , [object["uuid"]])
+            if !NxBallsService::isRunning(item["uuid"]) then
+                NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
             end
 
-            LxAction::action("access", object)
+            LxAction::action("access", item)
 
-            if object["mikuType"] == "NS16:fitness1" then
-                NxBallsService::close(object["uuid"], true)
+            if item["mikuType"] == "fitness1" then
+                NxBallsService::close(item["uuid"], true)
             end
 
-            if object["mikuType"] == "NS16:TxDated" and object["announce"].include?("(vienna)") then
+            if item["mikuType"] == "TxDated" and item["description"].include?("(vienna)") then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
-                    item = object["TxDated"]
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                 end
             end
 
-            if object["mikuType"] == "NS16:TxTodo" then
+            if item["mikuType"] == "TxTodo" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
-                    item = object["TxTodo"]
                     TxTodos::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                 end
@@ -50,16 +48,14 @@ class LxAction
         end
 
         if command == ">nyx" then
-            if object["mikuType"] == "NS16:TxTodo" then
-                item = object["TxTodo"]
+            if item["mikuType"] == "TxTodo" then
                 Transmutation::transmutation1(item, "TxTodo", "Nx100")
                 return
             end
         end
 
         if command == ">todo" then
-            if object["mikuType"] == "NS16:TxDated" then
-                item = object["TxDated"]
+            if item["mikuType"] == "TxDated" then
                 Transmutation::transmutation1(item, "TxDated", "TxTodo")
                 return
             end
@@ -67,57 +63,48 @@ class LxAction
 
         if command == "access" then
 
-            if object["lambda"] then
-                object["lambda"].call()
+            if item["lambda"] then
+                item["lambda"].call()
                 return
             end
 
-            if object["i1as"] then
-                EditionDesk::accessItem(object)
-                return
-            end
-
-            if object["mikuType"] == "NS16:Anniversary1" then
-                Anniversaries::access(object["anniversary"])
-                return
-            end
-
-            if object["mikuType"] == "NS16:fitness1" then
-                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
-                return
-            end
-
-            if object["mikuType"] == "NS16:TxDated" then
-                item = object["TxDated"]
+            if item["i1as"] then
                 EditionDesk::accessItem(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:TxProject" then
-                item = object["TxProject"]
+            if item["mikuType"] == "Anniversary" then
+                Anniversaries::access(item)
+                return
+            end
+
+            if item["mikuType"] == "fitness1" then
+                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
+                return
+            end
+
+            if item["mikuType"] == "TxDated" then
                 EditionDesk::accessItem(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:TxFloat" then
-                item = object["TxFloat"]
+            if item["mikuType"] == "TxProject" then
                 EditionDesk::accessItem(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:TxTodo" then
-                item = object["TxTodo"]
+            if item["mikuType"] == "TxFloat" then
                 EditionDesk::accessItem(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:Wave" then
-                Waves::access(object["wave"])
+            if item["mikuType"] == "TxTodo" then
+                EditionDesk::accessItem(item)
                 return
             end
 
-            if object["mikuType"] == "TxTodo" then
-                EditionDesk::accessItem(object)
+            if item["mikuType"] == "Wave" then
+                EditionDesk::accessItem(item)
                 return
             end
         end
@@ -136,68 +123,47 @@ class LxAction
 
         if command == "done" then
 
-            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", object["uuid"])
+            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", item["uuid"])
 
-            # If the object was running, then we stop it
-            if NxBallsService::isRunning(object["uuid"]) then
-                 NxBallsService::close(object["uuid"], true)
+            # If the item was running, then we stop it
+            if NxBallsService::isRunning(item["uuid"]) then
+                 NxBallsService::close(item["uuid"], true)
             end
 
-            if object["mikuType"] == "ADE4F121" then
+            if item["mikuType"] == "(rstream)" then
                 # That's the rstream
                 return
             end
 
-            if object["mikuType"] == "NxBallNS16Delegate1" then
-                NxBallsService::close(object["uuid"], true)
+            if item["mikuType"] == "NxBall.v2" then
+                NxBallsService::close(item["uuid"], true)
                 return
             end
-            if object["mikuType"] == "NS16:Anniversary1" then
-                anniversary = object["anniversary"]
-                Anniversaries::done(anniversary)
+            if item["mikuType"] == "Anniversary" then
+                Anniversaries::done(item)
                 return
             end
-            if object["mikuType"] == "NS16:TxDated" then
-                item = object["TxDated"]
+            if item["mikuType"] == "TxDated" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
                 return
             end
-            if object["mikuType"] == "NS16:TxProject" then
-                item = object["TxProject"]
+            if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
                 XCache::setFlagTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
                 return
             end
-            if object["mikuType"] == "NS16:TxInbox2" then
-                item = object["item"]
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of inbox item '#{item["description"].green}' ? ", true) then
-                    TxTodos::destroy(item["uuid"])
-                end
-                return
-            end
-            if object["mikuType"] == "NS16:TxTodo" then
-                item = object["TxTodo"]
+            if item["mikuType"] == "TxTodo" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of todo '#{item["description"].green}' ? ", true) then
                     TxTodos::destroy(item["uuid"])
                 end
                 return
             end
-            if object["mikuType"] == "NS16:Wave" then
-                item = object["wave"]
+            if item["mikuType"] == "Wave" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performDone(item)
                 end
-                return
-            end
-
-            if object["mikuType"] == "TxTodo" then
-                TxTodos::destroy(object["uuid"])
-                return
-            end
-            if object["mikuType"] == "Wave" then
-                Waves::performDone(object)
                 return
             end
         end
@@ -208,7 +174,7 @@ class LxAction
         end
 
         if command == "expose" then
-            puts JSON.pretty_generate(object)
+            puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -227,41 +193,6 @@ class LxAction
             return
         end
 
-        if command == "inbox" then
-            
-            # This function creates a TxInbox2 object that is going to be dropped into the Inbox folder. 
-            # Catalyst will know how to pick them up properly and how to present them
-
-            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
-            return if line == ""
-            uuid = SecureRandom.uuid
-
-            aionrootnhash = nil
-
-            location = CommonUtils::interactivelySelectDesktopLocationOrNull() 
-            if location then
-                aionrootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
-            end
-
-            item = {
-                "uuid"          => uuid,
-                "mikuType"      => "TxInbox2",
-                "unixtime"      => Time.new.to_i,
-                "line"          => line,
-                "aionrootnhash" => aionrootnhash
-            }
-
-            puts JSON.pretty_generate(item)
-
-            Librarian::commit(item)
-
-            if location then
-                LucilleCore::removeFileSystemLocation(location)
-            end
-
-            return
-        end
-
         if command == "internet on" then
             InternetStatus::setInternetOn()
             return
@@ -274,75 +205,53 @@ class LxAction
 
         if command == "landing" then
 
-            if object["mikuType"] == "Ax1Text" then
-                Ax1Text::landing(object)
+            if item["mikuType"] == "Ax1Text" then
+                Ax1Text::landing(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:Anniversary1" then
-                Anniversaries::landing(object["anniversary"])
+            if item["mikuType"] == "Anniversary" then
+                Anniversaries::landing(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:fitness1" then
-                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{object["fitness-domain"]}")
+            if item["mikuType"] == "fitness1" then
+                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
             end
 
-            if object["mikuType"] == "NS16:TxDated" then
-                mx49 = object["TxDated"]
-                TxDateds::landing(mx49)
+            if item["mikuType"] == "NxTimeline" then
+                NxTimelines::landing(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:TxProject" then
-                nx70 = object["TxProject"]
-                TxProjects::landing(nx70)
+            if item["mikuType"] == "Nx100" then
+                Nx100s::landing(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:TxFloat" then
-                TxFloats::landing(object["TxFloat"])
+            if item["mikuType"] == "TxDated" then
+                TxDateds::landing(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:TxTodo" then
-                TxTodos::landing(object["TxTodo"])
+            if item["mikuType"] == "TxProject" then
+                TxProjects::landing(item)
                 return
             end
 
-            if object["mikuType"] == "NS16:Wave" then
-                Waves::landing(object["wave"])
+            if item["mikuType"] == "TxFloat" then
+                TxFloats::landing(item)
                 return
             end
 
-            if object["mikuType"] == "NxTimeline" then
-                NxTimelines::landing(object)
+            if item["mikuType"] == "TxTodo" then
+                TxTodos::landing(item)
                 return
             end
 
-            if object["mikuType"] == "Nx100" then
-                Nx100s::landing(object)
-                return
-            end
-
-            if object["mikuType"] == "TxProject" then
-                TxProjects::landing(object)
-                return
-            end
-
-            if object["mikuType"] == "TxFloat" then
-                TxFloats::landing(object)
-                return
-            end
-
-            if object["mikuType"] == "TxTodo" then
-                TxTodos::landing(object)
-                return
-            end
-
-            if object["mikuType"] == "Wave" then
-                Waves::landing(object)
+            if item["mikuType"] == "Wave" then
+                Waves::landing(item)
                 return
             end
         end
@@ -366,30 +275,26 @@ class LxAction
         end
 
         if command == "pause" then
-            NxBallsService::pause(object["uuid"])
+            NxBallsService::pause(item["uuid"])
             return
         end
 
         if command == "pursue" then
-            ns16 = object
-            NxBallsService::pursue(ns16["uuid"])
+            NxBallsService::pursue(item["uuid"])
             return
         end
 
         if command == "redate" then
-            ns16 = object
-            if ns16["mikuType"] == "NS16:TxDated" then
-                mx49 = ns16["TxDated"]
+            if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
-                mx49["datetime"] = datetime
-                Librarian::commit(mx49)
+                item["datetime"] = datetime
+                Librarian::commit(item)
                 return
             end
         end
 
         if command == "require internet" then
-            ns16 = object
-            InternetStatus::markIdAsRequiringInternet(ns16["uuid"])
+            InternetStatus::markIdAsRequiringInternet(item["uuid"])
             return
         end
 
@@ -407,37 +312,29 @@ class LxAction
         end
 
         if command == "start" then
-            accounts = [object["uuid"], object["universe"]].compact
-            NxBallsService::issue(object["uuid"], LxFunction::function("toString", object), accounts)
+            accounts = [item["uuid"], item["universe"]].compact
+            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end
 
         if command == "stop" then
-            NxBallsService::close(object["uuid"], true)
+            NxBallsService::close(item["uuid"], true)
             return
         end
 
-        if command == "time" and object["mikuType"] == "TimeInstructionAdd" then
-            ns16 = object["ns16"]
-            timeInHours = object["timeInHours"]
+        if command == "time" and item["mikuType"] == "TimeInstructionAdd" then
+            payload = item["payload"]
+            timeInHours = item["timeInHours"]
 
-            if ns16["mikuType"] == "NS16:TxTodo" then
-                todo = ns16["TxTodo"]
-                puts "Adding #{timeInHours} hours to #{todo["uuid"]}"
-                Bank::put(todo["uuid"], timeInHours*3600)
+            if payload["mikuType"] == "TxTodo" then
+                puts "Adding #{timeInHours} hours to #{payload["uuid"]}"
+                Bank::put(payload["uuid"], timeInHours*3600)
                 return
             end
 
-            if ns16["mikuType"] == "NS16:TxProject" then
-                project = ns16["TxProject"]
-                puts "Adding #{timeInHours} hours to #{project["uuid"]}"
-                Bank::put(project["uuid"], timeInHours*3600)
-                return
-            end
-
-            if ns16["mikuType"] == "Tx0930" then
-                puts "Adding #{timeInHours} hours to work global commitment"
-                Bank::put(ns16["uuid"], timeInHours*3600)
+            if payload["mikuType"] == "TxProject" then
+                puts "Adding #{timeInHours} hours to #{payload["uuid"]}"
+                Bank::put(payload["uuid"], timeInHours*3600)
                 return
             end
         end
@@ -477,21 +374,18 @@ class LxAction
         end
 
         if command == "transmute" then
-            if object["mikuType"] == "NS16:TxDated" then
-                mx49 = object["TxDated"]
-                Transmutation::transmutation2(mx49, "TxDated")
+            if item["mikuType"] == "TxDated" then
+                Transmutation::transmutation2(item, "TxDated")
                 return
             end
 
-            if object["mikuType"] == "NS16:TxProject" then
-                nx70 = object["TxProject"]
-                Transmutation::transmutation2(nx70, "TxProject")
+            if item["mikuType"] == "TxProject" then
+                Transmutation::transmutation2(item, "TxProject")
                 return
             end
 
-            if object["mikuType"] == "NS16:TxTodo" then
-                nx70 = object["TxTodo"]
-                Transmutation::transmutation2(nx70, "TxTodo")
+            if item["mikuType"] == "TxTodo" then
+                Transmutation::transmutation2(item, "TxTodo")
                 return
             end
         end
@@ -508,7 +402,7 @@ class LxAction
             return
         end
 
-        puts "I do not know how to do action (command: #{command}, object: #{JSON.pretty_generate(object)})"
+        puts "I do not know how to do action (command: #{command}, item: #{JSON.pretty_generate(item)})"
         LucilleCore::pressEnterToContinue()
     end
 end

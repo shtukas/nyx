@@ -19,16 +19,16 @@ class Commands
     end
 
     # Commands::inputParser(input, store)
-    def self.inputParser(input, store) # [command or null, ns16 or null]
+    def self.inputParser(input, store) # [command or null, item or null]
         # This function take an input from the prompt and 
         # attempt to retrieve a command and optionaly an object (from the store)
         # Note that the command can also be null if a command could not be extrated
 
         outputForCommandAndOrdinal = lambda {|command, ordinal, store|
             ordinal = ordinal.to_i
-            ns16 = store.get(ordinal)
-            if ns16 then
-                return [command, ns16]
+            item = store.get(ordinal)
+            if item then
+                return [command, item]
             else
                 return [nil, nil]
             end
@@ -41,12 +41,6 @@ class Commands
         if Interpreting::match(".. *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("..", ordinal, store)
-        end
-
-        if Interpreting::match(">>", input) then
-            system("clear")
-            Streaming::stream(Streaming::items())
-            return [nil, nil]
         end
 
         if Interpreting::match(">project", input) then
@@ -141,10 +135,6 @@ class Commands
                  ].join("\n").yellow
             LucilleCore::pressEnterToContinue()
             return [nil, nil]
-        end
-
-        if Interpreting::match("inbox", input) then
-            return ["inbox", nil]
         end
 
         if Interpreting::match("internet off", input) then
@@ -251,11 +241,11 @@ class Commands
 
         if Interpreting::match("time * *", input) then
             _, ordinal, timenHours = Interpreting::tokenizer(input)
-            ns16 = store.get(ordinal.to_i)
-            return if ns16.nil?
+            payload = store.get(ordinal.to_i)
+            return if payload.nil?
             object = {
                 "mikuType"    => "TimeInstructionAdd",
-                "ns16"        => ns16,
+                "payload"     => payload,
                 "timeInHours" => timenHours.to_f
             }
             return ["time", object]

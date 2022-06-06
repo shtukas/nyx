@@ -248,29 +248,23 @@ class TxTodos
     end
 
     # --------------------------------------------------
-    # nx16s
 
-    # TxTodos::ns16(item)
-    def self.ns16(item)
-        uuid = item["uuid"]
-        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        {
-            "uuid"     => uuid,
-            "mikuType" => "NS16:TxTodo",
-            "universe" => item["universe"],
-            "announce" => TxTodos::toString(item),
-            "ordinal"  => item["ordinal"],
-            "TxTodo"   => item,
-            "rt"       => rt
-        }
-    end
-
-    # TxTodos::ns16s(universe)
-    def self.ns16s(universe)
-        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit("TxTodo", universe, 100)
-            .map{|item| TxTodos::ns16(item) }
-            .select{|ns16| DoNotShowUntil::isVisible(ns16["uuid"]) }
-            .select{|ns16| InternetStatus::ns16ShouldShow(ns16["uuid"]) }
+    # TxTodos::itemsForListing(universe)
+    def self.itemsForListing(universe)
+        date = CommonUtils::today()
+        itemuuids = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb2b:#{universe}:#{date}")
+        if itemuuids.nil? then
+            itemuuids = Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit("TxTodo", universe, 100)
+                            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                            .first(5)
+                            .map{|item| item["uuid"] }
+            XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb2b:#{universe}:#{date}", JSON.generate(itemuuids))
+        else
+            itemuuids = JSON.parse(itemuuids)
+        end
+        itemuuids
+            .map{|uuid| Librarian::getObjectByUUIDOrNull(uuid) }
+            .compact
     end
 
     # --------------------------------------------------

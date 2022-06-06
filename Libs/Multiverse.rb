@@ -39,7 +39,7 @@ class UniverseStored
 
     # UniverseStored::interactivelySetUniverse()
     def self.interactivelySetUniverse()
-        universe = Multiverse::interactivelySelectUniverse()
+        universe = Multiverse::interactivelySelectUniverseOrNull()
         UniverseStored::setUniverse(universe)
     end
 end

@@ -165,24 +165,11 @@ class TxFloats
     end
 
     # --------------------------------------------------
-    # nx16s
 
-    # TxFloats::ns16(item)
-    def self.ns16(item)
-        uuid = item["uuid"]
-        {
-            "uuid"     => uuid,
-            "mikuType" => "NS16:TxFloat",
-            "announce" => TxFloats::toString(item),
-            "TxFloat"  => item
-        }
-    end
-
-    # TxFloats::ns16s(universe)
-    def self.ns16s(universe)
+    # TxFloats::itemsForListing(universe)
+    def self.itemsForListing(universe)
         Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("TxFloat", universe)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .map{|item| TxFloats::ns16(item) }
     end
 
     # --------------------------------------------------

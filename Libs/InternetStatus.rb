@@ -27,8 +27,8 @@ class InternetStatus
         XCache::getOrNull("29f7d6a5-91ed-4623-9f52-543684881f33:#{id}") == "require"
     end
 
-    # InternetStatus::ns16ShouldShow(id)
-    def self.ns16ShouldShow(id)
+    # InternetStatus::itemShouldShow(id)
+    def self.itemShouldShow(id)
         InternetStatus::internetIsActive() or !InternetStatus::trueIfElementRequiresInternet(id)
     end
 end

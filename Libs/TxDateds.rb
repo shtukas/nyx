@@ -229,25 +229,13 @@ class TxDateds
     end
 
     # --------------------------------------------------
-    # nx16s
+    # 
 
-    # TxDateds::ns16(item)
-    def self.ns16(item)
-        uuid = item["uuid"]
-        {
-            "uuid"     => uuid,
-            "mikuType" => "NS16:TxDated",
-            "announce" => TxDateds::toString(item),
-            "TxDated"  => item
-        }
-    end
-
-    # TxDateds::ns16s()
-    def self.ns16s()
+    # TxDateds::itemsForListing()
+    def self.itemsForListing()
         TxDateds::items()
             .select{|item| item["datetime"][0, 10] <= CommonUtils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            .map{|item| TxDateds::ns16(item) }
     end
 
     # --------------------------------------------------

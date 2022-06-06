@@ -110,20 +110,6 @@ class Streaming
         }
     end
 
-    # Streaming::items()
-    def self.items()
-        [
-            Anniversaries::anniversaries().select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() },
-            TxDateds::items().select{|item| item["datetime"][0, 10] <= CommonUtils::today() }.sort{|i1, i2| i1["datetime"] <=> i2["datetime"] },
-            Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("Wave", nil),
-            TxProjects::itemsForUniverse(nil),
-            Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit("TxTodo", nil, 100),
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::ns16ShouldShow(item["uuid"]) }
-    end
-
     # Streaming::rstream()
     def self.rstream()
         uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the Streaming::rstreamToken()
@@ -141,12 +127,13 @@ class Streaming
     # Streaming::rstreamToken()
     def self.rstreamToken()
         uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid also used in TxTodos
-        {
+        return [] if BankExtended::stdRecoveredDailyTimeInHours(uuid) > 1
+        [{
             "uuid"     => uuid,
-            "mikuType" => "ADE4F121",
-            "announce" => "(rstream) (#{$RStreamProgressMonitor.getCount()} last 7 days) (rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid).round(2)})",
+            "mikuType" => "(rstream)",
+            "announce" => "(rstream) (#{$RStreamProgressMonitor.getCount()} last 7 days)",
             "lambda"   => lambda { Streaming::rstream() },
             "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        }
+        }]
     end
 end
