@@ -3,7 +3,6 @@ NxCatalyst {
     "uuid"        : uuid,
     "mikuType"    : "NxCatalyst"
     "unixtime"    : unixtime
-    "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
     "behaviour"   : Nx46 # Catalyst behaviour
     "content"     : Nx111 # standard payload

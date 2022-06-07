@@ -7,7 +7,7 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | calendar item | float | project | project: <line> | today | ondate | ondate: <line> | todo | todo: <line>",
-            "waves | anniversaries | calendar | projects | ondates | todos | slots",
+            "anniversaries | calendar | projects | ondates | todos | slots",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
         ].join("\n")
     end
@@ -88,6 +88,12 @@ class Commands
 
         if Interpreting::match("calendar", input) then
             return ["calendar", nil]
+        end
+
+        if input.start_with?("catalyst") then
+            item = NxCatalyst::issueNewNxCatalystInteractivelyOrNull()
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
         end
 
         if Interpreting::match("done", input) then
@@ -284,10 +290,6 @@ class Commands
         if Interpreting::match("transmute *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("transmute", ordinal, store)
-        end
-
-        if Interpreting::match("wave", input) then
-            return ["wave", nil]
         end
 
         [nil, nil]

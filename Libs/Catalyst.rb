@@ -111,7 +111,7 @@ class Catalyst
         [
             Anniversaries::itemsForListing(),
             TxDateds::itemsForListing(),
-            Waves::itemsForListing(universe),
+            NxCatalyst::itemsForListing(universe),
             TxProjects::itemsForListing(universe),
             TxTodos::itemsForListing(universe),
         ]

@@ -222,8 +222,8 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "Wave" then
-            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
+        if item["mikuType"] == "NxCatalyst" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["content"], operator)
             return
         end
 

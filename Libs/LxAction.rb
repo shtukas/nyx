@@ -44,9 +44,9 @@ class LxAction
                 end
             end
 
-            if item["mikuType"] == "Wave" then
+            if item["mikuType"] == "NxCatalyst" then
                 if LucilleCore::askQuestionAnswerAsBoolean("done ? ", true) then
-                    Waves::performDone(item)
+                    NxCatalyst::performNxCatalystNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
                 end
             end
@@ -168,9 +168,10 @@ class LxAction
                 end
                 return
             end
-            if item["mikuType"] == "Wave" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
-                    Waves::performDone(item)
+
+            if item["mikuType"] == "NxCatalyst" then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{NxCatalyst::toString(item).green} ? '", true) then
+                    NxCatalyst::performNxCatalystNx46WaveDone(item)
                 end
                 return
             end
@@ -259,7 +260,7 @@ class LxAction
             end
 
             if item["mikuType"] == "Wave" then
-                Waves::landing(item)
+                NxCatalyst::landing(item)
                 return
             end
         end
@@ -399,14 +400,9 @@ class LxAction
         end
 
         if command == "wave" then
-            item = Waves::issueNewWaveInteractivelyOrNull()
+            item = NxCatalyst::issueNewNxCatalystInteractivelyOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            return
-        end
-
-        if command == "waves" then
-            Waves::waves()
             return
         end
 

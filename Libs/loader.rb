@@ -151,6 +151,7 @@ require_relative "NyxNetwork.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
 require_relative "NxTodoExpectations.rb"
+require_relative "NxCatalyst.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -169,7 +170,5 @@ require_relative "The99Percent.rb"
 require_relative "TheNetworkStack.rb"
 
 require_relative "UniqueStringsFunctions.rb"
-
-require_relative "Waves.rb"
 
 # ------------------------------------------------------------
