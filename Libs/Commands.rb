@@ -47,6 +47,12 @@ class Commands
             return [nil, nil]
         end
 
+        if Interpreting::match(">>", input) then
+            if item = store.getDefault() then
+                XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{CommonUtils::today()}:#{item["uuid"]}", Time.new.to_f)
+            end
+        end
+
         if Interpreting::match(">project", input) then
             return [">project", store.getDefault()]
         end
