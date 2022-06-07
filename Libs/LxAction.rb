@@ -373,7 +373,7 @@ class LxAction
             end
             loop {
                 system("clear")
-                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| "#{TxTodos::toString(nx50)} (#{nx50["ordinal"]})" })
+                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| "#{TxTodos::toString(nx50)}" })
                 return if nx50.nil?
                 TxTodos::landing(nx50)
             }

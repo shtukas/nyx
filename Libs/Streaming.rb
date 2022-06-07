@@ -20,9 +20,11 @@ class Streaming
                 return false
             end
             if command == "detach" then
-                # We need to ensure that this thing has a low enough ordinal to be able to show up in the regular listing
-                item["ordinal"] = 0
-                Librarian::commit(item)
+                todoCachedItems = JSON.parse(XCache::getOrDefaultValue("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", "[]"))
+                if !todoCachedItems.map{|item| item["uuid"] }.include?(item["uuid"]) then
+                    todoCachedItems << item
+                    XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", JSON.generate(todoCachedItems))
+                end
                 return true
             end
             if command == "next" then

@@ -33,31 +33,6 @@ class TxTodos
     end
 
     # --------------------------------------------------
-    # Ordinals
-
-    # TxTodos::nextOrdinal(universe)
-    def self.nextOrdinal(universe)
-        biggest = ([0] + TxTodos::itemsForUniverse(universe).map{|nx50| nx50["ordinal"] }).max
-        (biggest + 1).floor
-    end
-
-    # TxTodos::interactivelyDecideNewOrdinal(universe)
-    def self.interactivelyDecideNewOrdinal(universe)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["fine selection in the top 10", "next (default)"])
-        if action == "fine selection in the top 10" then
-            TxTodos::itemsForUniverse(universe).first(10)
-                .each{|nx50| 
-                    puts "- #{TxTodos::toStringWithOrdinal(nx50)}"
-                }
-            return LucilleCore::askQuestionAnswerAsString("> ordinal ? : ").to_f
-        end
-        if action == "next" or action.nil? then
-            return TxTodos::nextOrdinal(universe)
-        end
-        raise "5fe95417-192b-4256-a021-447ba02be4aa"
-    end
-
-    # --------------------------------------------------
     # Makers
 
     # TxTodos::interactivelyCreateNewOrNull(description = nil)
@@ -74,10 +49,10 @@ class TxTodos
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), uuid)
         return nil if nx111.nil?
 
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
-        universe   = Multiverse::interactivelySelectUniverse()
-        ordinal    = TxTodos::interactivelyDecideNewOrdinal(universe)
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+        universe    = Multiverse::interactivelySelectUniverse()
+        expectation = NxTodoExpectations::makeNew()
 
         item = {
           "uuid"        => uuid,
@@ -86,8 +61,8 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "i1as"        => [nx111],
-          "ordinal"     => ordinal,
-          "universe"    => universe
+          "universe"    => universe,
+          "expectation" => expectation
         }
         Librarian::commit(item)
         item
@@ -101,9 +76,9 @@ class TxTodos
         "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{item["universe"]})"
     end
 
-    # TxTodos::toStringWithOrdinal(item)
-    def self.toStringWithOrdinal(item)
-        "(todo) (ord: #{item["ordinal"]}) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+    # TxTodos::toString(item)
+    def self.toString(item)
+        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
     end
 
     # TxTodos::toStringForNS19(item)
@@ -134,7 +109,6 @@ class TxTodos
             } 
 
             puts "universe: #{item["universe"]}".yellow
-            puts "ordinal: #{item["ordinal"]}".yellow
 
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
@@ -148,7 +122,7 @@ class TxTodos
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | ordinal | rotate | transmute | note | universe | show json | >nyx | destroy".yellow
+            puts "access | start | <datecode> | description | iam | transmute | note | universe | show json | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -201,24 +175,6 @@ class TxTodos
                 break
             end
 
-            if Interpreting::match("ordinal", command) then
-                universe = Multiverse::interactivelySelectUniverse()
-                ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
-                item["ordinal"] = ordinal
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                next
-            end
-
-            if Interpreting::match("rotate", command) then
-                universe = Multiverse::interactivelySelectUniverse()
-                ordinal = TxTodos::nextOrdinal(universe)
-                item["ordinal"] = ordinal
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                break
-            end
-
             if Interpreting::match("transmute", command) then
                 Transmutation::transmutation2(item, "TxTodo")
                 break
@@ -253,19 +209,18 @@ class TxTodos
     def self.itemsForListing(universe)
 
         getItemsForUniverse = lambda {|universe, date|
-            ordinal = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb3b:#{universe}:#{date}")
-            if ordinal.nil? then
-                ordinal = Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
-                                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                                .first(5)
-                                .map{|item| item["ordinal"] }
-                                .max
-                XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb3b:#{universe}:#{date}", ordinal)
+            items = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}")
+            if items then
+                return JSON.parse(items)
+                            .map{|item| Librarian::getObjectByUUIDOrNull(item["uuid"]) }
+                            .compact
             else
-                ordinal = ordinal.to_f
+                items = Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
+                            .sort{|i1, i2| NxTodoExpectations::expectationToUrgency(i1["expectation"]) <=> NxTodoExpectations::expectationToUrgency(i2["expectation"]) }
+                            .take(5)
+                XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", JSON.generate(items))
+                return items
             end
-            Librarian::getObjectsByMikuTypeAndUniverseLimit("TxTodo", universe, 100)
-                .select{|item| item["ordinal"] <= ordinal }
         }
 
         date = CommonUtils::today()

@@ -26,8 +26,8 @@ Nx46Project {
 }
 
 Nx46Todo {
-    "mikuType" : "Nx46Todo"
-    "ordinal"  : Float
+    "mikuType"    : "Nx46Todo"
+    "expectation" : NxTodoExpectation
 }
 
 Nx46Wave {

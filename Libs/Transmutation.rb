@@ -52,8 +52,6 @@ class Transmutation
 
         if source == "TxDated" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
-            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
-            object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             object["universe"] = universe
             Librarian::commit(object)
@@ -94,8 +92,6 @@ class Transmutation
 
         if source == "TxFloat" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
-            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
-            object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             object["universe"] = universe
             Librarian::commit(object)
@@ -104,8 +100,6 @@ class Transmutation
 
         if source == "TxProject" and target == "TxTodo" then
             universe = Multiverse::interactivelySelectUniverse()
-            ordinal = TxTodos::interactivelyDecideNewOrdinal(universe)
-            object["ordinal"] = ordinal
             object["mikuType"] = "TxTodo"
             object["universe"] = universe
             Librarian::commit(object)

@@ -5,6 +5,12 @@ TxTodo = {
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601
   "i1as"        : Array[Nx111]
-  "ordinal"     : Float
   "universe"    : (universe)
+  "expectation" : NxTodoExpectation
 }
+
+NxTodoExpectation {
+  "creation-unixtime" : Float
+  "period"            : "hours" | "days" | "weeks" | "months"
+}
+
