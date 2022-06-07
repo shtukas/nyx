@@ -37,8 +37,9 @@ class I1as
             nx111 = I1as::selectOneNx111OrNull(i1as)
             return item if nx111.nil?
             nx111v2 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMaking(), item["uuid"])
-            puts JSON.pretty_generate(nx111)
+            puts JSON.pretty_generate(nx111v2)
             item["i1as"] = item["i1as"].select{|nx| nx["uuid"] != nx111["uuid"] } + [ nx111v2 ]
+            Librarian::commit(item)
             return item
         end
         if option == "remove" then
