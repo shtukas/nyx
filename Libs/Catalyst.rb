@@ -2,8 +2,8 @@
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::printListing(universe, floats, section2)
-    def self.printListing(universe, floats, section2)
+    # TerminalDisplayOperator::printListing(universe, floats, section2, section3)
+    def self.printListing(universe, floats, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -79,6 +79,12 @@ class TerminalDisplayOperator
             printSection.call(section2, store)
         end
 
+        if section3.size > 0 and vspaceleft > 2 then
+            puts "---------------------------------------------------"
+            vspaceleft = vspaceleft - 1
+            printSection.call(section3, store)
+        end
+
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -130,6 +136,20 @@ class Catalyst
 
             section2 = Catalyst::itemsForListing(universe)
 
+            getOrderingValue = lambda {|uuid|
+                date = CommonUtils::today()
+                value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{date}:#{uuid}")
+                return value.to_f if value
+                sleep 0.01
+                value = Time.new.to_f
+                XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{date}:#{uuid}", value)
+                value
+            }
+
+            # This is to ensure that at beginning of the day, We get the ordering naturally given by `Catalyst::itemsForListing`
+            section2.each{|item| getOrderingValue.call(item["uuid"]) }
+            section2 = section2.sort{|item1, item2| getOrderingValue.call(item1["uuid"]) <=> getOrderingValue.call(item2["uuid"]) }
+
             filterNotInSection2 = lambda{|item|
                 return false if NxBallsService::isRunning(item["uuid"])
                 return true if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
@@ -137,14 +157,14 @@ class Catalyst
                 BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
             }
 
-            _, section2 = section2.partition{|item| filterNotInSection2.call(item) }
+            section3, section2 = section2.partition{|item| filterNotInSection2.call(item) }
             section2p1, section2p2 = section2.partition{|item| NxBallsService::isRunning(item["uuid"]) }
             section2 = section2p1 + section2p2
             section2 = section2
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                 .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            TerminalDisplayOperator::printListing(universe, floats, section2)
+            TerminalDisplayOperator::printListing(universe, floats, section2, section3)
         }
     end
 end
