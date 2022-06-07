@@ -5,9 +5,11 @@ class NxTodoExpectations
 
     # NxTodoExpectations::interactivelyDecidePeriod()
     def self.interactivelyDecidePeriod()
-        period = LucilleCore::selectEntityFromListOfEntitiesOrNull("period", ["hours", "days", "weeks", "months"])
-        return period if period
-        "days"
+        period = LucilleCore::selectEntityFromListOfEntitiesOrNull("period", ["hours", "days (default)", "weeks", "months"])
+        if period.nil? or period == "days (default)" then
+            return "days"
+        end
+        period
     end
 
     # NxTodoExpectations::makeNew()
