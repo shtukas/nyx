@@ -205,6 +205,11 @@ class TxProjects
 
     # --------------------------------------------------
 
+    # TxProjects::itemsForListing(universe)
+    def self.itemsForListing(universe)
+        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("TxProject", universe)
+    end
+
     # TxProjects::nx20s()
     def self.nx20s()
         TxProjects::items().map{|item|

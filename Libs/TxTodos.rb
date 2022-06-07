@@ -251,20 +251,34 @@ class TxTodos
 
     # TxTodos::itemsForListing(universe)
     def self.itemsForListing(universe)
+
+        getItemsForUniverse = lambda {|universe, date|
+            ordinal = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb3b:#{universe}:#{date}")
+            if ordinal.nil? then
+                ordinal = Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
+                                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                                .first(5)
+                                .map{|item| item["ordinal"] }
+                                .max
+                XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb3b:#{universe}:#{date}", ordinal)
+            else
+                ordinal = ordinal.to_f
+            end
+            Librarian::getObjectsByMikuTypeAndUniverseLimit("TxTodo", universe, 100)
+                .select{|item| item["ordinal"] <= ordinal }
+        }
+
         date = CommonUtils::today()
-        itemuuids = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb2b:#{universe}:#{date}")
-        if itemuuids.nil? then
-            itemuuids = Librarian::getObjectsByMikuTypeAndPossiblyNullUniverseLimit("TxTodo", universe, 100)
-                            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                            .first(5)
-                            .map{|item| item["uuid"] }
-            XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb2b:#{universe}:#{date}", JSON.generate(itemuuids))
+
+        if universe then
+            getItemsForUniverse.call(universe, date)
         else
-            itemuuids = JSON.parse(itemuuids)
+            Multiverse::universes()
+                .map{|universe|
+                    getItemsForUniverse.call(universe, date)
+                }
+                .flatten
         end
-        itemuuids
-            .map{|uuid| Librarian::getObjectByUUIDOrNull(uuid) }
-            .compact
     end
 
     # --------------------------------------------------
