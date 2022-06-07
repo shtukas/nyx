@@ -122,7 +122,7 @@ class TxTodos
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | transmute | note | universe | show json | >nyx | destroy".yellow
+            puts "access | start | <datecode> | description | iam | transmute | note | universe | json | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -180,7 +180,7 @@ class TxTodos
                 break
             end
 
-            if Interpreting::match("show json", command) then
+            if Interpreting::match("json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 next

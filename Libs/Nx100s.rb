@@ -110,7 +110,7 @@ class Nx100s
 
     # Nx100s::toString(item)
     def self.toString(item)
-        "#{item["description"]}"
+        "(node) #{item["description"]}"
     end
 
     # Nx100s::selectItemsByYear(year)

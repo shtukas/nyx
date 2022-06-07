@@ -157,6 +157,7 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxProject" then
+                puts "done-ing #{item["description"].green} for today"
                 NxBallsService::close(item["uuid"], true)
                 XCache::setFlagTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
                 return

@@ -146,7 +146,7 @@ class TxDateds
                 }
             end
 
-            puts "access | date | description | iam | note | show json | transmute | universe | destroy".yellow
+            puts "access | date | description | iam | note | json | transmute | universe | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -190,7 +190,7 @@ class TxDateds
                 next
             end
 
-            if Interpreting::match("show json", command) then
+            if Interpreting::match("json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 next

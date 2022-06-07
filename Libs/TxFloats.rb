@@ -92,7 +92,7 @@ class TxFloats
                 }
             end
 
-            puts "access | <datecode> | description | iam| note | universe | transmute | show json | >nyx | destroy".yellow
+            puts "access | <datecode> | description | iam| note | universe | transmute | json | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -143,7 +143,7 @@ class TxFloats
                 break
             end
 
-            if Interpreting::match("show json", command) then
+            if Interpreting::match("json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 next

@@ -102,7 +102,7 @@ class TxProjects
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | note | show json | universe | transmute | >nyx | destroy".yellow
+            puts "access | start | <datecode> | description | iam | note | json | universe | transmute | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -160,7 +160,7 @@ class TxProjects
                 next
             end
 
-            if Interpreting::match("show json", command) then
+            if Interpreting::match("json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
                 next
