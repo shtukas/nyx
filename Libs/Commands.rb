@@ -3,19 +3,13 @@
 
 class Commands
 
-    # Commands::terminalDisplayCommand()
-    def self.terminalDisplayCommand()
-        "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx | streaming"
-    end
-
-    # Commands::makersCommands()
-    def self.makersCommands()
-        "wave | anniversary | calendar item | float | project | project: <line> | today | ondate | ondate: <line> | todo | todo: <line>"
-    end
-
-    # Commands::diversCommands()
-    def self.diversCommands()
-        "waves | anniversaries | calendar | projects | ondates | todos | slots"
+    # Commands::commands()
+    def self.commands()
+        [
+            "wave | anniversary | calendar item | float | project | project: <line> | today | ondate | ondate: <line> | todo | todo: <line>",
+            "waves | anniversaries | calendar | projects | ondates | todos | slots",
+            "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
+        ].join("\n")
     end
 
     # Commands::inputParser(input, store)
@@ -43,7 +37,7 @@ class Commands
             return outputForCommandAndOrdinal.call("..", ordinal, store)
         end
 
-        if Interpreting::match(">>", input) then
+        if Interpreting::match("||", input) then
             if NxBallsService::somethingIsRunning() then
                 puts "Operation not permitted while something is running"
                 LucilleCore::pressEnterToContinue()
@@ -136,13 +130,7 @@ class Commands
         end
 
         if Interpreting::match("help", input) then
-            puts [
-                    "      " + Commands::terminalDisplayCommand(),
-                    "      " + Commands::makersCommands(),
-                    "      " + Commands::diversCommands(),
-                    "      internet on | internet off | require internet",
-                    "      universe"
-                 ].join("\n").yellow
+            puts Commands::commands().yellow
             LucilleCore::pressEnterToContinue()
             return [nil, nil]
         end

@@ -4,10 +4,7 @@
 
 require_relative "../Libs/loader.rb"
 
-puts [
-    Commands::makersCommands(),
-    Commands::diversCommands()
-].join(" | ").yellow
+puts Commands::commands().yellow
 
 input = LucilleCore::askQuestionAnswerAsString("> ")
 
