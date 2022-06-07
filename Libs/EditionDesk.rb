@@ -60,19 +60,16 @@ class EditionDesk
     def self.decideEditionLocation(item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
-
-        description = item["description"] ? CommonUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
-
-        part3and4 = "#{item["uuid"]}|#{nx111["uuid"]}"
+        part2and3 = "#{item["uuid"]}|#{nx111["uuid"]}"
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
             .each{|location|
-                if File.basename(location).include?(part3and4) then
+                if File.basename(location).include?(part2and3) then
                     return location
                 end
             }
 
         index1 = EditionDesk::getMaxIndex() + 1
-        name1 = "#{index1}|#{description}|#{part3and4}"
+        name1 = "#{index1}|#{part2and3}"
 
         "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
@@ -177,7 +174,7 @@ class EditionDesk
     # EditionDesk::updateItemFromDeskLocationOrNothing(location)
     def self.updateItemFromDeskLocationOrNothing(location)
         filename = File.basename(location)
-        _, description, itemuuid, nx111uuid = filename.split("|")
+        _, itemuuid, nx111uuid = filename.split("|")
         if nx111uuid.include?(".") then
             nx111uuid, _ = nx111uuid.split(".")
         end
