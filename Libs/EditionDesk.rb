@@ -60,6 +60,7 @@ class EditionDesk
     def self.decideEditionLocation(item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
+
         description = item["description"] ? CommonUtils::sanitiseStringForFilenaming(item["description"]).gsub("|", "-") : item["uuid"]
 
         part3and4 = "#{item["uuid"]}|#{nx111["uuid"]}"
@@ -182,6 +183,8 @@ class EditionDesk
         end
         item = Librarian::getObjectByUUIDOrNull(itemuuid)
         return if item.nil?
+
+        return if item["i1as"].nil?
 
         nx111 = item["i1as"].select{|nx111| nx111["uuid"] == nx111uuid }.first
         return if nx111.nil?
