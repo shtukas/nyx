@@ -142,7 +142,7 @@ class NxTimelines
             end
 
             if Interpreting::match("access", command) then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 next
             end
 

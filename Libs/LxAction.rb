@@ -76,7 +76,7 @@ class LxAction
             end
 
             if item["i1as"] then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 return
             end
 
@@ -90,28 +90,33 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "NxCatalyst" then
+                EditionDesk::accessItemWithOneNx111Attribute(item, "content")
+                return
+            end
+
             if item["mikuType"] == "TxDated" then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 return
             end
 
             if item["mikuType"] == "TxProject" then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 return
             end
 
             if item["mikuType"] == "TxFloat" then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 return
             end
 
             if item["mikuType"] == "TxTodo" then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 return
             end
 
             if item["mikuType"] == "Wave" then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 return
             end
         end

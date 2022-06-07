@@ -183,7 +183,7 @@ class NxCatalyst
         item["behaviour"]["lastDoneDateTime"] = Time.now.utc.iso8601
         Librarian::commit(item)
 
-        unixtime = NxCatalyst::computeNextDisplayTimeForNx47WavePattern(item)
+        unixtime = NxCatalyst::computeNextDisplayTimeForNx47WavePattern(item["behaviour"]["pattern"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
     end
@@ -230,7 +230,7 @@ class NxCatalyst
             end
 
             if command == "access" then
-                EditionDesk::accessItem(item)
+                EditionDesk::accessItemWithI1asAttribute(item)
                 next
             end
 
