@@ -213,7 +213,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxTimelineClaim" then
+        if item["mikuType"] == "Nx16TimelineTargetLink" then
             return
         end
 

@@ -1,7 +1,7 @@
 
-NxTimelineClaim {
+Nx16TimelineTargetLink {
     "uuid"         : uuid,
-    "mikuType"     : "NxTimelineClaim"
+    "mikuType"     : "Nx16TimelineTargetLink"
     "unixtime"     : unixtime
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "timelineuuid" : String
