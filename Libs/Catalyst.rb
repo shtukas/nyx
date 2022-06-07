@@ -158,7 +158,7 @@ class Catalyst
             }
 
             section3, section2 = section2.partition{|item| filterNotInSection2.call(item) }
-            section2p1, section2p2 = section2.partition{|item| NxBallsService::isRunning(item["uuid"]) }
+            section2p1, section2p2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2 = section2p1 + section2p2
             section2 = section2
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

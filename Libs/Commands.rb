@@ -117,7 +117,7 @@ class Commands
         end
 
         if input.start_with?("project:") then
-            message = input[5, input.length].strip
+            message = input[8, input.length].strip
             item = TxProjects::interactivelyCreateNewOrNull(message)
             puts JSON.pretty_generate(item)
             return [nil, nil]
