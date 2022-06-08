@@ -1,8 +1,21 @@
 # encoding: UTF-8
 
-class TerminalDisplayOperator
+class Catalyst
 
-    # TerminalDisplayOperator::printListing(floats, section1, section2, section3)
+    # Catalyst::itemsForListing()
+    def self.itemsForListing()
+        [
+            Anniversaries::itemsForListing(),
+            Waves::itemsForListing(),
+            TxDateds::itemsForListing(),
+            TxProjects::itemsForListing(),
+            Streaming::rstreamTokens(),
+            TxTodos::itemsForListing(),
+        ]
+            .flatten
+    end
+
+    # Catalyst::printListing(floats, section1, section2, section3)
     def self.printListing(floats, section1, section2, section3)
         system("clear")
 
@@ -110,22 +123,6 @@ class TerminalDisplayOperator
 
         LxAction::action(command, objectOpt)
     end
-end
-
-class Catalyst
-
-    # Catalyst::itemsForListing()
-    def self.itemsForListing()
-        [
-            Anniversaries::itemsForListing(),
-            Waves::itemsForListing(),
-            TxDateds::itemsForListing(),
-            TxProjects::itemsForListing(),
-            Streaming::rstreamTokens(),
-            TxTodos::itemsForListing(),
-        ]
-            .flatten
-    end
 
     # Catalyst::program2()
     def self.program2()
@@ -144,6 +141,21 @@ class Catalyst
             section2 = Catalyst::itemsForListing()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+
+            getPositionForItem = lambda {|item|
+                position = XCache::getOrNull("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}")
+                if position then
+                    position.to_f
+                else
+                    position = Time.new.to_f
+                    XCache::set("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}", position)
+                    position
+                end
+            }
+
+            section2.each{|item| getPositionForItem.call(item) } # to start with the natural position
+
+            section2 = section2.sort{|i1, i2| getPositionForItem.call(i1) <=> getPositionForItem.call(i2) }
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
@@ -177,7 +189,7 @@ class Catalyst
 
             XCache::setFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", section2.empty?)
 
-            TerminalDisplayOperator::printListing(floats, section1, section2, section3)
+            Catalyst::printListing(floats, section1, section2, section3)
         }
     end
 end
