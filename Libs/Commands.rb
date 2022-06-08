@@ -109,6 +109,11 @@ class Commands
             return ["done-for-today", store.getDefault()]
         end
 
+        if Interpreting::match("done for today *", input) then
+            _, _, _, ordinal = Interpreting::tokenizer(input)
+            return outputForCommandAndOrdinal.call("done-for-today", ordinal, store)
+        end
+
         if Interpreting::match("exit", input) then
             exit
         end
