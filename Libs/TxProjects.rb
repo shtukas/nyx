@@ -90,7 +90,7 @@ class TxProjects
 
     # TxProjects::toString(item)
     def self.toString(item)
-        "(project) #{item["description"]} (#{Nx111::toString(item["nx111"])}) (#{item["universe"]})"
+        "(project) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{item["universe"]})"
     end
 
 

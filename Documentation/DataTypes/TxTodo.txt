@@ -5,7 +5,6 @@ TxTodo = {
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601
   "i1as"        : Array[Nx111]
-  "universe"    : (universe)
   "expectation" : NxTodoExpectation
 }
 

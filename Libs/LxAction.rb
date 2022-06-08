@@ -400,21 +400,6 @@ class LxAction
             return
         end
 
-        if command == "todos" then
-            universe = UniverseStored::getUniverseOrNull()
-            nx50s =  TxTodos::itemsForUniverse(universe)
-            if LucilleCore::askQuestionAnswerAsBoolean("limit ? ", true) then
-                nx50s = nx50s.first(CommonUtils::screenHeight()-4)
-            end
-            loop {
-                system("clear")
-                nx50 = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx50", nx50s, lambda {|nx50| "#{TxTodos::toString(nx50)}" })
-                return if nx50.nil?
-                TxTodos::landing(nx50)
-            }
-            return
-        end
-
         if command == "transmute" then
             if item["mikuType"] == "TxDated" then
                 Transmutation::transmutation2(item, "TxDated")

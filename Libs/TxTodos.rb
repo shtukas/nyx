@@ -22,11 +22,6 @@ class TxTodos
         Librarian::getObjectsByMikuType("TxTodo")
     end
 
-    # TxTodos::itemsForUniverse(universe)
-    def self.itemsForUniverse(universe)
-        Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
-    end
-
     # TxTodos::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
@@ -51,7 +46,6 @@ class TxTodos
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        universe    = Multiverse::interactivelySelectUniverse()
         expectation = NxTodoExpectations::makeNew()
 
         item = {
@@ -60,8 +54,7 @@ class TxTodos
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "i1as"        => [nx111],
-          "universe"    => universe,
+          "nx111"       => nx111,
           "expectation" => expectation
         }
         Librarian::commit(item)
@@ -73,12 +66,7 @@ class TxTodos
 
     # TxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{item["universe"]})"
-    end
-
-    # TxTodos::toString(item)
-    def self.toString(item)
-        "(todo) #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+        "(todo) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
     end
 
     # TxTodos::toStringForNS19(item)
@@ -102,14 +90,7 @@ class TxTodos
 
             puts "#{TxTodos::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
-
-            puts "i1as:"
-            item["i1as"].each{|nx111|
-                puts "    #{Nx111::toString(nx111)}"
-            } 
-
-            puts "universe: #{item["universe"]}".yellow
-
+            puts "nx111: #{item["nx111"]}"
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
@@ -122,7 +103,7 @@ class TxTodos
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | transmute | note | universe | json | >nyx | destroy".yellow
+            puts "access | start | <datecode> | description | iam | transmute | note | json | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -146,7 +127,7 @@ class TxTodos
 
             if Interpreting::match("start", command) then
                 if !NxBallsService::isRunning(item["uuid"]) then
-                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"], item["universe"]])
+                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
                 end
                 next
             end
@@ -160,19 +141,16 @@ class TxTodos
             end
 
             if Interpreting::match("iam", command) then
-                item = I1as::manageI1as(item, item["i1as"])
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
+                next if nx111.nil?
+                item["nx111"] = nx111
+                Librarian::commit(item)
             end
 
             if Interpreting::match("note", command) then
                 ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
-            end
-
-            if Interpreting::match("universe", command) then
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                break
             end
 
             if Interpreting::match("transmute", command) then
@@ -205,8 +183,8 @@ class TxTodos
 
     # --------------------------------------------------
 
-    # TxTodos::itemsForListing(universe)
-    def self.itemsForListing(universe)
+    # TxTodos::itemsForListing()
+    def self.itemsForListing()
 
         # We only show todo items when there is nothing else to see (in section 2)
         # We are informed of it by flag "a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", true means empty section 2
@@ -214,32 +192,21 @@ class TxTodos
 
         return [] if !XCache::getFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb")
 
-        getItemsForUniverse = lambda {|universe, date|
-            items = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}")
+        getItems = lambda {|date|
+            items = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{date}")
             if items then
                 return JSON.parse(items)
                             .map{|item| Librarian::getObjectByUUIDOrNull(item["uuid"]) }
                             .compact
             else
-                items = Librarian::getObjectsByMikuTypeAndUniverse("TxTodo", universe)
+                items = TxTodos::items()
                             .sort{|i1, i2| NxTodoExpectations::expectationToUrgency(i1["expectation"]) <=> NxTodoExpectations::expectationToUrgency(i2["expectation"]) }
-                            .take(5)
-                XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", JSON.generate(items))
+                            .take(20)
+                XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{date}", JSON.generate(items))
                 return items
             end
         }
-
-        date = CommonUtils::today()
-
-        if universe then
-            getItemsForUniverse.call(universe, date)
-        else
-            Multiverse::universes()
-                .map{|universe|
-                    getItemsForUniverse.call(universe, date)
-                }
-                .flatten
-        end
+        getItems.call(CommonUtils::today())
     end
 
     # --------------------------------------------------

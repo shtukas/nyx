@@ -122,7 +122,7 @@ class Streaming
             NxBallsService::issue(uuid, "(rstream)" , [uuid]) # rstream itself doesn't publish time to bank accounts.
         end
 
-        items = TxTodos::itemsForUniverse("standard").shuffle.take(20)
+        items = TxTodos::items().shuffle.take(20)
         Streaming::stream(items)
 
         NxBallsService::close(uuid, true)

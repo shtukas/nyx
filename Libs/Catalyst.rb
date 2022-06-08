@@ -122,7 +122,7 @@ class Catalyst
             TxDateds::itemsForListing(),
             TxProjects::itemsForListing(universe),
             Streaming::rstreamTokens(),
-            TxTodos::itemsForListing(universe),
+            TxTodos::itemsForListing(),
         ]
             .flatten
     end
