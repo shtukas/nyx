@@ -5,7 +5,6 @@ TxProject = {
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601
   "nx111"       : Nx111
-  "universe"    : (universe)
   "expectation" : TxProjExpectation
 }
 

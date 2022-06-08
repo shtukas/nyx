@@ -9,11 +9,6 @@ class Waves
         Librarian::getObjectsByMikuType("Wave")
     end
 
-    # Waves::itemsForUniverse(universe)
-    def self.itemsForUniverse(universe)
-        Librarian::getObjectsByMikuTypeAndUniverse("Wave", universe)
-    end
-
     # Waves::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
@@ -138,8 +133,6 @@ class Waves
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), uuid)
         return nil if nx111.nil?
 
-        universe = Multiverse::interactivelySelectUniverse()
-
         catalyst = {
             "uuid"        => uuid,
             "mikuType"    => "Wave",
@@ -147,7 +140,6 @@ class Waves
             "description" => description,
             "nx46"        => nx46,
             "nx111"       => nx111,
-            "universe"    => universe,
             "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
 
@@ -162,7 +154,7 @@ class Waves
     def self.toString(item)
         lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(wave) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) (#{item["universe"]})"
+        "(wave) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{Waves::nx46ToString(item["nx46"])}) (#{ago})"
     end
 
     # Waves::performWaveNx46WaveDone(item)
@@ -205,7 +197,7 @@ class Waves
 
             puts ""
 
-            puts "access | done | <datecode> | description | iam | behaviour | note | universe | destroy".yellow
+            puts "access | done | <datecode> | description | iam | behaviour | note | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -257,12 +249,6 @@ class Waves
                 next
             end
 
-            if Interpreting::match("universe", command) then
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                next
-            end
-
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy '#{Waves::toString(item).green}' ? : ") then
                     Waves::destroy(item["uuid"])
@@ -274,9 +260,9 @@ class Waves
 
     # -------------------------------------------------------------------------
 
-    # Waves::itemsForListing(universe)
-    def self.itemsForListing(universe)
-        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("Wave", universe)
+    # Waves::itemsForListing()
+    def self.itemsForListing()
+        Librarian::getObjectsByMikuType("Wave")
     end
 
     # Waves::nx20s()

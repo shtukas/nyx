@@ -7,11 +7,6 @@ class TxProjects
         Librarian::getObjectsByMikuType("TxProject")
     end
 
-    # TxProjects::itemsForUniverse(universe)
-    def self.itemsForUniverse(universe)
-        Librarian::getObjectsByMikuTypeAndUniverse("TxProject", universe)
-    end
-
     # TxProjects::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
@@ -68,7 +63,6 @@ class TxProjects
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        universe    = Multiverse::interactivelySelectUniverse()
         expectation = TxProjects::interactivelyMakeTxProjExpectationOrNull()
 
         item = {
@@ -78,7 +72,6 @@ class TxProjects
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "nx111"       => nx111,
-          "universe"    => universe,
           "expectation" => expectation
         }
         Librarian::commit(item)
@@ -90,7 +83,7 @@ class TxProjects
 
     # TxProjects::toString(item)
     def self.toString(item)
-        "(project) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{item["universe"]})"
+        "(project) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
     end
 
 
@@ -157,7 +150,7 @@ class TxProjects
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | note | json | universe | transmute | >nyx | destroy".yellow
+            puts "access | start | <datecode> | description | iam | note | json | transmute | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -181,7 +174,7 @@ class TxProjects
 
             if Interpreting::match("start", command) then
                 if !NxBallsService::isRunning(item["uuid"]) then
-                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"], item["universe"]])
+                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
                 end
                 next
             end
@@ -210,12 +203,6 @@ class TxProjects
             if Interpreting::match("transmute", command) then
                 Transmutation::transmutation2(item, "TxProject")
                 break
-            end
-
-            if Interpreting::match("universe", command) then
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                next
             end
 
             if Interpreting::match("json", command) then
@@ -263,9 +250,9 @@ class TxProjects
 
     # --------------------------------------------------
 
-    # TxProjects::itemsForListing(universe)
-    def self.itemsForListing(universe)
-        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("TxProject", universe)
+    # TxProjects::itemsForListing()
+    def self.itemsForListing()
+        Librarian::getObjectsByMikuType("TxProject")
     end
 
     # TxProjects::nx20s()

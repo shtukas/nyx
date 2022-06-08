@@ -2,8 +2,8 @@
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::printListing(universe, floats, section1, section2, section3)
-    def self.printListing(universe, floats, section1, section2, section3)
+    # TerminalDisplayOperator::printListing(floats, section1, section2, section3)
+    def self.printListing(floats, section1, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -12,7 +12,7 @@ class TerminalDisplayOperator
         current   = The99Percent::getCurrentCount()
         ratio     = current.to_f/reference["count"]
         puts ""
-        puts "(#{universe}) 👩‍💻 🔥 #{current} #{ratio}, #{reference["count"]} #{reference["datetime"]}"
+        puts "👩‍💻 🔥 #{current} #{ratio}, #{reference["count"]} #{reference["datetime"]}"
         vspaceleft = vspaceleft - 2
         if ratio < 0.99 then
             The99Percent::issueNewReference()
@@ -114,13 +114,13 @@ end
 
 class Catalyst
 
-    # Catalyst::itemsForListing(universe)
-    def self.itemsForListing(universe)
+    # Catalyst::itemsForListing()
+    def self.itemsForListing()
         [
             Anniversaries::itemsForListing(),
-            Waves::itemsForListing(universe),
+            Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxProjects::itemsForListing(universe),
+            TxProjects::itemsForListing(),
             Streaming::rstreamTokens(),
             TxTodos::itemsForListing(),
         ]
@@ -137,13 +137,11 @@ class Catalyst
                 break
             end
 
-            universe = UniverseStored::getUniverseOrNull()
-
-            floats = TxFloats::itemsForListing(universe)
+            floats = TxFloats::itemsForListing()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            section2 = Catalyst::itemsForListing(universe)
+            section2 = Catalyst::itemsForListing()
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
@@ -179,7 +177,7 @@ class Catalyst
 
             XCache::setFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", section2.empty?)
 
-            TerminalDisplayOperator::printListing(universe, floats, section1, section2, section3)
+            TerminalDisplayOperator::printListing(floats, section1, section2, section3)
         }
     end
 end

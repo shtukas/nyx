@@ -28,16 +28,13 @@ class TxFloats
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
 
-        universe = Multiverse::interactivelySelectUniverse()
-
         item = {
           "uuid"        => uuid,
           "mikuType"    => "TxFloat",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "nx111"       => nx111,
-          "universe"    => universe
+          "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -48,7 +45,7 @@ class TxFloats
 
     # TxFloats::toString(item)
     def self.toString(item)
-        "(item) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{item["universe"]})"
+        "(item) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
     end
 
     # TxFloats::toStringForNS19(item)
@@ -89,7 +86,7 @@ class TxFloats
                 }
             end
 
-            puts "access | <datecode> | description | iam| note | universe | transmute | json | >nyx | destroy".yellow
+            puts "access | <datecode> | description | iam| note | transmute | json | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -132,12 +129,6 @@ class TxFloats
                 next
             end
 
-            if Interpreting::match("universe", command) then
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                break
-            end
-
             if Interpreting::match("transmute", command) then
                 Transmutation::transmutation2(item, "TxFloat")
                 break
@@ -177,9 +168,9 @@ class TxFloats
 
     # --------------------------------------------------
 
-    # TxFloats::itemsForListing(universe)
-    def self.itemsForListing(universe)
-        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("TxFloat", universe)
+    # TxFloats::itemsForListing()
+    def self.itemsForListing()
+        Librarian::getObjectsByMikuType("TxFloat")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 

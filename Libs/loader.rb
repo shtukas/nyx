@@ -157,8 +157,6 @@ require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
 require_relative "Links.rb"
 
-require_relative "Multiverse.rb"
-
 require_relative "Nx100s.rb"
 require_relative "Nx102Flavors.rb"
 require_relative "Nx111.rb"

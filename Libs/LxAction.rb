@@ -340,22 +340,13 @@ class LxAction
             return
         end
 
-        if command == "start something" then
-            uuid = SecureRandom.uuid
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            universe = Multiverse::interactivelySelectUniverse()
-            NxBallsService::issue(uuid, description, [])
-            return
-        end
-
         if command == "search" then
             Search::classicInterface()
             return
         end
 
         if command == "start" then
-            accounts = [item["uuid"], item["universe"]].compact
-            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
+            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
             return
         end
 

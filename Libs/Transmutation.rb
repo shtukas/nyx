@@ -45,73 +45,56 @@ class Transmutation
     def self.transmutation1(object, source, target)
 
         if source == "TxDated" and target == "TxTodo" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxTodo"
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxProject" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxProject"
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end
 
         if source == "TxDated" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
-            object["universe"] = Multiverse::interactivelySelectUniverse()
             Librarian::commit(object)
             return
         end
 
         if source == "TxFloat" and target == "TxDated" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxDated"
             object["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end
 
         if source == "TxFloat" and target == "TxProject" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxProject"
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end
 
         if source == "TxFloat" and target == "TxTodo" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxTodo"
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end
 
         if source == "TxProject" and target == "TxTodo" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxTodo"
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end
 
         if source == "TxProject" and target == "TxFloat" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxFloat"
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end
 
         if source == "TxTodo" and target == "TxProject" then
-            universe = Multiverse::interactivelySelectUniverse()
             object["mikuType"] = "TxProject"
-            object["universe"] = universe
             Librarian::commit(object)
             return
         end

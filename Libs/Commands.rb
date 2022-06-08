@@ -37,26 +37,6 @@ class Commands
             return outputForCommandAndOrdinal.call("..", ordinal, store)
         end
 
-        if Interpreting::match("||", input) then
-            if NxBallsService::somethingIsRunning() then
-                puts "Operation not permitted while something is running"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            UniverseStored::interactivelySetUniverse()
-            return [nil, nil]
-        end
-
-        if Interpreting::match(">>", input) then
-            if NxBallsService::somethingIsRunning() then
-                puts "Operation not permitted while something is running"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            UniverseStored::interactivelySetUniverse()
-            return [nil, nil]
-        end
-
         if Interpreting::match(">project", input) then
             return [">project", store.getDefault()]
         end

@@ -141,7 +141,7 @@ class TxDateds
                 }
             end
 
-            puts "access | date | description | iam | note | json | transmute | universe | destroy".yellow
+            puts "access | date | description | iam | note | json | transmute | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -205,12 +205,6 @@ class TxDateds
             if command == "transmute" then
                 Transmutation::transmutation2(item, "TxDated")
                 break
-            end
-
-            if Interpreting::match("universe", command) then
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                next
             end
         }
     end

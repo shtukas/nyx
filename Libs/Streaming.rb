@@ -8,7 +8,7 @@ class Streaming
         LxAction::action("start", item)
         LxAction::action("access", item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next {default}, replace, universe, >nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next {default}, replace, >nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
                 if item["mikuType"] == "TxTodo" then
@@ -18,10 +18,10 @@ class Streaming
                 return "item-done"
             end
             if command == "detach" then
-                todoCachedItems = JSON.parse(XCache::getOrDefaultValue("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", "[]"))
+                todoCachedItems = JSON.parse(XCache::getOrDefaultValue("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{date}", "[]"))
                 if !todoCachedItems.map{|item| item["uuid"] }.include?(item["uuid"]) then
                     todoCachedItems << item
-                    XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", JSON.generate(todoCachedItems))
+                    XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{date}", JSON.generate(todoCachedItems))
                 end
                 return "should-stop-rstream"
             end
@@ -38,12 +38,6 @@ class Streaming
                 TxTodos::interactivelyCreateNewOrNull()
                 LxAction::action("stop", item)
                 TxTodos::destroy(item["uuid"])
-                return nil
-            end
-            if command == "universe" then
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                LxAction::action("stop", item)
                 return nil
             end
             if command == ">nyx" then
@@ -68,7 +62,7 @@ class Streaming
     # Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
     def self.processItem(item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run (start and access), landing (and back), done, universe, return (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run (start and access), landing (and back), done, return (default), exit (rstream): ")
             if command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
@@ -89,11 +83,6 @@ class Streaming
                     $RStreamProgressMonitor.anotherOne()
                 end
                 return "item-done"
-            end
-            if command == "universe" then
-                item["universe"] = Multiverse::interactivelySelectUniverse()
-                Librarian::commit(item)
-                return nil
             end
             if command == "" or command == "return" then
                 return nil

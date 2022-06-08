@@ -19,10 +19,8 @@ Essentially, ObjectB can replace ObjectA if the history of ObjectA is a (strict)
 
 We can retrieve objects individually by "uuid" or collectively by "mikuType"s.
 
-Items also carry a "universe" (string) attribute. If there isn't one, the Librarian will set a default one. 
-
 objects-store.sqlite3
-CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text, _universe_ text);
+CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text);
 
 ### Logical Delete
 
