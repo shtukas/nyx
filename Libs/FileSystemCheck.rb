@@ -183,29 +183,17 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "TxDated" then
-            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 
         if item["mikuType"] == "TxFloat" then
-            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 
         if item["mikuType"] == "TxProject" then
-            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
-            return
-        end
-
-        if item["mikuType"] == "TxInbox2" then
-            if item["aionrootnhash"] then
-                status = AionFsck::structureCheckAionHash(operator, item["aionrootnhash"])
-                if !status then
-                    puts "aionrootnhash does not validate".red
-                    puts JSON.pretty_generate(item).red
-                    exit 1
-                end
-            end
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 
@@ -218,7 +206,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "TxTodo" then
-            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 

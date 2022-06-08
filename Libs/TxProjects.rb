@@ -77,7 +77,7 @@ class TxProjects
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "i1as"        => [nx111],
+          "nx111"       => nx111,
           "universe"    => universe,
           "expectation" => expectation
         }
@@ -90,7 +90,7 @@ class TxProjects
 
     # TxProjects::toString(item)
     def self.toString(item)
-        "(project) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{item["universe"]})"
+        "(project) #{item["description"]} (#{Nx111::toString(item["nx111"])}) (#{item["universe"]})"
     end
 
 
@@ -145,12 +145,7 @@ class TxProjects
 
             puts TxProjects::toString(item).green
             puts "uuid: #{uuid}".yellow
-
-            puts "i1as:"
-            item["i1as"].each{|nx111|
-                puts "    #{Nx111::toString(nx111)}"
-            } 
-
+            puts "nx111: #{item["nx111"]}"
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 
             notes = Ax1Text::itemsForOwner(uuid)
@@ -200,7 +195,10 @@ class TxProjects
             end
 
             if Interpreting::match("iam", command) then
-                item = I1as::manageI1as(item, item["i1as"])
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
+                next if nx111.nil?
+                item["nx111"] = nx111
+                Librarian::commit(item)
             end
 
             if Interpreting::match("note", command) then
@@ -233,7 +231,7 @@ class TxProjects
                     "unixtime"    => item["unixtime"],
                     "datetime"    => item["datetime"],
                     "description" => item["description"],
-                    "i1as"        => item["i1as"],
+                    "i1as"        => [item["nx111"]],
                     "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
                 }
                 Librarian::commit(ix)

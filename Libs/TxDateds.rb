@@ -40,7 +40,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "i1as"        => [nx111],
+          "nx111"       => nx111,
         }
         Librarian::commit(item)
         item
@@ -69,7 +69,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "i1as"        => [nx111]
+          "nx111"       => nx111,
         }
         Librarian::commit(item)
         item
@@ -94,7 +94,7 @@ class TxDateds
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "i1as"        => [nx111],
+          "nx111"       => nx111,
         }
         Librarian::commit(item)
         item
@@ -105,7 +105,7 @@ class TxDateds
 
     # TxDateds::toString(item)
     def self.toString(item)
-        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{I1as::toStringShort(item["i1as"])})"
+        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
     end
 
     # TxDateds::toStringForNS19(item)
@@ -127,12 +127,7 @@ class TxDateds
 
             puts TxDateds::toString(item).green
             puts "uuid: #{uuid}".yellow
-
-            puts "i1as:"
-            item["i1as"].each{|nx111|
-                puts "    #{Nx111::toString(nx111)}"
-            } 
-
+            puts "nx111: #{item["nx111"]}"
             puts "date: #{item["datetime"][0, 10]}".yellow
 
             store = ItemStore.new()
@@ -181,7 +176,10 @@ class TxDateds
             end
 
             if Interpreting::match("iam", command) then
-                item = I1as::manageI1as(item, item["i1as"])
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
+                next if nx111.nil?
+                item["nx111"] = nx111
+                Librarian::commit(item)
             end
 
             if Interpreting::match("note", command) then

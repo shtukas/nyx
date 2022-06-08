@@ -4,7 +4,7 @@ TxProject = {
   "description" : String
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601
-  "i1as"        : Array[Nx111]
+  "nx111"       : Nx111
   "universe"    : (universe)
   "expectation" : TxProjExpectation
 }

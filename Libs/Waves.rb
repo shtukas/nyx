@@ -191,7 +191,7 @@ class Waves
             puts "#{Waves::toString(item)}".green
 
             puts "uuid: #{item["uuid"]}".yellow
-            puts "content: #{Nx111::toString(item["nx111"])}"
+            puts "nx111: #{item["nx111"]}"
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
             notes = Ax1Text::itemsForOwner(uuid)

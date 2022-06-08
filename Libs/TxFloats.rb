@@ -36,7 +36,7 @@ class TxFloats
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "i1as"        => [nx111],
+          "nx111"       => nx111,
           "universe"    => universe
         }
         Librarian::commit(item)
@@ -48,7 +48,7 @@ class TxFloats
 
     # TxFloats::toString(item)
     def self.toString(item)
-        "(item) #{item["description"]} (#{I1as::toStringShort(item["i1as"])}) (#{item["universe"]})"
+        "(item) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{item["universe"]})"
     end
 
     # TxFloats::toStringForNS19(item)
@@ -78,10 +78,7 @@ class TxFloats
             puts TxFloats::toString(item).green
             puts "uuid: #{uuid}".yellow
 
-            puts "i1as:"
-            item["i1as"].each{|nx111|
-                puts "    #{Nx111::toString(nx111)}"
-            } 
+            puts "nx111: #{item["nx111"]}"
 
             notes = Ax1Text::itemsForOwner(uuid)
             if notes.size > 0 then
@@ -123,7 +120,10 @@ class TxFloats
             end
 
             if Interpreting::match("iam", command) then
-                item = I1as::manageI1as(item, item["i1as"])
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
+                next if nx111.nil?
+                item["nx111"] = nx111
+                Librarian::commit(item)
             end
 
             if Interpreting::match("note", command) then
@@ -158,7 +158,18 @@ class TxFloats
             end
 
             if command == ">nyx" then
-                Transmutation::floatToNyx(item)
+                ix = {
+                    "uuid"        => SecureRandom.uuid,
+                    "mikuType"    => "Nx100",
+                    "unixtime"    => item["unixtime"],
+                    "datetime"    => item["datetime"],
+                    "description" => item["description"],
+                    "i1as"        => [item["nx111"]],
+                    "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
+                }
+                Librarian::commit(ix)
+                LxAction::action("landing", ix)
+                TxFloats::destroy(item["uuid"])
                 break
             end
         }

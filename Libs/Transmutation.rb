@@ -39,12 +39,6 @@ class Transmutation
 
     end
 
-    # Transmutation::floatToNyx(float)
-    def self.floatToNyx(float)
-        puts "(60fbc884-301f-44d1-a03e-66e824c4e2a0: This has not been implemented, need re-implementation after refactoring)"
-        LucilleCore::pressEnterToContinue()
-    end
-
     # Transmutation::transmutation1(object, source, target)
     # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
     # target: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
