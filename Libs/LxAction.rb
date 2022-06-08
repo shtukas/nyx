@@ -267,6 +267,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "NxCatalyst" then
+                NxCatalyst::landing(item)
+                return
+            end
+
             if item["mikuType"] == "TxDated" then
                 TxDateds::landing(item)
                 return
