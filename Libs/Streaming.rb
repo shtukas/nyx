@@ -37,7 +37,7 @@ class Streaming
                 end
                 TxTodos::interactivelyCreateNewOrNull()
                 LxAction::action("stop", item)
-                TxTodos::destroy(item["uuid"])
+                TxTodos::immediateDestroy(item)
                 return nil
             end
             if command == ">nyx" then

@@ -120,21 +120,3 @@ class BankExtended
         (BankExtended::bestTimeRatioWithinDayCount(setuuid, 7)*86400).to_f/3600
     end
 end
-
-class Beatrice
-
-    # Beatrice::valueOverTimeInHours(setuuid, hours)
-    def self.valueOverTimeInHours(setuuid, hours)
-        Bank::valueOverTimespan(setuuid, 3600*hours).to_f
-    end
-
-    # Beatrice::bestAverageWithinIntegerHours(setuuid, hours)
-    def self.bestAverageWithinIntegerHours(setuuid, hours)
-        (1..hours).map{|i| Beatrice::valueOverTimeInHours(setuuid, i).to_f/i }.max
-    end
-
-    # Beatrice::stdRecoveredHourlyAverage(setuuid)
-    def self.stdRecoveredHourlyAverage(setuuid)
-        Beatrice::bestAverageWithinIntegerHours(setuuid, 6)
-    end
-end

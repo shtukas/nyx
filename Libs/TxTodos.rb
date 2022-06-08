@@ -22,11 +22,6 @@ class TxTodos
         Librarian::getObjectsByMikuType("TxTodo")
     end
 
-    # TxTodos::destroy(uuid)
-    def self.destroy(uuid)
-        Librarian::destroy(uuid)
-    end
-
     # --------------------------------------------------
     # Makers
 
@@ -46,7 +41,7 @@ class TxTodos
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        nx54 = NxTodoExpectations::makeNew()
+        nx54 = Nx54::makeNew()
 
         item = {
           "uuid"        => uuid,
@@ -62,7 +57,7 @@ class TxTodos
     end
 
     # --------------------------------------------------
-    # toString
+    # Data
 
     # TxTodos::toString(item)
     def self.toString(item)
@@ -74,8 +69,94 @@ class TxTodos
         "(todo) #{item["description"]}"
     end
 
+    # TxTodos::shouldShowInListing(item)
+    def self.shouldShowInListing(item)
+        if item["nx54"]["type"] == "todo" then
+            return true
+        end
+
+        if item["nx54"]["type"] == "required-hours-days" then
+            return Bank::valueAtDate(item["uuid"], CommonUtils::today()) < item["nx54"]["value"]
+        end
+
+        if item["nx54"]["type"] == "required-hours-week-saturday-start" then
+            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 0.5 # TODO: to correct (dbae7ba5-6157-4022-af27-8f030952d02d)
+        end
+
+        if item["nx54"]["type"] == "target-recovery-time" then
+            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < item["nx54"]["value"]
+        end
+
+        if item["nx54"]["type"] == "fire-and-forget-daily" then
+            return !XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+        end
+
+        raise "(error: dcf30e93-9a64-42e0-9370-d1009d946c1e) #{item}"
+    end
+
     # --------------------------------------------------
     # Operations
+
+    # TxTodos::doubleDots(item)
+    def self.doubleDots(item)
+
+        if !NxBallsService::isRunning(item["uuid"]) then
+            NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
+        end
+
+        LxAction::action("access", item)
+
+        if item["nx54"]["type"] == "todo" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
+                NxBallsService::close(item["uuid"], true)
+                TxTodos::immediateDestroy(item)
+            end
+            return
+        end
+
+        if item["nx54"]["type"] == "required-hours-days" then
+            return
+        end
+
+        if item["nx54"]["type"] == "required-hours-week-saturday-start" then
+            return
+        end
+
+        if item["nx54"]["type"] == "target-recovery-time" then
+            return
+        end
+
+        if item["nx54"]["type"] == "fire-and-forget-daily" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Completed for today: '#{item["description"].green}' ? ") then
+                NxBallsService::close(item["uuid"], true)
+                XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
+            end
+            return
+        end
+
+        raise "(error: ac55d44c-60b1-4fee-8a79-27cb3265c373)"
+    end
+
+    # TxTodos::done(item)
+    def self.done(item)
+        if item["nx54"]["type"] == "todo" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
+                TxTodos::immediateDestroy(item)
+            end
+        end
+        if item["nx54"]["type"] == "fire-and-forget-daily" then
+            puts "Completed for today: '#{item["description"].green}'"
+            XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
+        end
+        if NxBallsService::isRunning(item["uuid"]) then
+             NxBallsService::close(item["uuid"], true)
+        end
+    end
+
+    # TxTodos::immediateDestroy(item)
+    def self.immediateDestroy(item)
+        Librarian::destroy(item["item"])
+    end
 
     # TxTodos::landing(item)
     def self.landing(item)
@@ -167,7 +248,7 @@ class TxTodos
             if command == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(item)}' ? ", true) then
                     NxBallsService::close(item["uuid"], true)
-                    TxTodos::destroy(item["uuid"])
+                    TxTodos::immediateDestroy(item["uuid"])
                     break
                 end
                 next
@@ -186,7 +267,8 @@ class TxTodos
     # TxTodos::itemsForListing()
     def self.itemsForListing()
         TxTodos::items()
-            .sort{|i1, i2| NxTodoExpectations::nx54ToUrgency(i1["nx54"]) <=> NxTodoExpectations::nx54ToUrgency(i2["nx54"]) }
+            .select{|item| TxTodos::shouldShowInListing(item) }
+            .sort{|i1, i2| Nx54::nx54ToPriority(i1["nx54"]) <=> Nx54::nx54ToPriority(i2["nx54"]) }
             .take(20)
     end
 

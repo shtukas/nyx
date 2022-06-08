@@ -20,6 +20,11 @@ class LxAction
 
         if command == ".." then
 
+            if item["mikuType"] == "TxTodo" then
+                TxTodos::doubleDots(item)
+                return
+            end
+
             if !NxBallsService::isRunning(item["uuid"]) then
                 NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
             end
@@ -33,13 +38,6 @@ class LxAction
             if item["mikuType"] == "TxDated" and item["description"].include?("(vienna)") then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
                     TxDateds::destroy(item["uuid"])
-                    NxBallsService::close(item["uuid"], true)
-                end
-            end
-
-            if item["mikuType"] == "TxTodo" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
-                    TxTodos::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                 end
             end
@@ -162,17 +160,9 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxTodo" then
-                shouldForce = options and options["forcedone"]
-                if shouldForce then
-                    TxTodos::destroy(item["uuid"])
-                    return
-                end
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of todo '#{item["description"].green}' ? ", true) then
-                    TxTodos::destroy(item["uuid"])
-                end
+                TxTodos::done(item)
                 return
             end
-
             if item["mikuType"] == "Wave" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then

@@ -39,15 +39,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 =begin
-    XCache::getFlag(key)
-
-    XCache::set(key, value)
-    XCache::getOrNull(key)
-    XCache::getOrDefaultValue(key, defaultValue)
-    XCache::destroy(key)
-=end
-
-=begin
     XCache::set(value)
     XCache::getOrNull(key)
     XCache::getOrDefaultValue(key, defaultValue)
@@ -164,7 +155,7 @@ require_relative "NxTimelines.rb"
 require_relative "NyxNetwork.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
-require_relative "NxTodoExpectations.rb"
+require_relative "Nx54.rb"
 require_relative "Waves.rb"
 
 require_relative "PrimitiveFiles.rb"

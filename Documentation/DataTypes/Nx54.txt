@@ -1,0 +1,22 @@
+
+Nx54 
+  {
+    "type"              : "todo"
+    "creation-unixtime" : Float
+    "period"            : "hours" | "days" | "weeks" | "months"
+  }
+  {
+    "type"  : "required-hours-days"
+    "value" : Float
+  }
+  {
+    "type"  : "required-hours-week-saturday-start"
+    "value" : Float
+  }
+  {
+    "type"  : "target-recovery-time"
+    "value" : Float
+  }
+  {
+    "type"  : "fire-and-forget-daily"
+  }

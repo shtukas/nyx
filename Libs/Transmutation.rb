@@ -75,7 +75,7 @@ class Transmutation
             nx100["mikuType"] = "Nx100"
             nx100["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
             Librarian::commit(nx100)
-            TxTodos::destroy(object["uuid"])
+            TxTodos::immediateDestroy(object)
             Nx100s::landing(nx100)
             return
         end
