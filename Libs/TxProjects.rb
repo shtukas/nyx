@@ -101,7 +101,7 @@ class TxProjects
 
     # TxProjects::shouldBeInSection2(item)
     def self.shouldBeInSection2(item)
-        return false if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
+        return false if XCache::getFlag("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
 
         expectation = item["expectation"]
 
@@ -118,7 +118,7 @@ class TxProjects
         end
 
         if expectation["type"] == "fire-and-forget-daily" then
-            return true # controlled by XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
+            return true # controlled by XCache::getFlag("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
         end
 
         raise "(error: 14712886-8e8f-415c-88e8-3ac3087bc906) : #{expectation}"

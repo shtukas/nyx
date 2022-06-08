@@ -15,6 +15,9 @@ class LxFunction
         end
 
         if command == "toString" then
+            if item["mikuType"] == "(rstream)" then
+                return item["announce"]
+            end
             if item["mikuType"] == "Nx100" then
                 return Nx100s::toString(item)
             end

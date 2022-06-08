@@ -37,11 +37,13 @@ class TerminalDisplayOperator
             }
         end
 
-        slots = Slots::getSlots().strip
-        if slots.size > 0 then
+        zone = Zone::getZone()
+        if !zone.empty? then
             puts ""
-            puts slots.green
-            vspaceleft = vspaceleft - (CommonUtils::verticalSize(slots) + 1)
+            puts "zone:"
+            text = zone.join("\n")
+            puts text.green
+            vspaceleft = vspaceleft - (CommonUtils::verticalSize(text) + 2)
         end
 
         running = NxBallsIO::getItems().select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
@@ -63,7 +65,7 @@ class TerminalDisplayOperator
                 .each{|item|
                     store.register(item, true)
                     line = LxFunction::function("toString", item)
-                    line = "#{store.prefixString()} #{line}"
+                    line = "#{store.prefixString()} (#{ "%5.2f" % ListingOrdering::readOrderingValueOrNull(item)}) #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
@@ -104,6 +106,29 @@ class TerminalDisplayOperator
     end
 end
 
+class ListingOrdering
+
+    # ListingOrdering::readOrderingValueOrNull(item)
+    def self.readOrderingValueOrNull(item)
+        date = CommonUtils::today()
+        value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7804:#{date}:#{item["uuid"]}")
+        value ? value.to_f : nil
+    end
+
+    # ListingOrdering::setOrderingValue(item, value)
+    def self.setOrderingValue(item, value)
+        date = CommonUtils::today()
+        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7804:#{date}:#{item["uuid"]}", value)   
+    end
+
+    # ListingOrdering::interactivelySetOrderingValue(item)
+    def self.interactivelySetOrderingValue(item)
+        date = CommonUtils::today()
+        value = LucilleCore::askQuestionAnswerAsString("ordering value for: #{LxFunction::function("toString", item).green}: ").to_f
+        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7804:#{date}:#{item["uuid"]}", value)   
+    end
+end
+
 class Catalyst
 
     # Catalyst::itemsForListing(universe)
@@ -113,6 +138,7 @@ class Catalyst
             TxDateds::itemsForListing(),
             NxCatalyst::itemsForListing(universe),
             TxProjects::itemsForListing(universe),
+            Streaming::rstreamTokens(),
             TxTodos::itemsForListing(universe),
         ]
             .flatten
@@ -135,23 +161,23 @@ class Catalyst
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
             section2 = Catalyst::itemsForListing(universe)
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                        .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            getOrderingValue = lambda {|uuid|
-                date = CommonUtils::today()
-                value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{date}:#{uuid}")
-                return value.to_f if value
-                sleep 0.01
-                value = Time.new.to_f
-                XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{date}:#{uuid}", value)
-                value
+            section2.each{|item|
+                if ListingOrdering::readOrderingValueOrNull(item).nil? then
+                    ListingOrdering::setOrderingValue(item, rand)
+                end
             }
 
-            # This is to ensure that at beginning of the day, We get the ordering naturally given by `Catalyst::itemsForListing`
-            section2.each{|item| getOrderingValue.call(item["uuid"]) }
-            section2 = section2.sort{|item1, item2| getOrderingValue.call(item1["uuid"]) <=> getOrderingValue.call(item2["uuid"]) }
+            section2 = section2.sort{|item1, item2| ListingOrdering::readOrderingValueOrNull(item1) <=> ListingOrdering::readOrderingValueOrNull(item2) }
 
             shouldBeInSection2 = lambda{|item|
                 return true if NxBallsService::isRunning(item["uuid"])
+
+                if item["mikuType"] == "(rstream)" then
+                    return true
+                end
 
                 if item["mikuType"] == "NxCatalyst" then
                     return true
@@ -175,9 +201,8 @@ class Catalyst
             section2, section3 = section2.partition{|item| shouldBeInSection2.call(item) }
             section2p1, section2p2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2 = section2p1 + section2p2
-            section2 = section2
-                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+
+            XCache::setFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", section2.empty?)
 
             TerminalDisplayOperator::printListing(universe, floats, section2, section3)
         }

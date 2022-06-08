@@ -39,14 +39,22 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 =begin
-    XCache::setFlagTrue(key)
-    XCache::setFlagFalse(key)
-    XCache::flagIsTrue(key)
+    XCache::getFlag(key)
 
     XCache::set(key, value)
     XCache::getOrNull(key)
     XCache::getOrDefaultValue(key, defaultValue)
     XCache::destroy(key)
+=end
+
+=begin
+    XCache::set(value)
+    XCache::getOrNull(key)
+    XCache::getOrDefaultValue(key, defaultValue)
+    XCache::destroy(key)
+
+    XCache::setFlag(key, flag)
+    XCache::getFlag(key)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
@@ -158,7 +166,7 @@ require_relative "ProgrammableBooleans.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
-require_relative "Slots.rb"
+require_relative "Zone.rb"
 require_relative "Streaming.rb"
 
 require_relative "Transmutation.rb"

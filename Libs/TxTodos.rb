@@ -208,6 +208,12 @@ class TxTodos
     # TxTodos::itemsForListing(universe)
     def self.itemsForListing(universe)
 
+        # We only show todo items when there is nothing else to see (in section 2)
+        # We are informed of it by flag "a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", true means empty section 2
+        # With that said we still commit to a full rstream sequence (rt: 1 hour) everyday.
+
+        return [] if !XCache::getFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb")
+
         getItemsForUniverse = lambda {|universe, date|
             items = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}")
             if items then

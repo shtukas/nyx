@@ -114,7 +114,7 @@ class Streaming
 
     # Streaming::rstream()
     def self.rstream()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the Streaming::rstreamToken()
+        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the Streaming::rstreamTokens()
 
         if !NxBallsService::isRunning(uuid) then
             NxBallsService::issue(uuid, "(rstream)" , [uuid]) # rstream itself doesn't publish time to bank accounts.
@@ -126,8 +126,8 @@ class Streaming
         NxBallsService::close(uuid, true)
     end
 
-    # Streaming::rstreamToken()
-    def self.rstreamToken()
+    # Streaming::rstreamTokens()
+    def self.rstreamTokens()
         uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid also used in TxTodos
         return [] if BankExtended::stdRecoveredDailyTimeInHours(uuid) > 1
         [{

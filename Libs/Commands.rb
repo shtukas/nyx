@@ -49,7 +49,7 @@ class Commands
 
         if Interpreting::match(">>", input) then
             if item = store.getDefault() then
-                XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7802:#{CommonUtils::today()}:#{item["uuid"]}", Time.new.to_f)
+                ListingOrdering::interactivelySetOrderingValue(item)
             end
         end
 
@@ -122,25 +122,6 @@ class Commands
             return outputForCommandAndOrdinal.call("expose", ordinal, store)
         end
 
-        if Interpreting::match("project", input) then
-            return ["project", nil]
-        end
-
-        if input.start_with?("project:") then
-            message = input[8, input.length].strip
-            item = TxProjects::interactivelyCreateNewOrNull(message)
-            puts JSON.pretty_generate(item)
-            return [nil, nil]
-        end
-
-        if Interpreting::match("rstream", input) then
-            return ["rstream", nil]
-        end
-
-       if Interpreting::match("projects", input) then
-            return ["projects", nil]
-        end
-
         if Interpreting::match("float", input) then
             return ["float", nil]
         end
@@ -187,6 +168,14 @@ class Commands
             return ["ondates", nil]
         end
 
+        if Interpreting::match("ordinal *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            ordinal = ordinal.to_i
+            item = store.get(ordinal)
+            return if item.nil?
+            ListingOrdering::interactivelySetOrderingValue(item)
+        end
+
         if Interpreting::match("pause", input) then
             return ["pause", store.getDefault()]
         end
@@ -196,6 +185,21 @@ class Commands
             return outputForCommandAndOrdinal.call("pause", ordinal, store)
         end
 
+        if Interpreting::match("project", input) then
+            return ["project", nil]
+        end
+
+        if input.start_with?("project:") then
+            message = input[8, input.length].strip
+            item = TxProjects::interactivelyCreateNewOrNull(message)
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
+        end
+
+       if Interpreting::match("projects", input) then
+            return ["projects", nil]
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end
@@ -203,6 +207,10 @@ class Commands
         if Interpreting::match("pursue *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("pursue", ordinal, store)
+        end
+
+        if Interpreting::match("rstream", input) then
+            return ["rstream", nil]
         end
 
         if Interpreting::match("redate", input) then
@@ -237,11 +245,6 @@ class Commands
 
         if Interpreting::match("stop", input) then
             return ["stop", store.getDefault()]
-        end
-
-        if Interpreting::match("slots", input) then
-            Slots::editSlots()
-            return [nil, nil]
         end
 
         if Interpreting::match("stop *", input) then
@@ -294,6 +297,11 @@ class Commands
         if Interpreting::match("transmute *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("transmute", ordinal, store)
+        end
+
+        if Interpreting::match("zone", input) then
+            Zone::zoneEdit()
+            return [nil, nil]
         end
 
         [nil, nil]
