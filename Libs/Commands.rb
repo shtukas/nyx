@@ -49,7 +49,7 @@ class Commands
 
         if Interpreting::match(">>", input) then
             if item = store.getDefault() then
-                ListingOrdering::interactivelySetOrderingValue(item)
+                ListingOrdering::setOrderingValue(item, Time.new.to_f)
             end
         end
 
@@ -171,14 +171,6 @@ class Commands
 
         if Interpreting::match("ondates", input) then
             return ["ondates", nil]
-        end
-
-        if Interpreting::match("ordinal *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            ordinal = ordinal.to_i
-            item = store.get(ordinal)
-            return if item.nil?
-            ListingOrdering::interactivelySetOrderingValue(item)
         end
 
         if Interpreting::match("pause", input) then

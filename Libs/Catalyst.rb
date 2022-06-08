@@ -2,8 +2,8 @@
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::printListing(universe, floats, section2, section3)
-    def self.printListing(universe, floats, section2, section3)
+    # TerminalDisplayOperator::printListing(universe, floats, section1, section2, section3)
+    def self.printListing(universe, floats, section1, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -46,7 +46,7 @@ class TerminalDisplayOperator
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(text) + 2)
         end
 
-        running = NxBallsIO::getItems().select{|nxball| !section2.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
+        running = NxBallsIO::getItems().select{|nxball| !section1.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -65,7 +65,7 @@ class TerminalDisplayOperator
                 .each{|item|
                     store.register(item, true)
                     line = LxFunction::function("toString", item)
-                    line = "#{store.prefixString()} (#{ "%5.2f" % ListingOrdering::readOrderingValue(item)}) #{line}"
+                    line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
@@ -74,6 +74,12 @@ class TerminalDisplayOperator
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         }
+
+        if section1.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            printSection.call(section1, store)
+        end
 
         if section2.size > 0 then
             puts ""
@@ -111,25 +117,11 @@ class ListingOrdering
     # ListingOrdering::readOrderingValue(item)
     def self.readOrderingValue(item)
         date = CommonUtils::today()
-        value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7807:#{date}:#{item["uuid"]}")
+        value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7808:#{date}:#{item["uuid"]}")
         if value then
             value.to_f
         else
-
-            section2 = Catalyst::itemsForListing(nil)
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                        .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-
-            vx = section2
-                    .map{|item| XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7807:#{date}:#{item["uuid"]}") }
-                    .compact
-                    .map{|v| v.to_f }
-            value = if vx.size > 0 then
-                        vx.max + 1
-                    else
-                        1
-                    end
-
+            value = Time.new.to_f
             XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7807:#{date}:#{item["uuid"]}", value)
             value
         end
@@ -138,14 +130,7 @@ class ListingOrdering
     # ListingOrdering::setOrderingValue(item, value)
     def self.setOrderingValue(item, value)
         date = CommonUtils::today()
-        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7807:#{date}:#{item["uuid"]}", value)   
-    end
-
-    # ListingOrdering::interactivelySetOrderingValue(item)
-    def self.interactivelySetOrderingValue(item)
-        date = CommonUtils::today()
-        value = LucilleCore::askQuestionAnswerAsString("ordering value for: #{LxFunction::function("toString", item).green}: ").to_f
-        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7807:#{date}:#{item["uuid"]}", value)   
+        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7808:#{date}:#{item["uuid"]}", value)   
     end
 end
 
@@ -186,6 +171,8 @@ class Catalyst
 
             section2.each{|item| ListingOrdering::readOrderingValue(item) }
 
+            section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
+
             section2 = section2.sort{|item1, item2| ListingOrdering::readOrderingValue(item1) <=> ListingOrdering::readOrderingValue(item2) }
 
             shouldBeInSection2 = lambda{|item|
@@ -215,12 +202,10 @@ class Catalyst
             }
 
             section2, section3 = section2.partition{|item| shouldBeInSection2.call(item) }
-            section2p1, section2p2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
-            section2 = section2p1 + section2p2
 
             XCache::setFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", section2.empty?)
 
-            TerminalDisplayOperator::printListing(universe, floats, section2, section3)
+            TerminalDisplayOperator::printListing(universe, floats, section1, section2, section3)
         }
     end
 end
