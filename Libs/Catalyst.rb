@@ -112,28 +112,6 @@ class TerminalDisplayOperator
     end
 end
 
-class ListingOrdering
-
-    # ListingOrdering::readOrderingValue(item)
-    def self.readOrderingValue(item)
-        date = CommonUtils::today()
-        value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7808:#{date}:#{item["uuid"]}")
-        if value then
-            value.to_f
-        else
-            value = Time.new.to_f
-            XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7807:#{date}:#{item["uuid"]}", value)
-            value
-        end
-    end
-
-    # ListingOrdering::setOrderingValue(item, value)
-    def self.setOrderingValue(item, value)
-        date = CommonUtils::today()
-        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7808:#{date}:#{item["uuid"]}", value)   
-    end
-end
-
 class Catalyst
 
     # Catalyst::itemsForListing(universe)
@@ -169,11 +147,7 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            section2.each{|item| ListingOrdering::readOrderingValue(item) }
-
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
-
-            section2 = section2.sort{|item1, item2| ListingOrdering::readOrderingValue(item1) <=> ListingOrdering::readOrderingValue(item2) }
 
             shouldBeInSection2 = lambda{|item|
                 return true if NxBallsService::isRunning(item["uuid"])

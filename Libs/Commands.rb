@@ -48,9 +48,13 @@ class Commands
         end
 
         if Interpreting::match(">>", input) then
-            if item = store.getDefault() then
-                ListingOrdering::setOrderingValue(item, Time.new.to_f)
+            if NxBallsService::somethingIsRunning() then
+                puts "Operation not permitted while something is running"
+                LucilleCore::pressEnterToContinue()
+                return
             end
+            UniverseStored::interactivelySetUniverse()
+            return [nil, nil]
         end
 
         if Interpreting::match(">project", input) then
