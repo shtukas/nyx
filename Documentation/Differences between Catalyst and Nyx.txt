@@ -7,7 +7,6 @@ Catalyst
     - Anniversary (special case independently stored)
     - TxDated
     - TxFloat
-    - TxProject
     - TxTodo
     - Wave
 

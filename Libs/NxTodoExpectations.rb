@@ -20,8 +20,8 @@ class NxTodoExpectations
         }
     end
 
-    # NxTodoExpectations::expectationToUrgency(expectation)
-    def self.expectationToUrgency(expectation)
+    # NxTodoExpectations::nx54ToUrgency(nx54)
+    def self.nx54ToUrgency(nx54)
         return 1
     end
 end

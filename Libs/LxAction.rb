@@ -100,11 +100,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxProject" then
-                EditionDesk::accessItemWithI1asAttribute(item)
-                return
-            end
-
             if item["mikuType"] == "TxFloat" then
                 EditionDesk::accessItemWithI1asAttribute(item)
                 return
@@ -166,11 +161,6 @@ class LxAction
                 end
                 return
             end
-            if item["mikuType"] == "TxProject" then
-                puts "`done` is not implemented for TxProject items, try, `done for today`"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
             if item["mikuType"] == "TxTodo" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then
@@ -196,20 +186,6 @@ class LxAction
             end
         end
 
-        if command == "done-for-today" then
-            if item["mikuType"] == "TxProject" then
-                puts "done-ing for today: #{item["description"].green}"
-                NxBallsService::close(item["uuid"], true)
-                XCache::setFlag("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}", true)
-                return
-            end
-        end
-
-        if command == "project" then
-            TxProjects::interactivelyCreateNewOrNull()
-            return
-        end
-
         if command == "expose" then
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
@@ -222,11 +198,6 @@ class LxAction
 
         if command == "float" then
             TxFloats::interactivelyCreateNewOrNull()
-            return
-        end
-
-        if command == "projects" then
-            TxProjects::dive()
             return
         end
 
@@ -274,11 +245,6 @@ class LxAction
 
             if item["mikuType"] == "TxDated" then
                 TxDateds::landing(item)
-                return
-            end
-
-            if item["mikuType"] == "TxProject" then
-                TxProjects::landing(item)
                 return
             end
 
@@ -364,12 +330,6 @@ class LxAction
                 Bank::put(payload["uuid"], timeInHours*3600)
                 return
             end
-
-            if payload["mikuType"] == "TxProject" then
-                puts "Adding #{timeInHours} hours to #{payload["uuid"]}"
-                Bank::put(payload["uuid"], timeInHours*3600)
-                return
-            end
         end
 
         if command == "today" then
@@ -394,11 +354,6 @@ class LxAction
         if command == "transmute" then
             if item["mikuType"] == "TxDated" then
                 Transmutation::transmutation2(item, "TxDated")
-                return
-            end
-
-            if item["mikuType"] == "TxProject" then
-                Transmutation::transmutation2(item, "TxProject")
                 return
             end
 

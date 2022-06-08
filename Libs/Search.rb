@@ -8,7 +8,6 @@ class Search
         nx20s = Nx100s::nx20s() +
                 Anniversaries::nx20s() +
                 TxDateds::nx20s() +
-                TxProjects::nx20s() +
                 TxFloats::nx20s() 
                 # + TxTodos::nx20s() 
                 # + Waves::nx20s()

@@ -166,21 +166,6 @@ class Commands
             return outputForCommandAndOrdinal.call("pause", ordinal, store)
         end
 
-        if Interpreting::match("project", input) then
-            return ["project", nil]
-        end
-
-        if input.start_with?("project:") then
-            message = input[8, input.length].strip
-            item = TxProjects::interactivelyCreateNewOrNull(message)
-            puts JSON.pretty_generate(item)
-            return [nil, nil]
-        end
-
-       if Interpreting::match("projects", input) then
-            return ["projects", nil]
-        end
-
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end

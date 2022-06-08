@@ -46,7 +46,7 @@ class TxTodos
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        expectation = NxTodoExpectations::makeNew()
+        nx54 = NxTodoExpectations::makeNew()
 
         item = {
           "uuid"        => uuid,
@@ -55,7 +55,7 @@ class TxTodos
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "nx111"       => nx111,
-          "expectation" => expectation
+          "nx54" => nx54
         }
         Librarian::commit(item)
         item
@@ -185,28 +185,9 @@ class TxTodos
 
     # TxTodos::itemsForListing()
     def self.itemsForListing()
-
-        # We only show todo items when there is nothing else to see (in section 2)
-        # We are informed of it by flag "a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", true means empty section 2
-        # With that said we still commit to a full rstream sequence (rt: 1 hour) everyday.
-
-        return [] if !XCache::getFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb")
-
-        getItems = lambda {|date|
-            items = XCache::getOrNull("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{date}")
-            if items then
-                return JSON.parse(items)
-                            .map{|item| Librarian::getObjectByUUIDOrNull(item["uuid"]) }
-                            .compact
-            else
-                items = TxTodos::items()
-                            .sort{|i1, i2| NxTodoExpectations::expectationToUrgency(i1["expectation"]) <=> NxTodoExpectations::expectationToUrgency(i2["expectation"]) }
-                            .take(20)
-                XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{date}", JSON.generate(items))
-                return items
-            end
-        }
-        getItems.call(CommonUtils::today())
+        TxTodos::items()
+            .sort{|i1, i2| NxTodoExpectations::nx54ToUrgency(i1["nx54"]) <=> NxTodoExpectations::nx54ToUrgency(i2["nx54"]) }
+            .take(20)
     end
 
     # --------------------------------------------------

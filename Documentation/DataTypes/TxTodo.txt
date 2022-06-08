@@ -4,12 +4,28 @@ TxTodo = {
   "description" : String
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601
-  "i1as"        : Array[Nx111]
-  "expectation" : NxTodoExpectation
+  "nx111"       : Nx111
+  "nx54"        : Nx54
 }
 
-NxTodoExpectation {
-  "creation-unixtime" : Float
-  "period"            : "hours" | "days" | "weeks" | "months"
-}
-
+Nx54 
+  {
+    "type"              : "todo"
+    "creation-unixtime" : Float
+    "period"            : "hours" | "days" | "weeks" | "months"
+  }
+  {
+    "type"  : "required-hours-days"
+    "value" : Float
+  }
+  {
+    "type"  : "required-hours-week-saturday-start"
+    "value" : Float
+  }
+  {
+    "type"  : "target-recovery-time"
+    "value" : Float
+  }
+  {
+    "type"  : "fire-and-forget-daily"
+  }

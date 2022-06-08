@@ -8,7 +8,6 @@ class Catalyst
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxProjects::itemsForListing(),
             Streaming::rstreamTokens(),
             TxTodos::itemsForListing(),
         ]
@@ -174,10 +173,6 @@ class Catalyst
                     return true
                 end
 
-                if item["mikuType"] == "TxProject" then
-                    return TxProjects::shouldBeInSection2(item)
-                end
-
                 if item["mikuType"] == "TxTodo" then
                     return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
                 end
@@ -186,8 +181,6 @@ class Catalyst
             }
 
             section2, section3 = section2.partition{|item| shouldBeInSection2.call(item) }
-
-            XCache::setFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", section2.empty?)
 
             Catalyst::printListing(floats, section1, section2, section3)
         }

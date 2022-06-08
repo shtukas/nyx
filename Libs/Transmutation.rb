@@ -50,12 +50,6 @@ class Transmutation
             return
         end
 
-        if source == "TxDated" and target == "TxProject" then
-            object["mikuType"] = "TxProject"
-            Librarian::commit(object)
-            return
-        end
-
         if source == "TxDated" and target == "TxFloat" then
             object["mikuType"] = "TxFloat"
             Librarian::commit(object)
@@ -69,32 +63,8 @@ class Transmutation
             return
         end
 
-        if source == "TxFloat" and target == "TxProject" then
-            object["mikuType"] = "TxProject"
-            Librarian::commit(object)
-            return
-        end
-
         if source == "TxFloat" and target == "TxTodo" then
             object["mikuType"] = "TxTodo"
-            Librarian::commit(object)
-            return
-        end
-
-        if source == "TxProject" and target == "TxTodo" then
-            object["mikuType"] = "TxTodo"
-            Librarian::commit(object)
-            return
-        end
-
-        if source == "TxProject" and target == "TxFloat" then
-            object["mikuType"] = "TxFloat"
-            Librarian::commit(object)
-            return
-        end
-
-        if source == "TxTodo" and target == "TxProject" then
-            object["mikuType"] = "TxProject"
             Librarian::commit(object)
             return
         end
@@ -123,7 +93,7 @@ class Transmutation
 
     # Transmutation::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxProject", "TxDated", "TxTodo" ]
+        options = ["TxFloat", "TxDated", "TxTodo" ]
         option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
         return nil if option.nil?
         option
