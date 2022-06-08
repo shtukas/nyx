@@ -134,4 +134,9 @@ class Nx111
     def self.toString(nx111)
         "(nx111) #{nx111["type"]}"
     end
+
+    # Nx111::toStringShort(nx111)
+    def self.toStringShort(nx111)
+        "#{nx111["type"]}"
+    end
 end

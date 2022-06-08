@@ -105,6 +105,10 @@ class Commands
             return outputForCommandAndOrdinal.call("done", ordinal, store)
         end
 
+        if input == "done for today" then
+            return ["done-for-today", store.getDefault()]
+        end
+
         if Interpreting::match("exit", input) then
             exit
         end

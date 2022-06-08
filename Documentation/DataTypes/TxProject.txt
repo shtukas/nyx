@@ -6,4 +6,22 @@ TxProject = {
   "datetime"    : DateTime Iso8601
   "i1as"        : Array[Nx111]
   "universe"    : (universe)
+  "expectation" : TxProjExpectation
 }
+
+TxProjExpectation 
+  {
+    "type"  : "required-hours-days"
+    "value" : Float
+  }
+  {
+    "type"  : "required-hours-week-saturday-start"
+    "value" : Float
+  }
+  {
+    "type"  : "target-recovery-time"
+    "value" : Float
+  }
+  {
+    "type"  : "fire-and-forget-daily"
+  }

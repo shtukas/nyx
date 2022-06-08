@@ -150,14 +150,29 @@ class Catalyst
             section2.each{|item| getOrderingValue.call(item["uuid"]) }
             section2 = section2.sort{|item1, item2| getOrderingValue.call(item1["uuid"]) <=> getOrderingValue.call(item2["uuid"]) }
 
-            filterNotInSection2 = lambda{|item|
-                return false if NxBallsService::isRunning(item["uuid"])
-                return true if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
-                return false if !["TxProject", "TxTodo", "(rstream)"].include?(item["mikuType"])
-                BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
+            shouldBeInSection2 = lambda{|item|
+                return true if NxBallsService::isRunning(item["uuid"])
+
+                if item["mikuType"] == "NxCatalyst" then
+                    return true
+                end
+
+                if item["mikuType"] == "TxDated" then
+                    return true
+                end
+
+                if item["mikuType"] == "TxProject" then
+                    return TxProjects::shouldBeInSection2(item)
+                end
+
+                if item["mikuType"] == "TxTodo" then
+                    return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
+                end
+
+                raise "(error: 8b3288b0-bf4f-45ca-942a-8e63c0cbfba2) #{JSON.pretty_generate(item)}"
             }
 
-            section3, section2 = section2.partition{|item| filterNotInSection2.call(item) }
+            section2, section3 = section2.partition{|item| shouldBeInSection2.call(item) }
             section2p1, section2p2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2 = section2p1 + section2p2
             section2 = section2

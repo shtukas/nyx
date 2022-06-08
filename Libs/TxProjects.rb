@@ -20,6 +20,39 @@ class TxProjects
     # --------------------------------------------------
     # Makers
 
+    # TxProjects::interactivelyMakeTxProjExpectationOrNull()
+    def self.interactivelyMakeTxProjExpectationOrNull()
+        types = ["required-hours-days", "required-hours-week-saturday-start", "target-recovery-time", "fire-and-forget-daily"]
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type: ", types)
+        return nil if type.nil?
+        if type == "required-hours-days" then
+            hours = LucilleCore::askQuestionAnswerAsString("hours: ").to_f
+            return {
+                "type"  => "required-hours-days",
+                "value" => hours
+            }
+        end
+        if type == "required-hours-week-saturday-start" then
+            hours = LucilleCore::askQuestionAnswerAsString("hours: ").to_f
+            return {
+                "type"  => "required-hours-week-saturday-start",
+                "value" => hours
+            }
+        end
+        if type == "target-recovery-time" then
+            hours = LucilleCore::askQuestionAnswerAsString("hours: ").to_f
+            return {
+                "type"  => "target-recovery-time",
+                "value" => hours
+            }
+        end
+        if type == "fire-and-forget-daily" then
+            return {
+                "type"  => "fire-and-forget-daily"
+            }
+        end
+    end
+
     # TxProjects::interactivelyCreateNewOrNull(description = nil)
     def self.interactivelyCreateNewOrNull(description = nil)
         if description.nil? then
@@ -35,7 +68,8 @@ class TxProjects
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        universe   = Multiverse::interactivelySelectUniverse()
+        universe    = Multiverse::interactivelySelectUniverse()
+        expectation = TxProjects::interactivelyMakeTxProjExpectationOrNull()
 
         item = {
           "uuid"        => uuid,
@@ -44,14 +78,15 @@ class TxProjects
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "i1as"        => [nx111],
-          "universe"    => universe
+          "universe"    => universe,
+          "expectation" => expectation
         }
         Librarian::commit(item)
         item
     end
 
     # --------------------------------------------------
-    # toString
+    # Data
 
     # TxProjects::toString(item)
     def self.toString(item)
@@ -62,6 +97,31 @@ class TxProjects
     # TxProjects::toStringForNS19(item)
     def self.toStringForNS19(item)
         "(project) #{item["description"]}"
+    end
+
+    # TxProjects::shouldBeInSection2(item)
+    def self.shouldBeInSection2(item)
+        return false if XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
+
+        expectation = item["expectation"]
+
+        if expectation["type"] == "required-hours-days" then
+            return Bank::valueAtDate(item["uuid"], CommonUtils::today()) < expectation["value"]*3600
+        end
+
+        if expectation["type"] == "required-hours-week-saturday-start" then
+            return true # TODO: implement correctly (d43d3026-91ff-4202-9555-297063f6aa60)
+        end
+
+        if expectation["type"] == "target-recovery-time" then
+            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < expectation["value"]
+        end
+
+        if expectation["type"] == "fire-and-forget-daily" then
+            return true # controlled by XCache::flagIsTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
+        end
+
+        raise "(error: 14712886-8e8f-415c-88e8-3ac3087bc906) : #{expectation}"
     end
 
     # --------------------------------------------------

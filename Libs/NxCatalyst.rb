@@ -174,7 +174,7 @@ class NxCatalyst
     def self.toString(item)
         lastDoneDateTime = item["behaviour"]["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(#{item["behaviour"]["mikuType"]}) #{item["description"]} (#{Nx111::toString(item["content"])}) (#{NxCatalyst::nx47WavePatternToString(item["behaviour"]["pattern"])}) (#{ago}) (#{item["universe"]})"
+        "(#{item["behaviour"]["mikuType"]}) #{item["description"]} (#{Nx111::toStringShort(item["content"])}) (#{NxCatalyst::nx47WavePatternToString(item["behaviour"]["pattern"])}) (#{ago}) (#{item["universe"]})"
     end
 
     # NxCatalyst::performNxCatalystNx46WaveDone(item)

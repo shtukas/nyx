@@ -162,9 +162,8 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxProject" then
-                puts "done-ing #{item["description"].green} for today"
-                NxBallsService::close(item["uuid"], true)
-                XCache::setFlagTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
+                puts "`done` is not implemented for TxProject items, try, `done for today`"
+                LucilleCore::pressEnterToContinue()
                 return
             end
             if item["mikuType"] == "TxTodo" then
@@ -178,6 +177,15 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{NxCatalyst::toString(item).green} ? '", true) then
                     NxCatalyst::performNxCatalystNx46WaveDone(item)
                 end
+                return
+            end
+        end
+
+        if command == "done-for-today" then
+            if item["mikuType"] == "TxProject" then
+                puts "done-ing for today: #{item["description"].green}"
+                NxBallsService::close(item["uuid"], true)
+                XCache::setFlagTrue("915b-09a30622d2b9:FyreIsDoneForToday:#{CommonUtils::today()}:#{item["uuid"]}")
                 return
             end
         end
