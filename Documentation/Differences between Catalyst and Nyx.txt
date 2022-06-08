@@ -10,7 +10,7 @@ Catalyst
     - TxInbox2
     - TxProject
     - TxTodo
-    - NxCatalyst
+    - Wave
 
 Nyx
     - Nx100

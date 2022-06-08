@@ -113,6 +113,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::dequeueFirstValueOrNull(channel)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
+=begin
+    XCacheSets::values(setuuid: String): Array[Value]
+    XCacheSets::set(setuuid: String, valueuuid: String, value)
+    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
+    XCacheSets::destroy(setuuid: String, valueuuid: String)
+=end
+
 # ------------------------------------------------------------
 
 require_relative "Ax1Text.rb"
@@ -159,7 +167,7 @@ require_relative "NyxNetwork.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
 require_relative "NxTodoExpectations.rb"
-require_relative "NxCatalyst.rb"
+require_relative "Waves.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

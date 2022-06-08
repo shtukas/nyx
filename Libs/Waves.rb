@@ -1,20 +1,20 @@
 
-class NxCatalyst
+class Waves
 
     # --------------------------------------------------
     # IO
 
-    # NxCatalyst::items()
+    # Waves::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxCatalyst")
+        Librarian::getObjectsByMikuType("Wave")
     end
 
-    # NxCatalyst::itemsForUniverse(universe)
+    # Waves::itemsForUniverse(universe)
     def self.itemsForUniverse(universe)
-        Librarian::getObjectsByMikuTypeAndUniverse("NxCatalyst", universe)
+        Librarian::getObjectsByMikuTypeAndUniverse("Wave", universe)
     end
 
-    # NxCatalyst::destroy(uuid)
+    # Waves::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
     end
@@ -22,8 +22,8 @@ class NxCatalyst
     # --------------------------------------------------
     # Making
 
-    # NxCatalyst::makeNx47WavePatternInteractivelyOrNull() # Nx47WavePattern
-    def self.makeNx47WavePatternInteractivelyOrNull()
+    # Waves::makeNx46InteractivelyOrNull()
+    def self.makeNx46InteractivelyOrNull()
 
         scheduleTypes = ['sticky', 'repeat']
         scheduleType = LucilleCore::selectEntityFromListOfEntitiesOrNull("schedule type: ", scheduleTypes)
@@ -81,8 +81,8 @@ class NxCatalyst
         raise "e45c4622-4501-40e1-a44e-2948544df256"
     end
 
-    # NxCatalyst::computeNextDisplayTimeForNx47WavePattern(item: Nx47WavePattern)
-    def self.computeNextDisplayTimeForNx47WavePattern(item)
+    # Waves::computeNextDisplayTimeForNx46(item: Nx46)
+    def self.computeNextDisplayTimeForNx46(item)
         if item["type"] == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
@@ -116,35 +116,22 @@ class NxCatalyst
         end
     end
 
-    # NxCatalyst::nx47WavePatternToString(item)
-    def self.nx47WavePatternToString(item)
+    # Waves::nx46ToString(item)
+    def self.nx46ToString(item)
         if item["type"] == 'sticky' then
             return "sticky, from: #{item["value"]}"
         end
         "#{item["type"]}: #{item["value"]}"
     end
 
-    # NxCatalyst::issueNewNxCatalystInteractivelyOrNull()
-    def self.issueNewNxCatalystInteractivelyOrNull()
+    # Waves::issueNewWaveInteractivelyOrNull()
+    def self.issueNewWaveInteractivelyOrNull()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        nx46 = nil
-
-        nx46Type = LucilleCore::selectEntityFromListOfEntitiesOrNull("Nx46 (behaviour)", ["Nx46Dated (not supported yet)", "Nx46Float (not supported yet)", "Nx46Project (not supported yet)", "Nx46Todo (not supported yet)", "Nx46Wave"])
-
-        if nx46Type == "Nx46Wave" then
-            nx47 = NxCatalyst::makeNx47WavePatternInteractivelyOrNull()
-            return if nx47.nil?
-            nx46 = {
-                "mikuType"         => "Nx46Wave",
-                "pattern"          => nx47,
-                "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
-            }
-        end
-
-        raise "(error: 99ef1c4f-994c-4c4a-a742-03ebb0d66c89)" if nx46.nil?
+        nx46 = Waves::makeNx46InteractivelyOrNull()
+        return nil if nx46.nil?
 
         uuid = SecureRandom.uuid
 
@@ -155,12 +142,13 @@ class NxCatalyst
 
         catalyst = {
             "uuid"        => uuid,
-            "mikuType"    => "NxCatalyst",
+            "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,
             "description" => description,
-            "behaviour"   => nx46,
-            "content"     => nx111,
+            "nx46"        => nx46,
+            "nx111"       => nx111,
             "universe"    => universe,
+            "lastDoneDateTime" => "#{Time.new.strftime("%Y")}-01-01T00:00:00Z"
         }
 
         Librarian::commit(catalyst)
@@ -170,25 +158,25 @@ class NxCatalyst
     # -------------------------------------------------------------------------
     # Operations
 
-    # NxCatalyst::toString(item)
+    # Waves::toString(item)
     def self.toString(item)
-        lastDoneDateTime = item["behaviour"]["lastDoneDateTime"]
+        lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        "(#{item["behaviour"]["mikuType"]}) #{item["description"]} (#{Nx111::toStringShort(item["content"])}) (#{NxCatalyst::nx47WavePatternToString(item["behaviour"]["pattern"])}) (#{ago}) (#{item["universe"]})"
+        "(wave) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) (#{item["universe"]})"
     end
 
-    # NxCatalyst::performNxCatalystNx46WaveDone(item)
-    def self.performNxCatalystNx46WaveDone(item)
-        puts "done-ing: #{NxCatalyst::toString(item)}"
-        item["behaviour"]["lastDoneDateTime"] = Time.now.utc.iso8601
+    # Waves::performWaveNx46WaveDone(item)
+    def self.performWaveNx46WaveDone(item)
+        puts "done-ing: #{Waves::toString(item)}"
+        item["lastDoneDateTime"] = Time.now.utc.iso8601
         Librarian::commit(item)
 
-        unixtime = NxCatalyst::computeNextDisplayTimeForNx47WavePattern(item["behaviour"]["pattern"])
+        unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
     end
 
-    # NxCatalyst::landing(item)
+    # Waves::landing(item)
     def self.landing(item)
         uuid = item["uuid"]
 
@@ -200,10 +188,10 @@ class NxCatalyst
 
             uuid = item["uuid"]
 
-            puts "#{NxCatalyst::toString(item)}".green
+            puts "#{Waves::toString(item)}".green
 
             puts "uuid: #{item["uuid"]}".yellow
-            puts "content: #{Nx111::toString(item["content"])}"
+            puts "content: #{Nx111::toString(item["nx111"])}"
             puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
 
             notes = Ax1Text::itemsForOwner(uuid)
@@ -235,7 +223,7 @@ class NxCatalyst
             end
 
             if command == "done" then
-                NxCatalyst::performNxCatalystNx46WaveDone(item)
+                Waves::performWaveNx46WaveDone(item)
                 break
             end
 
@@ -253,7 +241,7 @@ class NxCatalyst
             if Interpreting::match("iam", command) then
                 nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
                 next if nx111.nil?
-                item["content"] = nx111
+                item["nx111"] = nx111
                 Librarian::commit(item)
             end
 
@@ -276,8 +264,8 @@ class NxCatalyst
             end
 
             if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy '#{NxCatalyst::toString(item).green}' ? : ") then
-                    NxCatalyst::destroy(item["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy '#{Waves::toString(item).green}' ? : ") then
+                    Waves::destroy(item["uuid"])
                     break
                 end
             end
@@ -286,16 +274,16 @@ class NxCatalyst
 
     # -------------------------------------------------------------------------
 
-    # NxCatalyst::itemsForListing(universe)
+    # Waves::itemsForListing(universe)
     def self.itemsForListing(universe)
-        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("NxCatalyst", universe)
+        Librarian::getObjectsByMikuTypeAndPossiblyNullUniverse("Wave", universe)
     end
 
-    # NxCatalyst::nx20s()
+    # Waves::nx20s()
     def self.nx20s()
-        NxCatalyst::items().map{|item|
+        Waves::items().map{|item|
             {
-                "announce" => NxCatalyst::toString(item),
+                "announce" => Waves::toString(item),
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }

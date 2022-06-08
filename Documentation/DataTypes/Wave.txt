@@ -1,0 +1,24 @@
+
+Wave {
+    "uuid"        : uuid,
+    "mikuType"    : "Wave"
+    "unixtime"    : unixtime
+    "description" : description
+    "nx46"        : Nx46 # Wave pattern
+    "nx111"       : Nx111 # standard payload
+    "universe"    : (universe)
+    "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
+}
+
+Nx46 {
+    "type"  :
+    "value" :
+}
+
+type                            value
+
+"sticky"                      : Integer
+"every-n-hours"               : Float
+"every-n-days"                : Float
+"every-this-day-of-the-week"  : 'sunday' | 'monday' | 'tuesday' | 'wednesday' | 'thursday' | 'friday' | 'saturday'
+"every-this-day-of-the-month" : String, length 2, Day Number

@@ -44,9 +44,9 @@ class LxAction
                 end
             end
 
-            if item["mikuType"] == "NxCatalyst" then
+            if item["mikuType"] == "Wave" then
                 if LucilleCore::askQuestionAnswerAsBoolean("done ? ", true) then
-                    NxCatalyst::performNxCatalystNx46WaveDone(item)
+                    Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
                 end
             end
@@ -90,8 +90,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxCatalyst" then
-                EditionDesk::accessItemWithOneNx111Attribute(item, "content")
+            if item["mikuType"] == "Wave" then
+                EditionDesk::accessItemWithOneNx111Attribute(item, "nx111")
                 return
             end
 
@@ -183,13 +183,13 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxCatalyst" then
+            if item["mikuType"] == "Wave" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then
-                    NxCatalyst::performNxCatalystNx46WaveDone(item)
+                    Waves::performWaveNx46WaveDone(item)
                     return
                 end
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{NxCatalyst::toString(item).green} ? '", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
                     
                 end
                 return
@@ -267,8 +267,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxCatalyst" then
-                NxCatalyst::landing(item)
+            if item["mikuType"] == "Wave" then
+                Waves::landing(item)
                 return
             end
 
@@ -293,7 +293,7 @@ class LxAction
             end
 
             if item["mikuType"] == "Wave" then
-                NxCatalyst::landing(item)
+                Waves::landing(item)
                 return
             end
         end
@@ -433,7 +433,7 @@ class LxAction
         end
 
         if command == "wave" then
-            item = NxCatalyst::issueNewNxCatalystInteractivelyOrNull()
+            item = Waves::issueNewWaveInteractivelyOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return

@@ -121,7 +121,7 @@ class Catalyst
             TxDateds::itemsForListing(),
             TxProjects::itemsForListing(universe),
             Streaming::rstreamTokens(),
-            NxCatalyst::itemsForListing(universe),
+            Waves::itemsForListing(universe),
             TxTodos::itemsForListing(universe),
         ]
             .flatten
@@ -156,7 +156,7 @@ class Catalyst
                     return true
                 end
 
-                if item["mikuType"] == "NxCatalyst" then
+                if item["mikuType"] == "Wave" then
                     return true
                 end
 

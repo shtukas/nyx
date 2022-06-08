@@ -11,7 +11,7 @@ class Search
                 TxProjects::nx20s() +
                 TxFloats::nx20s() 
                 # + TxTodos::nx20s() 
-                # + NxCatalyst::nx20s()
+                # + Waves::nx20s()
         nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }
     end
 

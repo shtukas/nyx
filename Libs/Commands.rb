@@ -95,7 +95,7 @@ class Commands
         end
 
         if input.start_with?("catalyst") then
-            item = NxCatalyst::issueNewNxCatalystInteractivelyOrNull()
+            item = Waves::issueNewWaveInteractivelyOrNull()
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
