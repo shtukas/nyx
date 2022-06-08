@@ -2,8 +2,8 @@
 
 class TerminalDisplayOperator
 
-    # TerminalDisplayOperator::printListing(universe, floats, section2, section3)
-    def self.printListing(universe, floats, section2, section3)
+    # TerminalDisplayOperator::printListing(universe, floats, section2, section3, sectionX)
+    def self.printListing(universe, floats, section2, section3, sectionX)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -87,6 +87,16 @@ class TerminalDisplayOperator
             printSection.call(section3, store)
         end
 
+        sectionX.each{|item|
+            directive = Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
+            if directive == "item-done" then
+
+            else
+                ListingOrdering::interactivelySetOrderingValue(item)
+                return
+            end
+        }
+
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -111,21 +121,21 @@ class ListingOrdering
     # ListingOrdering::readOrderingValueOrNull(item)
     def self.readOrderingValueOrNull(item)
         date = CommonUtils::today()
-        value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7804:#{date}:#{item["uuid"]}")
+        value = XCache::getOrNull("a0e861a0-bb18-48fc-962d-e9d3367b7805:#{date}:#{item["uuid"]}")
         value ? value.to_f : nil
     end
 
     # ListingOrdering::setOrderingValue(item, value)
     def self.setOrderingValue(item, value)
         date = CommonUtils::today()
-        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7804:#{date}:#{item["uuid"]}", value)   
+        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7805:#{date}:#{item["uuid"]}", value)   
     end
 
     # ListingOrdering::interactivelySetOrderingValue(item)
     def self.interactivelySetOrderingValue(item)
         date = CommonUtils::today()
         value = LucilleCore::askQuestionAnswerAsString("ordering value for: #{LxFunction::function("toString", item).green}: ").to_f
-        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7804:#{date}:#{item["uuid"]}", value)   
+        XCache::set("a0e861a0-bb18-48fc-962d-e9d3367b7805:#{date}:#{item["uuid"]}", value)   
     end
 end
 
@@ -164,11 +174,12 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            section2.each{|item|
-                if ListingOrdering::readOrderingValueOrNull(item).nil? then
-                    ListingOrdering::setOrderingValue(item, rand)
-                end
-            }
+            # SectionX is going to be passed to TerminalDisplayOperator::printListing
+            # Then one element is going to be given a value, unles it is immediately done
+            # The reason for this complex process, instead of the trivial process of giving a value to all items without one
+            # is that I find it overwelming to give lots of values at the beginning of the day.
+            # Giving them more slowly works better for me.
+            section2, sectionX = section2.partition{|item| ListingOrdering::readOrderingValueOrNull(item) }
 
             section2 = section2.sort{|item1, item2| ListingOrdering::readOrderingValueOrNull(item1) <=> ListingOrdering::readOrderingValueOrNull(item2) }
 
@@ -204,7 +215,7 @@ class Catalyst
 
             XCache::setFlag("a82d53c8-3a1e-4edb-b055-06ae97e3d5cb", section2.empty?)
 
-            TerminalDisplayOperator::printListing(universe, floats, section2, section3)
+            TerminalDisplayOperator::printListing(universe, floats, section2, section3, sectionX)
         }
     end
 end

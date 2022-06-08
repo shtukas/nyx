@@ -3,21 +3,19 @@
 
 class Streaming
 
-    # Streaming::runItem(item) # return should_stop_rstream
+    # Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
     def self.runItem(item)
         LxAction::action("start", item)
         LxAction::action("access", item)
-        returnvalue = nil
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next, replace, universe, >nyx: ")
-            next if command.nil?
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next {default}, replace, universe, >nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
                 if item["mikuType"] == "TxTodo" then
                     $RStreamProgressMonitor.anotherOne()
                 end
-                LxAction::action("done", item)
-                return false
+                LxAction::action("done", item, {"forcedone" => true})
+                return "item-done"
             end
             if command == "detach" then
                 todoCachedItems = JSON.parse(XCache::getOrDefaultValue("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", "[]"))
@@ -25,11 +23,11 @@ class Streaming
                     todoCachedItems << item
                     XCache::set("afb34ada-3ca5-4bc0-83f9-2b81ad7efb4b:#{universe}:#{date}", JSON.generate(todoCachedItems))
                 end
-                return true
+                return "should-stop-rstream"
             end
             if command == "next" then
                 LxAction::action("stop", item)
-                return false
+                return nil
             end
             if command == "replace" then
                 if item["mikuType"] != "TxTodo" then
@@ -40,13 +38,13 @@ class Streaming
                 TxTodos::interactivelyCreateNewOrNull()
                 LxAction::action("stop", item)
                 TxTodos::destroy(item["uuid"])
-                return false
+                return nil
             end
             if command == "universe" then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
                 Librarian::commit(item)
                 LxAction::action("stop", item)
-                return false
+                return nil
             end
             if command == ">nyx" then
                 if item["mikuType"] != "TxTodo" then
@@ -59,47 +57,49 @@ class Streaming
                 item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
                 Librarian::commit(item)
                 Nx100s::landing(item)
-                $RStreamProgressMonitor.anotherOne()
-                return false
+                if useProgressMonitor then
+                    $RStreamProgressMonitor.anotherOne()
+                end
+                return nil
             end
         }
     end
 
-    # Streaming::processItem(item)
+    # Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
     def self.processItem(item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run (start and access, default), landing (and back), done, universe, next, exit (rstream): ")
-            if command == "" or command == "run" then
-                return Streaming::runItem(item) # should_stop_rstream
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run (start and access), landing (and back), done, universe, return (default), exit (rstream): ")
+            if command == "run" then
+                return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
             if command == "landing" then
                 LxAction::action("landing", item)
                 item = Librarian::getObjectByUUIDOrNull(item["uuid"])
                 if item.nil? then
-                    return false
+                    return nil
                 end
                 if item["mikuType"] != "TxTodo" then
-                    return false
+                    return nil
                 end
-                # Otherwise we restart the loop
+                next
             end
             if command == "done" then
-                LxAction::action("done", item)
+                LxAction::action("done", item, {"forcedone" => true})
                 if item["mikuType"] == "TxTodo" then
                     $RStreamProgressMonitor.anotherOne()
                 end
-                return false
+                return "item-done"
             end
             if command == "universe" then
                 item["universe"] = Multiverse::interactivelySelectUniverse()
                 Librarian::commit(item)
-                return false
+                return nil
             end
-            if command == "next" then
-                return false
+            if command == "" or command == "return" then
+                return nil
             end
             if command == "exit" then
-                return true
+                return "should-stop-rstream"
             end
         }
     end
@@ -107,8 +107,10 @@ class Streaming
     # Streaming::stream(items)
     def self.stream(items)
         items.each{|item| 
-            should_stop_rstream = Streaming::processItem(item)
-            break if should_stop_rstream
+            directive = Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
+            if directive == "should-stop-rstream" then
+                return
+            end
         }
     end
 

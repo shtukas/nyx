@@ -1,8 +1,8 @@
 
 class LxAction
 
-    # LxAction::action(command, item or nil)
-    def self.action(command, item)
+    # LxAction::action(command, item or nil, options = nil)
+    def self.action(command, item = nil, options = nil)
 
         # All items sent to this are expected to have an mikyType attribute
 
@@ -156,6 +156,11 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxDated" then
+                shouldForce = options and options["forcedone"]
+                if shouldForce then
+                    TxDateds::destroy(item["uuid"])
+                    return
+                end
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
@@ -167,6 +172,11 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxTodo" then
+                shouldForce = options and options["forcedone"]
+                if shouldForce then
+                    TxTodos::destroy(item["uuid"])
+                    return
+                end
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of todo '#{item["description"].green}' ? ", true) then
                     TxTodos::destroy(item["uuid"])
                 end
@@ -174,8 +184,13 @@ class LxAction
             end
 
             if item["mikuType"] == "NxCatalyst" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{NxCatalyst::toString(item).green} ? '", true) then
+                shouldForce = options and options["forcedone"]
+                if shouldForce then
                     NxCatalyst::performNxCatalystNx46WaveDone(item)
+                    return
+                end
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{NxCatalyst::toString(item).green} ? '", true) then
+                    
                 end
                 return
             end
