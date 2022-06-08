@@ -190,7 +190,7 @@ class LxAction
                     return
                 end
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
-                    
+                    Waves::performWaveNx46WaveDone(item)
                 end
                 return
             end

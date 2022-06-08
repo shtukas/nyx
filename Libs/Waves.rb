@@ -81,35 +81,35 @@ class Waves
         raise "e45c4622-4501-40e1-a44e-2948544df256"
     end
 
-    # Waves::computeNextDisplayTimeForNx46(item: Nx46)
-    def self.computeNextDisplayTimeForNx46(item)
-        if item["type"] == 'sticky' then
+    # Waves::computeNextDisplayTimeForNx46(nx46: Nx46)
+    def self.computeNextDisplayTimeForNx46(nx46)
+        if nx46["type"] == 'sticky' then
             # unixtime1 is the time of the event happening today
             # It can still be ahead of us.
-            unixtime1 = (CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone()) - 86400) + item["value"].to_i*3600
+            unixtime1 = (CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone()) - 86400) + nx46["value"].to_i*3600
             if unixtime1 > Time.new.to_i then
                 return unixtime1
             end
             # We return the event happening tomorrow
-            return CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone()) + item["value"].to_i*3600
+            return CommonUtils::unixtimeAtComingMidnightAtGivenTimeZone(CommonUtils::getLocalTimeZone()) + nx46["value"].to_i*3600
         end
-        if item["type"] == 'every-n-hours' then
-            return Time.new.to_i+3600 * item["value"].to_f
+        if nx46["type"] == 'every-n-hours' then
+            return Time.new.to_i+3600 * nx46["value"].to_f
         end
-        if item["type"] == 'every-n-days' then
-            return Time.new.to_i+86400 * item["value"].to_f
+        if nx46["type"] == 'every-n-days' then
+            return Time.new.to_i+86400 * nx46["value"].to_f
         end
-        if item["type"] == 'every-this-day-of-the-month' then
+        if nx46["type"] == 'every-this-day-of-the-month' then
             cursor = Time.new.to_i + 86400
-            while Time.at(cursor).strftime("%d") != item["value"] do
+            while Time.at(cursor).strftime("%d") != nx46["value"] do
                 cursor = cursor + 3600
             end
            return cursor
         end
-        if item["type"] == 'every-this-day-of-the-week' then
+        if nx46["type"] == 'every-this-day-of-the-week' then
             mapping = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
             cursor = Time.new.to_i + 86400
-            while mapping[Time.at(cursor).wday] != item["value"] do
+            while mapping[Time.at(cursor).wday] != nx46["value"] do
                 cursor = cursor + 3600
             end
             return cursor

@@ -118,10 +118,10 @@ class Catalyst
     def self.itemsForListing(universe)
         [
             Anniversaries::itemsForListing(),
+            Waves::itemsForListing(universe),
             TxDateds::itemsForListing(),
             TxProjects::itemsForListing(universe),
             Streaming::rstreamTokens(),
-            Waves::itemsForListing(universe),
             TxTodos::itemsForListing(universe),
         ]
             .flatten
