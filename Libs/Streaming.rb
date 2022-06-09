@@ -45,6 +45,7 @@ class Streaming
                 end
                 LxAction::action("stop", item)
                 item["mikuType"] = "Nx100"
+                item["i1as"] = [item["nx111"]]
                 item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
                 Librarian::commit(item)
                 Nx100s::landing(item)

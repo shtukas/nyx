@@ -13,6 +13,6 @@ class Nx54
 
     # Nx54::toString(nx54)
     def self.toString(nx54)
-        nx54["type"]
+        JSON.generate(nx54)
     end
 end

@@ -20,7 +20,7 @@ class Search
 
     # Search::interativeInterfaceSelectNx20OrNull()
     def self.interativeInterfaceSelectNx20OrNull()
-        CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::nx20s(), lambda{|item| item["announce"] })
+        CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::nx20s(), lambda{|item| item["announce"].downcase })
     end
 
     # Search::interativeInterface()
