@@ -168,7 +168,8 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxTodo" then
-                TxTodos::done(item)
+                shouldForce = options and options["forcedone"]
+                TxTodos::done(item, shouldForce)
                 return
             end
             if item["mikuType"] == "Wave" then

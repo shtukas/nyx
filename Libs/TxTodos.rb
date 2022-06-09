@@ -67,22 +67,26 @@ class TxTodos
 
         if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
             NxBallsService::close(item["uuid"], true)
-            TxTodos::destroy(item)
+            TxTodos::destroy(item["uuid"])
         end
     end
 
-    # TxTodos::done(item)
-    def self.done(item)
-        if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
-            TxTodos::destroy(item)
+    # TxTodos::done(item, shouldForce = false)
+    def self.done(item, shouldForce = false)
+        if shouldForce then
+            TxTodos::destroy(item["uuid"])
+        else
+            if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
+                TxTodos::destroy(item["uui"])
+            end
         end
         if NxBallsService::isRunning(item["uuid"]) then
              NxBallsService::close(item["uuid"], true)
         end
     end
 
-    # TxTodos::destroy(item)
-    def self.destroy(item)
+    # TxTodos::destroy(uuid)
+    def self.destroy(uuid)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
         Librarian::destroy(item["uuid"])
     end
@@ -193,27 +197,56 @@ class TxTodos
 
     # --------------------------------------------------
 
+    # TxTodos::cacheLocation()
+    def self.cacheLocation()
+        "DC68E964-0012-4CAB-AC9F-563BA7180808"
+    end
+
+    # TxTodos::resetCache()
+    def self.resetCache()
+
+        XCacheSets::values(TxTodos::cacheLocation()).each{|item|
+            XCacheSets::destroy(TxTodos::cacheLocation(), item["uuid"])
+        }
+
+        items1 = TxTodos::items().reduce([]){|selection, item|
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
+                selection
+            else
+                selection + [item]
+            end
+        }
+
+        items2 = TxTodos::items().reverse.reduce([]){|selection, item|
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
+                selection
+            else
+                selection + [item]
+            end
+        }
+
+        items3 = TxTodos::items().shuffle.reduce([]){|selection, item|
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
+                selection
+            else
+                selection + [item]
+            end
+        }
+
+        (items1+items2+items3).each{|item|
+            XCacheSets::set(TxTodos::cacheLocation(), item["uuid"], item)
+        }
+    end
+
     # TxTodos::itemsForListing()
     def self.itemsForListing()
-        if !XCache::getFlag("a40adef6-b200-40ff-aefb-e59bb8724ef2:#{CommonUtils::today()}") then
-            # Not been done tfor today
-
-            items = TxTodos::items().reduce([]){|selection, item|
-                if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
-                    selection
-                else
-                    selection + [item]
-                end
-            }
-
-            items.each{|item|
-                XCacheSets::set("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", item["uuid"], item)
-            }
-
-            XCache::setFlag("a40adef6-b200-40ff-aefb-e59bb8724ef2:#{CommonUtils::today()}", true)
+        items = XCacheSets::values(TxTodos::cacheLocation())
+        if items.size < 10 then
+            puts "TxTodos::resetCache()".green
+            TxTodos::resetCache()
+            items = XCacheSets::values(TxTodos::cacheLocation())
         end
-
-        XCacheSets::values("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}")
+        items
     end
 
     # --------------------------------------------------

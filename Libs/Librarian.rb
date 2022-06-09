@@ -59,8 +59,8 @@ class Librarian
     # Librarian::objectHasBeenCommitted(object)
     def self.objectHasBeenCommitted(object)
         if object["mikyType"] == "TxTodo" then
-            if XCacheSets::getOrNull("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", object["uuid"]) then
-                XCacheSets::set("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", item["uuid"], item)
+            if XCacheSets::getOrNull("DC68E964-0012-4CAB-AC9F-563BA7180808", object["uuid"]) then
+                XCacheSets::set("DC68E964-0012-4CAB-AC9F-563BA7180808", item["uuid"], item)
             end
         end
     end
@@ -104,7 +104,7 @@ class Librarian
     # Librarian::objectIsAboutToBeDestroyed(object)
     def self.objectIsAboutToBeDestroyed(object)
         if object["mikyType"] == "TxTodo" then
-            XCacheSets::destroy("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", object["uuid"])
+            XCacheSets::destroy(TxTodos::cacheLocation(), object["uuid"])
         end
     end
 

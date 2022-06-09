@@ -34,7 +34,7 @@ class Streaming
                 end
                 TxTodos::interactivelyCreateNewOrNull()
                 LxAction::action("stop", item)
-                TxTodos::destroy(item)
+                TxTodos::destroy(item["uuid"])
                 return nil
             end
             if command == ">nyx" then
@@ -108,18 +108,5 @@ class Streaming
         Streaming::stream(items)
 
         NxBallsService::close(uuid, true)
-    end
-
-    # Streaming::rstreamTokens()
-    def self.rstreamTokens()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid also used in TxTodos
-        return [] if BankExtended::stdRecoveredDailyTimeInHours(uuid) > 1
-        [{
-            "uuid"     => uuid,
-            "mikuType" => "(rstream)",
-            "announce" => "(rstream) (#{Bank::valueOverTimespan("todo-done-count-afb1-11ac2d97a0a8", 86400*7)} last 7 days)",
-            "lambda"   => lambda { Streaming::rstream() },
-            "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        }]
     end
 end

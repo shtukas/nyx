@@ -10,7 +10,6 @@ class Catalyst
             TxDateds::itemsForListing(),
             TxProjects::itemsForListing(),
             TxTodos::itemsForListing(),
-            Streaming::rstreamTokens(),
         ]
             .flatten
     end
