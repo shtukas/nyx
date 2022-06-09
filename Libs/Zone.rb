@@ -25,7 +25,7 @@ class Zone # Zone is entirely contained in XCache, for extra fun
 
     # Zone::toString(item)
     def self.toString(item)
-        "(zone) #{item["description"]}#{item["aionroothash"] ? " (attachment)" : ""}"
+        "(zone) #{item["description"]}"
     end
 
     # Zone::interactivelyIssueNewOrNull()

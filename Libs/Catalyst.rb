@@ -5,10 +5,11 @@ class Catalyst
     # Catalyst::itemsForListing()
     def self.itemsForListing()
         [
+            Zone::items(),
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxProjects::itemsForListing(),
+            TxPlus::itemsForListing(),
             TxTodos::itemsForListing(),
         ]
             .flatten
@@ -49,17 +50,6 @@ class Catalyst
             }
         end
 
-        items = Zone::items()
-        if !items.empty? then
-            puts ""
-            items.each{|item|
-                store.register(item, false)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-        end
-
         running = NxBallsIO::getItems().select{|nxball| !section1.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
@@ -83,6 +73,9 @@ class Catalyst
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    if line.include?("(zone)") then
+                        line = line.yellow
                     end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)

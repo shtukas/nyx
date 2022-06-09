@@ -242,8 +242,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxProject" then
-                TxProjects::landing(item)
+            if item["mikuType"] == "TxPlus" then
+                TxPlus::landing(item)
                 return
             end
 
@@ -291,8 +291,8 @@ class LxAction
             return
         end
 
-        if command == "projects" then
-            TxProjects::dive()
+        if command == "pluses" then
+            TxPlus::dive()
             return
         end
 

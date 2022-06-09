@@ -6,8 +6,8 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | calendar item | float | project | project: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone add",
-            "anniversaries | calendar | projects | ondates | todos | slots",
+            "wave | anniversary | calendar item | float | plus | plus: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone add",
+            "anniversaries | calendar | pluses | ondates | todos | slots",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
         ].join("\n")
     end
@@ -44,8 +44,8 @@ class Commands
             return [nil, nil]
         end
 
-        if Interpreting::match(">project", input) then
-            return [">project", store.getDefault()]
+        if Interpreting::match(">plus", input) then
+            return [">plus", store.getDefault()]
         end
 
         if Interpreting::match(">todo", input) then
@@ -176,23 +176,23 @@ class Commands
             return outputForCommandAndOrdinal.call("pause", ordinal, store)
         end
 
-        if Interpreting::match("project", input) then
-            item = TxProjects::interactivelyCreateNewOrNull()
+        if Interpreting::match("plus", input) then
+            item = TxPlus::interactivelyCreateNewOrNull()
             return [nil, nil] if item.nil?
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
 
-        if input.start_with?("project:") then
+        if input.start_with?("plus:") then
             message = input[8, input.length].strip
-            item = TxProjects::interactivelyCreateNewOrNull(message)
+            item = TxPlus::interactivelyCreateNewOrNull(message)
             return [nil, nil] if item.nil?
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
 
-        if Interpreting::match("projects", input) then
-            return ["projects", nil]
+        if Interpreting::match("pluses", input) then
+            return ["pluses", nil]
         end
 
         if Interpreting::match("pursue", input) then
@@ -299,7 +299,7 @@ class Commands
             return [nil, nil]
         end
 
-        if Interpreting::match("zone add", input) then
+        if Interpreting::match("zone", input) then
             item = Zone::interactivelyIssueNewOrNull()
             return [nil, nil] if item.nil?
             puts JSON.pretty_generate(item)

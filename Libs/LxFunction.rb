@@ -27,8 +27,8 @@ class LxFunction
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
             end
-            if item["mikuType"] == "TxProject" then
-                return TxProjects::toString(item)
+            if item["mikuType"] == "TxPlus" then
+                return TxPlus::toString(item)
             end
             if item["mikuType"] == "TxTodo" then
                 return TxTodos::toString(item)

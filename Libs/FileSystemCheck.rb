@@ -200,7 +200,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxProject" then
+        if item["mikuType"] == "TxPlus" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
