@@ -5,6 +5,7 @@ class TxTodos
     # TxTodos::items()
     def self.items()
         Librarian::getObjectsByMikuType("TxTodo")
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # --------------------------------------------------
@@ -194,11 +195,25 @@ class TxTodos
 
     # TxTodos::itemsForListing()
     def self.itemsForListing()
-        count1 = Bank::valueOverTimespan("todo-done-count-afb1-11ac2d97a0a8", 86400)
-        count2 = [0, 20 - count1].max
-        TxTodos::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .take(count2)
+        if !XCache::getFlag("a40adef6-b200-40ff-aefb-e59bb8724ef2:#{CommonUtils::today()}") then
+            # Not been done tfor today
+
+            items = TxTodos::items().reduce([]){|selection, item|
+                if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
+                    selection
+                else
+                    selection + [item]
+                end
+            }
+
+            items.each{|item|
+                XCacheSets::set("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", item["uuid"], item)
+            }
+
+            XCache::setFlag("a40adef6-b200-40ff-aefb-e59bb8724ef2:#{CommonUtils::today()}", true)
+        end
+
+        XCacheSets::values("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}")
     end
 
     # --------------------------------------------------

@@ -56,6 +56,15 @@ class Librarian
     # ---------------------------------------------------
     # Objects Writing
 
+    # Librarian::objectHasBeenCommitted(object)
+    def self.objectHasBeenCommitted(object)
+        if object["mikyType"] == "TxTodo" then
+            if XCacheSets::getOrNull("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", object["uuid"]) then
+                XCacheSets::set("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", item["uuid"], item)
+            end
+        end
+    end
+
     # Librarian::commit(object)
     def self.commit(object)
 
@@ -94,15 +103,8 @@ class Librarian
 
     # Librarian::objectIsAboutToBeDestroyed(object)
     def self.objectIsAboutToBeDestroyed(object)
-        if object["i1as"] then
-            object["i1as"].each{|nx111|
-                if nx111["type"] == "Dx8Unit" then
-                    unitId = nx111["unitId"]
-                    location = Dx8UnitsUtils::dx8UnitFolder(unitId)
-                    puts "removing Dx8Unit folder: #{location}"
-                    LucilleCore::removeFileSystemLocation(location)
-                end
-            }
+        if object["mikyType"] == "TxTodo" then
+            XCacheSets::destroy("small-collection-of-todos-items-065762c48c41:#{CommonUtils::today()}", object["uuid"])
         end
     end
 

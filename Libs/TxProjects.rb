@@ -26,7 +26,7 @@ class TxProjects
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        nx54 = Nx54::makeNew()
+        nx54        = Nx54::makeNew()
 
         item = {
           "uuid"        => uuid,
@@ -35,7 +35,7 @@ class TxProjects
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "nx111"       => nx111,
-          "nx54" => nx54
+          "nx54"        => nx54
         }
         Librarian::commit(item)
         item
@@ -121,10 +121,10 @@ class TxProjects
         end
     end
 
-    # TxProjects::destroy(item)
-    def self.destroy(item)
+    # TxProjects::destroy(uuid)
+    def self.destroy(uuid)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
-        Librarian::destroy(item["item"])
+        Librarian::destroy(uuid)
     end
 
     # TxProjects::landing(item)
@@ -228,6 +228,17 @@ class TxProjects
                 LxAction::action("landing", i2)
                 break
             end
+        }
+    end
+
+    # TxProjects::dive()
+    def self.dive()
+        loop {
+            system("clear")
+            items = TxProjects::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", items, lambda{|item| TxProjects::toString(item) })
+            break if item.nil?
+            TxProjects::landing(item)
         }
     end
 

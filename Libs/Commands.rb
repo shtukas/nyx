@@ -81,12 +81,6 @@ class Commands
             return ["calendar", nil]
         end
 
-        if input.start_with?("catalyst") then
-            item = Waves::issueNewWaveInteractivelyOrNull()
-            puts JSON.pretty_generate(item)
-            return [nil, nil]
-        end
-
         if Interpreting::match("done", input) then
             return ["done", store.getDefault()]
         end
@@ -156,12 +150,21 @@ class Commands
         if input.start_with?("ondate:") then
             message = input[7, input.length].strip
             item = TxDateds::interactivelyCreateNewOrNull(message)
+            return [nil, nil] if item.nil?
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
 
         if Interpreting::match("ondates", input) then
             return ["ondates", nil]
+        end
+
+        if input.start_with?("ondate:") then
+            message = input[7, input.length].strip
+            item = TxDateds::interactivelyCreateNewOrNull(message)
+            return [nil, nil] if item.nil?
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
         end
 
         if Interpreting::match("pause", input) then
@@ -171,6 +174,25 @@ class Commands
         if Interpreting::match("pause *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("pause", ordinal, store)
+        end
+
+        if Interpreting::match("project", input) then
+            item = TxProjects::interactivelyCreateNewOrNull()
+            return [nil, nil] if item.nil?
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
+        end
+
+        if input.start_with?("project:") then
+            message = input[8, input.length].strip
+            item = TxProjects::interactivelyCreateNewOrNull(message)
+            return [nil, nil] if item.nil?
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
+        end
+
+        if Interpreting::match("projects", input) then
+            return ["projects", nil]
         end
 
         if Interpreting::match("pursue", input) then
@@ -244,6 +266,7 @@ class Commands
         if input.start_with?("today:") then
             message = input[6, input.length].strip
             item = TxDateds::interactivelyCreateNewTodayOrNull(message)
+            return [nil, nil] if item.nil?
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
@@ -255,6 +278,7 @@ class Commands
         if input.start_with?("todo:") then
             message = input[5, input.length].strip
             item = TxTodos::interactivelyCreateNewOrNull(message)
+            return [nil, nil] if item.nil?
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
@@ -266,6 +290,13 @@ class Commands
         if Interpreting::match("transmute *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("transmute", ordinal, store)
+        end
+
+        if input.start_with?("wave") then
+            item = Waves::issueNewWaveInteractivelyOrNull()
+            return [nil, nil] if item.nil?
+            puts JSON.pretty_generate(item)
+            return [nil, nil]
         end
 
         if Interpreting::match("zone add", input) then

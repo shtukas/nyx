@@ -241,8 +241,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "Wave" then
-                Waves::landing(item)
+            if item["mikuType"] == "TxProject" then
+                TxProjects::landing(item)
                 return
             end
 
@@ -290,8 +290,18 @@ class LxAction
             return
         end
 
+        if command == "projects" then
+            TxProjects::dive()
+            return
+        end
+
         if command == "pursue" then
             NxBallsService::pursue(item["uuid"])
+            return
+        end
+
+        if command == "rstream" then
+            Streaming::rstream()
             return
         end
 
@@ -343,11 +353,6 @@ class LxAction
             item = TxTodos::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            return
-        end
-
-        if command == "rstream" then
-            Streaming::rstream()
             return
         end
 
