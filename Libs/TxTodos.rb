@@ -1,20 +1,5 @@
 # encoding: UTF-8
 
-class RStreamProgressMonitor
-    def initialize()
-        @data = JSON.parse(XCache::getOrDefaultValue("18705e17-41a7-4c7b-986b-a6a9292e8bb4", "[]"))
-    end
-    def anotherOne()
-        @data << Time.new.to_i
-        XCache::set("18705e17-41a7-4c7b-986b-a6a9292e8bb4", JSON.generate(@data))
-    end
-    def getCount()
-        @data.size
-    end
-end
-
-$RStreamProgressMonitor = RStreamProgressMonitor.new()
-
 class TxTodos
 
     # TxTodos::items()
@@ -155,6 +140,7 @@ class TxTodos
 
     # TxTodos::immediateDestroy(item)
     def self.immediateDestroy(item)
+        Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
         Librarian::destroy(item["item"])
     end
 
@@ -266,10 +252,18 @@ class TxTodos
 
     # TxTodos::itemsForListing()
     def self.itemsForListing()
-        TxTodos::items()
-            .select{|item| TxTodos::shouldShowInListing(item) }
-            .sort{|i1, i2| Nx54::nx54ToPriority(i1["nx54"]) <=> Nx54::nx54ToPriority(i2["nx54"]) }
-            .take(20)
+        count1 = Bank::valueOverTimespan("todo-done-count-afb1-11ac2d97a0a8", 86400)
+        count2 = [0, 20 - count1].max
+        todos = TxTodos::items()
+                    .select{|item| TxTodos::shouldShowInListing(item) }
+                    .sort{|i1, i2| Nx54::nx54ToPriority(i1["nx54"]) <=> Nx54::nx54ToPriority(i2["nx54"]) }
+        projects, puretodos = todos.partition{|item| item["nx54"]["type"] != "todo" }
+        puretodos = puretodos
+                    .first(100)
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+                    .take(count2) # this is our circuit breaker
+        projects + puretodos
     end
 
     # --------------------------------------------------

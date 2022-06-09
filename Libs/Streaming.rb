@@ -11,9 +11,6 @@ class Streaming
             command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next {default}, replace, >nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
-                if item["mikuType"] == "TxTodo" then
-                    $RStreamProgressMonitor.anotherOne()
-                end
                 LxAction::action("done", item, {"forcedone" => true})
                 return "item-done"
             end
@@ -51,9 +48,7 @@ class Streaming
                 item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
                 Librarian::commit(item)
                 Nx100s::landing(item)
-                if useProgressMonitor then
-                    $RStreamProgressMonitor.anotherOne()
-                end
+                Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
                 return nil
             end
         }
@@ -79,9 +74,6 @@ class Streaming
             end
             if command == "done" then
                 LxAction::action("done", item, {"forcedone" => true})
-                if item["mikuType"] == "TxTodo" then
-                    $RStreamProgressMonitor.anotherOne()
-                end
                 return "item-done"
             end
             if command == "" or command == "return" then
@@ -124,7 +116,7 @@ class Streaming
         [{
             "uuid"     => uuid,
             "mikuType" => "(rstream)",
-            "announce" => "(rstream) (#{$RStreamProgressMonitor.getCount()} last 7 days)",
+            "announce" => "(rstream) (#{Bank::valueOverTimespan("todo-done-count-afb1-11ac2d97a0a8", 86400*7)} last 7 days)",
             "lambda"   => lambda { Streaming::rstream() },
             "rt"       => BankExtended::stdRecoveredDailyTimeInHours(uuid)
         }]
