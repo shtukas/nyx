@@ -82,11 +82,6 @@ class NxTimelines
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
 
-            puts "i1as:"
-            item["i1as"].each{|nx111|
-                puts "    #{Nx111::toString(nx111)}"
-            } 
-
             notes = Ax1Text::itemsForOwner(uuid)
             if notes.size > 0 then
                 puts "notes:"

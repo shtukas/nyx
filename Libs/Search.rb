@@ -8,9 +8,11 @@ class Search
         nx20s = Nx100s::nx20s() +
                 Anniversaries::nx20s() +
                 TxDateds::nx20s() +
-                TxFloats::nx20s() 
+                TxFloats::nx20s() +
+                NxTimelines::nx20s() +
+                Waves::nx20s()
                 # + TxTodos::nx20s() 
-                # + Waves::nx20s()
+
         nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }
     end
 
