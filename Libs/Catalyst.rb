@@ -8,14 +8,15 @@ class Catalyst
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            Streaming::rstreamTokens(),
+            TxProjects::itemsForListing(),
             TxTodos::itemsForListing(),
+            Streaming::rstreamTokens(),
         ]
             .flatten
     end
 
-    # Catalyst::printListing(floats, section1, section2, section3)
-    def self.printListing(floats, section1, section2, section3)
+    # Catalyst::printListing(floats, section1, section2)
+    def self.printListing(floats, section1, section2)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -99,12 +100,6 @@ class Catalyst
             printSection.call(section2, store)
         end
 
-        if section3.size > 0 and vspaceleft > 2 then
-            puts "---------------------------------------------------"
-            vspaceleft = vspaceleft - 1
-            printSection.call(section3, store)
-        end
-
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -158,31 +153,7 @@ class Catalyst
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
-            shouldBeInSection2 = lambda{|item|
-                return true if NxBallsService::isRunning(item["uuid"])
-
-                if item["mikuType"] == "(rstream)" then
-                    return true
-                end
-
-                if item["mikuType"] == "Wave" then
-                    return true
-                end
-
-                if item["mikuType"] == "TxDated" then
-                    return true
-                end
-
-                if item["mikuType"] == "TxTodo" then
-                    return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 1
-                end
-
-                raise "(error: 8b3288b0-bf4f-45ca-942a-8e63c0cbfba2) #{JSON.pretty_generate(item)}"
-            }
-
-            section2, section3 = section2.partition{|item| shouldBeInSection2.call(item) }
-
-            Catalyst::printListing(floats, section1, section2, section3)
+            Catalyst::printListing(floats, section1, section2)
         }
     end
 end

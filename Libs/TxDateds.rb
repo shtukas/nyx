@@ -108,8 +108,8 @@ class TxDateds
         "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
     end
 
-    # TxDateds::toStringForNS19(item)
-    def self.toStringForNS19(item)
+    # TxDateds::toStringForSearch(item)
+    def self.toStringForSearch(item)
         "(ondate) #{item["description"]}"
     end
 
@@ -236,7 +236,7 @@ class TxDateds
     def self.nx20s()
         TxDateds::items().map{|item|
             {
-                "announce" => TxDateds::toStringForNS19(item),
+                "announce" => TxDateds::toStringForSearch(item),
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }

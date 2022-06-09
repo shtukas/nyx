@@ -1,10 +1,5 @@
 
-Nx54 
-  {
-    "type"              : "todo"
-    "creation-unixtime" : Float
-    "period"            : "hours" | "days" | "weeks" | "months"
-  }
+Nx54
   {
     "type"  : "required-hours-days"
     "value" : Float

@@ -182,6 +182,14 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxTimeline" then
+            return
+        end
+
+        if item["mikuType"] == "Nx16TimelineTargetLink" then
+            return
+        end
+
         if item["mikuType"] == "TxDated" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
@@ -192,11 +200,8 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxTimeline" then
-            return
-        end
-
-        if item["mikuType"] == "Nx16TimelineTargetLink" then
+        if item["mikuType"] == "TxProject" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 

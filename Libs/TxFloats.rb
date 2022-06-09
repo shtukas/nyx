@@ -48,8 +48,8 @@ class TxFloats
         "(item) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
     end
 
-    # TxFloats::toStringForNS19(item)
-    def self.toStringForNS19(item)
+    # TxFloats::toStringForSearch(item)
+    def self.toStringForSearch(item)
         "(item) #{item["description"]}"
     end
 
@@ -180,7 +180,7 @@ class TxFloats
     def self.nx20s()
         TxFloats::items().map{|item|
             {
-                "announce" => TxFloats::toStringForNS19(item),
+                "announce" => TxFloats::toStringForSearch(item),
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }

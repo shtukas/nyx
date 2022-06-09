@@ -1,16 +1,16 @@
 # encoding: UTF-8
 
-class TxTodos
+class TxProjects
 
-    # TxTodos::items()
+    # TxProjects::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxTodo")
+        Librarian::getObjectsByMikuType("TxProject")
     end
 
     # --------------------------------------------------
     # Makers
 
-    # TxTodos::interactivelyCreateNewOrNull(description = nil)
+    # TxProjects::interactivelyCreateNewOrNull(description = nil)
     def self.interactivelyCreateNewOrNull(description = nil)
         if description.nil? or description == "" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -26,14 +26,16 @@ class TxTodos
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
+        nx54 = Nx54::makeNew()
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxTodo",
+          "mikuType"    => "TxProject",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "nx111"       => nx111
+          "nx111"       => nx111,
+          "nx54" => nx54
         }
         Librarian::commit(item)
         item
@@ -42,20 +44,41 @@ class TxTodos
     # --------------------------------------------------
     # Data
 
-    # TxTodos::toString(item)
+    # TxProjects::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
+        "(project) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{Nx54::toString(item["nx54"])})"
     end
 
-    # TxTodos::toStringForSearch(item)
+    # TxProjects::toStringForSearch(item)
     def self.toStringForSearch(item)
-        "(todo) #{item["description"]}"
+        "(project) #{item["description"]}"
+    end
+
+    # TxProjects::availableForSection2(item)
+    def self.availableForSection2(item)
+        if item["nx54"]["type"] == "required-hours-days" then
+            return Bank::valueAtDate(item["uuid"], CommonUtils::today()) < item["nx54"]["value"]
+        end
+
+        if item["nx54"]["type"] == "required-hours-week-saturday-start" then
+            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 0.5 # TODO: to correct (dbae7ba5-6157-4022-af27-8f030952d02d)
+        end
+
+        if item["nx54"]["type"] == "target-recovery-time" then
+            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < item["nx54"]["value"]
+        end
+
+        if item["nx54"]["type"] == "fire-and-forget-daily" then
+            return !XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+        end
+
+        raise "(error: dcf30e93-9a64-42e0-9370-d1009d946c1e) #{item}"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # TxTodos::doubleDots(item)
+    # TxProjects::doubleDots(item)
     def self.doubleDots(item)
 
         if !NxBallsService::isRunning(item["uuid"]) then
@@ -64,29 +87,47 @@ class TxTodos
 
         LxAction::action("access", item)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
-            NxBallsService::close(item["uuid"], true)
-            TxTodos::destroy(item)
+        if item["nx54"]["type"] == "required-hours-days" then
+            return
         end
+
+        if item["nx54"]["type"] == "required-hours-week-saturday-start" then
+            return
+        end
+
+        if item["nx54"]["type"] == "target-recovery-time" then
+            return
+        end
+
+        if item["nx54"]["type"] == "fire-and-forget-daily" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Completed for today: '#{item["description"].green}' ? ") then
+                NxBallsService::close(item["uuid"], true)
+                XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
+            end
+            return
+        end
+
+        raise "(error: ac55d44c-60b1-4fee-8a79-27cb3265c373)"
     end
 
-    # TxTodos::done(item)
+    # TxProjects::done(item)
     def self.done(item)
-        if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
-            TxTodos::destroy(item)
+        if item["nx54"]["type"] == "fire-and-forget-daily" then
+            puts "Completed for today: '#{item["description"].green}'"
+            XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
         end
         if NxBallsService::isRunning(item["uuid"]) then
              NxBallsService::close(item["uuid"], true)
         end
     end
 
-    # TxTodos::destroy(item)
+    # TxProjects::destroy(item)
     def self.destroy(item)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
         Librarian::destroy(item["item"])
     end
 
-    # TxTodos::landing(item)
+    # TxProjects::landing(item)
     def self.landing(item)
 
         loop {
@@ -97,7 +138,7 @@ class TxTodos
 
             store = ItemStore.new()
 
-            puts "#{TxTodos::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
+            puts "#{TxProjects::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "nx111: #{item["nx111"]}"
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
@@ -163,7 +204,7 @@ class TxTodos
             end
 
             if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(item, "TxTodo")
+                Transmutation::transmutation2(item, "TxProject")
                 break
             end
 
@@ -174,9 +215,9 @@ class TxTodos
             end
 
             if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(item)}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxProjects::toString(item)}' ? ", true) then
                     NxBallsService::close(item["uuid"], true)
-                    TxTodos::destroy(item["uuid"])
+                    TxProjects::destroy(item["uuid"])
                     break
                 end
                 next
@@ -192,23 +233,20 @@ class TxTodos
 
     # --------------------------------------------------
 
-    # TxTodos::itemsForListing()
+    # TxProjects::itemsForListing()
     def self.itemsForListing()
-        count1 = Bank::valueOverTimespan("todo-done-count-afb1-11ac2d97a0a8", 86400)
-        count2 = [0, 20 - count1].max
-        TxTodos::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .take(count2)
+        TxProjects::items()
+            .select{|item| TxProjects::availableForSection2(item) }
     end
 
     # --------------------------------------------------
 
-    # TxTodos::nx20s()
+    # TxProjects::nx20s()
     def self.nx20s()
-        Librarian::getObjectsByMikuType("TxTodo")
+        Librarian::getObjectsByMikuType("TxProject")
             .map{|item|
                 {
-                    "announce" => TxTodos::toStringForSearch(item),
+                    "announce" => TxProjects::toStringForSearch(item),
                     "unixtime" => item["unixtime"],
                     "payload"  => item
                 }

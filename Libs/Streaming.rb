@@ -34,7 +34,7 @@ class Streaming
                 end
                 TxTodos::interactivelyCreateNewOrNull()
                 LxAction::action("stop", item)
-                TxTodos::immediateDestroy(item)
+                TxTodos::destroy(item)
                 return nil
             end
             if command == ">nyx" then
@@ -48,7 +48,7 @@ class Streaming
                 item["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
                 Librarian::commit(item)
                 Nx100s::landing(item)
-                Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
+                Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1) # The item has not been destroyed, it's just not a TxTodo anymore
                 return nil
             end
         }
