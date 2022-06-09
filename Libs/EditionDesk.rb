@@ -161,11 +161,6 @@ class EditionDesk
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
     end
 
-    # EditionDesk::accessItemWithOneNx111Attribute(item, attrname)
-    def self.accessItemWithOneNx111Attribute(item, attrname)
-        EditionDesk::accessItemNx111Pair(item, item[attrname])
-    end
-
     # EditionDesk::accessItemWithI1asAttribute(item)
     def self.accessItemWithI1asAttribute(item)
         if item["i1as"].nil? then

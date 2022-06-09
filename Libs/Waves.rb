@@ -210,7 +210,7 @@ class Waves
             end
 
             if command == "access" then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 next
             end
 

@@ -94,22 +94,22 @@ class LxAction
             end
 
             if item["mikuType"] == "Wave" then
-                EditionDesk::accessItemWithOneNx111Attribute(item, "nx111")
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
             end
 
             if item["mikuType"] == "TxDated" then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
             end
 
             if item["mikuType"] == "TxFloat" then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
             end
 
             if item["mikuType"] == "TxTodo" then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
             end
 
@@ -119,7 +119,7 @@ class LxAction
             end
 
             if item["mikuType"] == "Wave" then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
             end
         end
@@ -327,12 +327,9 @@ class LxAction
         if command == "time" and item["mikuType"] == "TimeInstructionAdd" then
             payload = item["payload"]
             timeInHours = item["timeInHours"]
-
-            if payload["mikuType"] == "TxTodo" then
-                puts "Adding #{timeInHours} hours to #{payload["uuid"]}"
-                Bank::put(payload["uuid"], timeInHours*3600)
-                return
-            end
+            puts "Adding #{timeInHours} hours to #{payload["uuid"]}"
+            Bank::put(payload["uuid"], timeInHours*3600)
+            return
         end
 
         if command == "today" then

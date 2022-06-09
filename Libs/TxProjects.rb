@@ -171,7 +171,7 @@ class TxProjects
             end
 
             if Interpreting::match("access", command) then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 next
             end
 

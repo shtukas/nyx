@@ -270,6 +270,7 @@ class Commands
 
         if Interpreting::match("zone add", input) then
             item = Zone::interactivelyIssueNewOrNull()
+            return [nil, nil] if item.nil?
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end
