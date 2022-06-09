@@ -33,6 +33,7 @@ class NyxNetwork
                 if LucilleCore::askQuestionAnswerAsBoolean("Try selecting existing again ? ", true) then
                     next
                 else
+                    $NavigationSandboxState = nil
                     return nil
                 end
             end
