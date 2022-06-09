@@ -7,7 +7,6 @@
     "mikuType"     : "TxZoneItem"
     "unixtime"     : Float
     "description"  : String
-    "aionroothash" : String | null
 }
 =end
 
@@ -35,12 +34,6 @@ class Zone # Zone is entirely contained in XCache, for extra fun
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        aionroothash = nil
-        location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-        if location then
-            aionroothash = AionCore::commitLocationReturnHash(XCacheElizabeth.new(), location)
-        end
-
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
 
@@ -48,8 +41,7 @@ class Zone # Zone is entirely contained in XCache, for extra fun
           "uuid"         => uuid,
           "mikuType"     => "TxZoneItem",
           "unixtime"     => unixtime,
-          "description"  => description,
-          "aionroothash" => aionroothash,
+          "description"  => description
         }
         XCacheSets::set("5cd02e58-fcc5-482a-9549-9bc812f9d59b", uuid, item)
         item
@@ -58,10 +50,6 @@ class Zone # Zone is entirely contained in XCache, for extra fun
     # Zone::access(item)
     def self.access(item)
         puts item["description"].green
-        if item["aionroothash"] then
-            hash1 = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(XCacheElizabeth.new(), item["aionroothash"], SecureRandom.hex(4))
-            AionCore::exportHashAtFolder(XCacheElizabeth.new(), hash1, "/Users/pascal/Desktop")
-        end
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
             XCacheSets::destroy("5cd02e58-fcc5-482a-9549-9bc812f9d59b", item["uuid"])
             NxBallsService::close(item["uuid"], true)
