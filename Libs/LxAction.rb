@@ -25,6 +25,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxZoneItem" then
+                Zone::access(item)
+                return
+            end
+
             if !NxBallsService::isRunning(item["uuid"]) then
                 NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
             end
@@ -108,6 +113,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxZoneItem" then
+                Zone::access(item)
+                return
+            end
+
             if item["mikuType"] == "Wave" then
                 EditionDesk::accessItemWithI1asAttribute(item)
                 return
@@ -127,8 +137,6 @@ class LxAction
         end
 
         if command == "done" then
-
-            Mercury::postValue("b6156390-059d-446e-ad51-adfc9f91abf1", item["uuid"])
 
             # If the item was running, then we stop it
             if NxBallsService::isRunning(item["uuid"]) then
@@ -172,6 +180,11 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                 end
+                return
+            end
+
+            if item["mikuType"] == "TxZoneItem" then
+                Zone::destroy(item)
                 return
             end
         end

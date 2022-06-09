@@ -50,13 +50,15 @@ class Catalyst
             }
         end
 
-        zone = Zone::getZone()
-        if !zone.empty? then
+        items = Zone::items()
+        if !items.empty? then
             puts ""
-            puts "zone:"
-            text = zone.join("\n")
-            puts text.green
-            vspaceleft = vspaceleft - (CommonUtils::verticalSize(text) + 2)
+            items.each{|item|
+                store.register(item, false)
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
         end
 
         running = NxBallsIO::getItems().select{|nxball| !section1.map{|item| item["uuid"] }.include?(nxball["uuid"]) }

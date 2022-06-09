@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | calendar item | float | project | project: <line> | today | ondate | ondate: <line> | todo | todo: <line>",
+            "wave | anniversary | calendar item | float | project | project: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone add",
             "anniversaries | calendar | projects | ondates | todos | slots",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
         ].join("\n")
@@ -261,8 +261,9 @@ class Commands
             return outputForCommandAndOrdinal.call("transmute", ordinal, store)
         end
 
-        if Interpreting::match("zone", input) then
-            Zone::zoneEdit()
+        if Interpreting::match("zone add", input) then
+            item = Zone::interactivelyIssueNewOrNull()
+            puts JSON.pretty_generate(item)
             return [nil, nil]
         end
 

@@ -36,6 +36,9 @@ class LxFunction
             if item["mikuType"] == "Wave" then
                 return Waves::toString(item)
             end
+            if item["mikuType"] == "TxZoneItem" then
+                return Zone::toString(item)
+            end
             if item["description"] then
                 return item["description"]
             end

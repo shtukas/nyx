@@ -57,7 +57,7 @@ class Nx100s
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
         objectuuid = SecureRandom.uuid
-        nx111 = Nx111::locationToAionPointNx111OrNull(objectuuid, location)
+        nx111 = Nx111::locationToAionPointNx111OrNull(location)
         flavour = {
             "type" => "encyclopedia"
         }

@@ -39,7 +39,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 =begin
-    XCache::set(value)
+    XCache::set(key, value)
     XCache::getOrNull(key)
     XCache::getOrDefaultValue(key, defaultValue)
     XCache::destroy(key)
@@ -175,5 +175,7 @@ require_relative "TheNetworkStack.rb"
 require_relative "TxProjects.rb"
 
 require_relative "UniqueStringsFunctions.rb"
+
+require_relative "XCacheElizabeth.rb"
 
 # ------------------------------------------------------------

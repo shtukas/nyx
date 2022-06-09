@@ -51,8 +51,8 @@ class Nx111
         type
     end
 
-    # Nx111::locationToAionPointNx111OrNull(objectuuid, location)
-    def self.locationToAionPointNx111OrNull(objectuuid, location)
+    # Nx111::locationToAionPointNx111OrNull(location)
+    def self.locationToAionPointNx111OrNull(location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
         rootnhash = AionCore::commitLocationReturnHash(EnergyGridElizabeth.new(), location)
         {
@@ -111,7 +111,7 @@ class Nx111
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::locationToAionPointNx111OrNull(objectuuid, location)
+            return Nx111::locationToAionPointNx111OrNull(location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
