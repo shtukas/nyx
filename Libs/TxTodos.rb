@@ -83,7 +83,7 @@ class TxTodos
     # TxTodos::destroy(item)
     def self.destroy(item)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
-        Librarian::destroy(item["item"])
+        Librarian::destroy(item["uuid"])
     end
 
     # TxTodos::landing(item)
