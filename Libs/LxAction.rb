@@ -177,6 +177,14 @@ class LxAction
                 TxTodos::done(item, shouldForce)
                 return
             end
+            if item["mikuType"] == "TxPlus" then
+                TxPlus::done(item)
+                return
+            end
+            if item["mikuType"] == "TxZoneItem" then
+                Zone::destroy(item)
+                return
+            end
             if item["mikuType"] == "Wave" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then
@@ -186,11 +194,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                 end
-                return
-            end
-
-            if item["mikuType"] == "TxZoneItem" then
-                Zone::destroy(item)
                 return
             end
         end

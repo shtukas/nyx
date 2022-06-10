@@ -95,12 +95,15 @@ class TxPlus
 
     # TxPlus::done(item)
     def self.done(item)
-        if item["nx54"]["type"] == "fire-and-forget-daily" then
-            puts "Completed for today: '#{item["description"].green}'"
+        NxBallsService::close(item["uuid"], true)
+        answer = LucilleCore::askQuestionAnswerAsString("This is a TxPlus. Do you want to: `done for the day`, `destroy`, `nothing` ? ")
+        if answer == "done for the day" then
             XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
         end
-        if NxBallsService::isRunning(item["uuid"]) then
-             NxBallsService::close(item["uuid"], true)
+        if answer == "destroy" then
+            if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxPlus '#{item["description"].green}' ? ", true) then
+                TxPlus::destroy(item["uuid"])
+            end
         end
     end
 
