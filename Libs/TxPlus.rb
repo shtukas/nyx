@@ -7,6 +7,12 @@ class TxPlus
         Librarian::getObjectsByMikuType("TxPlus")
     end
 
+    # TxPlus::destroy(uuid)
+    def self.destroy(uuid)
+        Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
+        Librarian::destroy(uuid)
+    end
+
     # --------------------------------------------------
     # Makers
 
@@ -96,12 +102,6 @@ class TxPlus
         if NxBallsService::isRunning(item["uuid"]) then
              NxBallsService::close(item["uuid"], true)
         end
-    end
-
-    # TxPlus::destroy(uuid)
-    def self.destroy(uuid)
-        Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
-        Librarian::destroy(uuid)
     end
 
     # TxPlus::landing(item)
