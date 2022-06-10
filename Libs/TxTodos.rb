@@ -65,9 +65,20 @@ class TxTodos
 
         LxAction::action("access", item)
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
+        if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}'. Destroy ? ") then
             NxBallsService::close(item["uuid"], true)
-            TxTodos::destroy(item["uuid"])
+            TxTodos::destroy(item["uuid"], true)
+            return
+        end
+
+        if NxBallsService::isRunning(item["uuid"]) then
+            if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}'. Stop ? ") then
+                NxBallsService::close(item["uuid"], true)
+                if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}'. Done for today ? ") then
+                    NxBallsService::close(item["uuid"], true)
+                    XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+                end
+            end
         end
     end
 

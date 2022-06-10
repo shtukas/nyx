@@ -142,7 +142,6 @@ class Catalyst
                                     .partition{|item|
                                         (lambda{|item|
                                             return false if !["TxPlus", "TxTodo"].include?(item["mikuType"])
-                                            return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
                                             BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
                                         }).call(item)
                                     }
@@ -152,9 +151,12 @@ class Catalyst
             section4, section2 = section2
                                     .partition{|item|
                                         (lambda{|item|
-                                            time = XCache::getOrNull("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}")
-                                            return false if time.nil?
-                                            Time.new.to_i < time.to_i + 3600
+                                            return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
+                                            return if (lambda {|item|
+                                                time = XCache::getOrNull("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}")
+                                                return false if time.nil?
+                                                Time.new.to_i < time.to_i + 3600
+                                            }).call(item)
                                         }).call(item)
                                     }
 
