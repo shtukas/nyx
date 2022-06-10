@@ -28,11 +28,8 @@ class Zone # Zone is entirely contained in XCache, for extra fun
         "(zone) #{item["description"]}"
     end
 
-    # Zone::interactivelyIssueNewOrNull()
-    def self.interactivelyIssueNewOrNull()
-
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
+    # Zone::issueNew(line)
+    def self.issueNew(line)
 
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
@@ -41,7 +38,7 @@ class Zone # Zone is entirely contained in XCache, for extra fun
           "uuid"         => uuid,
           "mikuType"     => "TxZoneItem",
           "unixtime"     => unixtime,
-          "description"  => description
+          "description"  => line
         }
         XCacheSets::set("5cd02e58-fcc5-482a-9549-9bc812f9d59b", uuid, item)
         item

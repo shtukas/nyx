@@ -26,7 +26,6 @@ class TxPlus
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        nx54        = Nx54::makeNew()
 
         item = {
           "uuid"        => uuid,
@@ -34,8 +33,7 @@ class TxPlus
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "nx111"       => nx111,
-          "nx54"        => nx54
+          "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -46,33 +44,12 @@ class TxPlus
 
     # TxPlus::toString(item)
     def self.toString(item)
-        "(plus) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (#{Nx54::toString(item["nx54"])})"
+        "(plus) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
     end
 
     # TxPlus::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(plus) #{item["description"]}"
-    end
-
-    # TxPlus::availableForSection2(item)
-    def self.availableForSection2(item)
-        if item["nx54"]["type"] == "required-hours-days" then
-            return Bank::valueAtDate(item["uuid"], CommonUtils::today()) < item["nx54"]["value"]
-        end
-
-        if item["nx54"]["type"] == "required-hours-week-saturday-start" then
-            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < 0.5 # TODO: to correct (dbae7ba5-6157-4022-af27-8f030952d02d)
-        end
-
-        if item["nx54"]["type"] == "target-recovery-time" then
-            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < item["nx54"]["value"]
-        end
-
-        if item["nx54"]["type"] == "fire-and-forget-daily" then
-            return !XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
-        end
-
-        raise "(error: dcf30e93-9a64-42e0-9370-d1009d946c1e) #{item}"
     end
 
     # --------------------------------------------------
@@ -247,7 +224,6 @@ class TxPlus
     # TxPlus::itemsForListing()
     def self.itemsForListing()
         TxPlus::items()
-            .select{|item| TxPlus::availableForSection2(item) }
     end
 
     # --------------------------------------------------

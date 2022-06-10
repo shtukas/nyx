@@ -299,9 +299,9 @@ class Commands
             return [nil, nil]
         end
 
-        if Interpreting::match("zone", input) then
-            item = Zone::interactivelyIssueNewOrNull()
-            return [nil, nil] if item.nil?
+        if input.start_with?("zone:") then
+            line = input[5, input.size].strip
+            item = Zone::issueNew(line)
             puts JSON.pretty_generate(item)
             return [nil, nil]
         end

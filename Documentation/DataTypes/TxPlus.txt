@@ -1,0 +1,8 @@
+TxPlus {
+    "uuid"        => uuid,
+    "mikuType"    => "TxPlus",
+    "description" => description,
+    "unixtime"    => unixtime,
+    "datetime"    => datetime,
+    "nx111"       => nx111
+}
