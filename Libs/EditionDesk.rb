@@ -121,11 +121,6 @@ class EditionDesk
             UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
             return
         end
-        if nx111["type"] == "primitive-file" then
-            filepath = PrimitiveFiles::writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111)
-            system("open '#{filepath}'")
-            return
-        end
         if nx111["type"] == "Dx8Unit" then
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
@@ -193,7 +188,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "primitive-file" then
-            nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(item["uuid"], nx111["uuid"], location)
+            nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
             return if nx111v2.nil?
             item["nx111"] = nx111v2
             Librarian::commit(item)

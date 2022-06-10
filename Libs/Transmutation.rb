@@ -7,15 +7,6 @@ class Transmutation
     def self.interactivelyNx50ToNyx(todo)
         description = todo["description"]
 
-        flavourMaker = lambda {|nx111|
-            if nx111["type"] == "primitive-file" then
-                return {
-                    "type" => "pure-data"
-                }
-            end
-            Nx102Flavor::interactivelyCreateNewFlavour()
-        }
-
         uuid       = SecureRandom.uuid
         unixtime   = todo["unixtime"]
         datetime   = todo["datetime"]

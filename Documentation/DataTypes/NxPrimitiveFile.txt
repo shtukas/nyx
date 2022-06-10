@@ -1,0 +1,10 @@
+NxPrimitiveFile {
+    "uuid"            : uuid,
+    "mikuType"        : "NxPrimitiveFile"
+    "unixtime"        : unixtime
+    "datetime"        : DateTime Iso 8601 UTC Zulu
+    "description"     : null or String,
+    "dottedExtension" : dottedExtension
+    "nhash"           : Nhash
+    "parts"           : Array[nhashes]
+}

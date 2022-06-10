@@ -25,14 +25,6 @@ Nx111
 }
 
 {
-    "uuid"            : String
-    "type"            : "primitive-file"
-    "dottedExtension" : dottedExtension
-    "nhash"           : Nhash
-    "parts"           : Array[nhashes]
-}
-
-{
     "uuid"   : String
     "type"   : "Dx8Unit"
     "unitId" : String, Id

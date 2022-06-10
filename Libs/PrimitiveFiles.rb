@@ -3,15 +3,15 @@
 
 class PrimitiveFiles
 
-    # PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, committer)
-    def self.commitFileReturnPartsHashsImproved(filepath, committer)
+    # PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, operator)
+    def self.commitFileReturnPartsHashsImproved(filepath, operator)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
         raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
         hashes = []
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            hashes << committer.call(blob)
+            hashes << operator.commitBlob(blob)
         end
         f.close()
         hashes
@@ -20,35 +20,14 @@ class PrimitiveFiles
     # -------------------------------------------------
     # Import
 
-    # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath) # [dottedExtension, nhash, parts]
-    def self.locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath)
+    # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]
+    def self.locationToPrimitiveFileDataArrayOrNull(filepath)
         return nil if !File.exists?(filepath)
         return nil if !File.file?(filepath)
- 
         dottedExtension = File.extname(filepath)
- 
         nhash = CommonUtils::filepathToContentHash(filepath)
- 
-        committer = lambda {|blob|
-            EnergyGridElizabeth.new().commitBlob(blob)
-        }
-        parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, committer)
- 
+        parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, EnergyGridElizabeth.new())
         return [dottedExtension, nhash, parts]
-    end
-
-    # PrimitiveFiles::locationToPrimitiveFileNx111OrNull(objectuuid, nx111uuid, filepath)
-    def self.locationToPrimitiveFileNx111OrNull(objectuuid, nx111uuid, filepath)
-        data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath)
-        return nil if data.nil?
-        dottedExtension, nhash, parts = data
-        {
-            "uuid"  => nx111uuid,
-            "type"  => "primitive-file",
-            "dottedExtension" => dottedExtension,
-            "nhash" => nhash,
-            "parts" => parts
-        }
     end
 
     # -------------------------------------------------

@@ -96,26 +96,6 @@ class FileSystemCheck
         if nx111["type"] == "unique-string" then
             return
         end
-        if nx111["type"] == "primitive-file" then
-            dottedExtension = nx111["dottedExtension"]
-            nhash = nx111["nhash"]
-            parts = nx111["parts"]
-            if dottedExtension[0, 1] != "." then
-                puts "object".red
-                puts JSON.pretty_generate(object).red
-                puts "primitive parts, dotted extension is malformed".red
-                exit 1
-            end
-            parts.each{|nhash|
-                if operator.getBlobOrNull(nhash).nil? then
-                    puts "object".red
-                    puts JSON.pretty_generate(object).red
-                    puts "primitive parts, nhash not found: #{nhash}".red
-                    exit 1
-                end
-            }
-            return
-        end
         if nx111["type"] == "Dx8Unit" then
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
@@ -177,6 +157,27 @@ class FileSystemCheck
 
         if item["mikuType"] == "TxPlus" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            return
+        end
+
+        if item["mikuType"] == "TxPrimitiveFile" then
+            dottedExtension = item["dottedExtension"]
+            nhash = item["nhash"]
+            parts = item["parts"]
+            if dottedExtension[0, 1] != "." then
+                puts "object".red
+                puts JSON.pretty_generate(object).red
+                puts "primitive parts, dotted extension is malformed".red
+                exit 1
+            end
+            parts.each{|nhash|
+                if operator.getBlobOrNull(nhash).nil? then
+                    puts "object".red
+                    puts JSON.pretty_generate(object).red
+                    puts "primitive parts, nhash not found: #{nhash}".red
+                    exit 1
+                end
+            }
             return
         end
 

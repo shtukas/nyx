@@ -74,7 +74,7 @@ class Nx100s
 
         uuid = SecureRandom.uuid
 
-        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, SecureRandom.uuid, location)
+        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
 
         flavour = {
             "type" => "pure-data"

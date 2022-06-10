@@ -10,7 +10,6 @@ class Nx111
             "url",
             "aion-point",
             "unique-string",
-            "primitive-file",
             "Dx8Unit"
         ]
     end
@@ -66,11 +65,6 @@ class Nx111
                 "type" => "unique-string",
                 "uniquestring" => uniquestring
             }
-        end
-        if type == "primitive-file" then
-            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            return nil if location.nil?
-            return PrimitiveFiles::locationToPrimitiveFileNx111OrNull(objectuuid, SecureRandom.uuid, location)
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
     end
