@@ -108,6 +108,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxPlus" then
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
+                return
+            end
+
             if item["mikuType"] == "TxTodo" then
                 EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
