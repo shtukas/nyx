@@ -1,0 +1,6 @@
+NxArrow {
+    "uuid"     => uuid,
+    "mikuType" => "NxArrow",
+    "source"   => String UUID,
+    "target"   => String UUID
+}

@@ -154,7 +154,7 @@ require_relative "NxTimelines.rb"
 require_relative "NyxNetwork.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
-require_relative "Waves.rb"
+require_relative "NxArrow.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -175,5 +175,7 @@ require_relative "TxPlus.rb"
 require_relative "UniqueStringsFunctions.rb"
 
 require_relative "XCacheElizabeth.rb"
+
+require_relative "Waves.rb"
 
 # ------------------------------------------------------------
