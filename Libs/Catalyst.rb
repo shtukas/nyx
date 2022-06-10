@@ -91,8 +91,8 @@ class Catalyst
 
         printSection.call(section1, store, false, nil)
         printSection.call(section2, store, false, nil)
-        printSection.call(section4, store, true, "(🐾) ")
-        printSection.call(section3, store, true, "(⌛️) ")
+        printSection.call(section4, store, true, " 🐾 ")
+        printSection.call(section3, store, true, " ⏱  ")
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -134,7 +134,7 @@ class Catalyst
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
-            section3, section2 = section2.partition{|item| (item["mikuType"] == "TxPlus") and (BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1) }
+            section3, section2 = section2.partition{|item| (item["mikuType"] == "TxPlus") and (item["nx15"]["type"] == "time-commitment") and (BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > item["nx15"]["value"]) }
 
             section3 = section3.sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
 
