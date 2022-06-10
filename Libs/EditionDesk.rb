@@ -79,11 +79,7 @@ class EditionDesk
 
     # EditionDesk::accessItemNx111Pair(item, nx111)
     def self.accessItemNx111Pair(item, nx111)
-        if nx111["type"] == "description-only" then
-            puts "description only: #{item["description"].green}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
+        return if nx111.nil?
         if nx111["type"] == "text" then
             location = "#{EditionDesk::decideEditionLocation(item, nx111)}.txt"
             if File.exists?(location) then
@@ -168,10 +164,6 @@ class EditionDesk
 
         # puts "EditionDesk: Updating #{File.basename(location)}"
 
-        if nx111["type"] == "description-only" then
-            puts "This should not happen because nothing was exported."
-            raise "(error: 10930cec-07b5-451d-a648-85f72899ee73)"
-        end
         if nx111["type"] == "text" then
             text = IO.read(location)
             nhash = EnergyGridElizabeth.new().commitBlob(text)
@@ -191,7 +183,7 @@ class EditionDesk
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
-            item = replaceNx111.call(item, nx111)
+            item["nx111"] = nx111
             Librarian::commit(item)
             return
         end

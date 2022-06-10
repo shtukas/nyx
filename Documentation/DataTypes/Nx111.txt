@@ -1,11 +1,6 @@
 Nx111
 
 {
-    "uuid" : String
-    "type" : "description-only"
-}
-
-{
     "uuid"  : String
     "type"  : "text"
     "nhash" : Nhash # nhash of the blob of text

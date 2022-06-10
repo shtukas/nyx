@@ -5,7 +5,7 @@ Wave {
     "unixtime"    : unixtime
     "description" : description
     "nx46"        : Nx46 # Wave pattern
-    "nx111"       : Nx111 # standard payload
+    "nx111"       : null or Nx111 # standard payload
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
 }
 

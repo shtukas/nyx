@@ -22,8 +22,7 @@ class TxTodos
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), uuid)
-        return nil if nx111.nil?
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), uuid)
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
@@ -155,8 +154,7 @@ class TxTodos
             end
 
             if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
-                next if nx111.nil?
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), item["uuid"])
                 item["nx111"] = nx111
                 Librarian::commit(item)
             end

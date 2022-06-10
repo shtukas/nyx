@@ -6,7 +6,6 @@ class Nx111
     # Nx111::iamTypes()
     def self.iamTypes()
         [
-            "description-only",
             "text",
             "url",
             "aion-point",
@@ -16,35 +15,9 @@ class Nx111
         ]
     end
 
-    # Nx111::iamTypesForManualMaking()
-    def self.iamTypesForManualMaking()
-        [
-            "text",
-            "url",
-            "aion-point",
-            "unique-string",
-            "primitive-file",
-        ]
-    end
-
-    # Nx111::iamTypesForManualMakingOfCatalystItems()
-    def self.iamTypesForManualMakingOfCatalystItems()
-        [
-            "description-only (default)",
-            "text",
-            "url",
-            "aion-point",
-            "unique-string"
-        ]
-    end
-
     # Nx111::interactivelySelectIamTypeOrNull(types)
     def self.interactivelySelectIamTypeOrNull(types)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("iam type", types)
-        if type.nil? and types.include?("description-only (default)") then
-            return "description-only"
-        end
-        type
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("iam type", types)
     end
 
     # Nx111::locationToAionPointNx111OrNull(location)
@@ -62,18 +35,6 @@ class Nx111
     def self.interactivelyCreateNewIamValueOrNull(types, objectuuid)
         type = Nx111::interactivelySelectIamTypeOrNull(types)
         return nil if type.nil?
-        if type == "description-only" then
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "description-only"
-            }
-        end
-        if type == "description-only (default)" then
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "description-only"
-            }
-        end
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
             nhash = EnergyGridElizabeth.new().commitBlob(text)

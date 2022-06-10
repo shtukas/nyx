@@ -65,13 +65,11 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckNx111ExitAtFirstFailure(object, nx111, operator)
     def self.fsckNx111ExitAtFirstFailure(object, nx111, operator)
+        return if nx111.nil?
         if !Nx111::iamTypes().include?(nx111["type"]) then
             puts "object has an incorrect iam value type".red
             puts JSON.pretty_generate(object).red
             exit 1
-        end
-        if nx111["type"] == "description-only" then
-            return
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
