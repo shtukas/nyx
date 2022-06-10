@@ -49,7 +49,7 @@ class TxPlus
 
     # TxPlus::toString(item)
     def self.toString(item)
-        "(plus) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
+        "(plus) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])}) (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
     end
 
     # TxPlus::toStringForSearch(item)
@@ -85,7 +85,7 @@ class TxPlus
         NxBallsService::close(item["uuid"], true)
         answer = LucilleCore::askQuestionAnswerAsString("This is a TxPlus. Do you want to: `done for the day`, `destroy`, `nothing` ? ")
         if answer == "done for the day" then
-            XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+            XCache::setFlag("plus-is-done-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
         end
         if answer == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxPlus '#{item["description"].green}' ? ", true) then
@@ -213,7 +213,6 @@ class TxPlus
     # TxPlus::itemsForListing()
     def self.itemsForListing()
         TxPlus::items()
-            .select{|item| NxBallsService::isActive(item["uuid"]) or !XCache::getFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}") }
     end
 
     # --------------------------------------------------

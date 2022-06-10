@@ -10,8 +10,8 @@ class Catalyst
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxPlus::itemsForListing(),
             TxTodos::itemsForListing(),
+            TxPlus::itemsForListing(),
         ]
             .flatten
     end
@@ -65,7 +65,7 @@ class Catalyst
                     }
         end
 
-        printSection = lambda {|section, store|
+        printSection = lambda {|section, store, yellowDisplay|
             section
                 .each{|item|
                     store.register(item, true)
@@ -75,7 +75,7 @@ class Catalyst
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
-                    if line.include?("(zone)") then
+                    if yellowDisplay then
                         line = line.yellow
                     end
                     puts line
@@ -86,10 +86,10 @@ class Catalyst
         puts ""
         vspaceleft = vspaceleft - 1
 
-        printSection.call(section1, store)
-        printSection.call(section2, store)
-        printSection.call(section3, store)
-        printSection.call(section4, store)
+        printSection.call(section1, store, false)
+        printSection.call(section2, store, false)
+        printSection.call(section3, store, true)
+        printSection.call(section4, store, true)
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
