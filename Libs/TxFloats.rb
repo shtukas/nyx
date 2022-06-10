@@ -155,8 +155,7 @@ class TxFloats
                     "unixtime"    => item["unixtime"],
                     "datetime"    => item["datetime"],
                     "description" => item["description"],
-                    "nx111"       => item["nx111"],
-                    "flavour"     => Nx102Flavor::interactivelyCreateNewFlavour()
+                    "nx111"       => item["nx111"]
                 }
                 Librarian::commit(ix)
                 LxAction::action("landing", ix)

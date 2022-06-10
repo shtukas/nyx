@@ -6,29 +6,4 @@ Nx100 {
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description or null # Possibly null in the case of a primitive-file"
     "nx111"       : Nx111
-    "flavour"     : (Nx102Flavor)
 }
-
-Nx102Flavor 
-    {
-        "type" : "encyclopedia"
-    }
-    {
-        "type" : "pure-data" # Used with a primitive-file
-    }
-    {
-        "type" : "of-interest-from-the-web"
-    }
-    {
-        "type"         : "calendar-item",
-        "calendarDate" : String (format: YYYY-MM-DD)
-        "calendarTime" : String (format: HH:MM)
-        "active"       : Boolean # indicates if the item needs to be considered in standard catalyst display. Typically becomes false when the event is done and processed 
-    }
-    {
-        "type"      : "public-event"
-        "eventDate" : "YYYY-MM-DD"
-    }
-    {
-        "type" : "pascal-personal-note"
-    }

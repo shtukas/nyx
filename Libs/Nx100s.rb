@@ -35,8 +35,6 @@ class Nx100s
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMaking(), uuid)
         return nil if nx111.nil?
 
-        flavour = Nx102Flavor::interactivelyCreateNewFlavour()
-
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
@@ -46,8 +44,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "nx111"       => nx111,
-            "flavour"     => flavour
+            "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -58,9 +55,6 @@ class Nx100s
         description = File.basename(location)
         objectuuid = SecureRandom.uuid
         nx111 = Nx111::locationToAionPointNx111OrNull(location)
-        flavour = {
-            "type" => "encyclopedia"
-        }
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         item = {
@@ -69,8 +63,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "nx111"       => nx111,
-            "flavour"     => flavour
+            "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -98,8 +91,7 @@ class Nx100s
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "description" => description,
-          "nx111"       => nx111,
-          "flavour"     => flavour
+          "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -121,11 +113,6 @@ class Nx100s
     # Nx100s::selectItemsByYearMonth(yearMonth)
     def self.selectItemsByYearMonth(yearMonth)
         Nx100s::items().select{|item| item["datetime"][0, 7] == yearMonth }
-    end
-
-    # Nx100s::selectItemsByFlavours(flavourType)
-    def self.selectItemsByFlavours(flavourType)
-        Nx100s::items().select{|item| item["flavour"]["type"] == flavourType }
     end
 
     # Nx100s::getDistictYearMonthsFromItems()
@@ -179,10 +166,7 @@ class Nx100s
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => "Genesis",
-            "nx111"       => item["nx111"].clone,
-            "flavour"     => {
-                "type" => "encyclopedia"
-            }
+            "nx111"       => item["nx111"].clone
         }
         puts JSON.pretty_generate(item2)
         Librarian::commit(item2)
@@ -240,8 +224,6 @@ class Nx100s
             puts "datetime: #{item["datetime"]}".yellow
             puts "nx111: #{item["nx111"]}".yellow
 
-            puts "flavour: #{item["flavour"]}".yellow
-
             notes = Ax1Text::itemsForOwner(uuid)
             if notes.size > 0 then
                 puts "notes:"
@@ -289,7 +271,6 @@ class Nx100s
             commands << "description"
             commands << "datetime"
             commands << "iam"
-            commands << "flavour"
             commands << "note"
             commands << "link"
             commands << "relink"
@@ -345,16 +326,6 @@ class Nx100s
                 next if nx111.nil?
                 item["nx111"] = nx111
                 Librarian::commit(item)
-            end
-
-            if Interpreting::match("flavour", command) then
-                flavour = Nx102Flavor::interactivelyCreateNewFlavour()
-                next nil if flavour.nil?
-                puts JSON.pretty_generate(flavour)
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm change ? ") then
-                    item["flavour"] = flavour
-                    Librarian::commit(item) 
-                end
             end
 
             if Interpreting::match("note", command) then

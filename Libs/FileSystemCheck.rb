@@ -70,9 +70,6 @@ class FileSystemCheck
             puts JSON.pretty_generate(object).red
             exit 1
         end
-        if nx111["type"] == "log" then
-            return
-        end
         if nx111["type"] == "description-only" then
             return
         end

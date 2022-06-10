@@ -79,11 +79,6 @@ class EditionDesk
 
     # EditionDesk::accessItemNx111Pair(item, nx111)
     def self.accessItemNx111Pair(item, nx111)
-        if nx111["type"] == "log" then
-            puts "This is a log"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
         if nx111["type"] == "description-only" then
             puts "description only: #{item["description"].green}"
             LucilleCore::pressEnterToContinue()
@@ -173,10 +168,6 @@ class EditionDesk
 
         # puts "EditionDesk: Updating #{File.basename(location)}"
 
-        if nx111["type"] == "log" then
-            puts "This should not happen because nothing was exported."
-            raise "(error: 6750eb47-2227-4755-a7b1-8eda4c4d5d18)"
-        end
         if nx111["type"] == "description-only" then
             puts "This should not happen because nothing was exported."
             raise "(error: 10930cec-07b5-451d-a648-85f72899ee73)"

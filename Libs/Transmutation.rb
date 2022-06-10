@@ -16,8 +16,6 @@ class Transmutation
             Nx102Flavor::interactivelyCreateNewFlavour()
         }
 
-        flavour = flavourMaker.call(todo["nx111"])
-
         uuid       = SecureRandom.uuid
         unixtime   = todo["unixtime"]
         datetime   = todo["datetime"]
@@ -28,8 +26,7 @@ class Transmutation
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "nx111"       => todo["nx111"],
-            "flavour"     => flavour
+            "nx111"       => todo["nx111"]
         }
         Librarian::commit(item)
         item
@@ -70,7 +67,6 @@ class Transmutation
             nx100 = object.clone
             nx100["uuid"] = SecureRandom.uuid
             nx100["mikuType"] = "Nx100"
-            nx100["flavour"] = Nx102Flavor::interactivelyCreateNewFlavour()
             Librarian::commit(nx100)
             TxTodos::destroy(object["uuid"])
             Nx100s::landing(nx100)
