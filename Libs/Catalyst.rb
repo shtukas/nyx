@@ -91,8 +91,8 @@ class Catalyst
 
         printSection.call(section1, store, false, nil)
         printSection.call(section2, store, false, nil)
-        printSection.call(section3, store, true, "(overflowing) ")
-        printSection.call(section4, store, true, "(do not show) ")
+        printSection.call(section4, store, true, "(🐾) ")
+        printSection.call(section3, store, true, "(⌛️) ")
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
