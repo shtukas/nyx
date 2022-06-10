@@ -1,5 +1,32 @@
 # encoding: UTF-8
 
+class Nx15
+
+    # Nx15::interactivelyCreateNew()
+    def self.interactivelyCreateNew()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("plus", ["until-done-for-the-day", "time-commitment"])
+        if type.nil? then
+            return {
+                "type"  => "time-commitment",
+                "value" => 1
+            }
+        end
+        if type == "time-commitment" then
+            hours = LucilleCore::askQuestionAnswerAsString("hours ? ").to_f
+            return {
+                "type"  => "time-commitment",
+                "value" => hours
+            }
+        end
+        if type == "until-done-for-the-day" then
+            return {
+                "type"  => "until-done-for-the-day"
+            }
+        end
+    end
+
+end
+
 class TxPlus
 
     # TxPlus::items()
@@ -16,8 +43,8 @@ class TxPlus
     # --------------------------------------------------
     # Makers
 
-    # TxPlus::interactivelyCreateNewOrNull(description = nil)
-    def self.interactivelyCreateNewOrNull(description = nil)
+    # TxPlus::interactivelyIssueNewOrNull(description = nil)
+    def self.interactivelyIssueNewOrNull(description = nil)
         if description.nil? or description == "" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
             return nil if description == ""
@@ -28,6 +55,7 @@ class TxPlus
         uuid = SecureRandom.uuid
 
         nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), uuid)
+        nx15  = Nx15::interactivelyCreateNew()
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
@@ -38,7 +66,8 @@ class TxPlus
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "nx111"       => nx111
+          "nx111"       => nx111,
+          "nx15"        => nx15
         }
         Librarian::commit(item)
         item
@@ -50,12 +79,20 @@ class TxPlus
     # TxPlus::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(plus) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
+        "(plus) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)}) (#{item["nx15"]})"
     end
 
     # TxPlus::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(plus) #{item["description"]}"
+    end
+
+    # TxPlus::totalTimeCommitment()
+    def self.totalTimeCommitment()
+        TxPlus::items()
+            .select{|item| item["nx15"]["type"] == "time-commitment" }
+            .map{|item| item["nx15"]["value"] }
+            .inject(0, :+)
     end
 
     # --------------------------------------------------
@@ -110,6 +147,7 @@ class TxPlus
             puts "#{TxPlus::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
             puts "uuid: #{uuid}".yellow
             puts "nx111: #{item["nx111"]}"
+            puts "nx15: #{item["nx15"]}"
             puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
             puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
 

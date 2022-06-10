@@ -222,15 +222,23 @@ class TxTodos
         "DC68E964-0012-4CAB-AC9F-563BA7180808:#{CommonUtils::today()}"
     end
 
-    # TxTodos::resetCache()
-    def self.resetCache()
+    # TxTodos::updateCache()
+    def self.updateCache()
 
-        XCacheSets::values(TxTodos::cacheLocation()).each{|item|
-            XCacheSets::destroy(TxTodos::cacheLocation(), item["uuid"])
-        }
+        # We add as many items to require in total at most 12 hours of focus a day (between TxPlus and TxTodo)
+
+        idealCount    = [12 - TxPlus::totalTimeCommitment(), 0].max
+        existingCount = XCacheSets::values(TxTodos::cacheLocation()).count
+        missingCount  = [idealCount - existingCount, 0].max
+
+        puts "idealCount    = #{idealCount}"
+        puts "existingCount = #{existingCount}"
+        puts "missingCount  = #{missingCount}"
+
+        return if missingCount == 0
 
         items1 = TxTodos::items().reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 5 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (missingCount/3)+1 then
                 selection
             else
                 selection + [item]
@@ -238,7 +246,7 @@ class TxTodos
         }
 
         items2 = TxTodos::items().reverse.reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 5 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (missingCount/3)+1 then
                 selection
             else
                 selection + [item]
@@ -246,7 +254,7 @@ class TxTodos
         }
 
         items3 = TxTodos::items().shuffle.reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 5 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (missingCount/3)+1 then
                 selection
             else
                 selection + [item]
@@ -260,11 +268,10 @@ class TxTodos
 
     # TxTodos::itemsForListing()
     def self.itemsForListing()
-        lastResetTime = XCache::getOrDefaultValue("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463", "0").to_f 
-        if (Time.new.to_i - lastResetTime) > 86400*2 then
-            puts "TxTodos::resetCache()".green
-            TxTodos::resetCache()
-            XCache::set("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463", Time.new.to_i)
+        if !XCache::getFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e31594834610:#{CommonUtils::today()}") then
+            puts "TxTodos::updateCache()".green
+            TxTodos::updateCache()
+            XCache::setFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e31594834610:#{CommonUtils::today()}", true)
         end
 
         XCacheSets::values(TxTodos::cacheLocation())
