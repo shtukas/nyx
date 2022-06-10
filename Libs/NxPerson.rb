@@ -21,7 +21,7 @@ class NxPerson
     # NxPerson::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         name1 = LucilleCore::askQuestionAnswerAsString("(person) name (empty to abort): ")
-        return nil if name1
+        return nil if name1 == ""
         NxPerson::issue(name1)
     end
 

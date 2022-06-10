@@ -6,7 +6,6 @@ class Nx111
     # Nx111::iamTypes()
     def self.iamTypes()
         [
-            "navigation",
             "log",
             "description-only",
             "text",
@@ -21,7 +20,6 @@ class Nx111
     # Nx111::iamTypesForManualMaking()
     def self.iamTypesForManualMaking()
         [
-            "navigation",
             "log",
             "text",
             "url",
@@ -66,12 +64,6 @@ class Nx111
     def self.interactivelyCreateNewIamValueOrNull(types, objectuuid)
         type = Nx111::interactivelySelectIamTypeOrNull(types)
         return nil if type.nil?
-        if type == "navigation" then
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "navigation"
-            }
-        end
         if type == "log" then
             return {
                 "uuid" => SecureRandom.uuid,

@@ -187,10 +187,7 @@ class Nx100s
         puts JSON.pretty_generate(item2)
         Librarian::commit(item2)
         NxArrow::issue(item["uuid"], item2["uuid"])
-        item["nx111"] = {
-            "uuid" => SecureRandom.uuid,
-            "type" => "navigation"
-        }
+        item["mikuType"] = "NxNavigation"
         puts JSON.pretty_generate(item)
         Librarian::commit(item)
         puts "Operation completed"

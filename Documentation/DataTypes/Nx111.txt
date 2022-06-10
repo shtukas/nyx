@@ -2,11 +2,6 @@ Nx111
 
 {
     "uuid" : String
-    "type" : "navigation"
-}
-
-{
-    "uuid" : String
     "type" : "log"
 }
 
