@@ -213,6 +213,7 @@ class TxPlus
     # TxPlus::itemsForListing()
     def self.itemsForListing()
         TxPlus::items()
+            .sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
     end
 
     # --------------------------------------------------

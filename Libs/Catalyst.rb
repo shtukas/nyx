@@ -26,7 +26,7 @@ class Catalyst
         current   = The99Percent::getCurrentCount()
         ratio     = current.to_f/reference["count"]
         puts ""
-        puts "👩‍💻 🔥 #{current} #{ratio}, #{reference["count"]} #{reference["datetime"]}"
+        puts "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
         vspaceleft = vspaceleft - 2
         if ratio < 0.99 then
             The99Percent::issueNewReference()
@@ -65,7 +65,7 @@ class Catalyst
                     }
         end
 
-        printSection = lambda {|section, store, yellowDisplay|
+        printSection = lambda {|section, store, yellowDisplay, prefix|
             section
                 .each{|item|
                     store.register(item, true)
@@ -74,6 +74,9 @@ class Catalyst
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    if prefix then
+                        line = "#{prefix}#{line}"
                     end
                     if yellowDisplay then
                         line = line.yellow
@@ -86,10 +89,10 @@ class Catalyst
         puts ""
         vspaceleft = vspaceleft - 1
 
-        printSection.call(section1, store, false)
-        printSection.call(section2, store, false)
-        printSection.call(section3, store, true)
-        printSection.call(section4, store, true)
+        printSection.call(section1, store, false, nil)
+        printSection.call(section2, store, false, nil)
+        printSection.call(section3, store, true, "(overflowing) ")
+        printSection.call(section4, store, true, "(do not show) ")
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -98,6 +101,7 @@ class Catalyst
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
+                NxBallsService::close(item["uuid"], true)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end
@@ -127,24 +131,10 @@ class Catalyst
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
-            getPositionForItem = lambda {|item|
-                position = XCache::getOrNull("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}")
-                if position then
-                    position.to_f
-                else
-                    position = Time.new.to_f
-                    XCache::set("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}", position)
-                    position
-                end
-            }
-
-            section2.each{|item| getPositionForItem.call(item) } # to start with the natural position
-
             # section1 : running items
-            # section2 : items on the wheel
+            # section2 : standard display
             # section3 : overflowing pluses and todos
             # section4 : items in waiting area
-
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
