@@ -5,6 +5,7 @@ class Catalyst
     # Catalyst::itemsForListing()
     def self.itemsForListing()
         [
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Zone::items(),
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
