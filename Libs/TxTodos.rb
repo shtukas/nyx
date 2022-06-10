@@ -44,7 +44,8 @@ class TxTodos
 
     # TxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
+        nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
+        "(todo) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
     end
 
     # TxTodos::toStringForSearch(item)
@@ -70,24 +71,34 @@ class TxTodos
         end
     end
 
-    # TxTodos::destroy(item, shouldForce = false)
-    def self.destroy(item, shouldForce = false)
-        if shouldForce then
-            TxTodos::destroy(item["uuid"])
-        else
-            if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
-                TxTodos::destroy(item["uui"])
-            end
+    # TxTodos::done(item)
+    def self.done(item)
+        puts item["description"].green
+        answer = LucilleCore::askQuestionAnswerAsString("Do you want to: `done for the day`, `destroy` or nothing ? ")
+        if answer == "done for the day" then
+            XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
         end
-        if NxBallsService::isRunning(item["uuid"]) then
-             NxBallsService::close(item["uuid"], true)
+        if answer == "destroy" then
+            TxTodos::destroy(item["uuid"], true)
         end
     end
 
-    # TxTodos::destroy(uuid)
-    def self.destroy(uuid)
+    # TxTodos::destroy(uuid, shouldForce)
+    def self.destroy(uuid, shouldForce)
+        if NxBallsService::isRunning(uuid) then
+             NxBallsService::close(uuid, true)
+        end
+        XCacheSets::destroy(TxTodos::cacheLocation(), uuid)
+        item = Librarian::getObjectByUUIDOrNull(uuid)
+        return if item.nil?
+        if shouldForce then
+            Librarian::destroy(uuid)
+        else
+            if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
+                Librarian::destroy(uuid)
+            end
+        end
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
-        Librarian::destroy(item["uuid"])
     end
 
     # TxTodos::landing(item)
@@ -238,10 +249,11 @@ class TxTodos
 
     # TxTodos::itemsForListing()
     def self.itemsForListing()
-        if !XCache::getFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463:#{CommonUtils::today()}") then
+        lastResetTime = XCache::getOrDefaultValue("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463", "0").to_f 
+        if (Time.new.to_i - lastResetTime) > 86400*2 then
             puts "TxTodos::resetCache()".green
             TxTodos::resetCache()
-            XCache::setFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463:#{CommonUtils::today()}", true)
+            XCache::set("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463", Time.new.to_i)
         end
 
         XCacheSets::values(TxTodos::cacheLocation())

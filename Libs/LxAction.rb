@@ -168,8 +168,7 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxTodo" then
-                shouldForce = options and options["forcedone"]
-                TxTodos::destroy(item, shouldForce)
+                TxTodos::done(item)
                 return
             end
             if item["mikuType"] == "TxPlus" then
@@ -188,15 +187,6 @@ class LxAction
                 end
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
-                end
-                return
-            end
-        end
-
-        if command == "destroy" then
-            if item["mikuType"] == "TxPlus" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy '#{TxPlus::toString(item).green} ? '", true) then
-                    TxPlus::destroy(item["uuid"])
                 end
                 return
             end

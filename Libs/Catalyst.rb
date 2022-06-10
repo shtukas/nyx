@@ -4,14 +4,14 @@ class Catalyst
 
     # Catalyst::itemsForListing()
     def self.itemsForListing()
+        tx = (TxTodos::itemsForListing() + TxPlus::itemsForListing()).sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
         [
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Zone::items(),
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxTodos::itemsForListing(),
-            TxPlus::itemsForListing(),
+            tx,
         ]
             .flatten
     end
@@ -142,6 +142,7 @@ class Catalyst
                                     .partition{|item|
                                         (lambda{|item|
                                             return false if !["TxPlus", "TxTodo"].include?(item["mikuType"])
+                                            return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
                                             BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
                                         }).call(item)
                                     }

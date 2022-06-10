@@ -136,12 +136,24 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxArrow" then
+            return
+        end
+
         if item["mikuType"] == "NxDataNode" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 
+        if item["mikuType"] == "NxRelation" then
+            return
+        end
+
         if item["mikuType"] == "NxTimeline" then
+            return
+        end
+
+        if item["mikuType"] == "NxNavigation" then
             return
         end
 
@@ -160,7 +172,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxPrimitiveFile" then
+        if item["mikuType"] == "NxPrimitiveFile" then
             dottedExtension = item["dottedExtension"]
             nhash = item["nhash"]
             parts = item["parts"]

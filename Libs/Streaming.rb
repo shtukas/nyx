@@ -11,7 +11,7 @@ class Streaming
             command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next {default}, replace, >nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
-                LxAction::action("done", item, {"forcedone" => true})
+                TxTodos::destroy(item["uuid"], true)
                 return "item-done"
             end
             if command == "detach" then
@@ -73,7 +73,7 @@ class Streaming
                 next
             end
             if command == "done" then
-                LxAction::action("done", item, {"forcedone" => true})
+                TxTodos::destroy(item["uuid"], true)
                 return "item-done"
             end
             if command == "" or command == "return" then
