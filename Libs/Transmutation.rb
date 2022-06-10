@@ -5,13 +5,10 @@ class Transmutation
 
     # Transmutation::interactivelyNx50ToNyx(todo) # Nx100
     def self.interactivelyNx50ToNyx(todo)
-
         description = todo["description"]
-        i1as = todo["i1as"]
 
-
-        flavourMaker = lambda {|i1as|
-            if i1as.all?{|nx111| nx111["type"] == "primitive-file" } then
+        flavourMaker = lambda {|nx111|
+            if nx111["type"] == "primitive-file" then
                 return {
                     "type" => "pure-data"
                 }
@@ -19,7 +16,7 @@ class Transmutation
             Nx102Flavor::interactivelyCreateNewFlavour()
         }
 
-        flavour = flavourMaker.call(i1as)
+        flavour = flavourMaker.call(todo["nx111"])
 
         uuid       = SecureRandom.uuid
         unixtime   = todo["unixtime"]
@@ -31,7 +28,7 @@ class Transmutation
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "i1as"        => i1as,
+            "nx111"       => todo["nx111"],
             "flavour"     => flavour
         }
         Librarian::commit(item)

@@ -161,16 +161,6 @@ class EditionDesk
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
     end
 
-    # EditionDesk::accessItemWithI1asAttribute(item)
-    def self.accessItemWithI1asAttribute(item)
-        if item["i1as"].nil? then
-            raise "(error: b7242cb5-2a6b-43ea-b217-ce972e1440b0) For the moment I can only EditionDesk::exportAndAccess nx111 elements"
-        end
-        nx111 = I1as::selectOneNx111OrNullAutoSelectIfOne(item["i1as"])
-        return if nx111.nil?
-        EditionDesk::accessItemNx111Pair(item, nx111)
-    end
-
     # EditionDesk::updateItemFromDeskLocationOrNothing(location)
     def self.updateItemFromDeskLocationOrNothing(location)
         filename = File.basename(location)
@@ -178,30 +168,15 @@ class EditionDesk
         if nx111uuid.include?(".") then
             nx111uuid, _ = nx111uuid.split(".")
         end
+
         item = Librarian::getObjectByUUIDOrNull(itemuuid)
         return if item.nil?
-
-        return if item["i1as"].nil?
-
-        nx111 = item["i1as"].select{|nx111| nx111["uuid"] == nx111uuid }.first
-        return if nx111.nil?
-
-        nx111 = nx111.clone
+        return if item["nx111"].nil?
+        nx111 = item["nx111"].clone
 
         # At this time we have the item, and we have selected the nx111 that has the same uuid as the location on disk
 
-        #puts "EditionDesk: Updating #{File.basename(location)}"
-
-        replaceNx111 = lambda {|item, nx111|
-            item["i1as"] = item["i1as"].map{|nx| 
-                if nx["uuid"] == nx111["uuid"] then
-                    nx111
-                else
-                    nx
-                end
-            }
-            item
-        }
+        # puts "EditionDesk: Updating #{File.basename(location)}"
 
         if nx111["type"] == "navigation" then
             puts "This should not happen because nothing was exported."
@@ -220,8 +195,7 @@ class EditionDesk
             nhash = EnergyGridElizabeth.new().commitBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
-            #puts JSON.pretty_generate(nx111)
-            item = replaceNx111.call(item, nx111)
+            item["nx111"] = nx111
             Librarian::commit(item)
             return
         end
@@ -247,9 +221,7 @@ class EditionDesk
         if nx111["type"] == "primitive-file" then
             nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(item["uuid"], nx111["uuid"], location)
             return if nx111v2.nil?
-            #puts JSON.pretty_generate(nx111v2)
-            return if item["i1as"].select{|nx| nx["uuid"] == nx111["uuid"] }.first["nhash"] == nx111v2["nhash"]
-            item = replaceNx111.call(item, nx111v2)
+            item["nx111"] = nx111v2
             Librarian::commit(item)
             return
         end

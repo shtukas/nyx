@@ -78,11 +78,6 @@ class LxAction
                 return
             end
 
-            if item["i1as"] then
-                EditionDesk::accessItemWithI1asAttribute(item)
-                return
-            end
-
             if item["mikuType"] == "Anniversary" then
                 Anniversaries::access(item)
                 return

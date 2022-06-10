@@ -215,7 +215,7 @@ class TxPlus
     # TxPlus::itemsForListing()
     def self.itemsForListing()
         TxPlus::items()
-            .select{|item| NxBallsService::isActive(uuid) or !XCache::getFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}") }
+            .select{|item| NxBallsService::isActive(item["uuid"]) or !XCache::getFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}") }
     end
 
     # --------------------------------------------------

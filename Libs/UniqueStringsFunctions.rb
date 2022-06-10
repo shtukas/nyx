@@ -44,16 +44,15 @@ class UniqueStringsFunctions
         Librarian::objects().each{|item|
             CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
             next if item["iam"].nil?
-            item["i1as"].each{|nx111|
-                if nx111["type"] == "aion-point" then
-                    rootnhash = nx111["rootnhash"]
-                    operator = EnergyGridElizabeth.new()
-                    if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
-                        EditionDesk::accessItemNx111Pair(item, nx111)
-                        return
-                    end
+            nx111 = item["nx111"]
+            if nx111["type"] == "aion-point" then
+                rootnhash = nx111["rootnhash"]
+                operator = EnergyGridElizabeth.new()
+                if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
+                    EditionDesk::accessItemNx111Pair(item, nx111)
+                    return
                 end
-            }
+            end
         }
 
         puts "I could not find the unique string inside aion-points"

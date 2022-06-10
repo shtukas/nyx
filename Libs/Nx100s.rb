@@ -46,7 +46,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "i1as"        => [nx111],
+            "nx111"       => nx111,
             "flavour"     => flavour
         }
         Librarian::commit(item)
@@ -69,7 +69,7 @@ class Nx100s
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "i1as"        => [nx111],
+            "nx111"       => nx111,
             "flavour"     => flavour
         }
         Librarian::commit(item)
@@ -98,7 +98,7 @@ class Nx100s
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "description" => description,
-          "i1as"        => [nx111],
+          "nx111"       => nx111,
           "flavour"     => flavour
         }
         Librarian::commit(item)
@@ -168,7 +168,7 @@ class Nx100s
 
     # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
     def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
-        if I1as::toStringShort(item["i1as"]) != "aion-point" then
+        if item["nx111"]["type"] != "aion-point" then
             puts "I can only do that with aion-points"
             LucilleCore::pressEnterToContinue()
             return
@@ -179,7 +179,7 @@ class Nx100s
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => "Genesis",
-            "i1as"        => item["i1as"].clone,
+            "nx111"       => item["nx111"].clone,
             "flavour"     => {
                 "type" => "encyclopedia"
             }
@@ -187,11 +187,10 @@ class Nx100s
         puts JSON.pretty_generate(item2)
         Librarian::commit(item2)
         Links::link(item["uuid"], item2["uuid"], false)
-        nx111 = {
+        item["nx111"] = {
             "uuid" => SecureRandom.uuid,
             "type" => "navigation"
         }
-        item["i1as"] = [nx111] 
         puts JSON.pretty_generate(item)
         Librarian::commit(item)
         puts "Operation completed"
@@ -248,11 +247,7 @@ class Nx100s
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-
-            puts "i1as:"
-            item["i1as"].each{|nx111|
-                puts "    #{Nx111::toString(nx111)}"
-            } 
+            puts "nx111: #{item["nx111"]}".yellow
 
             puts "flavour: #{item["flavour"]}".yellow
 
@@ -317,7 +312,7 @@ class Nx100s
             end
 
             if Interpreting::match("access", command) then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 next
             end
 
@@ -337,7 +332,10 @@ class Nx100s
             end
 
             if Interpreting::match("iam", command) then
-                item = I1as::manageI1as(item, item["i1as"])
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
+                next if nx111.nil?
+                item["nx111"] = nx111
+                Librarian::commit(item)
             end
 
             if Interpreting::match("flavour", command) then

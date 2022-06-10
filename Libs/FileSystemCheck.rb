@@ -139,14 +139,6 @@ class FileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
     end
 
-    # FileSystemCheck::fsckI1asExitAtFirstFailure(object, i1as, operator)
-    def self.fsckI1asExitAtFirstFailure(object, i1as, operator)
-        i1as.each{|nx111|
-            puts JSON.pretty_generate(nx111)
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(object, nx111, operator) 
-        }
-    end
-
     # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
     def self.fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
 
@@ -173,12 +165,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "Nx100" then
-            if item["i1as"].nil? then
-                puts "Item has no i1as value".red
-                puts JSON.pretty_generate(item).red
-                exit 1
-            end
-            FileSystemCheck::fsckI1asExitAtFirstFailure(item, item["i1as"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 

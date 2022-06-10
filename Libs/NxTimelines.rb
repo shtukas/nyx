@@ -137,7 +137,7 @@ class NxTimelines
             end
 
             if Interpreting::match("access", command) then
-                EditionDesk::accessItemWithI1asAttribute(item)
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 next
             end
 
@@ -157,7 +157,10 @@ class NxTimelines
             end
 
             if Interpreting::match("iam", command) then
-                item = I1as::manageI1as(item, item["i1as"])
+                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypesForManualMakingOfCatalystItems(), item["uuid"])
+                next if nx111.nil?
+                item["nx111"] = nx111
+                Librarian::commit(item)
             end
 
             if Interpreting::match("note", command) then
