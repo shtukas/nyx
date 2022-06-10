@@ -70,27 +70,15 @@ class TxPlus
 
         LxAction::action("access", item)
 
-        if item["nx54"]["type"] == "required-hours-days" then
+        answer = LucilleCore::askQuestionAnswerAsString("`continue` or `done` ? ")
+
+        if answer == "contiue" then
             return
         end
 
-        if item["nx54"]["type"] == "required-hours-week-saturday-start" then
-            return
+        if answer == "done" then
+            TxPlus::done(item)
         end
-
-        if item["nx54"]["type"] == "target-recovery-time" then
-            return
-        end
-
-        if item["nx54"]["type"] == "fire-and-forget-daily" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Completed for today: '#{item["description"].green}' ? ") then
-                NxBallsService::close(item["uuid"], true)
-                XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
-            end
-            return
-        end
-
-        raise "(error: ac55d44c-60b1-4fee-8a79-27cb3265c373)"
     end
 
     # TxPlus::done(item)
@@ -98,7 +86,7 @@ class TxPlus
         NxBallsService::close(item["uuid"], true)
         answer = LucilleCore::askQuestionAnswerAsString("This is a TxPlus. Do you want to: `done for the day`, `destroy`, `nothing` ? ")
         if answer == "done for the day" then
-            XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
+            XCache::setFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
         end
         if answer == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxPlus '#{item["description"].green}' ? ", true) then
@@ -227,6 +215,7 @@ class TxPlus
     # TxPlus::itemsForListing()
     def self.itemsForListing()
         TxPlus::items()
+            .select{|item| !XCache::getFlag("8744d935-c347-44fe-b648-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}") }
     end
 
     # --------------------------------------------------
