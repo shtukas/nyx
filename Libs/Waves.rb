@@ -262,6 +262,8 @@ class Waves
     # Waves::itemsForListing()
     def self.itemsForListing()
         Librarian::getObjectsByMikuType("Wave")
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
     # Waves::nx20s()

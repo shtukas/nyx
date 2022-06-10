@@ -124,12 +124,8 @@ class Catalyst
             end
 
             floats = TxFloats::itemsForListing()
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                        .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
             section2 = Catalyst::itemsForListing()
-                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                        .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
             # section1 : running items
             # section2 : standard display
@@ -152,11 +148,14 @@ class Catalyst
                                     .partition{|item|
                                         (lambda{|item|
                                             return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
-                                            return if (lambda {|item|
+                                            return true if (lambda {|item|
                                                 time = XCache::getOrNull("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}")
                                                 return false if time.nil?
                                                 Time.new.to_i < time.to_i + 3600
                                             }).call(item)
+                                            return true if !DoNotShowUntil::isVisible(item["uuid"])
+                                            return true if !InternetStatus::itemShouldShow(item["uuid"])
+                                            false
                                         }).call(item)
                                     }
 
