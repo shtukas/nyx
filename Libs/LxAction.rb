@@ -190,6 +190,15 @@ class LxAction
             end
         end
 
+        if command == "destroy" then
+            if item["mikuType"] == "TxPlus" then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy '#{TxPlus::toString(item).green} ? '", true) then
+                    TxPlus::destroy(item["uuid"])
+                end
+                return
+            end
+        end
+
         if command == "expose" then
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()

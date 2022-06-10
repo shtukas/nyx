@@ -81,6 +81,10 @@ class Commands
             return ["calendar", nil]
         end
 
+        if Interpreting::match("destroy", input) then
+            return ["destroy", store.getDefault()]
+        end
+
         if Interpreting::match("done", input) then
             return ["done", store.getDefault()]
         end
