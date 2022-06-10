@@ -16,8 +16,8 @@ class Catalyst
             .flatten
     end
 
-    # Catalyst::printListing(floats, section1, section2)
-    def self.printListing(floats, section1, section2)
+    # Catalyst::printListing(floats, section1, section2, section3, section4)
+    def self.printListing(floats, section1, section2, section3, section4)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -83,17 +83,13 @@ class Catalyst
                 }
         }
 
-        if section1.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            printSection.call(section1, store)
-        end
+        puts ""
+        vspaceleft = vspaceleft - 1
 
-        if section2.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            printSection.call(section2, store)
-        end
+        printSection.call(section1, store)
+        printSection.call(section2, store)
+        printSection.call(section3, store)
+        printSection.call(section4, store)
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -144,11 +140,34 @@ class Catalyst
 
             section2.each{|item| getPositionForItem.call(item) } # to start with the natural position
 
-            section2 = section2.sort{|i1, i2| getPositionForItem.call(i1) <=> getPositionForItem.call(i2) }
+            # section1 : running items
+            # section2 : items on the wheel
+            # section3 : overflowing pluses and todos
+            # section4 : items in waiting area
+
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
-            Catalyst::printListing(floats, section1, section2)
+            section3, section2 = section2
+                                    .partition{|item|
+                                        (lambda{|item|
+                                            return false if !["TxPlus", "TxTodo"].include?(item["mikuType"])
+                                            BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
+                                        }).call(item)
+                                    }
+
+            section3 = section3.sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
+
+            section4, section2 = section2
+                                    .partition{|item|
+                                        (lambda{|item|
+                                            time = XCache::getOrNull("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}")
+                                            return false if time.nil?
+                                            Time.new.to_i < time.to_i + 3600
+                                        }).call(item)
+                                    }
+
+            Catalyst::printListing(floats, section1, section2, section3, section4)
         }
     end
 end
