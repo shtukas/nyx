@@ -37,13 +37,6 @@ class Commands
             return outputForCommandAndOrdinal.call("..", ordinal, store)
         end
 
-        if Interpreting::match(">>", input) then
-            item = store.getDefault()
-            return [nil, nil] if item.nil?
-            XCache::set("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}", Time.new.to_f)
-            return [nil, nil]
-        end
-
         if Interpreting::match(">plus", input) then
             return [">plus", store.getDefault()]
         end

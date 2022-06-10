@@ -59,7 +59,7 @@ class Transmutation
             nx100["uuid"] = SecureRandom.uuid
             nx100["mikuType"] = "NxDataNode"
             Librarian::commit(nx100)
-            TxTodos::destroy(object["uuid"])
+            TxTodos::destroy(object["uuid"], true)
             NxDataNodes::landing(nx100)
             return
         end

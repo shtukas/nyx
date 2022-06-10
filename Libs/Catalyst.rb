@@ -130,17 +130,11 @@ class Catalyst
             # section1 : running items
             # section2 : standard display
             # section3 : overflowing pluses and todos
-            # section4 : items in waiting area
+            # section4 : invisible (not including waves)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
-            section3, section2 = section2
-                                    .partition{|item|
-                                        (lambda{|item|
-                                            return false if !["TxPlus", "TxTodo"].include?(item["mikuType"])
-                                            BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
-                                        }).call(item)
-                                    }
+            section3, section2 = section2.partition{|item| (item["mikuType"] == "TxPlus") and (BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1) }
 
             section3 = section3.sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
 
@@ -148,11 +142,6 @@ class Catalyst
                                     .partition{|item|
                                         (lambda{|item|
                                             return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
-                                            return true if (lambda {|item|
-                                                time = XCache::getOrNull("3253d3b5-4cbb-4600-b1d1-28a22e46828d:#{item["uuid"]}")
-                                                return false if time.nil?
-                                                Time.new.to_i < time.to_i + 3600
-                                            }).call(item)
                                             return true if !DoNotShowUntil::isVisible(item["uuid"])
                                             return true if !InternetStatus::itemShouldShow(item["uuid"])
                                             false
