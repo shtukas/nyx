@@ -48,6 +48,14 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
     XCache::getFlag(key)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
+=begin
+    XCacheSets::values(setuuid: String): Array[Value]
+    XCacheSets::set(setuuid: String, valueuuid: String, value)
+    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
+    XCacheSets::destroy(setuuid: String, valueuuid: String)
+=end
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 =begin
 
@@ -102,14 +110,6 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 =begin
     Mercury::postValue(channel, value)
     Mercury::dequeueFirstValueOrNull(channel)
-=end
-
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
-=begin
-    XCacheSets::values(setuuid: String): Array[Value]
-    XCacheSets::set(setuuid: String, valueuuid: String, value)
-    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
-    XCacheSets::destroy(setuuid: String, valueuuid: String)
 =end
 
 # ------------------------------------------------------------

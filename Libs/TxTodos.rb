@@ -199,7 +199,7 @@ class TxTodos
 
     # TxTodos::cacheLocation()
     def self.cacheLocation()
-        "DC68E964-0012-4CAB-AC9F-563BA7180808"
+        "DC68E964-0012-4CAB-AC9F-563BA7180808:#{CommonUtils::today()}"
     end
 
     # TxTodos::resetCache()
@@ -210,7 +210,7 @@ class TxTodos
         }
 
         items1 = TxTodos::items().reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 5 then
                 selection
             else
                 selection + [item]
@@ -218,7 +218,7 @@ class TxTodos
         }
 
         items2 = TxTodos::items().reverse.reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 5 then
                 selection
             else
                 selection + [item]
@@ -226,7 +226,7 @@ class TxTodos
         }
 
         items3 = TxTodos::items().shuffle.reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 10 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= 5 then
                 selection
             else
                 selection + [item]
@@ -240,13 +240,13 @@ class TxTodos
 
     # TxTodos::itemsForListing()
     def self.itemsForListing()
-        items = XCacheSets::values(TxTodos::cacheLocation())
-        if items.size < 10 then
+        if !XCache::getFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463:#{CommonUtils::today()}") then
             puts "TxTodos::resetCache()".green
             TxTodos::resetCache()
-            items = XCacheSets::values(TxTodos::cacheLocation())
+            XCache::setFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e3159483463:#{CommonUtils::today()}", true)
         end
-        items
+
+        XCacheSets::values(TxTodos::cacheLocation())
     end
 
     # --------------------------------------------------

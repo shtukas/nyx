@@ -6,8 +6,8 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | calendar item | float | plus | plus: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone add",
-            "anniversaries | calendar | pluses | ondates | todos | slots",
+            "wave | anniversary | calendar item | float | plus | plus: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone",
+            "anniversaries | calendar | pluses | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
         ].join("\n")
     end
