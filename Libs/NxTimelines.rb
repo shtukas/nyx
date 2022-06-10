@@ -72,12 +72,6 @@ class NxTimelines
 
             store = ItemStore.new()
 
-            stack = TheNetworkStack::getStack()
-            stack.each{|i| puts "(stack) #{LxFunction::function("toString", i)}" }
-            if stack.size > 0 then
-                puts ""
-            end
-
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
@@ -98,8 +92,7 @@ class NxTimelines
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                     .each{|entity| 
                         indx = store.register(entity, false)
-                        linkType = Links::linkTypeOrNull(item["uuid"], entity["uuid"])
-                        puts "    [#{indx.to_s.ljust(3)}] [#{linkType.ljust(7)}] #{LxFunction::function("toString", entity)}"
+                        puts "    [#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                     }
             end
 

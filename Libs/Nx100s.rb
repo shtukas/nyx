@@ -186,7 +186,7 @@ class Nx100s
         }
         puts JSON.pretty_generate(item2)
         Librarian::commit(item2)
-        Links::link(item["uuid"], item2["uuid"], false)
+        NxArrow::issue(item["uuid"], item2["uuid"])
         item["nx111"] = {
             "uuid" => SecureRandom.uuid,
             "type" => "navigation"
@@ -205,7 +205,7 @@ class Nx100s
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
             child = Nx100s::issueNewItemAionPointFromLocation(location)
-            Links::link(item["uuid"], child["uuid"], false)
+            NxArrow::issue(item["uuid"], child["uuid"])
         }
     end
 
@@ -218,7 +218,7 @@ class Nx100s
             puts "processing: #{location}"
             child = Nx100s::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
-            Links::link(item["uuid"], child["uuid"], false)
+            NxArrow::issue(item["uuid"], child["uuid"])
         }
     end
 
@@ -237,12 +237,6 @@ class Nx100s
 
             store = ItemStore.new()
 
-            stack = TheNetworkStack::getStack()
-            stack.each{|i| puts "(stack) #{LxFunction::function("toString", i)}" }
-            if stack.size > 0 then
-                puts ""
-            end
-
             puts item["description"]
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
@@ -260,15 +254,36 @@ class Nx100s
                 }
             end
 
-            linked = Links::linked(item["uuid"])
-            if linked.size > 0 then
-                puts "linked:"
-                linked
+            parents = NxArrow::parents(item["uuid"])
+            if parents.size > 0 then
+                puts "parents:"
+                parents
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                     .each{|entity| 
                         indx = store.register(entity, false)
-                        linkType = Links::linkTypeOrNull(item["uuid"], entity["uuid"])
-                        puts "    [#{indx.to_s.ljust(3)}] [#{linkType.ljust(7)}] #{LxFunction::function("toString", entity)}"
+                        puts "    [#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+                    }
+            end
+
+            related = NxRelation::related(item["uuid"])
+            if related.size > 0 then
+                puts "related:"
+                related
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity| 
+                        indx = store.register(entity, false)
+                        puts "    [#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+                    }
+            end
+
+            children = NxArrow::children(item["uuid"])
+            if children.size > 0 then
+                puts "children:"
+                children
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity| 
+                        indx = store.register(entity, false)
+                        puts "    [#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                     }
             end
 
@@ -285,9 +300,6 @@ class Nx100s
             commands << "special ops"
             commands << "json"
             commands << "destroy"
-            commands << "stack: add [this]"
-            commands << "stack: add [from linked]"
-            commands << "stack: clear"
 
             puts commands.join(" | ").yellow
 
@@ -375,9 +387,7 @@ class Nx100s
                 operations = [
                     "transmute to navigation node and put contents into Genesis",
                     "upload all locations of a folder as aion-point children",
-                    "upload all locations of a folder as primitive files children",
-                    "select linked subset and move to one of the linked",
-                    "select target node, select subset from linked and move subset to that node as children"
+                    "upload all locations of a folder as primitive files children"
                 ]
                 operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                 next if operation.nil?
@@ -390,34 +400,6 @@ class Nx100s
                 if operation == "upload all locations of a folder as primitive files children" then
                     Nx100s::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
                 end
-                if operation == "select linked subset and move to one of the linked" then
-                    subset = NyxNetwork::selectSubsetOfLinked(item["uuid"])
-                    target = NyxNetwork::selectOneLinkedOrNull(item["uuid"])
-                    if target["uuid"] == item["uuid"] then
-                        puts "The target node cannot be the node we are landed on"
-                        LucilleCore::pressEnterToContinue()
-                        next
-                    end
-                    subset.each{|i1|
-                        puts "relocating: #{LxFunction::function("toString", i1)}"
-                        Links::unlink(item["uuid"], i1["uuid"])
-                        Links::link(target["uuid"], i1["uuid"], false)
-                    }
-                end
-                if operation == "select target node, select subset from linked and move subset to that node as children" then
-                    target = NyxNetwork::architectOneOrNull()
-                    if target["uuid"] == item["uuid"] then
-                        puts "The target node cannot be the node we are landed on"
-                        LucilleCore::pressEnterToContinue()
-                        next
-                    end
-                    NyxNetwork::selectSubsetOfLinked(item["uuid"])
-                        .each{|i1|
-                            puts "relocating: #{LxFunction::function("toString", i1)}"
-                            Links::link(target["uuid"], i1["uuid"], false)
-                            Links::unlink(item["uuid"], i1["uuid"])
-                        }
-                end
             end
 
             if Interpreting::match("destroy", command) then
@@ -425,21 +407,6 @@ class Nx100s
                     Nx100s::destroy(item["uuid"])
                     break
                 end
-            end
-
-            if command == "stack: add [this]" then
-                TheNetworkStack::queue(item["uuid"])
-            end
-
-            if command == "stack: add [from linked]" then
-                selected, _ = LucilleCore::selectZeroOrMore("item", [], Links::linked(item["uuid"]), lambda{ |i| LxFunction::function("toString", i) })
-                selected.each{|ix|
-                    TheNetworkStack::queue(ix["uuid"])
-                }
-            end
-
-            if command == "stack: clear" then
-                TheNetworkStack::clear()
             end
         }
     end

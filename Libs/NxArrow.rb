@@ -19,4 +19,38 @@ class NxArrow
         Librarian::commit(item)
         item
     end
+
+    # NxArrow::unlink(sourceuuid, targetuuid)
+    def self.unlink(sourceuuid, targetuuid)
+        Librarian::getObjectsByMikuType("NxArrow")
+            .each{|item|
+                if item["source"] == sourceuuid and item["target"] == targetuuid then
+                    Librarian::destroy(item["uuid"])
+                end
+            }
+    end
+
+    # NxArrow::parents(uuid)
+    def self.parents(uuid)
+        items = []
+        Librarian::getObjectsByMikuType("NxArrow")
+            .each{|item|
+                if item["target"] == uuid then
+                    items << Librarian::getObjectByUUIDOrNull(item["source"])
+                end
+            }
+        items.compact
+    end
+
+    # NxArrow::children(uuid)
+    def self.children(uuid)
+        items = []
+        Librarian::getObjectsByMikuType("NxArrow")
+            .each{|item|
+                if item["source"] == uuid then
+                    items << Librarian::getObjectByUUIDOrNull(item["target"])
+                end
+            }
+        items.compact
+    end
 end

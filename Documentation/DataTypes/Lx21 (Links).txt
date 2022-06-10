@@ -1,8 +1,0 @@
-
-Lx21 {
-    "uuid"          : String
-    "mikuType"      : "Lx21"
-    "sourceuuid"    : String
-    "targetuuid"    : String
-    "bidirectional" : Boolean
-}

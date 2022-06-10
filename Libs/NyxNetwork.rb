@@ -92,7 +92,7 @@ class NyxNetwork
 
     # NyxNetwork::architectMultiple()
     def self.architectMultiple()
-        operations = ["existing || new", "new", "use stack"]
+        operations = ["existing || new", "new"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return [] if operation.nil?
         if operation == "existing || new" then
@@ -107,10 +107,6 @@ class NyxNetwork
         if operation == "new" then
             return [NyxNetwork::interactivelyMakeNewOrNull()].compact
         end
-        if operation == "use stack" then
-            selected, unselected = LucilleCore::selectZeroOrMore("item", [], TheNetworkStack::getStack(), lambda{ |i| LxFunction::function("toString", i) })
-            return selected
-        end
     end
 
     # ---------------------------------------------------------------------
@@ -120,13 +116,13 @@ class NyxNetwork
     def self.interactivelySelectLinkTypeAndLink(item, other)
         connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related (default)", "other is child"])
         if connectionType.nil? or connectionType == "other is related (default)" then
-            Links::link(item["uuid"], other["uuid"], true)
+            NxRelation::issue(item["uuid"], other["uuid"])
         end
         if connectionType == "other is parent" then
-            Links::link(other["uuid"], item["uuid"], false)
+            NxArrow::issue(other["uuid"], item["uuid"])
         end
         if connectionType == "other is child" then
-            Links::link(item["uuid"], other["uuid"], false)
+            NxArrow::issue(item["uuid"], other["uuid"])
         end
     end
 
@@ -136,36 +132,13 @@ class NyxNetwork
         return if connectionType.nil?
         NyxNetwork::architectMultiple().each{|other|
             if connectionType == "other is parent" then
-                Links::link(other["uuid"], item["uuid"], false)
+                NxArrow::issue(other["uuid"], item["uuid"])
             end
             if connectionType == "other is related" then
-                Links::link(item["uuid"], other["uuid"], true)
+                NxRelation::issue(item["uuid"], other["uuid"])
             end
             if connectionType == "other is child" then
-                Links::link(item["uuid"], other["uuid"], false)
-            end
-        }
-    end
-
-    # NyxNetwork::crelinkToOneOrMoreLinked(item)
-    def self.relinkToOneOrMoreLinked(item)
-        entities = Links::linked(item["uuid"])
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-        selected, unselected = LucilleCore::selectZeroOrMore("linked", [], entities, lambda{ |i| LxFunction::function("toString", i) })
-
-        connectionType = LucilleCore::selectEntityFromListOfEntitiesOrNull("connection type", ["other is parent", "other is related", "other is child"])
-        return if connectionType.nil?
-
-        selected.each{|other|
-            Links::unlink(item["uuid"], other["uuid"])
-            if connectionType == "other is parent" then
-                Links::link(other["uuid"], item["uuid"], false)
-            end
-            if connectionType == "other is related" then
-                Links::link(item["uuid"], other["uuid"], true)
-            end
-            if connectionType == "other is child" then
-                Links::link(item["uuid"], other["uuid"], false)
+                NxArrow::issue(item["uuid"], other["uuid"])
             end
         }
     end
