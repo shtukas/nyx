@@ -3,7 +3,7 @@
 
 class Transmutation
 
-    # Transmutation::interactivelyNx50ToNyx(todo) # Nx100
+    # Transmutation::interactivelyNx50ToNyx(todo) # NxDataNode
     def self.interactivelyNx50ToNyx(todo)
         description = todo["description"]
 
@@ -13,7 +13,7 @@ class Transmutation
 
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "Nx100",
+            "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
@@ -54,13 +54,13 @@ class Transmutation
             return
         end
 
-        if source == "TxTodo" and target == "Nx100" then
+        if source == "TxTodo" and target == "NxDataNode" then
             nx100 = object.clone
             nx100["uuid"] = SecureRandom.uuid
-            nx100["mikuType"] = "Nx100"
+            nx100["mikuType"] = "NxDataNode"
             Librarian::commit(nx100)
             TxTodos::destroy(object["uuid"])
-            Nx100s::landing(nx100)
+            NxDataNodes::landing(nx100)
             return
         end
 

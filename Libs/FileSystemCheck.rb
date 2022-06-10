@@ -136,7 +136,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "Nx100" then
+        if item["mikuType"] == "NxDataNode" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end

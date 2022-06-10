@@ -149,7 +149,7 @@ class TxFloats
             if command == ">nyx" then
                 ix = {
                     "uuid"        => SecureRandom.uuid,
-                    "mikuType"    => "Nx100",
+                    "mikuType"    => "NxDataNode",
                     "unixtime"    => item["unixtime"],
                     "datetime"    => item["datetime"],
                     "description" => item["description"],

@@ -24,9 +24,9 @@ class Nyx
                 Search::classicInterface()
             end
             if operation == "display nodes in timeline order" then
-                Nx100s::items()
+                NxDataNodes::items()
                     .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-                    .each{|item| puts Nx100s::toString(item) }
+                    .each{|item| puts NxDataNodes::toString(item) }
                 LucilleCore::pressEnterToContinue()
             end
             if operation == "make new entity" then
@@ -49,7 +49,7 @@ class Nyx
                         XCache::getFlag("4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}")
                     }
 
-                    Nx100s::getItemsFromTheBiggestYearMonthGame1Edition()
+                    NxDataNodes::getItemsFromTheBiggestYearMonthGame1Edition()
                         .each{|item|
                             next if hasBeenDateTimeChecked.call(item)
                             LxAction::action("landing", item)

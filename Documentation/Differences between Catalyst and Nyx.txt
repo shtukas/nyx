@@ -11,5 +11,5 @@ Catalyst
     - Wave
 
 Nyx
-    - Nx100
+    - NxDataNode
     - NxTimeline

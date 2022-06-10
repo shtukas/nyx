@@ -28,7 +28,7 @@ Objects are not immediately erased from the local database. They are first logic
 
 ### Objects of the Nyx's network
 
-Objects of the Nyx Network, so essentially Nx100 must have: 
+Objects of the Nyx Network, so essentially NxDataNode must have: 
     - "uuid" 
     - "mikuType"
     - "unixtime"

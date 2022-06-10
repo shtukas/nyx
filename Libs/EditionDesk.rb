@@ -187,13 +187,6 @@ class EditionDesk
             raise "(error: 00aa930f-eedc-4a95-bb0d-fecc3387ae03)"
             return
         end
-        if nx111["type"] == "primitive-file" then
-            nx111v2 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(nx111["uuid"], location)
-            return if nx111v2.nil?
-            item["nx111"] = nx111v2
-            Librarian::commit(item)
-            return
-        end
         if nx111["type"] == "Dx8Unit" then
             puts "This should not happen because nothing was exported."
             raise "(error: 44dd0a3e-9c18-4936-a0fa-cf3b5ef6d19f)"

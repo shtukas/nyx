@@ -1,22 +1,22 @@
 
 # encoding: UTF-8
 
-class Nx100s
+class NxDataNodes
 
     # ----------------------------------------------------------------------
     # IO
 
-    # Nx100s::items()
+    # NxDataNodes::items()
     def self.items()
-        Librarian::getObjectsByMikuType("Nx100")
+        Librarian::getObjectsByMikuType("NxDataNode")
     end
 
-    # Nx100s::getOrNull(uuid): null or Nx100
+    # NxDataNodes::getOrNull(uuid): null or NxDataNode
     def self.getOrNull(uuid)
         Librarian::getObjectByUUIDOrNull(uuid)
     end
 
-    # Nx100s::destroy(uuid)
+    # NxDataNodes::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
     end
@@ -24,7 +24,7 @@ class Nx100s
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # Nx100s::interactivelyIssueNewItemOrNull()
+    # NxDataNodes::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
 
         uuid = SecureRandom.uuid
@@ -39,7 +39,7 @@ class Nx100s
 
         item = {
             "uuid"        => uuid,
-            "mikuType"    => "Nx100",
+            "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
@@ -49,7 +49,7 @@ class Nx100s
         item
     end
 
-    # Nx100s::issueNewItemAionPointFromLocation(location)
+    # NxDataNodes::issueNewItemAionPointFromLocation(location)
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
         objectuuid = SecureRandom.uuid
@@ -58,7 +58,7 @@ class Nx100s
         datetime   = Time.new.utc.iso8601
         item = {
             "uuid"        => objectuuid,
-            "mikuType"    => "Nx100",
+            "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
@@ -68,7 +68,7 @@ class Nx100s
         item
     end
 
-    # Nx100s::issuePrimitiveFileFromLocationOrNull(location)
+    # NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
 
@@ -85,7 +85,7 @@ class Nx100s
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "Nx100",
+          "mikuType"    => "NxDataNode",
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "description" => description,
@@ -98,33 +98,33 @@ class Nx100s
     # ----------------------------------------------------------------------
     # Data
 
-    # Nx100s::toString(item)
+    # NxDataNodes::toString(item)
     def self.toString(item)
         "(node) #{item["description"]}"
     end
 
-    # Nx100s::selectItemsByYear(year)
+    # NxDataNodes::selectItemsByYear(year)
     def self.selectItemsByYear(year)
-        Nx100s::items().select{|item| item["datetime"][0, 4] == year }
+        NxDataNodes::items().select{|item| item["datetime"][0, 4] == year }
     end
 
-    # Nx100s::selectItemsByYearMonth(yearMonth)
+    # NxDataNodes::selectItemsByYearMonth(yearMonth)
     def self.selectItemsByYearMonth(yearMonth)
-        Nx100s::items().select{|item| item["datetime"][0, 7] == yearMonth }
+        NxDataNodes::items().select{|item| item["datetime"][0, 7] == yearMonth }
     end
 
-    # Nx100s::getDistictYearMonthsFromItems()
+    # NxDataNodes::getDistictYearMonthsFromItems()
     def self.getDistictYearMonthsFromItems()
-        Nx100s::items().map{|item| item["datetime"][0, 7] }.uniq.sort
+        NxDataNodes::items().map{|item| item["datetime"][0, 7] }.uniq.sort
     end
 
-    # Nx100s::getItemsFromTheBiggestYearMonth()
+    # NxDataNodes::getItemsFromTheBiggestYearMonth()
     def self.getItemsFromTheBiggestYearMonth()
-        last = Nx100s::getDistictYearMonthsFromItems()
+        last = NxDataNodes::getDistictYearMonthsFromItems()
             .map{|yearMonth|  
                 {
                     "yearMonth" => yearMonth,
-                    "items" => Nx100s::selectItemsByYearMonth(yearMonth)
+                    "items" => NxDataNodes::selectItemsByYearMonth(yearMonth)
                 }
             }
             .sort{|p1, p2| p1["items"].size <=> p2["items"].size }
@@ -132,11 +132,11 @@ class Nx100s
         last["items"].sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
     end
 
-    # Nx100s::getItemsFromTheBiggestYearMonthGame1Edition()
+    # NxDataNodes::getItemsFromTheBiggestYearMonthGame1Edition()
     def self.getItemsFromTheBiggestYearMonthGame1Edition()
-        last = Nx100s::getDistictYearMonthsFromItems()
+        last = NxDataNodes::getDistictYearMonthsFromItems()
             .map{|yearMonth|
-                items = Nx100s::selectItemsByYearMonth(yearMonth)
+                items = NxDataNodes::selectItemsByYearMonth(yearMonth)
                 items = items.select{|item| !XCache::getFlag("4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}") }
                 {
                     "yearMonth" => yearMonth,
@@ -151,7 +151,7 @@ class Nx100s
     # ----------------------------------------------------------------------
     # Operations
 
-    # Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+    # NxDataNodes::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
     def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
         if item["nx111"]["type"] != "aion-point" then
             puts "I can only do that with aion-points"
@@ -160,7 +160,7 @@ class Nx100s
         end
         item2 = {
             "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "Nx100",
+            "mikuType"    => "NxDataNode",
             "unixtime"    => Time.new.to_i,
             "datetime"    => Time.new.utc.iso8601,
             "description" => "Genesis",
@@ -176,32 +176,32 @@ class Nx100s
         LucilleCore::pressEnterToContinue()
     end
 
-    # Nx100s::uploadAllLocationsOfAFolderAsAionPointChildren(item)
+    # NxDataNodes::uploadAllLocationsOfAFolderAsAionPointChildren(item)
     def self.uploadAllLocationsOfAFolderAsAionPointChildren(item)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         return if !File.exists?(folder)
         return if !File.directory?(folder)
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
-            child = Nx100s::issueNewItemAionPointFromLocation(location)
+            child = NxDataNodes::issueNewItemAionPointFromLocation(location)
             NxArrow::issue(item["uuid"], child["uuid"])
         }
     end
 
-    # Nx100s::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+    # NxDataNodes::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
     def self.uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         return if !File.exists?(folder)
         return if !File.directory?(folder)
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
-            child = Nx100s::issuePrimitiveFileFromLocationOrNull(location)
+            child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
             NxArrow::issue(item["uuid"], child["uuid"])
         }
     end
 
-    # Nx100s::landing(item)
+    # NxDataNodes::landing(item)
     def self.landing(item)
         loop {
             return if item.nil?
@@ -357,19 +357,19 @@ class Nx100s
                 operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
                 next if operation.nil?
                 if operation == "transmute to navigation node and put contents into Genesis" then
-                    Nx100s::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+                    NxDataNodes::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
                 end
                 if operation == "upload all locations of a folder as aion-point children" then
-                    Nx100s::uploadAllLocationsOfAFolderAsAionPointChildren(item)
+                    NxDataNodes::uploadAllLocationsOfAFolderAsAionPointChildren(item)
                 end
                 if operation == "upload all locations of a folder as primitive files children" then
-                    Nx100s::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+                    NxDataNodes::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
                 end
             end
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("Destroy entry ? : ") then
-                    Nx100s::destroy(item["uuid"])
+                    NxDataNodes::destroy(item["uuid"])
                     break
                 end
             end
@@ -379,11 +379,11 @@ class Nx100s
     # ------------------------------------------------
     # Nx20s
 
-    # Nx100s::nx20s()
+    # NxDataNodes::nx20s()
     def self.nx20s()
-        Nx100s::items().map{|item| 
+        NxDataNodes::items().map{|item| 
             {
-                "announce" => "(#{item["uuid"][0, 4]}) #{Nx100s::toString(item)}",
+                "announce" => "(#{item["uuid"][0, 4]}) #{NxDataNodes::toString(item)}",
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }

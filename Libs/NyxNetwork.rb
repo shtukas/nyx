@@ -47,7 +47,7 @@ class NyxNetwork
 
     # NyxNetwork::interactivelyMakeNewOrNull()
     def self.interactivelyMakeNewOrNull()
-        Nx100s::interactivelyIssueNewItemOrNull()
+        NxDataNodes::interactivelyIssueNewItemOrNull()
     end
 
     # ---------------------------------------------------------------------

@@ -1,0 +1,8 @@
+
+NxCollection {
+    "uuid"        : uuid,
+    "mikuType"    : "NxCollection"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : description
+}

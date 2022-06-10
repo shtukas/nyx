@@ -1,7 +1,7 @@
 
-Nx100 {
+NxDataNode {
     "uuid"        : uuid,
-    "mikuType"    : "Nx100"
+    "mikuType"    : "NxDataNode"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description or null # Possibly null in the case of a primitive-file"

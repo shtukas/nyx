@@ -59,7 +59,7 @@ class LxAction
 
         if command == ">nyx" then
             if item["mikuType"] == "TxTodo" then
-                Transmutation::transmutation1(item, "TxTodo", "Nx100")
+                Transmutation::transmutation1(item, "TxTodo", "NxDataNode")
                 return
             end
         end
@@ -249,8 +249,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "Nx100" then
-                Nx100s::landing(item)
+            if item["mikuType"] == "NxDataNode" then
+                NxDataNodes::landing(item)
                 return
             end
 
