@@ -18,6 +18,9 @@ class LxFunction
             if item["mikuType"] == "(rstream)" then
                 return item["announce"]
             end
+            if item["mikuType"] == "fitness1" then
+                return item["announce"]
+            end
             if item["mikuType"] == "Nx100" then
                 return Nx100s::toString(item)
             end
