@@ -1,9 +1,0 @@
-
-Nx16TimelineTargetLink {
-    "uuid"         : uuid,
-    "mikuType"     : "Nx16TimelineTargetLink"
-    "unixtime"     : unixtime
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "timelineuuid" : String
-    "targetuuid"   : String
-}

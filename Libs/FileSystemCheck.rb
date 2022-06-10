@@ -173,10 +173,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "Nx16TimelineTargetLink" then
-            return
-        end
-
         if item["mikuType"] == "TxDated" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
