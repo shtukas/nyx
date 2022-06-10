@@ -174,7 +174,7 @@ class LxAction
             end
             if item["mikuType"] == "TxTodo" then
                 shouldForce = options and options["forcedone"]
-                TxTodos::done(item, shouldForce)
+                TxTodos::destroy(item, shouldForce)
                 return
             end
             if item["mikuType"] == "TxPlus" then

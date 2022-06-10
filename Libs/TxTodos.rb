@@ -71,8 +71,8 @@ class TxTodos
         end
     end
 
-    # TxTodos::done(item, shouldForce = false)
-    def self.done(item, shouldForce = false)
+    # TxTodos::destroy(item, shouldForce = false)
+    def self.destroy(item, shouldForce = false)
         if shouldForce then
             TxTodos::destroy(item["uuid"])
         else
