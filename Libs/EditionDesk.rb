@@ -8,17 +8,43 @@ class AionTransforms
         AionCore::getAionObjectByHash(operator, rootnhash)["name"]
     end
 
-    # AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, name1)
-    def self.rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, name1)
+    # AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, name1)
+    def self.rewriteThisAionRootWithNewTopName(operator, rootnhash, name1)
+
+        # nb: name1 can have an extension
+
         aionObject = AionCore::getAionObjectByHash(operator, rootnhash)
         name2 = aionObject["name"]
+
+        # bn: name2 can also have an extension.
+
         # name1 : name we want
         # name2 : name we have, possibly with an .extension
-        if File.extname(name2) then
-            aionObject["name"] = "#{name1}#{File.extname(name2)}"
-        else
-            aionObject["name"] = name1
-        end
+
+        namef = (lambda{|name1, name2|
+            if File.extname(name1) != "" and File.extname(name2) != "" and File.extname(name1) == File.extname(name2) then
+                return name1
+            end
+            if File.extname(name1) != "" and File.extname(name2) != "" and File.extname(name1) != File.extname(name2) then
+                puts "name1: #{name1}"
+                puts "name2: #{name2}"
+                raise "(error: 80102c05-5181-44be-9b45-8a0b91ebb67b)"
+            end
+            if File.extname(name1) != "" and File.extname(name2) == "" then
+                puts "name1: #{name1}"
+                puts "name2: #{name2}"
+                raise "(error: b9ed4f40-e3e8-4c78-98e6-d8e04ac62349)"
+            end
+            if File.extname(name1) == "" and File.extname(name2) != "" then
+                return "#{name1}#{File.extname(name2)}"
+            end
+            if File.extname(name1) == "" and File.extname(name2) == "" then
+                return name1
+            end
+        }).call(name1, name2)
+
+        aionObject["name"] = namef
+
         blob = JSON.generate(aionObject)
         operator.commitBlob(blob)
     end
@@ -56,10 +82,11 @@ class EditionDesk
             .max
     end
 
+
     # ----------------------------------------------------
     # Nx111 elements
 
-    # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+    # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
     def self.decideItemNx111PairEditionLocation(parentLocation, item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
@@ -101,8 +128,8 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new() 
             rootnhash = nx111["rootnhash"]
-            exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
-            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, File.basename(exportLocation))
+            exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
+            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
             # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
             actuallocationbasename = AionTransforms::extractTopName(operator, rootnhash)
@@ -194,7 +221,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
+            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
             item["nx111"] = nx111
@@ -212,6 +239,8 @@ class EditionDesk
         end
         raise "(error: 69fcf4bf-347a-4e5f-91f8-3a97d6077c98): nx111: #{nx111}"
     end
+    # ----------------------------------------------------
+
 
     # ----------------------------------------------------
     # PrimitiveFiles
@@ -235,6 +264,8 @@ class EditionDesk
     end
 
     # We currently do not have a pickup of Primitive Files
+    # ----------------------------------------------------
+
 
     # ----------------------------------------------------
     # Data Carriers ( implementsNx111 or NxPrimitiveFile )
@@ -247,6 +278,8 @@ class EditionDesk
             EditionDesk::accessItemNx111Pair(parentFolder, item, item["nx111"])
         end
     end
+    # ----------------------------------------------------
+
 
     # ----------------------------------------------------
     # Collections
@@ -285,6 +318,8 @@ class EditionDesk
     end
 
     # We currently do not have a pickup of Collections
+    # ----------------------------------------------------
+
 
     # ----------------------------------------------------
     # Operations
