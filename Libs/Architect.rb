@@ -22,14 +22,14 @@ class Architect
             nx20 = Search::interativeInterfaceSelectNx20OrNull()
             if nx20 then
                 item = nx20["payload"]
-                if LucilleCore::askQuestionAnswerAsBoolean("`#{LxFunction("toString", item)}` select ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("`#{LxFunction::function("toString", item).green}` select ? ") then
                     return item
+                end
+            else
+                if LucilleCore::askQuestionAnswerAsBoolean("continue search ? ") then
+                    next
                 else
-                    if LucilleCore::askQuestionAnswerAsBoolean("continue search ? ") then
-                        next
-                    else
-                        return nil
-                    end
+                    return nil
                 end
             end
         }

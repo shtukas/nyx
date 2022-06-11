@@ -111,7 +111,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: iam | dump | <n> | description | datetime | note | json | add | remove | destroy".yellow
+            puts "commands: iam | access | <n> | description | datetime | note | json | add | remove | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -123,7 +123,7 @@ class Landing
                 LxAction::action("landing", entity)
             end
 
-            if Interpreting::match("dump", command) then
+            if Interpreting::match("access", command) then
                 EditionDesk::accessCollectionItem(item)
                 next
             end
