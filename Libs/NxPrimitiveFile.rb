@@ -3,9 +3,9 @@
 
 class NxPrimitiveFile
 
-    # NxPrimitiveFile::issue(location, description = nil)
-    def self.issue(location, description = nil)
-        raise "(error: 9bbd60c5-4e4a-4fb6-ae81-2f4c44d0ba10)" if !File.exists?(location)
+    # NxPrimitiveFile::issue(filepath, description = nil)
+    def self.issue(filepath, description = nil)
+        raise "(error: 9bbd60c5-4e4a-4fb6-ae81-2f4c44d0ba10)" if !File.exists?(filepath)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]

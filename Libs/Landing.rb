@@ -289,6 +289,122 @@ class Landing
         }
     end
 
+    # Landing::primitiveFileLanding(item)
+    def self.primitiveFileLanding(item)
+        loop {
+            return if item.nil?
+
+            system("clear")
+
+            uuid = item["uuid"]
+
+            store = ItemStore.new()
+
+            puts "(#{item["mikuType"].yellow}) #{item["description"]}"
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+            puts "dottedExtension: #{item["dottedExtension"]}".yellow
+            puts "nhash: #{item["nhash"]}".yellow
+            puts "parts (count): #{item["parts"].size}".yellow
+
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
+            }
+
+            NxArrow::parents(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
+                }
+
+            NxRelation::related(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
+                }
+
+            NxArrow::children(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
+                }
+
+            puts "commands: access | <n> | description | datetime | note | json | update | add | remove | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                LxAction::action("landing", entity)
+            end
+
+            if Interpreting::match("access", command) then
+                LxAction::action("access", item)
+                next
+            end
+
+            if Interpreting::match("description", command) then
+                description = CommonUtils::editTextSynchronously(item["description"]).strip
+                next if description == ""
+                item["description"] = description
+                Librarian::commit(item)
+                next
+            end
+
+            if Interpreting::match("datetime", command) then
+                datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
+                next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
+                item["datetime"] = datetime
+                Librarian::commit(item)
+            end
+
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                puts JSON.pretty_generate(ox)
+                next
+            end
+
+            if Interpreting::match("json", command) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+            end
+
+            if Interpreting::match("update", command) then
+                location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+                next if location.nil?
+                data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location) # [dottedExtension, nhash, parts]
+                next if data.nil?
+                item["dottedExtension"] = dottedExtension
+                item["nhash"] = nhash
+                item["parts"] = parts
+                Librarian::commit(item)
+            end
+
+            if Interpreting::match("add", command) then
+                Landing::addToCircle(item)
+            end
+
+            if Interpreting::match("remove", command) then
+                Landing::removeFromCircle(item)
+            end
+
+            if Interpreting::match("destroy", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
+                    Librarian::destroy(item["uuid"])
+                    break
+                end
+            end
+        }
+    end
+
     # Landing::landing(item)
     def self.landing(item)
         if Iam::implementsNx111(item) then
@@ -297,6 +413,10 @@ class Landing
         end
         if Iam::isNetworkAggregation(item) then
             Landing::networkAggregationNodeLanding(item)
+            return
+        end
+        if item["mikuType"] == "NxPrimitiveFile" then
+            Landing::primitiveFileLanding(item)
             return
         end
         raise "(error: 1e84c68b-b602-41af-b2e9-00e66fa687ac) item: #{item}"
