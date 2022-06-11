@@ -88,7 +88,7 @@ class LxAction
                 return
             end
 
-            if NyxNetwork::implementsNx111(item) then
+            if Iam::implementsNx111(item) then
                 EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
                 return
             end
@@ -98,7 +98,7 @@ class LxAction
                 return
             end
 
-            if NyxNetwork::isNetworkAggregation(item) then
+            if Iam::isNetworkAggregation(item) then
                 EditionDesk::accessCollectionItem(item)
                 return
             end
@@ -219,7 +219,7 @@ class LxAction
                 return
             end
 
-            Landing::generic_landing(item)
+            Landing::landing(item)
             return
         end
 

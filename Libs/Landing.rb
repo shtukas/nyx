@@ -74,8 +74,93 @@ class Landing
         }
     end
 
-    # Landing::generic_landing(item)
-    def self.generic_landing(item)
+    # Landing::networkAggregationNodeLanding(item)
+    def self.networkAggregationNodeLanding(item)
+        loop {
+            return if item.nil?
+
+            system("clear")
+
+            uuid = item["uuid"]
+
+            store = ItemStore.new()
+
+            puts "(#{item["mikuType"].yellow}) #{item["description"]}"
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+
+            notes = Ax1Text::itemsForOwner(uuid)
+            if notes.size > 0 then
+                puts "notes:"
+                notes.each{|note|
+                    indx = store.register(note, false)
+                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
+                }
+            end
+
+            puts "commands: dump | <n> | description | datetime | iam | note |  circle | json | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                LxAction::action("landing", entity)
+            end
+
+            if Interpreting::match("dump", command) then
+                EditionDesk::accessCollectionItem(item)
+                next
+            end
+
+            if Interpreting::match("description", command) then
+                description = CommonUtils::editTextSynchronously(item["description"]).strip
+                next if description == ""
+                item["description"] = description
+                Librarian::commit(item)
+                next
+            end
+
+            if Interpreting::match("datetime", command) then
+                datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
+                next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
+                item["datetime"] = datetime
+                Librarian::commit(item)
+            end
+
+            if Interpreting::match("iam", command) then
+                Iam::processItem(item)
+            end
+
+            if Interpreting::match("note", command) then
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                puts JSON.pretty_generate(ox)
+                next
+            end
+
+            if Interpreting::match("circle", command) then
+                Landing::diveCircle(item)
+            end
+
+            if Interpreting::match("json", command) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+            end
+
+            if Interpreting::match("destroy", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Destroy item ? : ") then
+                    Librarian::destroy(item["uuid"])
+                    break
+                end
+            end
+        }
+    end
+
+    # Landing::implementsNx111Landing(item)
+    def self.implementsNx111Landing(item)
         loop {
             return if item.nil?
 
@@ -100,7 +185,7 @@ class Landing
                 }
             end
 
-            puts "commands: access | <n> | description | datetime | nx111 | note | circle | json | destroy".yellow
+            puts "commands: access | <n> | description | datetime | nx111 | iam | note | circle | json | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -138,6 +223,11 @@ class Landing
                 Librarian::commit(item)
             end
 
+            if Interpreting::match("iam", command) then
+                Iam::processItem(item)
+                return
+            end
+
             if Interpreting::match("note", command) then
                 ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
@@ -162,4 +252,16 @@ class Landing
         }
     end
 
+    # Landing::landing(item)
+    def self.landing(item)
+        if Iam::implementsNx111(item) then
+            Landing::implementsNx111Landing(item)
+            return
+        end
+        if Iam::isNetworkAggregation(item) then
+            Landing::networkAggregationNodeLanding(item)
+            return
+        end
+        raise "(error: 1e84c68b-b602-41af-b2e9-00e66fa687ac) item: #{item}"
+    end
 end

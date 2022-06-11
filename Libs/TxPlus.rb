@@ -150,7 +150,7 @@ class TxPlus
             items = TxPlus::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("plus", items, lambda{|item| TxPlus::toString(item) })
             break if item.nil?
-            Landing::generic_landing(item)
+            Landing::implementsNx111Landing(item)
         }
     end
 

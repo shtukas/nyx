@@ -2,21 +2,6 @@
 
 class NyxNetwork
 
-    # NyxNetwork::implementsNx111(item)
-    def self.implementsNx111(item)
-        ["NxDataNode", "TxDated", "TxDated", "TxPlus", "TxTodo", "Wave"].include?(item["mikuType"])
-    end
-
-    # NyxNetwork::isNetworkDataCarrier(item)
-    def self.isNetworkDataCarrier(item)
-        NyxNetwork::implementsNx111(item) or (item["mikuType"] == "NxPrimitiveFile")
-    end
-
-    # NyxNetwork::isNetworkAggregation(item)
-    def self.isNetworkAggregation(item)
-        ["NxCollection", "NxNavigation", "NxPerson", "NxTimeline"].include?(item["mikuType"])
-    end
-
     # ---------------------------------------------------------------------
     # Select (1)
 

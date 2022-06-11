@@ -116,6 +116,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 
 require_relative "Ax1Text.rb"
 require_relative "Anniversaries.rb"
+require_relative "AionTransforms.rb"
 
 require_relative "Bank.rb"
 
@@ -139,6 +140,7 @@ require_relative "Genealogy.rb"
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
+require_relative "Iam.rb"
 
 require_relative "FileSystemCheck.rb"
 
