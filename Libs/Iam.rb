@@ -30,9 +30,9 @@ class Iam
 
     # Iam::processItem(item)
     def self.processItem(item)
-
         if Iam::implementsNx111(item) then
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["convert to network aggregation node"])
+            return if action.nil?
             if action == "convert to network aggregation node" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Can we discard the existing data payload ? ") then
                     type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Iam::aggregationTypes())

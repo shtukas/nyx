@@ -29,7 +29,7 @@ class Nyx
                 LucilleCore::pressEnterToContinue()
             end
             if operation == "make new entity" then
-                item = NyxNetwork::interactivelyMakeNewOrNull()
+                item = Architect::interactivelyMakeNewOrNull()
                 next if item.nil?
                 LxAction::action("landing", item)
             end

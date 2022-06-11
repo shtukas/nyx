@@ -59,7 +59,11 @@ class EditionDesk
     def self.accessItemNx111Pair(parentLocation, item, nx111)
         return if nx111.nil?
         if nx111["type"] == "text" then
-            location = "#{EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)}.txt"
+            location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+            if location[-4, 4] != ".txt" then
+                # Happens when the file wasn't already there
+                location = "#{location}.txt" 
+            end
             if File.exists?(location) then
                 system("open '#{location}'")
                 return
@@ -125,7 +129,11 @@ class EditionDesk
     def self.locationToItemNx111PairOrNull(location)
         filename = File.basename(location)
 
-        _, itemuuid, nx111uuidOnDisk = filename.split("|")
+        elements = filename.split("|")
+
+        return if elements.size != 3
+
+        _, itemuuid, nx111uuidOnDisk = elements
 
         if nx111uuidOnDisk.include?(".") then
             nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")

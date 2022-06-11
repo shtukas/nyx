@@ -3,6 +3,72 @@
 
 class Landing
 
+    # Landing::removeFromCircle(item)
+    def self.removeFromCircle(item)
+        uuid = item["uuid"]
+
+        store = ItemStore.new()
+
+        Ax1Text::itemsForOwner(uuid).each{|note|
+            indx = store.register(note, false)
+            puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
+        }
+
+        NxArrow::parents(item["uuid"])
+            .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+            .each{|entity| 
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
+            }
+
+        NxRelation::related(item["uuid"])
+            .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+            .each{|entity| 
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
+            }
+
+        NxArrow::children(item["uuid"])
+            .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+            .each{|entity| 
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
+            }
+
+        i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")
+
+        return if i == ""
+
+        if (indx = Interpreting::readAsIntegerOrNull(i)) then
+            entity = store.get(indx)
+            return if entity.nil?
+            NxArrow::unlink(item["uuid"], entity["uuid"])
+            NxArrow::unlink(entity["uuid"], item["uuid"])
+            NxRelation::unlink(NxRelation::unlink(node1uuid, node2uuid))
+        end
+    end
+
+    # Landing::addToCircle(item)
+    def self.addToCircle(item)
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["add parent", "add related", "add child"])
+        return if action.nil?
+        if action == "add parent" then
+            newItem = Architect::architectOneOrNull()
+            return if newItem.nil?
+            NxArrow::issue(newItem["uuid"], item["uuid"])
+        end
+        if action == "add related" then
+            newItem = Architect::architectOneOrNull()
+            return if newItem.nil?
+            NxRelation::issue(item["uuid"], newItem["uuid"])
+        end
+        if action == "add child" then
+            newItem = Architect::architectOneOrNull()
+            return if newItem.nil?
+            NxArrow::issue(item["uuid"], newItem["uuid"])
+        end
+    end
+
     # Landing::networkAggregationNodeLanding(item)
     def self.networkAggregationNodeLanding(item)
         loop {
@@ -45,7 +111,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: dump | <n> | description | datetime | iam | note | json | destroy".yellow
+            puts "commands: iam | dump | <n> | description | datetime | note | json | add | remove | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -92,8 +158,16 @@ class Landing
                 LucilleCore::pressEnterToContinue()
             end
 
+            if Interpreting::match("add", command) then
+                Landing::addToCircle(item)
+            end
+
+            if Interpreting::match("remove", command) then
+                Landing::removeFromCircle(item)
+            end
+
             if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy item ? : ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
                     Librarian::destroy(item["uuid"])
                     break
                 end
@@ -144,7 +218,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | <n> | description | datetime | nx111 | iam | note | json | destroy".yellow
+            puts "commands: iam | access | <n> | description | datetime | nx111 | note | json | add | remove | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -198,8 +272,16 @@ class Landing
                 LucilleCore::pressEnterToContinue()
             end
 
+            if Interpreting::match("add", command) then
+                Landing::addToCircle(item)
+            end
+
+            if Interpreting::match("remove", command) then
+                Landing::removeFromCircle(item)
+            end
+
             if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Destroy item ? : ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
                     Librarian::destroy(item["uuid"])
                     break
                 end
