@@ -170,7 +170,7 @@ class TxPlus
                 }
             end
 
-            puts "access | start | <datecode> | description | iam | transmute | note | json | >nyx | destroy".yellow
+            puts "access | start | <datecode> | description | iam | nx15 | transmute | note | json | >nyx | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -210,6 +210,11 @@ class TxPlus
             if Interpreting::match("iam", command) then
                 nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), item["uuid"])
                 item["nx111"] = nx111
+                Librarian::commit(item)
+            end
+
+            if Interpreting::match("nx15", command) then
+                item["nx15"] = Nx15::interactivelyCreateNew()
                 Librarian::commit(item)
             end
 
