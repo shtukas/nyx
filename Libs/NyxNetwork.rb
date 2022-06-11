@@ -1,8 +1,21 @@
 # encoding: UTF-8
 
-$NavigationSandboxState = nil
-
 class NyxNetwork
+
+    # NyxNetwork::implementsNx111(item)
+    def self.implementsNx111(item)
+        ["NxDataNode", "TxDated", "TxDated", "TxPlus", "TxTodo", "Wave"].include?(item["mikuType"])
+    end
+
+    # NyxNetwork::isNetworkDataCarrier(item)
+    def self.isNetworkDataCarrier(item)
+        NyxNetwork::implementsNx111(item) or (item["mikuType"] == "NxPrimitiveFile")
+    end
+
+    # NyxNetwork::isNetworkAggregation(item)
+    def self.isNetworkAggregation(item)
+        ["NxCollection", "NxNavigation", "NxPerson", "NxTimeline"].include?(item["mikuType"])
+    end
 
     # ---------------------------------------------------------------------
     # Select (1)
@@ -22,25 +35,19 @@ class NyxNetwork
     # NyxNetwork::selectNodesUsingNavigationSandboxOrNull()
     def self.selectNodesUsingNavigationSandboxOrNull()
         system("clear")
-        puts "Navigation sandbox for selecting a node. When found type 'found' in a landing position.".green
-        LucilleCore::pressEnterToContinue()
-        $NavigationSandboxState = ["active"]
         loop {
             nx20 = Search::interativeInterfaceSelectNx20OrNull()
             if nx20 then
-                LxAction::action("landing", nx20["payload"])
-            else
-                if LucilleCore::askQuestionAnswerAsBoolean("Try selecting existing again ? ", true) then
-                    next
+                item = nx20["payload"]
+                if LucilleCore::askQuestionAnswerAsBoolean("`#{LxFunction("toString", item)}` select ? ") then
+                    return item
                 else
-                    $NavigationSandboxState = nil
-                    return nil
+                    if LucilleCore::askQuestionAnswerAsBoolean("continue search ? ") then
+                        next
+                    else
+                        return nil
+                    end
                 end
-            end
-            if $NavigationSandboxState[0] == "found" then
-                found = $NavigationSandboxState[1]
-                $NavigationSandboxState = nil
-                return found
             end
         }
     end
@@ -151,5 +158,106 @@ class NyxNetwork
         selected.each{|other|
             Links::unlink(item["uuid"], other["uuid"])
         }
+    end
+
+    # ---------------------------------------------------------------------
+    # Ops (5)
+
+    # NyxNetwork::transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+    def self.transmuteToNavigationNodeAndPutContentsIntoGenesisOrNothing(item)
+        if item["nx111"]["type"] != "aion-point" then
+            puts "I can only do that with aion-points"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        item2 = {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "NxDataNode",
+            "unixtime"    => Time.new.to_i,
+            "datetime"    => Time.new.utc.iso8601,
+            "description" => "Genesis",
+            "nx111"       => item["nx111"].clone
+        }
+        puts JSON.pretty_generate(item2)
+        Librarian::commit(item2)
+        NxArrow::issue(item["uuid"], item2["uuid"])
+        item["mikuType"] = "NxNavigation"
+        puts JSON.pretty_generate(item)
+        Librarian::commit(item)
+        puts "Operation completed"
+        LucilleCore::pressEnterToContinue()
+    end
+
+    # NyxNetwork::uploadAllLocationsOfAFolderAsAionPointChildren(item)
+    def self.uploadAllLocationsOfAFolderAsAionPointChildren(item)
+        folder = LucilleCore::askQuestionAnswerAsString("folder: ")
+        return if !File.exists?(folder)
+        return if !File.directory?(folder)
+        LucilleCore::locationsAtFolder(folder).each{|location|
+            puts "processing: #{location}"
+            child = NxDataNodes::issueNewItemAionPointFromLocation(location)
+            NxArrow::issue(item["uuid"], child["uuid"])
+        }
+    end
+
+    # NyxNetwork::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+    def self.uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+        folder = LucilleCore::askQuestionAnswerAsString("folder: ")
+        return if !File.exists?(folder)
+        return if !File.directory?(folder)
+        LucilleCore::locationsAtFolder(folder).each{|location|
+            puts "processing: #{location}"
+            child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
+            next if child.nil?
+            NxArrow::issue(item["uuid"], child["uuid"])
+        }
+    end
+
+    # ---------------------------------------------------------------------
+    # Ops (6)
+
+    # NyxNetwork::selectItemsByYear(year)
+    def self.selectItemsByYear(year)
+        NxDataNodes::items().select{|item| item["datetime"][0, 4] == year }
+    end
+
+    # NyxNetwork::selectItemsByYearMonth(yearMonth)
+    def self.selectItemsByYearMonth(yearMonth)
+        NxDataNodes::items().select{|item| item["datetime"][0, 7] == yearMonth }
+    end
+
+    # NyxNetwork::getDistictYearMonthsFromItems()
+    def self.getDistictYearMonthsFromItems()
+        NxDataNodes::items().map{|item| item["datetime"][0, 7] }.uniq.sort
+    end
+
+    # NyxNetwork::getItemsFromTheBiggestYearMonth()
+    def self.getItemsFromTheBiggestYearMonth()
+        last = NyxNetwork::getDistictYearMonthsFromItems()
+            .map{|yearMonth|  
+                {
+                    "yearMonth" => yearMonth,
+                    "items" => NyxNetwork::selectItemsByYearMonth(yearMonth)
+                }
+            }
+            .sort{|p1, p2| p1["items"].size <=> p2["items"].size }
+            .last
+        last["items"].sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+    end
+
+    # NyxNetwork::getItemsFromTheBiggestYearMonthGame1Edition()
+    def self.getItemsFromTheBiggestYearMonthGame1Edition()
+        last = NyxNetwork::getDistictYearMonthsFromItems()
+            .map{|yearMonth|
+                items = NyxNetwork::selectItemsByYearMonth(yearMonth)
+                items = items.select{|item| !XCache::getFlag("4636773d-6aa6-4835-b740-0415e4f9149e:#{item["uuid"]}") }
+                {
+                    "yearMonth" => yearMonth,
+                    "items" => items
+                }
+            }
+            .sort{|p1, p2| p1["items"].size <=> p2["items"].size }
+            .last
+        last["items"].sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
     end
 end

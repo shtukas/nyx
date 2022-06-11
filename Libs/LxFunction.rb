@@ -24,6 +24,9 @@ class LxFunction
             if item["mikuType"] == "NxDataNode" then
                 return NxDataNodes::toString(item)
             end
+            if item["mikuType"] == "NxPrimitiveFile" then
+                return NxPrimitiveFile::toString(item)
+            end            
             if item["mikuType"] == "NxTimeline" then
                 return NxTimelines::toString(item)
             end

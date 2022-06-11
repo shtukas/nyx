@@ -3,8 +3,8 @@
 
 class Nx111
 
-    # Nx111::iamTypes()
-    def self.iamTypes()
+    # Nx111::types()
+    def self.types()
         [
             "text",
             "url",
@@ -16,7 +16,7 @@ class Nx111
 
     # Nx111::interactivelySelectIamTypeOrNull(types)
     def self.interactivelySelectIamTypeOrNull(types)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("iam type", types)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("nx111 type", types)
     end
 
     # Nx111::locationToAionPointNx111OrNull(location)

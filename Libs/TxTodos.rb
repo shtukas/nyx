@@ -22,7 +22,7 @@ class TxTodos
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), uuid)
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
@@ -110,109 +110,6 @@ class TxTodos
             end
         end
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
-    end
-
-    # TxTodos::landing(item)
-    def self.landing(item)
-
-        loop {
-
-            system("clear")
-
-            uuid = item["uuid"]
-
-            store = ItemStore.new()
-
-            puts "#{TxTodos::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
-            puts "uuid: #{uuid}".yellow
-            puts "nx111: #{item["nx111"]}"
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
-            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
-
-            notes = Ax1Text::itemsForOwner(uuid)
-            if notes.size > 0 then
-                puts "notes:"
-                notes.each{|note|
-                    indx = store.register(note, false)
-                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-                }
-            end
-
-            puts "access | start | <datecode> | description | iam | transmute | note | json | >nyx | destroy".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
-            end
-
-            if (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("access", command) then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
-                next
-            end
-
-            if Interpreting::match("start", command) then
-                if !NxBallsService::isRunning(item["uuid"]) then
-                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
-                end
-                next
-            end
-
-            if Interpreting::match("description", command) then
-                description = CommonUtils::editTextSynchronously(item["description"]).strip
-                next if description == ""
-                item["description"] = description
-                Librarian::commit(item)
-                next
-            end
-
-            if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), item["uuid"])
-                item["nx111"] = nx111
-                Librarian::commit(item)
-            end
-
-            if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
-                puts JSON.pretty_generate(ox)
-                next
-            end
-
-            if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(item, "TxTodo")
-                break
-            end
-
-            if Interpreting::match("json", command) then
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxTodos::toString(item)}' ? ", true) then
-                    NxBallsService::close(item["uuid"], true)
-                    TxTodos::destroy(item["uuid"])
-                    break
-                end
-                next
-            end
-
-            if command == ">nyx" then
-                i2 = Transmutation::interactivelyNx50ToNyx(item)
-                LxAction::action("landing", i2)
-                break
-            end
-        }
     end
 
     # --------------------------------------------------

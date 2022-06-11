@@ -130,7 +130,7 @@ class Waves
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), uuid)
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
 
         catalyst = {
             "uuid"        => uuid,
@@ -166,95 +166,6 @@ class Waves
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-    end
-
-    # Waves::landing(item)
-    def self.landing(item)
-        uuid = item["uuid"]
-
-        loop {
-
-            system("clear")
-
-            store = ItemStore.new()
-
-            uuid = item["uuid"]
-
-            puts "#{Waves::toString(item)}".green
-
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "nx111: #{item["nx111"]}"
-            puts "DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
-
-            notes = Ax1Text::itemsForOwner(uuid)
-            if notes.size > 0 then
-                puts "notes:"
-                notes.each{|note|
-                    indx = store.register(note, false)
-                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-                }
-            end
-
-            puts ""
-
-            puts "access | done | <datecode> | description | iam | behaviour | note | destroy".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
-            end
-
-            if command == "access" then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
-                next
-            end
-
-            if command == "done" then
-                Waves::performWaveNx46WaveDone(item)
-                break
-            end
-
-            if (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("description", command) then
-                item["description"] = CommonUtils::editTextSynchronously(item["description"])
-                Librarian::commit(item)
-                next
-            end
-
-            if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), item["uuid"])
-                item["nx111"] = nx111
-                Librarian::commit(item)
-            end
-
-            if Interpreting::match("behaviour", command) then
-                puts "Not implemented yet"
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
-                puts JSON.pretty_generate(ox)
-                next
-            end
-
-            if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("Do you want to destroy '#{Waves::toString(item).green}' ? : ") then
-                    Waves::destroy(item["uuid"])
-                    break
-                end
-            end
-        }
     end
 
     # -------------------------------------------------------------------------

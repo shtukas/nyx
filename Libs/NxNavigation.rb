@@ -3,6 +3,24 @@
 
 class NxNavigation
 
+    # NxNavigation::items()
+    def self.items()
+        Librarian::getObjectsByMikuType("NxNavigation")
+    end
+
+    # NxNavigation::getOrNull(uuid): null or NxDataNode
+    def self.getOrNull(uuid)
+        Librarian::getObjectByUUIDOrNull(uuid)
+    end
+
+    # NxNavigation::destroy(uuid)
+    def self.destroy(uuid)
+        Librarian::destroy(uuid)
+    end
+
+    # ------------------------------------------------
+    # Makers
+
     # NxNavigation::issue(description)
     def self.issue(description)
         unixtime = Time.new.to_i
@@ -27,6 +45,20 @@ class NxNavigation
 
     # NxNavigation::toString(item)
     def self.toString(item)
-        "(nav) #{item["name"]}"
+        "(nav) #{item["description"]}"
+    end
+
+    # ------------------------------------------------
+    # Nx20s
+
+    # NxNavigation::nx20s()
+    def self.nx20s()
+        NxNavigation::items().map{|item| 
+            {
+                "announce" => "(#{item["uuid"][0, 4]}) #{NxNavigation::toString(item)}",
+                "unixtime" => item["unixtime"],
+                "payload"  => item
+            }
+        }
     end
 end

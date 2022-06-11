@@ -66,8 +66,8 @@ class FileSystemCheck
     # FileSystemCheck::fsckNx111ExitAtFirstFailure(object, nx111, operator)
     def self.fsckNx111ExitAtFirstFailure(object, nx111, operator)
         return if nx111.nil?
-        if !Nx111::iamTypes().include?(nx111["type"]) then
-            puts "object has an incorrect iam value type".red
+        if !Nx111::types().include?(nx111["type"]) then
+            puts "object has an incorrect nx111 value type".red
             puts JSON.pretty_generate(object).red
             exit 1
         end
@@ -108,7 +108,7 @@ class FileSystemCheck
             end
             return
         end
-        raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect iam value: #{nx111})"
+        raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
     end
 
     # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)

@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-EditionDesk::pickUpAndGarbageCollection()
+EditionDesk::batchPickUpAndGarbageCollection()

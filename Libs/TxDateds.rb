@@ -29,7 +29,7 @@ class TxDateds
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), uuid)
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
 
         unixtime   = Time.new.to_i
 
@@ -56,7 +56,7 @@ class TxDateds
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), uuid)
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
 
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
@@ -115,98 +115,6 @@ class TxDateds
     # --------------------------------------------------
     # Operations
 
-    # TxDateds::landing(item)
-    def self.landing(item)
-
-        loop {
-
-            system("clear")
-            
-            uuid = item["uuid"]
-
-            puts TxDateds::toString(item).green
-            puts "uuid: #{uuid}".yellow
-            puts "nx111: #{item["nx111"]}"
-            puts "date: #{item["datetime"][0, 10]}".yellow
-
-            store = ItemStore.new()
-
-            notes = Ax1Text::itemsForOwner(uuid)
-            if notes.size > 0 then
-                puts "notes:"
-                notes.each{|note|
-                    indx = store.register(note, false)
-                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-                }
-            end
-
-            puts "access | date | description | iam | note | json | transmute | destroy".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
-                next
-            end
-
-            if Interpreting::match("access", command) then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
-                next
-            end
-
-            if Interpreting::match("date", command) then
-                datetime = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
-                next if datetime.nil?
-                item["datetime"] = datetime
-                Librarian::commit(item)
-                next
-            end
-
-            if Interpreting::match("description", command) then
-                description = CommonUtils::editTextSynchronously(item["description"]).strip
-                next if description == ""
-                item["description"] = description
-                Librarian::commit(item)
-                next
-            end
-
-            if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), item["uuid"])
-                item["nx111"] = nx111
-                Librarian::commit(item)
-            end
-
-            if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
-                puts JSON.pretty_generate(ox)
-                next
-            end
-
-            if Interpreting::match("json", command) then
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxDateds::toString(item)}' ? ", true) then
-                    TxDateds::destroy(item["uuid"])
-                    break
-                end
-                next
-            end
-
-            if command == "transmute" then
-                Transmutation::transmutation2(item, "TxDated")
-                break
-            end
-        }
-    end
-
     # TxDateds::dive()
     def self.dive()
         loop {
@@ -214,7 +122,7 @@ class TxDateds
             items = TxDateds::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxDateds::toString(item) })
             break if item.nil?
-            TxDateds::landing(item)
+            Landing::generic_landing(item)
         }
     end
 

@@ -43,13 +43,13 @@ class UniqueStringsFunctions
         puts "" # To accomodate CommonUtils::putsOnPreviousLine
         Librarian::objects().each{|item|
             CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
-            next if item["iam"].nil?
+            next if item["nx111"].nil?
             nx111 = item["nx111"]
             if nx111["type"] == "aion-point" then
                 rootnhash = nx111["rootnhash"]
                 operator = EnergyGridElizabeth.new()
                 if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
-                    EditionDesk::accessItemNx111Pair(item, nx111)
+                    EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, nx111)
                     return
                 end
             end

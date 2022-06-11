@@ -5,13 +5,18 @@ class Search
 
     # Search::nx20s()
     def self.nx20s()
-        nx20s = NxDataNodes::nx20s() +
-                Anniversaries::nx20s() +
-                TxDateds::nx20s() +
-                TxFloats::nx20s() +
-                NxTimelines::nx20s() +
-                Waves::nx20s()
-                # + TxTodos::nx20s() 
+        nx20s = [
+            Anniversaries::nx20s(),
+            NxCollections::nx20s(),
+            NxDataNodes::nx20s(),
+            NxNavigation::nx20s(),
+            NxPerson::nx20s(),
+            NxTimelines::nx20s(),
+            TxDateds::nx20s(),
+            TxFloats::nx20s(),
+            TxTodos::nx20s(),
+            Waves::nx20s(),
+        ].flatten
 
         nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }
     end

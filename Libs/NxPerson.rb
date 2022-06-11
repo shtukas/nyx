@@ -29,4 +29,18 @@ class NxPerson
     def self.toString(item)
         "(person) #{item["name"]}"
     end
+
+    # ------------------------------------------------
+    # Nx20s
+
+    # NxPerson::nx20s()
+    def self.nx20s()
+        NxTimelines::items().map{|item| 
+            {
+                "announce" => "(#{item["uuid"][0, 4]}) #{NxPerson::toString(item)}",
+                "unixtime" => item["unixtime"],
+                "payload"  => item
+            }
+        }
+    end
 end

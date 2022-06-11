@@ -47,41 +47,41 @@ class EditionDesk
         "#{Config::pathToDataBankStargate()}/EditionDesk"
     end
 
-    # EditionDesk::getMaxIndex()
-    def self.getMaxIndex()
-        locations = LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+    # EditionDesk::getMaxIndex(parentLocation)
+    def self.getMaxIndex(parentLocation)
+        locations = LucilleCore::locationsAtFolder(parentLocation)
         return 1 if locations.empty?
         locations
             .map{|location| File.basename(location).split("|").first.to_i }
             .max
     end
 
-    # EditionDesk::decideEditionLocation(item, nx111)
-    def self.decideEditionLocation(item, nx111)
+    # ----------------------------------------------------
+    # Nx111 elements
+
+    # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+    def self.decideItemNx111PairEditionLocation(parentLocation, item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
         part2and3 = "#{item["uuid"]}|#{nx111["uuid"]}"
-        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+        LucilleCore::locationsAtFolder(parentLocation)
             .each{|location|
                 if File.basename(location).include?(part2and3) then
                     return location
                 end
             }
 
-        index1 = EditionDesk::getMaxIndex() + 1
+        index1 = EditionDesk::getMaxIndex(parentLocation) + 1
         name1 = "#{index1}|#{part2and3}"
 
-        "#{EditionDesk::pathToEditionDesk()}/#{name1}"
+        "#{parentLocation}/#{name1}"
     end
 
-    # ----------------------------------------------------
-    # Read and Write, the basics.
-
-    # EditionDesk::accessItemNx111Pair(item, nx111)
-    def self.accessItemNx111Pair(item, nx111)
+    # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
+    def self.accessItemNx111Pair(parentLocation, item, nx111)
         return if nx111.nil?
         if nx111["type"] == "text" then
-            location = "#{EditionDesk::decideEditionLocation(item, nx111)}.txt"
+            location = "#{EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)}.txt"
             if File.exists?(location) then
                 system("open '#{location}'")
                 return
@@ -101,7 +101,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new() 
             rootnhash = nx111["rootnhash"]
-            exportLocation = EditionDesk::decideEditionLocation(item, nx111)
+            exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopNameRespectDottedExtensionIfThereIsOne(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
             # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
@@ -111,7 +111,7 @@ class EditionDesk
                 system("open '#{exportLocation}'")
                 return
             end
-            AionCore::exportHashAtFolder(operator, rootnhash, EditionDesk::pathToEditionDesk())
+            AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
             puts "Item exported at #{exportLocation}"
             system("open '#{exportLocation}'")
             return
@@ -142,20 +142,39 @@ class EditionDesk
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
     end
 
-    # EditionDesk::updateItemFromDeskLocationOrNothing(location)
-    def self.updateItemFromDeskLocationOrNothing(location)
+    # EditionDesk::locationToItemNx111PairOrNull(location) # null or [item, nx111]
+    # This function takes a location, tries and interpret the location name as a (index, itemuuid, nx111uuid) and return [item, nx111]
+    def self.locationToItemNx111PairOrNull(location)
         filename = File.basename(location)
-        _, itemuuid, nx111uuid = filename.split("|")
-        if nx111uuid.include?(".") then
-            nx111uuid, _ = nx111uuid.split(".")
+
+        _, itemuuid, nx111uuidOnDisk = filename.split("|")
+
+        if nx111uuidOnDisk.include?(".") then
+            nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")
         end
 
         item = Librarian::getObjectByUUIDOrNull(itemuuid)
-        return if item.nil?
-        return if item["nx111"].nil?
+
+        return nil if item.nil?
+        return nil if item["nx111"].nil?
+
         nx111 = item["nx111"].clone
 
-        # At this time we have the item, and we have selected the nx111 that has the same uuid as the location on disk
+        # The below happens when the nx111 has been manually updated (created a new one) 
+        # after the previous edition desk export. In which case we ignore the one 
+        # on disk since it's not relevant anymore.
+        return nil if nx111["uuid"] != nx111uuidOnDisk 
+
+        [item, nx111]
+    end
+
+    # EditionDesk::updateItemFromLocationIfImplementsNx111OrNothing(location)
+    def self.updateItemFromLocationIfImplementsNx111OrNothing(location)
+        
+        elements = EditionDesk::locationToItemNx111PairOrNull(location)
+        return if elements.nil?
+
+        item, nx111 = elements
 
         # puts "EditionDesk: Updating #{File.basename(location)}"
 
@@ -194,8 +213,84 @@ class EditionDesk
         raise "(error: 69fcf4bf-347a-4e5f-91f8-3a97d6077c98): nx111: #{nx111}"
     end
 
-    # EditionDesk::pickUpAndGarbageCollection()
-    def self.pickUpAndGarbageCollection()
+    # ----------------------------------------------------
+    # PrimitiveFiles
+
+    # EditionDesk::decidePrimitiveFileEditionLocation(parentLocation, item, nx111)
+    def self.decidePrimitiveFileEditionLocation(parentLocation, item, nx111)
+        # This function returns the location if there already is one, or otherwise returns a new one.
+        
+        part2 = "#{item["uuid"]}"
+        LucilleCore::locationsAtFolder(parentLocation)
+            .each{|location|
+                if File.basename(location).include?(part2) then
+                    return location
+                end
+            }
+
+        index1 = EditionDesk::getMaxIndex(parentLocation) + 1
+        name1 = "#{index1}|#{part2}"
+
+        "#{parentLocation}/#{name1}"
+    end
+
+    # We currently do not have a pickup of Primitive Files
+
+    # ----------------------------------------------------
+    # Data Carriers ( implementsNx111 or NxPrimitiveFile )
+
+    # EditionDesk::writeNetworkDataCarrier(parentFolder, item)
+    def self.writeNetworkDataCarrier(parentFolder, item)
+        if item["mikuType"] == "NxPrimitiveFile" then
+            PrimitiveFiles::writePrimitiveFile2(parentFolder, item["uuid"], item["dottedExtension"], item["parts"])
+        else
+            EditionDesk::accessItemNx111Pair(parentFolder, item, item["nx111"])
+        end
+    end
+
+    # ----------------------------------------------------
+    # Collections
+
+    # EditionDesk::decideCollectionItemEditionLocation(item)
+    def self.decideCollectionItemEditionLocation(item)
+        # This function returns the location if there already is one, or otherwise returns a new one.
+        
+        part2 = "#{item["uuid"]}"
+        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+            .each{|location|
+                if File.basename(location).include?(part2) then
+                    return location
+                end
+            }
+
+        index1 = EditionDesk::getMaxIndex(EditionDesk::pathToEditionDesk()) + 1
+        name1 = "#{index1}|#{part2}"
+
+        "#{EditionDesk::pathToEditionDesk()}/#{name1}"
+    end
+
+    # EditionDesk::accessCollectionItem(item)
+    def self.accessCollectionItem(item)
+        # The logic here is dirrerent. We create a directory for the collection and put the children inside
+        parentLocation = EditionDesk::decideCollectionItemEditionLocation(item)
+        if !File.exists?(parentLocation) then
+            FileUtils.mkdir(parentLocation)
+        end
+        puts "I am going to write the NyxNetwork::implementsNx111(item) children here: #{parentLocation}"
+        NxArrow::children(item["uuid"])
+            .select{|ix| NyxNetwork::isNetworkDataCarrier(ix) }
+            .each{|ix|
+                EditionDesk::writeNetworkDataCarrier(parentLocation, ix)
+            }
+    end
+
+    # We currently do not have a pickup of Collections
+
+    # ----------------------------------------------------
+    # Operations
+
+    # EditionDesk::batchPickUpAndGarbageCollection()
+    def self.batchPickUpAndGarbageCollection()
         LucilleCore::locationsAtFolder("#{Config::pathToDataBankStargate()}/EditionDesk").each{|location|
 
             issueTx202ForLocation = lambda{|location|
@@ -233,7 +328,7 @@ class EditionDesk
 
             if tx202.nil? then
                 puts "Edition desk updating location: #{File.basename(location)}"
-                EditionDesk::updateItemFromDeskLocationOrNothing(location)
+                EditionDesk::updateItemFromLocationIfImplementsNx111OrNothing(location)
                 issueTx202ForLocation.call(location)
                 next
             end
@@ -249,7 +344,7 @@ class EditionDesk
             end
 
             puts "Edition desk updating location: #{File.basename(location)}"
-            EditionDesk::updateItemFromDeskLocationOrNothing(location)
+            EditionDesk::updateItemFromLocationIfImplementsNx111OrNothing(location)
 
             # And we make a new one with updated unixtime and updated trace
             issueTx202ForLocation.call(location)

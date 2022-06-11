@@ -64,7 +64,7 @@ class TxPlus
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), uuid)
+        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
         nx15  = Nx15::interactivelyCreateNew()
 
         unixtime    = Time.new.to_i
@@ -143,115 +143,6 @@ class TxPlus
         end
     end
 
-    # TxPlus::landing(item)
-    def self.landing(item)
-
-        loop {
-
-            system("clear")
-
-            uuid = item["uuid"]
-
-            store = ItemStore.new()
-
-            puts "#{TxPlus::toString(item)}#{NxBallsService::activityStringOrEmptyString(" (", uuid, ")")}".green
-            puts "uuid: #{uuid}".yellow
-            puts "nx111: #{item["nx111"]}"
-            puts "nx15: #{item["nx15"]}"
-            puts "DoNotDisplayUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])}".yellow
-            puts "rt: #{BankExtended::stdRecoveredDailyTimeInHours(uuid)}".yellow
-
-            notes = Ax1Text::itemsForOwner(uuid)
-            if notes.size > 0 then
-                puts "notes:"
-                notes.each{|note|
-                    indx = store.register(note, false)
-                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-                }
-            end
-
-            puts "access | start | <datecode> | description | iam | nx15 | transmute | note | json | >nyx | destroy".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
-            end
-
-            if (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                DoNotShowUntil::setUnixtime(uuid, unixtime)
-                break
-            end
-
-            if Interpreting::match("access", command) then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
-                next
-            end
-
-            if Interpreting::match("start", command) then
-                if !NxBallsService::isRunning(item["uuid"]) then
-                    NxBallsService::issue(item["uuid"], item["description"], [item["uuid"]])
-                end
-                next
-            end
-
-            if Interpreting::match("description", command) then
-                description = CommonUtils::editTextSynchronously(item["description"]).strip
-                next if description == ""
-                item["description"] = description
-                Librarian::commit(item)
-                next
-            end
-
-            if Interpreting::match("iam", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::iamTypes(), item["uuid"])
-                item["nx111"] = nx111
-                Librarian::commit(item)
-            end
-
-            if Interpreting::match("nx15", command) then
-                item["nx15"] = Nx15::interactivelyCreateNew()
-                Librarian::commit(item)
-            end
-
-            if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
-                puts JSON.pretty_generate(ox)
-                next
-            end
-
-            if Interpreting::match("transmute", command) then
-                Transmutation::transmutation2(item, "TxPlus")
-                break
-            end
-
-            if Interpreting::match("json", command) then
-                puts JSON.pretty_generate(item)
-                LucilleCore::pressEnterToContinue()
-                next
-            end
-
-            if command == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{TxPlus::toString(item)}' ? ", true) then
-                    NxBallsService::close(item["uuid"], true)
-                    TxPlus::destroy(item["uuid"])
-                    break
-                end
-                next
-            end
-
-            if command == ">nyx" then
-                i2 = Transmutation::interactivelyNx50ToNyx(item)
-                LxAction::action("landing", i2)
-                break
-            end
-        }
-    end
-
     # TxPlus::dive()
     def self.dive()
         loop {
@@ -259,7 +150,7 @@ class TxPlus
             items = TxPlus::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("plus", items, lambda{|item| TxPlus::toString(item) })
             break if item.nil?
-            TxPlus::landing(item)
+            Landing::generic_landing(item)
         }
     end
 

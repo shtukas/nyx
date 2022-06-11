@@ -88,38 +88,23 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "Wave" then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
+            if NyxNetwork::implementsNx111(item) then
+                EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
                 return
             end
 
-            if item["mikuType"] == "TxDated" then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
+            if item["mikuType"] == "NxPrimitiveFile" then
+                puts "Not implemented yet (4dde0cd7-0650-4772-9403-5b3862698089)"
                 return
             end
 
-            if item["mikuType"] == "TxFloat" then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
-                return
-            end
-
-            if item["mikuType"] == "TxPlus" then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
-                return
-            end
-
-            if item["mikuType"] == "TxTodo" then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
+            if NyxNetwork::isNetworkAggregation(item) then
+                EditionDesk::accessCollectionItem(item)
                 return
             end
 
             if item["mikuType"] == "TxZoneItem" then
                 Zone::access(item)
-                return
-            end
-
-            if item["mikuType"] == "Wave" then
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
             end
         end
@@ -223,51 +208,19 @@ class LxAction
                 Ax1Text::landing(item)
                 return
             end
-
+ 
             if item["mikuType"] == "Anniversary" then
                 Anniversaries::landing(item)
                 return
             end
-
+ 
             if item["mikuType"] == "fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
             end
 
-            if item["mikuType"] == "NxTimeline" then
-                NxTimelines::landing(item)
-                return
-            end
-
-            if item["mikuType"] == "NxDataNode" then
-                NxDataNodes::landing(item)
-                return
-            end
-
-            if item["mikuType"] == "TxPlus" then
-                TxPlus::landing(item)
-                return
-            end
-
-            if item["mikuType"] == "TxDated" then
-                TxDateds::landing(item)
-                return
-            end
-
-            if item["mikuType"] == "TxFloat" then
-                TxFloats::landing(item)
-                return
-            end
-
-            if item["mikuType"] == "TxTodo" then
-                TxTodos::landing(item)
-                return
-            end
-
-            if item["mikuType"] == "Wave" then
-                Waves::landing(item)
-                return
-            end
+            Landing::generic_landing(item)
+            return
         end
 
         if command == "nyx" then

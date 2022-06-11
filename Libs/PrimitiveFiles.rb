@@ -3,6 +3,9 @@
 
 class PrimitiveFiles
 
+    # -------------------------------------------------
+    # Read
+
     # PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, operator)
     def self.commitFileReturnPartsHashsImproved(filepath, operator)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
@@ -17,9 +20,6 @@ class PrimitiveFiles
         hashes
     end
 
-    # -------------------------------------------------
-    # Import
-
     # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]
     def self.locationToPrimitiveFileDataArrayOrNull(filepath)
         return nil if !File.exists?(filepath)
@@ -31,27 +31,11 @@ class PrimitiveFiles
     end
 
     # -------------------------------------------------
-    # Export
+    # Write
 
-    # PrimitiveFiles::exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, itemuuid, dottedExtension, parts) # targetFilepath
-    def self.exportPrimitiveFileAtFolderSimpleCase(exportFolderpath, itemuuid, dottedExtension, parts)
-        targetFilepath = "#{exportFolderpath}/#{itemuuid}#{dottedExtension}"
-        File.open(targetFilepath, "w"){|f|  
-            parts.each{|nhash|
-                blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
-                raise "(error: c3e18110-2d9a-42e6-9199-6f8564cf96d2)" if blob.nil?
-                f.write(blob)
-            }
-        }
-        targetFilepath
-    end
-
-    # PrimitiveFiles::writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111) # Often the nx111 is the nx111 of the item
-    def self.writePrimitiveFileAtEditionDeskReturnFilepath(item, nx111)
-        dottedExtension = nx111["dottedExtension"]
-        nhash = nx111["nhash"]
-        parts = nx111["parts"]
-        filepath = "#{EditionDesk::decideEditionLocation(item, nx111)}#{dottedExtension}"
+    # PrimitiveFiles::writePrimitiveFile2(parentLocation, basefilename, dottedExtension, parts) # filepat
+    def self.writePrimitiveFile2(parentLocation, basefilename, dottedExtension, parts)
+        filepath = "#{parentLocation}/#{basefilename}.#{dottedExtension}"
         File.open(filepath, "w"){|f|  
             parts.each{|nhash|
                 blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
@@ -61,21 +45,4 @@ class PrimitiveFiles
         }
         filepath
     end
-
-    # PrimitiveFiles::writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(item, dirname, nx111) # Often the nx111 is the nx111 of the item
-    def self.writePrimitiveFileAtEditionDeskCarrierFolderReturnFilepath(item, dirname, nx111)
-        dottedExtension = nx111["dottedExtension"]
-        nhash = nx111["nhash"]
-        parts = nx111["parts"]
-        filepath = "#{EditionDesk::pathToEditionDesk()}/#{dirname}/#{item["uuid"]}#{dottedExtension}"
-        File.open(filepath, "w"){|f|  
-            parts.each{|nhash|
-                blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
-                raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
-                f.write(blob)
-            }
-        }
-        filepath
-    end
-
 end

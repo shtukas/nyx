@@ -47,7 +47,7 @@ class Streaming
                 item["mikuType"] = "NxDataNode"
                 item["nx111"] = item["nx111"]
                 Librarian::commit(item)
-                NxDataNodes::landing(item)
+                LxAction::action("landing", item)
                 Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1) # The item has not been destroyed, it's just not a TxTodo anymore
                 return nil
             end
