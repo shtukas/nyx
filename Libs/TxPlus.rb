@@ -25,6 +25,16 @@ class Nx15
         end
     end
 
+    # Nx15::toString(nx15)
+    def self.toString(nx15)
+        if nx15["type"] == "time-commitment" then
+            return "time: #{nx15["value"]}"
+        end
+        if nx15["type"] == "until-done-for-the-day" then
+            return "until done"
+        end
+    end
+
 end
 
 class TxPlus
@@ -79,7 +89,7 @@ class TxPlus
     # TxPlus::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(plus) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)}) (#{item["nx15"]})"
+        "(plus) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)}) (#{Nx15::toString(item["nx15"])})"
     end
 
     # TxPlus::toStringForSearch(item)

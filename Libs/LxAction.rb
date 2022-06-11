@@ -48,7 +48,7 @@ class LxAction
             end
 
             if item["mikuType"] == "Wave" then
-                if LucilleCore::askQuestionAnswerAsBoolean("done ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' done ? ", true) then
                     Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
                 end
