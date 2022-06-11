@@ -128,7 +128,7 @@ class Catalyst
             section2 = Catalyst::itemsForListing()
 
             # section1 : running items
-            # section2 : standard display
+            # section2 : standard display (including rotation)
             # section3 : overflowing pluses and todos
             # section4 : invisible (not including waves)
 
@@ -147,6 +147,19 @@ class Catalyst
                                             false
                                         }).call(item)
                                     }
+
+            rotationOrNull = lambda {|item|
+                value = XCache::getOrNull("ac558cd9-db1f-41f6-b176-999abbd808ae:#{item["uuid"]}")
+                return nil if value.nil?
+                value = value.to_f
+                return value if (Time.new.to_i - value) < 3600*2 # two hours
+            }
+
+            section2p1, section2p2 = section2.partition{|item| rotationOrNull.call(item).nil? }
+
+            section2p2 = section2p2.sort{|i1, i2| rotationOrNull.call(i1) <=> rotationOrNull.call(i2) }
+
+            section2 = section2p1 + section2p2
 
             Catalyst::printListing(floats, section1, section2, section3, section4)
         }

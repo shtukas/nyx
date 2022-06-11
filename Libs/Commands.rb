@@ -49,6 +49,13 @@ class Commands
             return [">nyx", store.getDefault()]
         end
 
+        if Interpreting::match(">>", input) then
+            item = store.getDefault()
+            return [nil, nil] if item.nil?
+            XCache::set("ac558cd9-db1f-41f6-b176-999abbd808ae:#{item["uuid"]}", Time.new.to_f)
+            return [nil, nil]
+        end
+
         if Interpreting::match("access", input) then
             return ["access", store.getDefault()]
         end
