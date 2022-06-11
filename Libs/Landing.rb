@@ -3,77 +3,6 @@
 
 class Landing
 
-    # Landing::diveCircle(item)
-    def self.diveCircle(item)
-
-        loop {
-            system("clear")
-
-            puts LxFunction::function("toString", item)
-
-            store = ItemStore.new()
-
-            parents = NxArrow::parents(item["uuid"])
-            puts ""
-            if parents.size > 0 then
-                puts "parents:"
-                parents
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    .each{|entity| 
-                        indx = store.register(entity, false)
-                        puts "    [#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
-                    }
-            else
-                puts "parents (not found)"
-            end
-
-            related = NxRelation::related(item["uuid"])
-            puts ""
-            if related.size > 0 then
-                puts "related:"
-                related
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    .each{|entity| 
-                        indx = store.register(entity, false)
-                        puts "    [#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
-                    }
-            else
-                puts "related (not found)"
-            end
-
-            children = NxArrow::children(item["uuid"])
-            puts ""
-            if children.size > 0 then
-                puts "children:"
-                children
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    .each{|entity| 
-                        indx = store.register(entity, false)
-                        puts "    [#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
-                    }
-            else
-                puts "children (not found)"
-            end
-
-            puts ""
-            puts "commands: <n> | exit".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
-            end
-
-            if command == "exit" then
-                break
-            end
-        }
-    end
-
     # Landing::networkAggregationNodeLanding(item)
     def self.networkAggregationNodeLanding(item)
         loop {
@@ -90,16 +19,33 @@ class Landing
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
 
-            notes = Ax1Text::itemsForOwner(uuid)
-            if notes.size > 0 then
-                puts "notes:"
-                notes.each{|note|
-                    indx = store.register(note, false)
-                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-                }
-            end
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
+            }
 
-            puts "commands: dump | <n> | description | datetime | iam | note |  circle | json | destroy".yellow
+            NxArrow::parents(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
+                }
+
+            NxRelation::related(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
+                }
+
+            NxArrow::children(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
+                }
+
+            puts "commands: dump | <n> | description | datetime | iam | note | json | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -141,10 +87,6 @@ class Landing
                 next
             end
 
-            if Interpreting::match("circle", command) then
-                Landing::diveCircle(item)
-            end
-
             if Interpreting::match("json", command) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
@@ -176,16 +118,33 @@ class Landing
             puts "datetime: #{item["datetime"]}".yellow
             puts "nx111: #{item["nx111"]}".yellow
 
-            notes = Ax1Text::itemsForOwner(uuid)
-            if notes.size > 0 then
-                puts "notes:"
-                notes.each{|note|
-                    indx = store.register(note, false)
-                    puts "    [#{indx.to_s.ljust(3)}] #{Ax1Text::toString(note)}" 
-                }
-            end
+            Ax1Text::itemsForOwner(uuid).each{|note|
+                indx = store.register(note, false)
+                puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
+            }
 
-            puts "commands: access | <n> | description | datetime | nx111 | iam | note | circle | json | destroy".yellow
+            NxArrow::parents(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
+                }
+
+            NxRelation::related(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
+                }
+
+            NxArrow::children(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entity| 
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
+                }
+
+            puts "commands: access | <n> | description | datetime | nx111 | iam | note | json | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -232,10 +191,6 @@ class Landing
                 ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
-            end
-
-            if Interpreting::match("circle", command) then
-                Landing::diveCircle(item)
             end
 
             if Interpreting::match("json", command) then
