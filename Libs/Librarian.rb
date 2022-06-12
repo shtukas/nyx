@@ -162,7 +162,7 @@ class Librarian
         end
 
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
-        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
         db.close
     end
 end
