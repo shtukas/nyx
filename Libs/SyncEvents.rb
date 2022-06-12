@@ -52,7 +52,7 @@ end
 
 class SyncEventSpecific
     # SyncEventSpecific::sendObjectUpdateEvent(object, machineName)
-    def self.sendObjectUpdateEvent(object)
+    def self.sendObjectUpdateEvent(object, machineName)
         event = {
             "type"    => "new-object",
             "payload" => object
