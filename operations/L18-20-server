@@ -7,10 +7,6 @@ require_relative "../Libs/loader.rb"
 
 class ScoreService
 
-  def getWaves()
-    Waves::items()
-  end
-
   def eventForServer(event)
     puts "incoming event:"
     puts JSON.pretty_generate(event)
