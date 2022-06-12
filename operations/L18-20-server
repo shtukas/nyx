@@ -1,0 +1,13 @@
+#!/usr/bin/ruby
+
+require 'drb/drb'
+require 'thread'
+
+class ScoreService
+  def hello
+    "Hello world"
+  end 
+end
+
+DRb.start_service("druby://:9876", ScoreService.new())
+DRb.thread.join
