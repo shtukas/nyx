@@ -89,8 +89,12 @@ end
 
 class SyncServerService
 
+  def initialize(verbose)
+    @verbose = verbose
+  end
+
   def eventForServer(event)
-    if verbose then
+    if @verbose then
         puts "incoming event:"
         puts JSON.pretty_generate(event)
     end
@@ -100,7 +104,7 @@ class SyncServerService
   def getEventForClientOrNull()
     event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:Lucille18")
     return if event.nil?
-    if verbose then
+    if @verbose then
         puts "outgoing event:"
         puts JSON.pretty_generate(event)
     end
@@ -150,7 +154,7 @@ class SyncOperators
     # SyncOperators::serverRun(verbose)
     def self.serverRun(verbose)
         puts "Starting server"
-        DRb.start_service("druby://192.168.0.3:9876", SyncServerService.new())
+        DRb.start_service("druby://192.168.0.3:9876", SyncServerService.new(verbose))
         DRb.thread.join
     end
 end
