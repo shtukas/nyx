@@ -32,7 +32,7 @@ class Machines
     end
 
     # Machines::theOtherMachineIP()
-    def self.self.theOtherMachineIP()
+    def self.theOtherMachineIP()
         Machines::ip_map()[Machines::theOtherMachine()]
     end
 end

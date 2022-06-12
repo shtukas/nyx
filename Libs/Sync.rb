@@ -24,6 +24,9 @@ class SyncEventsBase
                 return
             end
 
+            operator = CompositeElizabeth.new(EnergyGridElizabeth.new(), [TheOtherMachineElizabeth.new()])
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(remoteItem, operator)
+
             localItem = Librarian::getObjectByUUIDOrNull(remoteItem["uuid"])
 
             if localItem.nil? then
@@ -102,6 +105,49 @@ class SyncServerService
   def getBlobOrNull(nhash)
     EnergyGridDatablobs::getBlobOrNull(nhash)
   end
+end
+
+class TheOtherMachineElizabeth
+
+    def commitBlob(blob)
+        raise "(error: DB18899C-2D5C-4A88-B01B-01A8D28F574E)"
+    end
+
+    def filepathToContentHash(filepath)
+        raise "(error: 15167BF3-5496-46BA-B128-D63363FAEE15)"
+    end
+
+    def getBlobOrNull(nhash)
+        begin
+            ip = Machines::theOtherMachineIP()
+            blob = DRbObject.new(nil, "druby://#{ip}:9876").getBlobOrNull(nhash)
+            if blob then
+                EnergyGridDatablobs::putBlob(blob)
+            end
+            return blob
+        rescue
+        end
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "(error: 2A5982F1-6809-42E8-A0CA-B238C5ADAD1A) could not find blob, nhash: #{nhash}"
+        raise "(error: 57FE180A-1514-4B61-BDC9-4731666F5DD6, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: F4C1F4E3-7DF6-480B-8E41-2E721316ED41) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
 end
 
 class SyncOperators
