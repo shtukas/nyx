@@ -172,6 +172,7 @@ class TxTodos
         end
 
         XCacheSets::values(TxTodos::cacheLocation())
+            .select{|item| !Librarian::getObjectByUUIDOrNull(item["uuid"]).nil? }
     end
 
     # --------------------------------------------------
