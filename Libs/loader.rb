@@ -151,6 +151,8 @@ require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
 require_relative "Landing.rb"
 
+require_relative "Machines.rb"
+
 require_relative "NxDataNodes.rb"
 require_relative "Nx102Flavors.rb"
 require_relative "Nx111.rb"
@@ -170,6 +172,7 @@ require_relative "ProgrammableBooleans.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Streaming.rb"
+require_relative "SyncEvents.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxFloats.rb"
