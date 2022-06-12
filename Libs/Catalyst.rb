@@ -22,15 +22,17 @@ class Catalyst
 
         vspaceleft = CommonUtils::screenHeight()-3
 
-        reference = The99Percent::getReference()
-        current   = The99Percent::getCurrentCount()
-        ratio     = current.to_f/reference["count"]
-        puts ""
-        puts "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-        vspaceleft = vspaceleft - 2
-        if ratio < 0.99 then
-            The99Percent::issueNewReference()
-            return
+        if Machines::isLucille20() then
+            reference = The99Percent::getReference()
+            current   = The99Percent::getCurrentCount()
+            ratio     = current.to_f/reference["count"]
+            puts ""
+            puts "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+            vspaceleft = vspaceleft - 2
+            if ratio < 0.99 then
+                The99Percent::issueNewReference()
+                return
+            end
         end
 
         store = ItemStore.new()
