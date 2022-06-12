@@ -206,7 +206,9 @@ class Landing
                 nx111.to_s
             }
 
-            puts "nx111: #{nx111toLandingString.call(item["nx111"].clone)}".yellow
+            if item["nx111"] then
+                puts "nx111: #{nx111toLandingString.call(item["nx111"].clone)}".yellow
+            end
 
             Ax1Text::itemsForOwner(uuid).each{|note|
                 indx = store.register(note, false)
