@@ -17,9 +17,8 @@ class DoNotShowUntil
         db.execute "insert into table1 (_key_, _value_) values (?,?)", [uid, unixtime]
         db.commit 
         db.close
+        SyncEventSpecific::postDoNotShowUntil(uid, unixtime, Machines::theOtherMachine())
         nil
-
-        SyncEventSpecific::postDoNotShowUntil(uuid, unixtime, Machines::theOtherMachine())
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uid)
