@@ -125,12 +125,12 @@ class TheOtherMachineElizabeth
     def getBlobOrNull(nhash)
         begin
             ip = Machines::theOtherMachineIP()
-            puts "downloading blob: #{nhash}"
+            puts "(downloading blob from other) #{nhash}"
             blob = DRbObject.new(nil, "druby://#{ip}:9876").getBlobOrNull(nhash)
             return blob if blob
-            nil
         rescue
         end
+        nil
     end
 
     def readBlobErrorIfNotFound(nhash)
