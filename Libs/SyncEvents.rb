@@ -46,7 +46,14 @@ class SyncEventsBase
             exit
         end
 
-        raise "(error: )"
+        if event["type"] == "do-not-show-until" then
+            uuid = event["uuid"]
+            targetUnixtime = event["targetUnixtime"]
+            DoNotShowUntil::setUnixtime(uuid, targetUnixtime)
+            return
+        end
+
+        raise "(error: b48c1418-607d-4bd7-99d0-12e1af14ce25) event: #{event}"
     end
 end
 
