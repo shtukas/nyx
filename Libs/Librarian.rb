@@ -86,7 +86,7 @@ class Librarian
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
 
-        SyncEventSpecific::sendObjectUpdateEvent(object, Machines::theOtherMachine())
+        SyncEventSpecific::postObjectUpdateEvent(object, Machines::theOtherMachine())
     end
 
     # Librarian::commitWithoutUpdates(object)
@@ -104,7 +104,7 @@ class Librarian
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
 
-        SyncEventSpecific::sendObjectUpdateEvent(object, Machines::theOtherMachine())
+        SyncEventSpecific::postObjectUpdateEvent(object, Machines::theOtherMachine())
     end
 
     # Librarian::objectIsAboutToBeDeleted(object)
@@ -133,6 +133,6 @@ class Librarian
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
 
-        SyncEventSpecific::sendObjectUpdateEvent(object, Machines::theOtherMachine())
+        SyncEventSpecific::postObjectUpdateEvent(object, Machines::theOtherMachine())
     end
 end

@@ -19,6 +19,8 @@ class DoNotShowUntil
         db.commit 
         db.close
         nil
+
+        SyncEventSpecific::postDoNotShowUntil(uuid, unixtime, Machines::theOtherMachine())
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uid)
