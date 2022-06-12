@@ -17,14 +17,12 @@ class SyncEventsBase
 
             remoteItem = event["payload"]
 
-            puts "FileSystemCheck:"
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(remoteItem, EnergyGridElizabeth.new())
-
             if remoteItem["mikuType"] == "NxDeleted" then
                 Librarian::destroyByNxDeletedEmitNoEvent(remoteItem["uuid"])
                 return
             end
 
+            puts "FileSystemCheck:"
             operator = CompositeElizabeth.new(EnergyGridElizabeth.new(), [TheOtherMachineElizabeth.new()])
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(remoteItem, operator)
 
