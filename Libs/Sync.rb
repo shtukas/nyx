@@ -123,7 +123,7 @@ class TheOtherMachineElizabeth
     def getBlobOrNull(nhash)
         begin
             ip = Machines::theOtherMachineIP()
-            puts "(downloading blob from other) #{nhash}"
+            puts "(TheOtherMachineElizabeth downloading blob from #{Machines::theOtherMachine()}) #{nhash}"
             blob = DRbObject.new(nil, "druby://#{ip}:9876").getBlobOrNull(nhash)
             return blob if blob
         rescue
@@ -134,7 +134,7 @@ class TheOtherMachineElizabeth
     def readBlobErrorIfNotFound(nhash)
         blob = getBlobOrNull(nhash)
         return blob if blob
-        puts "(error: 2A5982F1-6809-42E8-A0CA-B238C5ADAD1A) could not find blob, nhash: #{nhash}"
+        puts "TheOtherMachineElizabeth (error: 2A5982F1-6809-42E8-A0CA-B238C5ADAD1A) could not find blob, nhash: #{nhash}"
         raise "(error: 57FE180A-1514-4B61-BDC9-4731666F5DD6, nhash: #{nhash})" if blob.nil?
     end
 

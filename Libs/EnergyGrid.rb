@@ -51,7 +51,7 @@ class EnergyGridElizabeth
     def readBlobErrorIfNotFound(nhash)
         blob = getBlobOrNull(nhash)
         return blob if blob
-        puts "(error: a02556b0-1852-4dbb-8048-9a3f5b75c3cd) could not find blob, nhash: #{nhash}"
+        puts "EnergyGridElizabeth: (error: a02556b0-1852-4dbb-8048-9a3f5b75c3cd) could not find blob, nhash: #{nhash}"
         raise "(error: 290d45ea-4d54-40f1-9da5-4d6be6e2a8a2, nhash: #{nhash})" if blob.nil?
     end
 
