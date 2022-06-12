@@ -17,4 +17,9 @@ class Genealogy
         b2 = (first["lxHistory"].size < second["lxHistory"].size)
         b1 and b2
     end
+
+    # Genealogy::areEquivalent(first, second)
+    def self.areEquivalent(first, second)
+        Genealogy::array1IsSubarrayOfArray2(first["lxHistory"], second["lxHistory"]) and Genealogy::array1IsSubarrayOfArray2(second["lxHistory"], first["lxHistory"])
+    end
 end

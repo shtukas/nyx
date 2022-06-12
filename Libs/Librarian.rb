@@ -103,8 +103,8 @@ class Librarian
         db.close
     end
 
-    # Librarian::objectIsAboutToBeDestroyed(object)
-    def self.objectIsAboutToBeDestroyed(object)
+    # Librarian::objectIsAboutToBeDeleted(object)
+    def self.objectIsAboutToBeDeleted(object)
 
         # If that object was in the TxTodo cache, we delete it.
         if object["mikyType"] == "TxTodo" then
@@ -115,13 +115,18 @@ class Librarian
     # Librarian::destroy(uuid)
     def self.destroy(uuid)
         if object = Librarian::getObjectByUUIDOrNull(uuid) then
-            Librarian::objectIsAboutToBeDestroyed(object)
+            Librarian::objectIsAboutToBeDeleted(object)
         end
 
+        object = {
+            "uuid"     => uuid,
+            "mikuType" => "NxDeleted",
+            "unixtime" => Time.new.to_i,
+            "datetime" => Time.new.utc.iso8601,
+        }
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
     end
 end

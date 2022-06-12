@@ -1,4 +1,37 @@
 #!/usr/bin/ruby
 
+require_relative "../Libs/loader.rb"
+
 require 'drb/drb'
-puts DRbObject.new(nil, "druby://:9876").hello()
+
+DRbObject.new(nil, "druby://192.168.0.3:9876").getWaves().each{|remoteItem|
+
+    localItem = Librarian::getObjectByUUIDOrNull(remoteItem["uuid"])
+
+    if localItem.nil? then
+        #puts "Adding new item from Lucille20"
+        #puts JSON.pretty_generate(remoteItem)
+        Librarian::commitWithoutUpdates(remoteItem)
+        next
+    end
+
+    if  Genealogy::areEquivalent(localItem, remoteItem) then
+        next
+    end
+
+    if Genealogy::firstIsStrictAncestorOfSecond(remoteItem, localItem) then
+        # The local version localItem, is newer
+        next
+    end
+
+    if Genealogy::firstIsStrictAncestorOfSecond(localItem, remoteItem) then
+        puts JSON.pretty_generate(remoteItem)
+        Librarian::commitWithoutUpdates(remoteItem)
+        next
+    end
+
+    # By now we have a conflict
+    puts JSON.pretty_generate(localItem).green
+    puts JSON.pretty_generate(remoteItem).red
+    exit
+}

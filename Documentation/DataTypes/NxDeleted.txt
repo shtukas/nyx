@@ -1,0 +1,9 @@
+
+NxDeleted represents a deleted object. Was introduced when we made the first Lucille18/20 sync.
+
+NxDeleted {
+    "uuid"        : uuid,
+    "mikuType"    : "NxDeleted"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+}
