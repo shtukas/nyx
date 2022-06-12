@@ -14,7 +14,13 @@ class SyncEventsBase
         puts JSON.pretty_generate(event)
 
         if event["type"] == "new-object" then
+
             remoteItem = event["payload"]
+
+            if remoteItem["mikuType"] == "NxDeleted" then
+                Librarian::commitWithoutUpdates(remoteItem)
+                return
+            end
 
             localItem = Librarian::getObjectByUUIDOrNull(remoteItem["uuid"])
 
