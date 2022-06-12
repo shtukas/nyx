@@ -136,8 +136,8 @@ class EditionDesk
     def self.accessItemNx111Pair(parentLocation, item, nx111)
         return if nx111.nil?
         location = EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, item, nx111)
-        return if location # something wasn't right or it was a url that is already open
-        system ("open '#{location}'")
+        return if location.nil? # something wasn't right or it was a url that is already open
+        system("open '#{location}'")
     end
 
     # ----------------------------------------------------
@@ -264,6 +264,7 @@ class EditionDesk
             FileUtils.mkdir(parentLocation)
         end
         puts "I am going to write the Iam::implementsNx111(collectionitem) children here: #{parentLocation}"
+        puts "This is a read only export (!)"
         items
             .select{|ix| Iam::implementsNx111(ix) }
             .each{|ix|
@@ -271,27 +272,6 @@ class EditionDesk
                 EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, ix, ix["nx111"])
             }
         system("open '#{parentLocation}'")
-    end
-
-    # ----------------------------------------------------
-    # Collections (pickup)
-
-    # EditionDesk::locationToCollectionItemOrNull(location)
-    def self.locationToCollectionItemOrNull(location)
-        filename = File.basename(location)
-        indx, itemuuid, label = filename.split("|")
-        return nil if itemuuid.nil?
-        item = Librarian::getObjectByUUIDOrNull(itemuuid)
-        return nil if item.nil?
-        return nil if Iam::isNetworkAggregation(item)
-        item
-    end
-
-    # EditionDesk::locationToOptionalUpdateItem_CollectionCase(location)
-    def self.locationToOptionalUpdateItem_CollectionCase(location)
-        item = locationToCollectionItemOrNull(location)
-        return if item.nil?
-        puts "picking up inner items for aggregation #{item}, at location #{location}"
     end
 
     # ----------------------------------------------------

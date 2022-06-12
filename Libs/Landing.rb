@@ -234,7 +234,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: iam | access | <n> | description | datetime | nx111 | note | json | add | remove | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | add | remove | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
