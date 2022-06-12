@@ -123,6 +123,8 @@ class Catalyst
                 break
             end
 
+            SyncOperators::clientRunOnce(true)
+
             floats = TxFloats::itemsForListing()
 
             section2 = Catalyst::itemsForListing()

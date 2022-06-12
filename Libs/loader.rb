@@ -35,6 +35,8 @@ require 'thread'
 
 require 'colorize'
 
+require 'drb/drb'
+
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
