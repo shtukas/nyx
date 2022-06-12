@@ -97,7 +97,7 @@ class SyncServerService
   def initialize(verbose)
     @verbose = verbose
   end
-  
+
   def getEventForClientOrNull()
     event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:#{Machines::theOtherMachine()}")
     return if event.nil?
@@ -181,7 +181,7 @@ class SyncOperators
     def self.serverRun(verbose)
         ip = Machines::thisMachineIP()
         puts "Starting server @ ip: #{ip}"
-        DRb.start_service("druby://#{ip}:9876", SyncServerService.new())
+        DRb.start_service("druby://#{ip}:9876", SyncServerService.new(verbose))
         DRb.thread.join
     end
 end
