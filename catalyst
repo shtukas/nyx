@@ -13,4 +13,10 @@ Thread.new {
     }
 }
 
+if Machines::isLucille20() then
+    Thread.new {
+        SyncOperators::serverRun(false)
+    }
+end
+
 Catalyst::program2()
