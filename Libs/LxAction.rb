@@ -156,7 +156,7 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxZoneItem" then
-                Zone::destroy(item)
+                Zone::destroy(item["uuid"])
                 return
             end
             if item["mikuType"] == "Wave" then

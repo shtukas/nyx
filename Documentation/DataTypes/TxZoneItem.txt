@@ -1,0 +1,8 @@
+TxZoneItem
+
+{
+    "uuid"         : String
+    "mikuType"     : "TxZoneItem"
+    "unixtime"     : Float
+    "description"  : String
+}

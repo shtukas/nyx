@@ -1,26 +1,17 @@
 
 # encoding: UTF-8
 
-=begin
-{
-    "uuid"         : String
-    "mikuType"     : "TxZoneItem"
-    "unixtime"     : Float
-    "description"  : String
-}
-=end
-
-class Zone # Zone is entirely contained in XCache, for extra fun
+class Zone
 
     # Zone::items()
     def self.items()
-        XCacheSets::values("5cd02e58-fcc5-482a-9549-9bc812f9d59b")
+        Librarian::getObjectsByMikuType("TxZoneItem")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
-    # Zone::destroy(item)
-    def self.destroy(item)
-        XCacheSets::destroy("5cd02e58-fcc5-482a-9549-9bc812f9d59b", item["uuid"])
+    # Zone::destroy(uuid)
+    def self.destroy(uuid)
+        Librarian::destroy(uuid)
     end
 
     # Zone::toString(item)
@@ -30,17 +21,15 @@ class Zone # Zone is entirely contained in XCache, for extra fun
 
     # Zone::issueNew(line)
     def self.issueNew(line)
-
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
-
         item = {
           "uuid"         => uuid,
           "mikuType"     => "TxZoneItem",
           "unixtime"     => unixtime,
           "description"  => line
         }
-        XCacheSets::set("5cd02e58-fcc5-482a-9549-9bc812f9d59b", uuid, item)
+        Librarian::commit(item)
         item
     end
 
@@ -48,7 +37,7 @@ class Zone # Zone is entirely contained in XCache, for extra fun
     def self.access(item)
         puts item["description"].green
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
-            XCacheSets::destroy("5cd02e58-fcc5-482a-9549-9bc812f9d59b", item["uuid"])
+            Zone::destroy(item["uuid"])
             NxBallsService::close(item["uuid"], true)
         end
     end
