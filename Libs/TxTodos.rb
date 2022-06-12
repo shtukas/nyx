@@ -99,7 +99,6 @@ class TxTodos
         if NxBallsService::isRunning(uuid) then
              NxBallsService::close(uuid, true)
         end
-        XCacheSets::destroy(TxTodos::cacheLocation(), uuid)
         item = Librarian::getObjectByUUIDOrNull(uuid)
         return if item.nil?
         if shouldForce then
@@ -114,25 +113,14 @@ class TxTodos
 
     # --------------------------------------------------
 
-    # TxTodos::cacheLocation()
-    def self.cacheLocation()
-        "DC68E964-0012-4CAB-AC9F-563BA7180808:#{CommonUtils::today()}"
-    end
-
-    # TxTodos::updateCache()
-    def self.updateCache()
+    # TxTodos::plusGeneration2()
+    def self.plusGeneration2()
 
         # We add as many items to require in total at most 12 hours of focus a day (between TxPlus and TxTodo)
 
-        idealCount    = [12 - TxPlus::totalTimeCommitment(), 0].max
-        existingCount = XCacheSets::values(TxTodos::cacheLocation()).count
-        missingCount  = [idealCount - existingCount, 0].max
+        count = [10 - TxPlus::totalTimeCommitment(), 0].max
 
-        puts "idealCount    = #{idealCount}"
-        puts "existingCount = #{existingCount}"
-        puts "missingCount  = #{missingCount}"
-
-        return if missingCount == 0
+        return if count == 0
 
         items1 = TxTodos::items().reduce([]){|selection, item|
             if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (missingCount/3)+1 then
@@ -159,20 +147,18 @@ class TxTodos
         }
 
         (items1+items2+items3).each{|item|
-            XCacheSets::set(TxTodos::cacheLocation(), item["uuid"], item)
+            item["mikuType"] = "TxPlus"
+            Librarian::commit(iten)
         }
     end
 
-    # TxTodos::itemsForListing()
-    def self.itemsForListing()
+    # TxTodos::plusGeneration3()
+    def self.plusGeneration3()
         if !XCache::getFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e31594834610:#{CommonUtils::today()}") then
-            puts "TxTodos::updateCache()".green
+            puts "TxTodos::plusGeneration3()".green
             TxTodos::updateCache()
             XCache::setFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e31594834610:#{CommonUtils::today()}", true)
         end
-
-        XCacheSets::values(TxTodos::cacheLocation())
-            .select{|item| !Librarian::getObjectByUUIDOrNull(item["uuid"]).nil? }
     end
 
     # --------------------------------------------------

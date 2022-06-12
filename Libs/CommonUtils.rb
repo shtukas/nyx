@@ -336,6 +336,19 @@ class CommonUtils
         datetime
     end
 
+    # CommonUtils::dateSinceLastSaturday()
+    def self.dateSinceLastSaturday()
+        dates = []
+        cursor = 0
+        loop {
+            date = CommonUtils::nDaysInTheFuture(cursor)
+            dates << date
+            break if Date.parse(date).to_time.wday == 6
+            cursor = cursor - 1
+        }
+        dates
+    end
+
     # ----------------------------------------------------
     # String Utilities
 

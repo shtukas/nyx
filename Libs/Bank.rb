@@ -1,8 +1,6 @@
 
 # encoding: UTF-8
 
-$BankInMemorySetuuidDateToValueStore = {}
-
 class Bank
 
     # Bank::databaseFilepath()
@@ -22,9 +20,6 @@ class Bank
         db.busy_handler { |count| true }
         db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
         db.close
-
-        $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{CommonUtils::today()}"] = Bank::valueAtDateUseTheForce(setuuid, CommonUtils::today())
-
         nil
     end
 
@@ -59,9 +54,8 @@ class Bank
         answer
     end
 
-    # Bank::valueAtDateUseTheForce(setuuid, date)
-    def self.valueAtDateUseTheForce(setuuid, date)
-        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
+    # Bank::valueAtDate(setuuid, date)
+    def self.valueAtDate(setuuid, date)
         db = SQLite3::Database.new(Bank::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -74,27 +68,9 @@ class Bank
         answer
     end
 
-    # Bank::valueAtDate(setuuid, date)
-    def self.valueAtDate(setuuid, date)
-        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
-        computationCore = lambda{|setuuid, date|
-            db = SQLite3::Database.new(Bank::databaseFilepath())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            answer = 0
-            db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _date_=?" , [setuuid, date] ) do |row|
-                answer = (row["_sum_"] || 0)
-            end
-            db.close
-            answer
-        }
-
-        if $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{date}"].nil? then
-            $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{date}"] = Bank::valueAtDateUseTheForce(setuuid, date)
-        end
-        
-        $BankInMemorySetuuidDateToValueStore["#{CommonUtils::today()}-#{setuuid}-#{date}"]
+    # Bank::combinedValueOnThoseDays(setuuid, dates)
+    def self.combinedValueOnThoseDays(setuuid, dates)
+        dates.map{|date| Bank::valueAtDate(setuuid, date) }.inject(0, :+)
     end
 end
 

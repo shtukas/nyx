@@ -1,42 +1,5 @@
 # encoding: UTF-8
 
-class Nx15
-
-    # Nx15::interactivelyCreateNew()
-    def self.interactivelyCreateNew()
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("plus", ["until-done-for-the-day", "time-commitment"])
-        if type.nil? then
-            return {
-                "type"  => "time-commitment",
-                "value" => 1
-            }
-        end
-        if type == "time-commitment" then
-            hours = LucilleCore::askQuestionAnswerAsString("hours ? ").to_f
-            return {
-                "type"  => "time-commitment",
-                "value" => hours
-            }
-        end
-        if type == "until-done-for-the-day" then
-            return {
-                "type"  => "until-done-for-the-day"
-            }
-        end
-    end
-
-    # Nx15::toString(nx15)
-    def self.toString(nx15)
-        if nx15["type"] == "time-commitment" then
-            return "time: #{nx15["value"]}"
-        end
-        if nx15["type"] == "until-done-for-the-day" then
-            return "until done"
-        end
-    end
-
-end
-
 class TxPlus
 
     # TxPlus::items()
@@ -65,7 +28,6 @@ class TxPlus
         uuid = SecureRandom.uuid
 
         nx111 = Nx111::interactivelyCreateNewNx111OrNull()
-        nx15  = Nx15::interactivelyCreateNew()
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
@@ -76,8 +38,7 @@ class TxPlus
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "nx111"       => nx111,
-          "nx15"        => nx15
+          "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -89,7 +50,7 @@ class TxPlus
     # TxPlus::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(plus) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)}) (#{Nx15::toString(item["nx15"])})"
+        "(plus) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
     end
 
     # TxPlus::toStringForSearch(item)
@@ -152,13 +113,6 @@ class TxPlus
             break if item.nil?
             Landing::implementsNx111Landing(item)
         }
-    end
-
-    # --------------------------------------------------
-
-    # TxPlus::itemsForListing()
-    def self.itemsForListing()
-        TxPlus::items()
     end
 
     # --------------------------------------------------

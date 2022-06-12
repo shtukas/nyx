@@ -59,12 +59,6 @@ class Librarian
     # Librarian::objectHasBeenCommitted(object)
     def self.objectHasBeenCommitted(object)
 
-        # If that object was in the TxTodo cache, we update it there.
-        if object["mikyType"] == "TxTodo" then
-            if XCacheSets::getOrNull(TxTodos::cacheLocation(), object["uuid"]) then
-                XCacheSets::set(TxTodos::cacheLocation(), item["uuid"], item)
-            end
-        end
     end
 
     # Librarian::commit(object)
@@ -130,10 +124,6 @@ class Librarian
     # Librarian::objectIsAboutToBeDeleted(object)
     def self.objectIsAboutToBeDeleted(object)
 
-        # If that object was in the TxTodo cache, we delete it.
-        if object["mikyType"] == "TxTodo" then
-            XCacheSets::destroy(TxTodos::cacheLocation(), object["uuid"])
-        end
     end
 
     # Librarian::destroy(uuid)
