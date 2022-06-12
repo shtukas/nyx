@@ -17,6 +17,7 @@ class ScoreService
 
   def getEventForClientOrNull()
     event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:Lucille18")
+    return if event.nil?
     puts "outgoing event:"
     puts JSON.pretty_generate(event)
     event
