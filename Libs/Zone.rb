@@ -23,11 +23,13 @@ class Zone
     def self.issueNew(line)
         uuid     = SecureRandom.uuid
         unixtime = Time.new.to_i
+        nx111    = Nx111::interactivelyCreateNewNx111OrNull()
         item = {
           "uuid"         => uuid,
           "mikuType"     => "TxZoneItem",
           "unixtime"     => unixtime,
-          "description"  => line
+          "description"  => line,
+          "nx111"        => nx111
         }
         Librarian::commit(item)
         item
@@ -36,6 +38,7 @@ class Zone
     # Zone::access(item)
     def self.access(item)
         puts item["description"].green
+        EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ", true) then
             Zone::destroy(item["uuid"])
             NxBallsService::close(item["uuid"], true)

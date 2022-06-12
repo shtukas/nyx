@@ -251,7 +251,7 @@ class Landing
             end
 
             if Interpreting::match("nx111", command) then
-                nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), item["uuid"])
+                nx111 = Nx111::interactivelyCreateNewNx111OrNull()
                 item["nx111"] = nx111
                 Librarian::commit(item)
             end

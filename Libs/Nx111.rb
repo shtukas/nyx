@@ -31,9 +31,9 @@ class Nx111
         }
     end
 
-    # Nx111::interactivelyCreateNewIamValueOrNull(types, objectuuid)
-    def self.interactivelyCreateNewIamValueOrNull(types, objectuuid)
-        type = Nx111::interactivelySelectIamTypeOrNull(types)
+    # Nx111::interactivelyCreateNewNx111OrNull()
+    def self.interactivelyCreateNewNx111OrNull()
+        type = Nx111::interactivelySelectIamTypeOrNull(Nx111::types())
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")

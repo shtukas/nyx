@@ -130,7 +130,7 @@ class Waves
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
 
         catalyst = {
             "uuid"        => uuid,

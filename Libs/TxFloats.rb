@@ -22,7 +22,7 @@ class TxFloats
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
 
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601

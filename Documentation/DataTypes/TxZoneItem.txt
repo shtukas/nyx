@@ -5,4 +5,5 @@ TxZoneItem
     "mikuType"     : "TxZoneItem"
     "unixtime"     : Float
     "description"  : String
+    "nx111"        : Nx111
 }

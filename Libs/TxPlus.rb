@@ -64,7 +64,7 @@ class TxPlus
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewIamValueOrNull(Nx111::types(), uuid)
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
         nx15  = Nx15::interactivelyCreateNew()
 
         unixtime    = Time.new.to_i
