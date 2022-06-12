@@ -32,13 +32,16 @@ class EnergyGridDatablobs
             return IO.read(filepath)
         end
 
-        begin
-            blob = DRbObject.new(nil, "druby://192.168.0.3:9876").getBlobOrNull(nhash)
-            if blob then
-                EnergyGridDatablobs::putBlob(blob)
+        if !Machines::isLucille20() then
+            begin
+                blob = DRbObject.new(nil, "druby://192.168.0.3:9876").getBlobOrNull(nhash)
+                if blob then
+                    puts "> downloading blob from Lucille20: #{nhash}"
+                    EnergyGridDatablobs::putBlob(blob)
+                end
+                return blob
+            rescue
             end
-            return blob
-        rescue
         end
 
         nil
