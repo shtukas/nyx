@@ -9,7 +9,6 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uid, unixtime)
     def self.setUnixtime(uid, unixtime)
-        return if !File.exists?(DoNotShowUntil::databaseFilepath()) # happens on Lucille18
         db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
