@@ -13,4 +13,11 @@ Thread.new {
     }
 }
 
+Thread.new {
+    loop {
+        sleep 60
+        SyncOperators::clientRunOnce(false)
+    }
+}
+
 Catalyst::program2()
