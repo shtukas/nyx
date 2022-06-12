@@ -160,7 +160,6 @@ require_relative "NxBallsService.rb"
 require_relative "NxArrow.rb"
 require_relative "NxRelation.rb"
 require_relative "NxPerson.rb"
-require_relative "NxPrimitiveFile.rb"
 require_relative "NxCollections.rb"
 require_relative "NxNavigation.rb"
 

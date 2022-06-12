@@ -18,11 +18,6 @@ class Iam
         Iam::nx111Types().include?(item["mikuType"])
     end
 
-    # Iam::isNetworkDataCarrier(item)
-    def self.isNetworkDataCarrier(item)
-        Iam::implementsNx111(item) or (item["mikuType"] == "NxPrimitiveFile")
-    end
-
     # Iam::isNetworkAggregation(item)
     def self.isNetworkAggregation(item)
         Iam::aggregationTypes().include?(item["mikuType"])

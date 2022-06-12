@@ -8,6 +8,7 @@ class Nx111
         [
             "text",
             "url",
+            "file",
             "aion-point",
             "unique-string",
             "Dx8Unit"
@@ -50,6 +51,20 @@ class Nx111
                 "uuid" => SecureRandom.uuid,
                 "type" => "url",
                 "url"  => url
+            }
+        end
+        if type == "file" then
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            return nil if location.nil?
+            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]
+            raise "(error: a3339b50-e3df-4e5d-912d-a6b23aeb5c33)" if data.nil?
+            dottedExtension, nhash, parts = data
+            return {
+                "uuid"            => SecureRandom.uuid,
+                "type"            => "file",
+                "dottedExtension" => dottedExtension,
+                "nhash"           => nhash,
+                "parts"           => parts
             }
         end
         if type == "aion-point" then

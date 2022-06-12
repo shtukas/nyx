@@ -83,6 +83,26 @@ class FileSystemCheck
         if nx111["type"] == "url" then
             return
         end
+        if nx111["type"] == "file" then
+            dottedExtension = nx111["dottedExtension"]
+            nhash = nx111["nhash"]
+            parts = nx111["parts"]
+            if dottedExtension[0, 1] != "." then
+                puts "object".red
+                puts JSON.pretty_generate(object).red
+                puts "primitive parts, dotted extension is malformed".red
+                exit 1
+            end
+            parts.each{|nhash|
+                if operator.getBlobOrNull(nhash).nil? then
+                    puts "object".red
+                    puts JSON.pretty_generate(object).red
+                    puts "primitive parts, nhash not found: #{nhash}".red
+                    exit 1
+                end
+            }
+            return
+        end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
             status = AionFsck::structureCheckAionHash(operator, rootnhash)
@@ -140,8 +160,16 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxCollection" then
+            return
+        end
+
         if item["mikuType"] == "NxDataNode" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            return
+        end
+
+        if item["mikuType"] == "NxNavigation" then
             return
         end
 
@@ -150,10 +178,6 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "NxTimeline" then
-            return
-        end
-
-        if item["mikuType"] == "NxNavigation" then
             return
         end
 
@@ -169,27 +193,6 @@ class FileSystemCheck
 
         if item["mikuType"] == "TxPlus" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
-            return
-        end
-
-        if item["mikuType"] == "NxPrimitiveFile" then
-            dottedExtension = item["dottedExtension"]
-            nhash = item["nhash"]
-            parts = item["parts"]
-            if dottedExtension[0, 1] != "." then
-                puts "object".red
-                puts JSON.pretty_generate(object).red
-                puts "primitive parts, dotted extension is malformed".red
-                exit 1
-            end
-            parts.each{|nhash|
-                if operator.getBlobOrNull(nhash).nil? then
-                    puts "object".red
-                    puts JSON.pretty_generate(object).red
-                    puts "primitive parts, nhash not found: #{nhash}".red
-                    exit 1
-                end
-            }
             return
         end
 

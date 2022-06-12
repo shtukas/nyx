@@ -29,20 +29,4 @@ class PrimitiveFiles
         parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, EnergyGridElizabeth.new())
         return [dottedExtension, nhash, parts]
     end
-
-    # -------------------------------------------------
-    # Write
-
-    # PrimitiveFiles::writePrimitiveFile2(parentLocation, basefilename, dottedExtension, parts) # filepat
-    def self.writePrimitiveFile2(parentLocation, basefilename, dottedExtension, parts)
-        filepath = "#{parentLocation}/#{basefilename}.#{dottedExtension}"
-        File.open(filepath, "w"){|f|  
-            parts.each{|nhash|
-                blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
-                raise "(error: 416666c5-3d7a-491b-a08f-1994c5adfc86)" if blob.nil?
-                f.write(blob)
-            }
-        }
-        filepath
-    end
 end

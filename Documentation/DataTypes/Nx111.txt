@@ -29,3 +29,11 @@ Nx111
     "type"   : "Dx8Unit"
     "unitId" : String, Id
 }
+
+{
+    "uuid"            : String
+    "type"            : "file"
+    "dottedExtension" : dottedExtension
+    "nhash"           : nhash
+    "parts"           : Array[nhash]
+}

@@ -93,11 +93,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxPrimitiveFile" then
-                puts "Not implemented yet (4dde0cd7-0650-4772-9403-5b3862698089)"
-                return
-            end
-
             if Iam::isNetworkAggregation(item) then
                 EditionDesk::accessCollectionItem(item)
                 return

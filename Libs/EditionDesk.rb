@@ -80,6 +80,21 @@ class EditionDesk
             CommonUtils::openUrlUsingSafari(url)
             return
         end
+        if nx111["type"] == "file" then
+            dottedExtension = nx111["dottedExtension"]
+            parts = nx111["dottedExtension"]
+            filepath = "#{parentLocation}/#{basefilename}.#{dottedExtension}"
+            File.open(filepath, "w"){|f|
+                parts.each{|nhash|
+                    blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
+                    raise "(error: a614a728-fb28-455f-9430-43aab78ea35f)" if blob.nil?
+                    f.write(blob)
+                }
+            }
+            filepath
+            system("open '#{filepath}'")
+            return
+        end
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new() 
             rootnhash = nx111["rootnhash"]
@@ -202,45 +217,6 @@ class EditionDesk
 
 
     # ----------------------------------------------------
-    # PrimitiveFiles
-
-    # EditionDesk::decidePrimitiveFileEditionLocation(parentLocation, item, nx111)
-    def self.decidePrimitiveFileEditionLocation(parentLocation, item, nx111)
-        # This function returns the location if there already is one, or otherwise returns a new one.
-        
-        part2 = "#{item["uuid"]}"
-        LucilleCore::locationsAtFolder(parentLocation)
-            .each{|location|
-                if File.basename(location).include?(part2) then
-                    return location
-                end
-            }
-
-        index1 = EditionDesk::getMaxIndex(parentLocation) + 1
-        name1 = "#{index1}|#{part2}"
-
-        "#{parentLocation}/#{name1}"
-    end
-
-    # We currently do not have a pickup of Primitive Files
-    # ----------------------------------------------------
-
-
-    # ----------------------------------------------------
-    # Data Carriers ( implementsNx111 or NxPrimitiveFile )
-
-    # EditionDesk::writeNetworkDataCarrier(parentFolder, item)
-    def self.writeNetworkDataCarrier(parentFolder, item)
-        if item["mikuType"] == "NxPrimitiveFile" then
-            PrimitiveFiles::writePrimitiveFile2(parentFolder, item["uuid"], item["dottedExtension"], item["parts"])
-        else
-            EditionDesk::accessItemNx111Pair(parentFolder, item, item["nx111"])
-        end
-    end
-    # ----------------------------------------------------
-
-
-    # ----------------------------------------------------
     # Collections
 
     # EditionDesk::decideCollectionItemEditionLocation(item)
@@ -270,9 +246,9 @@ class EditionDesk
         end
         puts "I am going to write the Iam::implementsNx111(item) children here: #{parentLocation}"
         NxArrow::children(item["uuid"])
-            .select{|ix| Iam::isNetworkDataCarrier(ix) }
+            .select{|ix| Iam::implementsNx111(ix) }
             .each{|ix|
-                EditionDesk::writeNetworkDataCarrier(parentLocation, ix)
+                EditionDesk::accessItemNx111Pair(parentLocation, ix, ix["nx111"])
             }
     end
 

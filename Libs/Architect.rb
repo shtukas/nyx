@@ -37,7 +37,7 @@ class Architect
 
     # Architect::interactivelyMakeNewOrNull()
     def self.interactivelyMakeNewOrNull()
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", Iam::aggregationTypes() + ["NxDataNode"] + ["NxPrimitiveFile"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["NxDataNode"] + Iam::aggregationTypes())
         return if action.nil?
         if action == "NxCollection" then
             return NxCollections::interactivelyIssueNewItemOrNull()
@@ -53,9 +53,6 @@ class Architect
         end
         if action == "NxDataNode" then
             return NxDataNodes::interactivelyIssueNewItemOrNull()
-        end
-        if action == "NxPrimitiveFile" then
-            return NxPrimitiveFile::interactivelyIssueNewOrNull()
         end
         raise "(error: 46cb00c3-9c1d-41cd-8d3d-bfc6598d3e73)"
     end
