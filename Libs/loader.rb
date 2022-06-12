@@ -174,7 +174,7 @@ require_relative "ProgrammableBooleans.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Streaming.rb"
-require_relative "SyncEvents.rb"
+require_relative "Sync.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxFloats.rb"

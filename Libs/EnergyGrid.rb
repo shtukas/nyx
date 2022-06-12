@@ -26,24 +26,10 @@ class EnergyGridDatablobs
 
     # EnergyGridDatablobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-
         filepath = EnergyGridDatablobs::decideFilepathForBlob(nhash)
         if File.exists?(filepath) then
             return IO.read(filepath)
         end
-
-        if !Machines::isLucille20() then
-            begin
-                blob = DRbObject.new(nil, "druby://192.168.0.3:9876").getBlobOrNull(nhash)
-                if blob then
-                    puts "> downloading blob from Lucille20: #{nhash}"
-                    EnergyGridDatablobs::putBlob(blob)
-                end
-                return blob
-            rescue
-            end
-        end
-
         nil
     end
 end
