@@ -156,7 +156,9 @@ class LxAction
                 return
             end
             if item["mikuType"] == "TxZoneItem" then
-                Zone::destroy(item["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{item["description"].green} ? '", true) then
+                    Zone::destroy(item["uuid"])
+                end
                 return
             end
             if item["mikuType"] == "Wave" then
