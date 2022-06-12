@@ -21,6 +21,9 @@ class LxFunction
             if item["mikuType"] == "fitness1" then
                 return item["announce"]
             end
+            if item["mikuType"] == "Anniversary" then
+                return Anniversaries::toString(item)
+            end
             if item["mikuType"] == "NxDataNode" then
                 return NxDataNodes::toString(item)
             end
