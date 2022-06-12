@@ -104,7 +104,24 @@ class Librarian
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
 
+
         SyncEventSpecific::postObjectUpdateEvent(object, Machines::theOtherMachine())
+    end
+
+    # Librarian::commitWithoutUpdatesNoEvents(object)
+    def self.commitWithoutUpdatesNoEvents(object)
+
+        raise "(error: 8e53e63e-57fe-4621-a1c6-a7b4ad5d23a7, missing attribute uuid)" if object["uuid"].nil?
+        raise "(error: 016668dd-cb66-4ba1-9546-2fe05ee62fc6, missing attribute mikuType)" if object["mikuType"].nil?
+
+        raise "(error: 3c0e7684-44fd-4c1d-92b9-bbc5bb15d4ba, incorrect datetime)" if (object["datetime"] and !CommonUtils::isDateTime_UTC_ISO8601(object["datetime"]))
+
+        raise "(error: 9fd3f77b-25a5-4fc1-b481-074f4d5444ce, missing attribute lxHistory)" if object["lxHistory"].nil?
+        
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
+        db.close
     end
 
     # Librarian::objectIsAboutToBeDeleted(object)

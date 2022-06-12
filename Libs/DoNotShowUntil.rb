@@ -21,6 +21,19 @@ class DoNotShowUntil
         nil
     end
 
+    # DoNotShowUntil::setUnixtimeNoEvents(uid, unixtime)
+    def self.setUnixtimeNoEvents(uid, unixtime)
+        db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.transaction 
+        db.execute "delete from table1 where _key_=?", [uid]
+        db.execute "insert into table1 (_key_, _value_) values (?,?)", [uid, unixtime]
+        db.commit 
+        db.close
+        nil
+    end
+
     # DoNotShowUntil::getUnixtimeOrNull(uid)
     def self.getUnixtimeOrNull(uid)
         return nil if !File.exists?(DoNotShowUntil::databaseFilepath()) # happens on Lucille18

@@ -20,7 +20,7 @@ class SyncEventsBase
             if remoteItem["mikuType"] == "NxDeleted" then
                 # We do not store a "NxDeleted" is there was no object already
                 return if Librarian::commitWithoutUpdates(remoteItem).nil?
-                Librarian::commitWithoutUpdates(remoteItem)
+                Librarian::commitWithoutUpdatesNoEvents(remoteItem)
                 return
             end
 
@@ -29,7 +29,7 @@ class SyncEventsBase
             if localItem.nil? then
                 #puts "Adding new item from Lucille20"
                 #puts JSON.pretty_generate(remoteItem)
-                Librarian::commitWithoutUpdates(remoteItem)
+                Librarian::commitWithoutUpdatesNoEvents(remoteItem)
                 return
             end
 
@@ -44,7 +44,7 @@ class SyncEventsBase
 
             if Genealogy::firstIsStrictAncestorOfSecond(localItem, remoteItem) then
                 puts JSON.pretty_generate(remoteItem)
-                Librarian::commitWithoutUpdates(remoteItem)
+                Librarian::commitWithoutUpdatesNoEvents(remoteItem)
                 return
             end
 
@@ -57,7 +57,7 @@ class SyncEventsBase
         if event["type"] == "do-not-show-until" then
             uuid = event["uuid"]
             targetUnixtime = event["targetUnixtime"]
-            DoNotShowUntil::setUnixtime(uuid, targetUnixtime)
+            DoNotShowUntil::setUnixtimeNoEvents(uuid, targetUnixtime)
             return
         end
 
