@@ -51,11 +51,22 @@ class SyncEventsBase
 end
 
 class SyncEventSpecific
-    # SyncEventSpecific::sendObjectUpdateEvent(object, machineName)
-    def self.sendObjectUpdateEvent(object, machineName)
+
+    # SyncEventSpecific::postObjectUpdateEvent(object, machineName)
+    def self.postObjectUpdateEvent(object, machineName)
         event = {
             "type"    => "new-object",
             "payload" => object
+        }
+        SyncEventsBase::putEventForMachine(event, machineName)
+    end
+
+    # SyncEventSpecific::postDoNotShowUntil(uuid, targetUnixtime, machineName)
+    def self.postDoNotShowUntil(uuid, targetUnixtime, machineName)
+        event = {
+            "type" => "do-not-show-until",
+            "uuid" => uuid,
+            "targetUnixtime" => targetUnixtime
         }
         SyncEventsBase::putEventForMachine(event, machineName)
     end

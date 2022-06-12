@@ -4,3 +4,9 @@ Sync Events
     "type"    : "new-object",
     "payload" : object
 }
+
+{
+    "type"           => "do-not-show-until",
+    "uuid"           => String,
+    "targetUnixtime" => Float
+}
