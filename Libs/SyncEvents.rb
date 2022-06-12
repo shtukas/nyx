@@ -19,7 +19,7 @@ class SyncEventsBase
 
             if remoteItem["mikuType"] == "NxDeleted" then
                 # We do not store a "NxDeleted" is there was no object already
-                return if Librarian::commitWithoutUpdates(remoteItem).nil?
+                return if Librarian::getObjectByUUIDOrNull(remoteItem["uuid"]).nil?
                 Librarian::commitWithoutUpdatesNoEvents(remoteItem)
                 return
             end
