@@ -5,6 +5,8 @@ require 'thread'
 
 require_relative "../Libs/loader.rb"
 
+puts "Starting server"
+
 class ScoreService
 
   def getWaves()

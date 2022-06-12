@@ -19,8 +19,8 @@ class SyncEventSpecific
     # SyncEventSpecific::sendObjectUpdateEvent(object, machineName)
     def self.sendObjectUpdateEvent(object)
         event = {
-            "type"    : "new-object",
-            "payload" : object
+            "type"    => "new-object",
+            "payload" => object
         }
         SyncEventsBase::putEventForMachine(event, machineName)
     end
