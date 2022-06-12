@@ -35,7 +35,7 @@ class EditionDesk
 
 
     # ----------------------------------------------------
-    # Nx111 elements
+    # Nx111 carriers
 
     # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
     def self.decideItemNx111PairEditionLocation(parentLocation, item, nx111)
@@ -191,6 +191,19 @@ class EditionDesk
         if nx111["type"] == "url" then
             puts "This should not happen because nothing was exported."
             raise "(error: 563d3ad6-7d82-485b-afc5-b9aeba6fb88b)"
+        end
+        if nx111["type"] == "file" then
+            # Let's compute the hash of the file and see if something has changed
+            filehash = CommonUtils::filepathToContentHash(location)
+            return if nx111["nhash"] == filehash
+            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location) # [dottedExtension, nhash, parts]
+            raise "(error: 79A50CC2-CDA1-4BCA-B11E-F7AC1A54E0F3)" if data.nil?
+            dottedExtension, nhash, parts = data
+            nx111["dottedExtension"] = dottedExtension
+            nx111["nhash"] = nhash
+            nx111["parts"] = parts
+            item["nx111"] = nx111
+            Librarian::commit(item)
         end
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new()

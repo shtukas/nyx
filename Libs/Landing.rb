@@ -190,7 +190,16 @@ class Landing
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-            puts "nx111: #{item["nx111"]}".yellow
+
+            nx111toLandingString = lambda {|nx111|
+                if nx111["type"] == "file" then
+                    nx111["parts"] = "(...)"
+                    return nx111.to_s
+                end
+                nx111.to_s
+            }
+
+            puts "nx111: #{nx111toLandingString.call(item["nx111"])}".yellow
 
             Ax1Text::itemsForOwner(uuid).each{|note|
                 indx = store.register(note, false)

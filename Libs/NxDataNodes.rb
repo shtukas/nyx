@@ -108,7 +108,9 @@ class NxDataNodes
 
     # NxDataNodes::nx20s()
     def self.nx20s()
-        NxDataNodes::items().map{|item| 
+        NxDataNodes::items()
+        .select{|item| !item["description"].nil? }
+        .map{|item| 
             {
                 "announce" => "(#{item["uuid"][0, 4]}) #{NxDataNodes::toString(item)}",
                 "unixtime" => item["unixtime"],
