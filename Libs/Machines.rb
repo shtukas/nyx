@@ -17,4 +17,22 @@ class Machines
     def self.isLucille20()
         ENV["COMPUTERLUCILLENAME"] == "Lucille20"
     end
+
+    # Machines::ip_map()
+    def self.ip_map()
+        {
+            "Lucille20" => "192.168.0.3",
+            "Lucille18" => "192.168.0.24"
+        }
+    end
+
+    # Machines::thisMachineIP()
+    def self.thisMachineIP()
+        Machines::ip_map()[ENV["COMPUTERLUCILLENAME"]]
+    end
+
+    # Machines::theOtherMachineIP()
+    def self.self.theOtherMachineIP()
+        Machines::ip_map()[Machines::theOtherMachine()]
+    end
 end

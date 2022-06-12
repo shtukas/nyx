@@ -125,10 +125,6 @@ class Catalyst
                 break
             end
 
-            if !Machines::isLucille20() then
-                SyncOperators::clientRunOnce(false)
-            end
-
             floats = TxFloats::itemsForListing()
 
             section2 = Catalyst::itemsForListing()

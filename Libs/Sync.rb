@@ -67,13 +67,13 @@ end
 
 class SyncEventSpecific
 
-    # SyncEventSpecific::postObjectUpdateEvent(object, machineName)
-    def self.postObjectUpdateEvent(object, machineName)
+    # SyncEventSpecific::postObjectUpdateEvent(object)
+    def self.postObjectUpdateEvent(object)
         event = {
             "type"    => "new-object",
             "payload" => object
         }
-        SyncEventsBase::putEventForMachine(event, machineName)
+        SyncEventsBase::putEventForMachine(event, Machines::theOtherMachine())
     end
 
     # SyncEventSpecific::postDoNotShowUntil(uuid, targetUnixtime, machineName)
@@ -83,22 +83,14 @@ class SyncEventSpecific
             "uuid" => uuid,
             "targetUnixtime" => targetUnixtime
         }
-        SyncEventsBase::putEventForMachine(event, machineName)
+        SyncEventsBase::putEventForMachine(event, Machines::theOtherMachine())
     end
 end
 
 class SyncServerService
 
-  def eventForServer(event)
-    if verbose then
-        puts "incoming event:"
-        puts JSON.pretty_generate(event)
-    end
-    SyncEventsBase::processEvent(event)
-  end
-
   def getEventForClientOrNull()
-    event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:Lucille18")
+    event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:#{Machines::theOtherMachine()}")
     return if event.nil?
     if verbose then
         puts "outgoing event:"
@@ -116,9 +108,10 @@ class SyncOperators
 
     # SyncOperators::clientRunOnce(verbose)
     def self.clientRunOnce(verbose)
+        otherMachineIP = Machines::theOtherMachineIP()
         loop {
             begin
-                event = DRbObject.new(nil, "druby://192.168.0.3:9876").getEventForClientOrNull()
+                event = DRbObject.new(nil, "druby://#{otherMachineIP}:9876").getEventForClientOrNull()
                 break if event.nil?
                 puts "incoming event:"
                 puts JSON.pretty_generate(event)
@@ -130,27 +123,13 @@ class SyncOperators
                 break
             end
         }
-
-        loop {
-            begin
-                event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:Lucille20")
-                break if event.nil?
-                puts "outgoing event:"
-                puts JSON.pretty_generate(event)
-                DRbObject.new(nil, "druby://192.168.0.3:9876").eventForServer(event)
-            rescue => error
-                if verbose then
-                    puts error.message
-                end
-                break
-            end
-        }
     end
 
     # SyncOperators::serverRun(verbose)
     def self.serverRun(verbose)
-        puts "Starting server"
-        DRb.start_service("druby://192.168.0.3:9876", SyncServerService.new())
+        ip = Machines::thisMachineIP()
+        puts "Starting server @ ip: #{ip}"
+        DRb.start_service("druby://#{ip}:9876", SyncServerService.new())
         DRb.thread.join
     end
 end

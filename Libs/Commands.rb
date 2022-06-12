@@ -8,7 +8,8 @@ class Commands
         [
             "wave | anniversary | calendar item | float | plus | plus: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone",
             "anniversaries | calendar | pluses | ondates | todos",
-            "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx"
+            "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
+            "sync"
         ].join("\n")
     end
 
@@ -241,7 +242,12 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
         end
-    
+
+        if Interpreting::match("sync", input) then
+            SyncOperators::clientRunOnce(true)
+            return [nil, nil]
+        end
+
         if Interpreting::match("today", input) then
             return ["today", nil]
         end
