@@ -9,7 +9,7 @@ class Commands
             "wave | anniversary | calendar item | float | plus | plus: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone",
             "anniversaries | calendar | pluses | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
-            "sync"
+            "pull (download and process event from the other machine)"
         ].join("\n")
     end
 
@@ -191,6 +191,11 @@ class Commands
             return ["pluses", nil]
         end
 
+        if Interpreting::match("pull", input) then
+            SyncOperators::clientRunOnce(true)
+            return [nil, nil]
+        end
+
         if Interpreting::match("pursue", input) then
             return ["pursue", store.getDefault()]
         end
@@ -241,11 +246,6 @@ class Commands
         if Interpreting::match("stop *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             return outputForCommandAndOrdinal.call("stop", ordinal, store)
-        end
-
-        if Interpreting::match("sync", input) then
-            SyncOperators::clientRunOnce(true)
-            return [nil, nil]
         end
 
         if Interpreting::match("today", input) then
