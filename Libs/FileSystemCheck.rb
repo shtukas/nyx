@@ -160,6 +160,10 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxDeleted" then
+            return
+        end
+
         if item["mikuType"] == "NxCollection" then
             return
         end
