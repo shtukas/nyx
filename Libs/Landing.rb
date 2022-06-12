@@ -90,28 +90,36 @@ class Landing
                 puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
             }
 
-            NxArrow::parents(item["uuid"])
+            parents  = NxArrow::parents(item["uuid"])
+            related  = NxRelation::related(item["uuid"])
+            children = NxArrow::children(item["uuid"])
+
+            parents
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
                 }
 
-            NxRelation::related(item["uuid"])
+            related
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
                 }
 
-            NxArrow::children(item["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity| 
-                    indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
-                }
+            if children.size > 50 then
+                puts "Many children, please use `navigation`"
+            else
+                children
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity| 
+                        indx = store.register(entity, false)
+                        puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
+                    }
+            end
 
-            puts "commands: iam | access | <n> | description | datetime | note | json | add | remove | destroy".yellow
+            puts "commands: iam | <n> | description | datetime | note | json | add | remove | navigation | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -121,11 +129,6 @@ class Landing
                 entity = store.get(indx)
                 next if entity.nil?
                 LxAction::action("landing", entity)
-            end
-
-            if Interpreting::match("access", command) then
-                EditionDesk::accessCollectionItem(item)
-                next
             end
 
             if Interpreting::match("description", command) then
@@ -160,6 +163,10 @@ class Landing
 
             if Interpreting::match("add", command) then
                 Landing::addToCircle(item)
+            end
+
+            if Interpreting::match("navigation", command) then
+                CircleNavigation::navigate(item)
             end
 
             if Interpreting::match("remove", command) then

@@ -94,7 +94,7 @@ class LxAction
             end
 
             if Iam::isNetworkAggregation(item) then
-                EditionDesk::accessCollectionItem(item)
+                CircleNavigation::navigate(item)
                 return
             end
 

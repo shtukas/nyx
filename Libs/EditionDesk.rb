@@ -33,9 +33,8 @@ class EditionDesk
             .max
     end
 
-
     # ----------------------------------------------------
-    # Nx111 carriers
+    # Nx111 carriers (utils)
 
     # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) [boolean, string], first element indicates whether the file was already there or not
     def self.decideItemNx111PairEditionLocation(parentLocation, item, nx111)
@@ -55,25 +54,23 @@ class EditionDesk
         [false, "#{parentLocation}/#{name1}"]
     end
 
-    # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
-    def self.accessItemNx111Pair(parentLocation, item, nx111)
-        return if nx111.nil?
+    # ----------------------------------------------------
+    # Nx111 carriers (access)
+
+    # EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, item, nx111) # location or nil
+    def self.getLocationOrAccessItemNx111Pair(parentLocation, item, nx111)
+        return nil if nx111.nil?
         if nx111["type"] == "text" then
             # In this case we are not using the flag, in fact the check was already there when the flag was introduced and we left it like that
             flag, location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
-            if location[-4, 4] != ".txt" then
-                # Happens when the file wasn't already there
-                location = "#{location}.txt" 
+            if flag then
+                return location
             end
-            if File.exists?(location) then
-                system("open '#{location}'")
-                return
-            end
+            location = "#{location}.txt"
             nhash = nx111["nhash"]
             text = EnergyGridElizabeth.new().getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
-            system("open '#{location}'")
-            return
+            return location
         end
         if nx111["type"] == "url" then
             url = nx111["url"]
@@ -83,6 +80,7 @@ class EditionDesk
         end
         if nx111["type"] == "file" then
             flag, location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+            return location if flag
             dottedExtension = nx111["dottedExtension"]
             parts = nx111["parts"]
             filepath = flag ? location : "#{location}#{dottedExtension}"
@@ -93,9 +91,7 @@ class EditionDesk
                     f.write(blob)
                 }
             }
-            filepath
-            system("open '#{filepath}'")
-            return
+            return filepath
         end
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new() 
@@ -107,13 +103,11 @@ class EditionDesk
             actuallocationbasename = AionTransforms::extractTopName(operator, rootnhash)
             exportLocation = "#{File.dirname(exportLocation)}/#{actuallocationbasename}"
             if File.exists?(exportLocation) then
-                system("open '#{exportLocation}'")
-                return
+                return exportLocation
             end
             AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
             puts "Item exported at #{exportLocation}"
-            system("open '#{exportLocation}'")
-            return
+            return exportLocation
         end
         if nx111["type"] == "unique-string" then
             uniquestring = nx111["uniquestring"]
@@ -131,15 +125,23 @@ class EditionDesk
                     FileUtils.mv(location2, location3)
                     location2 = location3
                 end
-                puts "opening: #{location2}"
-                system("open '#{location2}'")
-                return
+                location = location2
             end
-            system("open '#{location}'")
-            return
+            return location
         end
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
     end
+
+    # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
+    def self.accessItemNx111Pair(parentLocation, item, nx111)
+        return if nx111.nil?
+        location = EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, item, nx111)
+        return if location # something wasn't right or it was a url that is already open
+        system ("open '#{location}'")
+    end
+
+    # ----------------------------------------------------
+    # Nx111 carriers (pickup)
 
     # EditionDesk::locationToItemNx111PairOrNull(location) # null or [item, nx111]
     # This function takes a location, tries and interpret the location name as a (index, itemuuid, nx111uuid) and return [item, nx111]
@@ -171,8 +173,8 @@ class EditionDesk
         [item, nx111]
     end
 
-    # EditionDesk::updateItemFromLocationIfImplementsNx111OrNothing(location)
-    def self.updateItemFromLocationIfImplementsNx111OrNothing(location)
+    # EditionDesk::locationToOptionalUpdateItem_Nx111Case(location)
+    def self.locationToOptionalUpdateItem_Nx111Case(location)
         
         elements = EditionDesk::locationToItemNx111PairOrNull(location)
         return if elements.nil?
@@ -229,48 +231,68 @@ class EditionDesk
         end
         raise "(error: 69fcf4bf-347a-4e5f-91f8-3a97d6077c98): nx111: #{nx111}"
     end
-    # ----------------------------------------------------
-
 
     # ----------------------------------------------------
-    # Collections
+    # Collections (utils)
 
-    # EditionDesk::decideCollectionItemEditionLocation(item)
-    def self.decideCollectionItemEditionLocation(item)
+    # EditionDesk::decideCollectionItemEditionLocation(item, label)
+    def self.decideCollectionItemEditionLocation(item, label)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
-        part2 = "#{item["uuid"]}"
+        part2andLabel = "#{item["uuid"]}|#{label}"
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
             .each{|location|
-                if File.basename(location).include?(part2) then
+                if File.basename(location).include?(part2andLabel) then
                     return location
                 end
             }
 
         index1 = EditionDesk::getMaxIndex(EditionDesk::pathToEditionDesk()) + 1
-        name1 = "#{index1}|#{part2}"
+        name1 = "#{index1}|#{part2andLabel}"
 
         "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
 
-    # EditionDesk::accessCollectionItem(item)
-    def self.accessCollectionItem(item)
+    # ----------------------------------------------------
+    # Collections (access)
+
+    # EditionDesk::accessCollectionItemItemsPair(collectionitem, items, label)
+    def self.accessCollectionItemItemsPair(collectionitem, items, label)
         # The logic here is dirrerent. We create a directory for the collection and put the children inside
-        parentLocation = EditionDesk::decideCollectionItemEditionLocation(item)
+        parentLocation = EditionDesk::decideCollectionItemEditionLocation(collectionitem, label)
         if !File.exists?(parentLocation) then
             FileUtils.mkdir(parentLocation)
         end
-        puts "I am going to write the Iam::implementsNx111(item) children here: #{parentLocation}"
-        NxArrow::children(item["uuid"])
+        puts "I am going to write the Iam::implementsNx111(collectionitem) children here: #{parentLocation}"
+        items
             .select{|ix| Iam::implementsNx111(ix) }
             .each{|ix|
-                EditionDesk::accessItemNx111Pair(parentLocation, ix, ix["nx111"])
+                next if ix["type"] == "url"
+                EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, ix, ix["nx111"])
             }
+        system("open '#{parentLocation}'")
     end
 
-    # We currently do not have a pickup of Collections
     # ----------------------------------------------------
+    # Collections (pickup)
 
+    # EditionDesk::locationToCollectionItemOrNull(location)
+    def self.locationToCollectionItemOrNull(location)
+        filename = File.basename(location)
+        indx, itemuuid, label = filename.split("|")
+        return nil if itemuuid.nil?
+        item = Librarian::getObjectByUUIDOrNull(itemuuid)
+        return nil if item.nil?
+        return nil if Iam::isNetworkAggregation(item)
+        item
+    end
+
+    # EditionDesk::locationToOptionalUpdateItem_CollectionCase(location)
+    def self.locationToOptionalUpdateItem_CollectionCase(location)
+        item = locationToCollectionItemOrNull(location)
+        return if item.nil?
+        puts "picking up inner items for aggregation #{item}, at location #{location}"
+    end
 
     # ----------------------------------------------------
     # Operations
@@ -314,7 +336,7 @@ class EditionDesk
 
             if tx202.nil? then
                 puts "Edition desk updating location: #{File.basename(location)}"
-                EditionDesk::updateItemFromLocationIfImplementsNx111OrNothing(location)
+                EditionDesk::locationToOptionalUpdateItem_Nx111Case(location)
                 issueTx202ForLocation.call(location)
                 next
             end
@@ -330,7 +352,7 @@ class EditionDesk
             end
 
             puts "Edition desk updating location: #{File.basename(location)}"
-            EditionDesk::updateItemFromLocationIfImplementsNx111OrNothing(location)
+            EditionDesk::locationToOptionalUpdateItem_Nx111Case(location)
 
             # And we make a new one with updated unixtime and updated trace
             issueTx202ForLocation.call(location)
