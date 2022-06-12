@@ -17,6 +17,7 @@ class SyncEventsBase
 
             remoteItem = event["payload"]
 
+            puts "FileSystemCheck:"
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(remoteItem, EnergyGridElizabeth.new())
 
             if remoteItem["mikuType"] == "NxDeleted" then
