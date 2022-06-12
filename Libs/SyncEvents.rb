@@ -86,3 +86,39 @@ class SyncEventSpecific
         SyncEventsBase::putEventForMachine(event, machineName)
     end
 end
+
+class SyncOperators
+
+    # SyncOperators::clientRunOnce(verbose)
+    def self.clientRunOnce(verbose)
+        loop {
+            begin
+                event = DRbObject.new(nil, "druby://192.168.0.3:9876").getEventForClientOrNull()
+                break if event.nil?
+                puts "incoming event:"
+                puts JSON.pretty_generate(event)
+                SyncEventsBase::processEvent(event)
+            rescue => error
+                if verbose then
+                    puts error.message
+                end
+                break
+            end
+        }
+
+        loop {
+            begin
+                event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:Lucille20")
+                break if event.nil?
+                puts "outgoing event:"
+                puts JSON.pretty_generate(event)
+                DRbObject.new(nil, "druby://192.168.0.3:9876").eventForServer(event)
+            rescue => error
+                if verbose then
+                    puts error.message
+                end
+                break
+            end
+        }
+    end
+end
