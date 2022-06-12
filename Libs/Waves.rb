@@ -21,7 +21,7 @@ class Waves
     def self.makeNx46InteractivelyOrNull()
 
         scheduleTypes = ['sticky', 'repeat']
-        scheduleType = LucilleCore::selectEntityFromListOfEntitiesOrNull("schedule type: ", scheduleTypes)
+        scheduleType = LucilleCore::selectEntityFromListOfEntities_EnsureChoice("schedule type: ", scheduleTypes)
 
         return nil if scheduleType.nil?
 
