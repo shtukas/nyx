@@ -21,9 +21,7 @@ class SyncEventsBase
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(remoteItem, EnergyGridElizabeth.new())
 
             if remoteItem["mikuType"] == "NxDeleted" then
-                # We do not store a "NxDeleted" is there was no object already
-                return if Librarian::getObjectByUUIDOrNull(remoteItem["uuid"]).nil?
-                Librarian::commitWithoutUpdatesNoEvents(remoteItem)
+                Librarian::destroyByNxDeletedEmitNoEvent(remoteItem["uuid"])
                 return
             end
 
