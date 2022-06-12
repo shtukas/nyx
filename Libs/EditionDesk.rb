@@ -37,7 +37,7 @@ class EditionDesk
     # ----------------------------------------------------
     # Nx111 carriers
 
-    # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
+    # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) [boolean, string], first element indicates whether the file was already there or not
     def self.decideItemNx111PairEditionLocation(parentLocation, item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
@@ -45,21 +45,22 @@ class EditionDesk
         LucilleCore::locationsAtFolder(parentLocation)
             .each{|location|
                 if File.basename(location).include?(part2and3) then
-                    return location
+                    return [true, location]
                 end
             }
 
         index1 = EditionDesk::getMaxIndex(parentLocation) + 1
         name1 = "#{index1}|#{part2and3}"
 
-        "#{parentLocation}/#{name1}"
+        [false, "#{parentLocation}/#{name1}"]
     end
 
     # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
     def self.accessItemNx111Pair(parentLocation, item, nx111)
         return if nx111.nil?
         if nx111["type"] == "text" then
-            location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+            # In this case we are not using the flag, in fact the check was already there when the flag was introduced and we left it like that
+            flag, location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
             if location[-4, 4] != ".txt" then
                 # Happens when the file wasn't already there
                 location = "#{location}.txt" 
@@ -81,9 +82,10 @@ class EditionDesk
             return
         end
         if nx111["type"] == "file" then
+            flag, location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
             dottedExtension = nx111["dottedExtension"]
-            parts = nx111["dottedExtension"]
-            filepath = "#{parentLocation}/#{basefilename}.#{dottedExtension}"
+            parts = nx111["parts"]
+            filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
                     blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
@@ -98,7 +100,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new() 
             rootnhash = nx111["rootnhash"]
-            exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
+            flag, exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
             # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
@@ -204,6 +206,7 @@ class EditionDesk
             nx111["parts"] = parts
             item["nx111"] = nx111
             Librarian::commit(item)
+            return
         end
         if nx111["type"] == "aion-point" then
             operator = EnergyGridElizabeth.new()
