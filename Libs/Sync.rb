@@ -125,11 +125,13 @@ class TheOtherMachineElizabeth
     def getBlobOrNull(nhash)
         begin
             ip = Machines::theOtherMachineIP()
+            puts "downloading blob: #{nhash}"
             blob = DRbObject.new(nil, "druby://#{ip}:9876").getBlobOrNull(nhash)
             if blob then
                 EnergyGridDatablobs::putBlob(blob)
+                return blob
             end
-            return blob
+            nil
         rescue
         end
     end
