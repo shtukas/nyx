@@ -1,0 +1,6 @@
+Sync Events
+
+{
+    "type"    : "new-object",
+    "payload" : object
+}

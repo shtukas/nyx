@@ -9,10 +9,6 @@ puts "Starting server"
 
 class ScoreService
 
-  def getWaves()
-    Waves::items()
-  end
-
   def eventForServer(event)
     puts "incoming event:"
     puts JSON.pretty_generate(event)
