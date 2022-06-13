@@ -195,7 +195,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxProject" then
+        if item["mikuType"] == "TxZero" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
@@ -205,7 +205,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxZoneItem" then
+        if item["mikuType"] == "TxZero" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end

@@ -33,17 +33,14 @@ class LxFunction
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
             end
-            if item["mikuType"] == "TxProject" then
-                return TxProject::toString(item)
+            if item["mikuType"] == "TxZero" then
+                return TxZero::toString(item)
             end
             if item["mikuType"] == "TxTodo" then
                 return TxTodos::toString(item)
             end
             if item["mikuType"] == "Wave" then
                 return Waves::toString(item)
-            end
-            if item["mikuType"] == "TxZoneItem" then
-                return Zone::toString(item)
             end
             if item["description"] then
                 return item["description"]

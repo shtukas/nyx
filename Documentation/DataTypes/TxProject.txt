@@ -1,6 +1,6 @@
-TxProject {
+TxZero {
     "uuid"        => uuid,
-    "mikuType"    => "TxProject",
+    "mikuType"    => "TxZero",
     "description" => description,
     "unixtime"    => unixtime,
     "datetime"    => datetime,

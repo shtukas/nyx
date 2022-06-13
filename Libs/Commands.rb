@@ -6,8 +6,8 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | float | plus | plus: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone",
-            "anniversaries | calendar | pluses | ondates | todos",
+            "wave | anniversary | float | zero | zero: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone",
+            "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
             "pull (download and process event from the other machine)"
         ].join("\n")
@@ -175,26 +175,6 @@ class Commands
             return
         end
 
-        if Interpreting::match("plus", input) then
-            item = TxProject::interactivelyIssueNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if input.start_with?("plus:") then
-            message = input[8, input.length].strip
-            item = TxProject::interactivelyIssueNewOrNull(message)
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("pluses", input) then
-            TxProject::dive()
-            return
-        end
-
         if Interpreting::match("pull", input) then
             SyncOperators::clientRunOnce(true)
             return
@@ -341,10 +321,23 @@ class Commands
             return
         end
 
-        if input.start_with?("zone:") then
-            line = input[5, input.size].strip
-            item = Zone::issueNew(line)
+        if Interpreting::match("zero", input) then
+            item = TxZero::interactivelyIssueNewOrNull()
+            return if item.nil?
             puts JSON.pretty_generate(item)
+            return
+        end
+
+        if input.start_with?("zero:") then
+            message = input[5, input.length].strip
+            item = TxZero::interactivelyIssueNewOrNull(message)
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            return
+        end
+
+        if Interpreting::match("zeroes", input) then
+            TxZero::dive()
             return
         end
     end

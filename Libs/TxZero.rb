@@ -1,13 +1,13 @@
 # encoding: UTF-8
 
-class TxProject
+class TxZero
 
-    # TxProject::items()
+    # TxZero::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxProject")
+        Librarian::getObjectsByMikuType("TxZero")
     end
 
-    # TxProject::destroy(uuid)
+    # TxZero::destroy(uuid)
     def self.destroy(uuid)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
         Librarian::destroy(uuid)
@@ -16,7 +16,7 @@ class TxProject
     # --------------------------------------------------
     # Makers
 
-    # TxProject::interactivelyIssueNewOrNull(description = nil)
+    # TxZero::interactivelyIssueNewOrNull(description = nil)
     def self.interactivelyIssueNewOrNull(description = nil)
         if description.nil? or description == "" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -34,7 +34,26 @@ class TxProject
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxProject",
+          "mikuType"    => "TxZero",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "nx111"       => nx111
+        }
+        Librarian::commit(item)
+        item
+    end
+
+    # TxZero::locationToZero(location)
+    def self.locationToZero(location)
+        description = File.basename(location)
+        uuid = SecureRandom.uuid
+        nx111 = Nx111::locationToAionPointNx111OrNull(location)
+        unixtime = Time.new.to_i
+        datetime = Time.new.utc.iso8601
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "TxZero",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
@@ -47,29 +66,36 @@ class TxProject
     # --------------------------------------------------
     # Data
 
-    # TxProject::toString(item)
+    # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(project) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
+        "(zero) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
     end
 
-    # TxProject::toStringForSearch(item)
+    # TxZero::toStringForSearch(item)
     def self.toStringForSearch(item)
-        "(project) #{item["description"]}"
+        "(zero) #{item["description"]}"
     end
 
-    # TxProject::totalTimeCommitment()
+    # TxZero::totalTimeCommitment()
     def self.totalTimeCommitment()
-        TxProject::items()
+        TxZero::items()
             .select{|item| item["nx15"]["type"] == "time-commitment" }
             .map{|item| item["nx15"]["value"] }
             .inject(0, :+)
     end
 
+    # TxZero::itemsForListing()
+    def self.itemsForListing()
+        TxZero::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .reverse
+    end
+
     # --------------------------------------------------
     # Operations
 
-    # TxProject::doubleDots(item)
+    # TxZero::doubleDots(item)
     def self.doubleDots(item)
 
         if !NxBallsService::isRunning(item["uuid"]) then
@@ -80,36 +106,36 @@ class TxProject
 
         answer = LucilleCore::askQuestionAnswerAsString("`continue` or `done` ? ")
 
-        if answer == "contiue" then
+        if answer == "continue" then
             return
         end
 
         if answer == "done" then
-            TxProject::done(item)
+            TxZero::done(item)
         end
     end
 
-    # TxProject::done(item)
+    # TxZero::done(item)
     def self.done(item)
-        puts TxProject::toString(item).green
+        puts TxZero::toString(item).green
         NxBallsService::close(item["uuid"], true)
-        answer = LucilleCore::askQuestionAnswerAsString("This is a TxProject. Do you want to: `done for the day`, `destroy` or nothing ? ")
+        answer = LucilleCore::askQuestionAnswerAsString("This is a TxZero. Do you want to: `done for the day`, `destroy` or nothing ? ")
         if answer == "done for the day" then
             XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
         end
         if answer == "destroy" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxProject '#{item["description"].green}' ? ", true) then
-                TxProject::destroy(item["uuid"])
+            if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxZero '#{item["description"].green}' ? ", true) then
+                TxZero::destroy(item["uuid"])
             end
         end
     end
 
-    # TxProject::dive()
+    # TxZero::dive()
     def self.dive()
         loop {
             system("clear")
-            items = TxProject::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("plus", items, lambda{|item| TxProject::toString(item) })
+            items = TxZero::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("zero", items, lambda{|item| TxZero::toString(item) })
             break if item.nil?
             Landing::implementsNx111Landing(item)
         }
@@ -117,12 +143,12 @@ class TxProject
 
     # --------------------------------------------------
 
-    # TxProject::nx20s()
+    # TxZero::nx20s()
     def self.nx20s()
-        Librarian::getObjectsByMikuType("TxProject")
+        Librarian::getObjectsByMikuType("TxZero")
             .map{|item|
                 {
-                    "announce" => TxProject::toStringForSearch(item),
+                    "announce" => TxZero::toStringForSearch(item),
                     "unixtime" => item["unixtime"],
                     "payload"  => item
                 }

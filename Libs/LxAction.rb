@@ -25,8 +25,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxZoneItem" then
-                Zone::access(item)
+            if item["mikuType"] == "TxZero" then
+                TxZero::access(item)
                 return
             end
 
@@ -98,8 +98,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxZoneItem" then
-                Zone::access(item)
+            if item["mikuType"] == "TxZero" then
+                TxZero::access(item)
                 return
             end
         end
@@ -139,14 +139,8 @@ class LxAction
                 TxTodos::done(item)
                 return
             end
-            if item["mikuType"] == "TxProject" then
-                TxProject::done(item)
-                return
-            end
-            if item["mikuType"] == "TxZoneItem" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{item["description"].green} ? '", true) then
-                    Zone::destroy(item["uuid"])
-                end
+            if item["mikuType"] == "TxZero" then
+                TxZero::done(item)
                 return
             end
             if item["mikuType"] == "Wave" then

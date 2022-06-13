@@ -4,14 +4,13 @@ class Catalyst
 
     # Catalyst::itemsForListing()
     def self.itemsForListing()
-        TxTodos::plusGeneration3()
         [
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Zone::items(),
+            TxZero::items(),
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxProject::items(),
+            TxZero::itemsForListing(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -69,7 +68,7 @@ class Catalyst
                     }
         end
 
-        printSection = lambda {|section, store, yellowDisplay, prefix|
+        printSection = lambda {|section, store, yellowDisplay|
             section
                 .each{|item|
                     store.register(item, true)
@@ -78,9 +77,6 @@ class Catalyst
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    if prefix then
-                        line = "#{prefix}#{line}"
                     end
                     if yellowDisplay then
                         line = line.yellow
@@ -93,10 +89,10 @@ class Catalyst
         puts ""
         vspaceleft = vspaceleft - 1
 
-        printSection.call(section1, store, false, nil)
-        printSection.call(section2, store, false, nil)
-        printSection.call(section3, store, false, nil)
-        printSection.call(section4, store, true, " ⏱  ")
+        printSection.call(section1, store, false)
+        printSection.call(section2, store, false)
+        printSection.call(section3, store, false)
+        printSection.call(section4, store, true)
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -124,17 +120,23 @@ class Catalyst
                 break
             end
 
+            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Zero").each{|location|
+                item = TxZero::locationToZero(location)
+                puts JSON.pretty_generate(item)
+                LucilleCore::removeFileSystemLocation(location)
+            }
+
             floats = TxFloats::itemsForListing()
 
             section2 = Catalyst::itemsForListing()
 
             # section1 : running items
-            # section2 : elements without pluses
-            # section3 : pluses (active)
-            # section4 : pluses (not active, done for the day or overflowing)
+            # section2 : waves
+            # section3 : zeroes (active)
+            # section4 : zeroes (not active, done for the day or overflowing)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
-            section2, section3 = section2.partition{|item| item["mikuType"] != "TxProject" }
+            section2, section3 = section2.partition{|item| item["mikuType"] != "TxZero" }
             section4, section3 = section3.partition{|item|
                 (lambda {|item|
                     return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")

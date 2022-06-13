@@ -1,0 +1,9 @@
+TxZero
+
+{
+    "uuid"        : String
+    "mikuType"    : "TxZero"
+    "unixtime"    : Float
+    "description" : String
+    "nx111"       : Nx111
+}

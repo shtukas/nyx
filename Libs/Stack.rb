@@ -28,7 +28,7 @@ class Zone
         line = LucilleCore::selectEntityFromListOfEntitiesOrNull("line", zone.sort)
         return if line.nil?
         zone.delete(line)
-        Stack::setZone(zone)
+        Stack::setZone(zero)
     end
 
     # Stack::zoneEdit()
