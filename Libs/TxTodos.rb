@@ -123,7 +123,7 @@ class TxTodos
         return if count == 0
 
         items1 = TxTodos::items().reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (missingCount/3)+1 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (count/3)+1 then
                 selection
             else
                 selection + [item]
@@ -131,7 +131,7 @@ class TxTodos
         }
 
         items2 = TxTodos::items().reverse.reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (missingCount/3)+1 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (count/3)+1 then
                 selection
             else
                 selection + [item]
@@ -139,7 +139,7 @@ class TxTodos
         }
 
         items3 = TxTodos::items().shuffle.reduce([]){|selection, item|
-            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (missingCount/3)+1 then
+            if selection.select{|item| DoNotShowUntil::isVisible(item["uuid"]) }.size >= (count/3)+1 then
                 selection
             else
                 selection + [item]
@@ -148,15 +148,16 @@ class TxTodos
 
         (items1+items2+items3).each{|item|
             item["mikuType"] = "TxPlus"
-            Librarian::commit(iten)
+            Librarian::commit(item)
         }
     end
 
     # TxTodos::plusGeneration3()
     def self.plusGeneration3()
+        return if !Machines::isLucille20()
         if !XCache::getFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e31594834610:#{CommonUtils::today()}") then
             puts "TxTodos::plusGeneration3()".green
-            TxTodos::updateCache()
+            TxTodos::plusGeneration2()
             XCache::setFlag("6ab5d7c1-c9ed-4fa9-8fd4-7e31594834610:#{CommonUtils::today()}", true)
         end
     end
