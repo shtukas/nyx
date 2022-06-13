@@ -116,9 +116,9 @@ class TxTodos
     # TxTodos::plusGeneration2()
     def self.plusGeneration2()
 
-        # We add as many items to require in total at most 12 hours of focus a day (between TxPlus and TxTodo)
+        # We add as many items to require in total at most 12 hours of focus a day (between TxProject and TxTodo)
 
-        count = [10 - TxPlus::totalTimeCommitment(), 0].max
+        count = [10 - TxProject::totalTimeCommitment(), 0].max
 
         return if count == 0
 
@@ -147,7 +147,7 @@ class TxTodos
         }
 
         (items1+items2+items3).each{|item|
-            item["mikuType"] = "TxPlus"
+            item["mikuType"] = "TxProject"
             Librarian::commit(item)
         }
     end

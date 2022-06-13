@@ -176,7 +176,7 @@ class Commands
         end
 
         if Interpreting::match("plus", input) then
-            item = TxPlus::interactivelyIssueNewOrNull()
+            item = TxProject::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -184,14 +184,14 @@ class Commands
 
         if input.start_with?("plus:") then
             message = input[8, input.length].strip
-            item = TxPlus::interactivelyIssueNewOrNull(message)
+            item = TxProject::interactivelyIssueNewOrNull(message)
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
         end
 
         if Interpreting::match("pluses", input) then
-            TxPlus::dive()
+            TxProject::dive()
             return
         end
 

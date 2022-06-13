@@ -11,7 +11,7 @@ class Catalyst
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxPlus::items(),
+            TxProject::items(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -134,7 +134,7 @@ class Catalyst
             # section4 : pluses (not active, done for the day or overflowing)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
-            section2, section3 = section2.partition{|item| item["mikuType"] != "TxPlus" }
+            section2, section3 = section2.partition{|item| item["mikuType"] != "TxProject" }
             section4, section3 = section3.partition{|item|
                 (lambda {|item|
                     return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")

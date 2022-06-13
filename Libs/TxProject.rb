@@ -1,13 +1,13 @@
 # encoding: UTF-8
 
-class TxPlus
+class TxProject
 
-    # TxPlus::items()
+    # TxProject::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxPlus")
+        Librarian::getObjectsByMikuType("TxProject")
     end
 
-    # TxPlus::destroy(uuid)
+    # TxProject::destroy(uuid)
     def self.destroy(uuid)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
         Librarian::destroy(uuid)
@@ -16,7 +16,7 @@ class TxPlus
     # --------------------------------------------------
     # Makers
 
-    # TxPlus::interactivelyIssueNewOrNull(description = nil)
+    # TxProject::interactivelyIssueNewOrNull(description = nil)
     def self.interactivelyIssueNewOrNull(description = nil)
         if description.nil? or description == "" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -34,7 +34,7 @@ class TxPlus
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxPlus",
+          "mikuType"    => "TxProject",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
@@ -47,20 +47,20 @@ class TxPlus
     # --------------------------------------------------
     # Data
 
-    # TxPlus::toString(item)
+    # TxProject::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(plus) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
+        "(project) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
     end
 
-    # TxPlus::toStringForSearch(item)
+    # TxProject::toStringForSearch(item)
     def self.toStringForSearch(item)
-        "(plus) #{item["description"]}"
+        "(project) #{item["description"]}"
     end
 
-    # TxPlus::totalTimeCommitment()
+    # TxProject::totalTimeCommitment()
     def self.totalTimeCommitment()
-        TxPlus::items()
+        TxProject::items()
             .select{|item| item["nx15"]["type"] == "time-commitment" }
             .map{|item| item["nx15"]["value"] }
             .inject(0, :+)
@@ -69,7 +69,7 @@ class TxPlus
     # --------------------------------------------------
     # Operations
 
-    # TxPlus::doubleDots(item)
+    # TxProject::doubleDots(item)
     def self.doubleDots(item)
 
         if !NxBallsService::isRunning(item["uuid"]) then
@@ -85,31 +85,31 @@ class TxPlus
         end
 
         if answer == "done" then
-            TxPlus::done(item)
+            TxProject::done(item)
         end
     end
 
-    # TxPlus::done(item)
+    # TxProject::done(item)
     def self.done(item)
-        puts TxPlus::toString(item).green
+        puts TxProject::toString(item).green
         NxBallsService::close(item["uuid"], true)
-        answer = LucilleCore::askQuestionAnswerAsString("This is a TxPlus. Do you want to: `done for the day`, `destroy` or nothing ? ")
+        answer = LucilleCore::askQuestionAnswerAsString("This is a TxProject. Do you want to: `done for the day`, `destroy` or nothing ? ")
         if answer == "done for the day" then
             XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
         end
         if answer == "destroy" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxPlus '#{item["description"].green}' ? ", true) then
-                TxPlus::destroy(item["uuid"])
+            if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxProject '#{item["description"].green}' ? ", true) then
+                TxProject::destroy(item["uuid"])
             end
         end
     end
 
-    # TxPlus::dive()
+    # TxProject::dive()
     def self.dive()
         loop {
             system("clear")
-            items = TxPlus::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("plus", items, lambda{|item| TxPlus::toString(item) })
+            items = TxProject::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("plus", items, lambda{|item| TxProject::toString(item) })
             break if item.nil?
             Landing::implementsNx111Landing(item)
         }
@@ -117,12 +117,12 @@ class TxPlus
 
     # --------------------------------------------------
 
-    # TxPlus::nx20s()
+    # TxProject::nx20s()
     def self.nx20s()
-        Librarian::getObjectsByMikuType("TxPlus")
+        Librarian::getObjectsByMikuType("TxProject")
             .map{|item|
                 {
-                    "announce" => TxPlus::toStringForSearch(item),
+                    "announce" => TxProject::toStringForSearch(item),
                     "unixtime" => item["unixtime"],
                     "payload"  => item
                 }

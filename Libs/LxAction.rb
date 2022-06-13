@@ -139,8 +139,8 @@ class LxAction
                 TxTodos::done(item)
                 return
             end
-            if item["mikuType"] == "TxPlus" then
-                TxPlus::done(item)
+            if item["mikuType"] == "TxProject" then
+                TxProject::done(item)
                 return
             end
             if item["mikuType"] == "TxZoneItem" then

@@ -5,7 +5,7 @@ class Iam
 
     # Iam::nx111Types()
     def self.nx111Types()
-        ["NxDataNode", "TxDated", "TxDated", "TxPlus", "TxTodo", "Wave"]
+        ["NxDataNode", "TxDated", "TxDated", "TxProject", "TxTodo", "Wave"]
     end
 
     # Iam::aggregationTypes()
