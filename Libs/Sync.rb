@@ -89,6 +89,13 @@ class SyncEventSpecific
     end
 end
 
+=begin
+    Mercury::postValue(channel, value)
+    Mercury::readFirstValueOrNull(channel)
+    Mercury::dequeueFirstValueOrNull(channel)
+    Mercury::isEmpty(channel)
+=end
+
 class SyncServerService
 
   def initialize(verbose)
@@ -96,13 +103,17 @@ class SyncServerService
   end
 
   def getEventForClientOrNull()
-    event = Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:#{Machines::theOtherMachine()}")
+    event = Mercury::readFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:#{Machines::theOtherMachine()}")
     return if event.nil?
     if @verbose then
         puts "outgoing event:"
         puts JSON.pretty_generate(event)
     end
     event
+  end
+
+  def dequeue()
+    Mercury::dequeueFirstValueOrNull("75D88016-56AA-4729-992A-F1FF62AAF893:#{Machines::theOtherMachine()}")
   end
 
   def getBlobOrNull(nhash)
@@ -164,6 +175,18 @@ class SyncOperators
                 puts "incoming event:"
                 puts JSON.pretty_generate(event)
                 SyncEventsBase::processEvent(event)
+
+                # At the beginning we were doing `Mercury::dequeueFirstValueOrNull` in the service. We have moved to
+                # Mercury::readFirstValueOrNull in the Service to avoid losing messages that happen to fail 
+                # during procesing. That change implies that a dequeue must then happen.
+                # 
+                # The next instruction dequeues, but technically this is not a good way to do it because of 
+                # potential race conditions. They will not happen with our current setting of 
+                # only one client and one server though.
+                # 
+                # This is just to mention that we are aware of the potential for a race condition if the 
+                # system expands.
+                DRbObject.new(nil, "druby://#{otherMachineIP}:9876").dequeue()
             rescue => error
                 if verbose then
                     puts error.message

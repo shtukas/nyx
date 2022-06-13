@@ -119,7 +119,7 @@ class Landing
                     }
             end
 
-            puts "commands: iam | <n> | description | datetime | note | json | add | remove | navigation | destroy".yellow
+            puts "commands: iam | <n> | description | datetime | note | json | add | remove | navigation | upload | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -173,6 +173,10 @@ class Landing
                 Landing::removeFromCircle(item)
             end
 
+            if Interpreting::match("upload", command) then
+                Upload::interactivelyUploadToItem(item)
+            end
+
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
                     Librarian::destroy(item["uuid"])
@@ -199,6 +203,7 @@ class Landing
             puts "datetime: #{item["datetime"]}".yellow
 
             nx111toLandingString = lambda {|nx111|
+                nx111 = nx111.clone
                 if nx111["type"] == "file" then
                     nx111["parts"] = "(...)"
                     return nx111.to_s
@@ -207,7 +212,9 @@ class Landing
             }
 
             if item["nx111"] then
-                puts "nx111: #{nx111toLandingString.call(item["nx111"].clone)}".yellow
+                puts "nx111: #{nx111toLandingString.call(item["nx111"])}".yellow
+            else
+                puts "nx111: (not found)".yellow
             end
 
             Ax1Text::itemsForOwner(uuid).each{|note|

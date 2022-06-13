@@ -111,7 +111,9 @@ AionFsck::structureCheckAionHash(operator, nhash)
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
 =begin
     Mercury::postValue(channel, value)
+    Mercury::readFirstValueOrNull(channel)
     Mercury::dequeueFirstValueOrNull(channel)
+    Mercury::isEmpty(channel)
 =end
 
 # ------------------------------------------------------------
@@ -184,6 +186,7 @@ require_relative "The99Percent.rb"
 require_relative "TxPlus.rb"
 
 require_relative "UniqueStringsFunctions.rb"
+require_relative "Upload.rb"
 
 require_relative "XCacheElizabeth.rb"
 
