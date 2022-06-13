@@ -10,7 +10,7 @@ Interpreting::tokenizer
 
 Usage:
 
-    puts "select / expose / start / done (<n>) | no work today | new wave / calendar item / quark / todo / work item / project | anniversaries | calendar | waves | agents | numbers on/off".yellow
+    puts "select / expose / start / done (<n>) | no work today | new wave / quark / todo / work item / project | anniversaries | calendar | waves | agents | numbers on/off".yellow
 
     command = LucilleCore::askQuestionAnswerAsString("> ")
 

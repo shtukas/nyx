@@ -104,18 +104,6 @@ class LxAction
             end
         end
 
-        if command == "anniversary" then
-            item = Anniversaries::issueNewAnniversaryOrNullInteractively()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if command == "anniversaries" then
-            Anniversaries::anniversariesDive()
-            return
-        end
-
         if command == "done" then
 
             # If the item was running, then we stop it
@@ -174,29 +162,8 @@ class LxAction
             end
         end
 
-        if command == "expose" then
-            puts JSON.pretty_generate(item)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if command == "exit" then
             exit
-        end
-
-        if command == "float" then
-            TxFloats::interactivelyCreateNewOrNull()
-            return
-        end
-
-        if command == "internet on" then
-            InternetStatus::setInternetOn()
-            return
-        end
-
-        if command == "internet off" then
-            InternetStatus::setInternetOff()
-            return
         end
 
         if command == "landing" then
@@ -220,44 +187,6 @@ class LxAction
             return
         end
 
-        if command == "nyx" then
-            puts "(info: 4B14BAB4-7414-4090-982D-29C218EB5408) command nyx: to be written, call the executable"
-            exit
-            return
-        end
-
-        if command == "ondate" then
-            item = TxDateds::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if command == "ondates" then
-            TxDateds::dive()
-            return
-        end
-
-        if command == "pause" then
-            NxBallsService::pause(item["uuid"])
-            return
-        end
-
-        if command == "pluses" then
-            TxPlus::dive()
-            return
-        end
-
-        if command == "pursue" then
-            NxBallsService::pursue(item["uuid"])
-            return
-        end
-
-        if command == "rstream" then
-            Streaming::rstream()
-            return
-        end
-
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
@@ -267,16 +196,6 @@ class LxAction
             end
         end
 
-        if command == "require internet" then
-            InternetStatus::markIdAsRequiringInternet(item["uuid"])
-            return
-        end
-
-        if command == "search" then
-            Search::classicInterface()
-            return
-        end
-
         if command == "start" then
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
             return
@@ -284,28 +203,6 @@ class LxAction
 
         if command == "stop" then
             NxBallsService::close(item["uuid"], true)
-            return
-        end
-
-        if command == "time" and item["mikuType"] == "TimeInstructionAdd" then
-            payload = item["payload"]
-            timeInHours = item["timeInHours"]
-            puts "Adding #{timeInHours} hours to #{payload["uuid"]}"
-            Bank::put(payload["uuid"], timeInHours*3600)
-            return
-        end
-
-        if command == "today" then
-            mx49 = TxDateds::interactivelyCreateNewTodayOrNull()
-            return if mx49.nil?
-            puts JSON.pretty_generate(mx49)
-            return
-        end
-
-        if command == "todo" then
-            item = TxTodos::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
             return
         end
 

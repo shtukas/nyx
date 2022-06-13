@@ -8,7 +8,7 @@ puts Commands::commands().yellow
 
 input = LucilleCore::askQuestionAnswerAsString("> ")
 
-command, objectOpt = Commands::inputParser(input, nil)
+command, objectOpt = Commands::run(input, nil)
 #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
 LxAction::action(command, objectOpt)
 

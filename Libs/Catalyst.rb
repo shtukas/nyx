@@ -95,8 +95,8 @@ class Catalyst
 
         printSection.call(section1, store, false, nil)
         printSection.call(section2, store, false, nil)
-        printSection.call(section4, store, true, " 🐾 ")
-        printSection.call(section3, store, true, " ⏱  ")
+        printSection.call(section3, store, false, nil)
+        printSection.call(section4, store, true, " ⏱  ")
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -111,10 +111,7 @@ class Catalyst
             end
         end
 
-        command, objectOpt = Commands::inputParser(input, store)
-        #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-
-        LxAction::action(command, objectOpt)
+        Commands::run(input, store)
     end
 
     # Catalyst::program2()

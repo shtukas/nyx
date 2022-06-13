@@ -93,7 +93,7 @@ class TxPlus
     def self.done(item)
         puts TxPlus::toString(item).green
         NxBallsService::close(item["uuid"], true)
-        answer = LucilleCore::askQuestionAnswerAsString("This is a TxPlus. Do you want to: `done for the day`, `destroy`, `nothing` ? ")
+        answer = LucilleCore::askQuestionAnswerAsString("This is a TxPlus. Do you want to: `done for the day`, `destroy` or nothing ? ")
         if answer == "done for the day" then
             XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
         end
