@@ -227,7 +227,9 @@ class Commands
         end
 
         if Interpreting::match("require internet", input) then
-            InternetStatus::markIdAsRequiringInternet(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            InternetStatus::markIdAsRequiringInternet(item["uuid"])
             return
         end
 
