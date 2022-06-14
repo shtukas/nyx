@@ -51,6 +51,32 @@ class Ax38
     end
 end
 
+class TxZNumbersAcceleration
+
+    # TxZNumbersAcceleration::rt(item)
+    def self.rt(item)
+        XCache::getOrDefaultValue("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", "0").to_f
+    end
+
+    # TxZNumbersAcceleration::combined_value(item)
+    def self.combined_value(item)
+        XCache::getOrDefaultValue("combined-value-53a4f8ab8a64:#{item["uuid"]}", "0").to_f
+    end
+end
+
+Thread.new {
+    loop {
+        sleep 32
+        TxZero::items().each{|item|
+            rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
+            XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
+            cvalue = Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday())
+            XCache::set("combined-value-53a4f8ab8a64:#{item["uuid"]}", rt)
+        }
+        
+    }
+}
+
 class TxZero
 
     # TxZero::items()
@@ -86,12 +112,13 @@ class TxZero
         ax38 = Ax38::interactivelyCreateNewAxOrNull()
 
         item = {
-          "uuid"         => uuid,
-          "mikuType"     => "TxZero",
-          "description"  => description,
-          "unixtime"     => unixtime,
-          "datetime"     => datetime,
-          "ax38"         => ax38
+          "uuid"        => uuid,
+          "mikuType"    => "TxZero",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "ax38"        => ax38,
+          "ordinal"     => TxZero::getNewTopOrdinal()
         }
         Librarian::commit(item)
         item
@@ -111,7 +138,8 @@ class TxZero
           "unixtime"     => unixtime,
           "datetime"     => datetime,
           "nx111"        => nx111,
-          "ax38"         => nil
+          "ax38"         => nil,
+          "ordinal"      => TxZero::getNewTopOrdinal()
         }
         Librarian::commit(item)
         item
@@ -123,7 +151,7 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})"
+        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZNumbersAcceleration::rt(item).round(2)})"
     end
 
     # TxZero::toStringForSearch(item)
@@ -139,14 +167,20 @@ class TxZero
             .inject(0, :+)
     end
 
-    # TxZero::rt_vX(item)
-    def self.rt_vX(item)
-        XCache::getOrDefaultValue("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", "0").to_f
+    # TxZero::getNewTopOrdinal()
+    def self.getNewTopOrdinal()
+        TxZero::items().map{|item| item["ordinal"] }.max + 1
     end
 
-    # TxZero::combined_value_vX(item)
-    def self.combined_value_vX(item)
-        XCache::getOrDefaultValue("combined-value-53a4f8ab8a64:#{item["uuid"]}", "0").to_f
+    # TxZero::getNewBottomOrdinal()
+    def self.getNewBottomOrdinal()
+        TxZero::items().map{|item| item["ordinal"] }.min - 1
+    end
+
+    # TxZero::rotateItem(item)
+    def self.rotateItem(item)
+        item["ordinal"] = TxZero::getNewBottomOrdinal()
+        Librarian::commit(item)
     end
 
     # --------------------------------------------------
@@ -248,7 +282,7 @@ class TxZero
     # TxZero::itemsForListing()
     def self.itemsForListing()
         TxZero::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
             .reverse
     end
 
@@ -264,16 +298,3 @@ class TxZero
             }
     end
 end
-
-Thread.new {
-    loop {
-        sleep 32
-        TxZero::items().each{|item|
-            rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
-            XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
-            cvalue = Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday())
-            XCache::set("combined-value-53a4f8ab8a64:#{item["uuid"]}", rt)
-        }
-        
-    }
-}

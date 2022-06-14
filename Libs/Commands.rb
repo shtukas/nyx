@@ -234,6 +234,19 @@ class Commands
             return
         end
 
+        if Interpreting::match("rotate", input) then
+            item = store.getDefault()
+            return if item.nil?
+            if item["mikuType"] == "TxZero" then
+                NxBallsService::close(item["uuid"], true) # we stop it if it was running
+                TxZero::rotateItem(item)
+            else
+                puts "That command only works on zero items"
+                LucilleCore::pressEnterToContinue()
+            end
+            return
+        end
+
         if Interpreting::match("search", input) then
             Search::classicInterface()
             return
