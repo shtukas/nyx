@@ -32,7 +32,7 @@ class TxZero
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        isProject = LucilleCore::askQuestionAnswerAsBoolean("is project ? ")
+        isImportant = LucilleCore::askQuestionAnswerAsBoolean("is important ? ")
 
         item = {
           "uuid"         => uuid,
@@ -41,7 +41,7 @@ class TxZero
           "unixtime"     => unixtime,
           "datetime"     => datetime,
           "nx111"        => nx111,
-          "isProject"    => isProject
+          "isImportant"  => isImportant
         }
         Librarian::commit(item)
         item
@@ -60,7 +60,8 @@ class TxZero
           "description"  => description,
           "unixtime"     => unixtime,
           "datetime"     => datetime,
-          "nx111"        => nx111
+          "nx111"        => nx111,
+          "isImportant"  => nil
         }
         Librarian::commit(item)
         item
@@ -72,7 +73,7 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        priorityStr = XCache::getOrNull("c5b3502c-6773-4b4d-b830-9b0e76375ac8:#{item["uuid"]}") == "true" ? " (today ❗️)" : ""
+        priorityStr = item["isImportant"] ? "❗️" : ""
         "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})#{priorityStr}"
     end
 
@@ -151,10 +152,10 @@ class TxZero
     # TxZero::ensureExtraAttributes()
     def self.ensureExtraAttributes()
         TxZero::items().each{|item|
-            next if XCache::getOrNull("c5b3502c-6773-4b4d-b830-9b0e76375ac8:#{item["uuid"]}")
-            puts item["description"].green
-            flag = LucilleCore::askQuestionAnswerAsBoolean("priority today ? : ")
-            XCache::set("c5b3502c-6773-4b4d-b830-9b0e76375ac8:#{item["uuid"]}", flag.to_s)
+            if item["isImportant"].nil? then
+                item["isImportant"] = LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' is important ? : ")
+                Librarian::commit(item)
+            end
         }
     end
 
@@ -163,10 +164,10 @@ class TxZero
     # TxZero::itemsForListing()
     def self.itemsForListing()
         TxZero::ensureExtraAttributes()
-        items = TxZero::items()
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        p1, p2 = items.partition{|item| XCache::getOrNull("c5b3502c-6773-4b4d-b830-9b0e76375ac8:#{item["uuid"]}") == "true" }
-        p1 + p2
+        TxZero::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .partition{|item| item["isImportant"] }
+            .flatten
     end
 
     # TxZero::nx20s()
