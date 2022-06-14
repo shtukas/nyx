@@ -9,7 +9,7 @@ class The99Percent
 
     # The99Percent::issueNewReference()
     def self.issueNewReference()
-        count = TxDateds::items().size + TxTodos::items().size
+        count = The99Percent::getCurrentCount()
         reference = {
             "count"    => count,
             "datetime" => Time.new.to_s
@@ -33,7 +33,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        TxDateds::items().size + TxTodos::items().size
+        TxDateds::items().size + TxZero::items().size + TxTodos::items().size
     end
 
     # The99Percent::ratio()
