@@ -154,7 +154,7 @@ class Waves
         lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(wave) #{item["description"]}#{nx111String} (#{Waves::nx46ToString(item["nx46"])}) (#{ago})"
+        "(wave) #{item["description"]}#{nx111String} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊"
     end
 
     # Waves::performWaveNx46WaveDone(item)
