@@ -8,3 +8,22 @@ TxZero
     "nx111"        : Nx111,
     "ax38"         : null or Ax38
 }
+
+Ax38
+    {
+        "type" => "standard"
+    }
+
+    {
+        "type" => "daily-fire-and-forget"
+    }
+
+    {
+        "type"  => "daily-time-commitment"
+        "hours" => Float
+    }
+
+    {
+        "type"  => "weekly-time-commitment"
+        "hours" => Float
+    }

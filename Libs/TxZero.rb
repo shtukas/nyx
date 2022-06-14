@@ -123,7 +123,7 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})#{priorityStr}"
+        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})"
     end
 
     # TxZero::toStringForSearch(item)
@@ -176,14 +176,59 @@ class TxZero
     def self.done(item)
         puts TxZero::toString(item).green
         NxBallsService::close(item["uuid"], true)
-        answer = LucilleCore::askQuestionAnswerAsString("This is a TxZero. Do you want to: `done for the day`, `destroy` or nothing ? ")
-        if answer == "done for the day" then
-            XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+ 
+        if item["ax38"].nil? then
+            ax38 = Ax38::interactivelyCreateNewAxOrNull()
+            if ax38 then
+                item["ax38"] = ax38
+                Librarian::commit(item)
+            end
         end
-        if answer == "destroy" then
-            if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxZero '#{item["description"].green}' ? ", true) then
+
+        twoChoices = lambda{|item|
+            answer = LucilleCore::askQuestionAnswerAsString("This is a TxZero. Do you want to: `done for the day`, `destroy` or nothing ? ")
+            if answer == "done for the day" then
+                XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+            end
+            if answer == "destroy" then
                 TxZero::destroy(item["uuid"])
             end
+        }
+
+        if item["ax38"].nil? then
+            twoChoices.call(item)
+            return
+        end
+
+        if item["ax38"]["type"] == "standard" then
+            twoChoices.call(item)
+            return
+        end
+
+        if item["ax38"]["type"] == "daily-fire-and-forget" then
+            XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+            return
+        end
+
+        if item["ax38"]["type"] == "daily-time-commitment" then
+            if BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < item["ax38"]["hours"] then
+                if LucilleCore::askQuestionAnswerAsBoolean("You are below daily target, do you want to close for the day anyway ? ") then
+                    XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+                end
+            else
+                XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+            end
+            return
+        end
+        if item["ax38"]["type"] == "daily-time-commitment" then
+            if Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) < item["ax38"]["hours"] then
+                if LucilleCore::askQuestionAnswerAsBoolean("You are below weekly target, do you want to close for the day anyway ? ") then
+                    XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+                end
+            else
+                XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+            end
+            return
         end
     end
 
