@@ -6,38 +6,4 @@ TxZero
     "unixtime"     : Float
     "description"  : String
     "nx111"        : Nx111
-
-
-    # The two below are created null when coming from the zero folder, but 
-    # there is a prompt for them later on.
-
-    "isProject"    : null or Boolean # Indicates if it's going to take time, notably more than one day
-    "axPriority38" : null or String
-}
-
-AxPriority38 
-
-{
-    "type"     : "31e3" # must be done today
-    "unixtime" : Float
-}
-
-{
-    "type"     : "ac94" # ideally today, but not crucial
-    "unixtime" : Float
-}
-
-{
-    "type"     : "95df" # todo within days
-    "unixtime" : Float
-}
-
-{
-    "type"     : "4dd0" # todo within weeks
-    "unixtime" : Float
-}
-
-{
-    "type"     : "8a64" # low priority
-    "unixtime" : Float
 }
