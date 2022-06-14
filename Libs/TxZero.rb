@@ -69,7 +69,7 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)})"
+        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})"
     end
 
     # TxZero::toStringForSearch(item)
@@ -85,11 +85,14 @@ class TxZero
             .inject(0, :+)
     end
 
-    # TxZero::itemsForListing()
-    def self.itemsForListing()
-        TxZero::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .reverse
+    # TxZero::rt_vX(item)
+    def self.rt_vX(item)
+        XCache::getOrDefaultValue("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", "0").to_f
+    end
+
+    # TxZero::combined_value_vX(item)
+    def self.combined_value_vX(item)
+        XCache::getOrDefaultValue("combined-value-53a4f8ab8a64:#{item["uuid"]}", "0").to_f
     end
 
     # --------------------------------------------------
@@ -143,6 +146,13 @@ class TxZero
 
     # --------------------------------------------------
 
+    # TxZero::itemsForListing()
+    def self.itemsForListing()
+        TxZero::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .reverse
+    end
+
     # TxZero::nx20s()
     def self.nx20s()
         Librarian::getObjectsByMikuType("TxZero")
@@ -155,3 +165,16 @@ class TxZero
             }
     end
 end
+
+Thread.new {
+    loop {
+        sleep 32
+        TxZero::items().each{|item|
+            rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
+            XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
+            cvalue = Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday())
+            XCache::set("combined-value-53a4f8ab8a64:#{item["uuid"]}", rt)
+        }
+        
+    }
+}

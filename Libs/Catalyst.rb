@@ -59,13 +59,13 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             running
-                    .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
-                    .each{|nxball|
-                        store.register(nxball, true)
-                        line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                        puts line.green
-                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    }
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
+                .each{|nxball|
+                    store.register(nxball, true)
+                    line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                    puts line.green
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
         end
 
         printSection = lambda {|section, store, yellowDisplay|
@@ -114,7 +114,6 @@ class Catalyst
     def self.program2()
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
-        XCache::set("code-trace-73daf78ec7af", initialCodeTrace)
  
         if Machines::isLucille20() then
             Thread.new {
@@ -130,16 +129,9 @@ class Catalyst
             }
         end
  
-        Thread.new {
-            loop {
-                sleep 60
-                XCache::set("code-trace-73daf78ec7af", CommonUtils::generalCodeTrace())
-            }
-        }
-
         loop {
 
-            if XCache::getOrNull("code-trace-73daf78ec7af") != initialCodeTrace then
+            if CommonUtils::generalCodeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
@@ -164,12 +156,12 @@ class Catalyst
             section4, section3 = section3.partition{|item|
                 (lambda {|item|
                     return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
-                    return true if BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) >= 1
-                    Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) >= 3600*5
+                    return true if TxZero::rt_vX(item["uuid"]) >= 1
+                    TxZero::combined_value_vX(item) >= 3600*5
                 }).call(item)
             }
 
-            section3 = section3.sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
+            section3 = section3.sort{|i1, i2| TxZero::rt_vX(i1["uuid"]) <=> TxZero::rt_vX(i2["uuid"]) }
 
             Catalyst::printListing(floats, section1, section2, section3, section4)
         }
