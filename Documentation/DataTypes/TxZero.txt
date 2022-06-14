@@ -6,5 +6,5 @@ TxZero
     "unixtime"     : Float
     "description"  : String
     "nx111"        : Nx111,
-    "isImportant"  : Boolean, # Either should be done today, or be overflowed everyday.
+    "ax38"         : null or Ax38
 }

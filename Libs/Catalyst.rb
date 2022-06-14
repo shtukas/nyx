@@ -153,7 +153,7 @@ class Catalyst
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2, section3 = section2.partition{|item| item["mikuType"] != "TxZero" }
-            section4, section3 = section3.partition{|item| XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}") }
+            section3, section4 = section3.partition{|item| Ax38::itemShouldShow(item) }
 
             Catalyst::printListing(floats, section1, section2, section3, section4)
         }

@@ -1,5 +1,56 @@
 # encoding: UTF-8
 
+class Ax38
+
+    # Ax38::type()
+    def self.types()
+        ["standard (do until done with hourly overflow)", "daily-fire-and-forget", "daily-time-commitment", "weekly-time-commitment"]
+    end
+
+    # Ax38::interactivelySelectTypeOrNull()
+    def self.interactivelySelectTypeOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", Ax38::types())
+    end
+
+    # Ax38::interactivelyCreateNewAxOrNull()
+    def self.interactivelyCreateNewAxOrNull()
+        type = Ax38::interactivelySelectTypeOrNull()
+        return nil if type.nil?
+        if type == "standard (do until done with hourly overflow)" then
+            {
+                "type" => "standard"
+            }
+        end
+        if type == "daily-fire-and-forget" then
+            {
+                "type" => "daily-fire-and-forget"
+            }
+        end
+        if type == "daily-time-commitment" then
+            hours = LucilleCore::askQuestionAnswerAsString("daily hours : ")
+            return nil if hours == ""
+            {
+                "type"  => "daily-time-commitment",
+                "hours" => hours.to_f
+            }
+        end
+        if type == "weekly-time-commitment" then
+            hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
+            return nil if hours == ""
+            {
+                "type"  => "weekly-time-commitment",
+                "hours" => hours.to_f
+            }
+        end
+    end
+
+    # Ax38::itemShouldShow(item)
+    def self.itemShouldShow(item)
+        return false if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
+        true
+    end
+end
+
 class TxZero
 
     # TxZero::items()
@@ -32,7 +83,7 @@ class TxZero
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        isImportant = LucilleCore::askQuestionAnswerAsBoolean("is important ? ")
+        ax38 = Ax38::interactivelyCreateNewAxOrNull()
 
         item = {
           "uuid"         => uuid,
@@ -40,8 +91,7 @@ class TxZero
           "description"  => description,
           "unixtime"     => unixtime,
           "datetime"     => datetime,
-          "nx111"        => nx111,
-          "isImportant"  => isImportant
+          "ax38"         => ax38
         }
         Librarian::commit(item)
         item
@@ -61,7 +111,7 @@ class TxZero
           "unixtime"     => unixtime,
           "datetime"     => datetime,
           "nx111"        => nx111,
-          "isImportant"  => nil
+          "ax38"         => nil
         }
         Librarian::commit(item)
         item
@@ -73,7 +123,6 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        priorityStr = item["isImportant"] ? "❗️" : ""
         "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})#{priorityStr}"
     end
 
@@ -149,25 +198,12 @@ class TxZero
         }
     end
 
-    # TxZero::ensureExtraAttributes()
-    def self.ensureExtraAttributes()
-        TxZero::items().each{|item|
-            if item["isImportant"].nil? then
-                item["isImportant"] = LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' is important ? : ")
-                Librarian::commit(item)
-            end
-        }
-    end
-
     # --------------------------------------------------
 
     # TxZero::itemsForListing()
     def self.itemsForListing()
-        TxZero::ensureExtraAttributes()
         TxZero::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .partition{|item| item["isImportant"] }
-            .flatten
     end
 
     # TxZero::nx20s()
