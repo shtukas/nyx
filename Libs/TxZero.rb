@@ -72,7 +72,8 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})"
+        priorityStr = XCache::getOrNull("c5b3502c-6773-4b4d-b830-9b0e76375ac8:#{item["uuid"]}") == "true" ? " (today ❗️)" : ""
+        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})#{priorityStr}"
     end
 
     # TxZero::toStringForSearch(item)

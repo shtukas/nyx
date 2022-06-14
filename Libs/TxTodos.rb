@@ -74,24 +74,13 @@ class TxTodos
         if NxBallsService::isRunning(item["uuid"]) then
             if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}'. Stop ? ") then
                 NxBallsService::close(item["uuid"], true)
-                if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}'. Done for today ? ") then
-                    NxBallsService::close(item["uuid"], true)
-                    XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
-                end
             end
         end
     end
 
     # TxTodos::done(item)
     def self.done(item)
-        puts item["description"].green
-        answer = LucilleCore::askQuestionAnswerAsString("Do you want to: `done for the day`, `destroy` or nothing ? ")
-        if answer == "done for the day" then
-            XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
-        end
-        if answer == "destroy" then
-            TxTodos::destroy(item["uuid"], true)
-        end
+        TxTodos::destroy(item["uuid"], true)
     end
 
     # TxTodos::destroy(uuid, shouldForce)

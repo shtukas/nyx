@@ -147,19 +147,13 @@ class Catalyst
             section2 = Catalyst::itemsForListing()
 
             # section1 : running items
-            # section2 : waves
+            # section2 : non zeroes: waves, ondates
             # section3 : zeroes (active)
             # section4 : zeroes (not active, done for the day or overflowing)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2, section3 = section2.partition{|item| item["mikuType"] != "TxZero" }
-            section4, section3 = section3.partition{|item|
-                (lambda {|item|
-                    return true if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
-                    return true if TxZero::rt_vX(item["uuid"]) >= 1
-                    TxZero::combined_value_vX(item) >= 3600*5
-                }).call(item)
-            }
+            section4, section3 = section3.partition{|item| XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}") }
 
             Catalyst::printListing(floats, section1, section2, section3, section4)
         }
