@@ -104,7 +104,7 @@ class TxDateds
     # TxDateds::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]}#{nx111String}"
+        "(ondate) [#{item["datetime"][0, 10]}] #{item["description"]}#{nx111String} 🗓"
     end
 
     # TxDateds::toStringForSearch(item)
