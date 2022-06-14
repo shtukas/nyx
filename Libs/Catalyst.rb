@@ -161,8 +161,6 @@ class Catalyst
                 }).call(item)
             }
 
-            section3 = section3.sort{|i1, i2| TxZero::rt_vX(i1["uuid"]) <=> TxZero::rt_vX(i2["uuid"]) }
-
             Catalyst::printListing(floats, section1, section2, section3, section4)
         }
     end

@@ -1,5 +1,58 @@
 # encoding: UTF-8
 
+class AxPriority38
+
+    # AxPriority38::type()
+    def self.types()
+        ["must be done today", "ideally today, but not crucial", "todo within days", "todo within weeks", "low priority"]
+    end
+
+    # AxPriority38::interactivelySelectTypeOrNull()
+    def self.interactivelySelectTypeOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", AxPriority38::types())
+    end
+
+    # AxPriority38::interactivelyCreateNewAxOrNull()
+    def self.interactivelyCreateNewAxOrNull()
+        type = AxPriority38::interactivelySelectTypeOrNull()
+        return nil if type.nil?
+        {
+            "type"     => type,
+            "unixtime" => Time.new.to_f
+        }
+    end
+
+    # AxPriority38::axToDisplayPriorityLevel(ax)
+    def self.axToDisplayPriorityLevel(ax)
+        mapping = {
+            "must be done today"             => 5,
+            "ideally today, but not crucial" => 4,
+            "todo within days"               => 3,
+            "todo within weeks"              => 2,
+            "low priority"                   => 1
+        }
+        mapping[ax["type"]]
+    end
+
+    # AxPriority38::axToStringWithPrefix(ax)
+    def self.axToStringWithPrefix(ax)
+        return "" if ax.nil?
+        if ax["type"] == "must be done today" then
+            return " (today❗️)"
+        end
+        if ax["type"] == "ideally today, but not crucial" then
+            return " (today 🍀)"
+        end
+        if ax["type"] == "todo within days" then
+            return " (days)"
+        end
+        if ax["type"] == "todo within weeks" then
+            return " (weeks)"
+        end
+        ""
+    end
+end
+
 class TxZero
 
     # TxZero::items()
@@ -32,13 +85,18 @@ class TxZero
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
+        isProject = LucilleCore::askQuestionAnswerAsBoolean("is project ? ")
+        axPriority38 = AxPriority38::interactivelyCreateNewAxOrNull()
+
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxZero",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111
+          "uuid"         => uuid,
+          "mikuType"     => "TxZero",
+          "description"  => description,
+          "unixtime"     => unixtime,
+          "datetime"     => datetime,
+          "nx111"        => nx111,
+          "isProject"    => isProject,
+          "axPriority38" => axPriority38
         }
         Librarian::commit(item)
         item
@@ -52,12 +110,13 @@ class TxZero
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxZero",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111
+          "uuid"         => uuid,
+          "mikuType"     => "TxZero",
+          "description"  => description,
+          "unixtime"     => unixtime,
+          "datetime"     => datetime,
+          "nx111"        => nx111,
+          "axPriority38" => nil
         }
         Librarian::commit(item)
         item
@@ -69,7 +128,7 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})"
+        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZero::rt_vX(item).round(2)})#{AxPriority38::axToStringWithPrefix(item["axPriority38"])}"
     end
 
     # TxZero::toStringForSearch(item)
@@ -144,13 +203,34 @@ class TxZero
         }
     end
 
+    # TxZero::ensureExtraAttributes()
+    def self.ensureExtraAttributes()
+        TxZero::items().each{|item|
+            next if item["axPriority38"] and !item["isProject"].nil?
+            puts item["description"].green
+            if item["isProject"].nil? then
+                item["isProject"] = LucilleCore::askQuestionAnswerAsBoolean("is project ? ")
+            end
+            if item["axPriority38"].nil? then
+                loop {
+                    ax = AxPriority38::interactivelyCreateNewAxOrNull()
+                    next if ax.nil?
+                    item["axPriority38"] = ax
+                    break
+                }
+            end
+            Librarian::commit(item)
+        }
+    end
+
     # --------------------------------------------------
 
     # TxZero::itemsForListing()
     def self.itemsForListing()
+        TxZero::ensureExtraAttributes()
         TxZero::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .reverse
+            .sort{|i1, i2| AxPriority38::axToDisplayPriorityLevel(i1["axPriority38"]) <=> AxPriority38::axToDisplayPriorityLevel(i2["axPriority38"]) }
+            .reverse # higher priority comes first
     end
 
     # TxZero::nx20s()

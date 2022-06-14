@@ -9,6 +9,7 @@ class Commands
             "wave | anniversary | float | zero | zero: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone",
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
+            "require internet",
             "pull (download and process event from the other machine)"
         ].join("\n")
     end
