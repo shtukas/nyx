@@ -24,15 +24,16 @@ class Catalyst
         vspaceleft = CommonUtils::screenHeight()-3
 
         if Machines::isLucille20() then
-            reference = The99Percent::getReference()
-            current   = The99Percent::getCurrentCount()
-            ratio     = current.to_f/reference["count"]
-            puts ""
-            puts "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-            vspaceleft = vspaceleft - 2
-            if ratio < 0.99 then
-                The99Percent::issueNewReference()
-                return
+            packet = XCache::getOrNull("b7c240a5-715d-4356-8b89-cfa0a4bfba8e") # {"line": String, "ratio": Float}
+            if packet then
+                packet = JSON.parse(packet)
+                puts ""
+                puts packet["line"]
+                vspaceleft = vspaceleft - 2
+                if packet["ratio"] < 0.99 then
+                    The99Percent::issueNewReference()
+                    return
+                end
             end
         end
 
@@ -112,10 +113,34 @@ class Catalyst
 
     # Catalyst::program2()
     def self.program2()
+
         initialCodeTrace = CommonUtils::generalCodeTrace()
+        XCache::set("code-trace-73daf78ec7af", initialCodeTrace)
+ 
+        if Machines::isLucille20() then
+            Thread.new {
+                loop {
+                    sleep 120
+                    reference = The99Percent::getReference()
+                    current   = The99Percent::getCurrentCount()
+                    ratio     = current.to_f/reference["count"]
+                    line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+                    packet    = {"line" => line, "ratio" => ratio}
+                    XCache::set("b7c240a5-715d-4356-8b89-cfa0a4bfba8e", JSON.generate(packet))
+                }
+            }
+        end
+ 
+        Thread.new {
+            loop {
+                sleep 60
+                XCache::set("code-trace-73daf78ec7af", CommonUtils::generalCodeTrace())
+            }
+        }
+
         loop {
 
-            if CommonUtils::generalCodeTrace() != initialCodeTrace then
+            if XCache::getOrNull("code-trace-73daf78ec7af") != initialCodeTrace then
                 puts "Code change detected"
                 break
             end
