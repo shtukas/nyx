@@ -6,7 +6,6 @@ class Catalyst
     def self.itemsForListing()
         [
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            TxZero::items(),
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
@@ -24,7 +23,7 @@ class Catalyst
         vspaceleft = CommonUtils::screenHeight()-3
 
         if Machines::isLucille20() then
-            packet = XCache::getOrNull("b7c240a5-715d-4356-8b89-cfa0a4bfba8e") # {"line": String, "ratio": Float}
+            packet = XCache::getOrNull("numbers-cfa0a4bfba8e") # {"line": String, "ratio": Float}
             if packet then
                 packet = JSON.parse(packet)
                 puts ""
@@ -126,7 +125,7 @@ class Catalyst
                     ratio     = current.to_f/reference["count"]
                     line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
                     packet    = {"line" => line, "ratio" => ratio}
-                    XCache::set("b7c240a5-715d-4356-8b89-cfa0a4bfba8e", JSON.generate(packet))
+                    XCache::set("numbers-cfa0a4bfba8e", JSON.generate(packet))
                 }
             }
         end
