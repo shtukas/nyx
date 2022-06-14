@@ -249,6 +249,7 @@ class TxZero
     def self.itemsForListing()
         TxZero::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .reverse
     end
 
     # TxZero::nx20s()

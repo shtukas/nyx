@@ -25,11 +25,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxZero" then
-                TxZero::access(item)
-                return
-            end
-
             if !NxBallsService::isRunning(item["uuid"]) then
                 NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
             end
@@ -95,11 +90,6 @@ class LxAction
 
             if Iam::isNetworkAggregation(item) then
                 CircleNavigation::navigate(item)
-                return
-            end
-
-            if item["mikuType"] == "TxZero" then
-                TxZero::access(item)
                 return
             end
         end
