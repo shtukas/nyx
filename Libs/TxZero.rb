@@ -257,6 +257,11 @@ class TxZero
             return
         end
 
+        if item["ax38"]["type"] == "today/asap" then
+            twoChoices.call(item)
+            return
+        end
+
         if item["ax38"]["type"] == "daily-fire-and-forget" then
             XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
             return
