@@ -55,9 +55,8 @@ class Ax38
         true
     end
 
-    # Ax38::toIcon(ax38)
-    def self.toIcon(ax38)
-
+    # Ax38::toString(ax38)
+    def self.toString(ax38)
         if ax38.nil? then
             return "📥"
         end
@@ -67,19 +66,19 @@ class Ax38
         end
 
         if ax38["type"] == "today/asap" then
-            return "❗️"
+            return "today❗️"
         end
 
         if ax38["type"] == "daily-fire-and-forget" then
-            return "🪄"
+            return "daily once 🪄"
         end
 
         if ax38["type"] == "daily-time-commitment" then
-            return "⏱ ❗️"
+            return "today: #{ax38["hours"]} hours ❗️"
         end
 
         if ax38["type"] == "weekly-time-commitment" then
-            return "⏱"
+            return "weekly: #{ax38["hours"]} hours"
         end
     end
 end
@@ -183,7 +182,7 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZNumbersAcceleration::rt(item).round(2)}) #{Ax38::toIcon(item["ax38"])}"
+        "(zero) #{item["description"]}#{nx111String} (#{Ax38::toString(item["ax38"])}) (rt: #{TxZNumbersAcceleration::rt(item).round(2)})"
     end
 
     # TxZero::toStringForSearch(item)
