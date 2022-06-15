@@ -56,28 +56,6 @@ class TxTodos
     # --------------------------------------------------
     # Operations
 
-    # TxTodos::doubleDots(item)
-    def self.doubleDots(item)
-
-        if !NxBallsService::isRunning(item["uuid"]) then
-            NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
-        end
-
-        LxAction::action("access", item)
-
-        if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}'. Destroy ? ") then
-            NxBallsService::close(item["uuid"], true)
-            TxTodos::destroy(item["uuid"], true)
-            return
-        end
-
-        if NxBallsService::isRunning(item["uuid"]) then
-            if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}'. Stop ? ") then
-                NxBallsService::close(item["uuid"], true)
-            end
-        end
-    end
-
     # TxTodos::done(item)
     def self.done(item)
         TxTodos::destroy(item["uuid"], true)

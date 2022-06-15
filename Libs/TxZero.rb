@@ -4,7 +4,7 @@ class Ax38
 
     # Ax38::type()
     def self.types()
-        ["standard (do until done with hourly overflow)", "daily-fire-and-forget", "daily-time-commitment", "weekly-time-commitment"]
+        ["standard (stack until done with hourly overflow)", "today/asap" , "daily-fire-and-forget", "daily-time-commitment", "weekly-time-commitment"]
     end
 
     # Ax38::interactivelySelectTypeOrNull()
@@ -16,20 +16,25 @@ class Ax38
     def self.interactivelyCreateNewAxOrNull()
         type = Ax38::interactivelySelectTypeOrNull()
         return nil if type.nil?
-        if type == "standard (do until done with hourly overflow)" then
-            {
+        if type == "standard (stack until done with hourly overflow)" then
+            return {
                 "type" => "standard"
             }
         end
+        if type == "today/asap" then
+            return {
+                "type" => "today/asap"
+            }
+        end
         if type == "daily-fire-and-forget" then
-            {
+            return {
                 "type" => "daily-fire-and-forget"
             }
         end
         if type == "daily-time-commitment" then
             hours = LucilleCore::askQuestionAnswerAsString("daily hours : ")
             return nil if hours == ""
-            {
+            return {
                 "type"  => "daily-time-commitment",
                 "hours" => hours.to_f
             }
@@ -37,7 +42,7 @@ class Ax38
         if type == "weekly-time-commitment" then
             hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
             return nil if hours == ""
-            {
+            return {
                 "type"  => "weekly-time-commitment",
                 "hours" => hours.to_f
             }
@@ -48,6 +53,34 @@ class Ax38
     def self.itemShouldShow(item)
         return false if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
         true
+    end
+
+    # Ax38::toIcon(ax38)
+    def self.toIcon(ax38)
+
+        if ax38.nil? then
+            return "📥"
+        end
+
+        if ax38["type"] == "standard" then
+            return "⛵️"
+        end
+
+        if ax38["type"] == "today/asap" then
+            return "❗️"
+        end
+
+        if ax38["type"] == "daily-fire-and-forget" then
+            return "🪄"
+        end
+
+        if ax38["type"] == "daily-time-commitment" then
+            return "⏱ ❗️"
+        end
+
+        if ax38["type"] == "weekly-time-commitment" then
+            return "⏱"
+        end
     end
 end
 
@@ -117,8 +150,7 @@ class TxZero
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "ax38"        => ax38,
-          "ordinal"     => TxZero::getNewTopOrdinal()
+          "ax38"        => ax38
         }
         Librarian::commit(item)
         item
@@ -138,8 +170,7 @@ class TxZero
           "unixtime"     => unixtime,
           "datetime"     => datetime,
           "nx111"        => nx111,
-          "ax38"         => nil,
-          "ordinal"      => TxZero::getNewTopOrdinal()
+          "ax38"         => nil
         }
         Librarian::commit(item)
         item
@@ -151,7 +182,7 @@ class TxZero
     # TxZero::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZNumbersAcceleration::rt(item).round(2)})"
+        "(zero) #{item["description"]}#{nx111String} (rt: #{TxZNumbersAcceleration::rt(item).round(2)}) #{Ax38::toIcon(item["ax38"])}"
     end
 
     # TxZero::toStringForSearch(item)
@@ -159,70 +190,57 @@ class TxZero
         "(zero) #{item["description"]}"
     end
 
-    # TxZero::totalTimeCommitment()
-    def self.totalTimeCommitment()
-        TxZero::items()
-            .select{|item| item["nx15"]["type"] == "time-commitment" }
-            .map{|item| item["nx15"]["value"] }
-            .inject(0, :+)
-    end
-
-    # TxZero::getNewTopOrdinal()
-    def self.getNewTopOrdinal()
-        TxZero::items().map{|item| item["ordinal"] }.max + 1
-    end
-
-    # TxZero::getNewBottomOrdinal()
-    def self.getNewBottomOrdinal()
-        TxZero::items().map{|item| item["ordinal"] }.min - 1
-    end
-
-    # TxZero::rotateItem(item)
-    def self.rotateItem(item)
-        item["ordinal"] = TxZero::getNewBottomOrdinal()
-        Librarian::commit(item)
-    end
-
     # --------------------------------------------------
     # Operations
 
-    # TxZero::doubleDots(item)
-    def self.doubleDots(item)
-
-        if !NxBallsService::isRunning(item["uuid"]) then
-            NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
+    # TxZero::setAx38(item)
+    def self.setAx38(item)
+        ax38 = Ax38::interactivelyCreateNewAxOrNull()
+        if ax38 then
+            item["ax38"] = ax38
+            Librarian::commit(item)
         end
+    end
 
-        LxAction::action("access", item)
-
-        answer = LucilleCore::askQuestionAnswerAsString("`continue` or `done` ? ")
-
-        if answer == "continue" then
+    # TxZero::doubleDotMissingAx38(item)
+    def self.doubleDotMissingAx38(item)
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access and decide", "set Ax38"])
+        return if action.nil?
+        if action == "access and decide" then
+            LxAction::action("access", item)
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy", "set Ax38"])
+            return if action.nil?
+            if action == "destroy" then
+                TxZero::destroy(item["uuid"])
+            end
+            if action == "set Ax38" then
+                TxZero::setAx38(item)
+            end
             return
         end
-
-        if answer == "done" then
-            TxZero::done(item)
+        if action == "set Ax38" then
+            TxZero::setAx38(item)
+            return
         end
     end
 
     # TxZero::done(item)
     def self.done(item)
+
         puts TxZero::toString(item).green
         NxBallsService::close(item["uuid"], true)
- 
-        if item["ax38"].nil? then
-            ax38 = Ax38::interactivelyCreateNewAxOrNull()
-            if ax38 then
-                item["ax38"] = ax38
-                Librarian::commit(item)
-            end
-        end
 
         twoChoices = lambda{|item|
             answer = LucilleCore::askQuestionAnswerAsString("This is a TxZero. Do you want to: `done for the day`, `destroy` or nothing ? ")
             if answer == "done for the day" then
                 XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+                if item["ax38"].nil? then
+                    ax38 = Ax38::interactivelyCreateNewAxOrNull()
+                    if ax38 then
+                        item["ax38"] = ax38
+                        Librarian::commit(item)
+                    end
+                end
             end
             if answer == "destroy" then
                 TxZero::destroy(item["uuid"])
@@ -281,9 +299,14 @@ class TxZero
 
     # TxZero::itemsForListing()
     def self.itemsForListing()
-        TxZero::items()
-            .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
-            .reverse
+        items = TxZero::items()
+                    .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+        i1s, items = items.partition{|item| item["ax38"].nil? }
+        i2s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
+        i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
+        i4s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
+        i5s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
+        i1s + i2s + i3s + i4s + i5s + items
     end
 
     # TxZero::nx20s()

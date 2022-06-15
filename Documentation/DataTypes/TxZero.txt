@@ -7,12 +7,15 @@ TxZero
     "description"  : String
     "nx111"        : Nx111,
     "ax38"         : null or Ax38
-    "ordinal"      : Integer
 }
 
 Ax38
     {
         "type" => "standard"
+    }
+
+    {
+        "type" => "today/asap"
     }
 
     {

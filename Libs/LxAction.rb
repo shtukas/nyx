@@ -20,9 +20,11 @@ class LxAction
 
         if command == ".." then
 
-            if item["mikuType"] == "TxTodo" then
-                TxTodos::doubleDots(item)
-                return
+            if item["mikuType"] == "TxZero" then
+                if item["ax38"].nil? then
+                    TxZero::doubleDotMissingAx38(item)
+                    return
+                end
             end
 
             if !NxBallsService::isRunning(item["uuid"]) then
@@ -67,6 +69,8 @@ class LxAction
         end
 
         if command == "access" then
+
+            puts LxFunction::function("toString", item).green
 
             if item["lambda"] then
                 item["lambda"].call()
