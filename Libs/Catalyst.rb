@@ -16,8 +16,8 @@ class Catalyst
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(floats, section1, section2, section3, section4)
-    def self.printListing(floats, section1, section2, section3, section4)
+    # Catalyst::printListing(floats, section1, section2, section3)
+    def self.printListing(floats, section1, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -68,7 +68,7 @@ class Catalyst
                 }
         end
 
-        printSection = lambda {|section, store, yellowDisplay|
+        printSection = lambda {|section, store|
             section
                 .each{|item|
                     store.register(item, true)
@@ -78,9 +78,6 @@ class Catalyst
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
-                    if yellowDisplay then
-                        line = line.yellow
-                    end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
@@ -89,10 +86,9 @@ class Catalyst
         puts ""
         vspaceleft = vspaceleft - 1
 
-        printSection.call(section1, store, false)
-        printSection.call(section2, store, false)
-        printSection.call(section3, store, false)
-        printSection.call(section4, store, true)
+        printSection.call(section1, store)
+        printSection.call(section2, store)
+        printSection.call(section3, store)
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -153,9 +149,9 @@ class Catalyst
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2, section3 = section2.partition{|item| item["mikuType"] != "TxZero" }
-            section3, section4 = section3.partition{|item| Ax38::itemShouldShow(item) }
+ 
 
-            Catalyst::printListing(floats, section1, section2, section3, section4)
+            Catalyst::printListing(floats, section1, section2, section3)
         }
     end
 end
