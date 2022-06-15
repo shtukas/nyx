@@ -65,6 +65,15 @@ class Commands
             return
         end
 
+        if Interpreting::match("Ax38", input) then
+            item = store.getDefault()
+            return if item.nil?
+            return if item["mikuType"] != "TxZero"
+            item["ax38"] = Ax38::interactivelyCreateNewAxOrNull()
+            Librarian::commit(item)
+            return
+        end
+
         if Interpreting::match("destroy", input) then
             LxAction::action("destroy", store.getDefault())
             return
