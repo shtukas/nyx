@@ -115,6 +115,7 @@ class TxZero
     # TxZero::items()
     def self.items()
         Librarian::getObjectsByMikuType("TxZero")
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # TxZero::destroy(uuid)
@@ -301,17 +302,23 @@ class TxZero
     def self.itemsForListing()
         items = TxZero::items()
                     .select{|item| Ax38::itemShouldShow(item) }
-                    .sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+
         i1s, items = items.partition{|item| item["ax38"].nil? }
         i2s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
         i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
         i4s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
-        i5s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
-        items1 = i1s + i2s + i3s + i4s + i5s
-        if items1.size > 0 then
-            return items1
+
+        if (i1s+i2s+i3s+i4s).size > 0 then
+            return i1s+i2s+i3s+i4s
         end
-        items
+
+        i5s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
+
+        if i5s.size > 0 then
+            return i5s
+        end
+        
+        return items
     end
 
     # TxZero::nx20s()
