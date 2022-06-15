@@ -49,12 +49,6 @@ class Ax38
         end
     end
 
-    # Ax38::itemShouldShow(item)
-    def self.itemShouldShow(item)
-        return false if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
-        true
-    end
-
     # Ax38::toString(ax38)
     def self.toString(ax38)
         if ax38.nil? then
@@ -190,6 +184,21 @@ class TxZero
         "(zero) #{item["description"]}"
     end
 
+    # TxZero::itemShouldShow(item)
+    def self.itemShouldShow(item)
+        return false if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
+
+        if item["ax38"]["type"] == "daily-time-commitment" then
+            return TxZNumbersAcceleration::rt(item) < item["ax38"]["hours"]
+        end
+
+        if item["ax38"]["type"] == "weekly-time-commitment" then
+            return TxZNumbersAcceleration::combined_value(item) < item["ax38"]["hours"]
+        end
+
+        true
+    end
+
     # --------------------------------------------------
     # Operations
 
@@ -305,7 +314,7 @@ class TxZero
     # TxZero::itemsForListing()
     def self.itemsForListing()
         items = TxZero::items()
-                    .select{|item| Ax38::itemShouldShow(item) }
+                    .select{|item| TxZero::itemShouldShow(item) }
 
         i1s, items = items.partition{|item| item["ax38"].nil? }
         i2s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
