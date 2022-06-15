@@ -60,7 +60,7 @@ class Ax38
         end
 
         if ax38["type"] == "today/asap" then
-            return "today❗️"
+            return "today/asap"
         end
 
         if ax38["type"] == "daily-fire-and-forget" then
@@ -68,7 +68,7 @@ class Ax38
         end
 
         if ax38["type"] == "daily-time-commitment" then
-            return "today: #{ax38["hours"]} hours ❗️"
+            return "today: #{ax38["hours"]} hours"
         end
 
         if ax38["type"] == "weekly-time-commitment" then
