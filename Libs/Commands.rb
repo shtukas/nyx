@@ -266,7 +266,7 @@ class Commands
         end
 
         if Interpreting::match("time * *", input) then
-            _, ordinal, timenHours = Interpreting::tokenizer(input)
+            _, ordinal, timeInHours = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts "Adding #{timeInHours.to_f} hours to #{LxFunction::function("toString", item).green}"
