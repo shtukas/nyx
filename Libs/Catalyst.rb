@@ -5,9 +5,9 @@ class Catalyst
     # Catalyst::itemsForListing()
     def self.itemsForListing()
         [
+            NxOrdinals::items(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
-            NxOrdinals::items(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
             TxZero::itemsForListing(),
