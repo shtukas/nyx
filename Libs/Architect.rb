@@ -42,9 +42,6 @@ class Architect
         if action == "NxCollection" then
             return NxCollections::interactivelyIssueNewItemOrNull()
         end
-        if action == "NxNavigation" then
-            return NxNavigation::interactivelyIssueNewOrNull()
-        end
         if action == "NxPerson" then
             return NxPersons::interactivelyIssueNewOrNull()
         end

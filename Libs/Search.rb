@@ -9,7 +9,6 @@ class Search
             Anniversaries::nx20s(),
             NxCollections::nx20s(),
             NxDataNodes::nx20s(),
-            NxNavigation::nx20s(),
             NxPersons::nx20s(),
             NxTimelines::nx20s(),
             TxDateds::nx20s(),

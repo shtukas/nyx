@@ -173,10 +173,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxNavigation" then
-            return
-        end
-
         if item["mikuType"] == "NxRelation" then
             return
         end
