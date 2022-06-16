@@ -46,7 +46,7 @@ class Architect
             return NxNavigation::interactivelyIssueNewOrNull()
         end
         if action == "NxPerson" then
-            return NxPerson::interactivelyIssueNewOrNull()
+            return NxPersons::interactivelyIssueNewOrNull()
         end
         if action == "NxTimeline" then
             return NxTimelines::interactivelyIssueNewItemOrNull()

@@ -3,83 +3,61 @@
 
 class Transmutation
 
-    # Transmutation::interactivelyNx50ToNyx(todo) # NxDataNode
-    def self.interactivelyNx50ToNyx(todo)
-        description = todo["description"]
-
-        uuid       = SecureRandom.uuid
-        unixtime   = todo["unixtime"]
-        datetime   = todo["datetime"]
-
-        item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxDataNode",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-            "nx111"       => todo["nx111"]
-        }
-        Librarian::commit(item)
-        item
-
-    end
-
-    # Transmutation::transmutation1(object, source, target)
-    # source: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
-    # target: "TxDated" (dated) | "TxTodo" | "TxFloat" (float)
-    def self.transmutation1(object, source, target)
+    # Transmutation::transmutation1(item, source, target)
+    def self.transmutation1(item, source, target)
 
         if source == "TxDated" and target == "TxTodo" then
-            object["mikuType"] = "TxTodo"
-            Librarian::commit(object)
+            item["mikuType"] = "TxTodo"
+            Librarian::commit(item)
             return
         end
 
         if source == "TxDated" and target == "TxFloat" then
-            object["mikuType"] = "TxFloat"
-            Librarian::commit(object)
+            item["mikuType"] = "TxFloat"
+            Librarian::commit(item)
             return
         end
 
         if source == "TxFloat" and target == "TxDated" then
-            object["mikuType"] = "TxDated"
-            object["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
-            Librarian::commit(object)
+            item["mikuType"] = "TxDated"
+            item["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            Librarian::commit(item)
             return
         end
 
         if source == "TxFloat" and target == "TxTodo" then
-            object["mikuType"] = "TxTodo"
-            Librarian::commit(object)
+            item["mikuType"] = "TxTodo"
+            Librarian::commit(item)
             return
         end
 
         if source == "TxTodo" and target == "NxDataNode" then
-            nx100 = object.clone
-            nx100["uuid"] = SecureRandom.uuid
-            nx100["mikuType"] = "NxDataNode"
-            Librarian::commit(nx100)
-            TxTodos::destroy(object["uuid"], true)
+            item["mikuType"] = "NxDataNode"
+            Librarian::commit(item)
             LxAction::action("landing", item)
             return
+        end
+
+        if source == "NxDataNode" and target == "NxPerson" then
+            item["mikuType"] = "NxPerson"
+            item["name"] = item["description"]
+            Librarian::commit(item)
         end
 
         puts "I do not yet know how to transmute from '#{source}' to '#{target}'"
         LucilleCore::pressEnterToContinue()
     end
 
-    # Transmutation::transmutation2(object, source)
-    def self.transmutation2(object, source)
+    # Transmutation::transmutation2(item, source)
+    def self.transmutation2(item, source)
         target = Transmutation::interactivelyGetTransmutationTargetOrNull()
         return if target.nil?
-        Transmutation::transmutation1(object, source, target)
+        Transmutation::transmutation1(item, source, target)
     end
 
     # Transmutation::interactivelyGetTransmutationTargetOrNull()
     def self.interactivelyGetTransmutationTargetOrNull()
-        options = ["TxFloat", "TxDated", "TxTodo" ]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("target", options)
-        return nil if option.nil?
-        option
+        options = Iam::nx111Types() + Iam::aggregationTypes()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", options)
     end
 end

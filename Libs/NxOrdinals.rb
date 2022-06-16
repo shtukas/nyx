@@ -93,6 +93,7 @@ class NxOrdinals
                 puts "(NxOrdinals::done, item not found: #{item["targetUUID"]})"
             end
             LxAction::action("done", i2)
+            XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"])
         end
     end
 end

@@ -197,7 +197,16 @@ class Commands
             item = NxOrdinals::issuePointer(item, ordinal)
             puts JSON.pretty_generate(item)
             return
-        end      
+        end
+
+        if Interpreting::match("ordinal off", input) then
+            indx = LucilleCore::askQuestionAnswerAsString("index : ")
+            item = store.get(indx.to_i)
+            return if item.nil?
+            return if item["mikuType"] != "NxOrdinal"
+            XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"])
+            return
+        end 
 
         if Interpreting::match("pause", input) then
             item = store.getDefault()

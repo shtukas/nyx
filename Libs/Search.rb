@@ -10,7 +10,7 @@ class Search
             NxCollections::nx20s(),
             NxDataNodes::nx20s(),
             NxNavigation::nx20s(),
-            NxPerson::nx20s(),
+            NxPersons::nx20s(),
             NxTimelines::nx20s(),
             TxDateds::nx20s(),
             TxFloats::nx20s(),

@@ -25,19 +25,12 @@ class Iam
 
     # Iam::processItem(item)
     def self.processItem(item)
-        if Iam::implementsNx111(item) then
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["convert to network aggregation node"])
-            return if action.nil?
-            if action == "convert to network aggregation node" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Can we discard the existing data payload ? ") then
-                    type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Iam::aggregationTypes())
-                    return if type.nil?
-                    item["mikuType"] = type
-                    Librarian::commit(item)
-                end
-                return
-            end
-            raise "(error: 20b33796-501e-4f02-9724-756e89a5f18b)"
+        targetType = Transmutation::interactivelyGetTransmutationTargetOrNull()
+        return if targetType.nil?
+        if Iam::nx111Types().include?(item["mikuType"]) and Iam::aggregationTypes().include?(targetType) then
+            puts "You are moving from a data (Nx111) type to an aggregation type and therefore will lose the contents"
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Do you want to continue ?")
         end
+        Transmutation::transmutation1(item, item["mikuType"], targetType)
     end
 end
