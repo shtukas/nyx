@@ -47,6 +47,19 @@ class NxOrdinals
         item
     end
 
+    # NxOrdinals::issuePointer(item, ordinal)
+    def self.issuePointer(item, ordinal)
+        item = {
+            "uuid"        => SecureRandom.uuid,
+            "mikuType"    => "NxOrdinal",
+            "type"        => "pointer",
+            "targetUUID"  => item["uuid"],
+            "ordinal"     => ordinal
+        }
+        XCacheSets::set("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"], item)
+        item
+    end
+
     # NxOrdinals::delete(uuid)
     def self.delete(uuid)
         XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", uuid)    

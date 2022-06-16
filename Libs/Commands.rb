@@ -11,7 +11,7 @@ class Commands
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
             "require internet",
             "pull (download and process event from the other machine)",
-            "ordinals issue carrier"
+            "ordinal line | ordinal item"
         ].join("\n")
     end
 
@@ -171,13 +171,33 @@ class Commands
             return
         end
 
-        if Interpreting::match("ordinals issue carrier", input) then
+        if Interpreting::match("ordinal line", input) then
             line = LucilleCore::askQuestionAnswerAsString("line : ")
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             item = NxOrdinals::issueCarrier(line, ordinal)
             puts JSON.pretty_generate(item)
             return
-        end        
+        end 
+
+        if Interpreting::match("ordinal item", input) then
+            indx = LucilleCore::askQuestionAnswerAsString("index : ")
+            item = store.get(indx.to_i)
+            return if item.nil?
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            if item["mikuType"] == "NxOrdinal" then
+                item["ordinal"] = ordinal
+                XCacheSets::set("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"], item)
+                return
+            end
+            # Let's look for any existing nxordinals pointing at this item
+            NxOrdinals::items()
+                .select{|ix| ix["type"] == "pointer" }
+                .select{|ix| ix["targetUUID"] == item["uuid"] }
+                .each{|ix| XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", ix["uuid"]) }
+            item = NxOrdinals::issuePointer(item, ordinal)
+            puts JSON.pretty_generate(item)
+            return
+        end      
 
         if Interpreting::match("pause", input) then
             item = store.getDefault()
