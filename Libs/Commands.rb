@@ -10,7 +10,8 @@ class Commands
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
             "require internet",
-            "pull (download and process event from the other machine)"
+            "pull (download and process event from the other machine)",
+            "ordinals issue carrier"
         ].join("\n")
     end
 
@@ -169,6 +170,14 @@ class Commands
             TxDateds::dive()
             return
         end
+
+        if Interpreting::match("ordinals issue carrier", input) then
+            line = LucilleCore::askQuestionAnswerAsString("line : ")
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            item = NxOrdinals::issueCarrier(line, ordinal)
+            puts JSON.pretty_generate(item)
+            return
+        end        
 
         if Interpreting::match("pause", input) then
             item = store.getDefault()

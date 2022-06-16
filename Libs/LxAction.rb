@@ -104,14 +104,16 @@ class LxAction
             if NxBallsService::isRunning(item["uuid"]) then
                  NxBallsService::close(item["uuid"], true)
             end
-
             if item["mikuType"] == "(rstream)" then
                 # That's the rstream
                 return
             end
-
             if item["mikuType"] == "NxBall.v2" then
                 NxBallsService::close(item["uuid"], true)
+                return
+            end
+            if item["mikuType"] == "NxOrdinal" then
+                NxOrdinals::done(item)
                 return
             end
             if item["mikuType"] == "Anniversary" then

@@ -7,6 +7,7 @@ class Catalyst
         [
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
+            NxOrdinals::items(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
             TxZero::itemsForListing(),
@@ -16,8 +17,8 @@ class Catalyst
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(floats, section1, section2, section3)
-    def self.printListing(floats, section1, section2, section3)
+    # Catalyst::printListing(floats, section1, section1b, section2, section3)
+    def self.printListing(floats, section1, section1b, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -85,8 +86,8 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-
         printSection.call(section1, store)
+        printSection.call(section1b, store)
         printSection.call(section2, store)
         printSection.call(section3, store)
 
@@ -142,16 +143,19 @@ class Catalyst
 
             section2 = Catalyst::itemsForListing()
 
-            # section1 : running items
-            # section2 : non zeroes: waves, ondates
-            # section3 : zeroes (active)
-            # section4 : zeroes (not active, done for the day or overflowing)
+            section1b = []
+
+            # section1  : running items
+            # section1b : NxOrdinals
+            # section2  : non zeroes: waves, ondates
+            # section3  : zeroes (active)
+            # section4  : zeroes (not active, done for the day or overflowing)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2, section3 = section2.partition{|item| item["mikuType"] != "TxZero" }
  
 
-            Catalyst::printListing(floats, section1, section2, section3)
+            Catalyst::printListing(floats, section1, section1b, section2, section3)
         }
     end
 end
