@@ -324,18 +324,9 @@ class TxZero
         i2s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
         i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
         i4s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
-
-        if (i1s+i2s+i3s+i4s).size > 0 then
-            return i1s+i2s+i3s+i4s
-        end
-
         i5s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
 
-        if i5s.size > 0 then
-            return i5s
-        end
-        
-        return items
+        i1s + i2s + i3s + i4s + i5s + items
     end
 
     # TxZero::nx20s()
