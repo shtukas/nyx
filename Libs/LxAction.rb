@@ -21,10 +21,8 @@ class LxAction
         if command == ".." then
 
             if item["mikuType"] == "TxZero" then
-                if item["ax38"].nil? then
-                    TxZero::doubleDotMissingAx38(item)
-                    return
-                end
+                TxZero::doubleDot(item)
+                return
             end
 
             if !NxBallsService::isRunning(item["uuid"]) then

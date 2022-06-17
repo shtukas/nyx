@@ -233,6 +233,29 @@ class TxZero
         end
     end
 
+    # TxZero::doubleDot(item)
+    def self.doubleDot(item)
+        if item["ax38"].nil? then
+            TxZero::doubleDotMissingAx38(item)
+            return
+        end
+
+        if NxBallsService::isRunning(item["uuid"]) then
+            NxBallsService::close(item["uuid"], true)
+            if item["ax38"]["type"] == "daily-fire-and-forget" then
+                XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
+            end
+            if item["ax38"]["type"] == "today/asap" or item["ax38"]["type"] == "standard" then
+                if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' destroy ? ", true) then
+                    TxZero::destroy(item["uuid"])
+                end
+            end
+        else
+            NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
+            LxAction::action("access", item)
+        end
+    end
+
     # TxZero::done(item)
     def self.done(item)
 
