@@ -189,12 +189,10 @@ class TxZero
         return false if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
 
         if item["ax38"] and item["ax38"]["type"] == "daily-time-commitment" then
-            return false if BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
             return TxZNumbersAcceleration::rt(item) < item["ax38"]["hours"]
         end
 
         if item["ax38"] and item["ax38"]["type"] == "weekly-time-commitment" then
-            return false if BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 1
             return TxZNumbersAcceleration::combined_value(item) < item["ax38"]["hours"]
         end
 
