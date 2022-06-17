@@ -193,6 +193,7 @@ class TxZero
         end
 
         if item["ax38"] and item["ax38"]["type"] == "weekly-time-commitment" then
+            return false if Time.new.wday == 5 # We don't show those on Fridays
             return TxZNumbersAcceleration::combined_value(item) < item["ax38"]["hours"]
         end
 
