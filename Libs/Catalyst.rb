@@ -147,8 +147,8 @@ class Catalyst
             # section3  : zeroes (active)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
+
             section2, section3 = section2.partition{|item| item["mikuType"] != "NxShip" }
- 
 
             Catalyst::printListing(section1, section2, section3)
         }

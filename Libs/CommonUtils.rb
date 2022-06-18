@@ -160,7 +160,7 @@ class CommonUtils
 
     # CommonUtils::generalCodeTrace()
     def self.generalCodeTrace()
-        CommonUtils::locationTraceCode("#{File.dirname(__FILE__)}/../..")
+        CommonUtils::locationTraceCode("#{File.dirname(__FILE__)}/..")
     end
 
     # ----------------------------------------------------
