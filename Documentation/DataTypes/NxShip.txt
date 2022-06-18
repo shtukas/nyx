@@ -1,9 +1,9 @@
 
-NxShips define flotille struture. Any item can below to a flotille.
+TxFlts define flotille struture. Any item can below to a flotille.
 
-NxShip {
+TxFlt {
     "uuid"        : String
-    "mikuType"    : "NxShip"
+    "mikuType"    : "TxFlt"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "flotille"    : UUID

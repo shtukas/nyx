@@ -33,8 +33,8 @@ class LxFunction
             if item["mikuType"] == "NxOrdinal" then
                 return NxOrdinals::toString(item)
             end
-            if item["mikuType"] == "NxShip" then
-                return NxShips::toString(item)
+            if item["mikuType"] == "TxFlt" then
+                return TxFlts::toString(item)
             end
             if item["mikuType"] == "NxTimeline" then
                 return NxTimelines::toString(item)
@@ -42,8 +42,8 @@ class LxFunction
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
             end
-            if item["mikuType"] == "TxZero" then
-                return TxZero::toString(item)
+            if item["mikuType"] == "NxShip" then
+                return NxShip::toString(item)
             end
             if item["mikuType"] == "TxTodo" then
                 return TxTodos::toString(item)

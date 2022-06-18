@@ -13,8 +13,4 @@ Thread.new {
     }
 }
 
-Thread.new {
-    SyncOperators::serverRun(false)
-}
-
 Catalyst::program2()

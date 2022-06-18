@@ -1,22 +1,22 @@
 
 # encoding: UTF-8
 
-class NxShips
+class TxFlts
 
     # ----------------------------------------------------------------------
     # IO
 
-    # NxShips::items()
+    # TxFlts::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxShip")
+        Librarian::getObjectsByMikuType("TxFlt")
     end
 
-    # NxShips::getOrNull(uuid): null or NxShip
+    # TxFlts::getOrNull(uuid): null or TxFlt
     def self.getOrNull(uuid)
         Librarian::getObjectByUUIDOrNull(uuid)
     end
 
-    # NxShips::destroy(uuid)
+    # TxFlts::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
     end
@@ -24,14 +24,14 @@ class NxShips
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # NxShips::issue(flotilleuuid, itemuuid)
+    # TxFlts::issue(flotilleuuid, itemuuid)
     def self.issue(flotilleuuid, itemuuid)
         uuid = SecureRandom.uuid
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         item = {
             "uuid"     => uuid,
-            "mikuType" => "NxShip",
+            "mikuType" => "TxFlt",
             "unixtime" => unixtime,
             "datetime" => datetime,
             "flotille" => flotilleuuid,
@@ -44,13 +44,13 @@ class NxShips
     # ----------------------------------------------------------------------
     # Data
 
-    # NxShips::toString(item)
+    # TxFlts::toString(item)
     def self.toString(item)
         target = Librarian::getObjectByUUIDOrNull(item["target"])
         if target.nil? then
-            return "(ship) target not found (#{item["target"]})"
+            return "(flt) target not found (#{item["target"]})"
         end
-        "(ship) #{LxFunction::function("toString", target)}"
+        "(flt) #{LxFunction::function("toString", target)}"
     end
 
     # ------------------------------------------------

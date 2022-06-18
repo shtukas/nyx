@@ -1,6 +1,6 @@
-TxZero {
+NxShip {
     "uuid"        => uuid,
-    "mikuType"    => "TxZero",
+    "mikuType"    => "NxShip",
     "description" => description,
     "unixtime"    => unixtime,
     "datetime"    => datetime,

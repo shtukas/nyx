@@ -79,8 +79,6 @@ class Librarian
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
-
-        SyncEventSpecific::postObjectUpdateEvent(object)
     end
 
     # Librarian::commitWithoutUpdates(object)
@@ -99,8 +97,6 @@ class Librarian
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
-
-        SyncEventSpecific::postObjectUpdateEvent(object)
     end
 
     # Librarian::commitWithoutUpdatesNoEvents(object)
@@ -135,14 +131,6 @@ class Librarian
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
         db.close
-
-        object = {
-            "uuid"     => uuid,
-            "mikuType" => "NxDeleted",
-            "unixtime" => Time.new.to_i,
-            "datetime" => Time.new.utc.iso8601,
-        }
-        SyncEventSpecific::postObjectUpdateEvent(object)
     end
 
     # Librarian::destroyByNxDeletedEmitNoEvent(uuid)

@@ -33,7 +33,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        TxDateds::items().size + TxZero::items().size + TxTodos::items().size
+        TxDateds::items().size + NxShip::items().size + TxTodos::items().size
     end
 
     # The99Percent::ratio()

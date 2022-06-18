@@ -60,7 +60,7 @@ class Ax38
         end
 
         if ax38["type"] == "today/asap" then
-            return "today/asap"
+            return "today/asap ❗️"
         end
 
         if ax38["type"] == "daily-fire-and-forget" then
@@ -68,11 +68,11 @@ class Ax38
         end
 
         if ax38["type"] == "daily-time-commitment" then
-            return "today: #{ax38["hours"]} hours"
+            return "today: #{ax38["hours"]} hours ⏱"
         end
 
         if ax38["type"] == "weekly-time-commitment" then
-            return "weekly: #{ax38["hours"]} hours"
+            return "weekly: #{ax38["hours"]} hours ⏱"
         end
     end
 end
@@ -93,7 +93,7 @@ end
 Thread.new {
     loop {
         sleep 32
-        TxZero::items().each{|item|
+        NxShip::items().each{|item|
             rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
             XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
             cvalue = Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday())
@@ -103,15 +103,15 @@ Thread.new {
     }
 }
 
-class TxZero
+class NxShip
 
-    # TxZero::items()
+    # NxShip::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxZero")
+        Librarian::getObjectsByMikuType("NxShip")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
-    # TxZero::destroy(uuid)
+    # NxShip::destroy(uuid)
     def self.destroy(uuid)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
         Librarian::destroy(uuid)
@@ -120,7 +120,7 @@ class TxZero
     # --------------------------------------------------
     # Makers
 
-    # TxZero::interactivelyIssueNewOrNull(description = nil)
+    # NxShip::interactivelyIssueNewOrNull(description = nil)
     def self.interactivelyIssueNewOrNull(description = nil)
         if description.nil? or description == "" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -140,7 +140,7 @@ class TxZero
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxZero",
+          "mikuType"    => "NxShip",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
@@ -150,7 +150,7 @@ class TxZero
         item
     end
 
-    # TxZero::locationToZero(location)
+    # NxShip::locationToZero(location)
     def self.locationToZero(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
@@ -159,7 +159,7 @@ class TxZero
         datetime = Time.new.utc.iso8601
         item = {
           "uuid"         => uuid,
-          "mikuType"     => "TxZero",
+          "mikuType"     => "NxShip",
           "description"  => description,
           "unixtime"     => unixtime,
           "datetime"     => datetime,
@@ -173,18 +173,18 @@ class TxZero
     # --------------------------------------------------
     # Data
 
-    # TxZero::toString(item)
+    # NxShip::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(zero) #{item["description"]}#{nx111String} (#{Ax38::toString(item["ax38"])}) (rt: #{TxZNumbersAcceleration::rt(item).round(2)})"
+        "(ship) #{item["description"]}#{nx111String} (#{Ax38::toString(item["ax38"])}) (rt: #{TxZNumbersAcceleration::rt(item).round(2)})"
     end
 
-    # TxZero::toStringForSearch(item)
+    # NxShip::toStringForSearch(item)
     def self.toStringForSearch(item)
-        "(zero) #{item["description"]}"
+        "(ship) #{item["description"]}"
     end
 
-    # TxZero::itemShouldShow(item)
+    # NxShip::itemShouldShow(item)
     def self.itemShouldShow(item)
         return false if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
 
@@ -203,7 +203,7 @@ class TxZero
     # --------------------------------------------------
     # Operations
 
-    # TxZero::setAx38(item)
+    # NxShip::setAx38(item)
     def self.setAx38(item)
         ax38 = Ax38::interactivelyCreateNewAxOrNull()
         if ax38 then
@@ -212,7 +212,7 @@ class TxZero
         end
     end
 
-    # TxZero::doubleDotMissingAx38(item)
+    # NxShip::doubleDotMissingAx38(item)
     def self.doubleDotMissingAx38(item)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access and decide", "set Ax38"])
         return if action.nil?
@@ -221,23 +221,23 @@ class TxZero
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["destroy", "set Ax38"])
             return if action.nil?
             if action == "destroy" then
-                TxZero::destroy(item["uuid"])
+                NxShip::destroy(item["uuid"])
             end
             if action == "set Ax38" then
-                TxZero::setAx38(item)
+                NxShip::setAx38(item)
             end
             return
         end
         if action == "set Ax38" then
-            TxZero::setAx38(item)
+            NxShip::setAx38(item)
             return
         end
     end
 
-    # TxZero::doubleDot(item)
+    # NxShip::doubleDot(item)
     def self.doubleDot(item)
         if item["ax38"].nil? then
-            TxZero::doubleDotMissingAx38(item)
+            NxShip::doubleDotMissingAx38(item)
             return
         end
 
@@ -248,7 +248,7 @@ class TxZero
             end
             if item["ax38"]["type"] == "today/asap" or item["ax38"]["type"] == "standard" then
                 if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' destroy ? ", true) then
-                    TxZero::destroy(item["uuid"])
+                    NxShip::destroy(item["uuid"])
                 end
             end
         else
@@ -257,14 +257,14 @@ class TxZero
         end
     end
 
-    # TxZero::done(item)
+    # NxShip::done(item)
     def self.done(item)
 
-        puts TxZero::toString(item).green
+        puts NxShip::toString(item).green
         NxBallsService::close(item["uuid"], true)
 
         twoChoices = lambda{|item|
-            answer = LucilleCore::askQuestionAnswerAsString("This is a TxZero. Do you want to: `done for the day`, `destroy` or nothing ? ")
+            answer = LucilleCore::askQuestionAnswerAsString("This is a NxShip. Do you want to: `done for the day`, `destroy` or nothing ? ")
             if answer == "done for the day" then
                 XCache::setFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}", true)
                 if item["ax38"].nil? then
@@ -276,7 +276,7 @@ class TxZero
                 end
             end
             if answer == "destroy" then
-                TxZero::destroy(item["uuid"])
+                NxShip::destroy(item["uuid"])
             end
         }
 
@@ -322,12 +322,12 @@ class TxZero
         end
     end
 
-    # TxZero::dive()
+    # NxShip::dive()
     def self.dive()
         loop {
             system("clear")
-            items = TxZero::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("zero", items, lambda{|item| TxZero::toString(item) })
+            items = NxShip::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("zero", items, lambda{|item| NxShip::toString(item) })
             break if item.nil?
             Landing::implementsNx111Landing(item)
         }
@@ -335,10 +335,10 @@ class TxZero
 
     # --------------------------------------------------
 
-    # TxZero::itemsForListing()
+    # NxShip::itemsForListing()
     def self.itemsForListing()
-        items = TxZero::items()
-                    .select{|item| TxZero::itemShouldShow(item) }
+        items = NxShip::items()
+                    .select{|item| NxShip::itemShouldShow(item) }
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
@@ -348,15 +348,19 @@ class TxZero
         i4s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
         i5s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
 
-        i1s + i2s + i3s + i4s + i5s + items
+        if (i1s + i2s + i3s + i4s + i5s).size > 0 then
+            i2s + i3s + i4s + i5s + i1s
+        else
+            items
+        end
     end
 
-    # TxZero::nx20s()
+    # NxShip::nx20s()
     def self.nx20s()
-        Librarian::getObjectsByMikuType("TxZero")
+        Librarian::getObjectsByMikuType("NxShip")
             .map{|item|
                 {
-                    "announce" => TxZero::toStringForSearch(item),
+                    "announce" => NxShip::toStringForSearch(item),
                     "unixtime" => item["unixtime"],
                     "payload"  => item
                 }

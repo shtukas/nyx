@@ -10,7 +10,7 @@ class Catalyst
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            TxZero::itemsForListing(),
+            NxShip::itemsForListing(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -44,6 +44,8 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
+        puts ""
+        vspaceleft = vspaceleft - 1
         NxFlotilles::items().each{|item|
             store.register(item, false)
             line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
@@ -141,7 +143,7 @@ class Catalyst
             end
 
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Zero").each{|location|
-                item = TxZero::locationToZero(location)
+                item = NxShip::locationToZero(location)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             }
@@ -159,7 +161,7 @@ class Catalyst
             # section4  : zeroes (not active, done for the day or overflowing)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
-            section2, section3 = section2.partition{|item| item["mikuType"] != "TxZero" }
+            section2, section3 = section2.partition{|item| item["mikuType"] != "NxShip" }
  
 
             Catalyst::printListing(floats, section1, section1b, section2, section3)

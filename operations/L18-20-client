@@ -1,8 +1,0 @@
-#!/usr/bin/ruby
-
-require_relative "../Libs/loader.rb"
-
-require 'drb/drb'
-
-SyncOperators::clientRunOnce(true)
-

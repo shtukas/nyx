@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | float | zero | zero: <line> | today | ondate | ondate: <line> | todo | todo: <line> | flotille | make ship <flotille-indx> <item-indx>",
+            "wave | anniversary | float | zero | zero: <line> | today | ondate | ondate: <line> | todo | todo: <line> | flotille | make flt <flotille-indx> <item-indx>",
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
             "require internet",
@@ -69,7 +69,7 @@ class Commands
         if Interpreting::match("Ax38", input) then
             item = store.getDefault()
             return if item.nil?
-            return if item["mikuType"] != "TxZero"
+            return if item["mikuType"] != "NxShip"
             item["ax38"] = Ax38::interactivelyCreateNewAxOrNull()
             Librarian::commit(item)
             return
@@ -151,7 +151,7 @@ class Commands
             return
         end
 
-        if Interpreting::match("make ship * *", input) then
+        if Interpreting::match("make flt * *", input) then
             _, _, flotilleIndx, itemIdex = Interpreting::tokenizer(input)
             flotilleIndx = flotilleIndx.to_i
             itemIdex = itemIdex.to_i
@@ -160,8 +160,8 @@ class Commands
             return if flotille["mikuType"] != "NxFlotille"
             item = store.get(itemIdex)
             return if item.nil?
-            ship = NxShips::issue(flotille["uuid"], item["uuid"])
-            puts JSON.pretty_generate(ship)
+            flt = TxFlts::issue(flotille["uuid"], item["uuid"])
+            puts JSON.pretty_generate(flt)
             return
         end
 
@@ -239,11 +239,6 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             NxBallsService::pause(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("pull", input) then
-            SyncOperators::clientRunOnce(true)
             return
         end
 
@@ -391,7 +386,7 @@ class Commands
         end
 
         if Interpreting::match("zero", input) then
-            item = TxZero::interactivelyIssueNewOrNull()
+            item = NxShip::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
@@ -399,14 +394,14 @@ class Commands
 
         if input.start_with?("zero:") then
             message = input[5, input.length].strip
-            item = TxZero::interactivelyIssueNewOrNull(message)
+            item = NxShip::interactivelyIssueNewOrNull(message)
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
         end
 
         if Interpreting::match("zeroes", input) then
-            TxZero::dive()
+            NxShip::dive()
             return
         end
     end

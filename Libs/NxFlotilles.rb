@@ -54,9 +54,9 @@ class NxFlotilles
         "(flotille) #{item["description"]}"
     end
 
-    # NxFlotilles::ships(flotille)
-    def self.ships(flotille)
-        NxShips::items().select{|ship| ship["flotille"] == flotille["uuid"] }
+    # NxFlotilles::flts(flotille)
+    def self.flts(flotille)
+        TxFlts::items().select{|flt| flt["flotille"] == flotille["uuid"] }
     end
 
     # ------------------------------------------------
@@ -71,9 +71,9 @@ class NxFlotilles
 
             store = ItemStore.new()
 
-            NxFlotilles::ships(flotille).each{|ship|
-                indx = store.register(ship, false)
-                puts "[#{indx.to_s.ljust(3)}] #{NxShips::toString(ship)}"
+            NxFlotilles::flts(flotille).each{|flt|
+                indx = store.register(flt, false)
+                puts "[#{indx.to_s.ljust(3)}] #{TxFlts::toString(flt)}"
             }
 
             puts "commands: <n> | description".yellow

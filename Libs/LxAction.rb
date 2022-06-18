@@ -20,8 +20,8 @@ class LxAction
 
         if command == ".." then
 
-            if item["mikuType"] == "TxZero" then
-                TxZero::doubleDot(item)
+            if item["mikuType"] == "NxShip" then
+                NxShip::doubleDot(item)
                 return
             end
 
@@ -151,8 +151,8 @@ class LxAction
                 TxTodos::done(item)
                 return
             end
-            if item["mikuType"] == "TxZero" then
-                TxZero::done(item)
+            if item["mikuType"] == "NxShip" then
+                NxShip::done(item)
                 return
             end
             if item["mikuType"] == "Wave" then
@@ -189,7 +189,7 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxShip" then
+            if item["mikuType"] == "TxFlt" then
                 i2 = Librarian::getObjectByUUIDOrNull(item["target"])
                 return if i2.nil?
                 LxAction::action("landing", i2)

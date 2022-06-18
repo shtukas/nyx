@@ -1,8 +1,8 @@
-TxZero
+NxShip
 
 {
     "uuid"         : String
-    "mikuType"     : "TxZero"
+    "mikuType"     : "NxShip"
     "unixtime"     : Float
     "description"  : String
     "nx111"        : Nx111,
