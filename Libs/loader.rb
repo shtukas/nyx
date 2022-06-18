@@ -177,6 +177,7 @@ require_relative "ProgrammableBooleans.rb"
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Streaming.rb"
+require_relative "StargateCentral.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"

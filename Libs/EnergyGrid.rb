@@ -1,35 +1,89 @@
 # encoding: UTF-8
 
-class EnergyGridDatablobs
+class LocalDatablobs
 
-    # EnergyGridDatablobs::datablobsRepositoryPath()
-    def self.datablobsRepositoryPath()
+    # LocalDatablobs::repositoryFolderpath()
+    def self.repositoryFolderpath()
         "#{Config::pathToDataBankStargate()}/DatablobsDepth1"
     end
 
-    # EnergyGridDatablobs::decideFilepathForBlob(nhash)
+    # LocalDatablobs::decideFilepathForBlob(nhash)
     def self.decideFilepathForBlob(nhash)
-        filepath = "#{EnergyGridDatablobs::datablobsRepositoryPath()}/#{nhash[7, 2]}/#{nhash}.data"
+        filepath = "#{LocalDatablobs::repositoryFolderpath()}/#{nhash[7, 2]}/#{nhash}.data"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
         filepath
     end
 
-    # EnergyGridDatablobs::putBlob(blob)
+    # LocalDatablobs::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = EnergyGridDatablobs::decideFilepathForBlob(nhash)
+        filepath = LocalDatablobs::decideFilepathForBlob(nhash)
         File.open(filepath, "w"){|f| f.write(blob) }
         nhash
     end
 
-    # EnergyGridDatablobs::getBlobOrNull(nhash)
+    # LocalDatablobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepath = EnergyGridDatablobs::decideFilepathForBlob(nhash)
+        filepath = LocalDatablobs::decideFilepathForBlob(nhash)
         if File.exists?(filepath) then
             return IO.read(filepath)
         end
+        nil
+    end
+end
+
+class StargateCentralDatablobs
+
+    # StargateCentralDatablobs::repositoryFolderpath()
+    def self.repositoryFolderpath()
+        "#{StargateCentral::pathToCentral()}/DatablobsDepth1"
+    end
+
+    # StargateCentralDatablobs::decideFilepathForBlob(nhash)
+    def self.decideFilepathForBlob(nhash)
+        filepath = "#{StargateCentralDatablobs::repositoryFolderpath()}/#{nhash[7, 2]}/#{nhash}.data"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkpath(File.dirname(filepath))
+        end
+        filepath
+    end
+
+    # StargateCentralDatablobs::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath = StargateCentralDatablobs::decideFilepathForBlob(nhash)
+        File.open(filepath, "w"){|f| f.write(blob) }
+        nhash
+    end
+
+    # StargateCentralDatablobs::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        filepath = StargateCentralDatablobs::decideFilepathForBlob(nhash)
+        if File.exists?(filepath) then
+            return IO.read(filepath)
+        end
+        nil
+    end
+end
+
+class EnergyGridDatablobs
+
+    # EnergyGridDatablobs::putBlob(blob)
+    def self.putBlob(blob)
+        LocalDatablobs::putBlob(blob)
+    end
+
+    # EnergyGridDatablobs::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        
+        blob = LocalDatablobs::getBlobOrNull(nhash)
+        return blob if blob
+
+        blob = StargateCentralDatablobs::getBlobOrNull(nhash)
+        return blob if blob
+
         nil
     end
 end
