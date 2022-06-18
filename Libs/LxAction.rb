@@ -75,7 +75,7 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "Anniversary" then
+            if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::access(item)
                 return
             end
@@ -110,7 +110,7 @@ class LxAction
                 NxBallsService::close(item["uuid"], true)
                 return
             end
-            if item["mikuType"] == "Anniversary" then
+            if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::done(item)
                 return
             end
@@ -157,7 +157,7 @@ class LxAction
                 return
             end
  
-            if item["mikuType"] == "Anniversary" then
+            if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::landing(item)
                 return
             end
