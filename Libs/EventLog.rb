@@ -63,10 +63,7 @@ class EventLog
     def self.cliquesToItems(cliques)
         items = []
         cliques.values.each{|arr|
-            lastItem = arr.last # that's the simple version that doesn't do reconciliation
-            if lastItem["mikuType"] != "NxDeleted" then
-                items << lastItem
-            end
+            items << arr.last
         }
         items
     end

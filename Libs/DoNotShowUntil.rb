@@ -2,52 +2,25 @@
 
 class DoNotShowUntil
 
-    # DoNotShowUntil::databaseFilepath()
-    def self.databaseFilepath()
-        "#{Config::pathToDataBankStargate()}/Catalyst/DoNotShowUntil.sqlite3"
-    end
-
     # DoNotShowUntil::setUnixtime(uid, unixtime)
     def self.setUnixtime(uid, unixtime)
-        db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from table1 where _key_=?", [uid]
-        db.execute "insert into table1 (_key_, _value_) values (?,?)", [uid, unixtime]
-        db.commit 
-        db.close
-        nil
-    end
-
-    # DoNotShowUntil::setUnixtimeNoEvents(uid, unixtime)
-    def self.setUnixtimeNoEvents(uid, unixtime)
-        db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.transaction 
-        db.execute "delete from table1 where _key_=?", [uid]
-        db.execute "insert into table1 (_key_, _value_) values (?,?)", [uid, unixtime]
-        db.commit 
-        db.close
-        nil
+        item = {
+          "uuid"           => SecureRandom.uuid,
+          "mikuType"       => "NxDNSU",
+          "unixtime"       => Time.new.to_i,
+          "targetuuid"     => uid,
+          "targetunixtime" => unixtime
+        }
+        Librarian::commit(item)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uid)
     def self.getUnixtimeOrNull(uid)
-        return nil if !File.exists?(DoNotShowUntil::databaseFilepath()) # happens on Lucille18
-        db = SQLite3::Database.new(DoNotShowUntil::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        unixtime = nil
-        db.execute( "select * from table1 where _key_=?" , [uid] ) do |row|
-            unixtime = row['_value_']
-        end
-        db.close
-
-        return nil if unixtime.nil?
-        unixtime.to_i
+        Librarian::getObjectsByMikuType("NxDNSU")
+            .select{|item| item["targetuuid"] == uid }
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            .map{|item| item["targetunixtime"] }
+            .last
     end
 
     # DoNotShowUntil::getDateTimeOrNull(uid)

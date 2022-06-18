@@ -8,11 +8,6 @@ class Librarian
     # ---------------------------------------------------
     # Objects Reading
 
-    # Librarian::pathToDatabaseFile()
-    def self.pathToDatabaseFile()
-        "/Users/pascal/Galaxy/DataBank/Stargate/objects-store.sqlite3"
-    end
-
     # Librarian::objects()
     def self.objects()
         if $LibrarianObjects.nil? then
@@ -25,9 +20,16 @@ class Librarian
             puts "> #{Time.new.to_s}: build items"
             items   = EventLog::cliquesToItems(cliques)
 
-            $LibrarianObjects = items
+            $LibrarianObjects = {}
+            items.each{|item|
+                if item["mikuType"] != "NxDeleted" then
+                    $LibrarianObjects[item["uuid"]] = item
+                else
+                    $LibrarianObjects.delete(item["uuid"])
+                end
+            }
         end
-        $LibrarianObjects.map{|item| item.clone }
+        $LibrarianObjects.values.map{|item| item.clone }
     end
 
     # Librarian::getObjectsByMikuType(mikuType)
@@ -37,7 +39,10 @@ class Librarian
 
     # Librarian::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
-        Librarian::objects().select{|item| item["uuid"] == uuid }.first
+        if $LibrarianObjects.nil? then
+            Librarian::objects() # to build the dataset
+        end
+        $LibrarianObjects[uuid].clone
     end
 
     # ---------------------------------------------------
@@ -45,24 +50,22 @@ class Librarian
 
     # Librarian::commit(object)
     def self.commit(object)
-
         raise "(error: b18a080c-af1b-4411-bf65-1b528edc6121, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
-
-        items = Librarian::objects().reject{|item| item["uuid"] == object["uuid"] }
-        $LibrarianObjects = items + [object]
-
+        if !$LibrarianObjects.nil? then
+            $LibrarianObjects[object["uuid"]] = object.clone
+        end
         EventLog::commit(object)
     end
 
     # Librarian::destroy(uuid)
     def self.destroy(uuid)
-        items = Librarian::objects().reject{|item| item["uuid"] == uuid }
-        $LibrarianObjects = items
-
+        if !$LibrarianObjects.nil? then
+            $LibrarianObjects.delete(uuid)
+        end
         item = {
-            "uuid"        => uuid,
-            "mikuType"    => "NxDeleted",
+            "uuid"     => uuid,
+            "mikuType" => "NxDeleted",
         }
         EventLog::commit(item)
     end
