@@ -5,6 +5,9 @@
 
 class CommonUtils
 
+    # ----------------------------------------------------
+    # Misc
+
     # CommonUtils::editTextSynchronously(text)
     def self.editTextSynchronously(text)
         filename = SecureRandom.uuid

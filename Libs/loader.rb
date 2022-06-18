@@ -139,6 +139,7 @@ require_relative "Dx8UnitsUtils.rb"
 
 require_relative "EditionDesk.rb"
 require_relative "EnergyGrid.rb"
+require_relative "EventLog.rb"
 
 require_relative "Galaxy.rb"
 
