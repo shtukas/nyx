@@ -81,24 +81,14 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::itemsFolderPath()
-    def self.itemsFolderPath()
-        "#{Config::pathToDataBankStargate()}/Catalyst/Anniversaries"
-    end
-
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        return [] if !File.exists?(Anniversaries::itemsFolderPath()) # Happens on Lucille18
-        LucilleCore::locationsAtFolder(Anniversaries::itemsFolderPath())
-            .select{|location| location[-5, 5] == ".json" }
-            .map{|location| JSON.parse(IO.read(location)) }
+        Librarian::getObjectsByMikuType("NxAnniversary")
     end
 
-    # Anniversaries::commitAnniversaryToDisk(anniversary)
-    def self.commitAnniversaryToDisk(anniversary)
-        filename = "#{anniversary["uuid"]}.json"
-        filepath = "#{Anniversaries::itemsFolderPath()}/#{filename}"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(anniversary)) }
+    # Anniversaries::commitItemToDisk(anniversary)
+    def self.commitItemToDisk(anniversary)
+        Librarian::commit(anniversary)
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -129,15 +119,16 @@ class Anniversaries
         end
 
         item = {
-              "uuid"         => uuid,
-              "unixtime"     => Time.new.to_i,
-              "description"  => description,
-              "startdate"    => startdate,
-              "repeatType"   => repeatType,
-              "lastCelebrationDate" => lastCelebrationDate,
-            }
+          "uuid"         => uuid,
+          "mikuType"     => "NxAnniversary",
+          "unixtime"     => Time.new.to_i,
+          "description"  => description,
+          "startdate"    => startdate,
+          "repeatType"   => repeatType,
+          "lastCelebrationDate" => lastCelebrationDate,
+        }
 
-        Anniversaries::commitAnniversaryToDisk(item)
+        Anniversaries::commitItemToDisk(item)
 
         item
     end
@@ -156,7 +147,7 @@ class Anniversaries
     # Anniversaries::done(anniversary)
     def self.done(anniversary)
         anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        Anniversaries::commitAnniversaryToDisk(anniversary)
+        Anniversaries::commitItemToDisk(anniversary)
     end
 
     # Anniversaries::access(anniversary)
@@ -184,11 +175,11 @@ class Anniversaries
         LucilleCore::pressEnterToContinue()
     end
 
-    # Anniversaries::landing(anniversary)
-    def self.landing(anniversary)
+    # Anniversaries::landing(item)
+    def self.landing(item)
         loop {
 
-            puts Anniversaries::toString(anniversary).green
+            puts Anniversaries::toString(item).green
 
             puts "description | update start date | destroy".yellow
 
@@ -198,22 +189,19 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                anniversary["description"] = description
-                Anniversaries::commitAnniversaryToDisk(anniversary)
+                item["description"] = description
+                Anniversaries::commitItemToDisk(item)
             end
 
             if Interpreting::match("update start date", command) then
-                startdate = CommonUtils::editTextSynchronously(anniversary["startdate"])
+                startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                anniversary["startdate"] = startdate
-                Anniversaries::commitAnniversaryToDisk(anniversary)
+                item["startdate"] = startdate
+                Anniversaries::commitItemToDisk(item)
             end
 
             if Interpreting::match("destroy", command) then
-                filename = "#{anniversary["uuid"]}.json"
-                filepath = "#{Anniversaries::itemsFolderPath()}/#{filename}"
-                break if !File.exists?(filepath)
-                FileUtils.rm(filepath)
+                Librarian::destroy(item["uuid"])
                 break
             end
         }

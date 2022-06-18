@@ -1,0 +1,9 @@
+{
+  "uuid": "cdfce3f2-f03e-465d-a8dd-5fb66a404e0c",
+  "unixtime": 1636403534,
+  "mikuType": "Anniversary",
+  "description": "Andriana birthday",
+  "startdate": "1982-07-26",
+  "repeatType": "yearly",
+  "lastCelebrationDate": "2021-11-08"
+}
