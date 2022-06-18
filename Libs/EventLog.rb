@@ -44,7 +44,7 @@ class EventLog
             next if File.basename(path)[-11, 11] != ".event.json"
             events << JSON.parse(IO.read(path))
         end
-        events
+        events.sort{|e1, e2| e1["lxEventTime"] <=> e2["lxEventTime"] }
     end
 
     # EventLog::eventsToCliques(events)
