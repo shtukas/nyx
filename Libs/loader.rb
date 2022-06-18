@@ -187,8 +187,6 @@ require_relative "The99Percent.rb"
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"
 
-require_relative "XCacheElizabeth.rb"
-
 require_relative "Waves.rb"
 
 require_relative "NxShip.rb"

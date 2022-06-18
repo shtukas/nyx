@@ -1,32 +1,47 @@
 # encoding: UTF-8
 
-class LocalDatablobs
+class DatablobsXCache
 
-    # LocalDatablobs::repositoryFolderpath()
-    def self.repositoryFolderpath()
-        "#{Config::pathToDataBankStargate()}/DatablobsDepth1"
+    # DatablobsXCache::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        XCache::set(nhash, blob)
+        nhash
     end
 
-    # LocalDatablobs::decideFilepathForBlob(nhash)
+    # DatablobsXCache::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        XCache::getOrNull(nhash)
+    end
+end
+
+class DatablobsBufferOut
+
+    # DatablobsBufferOut::repositoryFolderpath()
+    def self.repositoryFolderpath()
+        "#{Config::pathToDataBankStargate()}/DatablobsBufferOut"
+    end
+
+    # DatablobsBufferOut::decideFilepathForBlob(nhash)
     def self.decideFilepathForBlob(nhash)
-        filepath = "#{LocalDatablobs::repositoryFolderpath()}/#{nhash[7, 2]}/#{nhash}.data"
+        filepath = "#{DatablobsBufferOut::repositoryFolderpath()}/#{nhash}.data"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
         filepath
     end
 
-    # LocalDatablobs::putBlob(blob)
+    # DatablobsBufferOut::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = LocalDatablobs::decideFilepathForBlob(nhash)
+        filepath = DatablobsBufferOut::decideFilepathForBlob(nhash)
         File.open(filepath, "w"){|f| f.write(blob) }
         nhash
     end
 
-    # LocalDatablobs::getBlobOrNull(nhash)
+    # DatablobsBufferOut::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepath = LocalDatablobs::decideFilepathForBlob(nhash)
+        filepath = DatablobsBufferOut::decideFilepathForBlob(nhash)
         if File.exists?(filepath) then
             return IO.read(filepath)
         end
@@ -80,14 +95,21 @@ class EnergyGridDatablobs
 
     # EnergyGridDatablobs::putBlob(blob)
     def self.putBlob(blob)
-        LocalDatablobs::putBlob(blob)
+        DatablobsBufferOut::putBlob(blob)
+        DatablobsXCache::putBlob(blob)
     end
 
     # EnergyGridDatablobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        
-        blob = LocalDatablobs::getBlobOrNull(nhash)
+
+        blob = DatablobsXCache::getBlobOrNull(nhash)
         return blob if blob
+
+        blob = DatablobsBufferOut::getBlobOrNull(nhash)
+        if blob then
+            DatablobsXCache::putBlob(blob)
+            return blob
+        end
 
         blob = StargateCentralDatablobs::getBlobOrNull(nhash)
         return blob if blob

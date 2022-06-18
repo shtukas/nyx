@@ -24,10 +24,30 @@ class StargateCentral
         end
     end
 
+    # StargateCentral::propagateDatablobsWithPrimaryDeletion(folderpath1, folderpath2)
+    def self.propagateDatablobsWithPrimaryDeletion(folderpath1, folderpath2)
+        Find.find(folderpath1) do |path|
+            next if File.basename(path)[-5, 5] != ".data"
+            filename = File.basename(path)
+            targetfolderpath = "#{folderpath2}/#{filename[7, 2]}"
+            targetfilepath = "#{targetfolderpath}/#{filename}"
+            if File.exist?(targetfilepath) then
+                FileUtils.rm(path)
+                next
+            end
+            if !File.exists?(targetfolderpath) then
+                FileUtils.mkdir(targetfolderpath)
+            end
+            puts "copying datablob: #{filename}"
+            FileUtils.cp(path, targetfilepath)
+            FileUtils.rm(path)
+        end
+    end
+
     # StargateCentral::syncDatablobs()
     def self.syncDatablobs()
-        puts "Data Propagation (push)"
-        StargateCentral::propagateDatablobs(LocalDatablobs::repositoryFolderpath(), "#{StargateCentral::pathToCentral()}/DatablobsDepth1")
+        puts "Data Propagation (DatablobsBufferOut to StargateCentral)"
+        StargateCentral::propagateDatablobsWithPrimaryDeletion(DatablobsBufferOut::repositoryFolderpath(), "#{StargateCentral::pathToCentral()}/DatablobsDepth1")
     end
 
     # -----------------------------------------------------------------
@@ -53,10 +73,10 @@ class StargateCentral
     # StargateCentral::syncEventLogs()
     def self.syncEventLogs()
 
-        puts "Events Propagation (push)"
+        puts "Events Propagation (LocalEventLog to StargateCentral)"
         StargateCentral::propagateEventLog(EventLog::pathToLocalEventLog(), "#{StargateCentral::pathToCentral()}/EventLog")
 
-        puts "Events Propagation (pull)"
+        puts "Events Propagation (StargateCentral to LocalEventLog)"
         StargateCentral::propagateEventLog("#{StargateCentral::pathToCentral()}/EventLog", EventLog::pathToLocalEventLog())
     end
 end
