@@ -17,8 +17,8 @@ class Catalyst
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(floats, section1, section1b, section2, section3)
-    def self.printListing(floats, section1, section1b, section2, section3)
+    # Catalyst::printListing(section1, section1b, section2, section3)
+    def self.printListing(section1, section1b, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -46,23 +46,17 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        NxFlotilles::items().each{|item|
-            store.register(item, false)
-            line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-            puts line
-            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-        }
-
-        if floats.size>0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            floats.each{|item|
+        NxFrames::itemsForListing()
+            .each{|item|
                 store.register(item, false)
-                line = "#{store.prefixString()} [#{Time.at(item["unixtime"]).to_s[0, 10]}] #{LxFunction::function("toString", item)}".yellow
-                puts line
+                line = "#{store.prefixString()} #{NxFrames::toString(item)}"
+                break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                if NxBallsService::isActive(item["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
+                puts line.yellow
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
-        end
 
         running = NxBallsIO::getItems().select{|nxball| !section1.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
         if running.size > 0 then
@@ -148,23 +142,20 @@ class Catalyst
                 LucilleCore::removeFileSystemLocation(location)
             }
 
-            floats = TxFloats::itemsForListing()
-
             section2 = Catalyst::itemsForListing()
 
-            section1b = []
+            section1b = NxOrdinals::items()
 
             # section1  : running items
             # section1b : NxOrdinals
-            # section2  : non zeroes: waves, ondates
+            # section2  : non zeroes: waves, ondates, frames
             # section3  : zeroes (active)
-            # section4  : zeroes (not active, done for the day or overflowing)
 
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
             section2, section3 = section2.partition{|item| item["mikuType"] != "NxShip" }
  
 
-            Catalyst::printListing(floats, section1, section1b, section2, section3)
+            Catalyst::printListing(section1, section1b, section2, section3)
         }
     end
 end

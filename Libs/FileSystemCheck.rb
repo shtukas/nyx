@@ -173,7 +173,16 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxPerson" then
+            return
+        end
+
         if item["mikuType"] == "NxRelation" then
+            return
+        end
+
+        if item["mikuType"] == "NxShip" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 
@@ -186,12 +195,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxFloat" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
-            return
-        end
-
-        if item["mikuType"] == "NxShip" then
+        if item["mikuType"] == "NxFrame" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end

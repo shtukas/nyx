@@ -1,13 +1,13 @@
 j# encoding: UTF-8
 
-class TxFloats
+class NxFrames
 
-    # TxFloats::items()
+    # NxFrames::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxFloat")
+        Librarian::getObjectsByMikuType("NxFrame")
     end
 
-    # TxFloats::destroy(uuid)
+    # NxFrames::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroy(uuid)
     end
@@ -15,7 +15,7 @@ class TxFloats
     # --------------------------------------------------
     # Makers
 
-    # TxFloats::interactivelyCreateNewOrNull()
+    # NxFrames::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -29,7 +29,7 @@ class TxFloats
 
         item = {
           "uuid"        => uuid,
-          "mikuType"    => "TxFloat",
+          "mikuType"    => "NxFrame",
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
@@ -42,39 +42,35 @@ class TxFloats
     # --------------------------------------------------
     # toString
 
-    # TxFloats::toString(item)
+    # NxFrames::toString(item)
     def self.toString(item)
-        "(item) #{item["description"]} (#{Nx111::toStringShort(item["nx111"])})"
+        nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
+        "(frame) #{item["description"]}#{nx111String}"
     end
 
-    # TxFloats::toStringForSearch(item)
+    # NxFrames::toStringForSearch(item)
     def self.toStringForSearch(item)
-        "(item) #{item["description"]}"
+        "(frame) #{item["description"]}"
     end
 
     # --------------------------------------------------
     # Operations
 
-    # TxFloats::complete(item)
-    def self.complete(item)
-        TxFloats::destroy(item["uuid"])
-    end
-
     # --------------------------------------------------
 
-    # TxFloats::itemsForListing()
+    # NxFrames::itemsForListing()
     def self.itemsForListing()
-        Librarian::getObjectsByMikuType("TxFloat")
+        Librarian::getObjectsByMikuType("NxFrame")
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # --------------------------------------------------
 
-    # TxFloats::nx20s()
+    # NxFrames::nx20s()
     def self.nx20s()
-        TxFloats::items().map{|item|
+        NxFrames::items().map{|item|
             {
-                "announce" => TxFloats::toStringForSearch(item),
+                "announce" => NxFrames::toStringForSearch(item),
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }

@@ -10,10 +10,9 @@ class Search
             NxCollections::nx20s(),
             NxDataNodes::nx20s(),
             NxPersons::nx20s(),
-            NxFlotilles::nx20s(),
             NxTimelines::nx20s(),
             TxDateds::nx20s(),
-            TxFloats::nx20s(),
+            NxFrames::nx20s(),
             TxTodos::nx20s(),
             Waves::nx20s(),
         ].flatten

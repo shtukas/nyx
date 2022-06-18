@@ -6,7 +6,7 @@ All the objects are essentialy on the same graph and there can be a link between
 Catalyst
     - Anniversary (special case independently stored)
     - TxDated
-    - TxFloat
+    - NxFrame
     - TxTodo
     - Wave
 

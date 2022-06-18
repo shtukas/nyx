@@ -1,11 +1,33 @@
+NxShip
 
-TxFlts define flotille struture. Any item can below to a flotille.
-
-TxFlt {
-    "uuid"        : String
-    "mikuType"    : "TxFlt"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "flotille"    : UUID
-    "target"      : UUID
+{
+    "uuid"         : String
+    "mikuType"     : "NxShip"
+    "unixtime"     : Float
+    "description"  : String
+    "nx111"        : Nx111,
+    "ax38"         : null or Ax38
 }
+
+Ax38
+    {
+        "type" => "standard"
+    }
+
+    {
+        "type" => "today/asap"
+    }
+
+    {
+        "type" => "daily-fire-and-forget"
+    }
+
+    {
+        "type"  => "daily-time-commitment"
+        "hours" => Float
+    }
+
+    {
+        "type"  => "weekly-time-commitment"
+        "hours" => Float
+    }

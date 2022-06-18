@@ -13,14 +13,14 @@ class Transmutation
             return
         end
 
-        if source == "TxDated" and target == "TxFloat" then
+        if source == "TxDated" and target == "NxFrame" then
             return true if isSimulation
-            item["mikuType"] = "TxFloat"
+            item["mikuType"] = "NxFrame"
             Librarian::commit(item)
             return
         end
 
-        if source == "TxFloat" and target == "TxDated" then
+        if source == "NxFrame" and target == "TxDated" then
             return true if isSimulation
             item["mikuType"] = "TxDated"
             item["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
@@ -28,7 +28,7 @@ class Transmutation
             return
         end
 
-        if source == "TxFloat" and target == "TxTodo" then
+        if source == "NxFrame" and target == "TxTodo" then
             return true if isSimulation
             item["mikuType"] = "TxTodo"
             Librarian::commit(item)

@@ -9,14 +9,6 @@ To be Librarian compatible, an object must have the following keys:
     - "uuid" 
     - "mikuType"
 
-    - "lxHistory"   : Array[Id]
-
-lxHistory is automatically updated by the Librarian when the object is stored.
-
-Everytime time the object is stored, a new random Id is decided and added at the end of the history.
-
-Essentially, ObjectB can replace ObjectA if the history of ObjectA is a (strict) subset of the history of ObjectB.
-
 We can retrieve objects individually by "uuid" or collectively by "mikuType"s.
 
 objects-store.sqlite3

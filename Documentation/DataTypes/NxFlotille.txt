@@ -1,8 +1,0 @@
-
-NxFlotille {
-    "uuid"        : String
-    "mikuType"    : "NxFlotille"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : Nhash of the blobs of text
-}

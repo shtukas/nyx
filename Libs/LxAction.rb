@@ -85,11 +85,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxFlotille" then
-                NxFlotilles::landing(item)
-                return
-            end
-
             if item["mikuType"] == "NxOrdinal" then
                 if item["type"] == "carrier" then
                     puts item["line"]
@@ -186,13 +181,6 @@ class LxAction
  
             if item["mikuType"] == "fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
-                return
-            end
-
-            if item["mikuType"] == "TxFlt" then
-                i2 = Librarian::getObjectByUUIDOrNull(item["target"])
-                return if i2.nil?
-                LxAction::action("landing", i2)
                 return
             end
 

@@ -11,7 +11,7 @@ object = Librarian::getObjectByUUIDOrNull(uuid)
 if object then
     object = CommonUtils::editTextSynchronously(JSON.pretty_generate(object))
     object = JSON.parse(object)
-    Librarian::commitWithoutUpdates(object)
+    Librarian::commit(object)
 else
     puts "I could not find an object with this uuid"
     LucilleCore::pressEnterToContinue()

@@ -1,6 +1,6 @@
-TxFloat = {
+NxFrame = {
   "uuid"        : String
-  "mikuType"    : "TxFloat"
+  "mikuType"    : "NxFrame"
   "description" : String
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601

@@ -113,12 +113,7 @@ class Commands
         end
 
         if Interpreting::match("float", input) then
-            TxFloats::interactivelyCreateNewOrNull()
-            return
-        end
-
-        if Interpreting::match("flotille", input) then
-            NxFlotilles::interactivelyIssueNewItemOrNull()
+            NxFrames::interactivelyCreateNewOrNull()
             return
         end
 
@@ -148,20 +143,6 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("landing", item)
-            return
-        end
-
-        if Interpreting::match("make flt * *", input) then
-            _, _, flotilleIndx, itemIdex = Interpreting::tokenizer(input)
-            flotilleIndx = flotilleIndx.to_i
-            itemIdex = itemIdex.to_i
-            flotille = store.get(flotilleIndx)
-            return if flotille.nil?
-            return if flotille["mikuType"] != "NxFlotille"
-            item = store.get(itemIdex)
-            return if item.nil?
-            flt = TxFlts::issue(flotille["uuid"], item["uuid"])
-            puts JSON.pretty_generate(flt)
             return
         end
 
