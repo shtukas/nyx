@@ -26,7 +26,7 @@ class LxAction
             end
 
             if !NxBallsService::isRunning(item["uuid"]) then
-                NxBallsService::issue(item["uuid"], item["announce"] ? item["announce"] : "(item: #{item["uuid"]})" , [item["uuid"]])
+                NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
             end
 
             LxAction::action("access", item)
