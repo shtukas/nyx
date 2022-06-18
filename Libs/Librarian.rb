@@ -22,11 +22,27 @@ class Librarian
 
             $LibrarianObjects = {}
             items.each{|item|
-                if item["mikuType"] != "NxDeleted" then
-                    $LibrarianObjects[item["uuid"]] = item
-                else
-                    $LibrarianObjects.delete(item["uuid"])
+
+                # NxBankOp are evented, but they go not go into $LibrarianObjects
+                # Instead they are sent to $NxBankOpRepository
+                if item["mikuType"] == "NxBankOp" then
+                    $NxBankOpRepository.incoming(item)
+                    next
                 end
+
+                # NxDNSU are evented, but they go not go into $LibrarianObjects
+                # Instead they are sent to $DoNotShowUntil
+                if item["mikuType"] == "NxDNSU" then
+                    $DoNotShowUntil.incoming(item)
+                    next
+                end
+
+                if item["mikuType"] == "NxDeleted" then
+                    $LibrarianObjects.delete(item["uuid"])
+                    next
+                end
+
+                $LibrarianObjects[item["uuid"]] = item
             }
         end
         $LibrarianObjects.values.map{|item| item.clone }
