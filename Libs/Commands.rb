@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | float | zero | zero: <line> | today | ondate | ondate: <line> | todo | todo: <line> | zone",
+            "wave | anniversary | float | zero | zero: <line> | today | ondate | ondate: <line> | todo | todo: <line> | flotille | make ship <flotille-indx> <item-indx>",
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
             "require internet",
@@ -117,6 +117,11 @@ class Commands
             return
         end
 
+        if Interpreting::match("flotille", input) then
+            NxFlotilles::interactivelyIssueNewItemOrNull()
+            return
+        end
+
         if Interpreting::match("help", input) then
             puts Commands::commands().yellow
             LucilleCore::pressEnterToContinue()
@@ -143,6 +148,20 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("landing", item)
+            return
+        end
+
+        if Interpreting::match("make ship * *", input) then
+            _, _, flotilleIndx, itemIdex = Interpreting::tokenizer(input)
+            flotilleIndx = flotilleIndx.to_i
+            itemIdex = itemIdex.to_i
+            flotille = store.get(flotilleIndx)
+            return if flotille.nil?
+            return if flotille["mikuType"] != "NxFlotille"
+            item = store.get(itemIdex)
+            return if item.nil?
+            ship = NxShips::issue(flotille["uuid"], item["uuid"])
+            puts JSON.pretty_generate(ship)
             return
         end
 
@@ -192,7 +211,7 @@ class Commands
             # Let's look for any existing nxordinals pointing at this item
             NxOrdinals::items()
                 .select{|ix| ix["type"] == "pointer" }
-                .select{|ix| ix["targetUUID"] == item["uuid"] }
+                .select{|ix| ix["target"] == item["uuid"] }
                 .each{|ix| XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", ix["uuid"]) }
             item = NxOrdinals::issuePointer(item, ordinal)
             puts JSON.pretty_generate(item)

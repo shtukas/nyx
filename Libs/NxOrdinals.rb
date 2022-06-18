@@ -1,24 +1,3 @@
-=begin
-
-NxOrdinal 
-
-{
-    "uuid"
-    "mikuType" : "NxOrdinal"
-    "type"     : "carrier"
-    "line"     : String
-    "ordinal"  : Float
-}
-
-{
-    "uuid"
-    "mikuType"   : "NxOrdinal"
-    "type"       : "pointer"
-    "targetUUID" : String
-    "ordinal"    : Float
-}
-
-=end
 
 =begin
     XCacheSets::values(setuuid: String): Array[Value]
@@ -50,11 +29,11 @@ class NxOrdinals
     # NxOrdinals::issuePointer(item, ordinal)
     def self.issuePointer(item, ordinal)
         item = {
-            "uuid"        => SecureRandom.uuid,
-            "mikuType"    => "NxOrdinal",
-            "type"        => "pointer",
-            "targetUUID"  => item["uuid"],
-            "ordinal"     => ordinal
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "NxOrdinal",
+            "type"     => "pointer",
+            "target"   => item["uuid"],
+            "ordinal"  => ordinal
         }
         XCacheSets::set("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"], item)
         item
@@ -71,9 +50,9 @@ class NxOrdinals
             return "(ordinal: #{"%5.2f" % item["ordinal"]}) #{item["line"]}"
         end
         if item["type"] == "pointer" then
-            i2 = Librarian::getObjectByUUIDOrNull(item["targetUUID"])
+            i2 = Librarian::getObjectByUUIDOrNull(item["target"])
             if i2.nil? then
-                return "(NxOrdinals::toString, item not found: #{item["targetUUID"]})"
+                return "(NxOrdinals::toString, item not found: #{item["target"]})"
             end
             return "(ordinal: #{"%5.2f" % item["ordinal"]}) #{LxFunction::function("toString", i2)}"
         end
@@ -88,9 +67,9 @@ class NxOrdinals
             XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"])
         end
         if item["type"] == "pointer" then
-            i2 = Librarian::getObjectByUUIDOrNull(item["targetUUID"])
+            i2 = Librarian::getObjectByUUIDOrNull(item["target"])
             if i2.nil? then
-                puts "(NxOrdinals::done, item not found: #{item["targetUUID"]})"
+                puts "(NxOrdinals::done, item not found: #{item["target"]})"
             end
             LxAction::action("done", i2)
             XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"])

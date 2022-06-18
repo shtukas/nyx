@@ -1,0 +1,11 @@
+
+NxShips define flotille struture. Any item can below to a flotille.
+
+NxShip {
+    "uuid"        : String
+    "mikuType"    : "NxShip"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "flotille"    : UUID
+    "target"      : UUID
+}

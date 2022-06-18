@@ -44,6 +44,13 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
+        NxFlotilles::items().each{|item|
+            store.register(item, false)
+            line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+            puts line
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+        }
+
         if floats.size>0 then
             puts ""
             vspaceleft = vspaceleft - 1

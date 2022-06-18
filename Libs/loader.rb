@@ -169,6 +169,8 @@ require_relative "NxRelation.rb"
 require_relative "NxPersons.rb"
 require_relative "NxCollections.rb"
 require_relative "NxOrdinals.rb"
+require_relative "NxFlotilles.rb"
+require_relative "NxShips.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
