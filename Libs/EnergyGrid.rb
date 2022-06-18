@@ -43,6 +43,14 @@ class StargateCentralDatablobs
 
     # StargateCentralDatablobs::decideFilepathForBlob(nhash)
     def self.decideFilepathForBlob(nhash)
+        if !File.exists?(StargateCentralDatablobs::repositoryFolderpath()) then
+            puts "Please plug the drive"
+            LucilleCore::pressEnterToContinue()
+            if !File.exists?(StargateCentralDatablobs::repositoryFolderpath()) then
+                puts "Could not find the drive"
+                exit
+            end
+        end
         filepath = "#{StargateCentralDatablobs::repositoryFolderpath()}/#{nhash[7, 2]}/#{nhash}.data"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
