@@ -4,6 +4,8 @@
 
 require_relative "../Libs/loader.rb"
 
+exit if !Machines::isLucille20()
+
 VIENNA_PATH_TO_DATA = "/Users/pascal/Library/Application Support/Vienna/messages.db"
 
 # select link from messages where read_flag=0;

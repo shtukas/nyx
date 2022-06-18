@@ -21,7 +21,7 @@ class LxFunction
             if item["mikuType"] == "fitness1" then
                 return item["announce"]
             end
-            if item["mikuType"] == "Anniversary" then
+            if item["mikuType"] == "NxAnniversary" then
                 return Anniversaries::toString(item)
             end
             if item["mikuType"] == "NxDataNode" then
@@ -44,9 +44,6 @@ class LxFunction
             end
             if item["mikuType"] == "Wave" then
                 return Waves::toString(item)
-            end
-            if item["description"] then
-                return item["description"]
             end
         end
 

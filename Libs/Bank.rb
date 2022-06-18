@@ -3,69 +3,44 @@
 
 class Bank
 
-    # Bank::databaseFilepath()
-    def self.databaseFilepath()
-        "#{Config::pathToDataBankStargate()}/Catalyst/Bank.sqlite3"
-    end
-
     # Bank::put(setuuid, weight: Float)
     def self.put(setuuid, weight)
-        return if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
-        return if setuuid.nil?
-        operationuuid = SecureRandom.uuid
-        unixtime = Time.new.to_i
-        date = CommonUtils::today()
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "insert into _operations2_ (_setuuid_, _operationuuid_ , _unixtime_, _date_, _weight_) values (?,?,?,?,?)", [setuuid, operationuuid, unixtime, date, weight]
-        db.close
-        nil
+        item = {
+          "uuid"     => SecureRandom.uuid,
+          "mikuType" => "NxBankOp",
+          "setuuid"  => setuuid,
+          "unixtime" => Time.new.to_i,
+          "date"     => CommonUtils::today(),
+          "weight"   => weight
+        }
+        Librarian::commit(item)
     end
 
     # Bank::value(setuuid)
     def self.value(setuuid)
-        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = 0
-        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=?" , [setuuid] ) do |row|
-            answer = row["_sum_"] || 0
-        end
-        db.close
-        answer
+        Librarian::getObjectsByMikuType("NxBankOp")
+            .select{|item| item["setuuid"] == setuuid }
+            .map{|item| item["weight"] }
+            .inject(0, :+)
     end
 
     # Bank::valueOverTimespan(setuuid, timespanInSeconds)
     def self.valueOverTimespan(setuuid, timespanInSeconds)
-        return 0 if !File.exists?(Bank::databaseFilepath()) # happens on Lucille18
         horizon = Time.new.to_i - timespanInSeconds
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = 0
-        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _unixtime_ > ?" , [setuuid, horizon] ) do |row|
-            answer = (row["_sum_"] || 0)
-        end
-        db.close
-        answer
+        Librarian::getObjectsByMikuType("NxBankOp")
+            .select{|item| item["setuuid"] == setuuid }
+            .select{|item| item["unixtime"] >= horizon }
+            .map{|item| item["weight"] }
+            .inject(0, :+)
     end
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        db = SQLite3::Database.new(Bank::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = 0
-        db.execute( "select sum(_weight_) as _sum_ from _operations2_ where _setuuid_=? and _date_=?" , [setuuid, date] ) do |row|
-            answer = (row["_sum_"] || 0)
-        end
-        db.close
-        answer
+        Librarian::getObjectsByMikuType("NxBankOp")
+            .select{|item| item["setuuid"] == setuuid }
+            .select{|item| item["date"] == date }
+            .map{|item| item["weight"] }
+            .inject(0, :+)
     end
 
     # Bank::combinedValueOnThoseDays(setuuid, dates)

@@ -16,9 +16,15 @@ class Librarian
     # Librarian::objects()
     def self.objects()
         if $LibrarianObjects.nil? then
+            puts "> #{Time.new.to_s}: load events"
             events  = EventLog::getLogEvents()
+
+            puts "> #{Time.new.to_s}: build cliques"
             cliques = EventLog::eventsToCliques(events)
+
+            puts "> #{Time.new.to_s}: build items"
             items   = EventLog::cliquesToItems(cliques)
+
             $LibrarianObjects = items
         end
         $LibrarianObjects.map{|item| item.clone }

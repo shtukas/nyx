@@ -1,5 +1,0 @@
-
-Primary types are those that exist as Librarian root types, and in particular they are exactly the types that can be queried by `Librarian::getObjectsByMikuType(mikuType)`. They all have at least a `uuid` and a `mikuType`.
-
-Secondary types are either carried by primary types (eg: Nx111), or are stored independently (eg: Anniversary), or are ephemeral without permanent storage (eg: NS16). Note that some secondary types have a mikuType.
-
