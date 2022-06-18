@@ -134,7 +134,7 @@ class Catalyst
                 break
             end
 
-            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Zero").each{|location|
+            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
                 item = NxShip::locationToZero(location)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
