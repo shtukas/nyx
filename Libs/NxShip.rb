@@ -348,11 +348,7 @@ class NxShip
         i4s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
         i5s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
 
-        if (i1s + i2s + i3s + i4s + i5s).size > 0 then
-            i2s + i3s + i4s + i5s + i1s
-        else
-            items
-        end
+        i2s + i3s + i4s + i5s + i1s + items
     end
 
     # NxShip::nx20s()

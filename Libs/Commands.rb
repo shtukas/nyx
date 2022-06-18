@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | float | zero | zero: <line> | today | ondate | ondate: <line> | todo | todo: <line> | flotille | make flt <flotille-indx> <item-indx>",
+            "wave | anniversary | frame | ship | ship: <line> | today | ondate | ondate: <line> | todo | todo: <line>",
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
             "require internet",
@@ -112,7 +112,7 @@ class Commands
             return
         end
 
-        if Interpreting::match("float", input) then
+        if Interpreting::match("frame", input) then
             NxFrames::interactivelyCreateNewOrNull()
             return
         end
@@ -170,43 +170,6 @@ class Commands
             TxDateds::dive()
             return
         end
-
-        if Interpreting::match("ordinal line", input) then
-            line = LucilleCore::askQuestionAnswerAsString("line : ")
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            item = NxOrdinals::issueCarrier(line, ordinal)
-            puts JSON.pretty_generate(item)
-            return
-        end 
-
-        if Interpreting::match("ordinal item", input) then
-            indx = LucilleCore::askQuestionAnswerAsString("index : ")
-            item = store.get(indx.to_i)
-            return if item.nil?
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            if item["mikuType"] == "NxOrdinal" then
-                item["ordinal"] = ordinal
-                XCacheSets::set("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"], item)
-                return
-            end
-            # Let's look for any existing nxordinals pointing at this item
-            NxOrdinals::items()
-                .select{|ix| ix["type"] == "pointer" }
-                .select{|ix| ix["target"] == item["uuid"] }
-                .each{|ix| XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", ix["uuid"]) }
-            item = NxOrdinals::issuePointer(item, ordinal)
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("ordinal off", input) then
-            indx = LucilleCore::askQuestionAnswerAsString("index : ")
-            item = store.get(indx.to_i)
-            return if item.nil?
-            return if item["mikuType"] != "NxOrdinal"
-            XCacheSets::destroy("862f6f8e-e312-4163-81b4-7983d87731a6", item["uuid"])
-            return
-        end 
 
         if Interpreting::match("pause", input) then
             item = store.getDefault()
@@ -366,14 +329,14 @@ class Commands
             return
         end
 
-        if Interpreting::match("zero", input) then
+        if Interpreting::match("ship", input) then
             item = NxShip::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
         end
 
-        if input.start_with?("zero:") then
+        if input.start_with?("ship:") then
             message = input[5, input.length].strip
             item = NxShip::interactivelyIssueNewOrNull(message)
             return if item.nil?
@@ -381,7 +344,7 @@ class Commands
             return
         end
 
-        if Interpreting::match("zeroes", input) then
+        if Interpreting::match("ships", input) then
             NxShip::dive()
             return
         end

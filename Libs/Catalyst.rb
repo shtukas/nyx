@@ -5,7 +5,6 @@ class Catalyst
     # Catalyst::itemsForListing()
     def self.itemsForListing()
         [
-            NxOrdinals::items(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
@@ -17,8 +16,8 @@ class Catalyst
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(section1, section1b, section2, section3)
-    def self.printListing(section1, section1b, section2, section3)
+    # Catalyst::printListing(section1, section2, section3)
+    def self.printListing(section1, section2, section3)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -90,7 +89,6 @@ class Catalyst
         puts ""
         vspaceleft = vspaceleft - 1
         printSection.call(section1, store)
-        printSection.call(section1b, store)
         printSection.call(section2, store)
         printSection.call(section3, store)
 
@@ -144,10 +142,7 @@ class Catalyst
 
             section2 = Catalyst::itemsForListing()
 
-            section1b = NxOrdinals::items()
-
             # section1  : running items
-            # section1b : NxOrdinals
             # section2  : non zeroes: waves, ondates, frames
             # section3  : zeroes (active)
 
@@ -155,7 +150,7 @@ class Catalyst
             section2, section3 = section2.partition{|item| item["mikuType"] != "NxShip" }
  
 
-            Catalyst::printListing(section1, section1b, section2, section3)
+            Catalyst::printListing(section1, section2, section3)
         }
     end
 end

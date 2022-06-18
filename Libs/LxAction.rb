@@ -85,19 +85,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxOrdinal" then
-                if item["type"] == "carrier" then
-                    puts item["line"]
-                    LucilleCore::pressEnterToContinue()
-                end
-                if item["type"] == "pointer" then
-                    i2 = Librarian::getObjectByUUIDOrNull(item["target"])
-                    return if i2.nil?
-                    LxAction::action("access", i2)
-                end
-                return
-            end
-
             if Iam::implementsNx111(item) then
                 EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
                 return
@@ -121,10 +108,6 @@ class LxAction
             end
             if item["mikuType"] == "NxBall.v2" then
                 NxBallsService::close(item["uuid"], true)
-                return
-            end
-            if item["mikuType"] == "NxOrdinal" then
-                NxOrdinals::done(item)
                 return
             end
             if item["mikuType"] == "Anniversary" then

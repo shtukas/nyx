@@ -167,7 +167,6 @@ require_relative "NxArrow.rb"
 require_relative "NxRelation.rb"
 require_relative "NxPersons.rb"
 require_relative "NxCollections.rb"
-require_relative "NxOrdinals.rb"
 require_relative "NxFrames.rb"
 require_relative "NxShip.rb"
 

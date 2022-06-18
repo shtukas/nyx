@@ -30,9 +30,6 @@ class LxFunction
             if item["mikuType"] == "NxFrame" then
                 return NxFrames::toString(item)
             end
-            if item["mikuType"] == "NxOrdinal" then
-                return NxOrdinals::toString(item)
-            end
             if item["mikuType"] == "NxShip" then
                 return NxShip::toString(item)
             end
