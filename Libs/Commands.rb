@@ -147,7 +147,7 @@ class Commands
         end
 
         if Interpreting::match("nyx", input) then
-            system("nyx")
+            Nyx::program()
             return
         end
 

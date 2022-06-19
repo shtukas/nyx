@@ -3,6 +3,8 @@
 
 $TheGreatLibrarianCachePrefix = nil
 
+$MikuTypesInMemoryData = {}
+
 class LibrarianDataCenter
 
     # LibrarianDataCenter::eventsToCliques(events)
@@ -42,6 +44,9 @@ class LibrarianDataCenter
     # When a new object is created, we event log it and also internal dispatch it
     def self.incomingEvent(event)
 
+        # --------------------------------------------------------------
+        # Obsolete types
+
         if event["mikuType"] == "NxFlotille" then
             return
         end
@@ -50,20 +55,57 @@ class LibrarianDataCenter
             return
         end
 
+        # --------------------------------------------------------------
+        # Deletion
+
         if event["mikuType"] == "NxDeleted" then
+
+            # Deletion (disk)
             object = Librarian::getObjectByUUIDOrNull(event["uuid"]) # calling this is the only way to get the mikuType
             if object then
                 XCacheSets::destroy("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{object["mikuType"]}", event["uuid"])
             end
             XCache::destroy("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{event["uuid"]}")
+
+            # Deletion (memory)
+            mikuTypes = $MikuTypesInMemoryData.keys
+            mikuTypes.each{|mikuType|
+                $MikuTypesInMemoryData[mikuType].delete(event["uuid"])
+            }
+
             return
         end
 
-        # Generic get by uuid
+        # --------------------------------------------------------------
+        # Generic mikuTypes handling
+
+        # Generic get by uuid (disk)
         XCache::set("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{event["uuid"]}", JSON.generate(event))
         
-        # Generic get by mikuType
+        # Generic get by mikuType (disk)
         XCacheSets::set("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{event["mikuType"]}", event["uuid"], event)
+
+        # Generic get by mikuType (memory)
+        mikuType = event["mikuType"]
+        if $MikuTypesInMemoryData[mikuType].nil? then
+            $MikuTypesInMemoryData[mikuType] = {}
+        end
+        $MikuTypesInMemoryData[mikuType][event["uuid"]] = event
+
+        # --------------------------------------------------------------
+        # Types with specific data centers
+
+        if event["mikuType"] == "NxBankOp" then
+            $DoNotShowUntilDataCenter.incoming(event)
+            return
+        end
+
+        if event["mikuType"] == "NxDNSU" then
+            $DoNotShowUntilDataCenter.incoming(event)
+            return
+        end
+
+        # --------------------------------------------------------------
 
         if event["mikuType"] == "Ax1Text" then
             return
@@ -77,21 +119,11 @@ class LibrarianDataCenter
             return
         end
 
-        if event["mikuType"] == "NxBankOp" then
-            $DoNotShowUntilDataCenter.incoming(event)
-            return
-        end
-
         if event["mikuType"] == "NxCollection" then
             return
         end
 
         if event["mikuType"] == "NxDataNode" then
-            return
-        end
-
-        if event["mikuType"] == "NxDNSU" then
-            $DoNotShowUntilDataCenter.incoming(event)
             return
         end
 
@@ -150,6 +182,8 @@ class LibrarianDataCenter
 
         puts "(processing items)"
 
+        $MikuTypesInMemoryData = {}
+
         $DoNotShowUntilDataCenter.reset()
         $BankDataCenter.reset()
 
@@ -167,8 +201,17 @@ class Librarian
 
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
+        if $MikuTypesInMemoryData[mikuType] then
+            return $MikuTypesInMemoryData[mikuType].values.map{|item| item.clone }
+        end
+
+        $MikuTypesInMemoryData[mikuType] = {}
+
         puts "Librarian::getObjectsByMikuType(#{mikuType})"
-        XCacheSets::values("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{mikuType}")
+        items = XCacheSets::values("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{mikuType}")
+        items.each{|item| $MikuTypesInMemoryData[mikuType][item["uuid"]] = item }
+        
+        $MikuTypesInMemoryData[mikuType].values.map{|item| item.clone }
     end
 
     # Librarian::getObjectByUUIDOrNull(uuid)
