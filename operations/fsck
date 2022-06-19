@@ -4,13 +4,14 @@
 
 require_relative "../Libs/loader.rb"
 
-[] # e887915a-aed9-496c-8ce5-30f1f7bc60b4
-    .each {|object|
+Librarian::knownMikuTypes().each{|mikuType|
+    Librarian::getObjectsByMikuType(mikuType).each{|item|
         exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-        next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
+        next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}")
         operator = EnergyGridElizabeth.new()
-        FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, operator)
-        XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}", true)
+        FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
+        XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}", true)
     }
+}
 
 puts "fsck completed successfully".green
