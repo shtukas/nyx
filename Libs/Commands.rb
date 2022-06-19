@@ -8,10 +8,8 @@ class Commands
         [
             "wave | anniversary | frame | ship | ship: <line> | today | ondate | ondate: <line> | todo | todo: <line>",
             "anniversaries | calendar | zeroes | ondates | todos",
-            "<datecode> | <n> | .. (<n>) | expose (<n>) | transmute (<n>) | start (<n>) | search | nyx | >nyx",
+            "<datecode> | <n> | .. (<n>) | expose (<n>) | Ax38 | transmute (<n>) | start (<n>) | search | nyx | >nyx",
             "require internet",
-            "pull (download and process event from the other machine)",
-            "ordinal line | ordinal item"
         ].join("\n")
     end
 
