@@ -46,25 +46,4 @@ class EventLog
         end
         events.sort{|e1, e2| e1["lxEventTime"] <=> e2["lxEventTime"] }
     end
-
-    # EventLog::eventsToCliques(events)
-    def self.eventsToCliques(events)
-        cliques = {}
-        events.each{|event|
-            if cliques[event["uuid"]].nil? then
-                cliques[event["uuid"]] = []
-            end
-            cliques[event["uuid"]] << event
-        }
-        cliques
-    end
-
-    # EventLog::cliquesToItems(cliques)
-    def self.cliquesToItems(cliques)
-        items = []
-        cliques.values.each{|arr|
-            items << arr.last
-        }
-        items
-    end
 end

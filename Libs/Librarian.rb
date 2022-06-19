@@ -1,13 +1,32 @@
 
 # encoding: UTF-8
 
-$LibrarianObjects = nil
-
 $TheGreatLibrarianCachePrefix = nil
 
-class Librarian
+class LibrarianDataCenter
 
-    # Librarian::getTheGreatLibrarianCachePrefix()
+    # LibrarianDataCenter::eventsToCliques(events)
+    def self.eventsToCliques(events)
+        cliques = {}
+        events.each{|event|
+            if cliques[event["uuid"]].nil? then
+                cliques[event["uuid"]] = []
+            end
+            cliques[event["uuid"]] << event
+        }
+        cliques
+    end
+
+    # LibrarianDataCenter::cliquesToItems(cliques)
+    def self.cliquesToItems(cliques)
+        items = []
+        cliques.values.each{|arr|
+            items << arr.last
+        }
+        items
+    end
+
+    # LibrarianDataCenter::getTheGreatLibrarianCachePrefix()
     def self.getTheGreatLibrarianCachePrefix()
         if $TheGreatLibrarianCachePrefix.nil? then
             $TheGreatLibrarianCachePrefix = XCache::getOrNull("TheGreatLibrarianCachePrefix-08b7-4327-a226-b9d29a876888")
@@ -19,9 +38,9 @@ class Librarian
         $TheGreatLibrarianCachePrefix
     end
 
-    # Librarian::eventInternalDispatch(event)
+    # LibrarianDataCenter::incomingEvent(event)
     # When a new object is created, we event log it and also internal dispatch it
-    def self.eventInternalDispatch(event)
+    def self.incomingEvent(event)
 
         if event["mikuType"] == "NxFlotille" then
             return
@@ -34,17 +53,17 @@ class Librarian
         if event["mikuType"] == "NxDeleted" then
             object = Librarian::getObjectByUUIDOrNull(event["uuid"]) # calling this is the only way to get the mikuType
             if object then
-                XCacheSets::destroy("#{Librarian::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{object["mikuType"]}", event["uuid"])
+                XCacheSets::destroy("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{object["mikuType"]}", event["uuid"])
             end
-            XCache::destroy("#{Librarian::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{event["uuid"]}")
+            XCache::destroy("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{event["uuid"]}")
             return
         end
 
         # Generic get by uuid
-        XCache::set("#{Librarian::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{event["uuid"]}", JSON.generate(event))
+        XCache::set("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{event["uuid"]}", JSON.generate(event))
         
         # Generic get by mikuType
-        XCacheSets::set("#{Librarian::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{event["mikuType"]}", event["uuid"], event)
+        XCacheSets::set("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{event["mikuType"]}", event["uuid"], event)
 
         if event["mikuType"] == "Ax1Text" then
             return
@@ -59,6 +78,7 @@ class Librarian
         end
 
         if event["mikuType"] == "NxBankOp" then
+            $DoNotShowUntilDataCenter.incoming(event)
             return
         end
 
@@ -71,6 +91,7 @@ class Librarian
         end
 
         if event["mikuType"] == "NxDNSU" then
+            $DoNotShowUntilDataCenter.incoming(event)
             return
         end
 
@@ -113,8 +134,8 @@ class Librarian
         raise "(error) I don't know how to process event: #{JSON.pretty_generate(event)}"
     end
 
-    # Librarian::digestLogFromScratch()
-    def self.digestLogFromScratch()
+    # LibrarianDataCenter::rebuildDatasetsFromScratchUsingEventLog()
+    def self.rebuildDatasetsFromScratchUsingEventLog()
         puts "(reset librarian prefix)"
         XCache::set("TheGreatLibrarianCachePrefix-08b7-4327-a226-b9d29a876888", SecureRandom.hex)
         
@@ -122,17 +143,24 @@ class Librarian
         events  = EventLog::getLogEvents()
 
         puts "(events to cliques)"
-        cliques = EventLog::eventsToCliques(events)
+        cliques = LibrarianDataCenter::eventsToCliques(events)
 
         puts "(cliques to items)"
-        items   = EventLog::cliquesToItems(cliques)
+        items   = LibrarianDataCenter::cliquesToItems(cliques)
 
         puts "(processing items)"
+
+        $DoNotShowUntilDataCenter.reset()
+        $BankDataCenter.reset()
+
         items.each{|item|
             puts JSON.pretty_generate(item)
-            Librarian::eventInternalDispatch(item)
+            LibrarianDataCenter::incomingEvent(item)
         }
     end
+end
+
+class Librarian
 
     # ---------------------------------------------------
     # Objects Reading
@@ -140,12 +168,12 @@ class Librarian
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
         #puts "Librarian::getObjectsByMikuType(#{mikuType})"
-        XCacheSets::values("#{Librarian::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{mikuType}")
+        XCacheSets::values("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{mikuType}")
     end
 
     # Librarian::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
-        object = XCache::getOrNull("#{Librarian::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{uuid}")
+        object = XCache::getOrNull("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:object-by-uuid:#{uuid}")
         if object then
             JSON.parse(object)
         else
@@ -161,7 +189,7 @@ class Librarian
         raise "(error: b18a080c-af1b-4411-bf65-1b528edc6121, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
         EventLog::commit(object)
-        Librarian::eventInternalDispatch(object)
+        LibrarianDataCenter::incomingEvent(object)
     end
 
     # Librarian::destroy(uuid)
@@ -171,6 +199,6 @@ class Librarian
             "mikuType" => "NxDeleted",
         }
         EventLog::commit(item)
-        Librarian::eventInternalDispatch(item)
+        LibrarianDataCenter::incomingEvent(item)
     end
 end

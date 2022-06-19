@@ -1,6 +1,37 @@
 
 # encoding: UTF-8
 
+class BankDataCenter
+
+    def initialize()
+        @data = nil
+    end
+
+    def reset()
+        @data = []
+    end
+
+    def incoming(item)
+        @data << item
+    end
+
+    def rebuild()
+        reset()
+        Librarian::getObjectsByMikuType("NxBankOp").each{|item|
+            incoming(item)
+        }
+    end
+
+    def data()
+        if @data.nil? then
+            rebuild()
+        end
+        @data
+    end
+end
+
+$BankDataCenter = BankDataCenter.new()
+
 class Bank
 
     # Bank::put(setuuid, weight: Float)
@@ -18,7 +49,7 @@ class Bank
 
     # Bank::value(setuuid)
     def self.value(setuuid)
-        Librarian::getObjectsByMikuType("NxBankOp")
+        $BankDataCenter.data()
             .select{|item| item["setuuid"] == setuuid }
             .map{|item| item["weight"] }
             .inject(0, :+)
@@ -27,7 +58,7 @@ class Bank
     # Bank::valueOverTimespan(setuuid, timespanInSeconds)
     def self.valueOverTimespan(setuuid, timespanInSeconds)
         horizon = Time.new.to_i - timespanInSeconds
-        Librarian::getObjectsByMikuType("NxBankOp")
+        $BankDataCenter.data()
             .select{|item| item["setuuid"] == setuuid }
             .select{|item| item["unixtime"] >= horizon }
             .map{|item| item["weight"] }
@@ -36,7 +67,7 @@ class Bank
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        Librarian::getObjectsByMikuType("NxBankOp")
+        $BankDataCenter.data()
             .select{|item| item["setuuid"] == setuuid }
             .select{|item| item["date"] == date }
             .map{|item| item["weight"] }
