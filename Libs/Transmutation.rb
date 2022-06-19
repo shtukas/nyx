@@ -48,6 +48,15 @@ class Transmutation
             item["mikuType"] = "NxPerson"
             item["name"] = item["description"]
             Librarian::commit(item)
+            return
+        end
+
+        if source == "NxCollection" and target == "NxPerson" then
+            return true if isSimulation
+            item["mikuType"] = "NxPerson"
+            item["name"] = item["description"]
+            Librarian::commit(item)
+            return
         end
 
         return false if isSimulation

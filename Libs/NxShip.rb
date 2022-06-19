@@ -90,18 +90,20 @@ class TxZNumbersAcceleration
     end
 end
 
-Thread.new {
-    loop {
-        sleep 32
-        NxShip::items().each{|item|
-            rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
-            XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
-            cvalue = Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday())
-            XCache::set("combined-value-53a4f8ab8a64:#{item["uuid"]}", rt)
+if $RunNonEssentialThreads then
+    Thread.new {
+        loop {
+            sleep 32
+            NxShip::items().each{|item|
+                rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
+                XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
+                cvalue = Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday())
+                XCache::set("combined-value-53a4f8ab8a64:#{item["uuid"]}", rt)
+            }
+            
         }
-        
     }
-}
+end
 
 class NxShip
 

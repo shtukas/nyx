@@ -27,8 +27,14 @@ class LxFunction
             if item["mikuType"] == "NxDataNode" then
                 return NxDataNodes::toString(item)
             end
+            if item["mikuType"] == "NxCollection" then
+                return NxCollections::toString(item)
+            end
             if item["mikuType"] == "NxFrame" then
                 return NxFrames::toString(item)
+            end
+            if item["mikuType"] == "NxPerson" then
+                return NxPersons::toString(item)
             end
             if item["mikuType"] == "NxShip" then
                 return NxShip::toString(item)

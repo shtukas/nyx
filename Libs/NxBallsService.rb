@@ -208,21 +208,23 @@ class NxBallsService
     end
 end
 
-Thread.new {
-    loop {
-        sleep 60
+if $RunNonEssentialThreads then
+    Thread.new {
+        loop {
+            sleep 60
 
-        NxBallsIO::getItems().each{|nxball|
-            uuid = nxball["uuid"]
-            next if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) < 600
-            NxBallsService::marginCall(uuid)
-        }
+            NxBallsIO::getItems().each{|nxball|
+                uuid = nxball["uuid"]
+                next if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) < 600
+                NxBallsService::marginCall(uuid)
+            }
 
-        NxBallsIO::getItems().each{|nxball|
-            uuid = nxball["uuid"]
-            next if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) < 3600
-            CommonUtils::onScreenNotification("Catalyst", "NxBall running for more than an hour")
+            NxBallsIO::getItems().each{|nxball|
+                uuid = nxball["uuid"]
+                next if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) < 3600
+                CommonUtils::onScreenNotification("Catalyst", "NxBall running for more than an hour")
+            }
+            
         }
-        
     }
-}
+end

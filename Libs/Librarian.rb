@@ -167,7 +167,7 @@ class Librarian
 
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
-        #puts "Librarian::getObjectsByMikuType(#{mikuType})"
+        puts "Librarian::getObjectsByMikuType(#{mikuType})"
         XCacheSets::values("#{LibrarianDataCenter::getTheGreatLibrarianCachePrefix()}:objects-by-mikuType:#{mikuType}")
     end
 

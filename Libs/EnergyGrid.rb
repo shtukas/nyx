@@ -111,6 +111,7 @@ class EnergyGridDatablobs
             return blob
         end
 
+        puts "downloading blob from Stargate Central: #{nhash}"
         blob = StargateCentralDatablobs::getBlobOrNull(nhash)
         return blob if blob
 

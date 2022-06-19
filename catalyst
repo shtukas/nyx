@@ -6,6 +6,8 @@ require_relative "Libs/loader.rb"
 
 # ----------------------------------------------------------------------------
 
+$RunNonEssentialThreads = true
+
 Thread.new {
     loop {
         sleep 3600
