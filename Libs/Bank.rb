@@ -13,8 +13,7 @@ class Bank
           "date"     => CommonUtils::today(),
           "weight"   => weight
         }
-        EventLog::commit(item)
-        Librarian::eventInternalDispatch(item)
+        Librarian::commit(item)
     end
 
     # Bank::value(setuuid)
