@@ -42,18 +42,20 @@ class UniqueStringsFunctions
 
         puts "" # To accomodate CommonUtils::putsOnPreviousLine
         # Edited when we got rid of Librarian::objects() ( aebe4846-be7b-4688-ab32-eedbf65ce75b )
-        [].each{|item|
-            CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
-            next if item["nx111"].nil?
-            nx111 = item["nx111"]
-            if nx111["type"] == "aion-point" then
-                rootnhash = nx111["rootnhash"]
-                operator = EnergyGridElizabeth.new()
-                if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
-                    EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, nx111)
-                    return
+        Librarian::knownMikuTypes().each{|mikuType|
+            Librarian::getObjectsByMikuType(mikuType).each{|item|
+                next if item["nx111"].nil?
+                CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
+                nx111 = item["nx111"]
+                if nx111["type"] == "aion-point" then
+                    rootnhash = nx111["rootnhash"]
+                    operator = EnergyGridElizabeth.new()
+                    if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
+                        EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, nx111)
+                        return
+                    end
                 end
-            end
+            }
         }
 
         puts "I could not find the unique string inside aion-points"

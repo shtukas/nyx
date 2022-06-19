@@ -136,6 +136,14 @@ class FileSystemCheck
 
         puts JSON.pretty_generate(item)
 
+        if item["mikuType"].nil? then
+            raise "(error: d24aa0a4-4a42-40aa-81ca-6ead2d3f7fee) item has no mikuType, #{JSON.pretty_generate(item)}" 
+        end
+
+        if !Librarian::knownMikuTypes().include?(item["mikuType"]) then
+            raise "(error: 329d8f8c-4e3d-4218-b3e8-5712e113ef57) item mikuType is not recognised, #{JSON.pretty_generate(item)}" 
+        end
+
         if item["mikuType"] == "Ax1Text" then
             nhash = item["nhash"]
             begin
@@ -160,10 +168,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxDeleted" then
-            return
-        end
-
         if item["mikuType"] == "NxCollection" then
             return
         end
@@ -174,6 +178,11 @@ class FileSystemCheck
         end
 
         if event["mikuType"] == "NxDNSU" then
+            return
+        end
+
+        if item["mikuType"] == "NxFrame" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 
@@ -195,11 +204,6 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "TxDated" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
-            return
-        end
-
-        if item["mikuType"] == "NxFrame" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end

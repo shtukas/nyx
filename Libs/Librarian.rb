@@ -151,10 +151,6 @@ class LibrarianDataCenter
             return
         end
 
-        if event["mikuType"] == "TxFrame" then
-            return
-        end
-
         if event["mikuType"] == "TxTodo" then
             return
         end
@@ -195,6 +191,27 @@ class LibrarianDataCenter
 end
 
 class Librarian
+
+    # Librarian::knownMikuTypes()
+    def self.knownMikuTypes()
+        [
+            "Ax1Text",
+            "NxAnniversary",
+            "NxArrow",
+            "NxBankOp",
+            "NxCollection",
+            "NxDataNode",
+            "NxDNSU",
+            "NxFrame",
+            "NxPerson",
+            "NxRelation",
+            "NxShip",
+            "NxTimeline",
+            "TxDated",
+            "TxTodo",
+            "Wave"
+        ]
+    end
 
     # ---------------------------------------------------
     # Objects Reading
