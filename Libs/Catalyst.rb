@@ -129,6 +129,7 @@ class Catalyst
  
         loop {
 
+            puts "(code trace)"
             if CommonUtils::generalCodeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
@@ -140,6 +141,7 @@ class Catalyst
                 LucilleCore::removeFileSystemLocation(location)
             }
 
+            puts "(items for listing)"
             section2 = Catalyst::itemsForListing()
 
             # section1  : running items

@@ -41,7 +41,8 @@ class UniqueStringsFunctions
         puts "Looking inside aion-points..."
 
         puts "" # To accomodate CommonUtils::putsOnPreviousLine
-        Librarian::objects().each{|item|
+        # Edited when we got rid of Librarian::objects() ( aebe4846-be7b-4688-ab32-eedbf65ce75b )
+        [].each{|item|
             CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
             next if item["nx111"].nil?
             nx111 = item["nx111"]

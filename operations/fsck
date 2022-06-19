@@ -4,7 +4,7 @@
 
 require_relative "../Libs/loader.rb"
 
-Librarian::objects()
+[] # e887915a-aed9-496c-8ce5-30f1f7bc60b4
     .each {|object|
         exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
         next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(object)}")
