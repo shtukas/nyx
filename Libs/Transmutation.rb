@@ -43,6 +43,13 @@ class Transmutation
             return
         end
 
+        if source == "NxDataNode" and target == "NxCollection'" then
+            return true if isSimulation
+            item["mikuType"] = "NxCollection"
+            Librarian::commit(item)
+            return
+        end
+
         if source == "NxDataNode" and target == "NxPerson" then
             return true if isSimulation
             item["mikuType"] = "NxPerson"
