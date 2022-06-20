@@ -26,7 +26,7 @@ class Librarian
 
     # Librarian::pathToDatabaseFile()
     def self.pathToDatabaseFile()
-        "/Users/pascal/Galaxy/DataBank/Stargate/objects-store.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Stargate/objects.sqlite3"
     end
 
     # ---------------------------------------------------

@@ -11,7 +11,7 @@ To be Librarian compatible, an object must have the following keys:
 
 We can retrieve objects individually by "uuid" or collectively by "mikuType"s.
 
-objects-store.sqlite3
+objects.sqlite3
 CREATE TABLE _objects_ (_objectuuid_ text primary key, _mikuType_ text, _object_ text);
 
 ### Logical Delete

@@ -5,7 +5,7 @@ class LocalEventLogBufferOut
 
     # LocalEventLogBufferOut::pathToDatabaseFile()
     def self.pathToDatabaseFile()
-        "/Users/pascal/Galaxy/DataBank/Stargate/event-log-buffer-out.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Stargate/events.sqlite3"
     end
 
     # LocalEventLogBufferOut::issueEventForObject(item)
