@@ -28,6 +28,7 @@ class Bank
         return if object["mikuType"] != "NxBankOp"
         setuuid = object["setuuid"]
         date = object["date"]
+        weight = object["weight"]
         value = Bank::valueAtDate(setuuid, date)
         value = value + weight
         XCache::set("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}", value)
