@@ -93,7 +93,7 @@ end
 if $RunNonEssentialThreads then
     Thread.new {
         loop {
-            sleep 32
+            sleep 600
             NxShip::items().each{|item|
                 rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
                 XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
@@ -370,11 +370,12 @@ class NxShip
             .select{|item| NxShip::itemShouldShow(item) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-        items1, items2 = items.partition{|item| BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 0 }
+        items1, items2 = items.partition{|item| TxZNumbersAcceleration::rt(item["uuid"]) > 0 }
         items1 = items1
-                    .sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
+                    .sort{|i1, i2| TxZNumbersAcceleration::rt(i1["uuid"]) <=> TxZNumbersAcceleration::rt(i2["uuid"]) }
                     .reverse
         items1 + items2
+        
     end
 
     # NxShip::nx20s()

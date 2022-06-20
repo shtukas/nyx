@@ -346,5 +346,62 @@ class Commands
             NxShip::dive()
             return
         end
+
+        if Interpreting::match("speed", input) then
+
+            tests = [
+                {
+                    "name" => "source code trace generation",
+                    "lambda" => lambda { CommonUtils::generalCodeTrace() }
+                },
+                {
+                    "name" => "fitness lookup",
+                    "lambda" => lambda { JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`) }
+                },
+                {
+                    "name" => "Anniversaries::itemsForListing()",
+                    "lambda" => lambda { Anniversaries::itemsForListing() }
+                },
+                {
+                    "name" => "Waves::itemsForListing()",
+                    "lambda" => lambda { Waves::itemsForListing() }
+                },
+                {
+                    "name" => "TxDateds::itemsForListing()",
+                    "lambda" => lambda { TxDateds::itemsForListing() }
+                },
+                {
+                    "name" => "NxShip::itemsForListing()",
+                    "lambda" => lambda { NxShip::itemsForListing() }
+                },
+            ]
+
+            # dry run to initialise things
+            tests
+                .each{|test|
+                    test["lambda"].call()
+                }
+
+            padding = tests.map{|test| test["name"].size }.max
+
+            results = tests
+                        .map{|test|
+                            t1 = Time.new.to_f
+                            test["lambda"].call()
+                            t2 = Time.new.to_f
+                            {
+                                "name" => test["name"],
+                                "runtime" => t2 - t1
+                            }
+                        }
+                        .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
+                        .reverse
+                        .each{|result|
+                            puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
+                        }
+
+            LucilleCore::pressEnterToContinue()
+            return
+        end
     end
 end
