@@ -122,6 +122,7 @@ require_relative "Ax1Text.rb"
 require_relative "Anniversaries.rb"
 require_relative "AionTransforms.rb"
 require_relative "Architect.rb"
+require_relative "AWSSQS.rb"
 
 require_relative "Bank.rb"
 

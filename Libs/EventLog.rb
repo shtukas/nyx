@@ -16,10 +16,13 @@ class LocalEventLogBufferOut
             "unixtime" => item["lxEventTime"],
             "payload"  => item
         }
+
         db = SQLite3::Database.new(LocalEventLogBufferOut::pathToDatabaseFile())
         db.execute "delete from _events_ where _uuid_=?", [event["uuid"]]
         db.execute "insert into _events_ (_uuid_, _unixtime_, _event_) values (?, ?, ?)", [event["uuid"], event["unixtime"], JSON.generate(event)]
         db.close
+
+        AWSSQS::sendEventToTheOtherMachine(event)
     end
 
     # LocalEventLogBufferOut::getEvents()
