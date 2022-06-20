@@ -15,6 +15,15 @@ class DoNotShowUntil
         XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", unixtime)
     end
 
+    # DoNotShowUntil::incomingEvent(event)
+    def self.incomingEvent(event)
+        object = event["payload"]
+        return if object["mikuType"] != "NxDNSU"
+        uid = object["targetuuid"]
+        unixtime = object["targetunixtime"]
+        XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", unixtime)
+    end
+
     # DoNotShowUntil::getUnixtimeOrNull(uid)
     def self.getUnixtimeOrNull(uid)
         unixtime = XCache::getOrNull("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}")

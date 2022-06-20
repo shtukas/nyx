@@ -22,6 +22,17 @@ class Bank
         XCache::set("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}", value)
     end
 
+    # Bank::incomingEvent(event)
+    def self.incomingEvent(event)
+        object = event["payload"]
+        return if object["mikuType"] != "NxBankOp"
+        setuuid = object["setuuid"]
+        date = object["date"]
+        value = Bank::valueAtDate(setuuid, date)
+        value = value + weight
+        XCache::set("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}", value)
+    end
+
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
         value = XCache::getOrNull("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}")
