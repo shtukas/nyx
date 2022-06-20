@@ -99,10 +99,17 @@ class Librarian
 
     # Librarian::incomingEventFromOutside(event)
     def self.incomingEventFromOutside(event)
-        if event["mikuType"] == "NxDeleted" then
-            Librarian::destroyNoEvent(event["uuid"])
+        object = event["payload"]
+
+        if object["mikuType"] == "NxDeleted" then
+            Librarian::destroyNoEvent(object["uuid"])
             return
         end
+
+        # Simplistic implementation for the moment
         Librarian::commitNoEvent(object)
+
+        Bank::incomingEventFromOutside(event)
+        DoNotShowUntil::incomingEventFromOutside(event)
     end
 end
