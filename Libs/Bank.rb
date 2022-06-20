@@ -1,77 +1,45 @@
 
 # encoding: UTF-8
 
-class BankDataCenter
-
-    def initialize()
-        @data = nil
-    end
-
-    def reset()
-        @data = []
-    end
-
-    def incoming(item)
-        @data << item
-    end
-
-    def rebuild()
-        reset()
-        Librarian::getObjectsByMikuType("NxBankOp").each{|item|
-            incoming(item)
-        }
-    end
-
-    def data()
-        if @data.nil? then
-            rebuild()
-        end
-        @data
-    end
-end
-
-$BankDataCenter = BankDataCenter.new()
-
 class Bank
 
     # Bank::put(setuuid, weight: Float)
     def self.put(setuuid, weight)
+        date = CommonUtils::today()
+
         item = {
           "uuid"     => SecureRandom.uuid,
           "mikuType" => "NxBankOp",
           "setuuid"  => setuuid,
           "unixtime" => Time.new.to_i,
-          "date"     => CommonUtils::today(),
+          "date"     => date,
           "weight"   => weight
         }
         Librarian::commit(item)
-    end
 
-    # Bank::value(setuuid)
-    def self.value(setuuid)
-        $BankDataCenter.data()
-            .select{|item| item["setuuid"] == setuuid }
-            .map{|item| item["weight"] }
-            .inject(0, :+)
-    end
-
-    # Bank::valueOverTimespan(setuuid, timespanInSeconds)
-    def self.valueOverTimespan(setuuid, timespanInSeconds)
-        horizon = Time.new.to_i - timespanInSeconds
-        $BankDataCenter.data()
-            .select{|item| item["setuuid"] == setuuid }
-            .select{|item| item["unixtime"] >= horizon }
-            .map{|item| item["weight"] }
-            .inject(0, :+)
+        value = Bank::valueAtDate(setuuid, date)
+        value = value + weight
+        XCache::set("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}", value)
     end
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        $BankDataCenter.data()
-            .select{|item| item["setuuid"] == setuuid }
-            .select{|item| item["date"] == date }
-            .map{|item| item["weight"] }
-            .inject(0, :+)
+        value = XCache::getOrNull("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}")
+        if value then
+            return value.to_f
+        end
+
+        #puts "Bank::valueAtDate(#{setuuid}, #{date})"
+
+        value = Librarian::getObjectsByMikuType("NxBankOp")
+                    .select{|item| item["setuuid"] == setuuid }
+                    .select{|item| item["date"] == date }
+                    .map{|item| item["weight"] }
+                    .inject(0, :+)
+
+        XCache::set("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}", value)
+
+        value
     end
 
     # Bank::combinedValueOnThoseDays(setuuid, dates)
