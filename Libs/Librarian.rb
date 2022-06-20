@@ -78,7 +78,7 @@ class Librarian
     # Librarian::commit(object)
     def self.commit(object)
         Librarian::commitNoEvent(object)
-        EventLog::commit(object)
+        LocalEventLogBufferOut::issueEventForObject(object)
     end
 
     # --------------------------------------------------------------
@@ -94,18 +94,18 @@ class Librarian
     # Librarian::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroyNoEvent(uuid)
-        event = {
+        object = {
             "uuid"     => uuid,
             "mikuType" => "NxDeleted",
         }
-        EventLog::commit(event)
+        LocalEventLogBufferOut::issueEventForObject(object)
     end
 
     # --------------------------------------------------------------
     # Incoming Events
 
-    # Librarian::incomingObjectEventFromOutside(event)
-    def self.incomingObjectEventFromOutside(event)
+    # Librarian::incomingEventFromOutside(event)
+    def self.incomingEventFromOutside(event)
         if event["mikuType"] == "NxDeleted" then
             Librarian::destroyNoEvent(event["uuid"])
             return

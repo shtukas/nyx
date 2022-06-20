@@ -4,11 +4,16 @@
 
 require_relative "../Libs/loader.rb"
 
-StargateCentral::syncDatablobs()
-StargateCentral::syncEventLogs()
+puts "Data Propagation (LocalDatablobsBufferOut to StargateCentralDatablobRepository)"
+StargateCentral::propagateDatablobsWithPrimaryDeletion(LocalDatablobsBufferOut::repositoryFolderpath(), "#{StargateCentral::pathToCentral()}/DatablobsDepth1")
 
-LibrarianDataCenter::rebuildDatasetsFromScratchUsingEventLog()
+puts "Send local event log to stargate event stream"
+LocalEventLogBufferOut::sendEventsToStargateCentral()
 
+puts "Get stream from stargate central"
+
+# We do the following to make sure we have a self contained datablob repository on local
 if Machines::isLucille20() then
+    puts "File system check"
     FileSystemCheck::fsck()
 end

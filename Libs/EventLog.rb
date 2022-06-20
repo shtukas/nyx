@@ -1,49 +1,54 @@
 
 # encoding: UTF-8
 
-class EventLog
+class LocalEventLogBufferOut
 
-    # EventLog::pathToLocalEventLog()
-    def self.pathToLocalEventLog()
-        "/Users/pascal/Galaxy/DataBank/Stargate/EventLog"
+    # LocalEventLogBufferOut::pathToDatabaseFile()
+    def self.pathToDatabaseFile()
+        "/Users/pascal/Galaxy/DataBank/Stargate/event-log-buffer-out.sqlite3"
     end
 
-    # --------------------------------------------------------------
-    # Log writing
-
-    # EventLog::commit(item)
-    def self.commit(item)
-
-        raise "(error: 227b0b8d-4ab9-45c2-a80d-ac887a73c65a, missing attribute uuid)" if item["uuid"].nil?
-        raise "(error: a4767984-547e-4ca6-a200-790e25765b0c, missing attribute mikuType)" if item["mikuType"].nil?
-
-        id = "#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}-#{SecureRandom.hex[0, 4]}"
-
-        # To every item that is sent to the event log we set the attribute 
-
-        # lxEventId: for filenames
-        item["lxEventId"] = id
-
-        # lxEventTime: used to order the elements of the log
-        item["lxEventTime"] = Time.new.to_f
-
-        filename = "#{id}.event.json"
-
-        folderpath = LucilleCore::indexsubfolderpath(EventLog::pathToLocalEventLog(), capacity = 1000)
-        filepath = "#{folderpath}/#{filename}"
-        File.open(filepath, "w") {|f| f.puts(JSON.pretty_generate(item)) }
+    # LocalEventLogBufferOut::issueEventForObject(item)
+    def self.issueEventForObject(item)
+        event = {
+            "uuid"     => SecureRandom.uuid,
+            "mikuType" => "TxEvent",
+            "unixtime" => item["lxEventTime"],
+            "payload"  => item
+        }
+        db = SQLite3::Database.new(LocalEventLogBufferOut::pathToDatabaseFile())
+        db.execute "delete from _events_ where _uuid_=?", [event["uuid"]]
+        db.execute "insert into _events_ (_uuid_, _unixtime_, _event_) values (?, ?, ?)", [event["uuid"], event["unixtime"], JSON.generate(event)]
+        db.close
     end
 
-    # --------------------------------------------------------------
-    # Log reading
-
-    # EventLog::getLogEvents()
-    def self.getLogEvents()
-        events = []
-        Find.find(EventLog::pathToLocalEventLog()) do |path|
-            next if File.basename(path)[-11, 11] != ".event.json"
-            events << JSON.parse(IO.read(path))
+    # LocalEventLogBufferOut::getEvents()
+    def self.getEvents()
+        db = SQLite3::Database.new(LocalEventLogBufferOut::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _events_ order by _unixtime_=?") do |row|
+            answer << JSON.parse(row['_event_'])
         end
-        events.sort{|e1, e2| e1["lxEventTime"] <=> e2["lxEventTime"] }
+        db.close
+        answer
+    end
+
+    # LocalEventLogBufferOut::deleteEvent(uuid)
+    def self.deleteEvent(uuid)
+        db = SQLite3::Database.new(LocalEventLogBufferOut::pathToDatabaseFile())
+        db.execute "delete from _events_ where _uuid_=?", [uuid]
+        db.close
+    end
+
+    # LocalEventLogBufferOut::sendEventsToStargateCentral()
+    def self.sendEventsToStargateCentral()
+        LocalEventLogBufferOut::getEvents().each{|event|
+            puts JSON.pretty_generate(event)
+            StargateCentral::writeEventToStream(event)
+            LocalEventLogBufferOut::deleteEvent(event["uuid"])
+        }
     end
 end
