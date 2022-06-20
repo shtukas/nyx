@@ -46,8 +46,8 @@ class StargateCentral
 
     # StargateCentral::syncDatablobs()
     def self.syncDatablobs()
-        puts "Data Propagation (DatablobsBufferOut to StargateCentral)"
-        StargateCentral::propagateDatablobsWithPrimaryDeletion(DatablobsBufferOut::repositoryFolderpath(), "#{StargateCentral::pathToCentral()}/DatablobsDepth1")
+        puts "Data Propagation (LocalDatablobsBufferOut to StargateCentral)"
+        StargateCentral::propagateDatablobsWithPrimaryDeletion(LocalDatablobsBufferOut::repositoryFolderpath(), "#{StargateCentral::pathToCentral()}/DatablobsDepth1")
     end
 
     # -----------------------------------------------------------------

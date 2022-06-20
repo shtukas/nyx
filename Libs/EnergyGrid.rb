@@ -15,33 +15,33 @@ class DatablobsXCache
     end
 end
 
-class DatablobsBufferOut
+class LocalDatablobsBufferOut
 
-    # DatablobsBufferOut::repositoryFolderpath()
+    # LocalDatablobsBufferOut::repositoryFolderpath()
     def self.repositoryFolderpath()
         "#{Config::pathToDataBankStargate()}/DatablobsBufferOut"
     end
 
-    # DatablobsBufferOut::decideFilepathForBlob(nhash)
+    # LocalDatablobsBufferOut::decideFilepathForBlob(nhash)
     def self.decideFilepathForBlob(nhash)
-        filepath = "#{DatablobsBufferOut::repositoryFolderpath()}/#{nhash}.data"
+        filepath = "#{LocalDatablobsBufferOut::repositoryFolderpath()}/#{nhash}.data"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkpath(File.dirname(filepath))
         end
         filepath
     end
 
-    # DatablobsBufferOut::putBlob(blob)
+    # LocalDatablobsBufferOut::putBlob(blob)
     def self.putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = DatablobsBufferOut::decideFilepathForBlob(nhash)
+        filepath = LocalDatablobsBufferOut::decideFilepathForBlob(nhash)
         File.open(filepath, "w"){|f| f.write(blob) }
         nhash
     end
 
-    # DatablobsBufferOut::getBlobOrNull(nhash)
+    # LocalDatablobsBufferOut::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
-        filepath = DatablobsBufferOut::decideFilepathForBlob(nhash)
+        filepath = LocalDatablobsBufferOut::decideFilepathForBlob(nhash)
         if File.exists?(filepath) then
             return IO.read(filepath)
         end
@@ -95,7 +95,7 @@ class EnergyGridDatablobs
 
     # EnergyGridDatablobs::putBlob(blob)
     def self.putBlob(blob)
-        DatablobsBufferOut::putBlob(blob)
+        LocalDatablobsBufferOut::putBlob(blob)
         DatablobsXCache::putBlob(blob)
     end
 
@@ -105,7 +105,7 @@ class EnergyGridDatablobs
         blob = DatablobsXCache::getBlobOrNull(nhash)
         return blob if blob
 
-        blob = DatablobsBufferOut::getBlobOrNull(nhash)
+        blob = LocalDatablobsBufferOut::getBlobOrNull(nhash)
         if blob then
             DatablobsXCache::putBlob(blob)
             return blob
