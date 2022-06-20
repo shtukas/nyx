@@ -8,3 +8,7 @@ StargateCentral::syncDatablobs()
 StargateCentral::syncEventLogs()
 
 LibrarianDataCenter::rebuildDatasetsFromScratchUsingEventLog()
+
+if Machines::isLucille20() then
+    FileSystemCheck::fsck()
+end

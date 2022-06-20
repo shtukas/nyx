@@ -164,7 +164,7 @@ class FileSystemCheck
             return
         end
 
-        if event["mikuType"] == "NxBankOp" then
+        if item["mikuType"] == "NxBankOp" then
             return
         end
 
@@ -177,7 +177,7 @@ class FileSystemCheck
             return
         end
 
-        if event["mikuType"] == "NxDNSU" then
+        if item["mikuType"] == "NxDNSU" then
             return
         end
 
@@ -220,5 +220,19 @@ class FileSystemCheck
 
         puts JSON.pretty_generate(item).red
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc) unsupported mikuType: #{item["mikuType"]}"
+    end
+
+    # FileSystemCheck::fsck()
+    def self.fsck()
+        Librarian::knownMikuTypes().each{|mikuType|
+            Librarian::getObjectsByMikuType(mikuType).each{|item|
+                exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
+                next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}")
+                operator = EnergyGridElizabeth.new()
+                FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
+                XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}", true)
+            }
+        }
+        puts "fsck completed successfully".green
     end
 end
