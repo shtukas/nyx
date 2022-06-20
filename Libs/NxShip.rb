@@ -152,8 +152,8 @@ class NxShip
         item
     end
 
-    # NxShip::locationToZero(location)
-    def self.locationToZero(location)
+    # NxShip::issueFromLocation(location)
+    def self.issueFromLocation(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
         nx111 = Nx111::locationToAionPointNx111OrNull(location)
@@ -167,6 +167,32 @@ class NxShip
           "datetime"     => datetime,
           "nx111"        => nx111,
           "ax38"         => nil
+        }
+        Librarian::commit(item)
+        item
+    end
+
+    # NxShip::issueViennaURL(url)
+    def self.issueViennaURL(url)
+        uuid        = SecureRandom.uuid
+        description = "(vienna) #{url}"
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+
+        nx111 = {
+            "uuid" => SecureRandom.uuid,
+            "type" => "url",
+            "url"  => url
+        }
+
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "NxShip",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "nx111"       => nx111,
+          "ax38"        => nil
         }
         Librarian::commit(item)
         item

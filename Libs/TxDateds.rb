@@ -73,31 +73,6 @@ class TxDateds
         item
     end
 
-    # TxDateds::issueViennaURL(url)
-    def self.issueViennaURL(url)
-        uuid        = SecureRandom.uuid
-        description = "(vienna) #{url}"
-        unixtime    = Time.new.to_i
-        datetime    = Time.new.utc.iso8601
-
-        nx111 = {
-            "uuid" => SecureRandom.uuid,
-            "type" => "url",
-            "url"  => url
-        }
-
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxDated",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111,
-        }
-        Librarian::commit(item)
-        item
-    end
-
     # --------------------------------------------------
     # toString
 

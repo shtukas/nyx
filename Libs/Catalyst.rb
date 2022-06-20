@@ -136,7 +136,7 @@ class Catalyst
             end
 
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
-                item = NxShip::locationToZero(location)
+                item = NxShip::issueFromLocation(location)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             }
