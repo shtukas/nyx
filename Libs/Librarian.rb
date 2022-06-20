@@ -3,27 +3,6 @@
 
 class Librarian
 
-    # Librarian::knownMikuTypes()
-    def self.knownMikuTypes()
-        [
-            "Ax1Text",
-            "NxAnniversary",
-            "NxArrow",
-            "NxBankOp",
-            "NxCollection",
-            "NxDataNode",
-            "NxDNSU",
-            "NxFrame",
-            "NxPerson",
-            "NxRelation",
-            "NxShip",
-            "NxTimeline",
-            "TxDated",
-            "TxTodo",
-            "Wave"
-        ]
-    end
-
     # Librarian::pathToDatabaseFile()
     def self.pathToDatabaseFile()
         "/Users/pascal/Galaxy/DataBank/Stargate/objects.sqlite3"
@@ -31,6 +10,20 @@ class Librarian
 
     # ---------------------------------------------------
     # Objects Reading
+
+    # Librarian::objects()
+    def self.objects()
+        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_") do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
 
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)

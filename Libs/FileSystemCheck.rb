@@ -140,10 +140,6 @@ class FileSystemCheck
             raise "(error: d24aa0a4-4a42-40aa-81ca-6ead2d3f7fee) item has no mikuType, #{JSON.pretty_generate(item)}" 
         end
 
-        if !Librarian::knownMikuTypes().include?(item["mikuType"]) then
-            raise "(error: 329d8f8c-4e3d-4218-b3e8-5712e113ef57) item mikuType is not recognised, #{JSON.pretty_generate(item)}" 
-        end
-
         if item["mikuType"] == "Ax1Text" then
             nhash = item["nhash"]
             begin
@@ -224,14 +220,12 @@ class FileSystemCheck
 
     # FileSystemCheck::fsck()
     def self.fsck()
-        Librarian::knownMikuTypes().each{|mikuType|
-            Librarian::getObjectsByMikuType(mikuType).each{|item|
-                exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-                next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}")
-                operator = EnergyGridElizabeth.new()
-                FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
-                XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}", true)
-            }
+        Librarian::objects().each{|item|
+            exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
+            next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}")
+            operator = EnergyGridElizabeth.new()
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
+            XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}", true)
         }
         puts "fsck completed successfully".green
     end
