@@ -113,7 +113,10 @@ class EnergyGridDatablobs
 
         puts "downloading blob from Stargate Central: #{nhash}"
         blob = StargateCentralDatablobs::getBlobOrNull(nhash)
-        return blob if blob
+        if blob then
+            DatablobsXCache::putBlob(blob)
+            return blob
+        end
 
         nil
     end

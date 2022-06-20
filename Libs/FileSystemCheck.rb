@@ -222,10 +222,10 @@ class FileSystemCheck
     def self.fsck()
         Librarian::objects().each{|item|
             exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-            next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}")
+            next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}")
             operator = EnergyGridElizabeth.new()
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
-            XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca5:#{JSON.generate(item)}", true)
+            XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}", true)
         }
         puts "fsck completed successfully".green
     end
