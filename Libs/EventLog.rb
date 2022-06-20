@@ -13,7 +13,7 @@ class LocalEventLogBufferOut
         event = {
             "uuid"     => SecureRandom.uuid,
             "mikuType" => "TxEvent",
-            "unixtime" => item["lxEventTime"],
+            "unixtime" => Time.new.to_f,
             "payload"  => item
         }
 
