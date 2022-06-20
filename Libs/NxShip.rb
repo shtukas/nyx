@@ -365,11 +365,16 @@ class NxShip
 
     # NxShip::itemsForListing()
     def self.itemsForListing()
-        NxShip::items()
+        items = NxShip::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| NxShip::itemShouldShow(item) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+        items1, items2 = items.partition{|item| BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) > 0 }
+        items1 = items1
+                    .sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
+                    .reverse
+        items1 + items2
     end
 
     # NxShip::nx20s()
