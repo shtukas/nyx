@@ -339,18 +339,11 @@ class NxShip
 
     # NxShip::itemsForListing()
     def self.itemsForListing()
-        items = NxShip::items()
-                    .select{|item| NxShip::itemShouldShow(item) }
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-
-        i1s, items = items.partition{|item| item["ax38"].nil? }
-        i2s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
-        i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
-        i4s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
-        i5s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
-
-        i2s + i3s + i4s + i5s + i1s + items
+        NxShip::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .select{|item| NxShip::itemShouldShow(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
     # NxShip::nx20s()
