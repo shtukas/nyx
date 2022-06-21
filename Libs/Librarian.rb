@@ -123,11 +123,18 @@ class Librarian
             return
         end
 
-        # Simplistic implementation for the moment
-        #Librarian::commitNoEvent(event)
+        existingObject = Librarian::getObjectByUUIDOrNull(event["uuid"])
+        if existingObject.nil? then
+            # That's the easy case
+            Librarian::commitNoEvent(event)
 
-        #Bank::incomingEventFromOutside(event)
-        #DoNotShowUntil::incomingEventFromOutside(event)
+            # And we also know that the two below special incomings are for that kind.
+            Bank::incomingEventFromOutside(event)
+            DoNotShowUntil::incomingEventFromOutside(event)
+            return
+        end
+
+        # TODO
     end
 
     # Librarian::digestObjectsFromCentral()
