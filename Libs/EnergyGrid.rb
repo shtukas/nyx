@@ -53,7 +53,7 @@ class StargateCentralDatablobs
 
     # StargateCentralDatablobs::repositoryFolderpath()
     def self.repositoryFolderpath()
-        "#{StargateCentral::pathToCentral()}/DatablobsDepth1"
+        "#{StargateCentralDataBlobs::pathToCentral()}/DatablobsDepth1"
     end
 
     # StargateCentralDatablobs::decideFilepathForBlob(nhash)

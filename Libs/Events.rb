@@ -1,24 +1,24 @@
 
 # encoding: UTF-8
 
-class OutGoingEventsToCentral
+class EventsLocalToCentralInbox
 
-    # OutGoingEventsToCentral::pathToDatabaseFile()
+    # EventsLocalToCentralInbox::pathToDatabaseFile()
     def self.pathToDatabaseFile()
         "/Users/pascal/Galaxy/DataBank/Stargate/events-outgoing.sqlite3"
     end
 
-    # OutGoingEventsToCentral::publish(event)
+    # EventsLocalToCentralInbox::publish(event)
     def self.publish(event)
-        #puts "OutGoingEventsToCentral::publish(#{JSON.pretty_generate(event)})"
-        db = SQLite3::Database.new(OutGoingEventsToCentral::pathToDatabaseFile())
+        #puts "EventsLocalToCentralInbox::publish(#{JSON.pretty_generate(event)})"
+        db = SQLite3::Database.new(EventsLocalToCentralInbox::pathToDatabaseFile())
         db.execute "insert into _events_ (_uuid_, _unixtime_, _event_) values (?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, JSON.generate(event)]
         db.close
     end
 
-    # OutGoingEventsToCentral::getRecords()
+    # EventsLocalToCentralInbox::getRecords()
     def self.getRecords()
-        db = SQLite3::Database.new(OutGoingEventsToCentral::pathToDatabaseFile())
+        db = SQLite3::Database.new(EventsLocalToCentralInbox::pathToDatabaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -30,35 +30,35 @@ class OutGoingEventsToCentral
         answer
     end
 
-    # OutGoingEventsToCentral::deleteRecord(uuid)
+    # EventsLocalToCentralInbox::deleteRecord(uuid)
     def self.deleteRecord(uuid)
-        #puts "OutGoingEventsToCentral::deleteRecord(#{uuid})"
-        db = SQLite3::Database.new(OutGoingEventsToCentral::pathToDatabaseFile())
+        #puts "EventsLocalToCentralInbox::deleteRecord(#{uuid})"
+        db = SQLite3::Database.new(EventsLocalToCentralInbox::pathToDatabaseFile())
         db.execute "delete from _events_ where _uuid_=?", [uuid]
         db.close
     end
 
-    # OutGoingEventsToCentral::sendEventsToStargateCentral()
-    def self.sendEventsToStargateCentral()
-        OutGoingEventsToCentral::getRecords().each{|record|
-            #puts "record (outgoing to central):"
+    # EventsLocalToCentralInbox::localEventsToCentralInbox()
+    def self.localEventsToCentralInbox()
+        EventsLocalToCentralInbox::getRecords().each{|record|
+            puts "EventsLocalToCentralInbox::localEventsToCentralInbox(): record (from local event repo to central inbox):"
             puts JSON.pretty_generate(record)
-            StargateCentral::writeEventToInbox(record["_uuid_"], record["_unixtime_"], JSON.parse(record["_event_"]))
-            OutGoingEventsToCentral::deleteRecord(record["_uuid_"])
+            StargateCentralInbox::writeEvent(record["_uuid_"], record["_unixtime_"], JSON.parse(record["_event_"]))
+            EventsLocalToCentralInbox::deleteRecord(record["_uuid_"])
         }
     end
 end
 
-class OutGoingEventsToMachine
+class EventsLocalToMachine
     # Here we store the events to send fast to the other machine
 
-    # OutGoingEventsToMachine::publish(event)
+    # EventsLocalToMachine::publish(event)
     def self.publish(event)
-        #puts "OutGoingEventsToMachine::publish(#{JSON.pretty_generate(event)})"
+        #puts "EventsLocalToMachine::publish(#{JSON.pretty_generate(event)})"
         Mercury::postValue("341307DD-A9C6-494F-B050-CD89745A66C6", event)
     end
 
-    # OutGoingEventsToMachine::sendEventsToMachine()
+    # EventsLocalToMachine::sendEventsToMachine()
     def self.sendEventsToMachine()
         loop {
             event = Mercury::readFirstValueOrNull("341307DD-A9C6-494F-B050-CD89745A66C6")
@@ -81,7 +81,7 @@ class EventMachineSync
     def self.machineSync()
         #puts "To Machine Event Maintenance Thread"
         begin
-            OutGoingEventsToMachine::sendEventsToMachine()
+            EventsLocalToMachine::sendEventsToMachine()
             AWSSQS::pullAndProcessEvents()
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"

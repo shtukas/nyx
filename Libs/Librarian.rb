@@ -64,13 +64,8 @@ class Librarian
 
         if object["lxGenealogyAncestors"].nil? then
             object["lxGenealogyAncestors"] = []
-        end
-
-        if object["lxGenealogyId"].nil? then
-            object["lxGenealogyId"] = SecureRandom.hex(4)
         else
-            object["lxGenealogyAncestors"] << object["lxGenealogyId"]
-            object["lxGenealogyId"] = SecureRandom.hex(4)
+            object["lxGenealogyAncestors"] << SecureRandom.hex(4)
         end
 
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
@@ -85,8 +80,8 @@ class Librarian
     def self.commit(object)
         object = Librarian::commitNoEvent(object)
         puts JSON.pretty_generate(object)
-        OutGoingEventsToCentral::publish(object)
-        OutGoingEventsToMachine::publish(object)
+        EventsLocalToCentralInbox::publish(object)
+        EventsLocalToMachine::publish(object)
     end
 
     # --------------------------------------------------------------
@@ -106,8 +101,8 @@ class Librarian
             "uuid"     => uuid,
             "mikuType" => "NxDeleted",
         }
-        OutGoingEventsToCentral::publish(event)
-        OutGoingEventsToMachine::publish(event)
+        EventsLocalToCentralInbox::publish(event)
+        EventsLocalToMachine::publish(event)
     end
 
     # --------------------------------------------------------------
@@ -125,6 +120,7 @@ class Librarian
 
         existingObject = Librarian::getObjectByUUIDOrNull(event["uuid"])
         if existingObject.nil? then
+            puts "existing object is null, commiting event"
             # That's the easy case
             Librarian::commitNoEvent(event)
 
@@ -134,8 +130,13 @@ class Librarian
             return
         end
 
+        if existingObject.to_s == event.to_s then
+            puts "existing object and event are equal"
+            return
+        end
+
         if Genealogy::object1ShouldBeReplacedByObject2(existingObject, event) then
-            # event is more recent
+            puts "existing object is being replaced by event"
             Librarian::commitNoEvent(event)
             return
         end
@@ -146,12 +147,12 @@ class Librarian
         puts "event:"
         puts JSON.pretty_generate(event)
 
-        exit
+        raise "(error: 26baca50-a314-4b51-95b7-089429a23c91) I don't know how to handle this case"
     end
 
-    # Librarian::digestObjectsFromCentral()
-    def self.digestObjectsFromCentral()
-        StargateCentral::objects().each{|object|
+    # Librarian::getObjectsFromCentral()
+    def self.getObjectsFromCentral()
+        StargateCentralObjects::objects().each{|object|
             Librarian::incomingEventFromOutside(object)
         }
     end
