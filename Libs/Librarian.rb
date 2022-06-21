@@ -71,7 +71,8 @@ class Librarian
     # Librarian::commit(object)
     def self.commit(object)
         Librarian::commitNoEvent(object)
-        LocalEventLogBufferOut::issueEventForObject(object)
+        OutGoingEventsToCentral::publish(object)
+        OutGoingEventsToMachine::publish(object)
     end
 
     # --------------------------------------------------------------
@@ -80,18 +81,19 @@ class Librarian
     # Librarian::destroyNoEvent(uuid)
     def self.destroyNoEvent(uuid)
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
-        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
+        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
         db.close
     end
 
     # Librarian::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroyNoEvent(uuid)
-        object = {
+        event = {
             "uuid"     => uuid,
             "mikuType" => "NxDeleted",
         }
-        LocalEventLogBufferOut::issueEventForObject(object)
+        OutGoingEventsToCentral::publish(event)
+        OutGoingEventsToMachine::publish(event)
     end
 
     # --------------------------------------------------------------
@@ -99,15 +101,18 @@ class Librarian
 
     # Librarian::incomingEventFromOutside(event)
     def self.incomingEventFromOutside(event)
-        object = event["payload"]
 
-        if object["mikuType"] == "NxDeleted" then
-            Librarian::destroyNoEvent(object["uuid"])
+        puts "Librarian::incomingEventFromOutside(#{JSON.pretty_generate(event)})"
+
+        exit
+
+        if event["mikuType"] == "NxDeleted" then
+            Librarian::destroyNoEvent(event["uuid"])
             return
         end
 
         # Simplistic implementation for the moment
-        Librarian::commitNoEvent(object)
+        Librarian::commitNoEvent(event)
 
         Bank::incomingEventFromOutside(event)
         DoNotShowUntil::incomingEventFromOutside(event)

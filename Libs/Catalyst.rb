@@ -143,8 +143,6 @@ class Catalyst
                 break
             end
 
-            AWSSQS::pullAndProcessEvents()
-
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
                 item = NxShip::issueFromLocation(location)
                 puts JSON.pretty_generate(item)
