@@ -83,7 +83,7 @@ class AWSSQS
                 receive_message_result.messages.each{|message|
                     event = JSON.parse(message.body)
 
-                    puts JSON.pretty_generate(event)
+                    #puts JSON.pretty_generate(event)
 
                     Librarian::incomingEventFromOutside(event)
 
