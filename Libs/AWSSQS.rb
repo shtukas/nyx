@@ -83,18 +83,19 @@ class AWSSQS
                 receive_message_result.messages.each{|message|
                     event = JSON.parse(message.body)
 
+                    #puts "message from AWS:"
                     #puts JSON.pretty_generate(event)
 
                     Librarian::incomingEventFromOutside(event)
 
                     sqs_client.delete_message({
                         queue_url: sqs_url,
-                        receipt_handle: message.receipt_handle    
+                        receipt_handle: message.receipt_handle
                     })
                 }
             }
         rescue StandardError => e
-            #puts "Error receiving messages: #{e.message}"
+            #puts "Error @ AWSSQS::pullAndProcessEvents(): #{e.message}"
         end
     end
 end

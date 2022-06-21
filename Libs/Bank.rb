@@ -24,11 +24,10 @@ class Bank
 
     # Bank::incomingEventFromOutside(event)
     def self.incomingEventFromOutside(event)
-        object = event["payload"]
-        return if object["mikuType"] != "NxBankOp"
-        setuuid = object["setuuid"]
-        date = object["date"]
-        weight = object["weight"]
+        return if event["mikuType"] != "NxBankOp"
+        setuuid = event["setuuid"]
+        date = event["date"]
+        weight = event["weight"]
         value = Bank::valueAtDate(setuuid, date)
         value = value + weight
         XCache::set("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}", value)
