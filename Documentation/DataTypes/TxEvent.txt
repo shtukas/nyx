@@ -1,9 +1,0 @@
-
-TxEvents are what is being stored in local event logs, being stored in Stargate Central's Event Stream and what is being sent from Stargate Central Event stream back to local instances
-
-{
-    "uuid"     : String
-    "mikuType" : "TxEvent"
-    "unixtime" : Float
-    "payload"  : Librarian Object
-}

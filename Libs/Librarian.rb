@@ -111,7 +111,7 @@ class Librarian
     # Librarian::incomingEventFromOutside(event)
     def self.incomingEventFromOutside(event)
 
-        puts "Librarian::incomingEventFromOutside(#{JSON.pretty_generate(event)})"
+        puts "Librarian::incomingEventFromOutside, event: #{JSON.pretty_generate(event)}"
 
         if event["mikuType"] == "NxDeleted" then
             Librarian::destroyNoEvent(event["uuid"])
@@ -119,6 +119,9 @@ class Librarian
         end
 
         existingObject = Librarian::getObjectByUUIDOrNull(event["uuid"])
+
+        puts "existingObject: #{JSON.pretty_generate(existingObject)}"
+
         if existingObject.nil? then
             puts "existing object is null, commiting event"
             # That's the easy case
@@ -140,12 +143,6 @@ class Librarian
             Librarian::commitNoEvent(event)
             return
         end
-
-        puts "existingObject:"
-        puts JSON.pretty_generate(existingObject)
-
-        puts "event:"
-        puts JSON.pretty_generate(event)
 
         raise "(error: 26baca50-a314-4b51-95b7-089429a23c91) I don't know how to handle this case"
     end
