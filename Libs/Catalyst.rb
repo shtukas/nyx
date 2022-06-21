@@ -143,6 +143,8 @@ class Catalyst
                 break
             end
 
+            EventMachineSync::machineSync()
+
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
                 item = NxShip::issueFromLocation(location)
                 puts JSON.pretty_generate(item)
@@ -159,11 +161,6 @@ class Catalyst
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
             section2, section3 = section2.partition{|item| item["mikuType"] != "NxShip" }
-
-            Thread.new {
-                sleep 1
-                EventMachineSync::machineSync()
-            }
 
             Catalyst::printListing(section1, section2, section3)
         }

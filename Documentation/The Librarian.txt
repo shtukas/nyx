@@ -42,8 +42,6 @@ Newly created objects are created with an empty lxGenealogyAncestors.
 
 ### The Librarian CRDT is details
 
-TODO:
-
 - When an object is commited to the librarian, then:
 
     Rule 1. If it didn't have a lxGenealogyId, lxGenealogyAncestors pair, then we assume that the object has just been created by whichever subsistem it comes from and the Librarian gives it a lxGenealogyId and a lxGenealogyAncestors (empty).

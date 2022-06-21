@@ -62,15 +62,29 @@ class Librarian
         raise "(error: b18a080c-af1b-4411-bf65-1b528edc6121, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
 
+        if object["lxGenealogyAncestors"].nil? then
+            object["lxGenealogyAncestors"] = []
+        end
+
+        if object["lxGenealogyId"].nil? then
+            object["lxGenealogyId"] = SecureRandom.hex(4)
+        else
+            object["lxGenealogyAncestors"] << object["lxGenealogyId"]
+            object["lxGenealogyId"] = SecureRandom.hex(4)
+        end
+
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
         db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
         db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
+
+        object
     end
 
     # Librarian::commit(object)
     def self.commit(object)
-        Librarian::commitNoEvent(object)
+        object = Librarian::commitNoEvent(object)
+        puts JSON.pretty_generate(object)
         OutGoingEventsToCentral::publish(object)
         OutGoingEventsToMachine::publish(object)
     end
