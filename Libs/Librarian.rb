@@ -102,10 +102,6 @@ class Librarian
     # Librarian::incomingEventFromOutside(event)
     def self.incomingEventFromOutside(event)
 
-        puts "Librarian::incomingEventFromOutside(#{JSON.pretty_generate(event)})"
-
-        exit
-
         if event["mikuType"] == "NxDeleted" then
             Librarian::destroyNoEvent(event["uuid"])
             return
