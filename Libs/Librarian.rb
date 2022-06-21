@@ -110,9 +110,17 @@ class Librarian
         end
 
         # Simplistic implementation for the moment
-        Librarian::commitNoEvent(event)
+        #Librarian::commitNoEvent(event)
 
-        Bank::incomingEventFromOutside(event)
-        DoNotShowUntil::incomingEventFromOutside(event)
+        #Bank::incomingEventFromOutside(event)
+        #DoNotShowUntil::incomingEventFromOutside(event)
     end
+
+    # Librarian::digestObjectsFromCentral()
+    def self.digestObjectsFromCentral()
+        StargateCentral::objects().each{|object|
+            Librarian::incomingEventFromOutside(object)
+        }
+    end
+
 end

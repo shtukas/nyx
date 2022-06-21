@@ -11,7 +11,7 @@ puts "Send local event log to stargate event stream"
 OutGoingEventsToCentral::sendEventsToStargateCentral()
 
 puts "Get event stream from stargate central"
-IncomingEventsFromCentral::processEventsFromCentral()
+Librarian::digestObjectsFromCentral()
 
 # We do the following to make sure we have a self contained datablob repository on local
 if Machines::isLucille20() then

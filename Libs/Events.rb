@@ -43,7 +43,7 @@ class OutGoingEventsToCentral
         OutGoingEventsToCentral::getRecords().each{|record|
             #puts "record (outgoing to central):"
             puts JSON.pretty_generate(record)
-            StargateCentral::writeEventToStream(record["_uuid_"], record["_unixtime_"], JSON.parse(record["_event_"]))
+            StargateCentral::writeEventToInbox(record["_uuid_"], record["_unixtime_"], JSON.parse(record["_event_"]))
             OutGoingEventsToCentral::deleteRecord(record["_uuid_"])
         }
     end
@@ -86,18 +86,5 @@ class EventMachineSync
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
         end
-    end
-end
-
-class IncomingEventsFromCentral
-
-    # IncomingEventsFromCentral::processEventsFromCentral()
-    def self.processEventsFromCentral()
-        StargateCentral::getRecords().each{|record|
-            #puts "record (incoming from central): "
-            #puts JSON.pretty_generate(record)
-            event = JSON.parse(record["_event_"])
-            Librarian::incomingEventFromOutside(event)
-        }
     end
 end

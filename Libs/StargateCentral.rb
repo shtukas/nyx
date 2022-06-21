@@ -5,9 +5,14 @@ class StargateCentral
         "/Volumes/Infinity/Data/Pascal/Stargate-Central"
     end
 
-    # StargateCentral::pathToEventStreamFile()
-    def self.pathToEventStreamFile()
-        "#{StargateCentral::pathToCentral()}/event-stream.sqlite3"
+    # StargateCentral::pathToEventsInbox()
+    def self.pathToEventsInbox()
+        "#{StargateCentral::pathToCentral()}/events-inbox.sqlite3"
+    end
+
+    # StargateCentral::pathToObjectsDatabaseFile()
+    def self.pathToObjectsDatabaseFile()
+        "#{StargateCentral::pathToCentral()}/objects.sqlite3"
     end
 
     # -----------------------------------------------------------------
@@ -50,20 +55,20 @@ class StargateCentral
     end
 
     # -----------------------------------------------------------------
-    # EventLog
+    # Inbox
 
-    # StargateCentral::writeEventToStream(uuid, unixtime, event)
-    def self.writeEventToStream(uuid, unixtime, event)
-        #puts "StargateCentral::writeEventToStream(#{uuid}, #{unixtime}, #{JSON.pretty_generate(event)})"
-        db = SQLite3::Database.new(StargateCentral::pathToEventStreamFile())
+    # StargateCentral::writeEventToInbox(uuid, unixtime, event)
+    def self.writeEventToInbox(uuid, unixtime, event)
+        #puts "StargateCentral::writeEventToInbox(#{uuid}, #{unixtime}, #{JSON.pretty_generate(event)})"
+        db = SQLite3::Database.new(StargateCentral::pathToEventsInbox())
         db.execute "delete from _events_ where _uuid_=?", [uuid]
         db.execute "insert into _events_ (_uuid_, _unixtime_, _event_) values (?, ?, ?)", [uuid, unixtime, JSON.generate(event)]
         db.close
     end
 
-    # StargateCentral::getRecords()
-    def self.getRecords()
-        db = SQLite3::Database.new(StargateCentral::pathToEventStreamFile())
+    # StargateCentral::getInboxRecords()
+    def self.getInboxRecords()
+        db = SQLite3::Database.new(StargateCentral::pathToEventsInbox())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -75,10 +80,27 @@ class StargateCentral
         answer
     end
 
-    # StargateCentral::deleteRecord(uuid)
-    def self.deleteRecord(uuid)
+    # StargateCentral::deleteInboxRecord(uuid)
+    def self.deleteInboxRecord(uuid)
         db = SQLite3::Database.new(OutGoingEventsToCentral::pathToDatabaseFile())
         db.execute "delete from _events_ where _uuid_=?", [uuid]
         db.close
+    end
+
+    # -----------------------------------------------------------------
+    # Objects
+
+    # StargateCentral::objects()
+    def self.objects()
+        db = SQLite3::Database.new(StargateCentral::pathToObjectsDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_") do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
     end
 end
