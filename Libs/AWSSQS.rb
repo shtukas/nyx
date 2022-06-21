@@ -20,7 +20,7 @@ class AWSSQS
     # AWSSQS::sendToTheOtherMachine(event) # Boolean
     # This function returns true if the message was sent and otherwise false.
     def self.sendToTheOtherMachine(event) # Boolean
-        puts "AWSSQS::sendToTheOtherMachine(#{JSON.pretty_generate(event)})"
+        #puts "AWSSQS::sendToTheOtherMachine(#{JSON.pretty_generate(event)})"
 
         Aws.config.update({
            credentials: Aws::Credentials.new(Config::get("aws.AWS_ACCESS_KEY_ID"), Config::get("aws.AWS_SECRET_ACCESS_KEY"))

@@ -143,6 +143,10 @@ class Catalyst
                 break
             end
 
+            Thread.new {
+                EventMachineSync::machineSync()
+            }
+
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
                 item = NxShip::issueFromLocation(location)
                 puts JSON.pretty_generate(item)

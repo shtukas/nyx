@@ -73,6 +73,20 @@ class OutGoingEventsToMachine
     end
 end
 
+class EventMachineSync
+
+    # EventMachineSync::machineSync()
+    def self.machineSync()
+        #puts "To Machine Event Maintenance Thread"
+        begin
+            OutGoingEventsToMachine::sendEventsToMachine()
+            AWSSQS::pullAndProcessEvents()
+        rescue StandardError => e
+            puts "To Machine Event Maintenance Thread Error: #{e.message}"
+        end
+    end
+end
+
 class IncomingEventsFromCentral
 
     # IncomingEventsFromCentral::processEventsFromCentral()
@@ -84,20 +98,4 @@ class IncomingEventsFromCentral
             Librarian::incomingEventFromOutside(event)
         }
     end
-end
-
-if $RunNonEssentialThreads then
-    Thread.new {
-        loop {
-            sleep 60
-            #puts "To Machine Event Maintenance Thread"
-            begin
-                OutGoingEventsToMachine::sendEventsToMachine()
-                AWSSQS::pullAndProcessEvents()
-            rescue StandardError => e
-                puts "To Machine Event Maintenance Thread Error: #{e.message}"
-            end
-            break
-        }
-    }
 end
