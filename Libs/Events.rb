@@ -5,7 +5,7 @@ class OutGoingEventsToCentral
 
     # OutGoingEventsToCentral::pathToDatabaseFile()
     def self.pathToDatabaseFile()
-        "/Users/pascal/Galaxy/DataBank/Stargate/events.sqlite3"
+        "/Users/pascal/Galaxy/DataBank/Stargate/events-outgoing.sqlite3"
     end
 
     # OutGoingEventsToCentral::publish(event)
