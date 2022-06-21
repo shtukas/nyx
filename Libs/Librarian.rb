@@ -144,6 +144,10 @@ class Librarian
             return
         end
 
+        if Genealogy::object1IsAncestrorOfObject2(event, existingObject) then
+            return
+        end
+
         raise "(error: 26baca50-a314-4b51-95b7-089429a23c91) I don't know how to handle this case"
     end
 
