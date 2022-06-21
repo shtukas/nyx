@@ -134,7 +134,19 @@ class Librarian
             return
         end
 
-        # TODO
+        if Genealogy::object1ShouldBeReplacedByObject2(existingObject, event) then
+            # event is more recent
+            Librarian::commitNoEvent(event)
+            return
+        end
+
+        puts "existingObject:"
+        puts JSON.pretty_generate(existingObject)
+
+        puts "event:"
+        puts JSON.pretty_generate(event)
+
+        exit
     end
 
     # Librarian::digestObjectsFromCentral()

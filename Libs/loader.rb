@@ -143,6 +143,7 @@ require_relative "EnergyGrid.rb"
 require_relative "Events.rb"
 
 require_relative "Galaxy.rb"
+require_relative "Genealogy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"

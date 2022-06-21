@@ -9,7 +9,6 @@ To be Librarian compatible, an object must have the following keys:
 
 and we also need (see below)
 
-    - lxGenealogyId
     - lxGenealogyAncestors
 
 We can retrieve objects individually by "uuid" or collectively by "mikuType"s.
@@ -29,12 +28,9 @@ The unixtime (integer, but also float) should represent the time the object was 
 
 ### The Librarian CRDT
 
-To maintain consistency and resolve conflicts, each librarian object has two further attributes. 
+To maintain consistency and resolve conflicts, each librarian object has one further attribute: `lxGenealogyAncestors`, an array of strings
 
-1. `lxGenealogyId` : String, unique to that object.
-2. `lxGenealogyAncestors`, an array containing the `lxGenealogyId`s of the objects of same uuid that this object can replace.
-
-Given two objects of the same uuid, we says that object B is a decendent of A, alternatively that object A is an ancestor of B, if A is mentionned in the lxGenealogyAncestors of B.
+Given two objects of the same uuid, we says that object B is a decendent of A, alternatively that object A is an ancestor of B, if A's lxGenealogyAncestors is a subset of B's lxGenealogyAncestors.
 
 When an object is submitted to the Librarian as part of event processing, then the current version of that object can be replaced by the event version if the event version is a decendant of the existing version.
 
@@ -44,11 +40,11 @@ Newly created objects are created with an empty lxGenealogyAncestors.
 
 - When an object is commited to the librarian, then:
 
-    Rule 1. If it didn't have a lxGenealogyId, lxGenealogyAncestors pair, then we assume that the object has just been created by whichever subsistem it comes from and the Librarian gives it a lxGenealogyId and a lxGenealogyAncestors (empty).
+    Rule 1. If it didn't have a lxGenealogyAncestors pair, then we assume that the object has just been created by whichever subsistem it comes from and the Librarian gives it an empty lxGenealogyAncestors.
 
-    Rule 2. if it did have a pair, then we add the existing lxGenealogyId to the lxGenealogyAncestors and give it a new lxGenealogyId.
+    Rule 2. if it did have a lxGenealogyAncestors we add a random string to it.
 
-    Rule 3. The object with updated attributes is then sent to various event publishers.
+    Rule 3. The object with updated attribute is then sent to various event publishers.
 
 - When an object is given to the Librarian as part of even processing then:
 
@@ -60,4 +56,5 @@ Newly created objects are created with an empty lxGenealogyAncestors.
 
     Rule 7. If there is an existing object that is not an ancestor of the new one, then the new object is ignored. Note that in this case we also perform the additional operation of sending the existing one as an event to Stargate Central. (This is to push Central to perform a reconciliation if this had not already done.)
 
-    Rule 8. There can be a case where the two objects are not compatible (none is the ancestror of the other), but still carry the same information (and in most case it could be that they simply have different lxGenealogyId with all other attributes being the same). Then we extend the two objects to be descendent of each other and store/publish one of them.
+    Rule 8. There can be a case where the two objects are not compatible (none is the ancestror of the other), but still carry the same information, then we extend the two objects to be descendent of each other and store/publish one of them.
+
