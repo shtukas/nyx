@@ -71,6 +71,14 @@ class Catalyst
                 }
         end
 
+        top = IO.read("/Users/pascal/Desktop/top.txt").strip
+        if top.size > 0 then
+            puts ""
+            puts "top:"
+            puts top.green
+            vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
+        end
+
         printSection = lambda {|section, store|
             section
                 .each{|item|
