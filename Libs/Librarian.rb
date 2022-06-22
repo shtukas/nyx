@@ -47,7 +47,7 @@ class Librarian
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = nil
-        db.execute("select * from _objects_ where _objectuuid_=?", [uuid]) do |row|
+        db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
             answer = JSON.parse(row['_object_'])
         end
         db.close
@@ -69,8 +69,8 @@ class Librarian
         end
 
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
-        db.execute "delete from _objects_ where _objectuuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_objectuuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
+        db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
+        db.execute "insert into _objects_ (_uuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
 
         object
@@ -90,7 +90,7 @@ class Librarian
     # Librarian::destroyNoEvent(uuid)
     def self.destroyNoEvent(uuid)
         db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
-        db.execute "delete from _objects_ where _objectuuid_=?", [uuid]
+        db.execute "delete from _objects_ where _uuid_=?", [uuid]
         db.close
     end
 
