@@ -4,19 +4,20 @@ The name comes from jungling balls :)
 
 NxBallStatus 
     {
-        "type" : "running",
-        "startUnixtime"  => start,
-        "cursorUnixtime" => start,
+        "type"           : "running"
+        "startUnixtime"  : start
+        "cursorUnixtime" : start
     }
     {
-        "type" : "paused",
+        "type" : "paused"
     }
 
 NxBall {
-    "uuid"        => String,
-    "mikuType"    => "NxBall.v2",
-    "unixtime"    => Float
-    "description" => description,
-    "status"      => NxBallStatus 
-    "accounts"    => accounts
+    "uuid"        : String
+    "clique"      : String
+    "mikuType"    : "NxBall.v2"
+    "unixtime"    : Float
+    "description" : description,
+    "status"      : NxBallStatus 
+    "accounts"    : accounts
 }

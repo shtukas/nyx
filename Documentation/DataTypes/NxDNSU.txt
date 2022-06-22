@@ -1,10 +1,10 @@
 NxDNSU (DoNotShowUntil)
 
 {
-  "uuid"     : String
-  "mikuType" : "NxDNSU"
-  "unixtime" : Float
-
+  "uuid"           : String
+  "clique"         : String
+  "mikuType"       : "NxDNSU"
+  "unixtime"       : Float
   "targetuuid"     : UUID
   "targetunixtime" : Float
 }

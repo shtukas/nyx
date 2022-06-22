@@ -1,5 +1,6 @@
 {
   "uuid"        : String,
+  "clique"      : String
   "mikuType"    : "NxAnniversary"
   "unixtime"    : Float,
   "description" : String,

@@ -1,8 +1,9 @@
 NxShip {
-    "uuid"        => uuid,
-    "mikuType"    => "NxShip",
-    "description" => description,
-    "unixtime"    => unixtime,
-    "datetime"    => datetime,
+    "uuid"        => uuid
+    "clique"      => String
+    "mikuType"    => "NxShip"
+    "description" => description
+    "unixtime"    => unixtime
+    "datetime"    => datetime
     "nx111"       => nx111
 }

@@ -5,6 +5,7 @@ It replaces regular attachment when we only wanted to store a line or some text.
 
 {
     "uuid"        : String
+    "clique"      : String
     "mikuType"    : "Ax1Text"
     "owneruuid"   : String
     "unixtime"    : Float

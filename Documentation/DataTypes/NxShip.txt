@@ -2,6 +2,7 @@ NxShip
 
 {
     "uuid"         : String
+    "clique"       : String
     "mikuType"     : "NxShip"
     "unixtime"     : Float
     "description"  : String
