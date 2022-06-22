@@ -101,6 +101,20 @@ class StargateCentralObjects
         answer
     end
 
+    # StargateCentralObjects::getClique(clique)
+    def self.getClique(clique)
+        db = SQLite3::Database.new(StargateCentralObjects::pathToObjectsDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select * from _objects_ where _clique_=?", [clique]) do |row|
+            answer << JSON.parse(row['_object_'])
+        end
+        db.close
+        answer
+    end
+
     # StargateCentralObjects::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
         db = SQLite3::Database.new(StargateCentralObjects::pathToObjectsDatabase())
