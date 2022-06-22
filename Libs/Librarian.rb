@@ -70,7 +70,7 @@ class Librarian
 
         db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_uuid_, _clique_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["clique"], object["mikuType"], JSON.generate(object)]
+        db.execute "insert into _objects_ (_clique_, _uuid_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["clique"], object["uuid"], object["mikuType"], JSON.generate(object)]
         db.close
 
         object
