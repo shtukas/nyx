@@ -133,11 +133,6 @@ class Librarian
             return
         end
 
-        if existingObject.to_s == event.to_s then
-            puts "existing object and event are equal"
-            return
-        end
-
         if Genealogy::object1ShouldBeReplacedByObject2(existingObject, event) then
             puts "existing object is being replaced by event"
             Librarian::commitNoEvent(event)
@@ -148,7 +143,35 @@ class Librarian
             return
         end
 
-        raise "(error: 26baca50-a314-4b51-95b7-089429a23c91) I don't know how to handle this case"
+        if existingObject.to_s == event.to_s then
+            puts "existing object and event are equal"
+            return
+        end
+
+        objxp1 = existingObject.clone
+        objxp1.delete("lxGenealogyAncestors")
+        objxp2 = event.clone
+        objxp2.delete("lxGenealogyAncestors")
+
+        if objxp1.to_s == objxp2.to_s then
+            puts "existing object and event have same content, but incompatible genealogies"
+            puts "extending"
+            existingObject["lxGenealogyAncestors"] = (existingObject["lxGenealogyAncestors"] + event["lxGenealogyAncestors"]).uniq
+            Librarian::commitNoEvent(existingObject)
+            return
+        end
+
+        puts "We have a conflict that cannot be automatially resolved. Select the one to keep"
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", ["existing", "event"])
+        return if option.nil?
+        if option == "existing" then
+            return
+        end
+        if option == "event" then
+            puts "replacing existing object by event"
+            Librarian::commitNoEvent(event)
+            return
+        end
     end
 
     # Librarian::getObjectsFromCentral()
