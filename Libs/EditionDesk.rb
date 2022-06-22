@@ -173,8 +173,8 @@ class EditionDesk
         [item, nx111]
     end
 
-    # EditionDesk::locationToOptionalUpdateItem_Nx111Case(location)
-    def self.locationToOptionalUpdateItem_Nx111Case(location)
+    # EditionDesk::locationToAttemptedNx111Update(location)
+    def self.locationToAttemptedNx111Update(location)
         
         elements = EditionDesk::locationToItemNx111PairOrNull(location)
         return if elements.nil?
@@ -287,6 +287,7 @@ class EditionDesk
                     "trace"    => CommonUtils::locationTrace(location)
                 }
                 XCache::set("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}", JSON.generate(tx202))
+                tx202
             }
 
             getTx202ForLocationOrNull = lambda{|location|
@@ -299,24 +300,16 @@ class EditionDesk
             }
 
             getTx202ForLocation = lambda{|location|
-                tx202 = XCache::getOrNull("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}")
-                if tx202 then
-                    tx202 =  JSON.parse(tx202)
-                else
-                    tx202 = {
-                        "unixtime" => Time.new.to_f,
-                        "trace"    => CommonUtils::locationTrace(location)
-                    }
-                    XCache::set("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}", JSON.generate(tx202))
-                end
-                tx202
+                tx202 = getTx202ForLocationOrNull.call(location)
+                return tx202 if tx202
+                issueTx202ForLocation.call(location)
             }
 
             tx202 = getTx202ForLocationOrNull.call(location)
 
             if tx202.nil? then
                 puts "Edition desk updating location: #{File.basename(location)}"
-                EditionDesk::locationToOptionalUpdateItem_Nx111Case(location)
+                EditionDesk::locationToAttemptedNx111Update(location)
                 issueTx202ForLocation.call(location)
                 next
             end
@@ -332,9 +325,10 @@ class EditionDesk
             end
 
             puts "Edition desk updating location: #{File.basename(location)}"
-            EditionDesk::locationToOptionalUpdateItem_Nx111Case(location)
+            EditionDesk::locationToAttemptedNx111Update(location)
 
             # And we make a new one with updated unixtime and updated trace
+            # Issuing a new one is a cheap way to update the unixtime
             issueTx202ForLocation.call(location)
         }
     end
