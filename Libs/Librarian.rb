@@ -79,7 +79,7 @@ class Librarian
     # Librarian::commit(object)
     def self.commit(object)
         object = Librarian::commitNoEvent(object)
-        puts JSON.pretty_generate(object)
+        #puts JSON.pretty_generate(object)
         EventsLocalToCentralInbox::publish(object)
         EventsLocalToMachine::publish(object)
     end
