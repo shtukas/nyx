@@ -13,8 +13,8 @@ NxBallStatus
     }
 
 NxBall {
-    "uuid"        : String
     "clique"      : String
+    "uuid"        : String
     "mikuType"    : "NxBall.v2"
     "unixtime"    : Float
     "description" : description,

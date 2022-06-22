@@ -1,7 +1,7 @@
 
 NxCollection {
-    "uuid"        : uuid
     "clique"      : String
+    "uuid"        : uuid
     "mikuType"    : "NxCollection"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu

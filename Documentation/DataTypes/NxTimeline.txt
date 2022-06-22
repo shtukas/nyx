@@ -1,7 +1,7 @@
 
 NxTimeline {
-    "uuid"        : uuid
     "clique"      : String
+    "uuid"        : uuid
     "mikuType"    : "NxTimeline"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu

@@ -1,6 +1,6 @@
 NxShip {
-    "uuid"        => uuid
     "clique"      => String
+    "uuid"        => uuid
     "mikuType"    => "NxShip"
     "description" => description
     "unixtime"    => unixtime

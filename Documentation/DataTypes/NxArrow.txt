@@ -1,7 +1,7 @@
 NxArrow {
-    "uuid"     => uuid,
     "clique"   => String
-    "mikuType" => "NxArrow",
-    "source"   => String UUID,
+    "uuid"     => uuid
+    "mikuType" => "NxArrow"
+    "source"   => String UUID
     "target"   => String UUID
 }

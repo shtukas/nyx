@@ -1,6 +1,6 @@
 TxDated = {
-  "uuid"        : String
   "clique"      : String
+  "uuid"        : String
   "mikuType"    : "TxDated"
   "description" : String
   "unixtime"    : Float

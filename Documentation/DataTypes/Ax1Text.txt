@@ -4,11 +4,10 @@ The toString function takes the first line.
 It replaces regular attachment when we only wanted to store a line or some text.
 
 {
-    "uuid"        : String
     "clique"      : String
+    "uuid"        : String
     "mikuType"    : "Ax1Text"
     "owneruuid"   : String
     "unixtime"    : Float
     "nhash"       : Nhash of the blobs of text
 }
-

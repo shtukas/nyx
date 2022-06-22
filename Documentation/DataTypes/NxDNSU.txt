@@ -1,8 +1,8 @@
 NxDNSU (DoNotShowUntil)
 
 {
-  "uuid"           : String
   "clique"         : String
+  "uuid"           : String
   "mikuType"       : "NxDNSU"
   "unixtime"       : Float
   "targetuuid"     : UUID
