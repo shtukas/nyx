@@ -3,8 +3,8 @@
 
 class Librarian
 
-    # Librarian::pathToDatabaseFile()
-    def self.pathToDatabaseFile()
+    # Librarian::pathToObjectsDatabaseFile()
+    def self.pathToObjectsDatabaseFile()
         "/Users/pascal/Galaxy/DataBank/Stargate/objects.sqlite3"
     end
 
@@ -13,7 +13,7 @@ class Librarian
 
     # Librarian::objects()
     def self.objects()
-        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -28,7 +28,7 @@ class Librarian
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
         #puts "Librarian::getObjectsByMikuType(#{mikuType})"
-        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -42,7 +42,7 @@ class Librarian
 
     # Librarian::getObjectByUUIDOrNull(uuid)
     def self.getObjectByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -68,9 +68,9 @@ class Librarian
             object["lxGenealogyAncestors"] << SecureRandom.hex(4)
         end
 
-        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_uuid_, _mikuType_, _object_) values (?, ?, ?)", [object["uuid"], object["mikuType"], JSON.generate(object)]
+        db.execute "insert into _objects_ (_uuid_, _clique_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["clique"], object["mikuType"], JSON.generate(object)]
         db.close
 
         object
@@ -89,7 +89,7 @@ class Librarian
 
     # Librarian::destroyNoEvent(uuid)
     def self.destroyNoEvent(uuid)
-        db = SQLite3::Database.new(Librarian::pathToDatabaseFile())
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.execute "delete from _objects_ where _uuid_=?", [uuid]
         db.close
     end
