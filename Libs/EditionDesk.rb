@@ -138,6 +138,11 @@ class EditionDesk
         location = EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, item, nx111)
         return if location.nil? # something wasn't right or it was a url that is already open
         system("open '#{location}'")
+
+        # (comment group: f3bfa5db-2000-488d-90a5-1770c63a34f9)
+        # Because we want to keep the items after the last access instead of after the last modification
+        # we reset the Tx202 now
+        XCache::destroy("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{location}")
     end
 
     # ----------------------------------------------------
@@ -272,6 +277,11 @@ class EditionDesk
                 EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, ix, ix["nx111"])
             }
         system("open '#{parentLocation}'")
+
+        # (comment group: f3bfa5db-2000-488d-90a5-1770c63a34f9)
+        # Because we want to keep the items after the last access instead of after the last modification
+        # we reset the Tx202 now
+        XCache::destroy("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{parentLocation}")
     end
 
     # ----------------------------------------------------
