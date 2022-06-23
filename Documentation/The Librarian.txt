@@ -16,6 +16,7 @@ We can retrieve objects individually by "uuid" or collectively by "mikuType"s.
 
 objects.sqlite3
 CREATE TABLE _objects_ (_uuid_ text primary key, _clique_ text, _mikuType_ text, _object_ text);
+create table _objects_ (_uuid_ text, _variant_ text primary key, _mikuType_ text, _object_ text);
 
 ### Objects of the Nyx's network
 
