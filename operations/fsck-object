@@ -7,7 +7,7 @@ require_relative "../Libs/loader.rb"
 exit if ARGV[0].nil?
 
 uuid = ARGV[0]
-object = Librarian::getObjectByUUIDOrNull(uuid)
+object = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
 if object.nil? then
     puts "I could not find an object with this uuid"
     exit

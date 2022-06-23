@@ -86,15 +86,8 @@ class Anniversaries
         Librarian::getObjectsByMikuType("NxAnniversary")
     end
 
-    # Anniversaries::commitItemToDisk(anniversary)
-    def self.commitItemToDisk(anniversary)
-        Librarian::commit(anniversary)
-    end
-
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
     def self.issueNewAnniversaryOrNullInteractively()
-
-        uuid = SecureRandom.uuid
 
         unixtime = Time.new.to_i
 
@@ -119,7 +112,8 @@ class Anniversaries
         end
 
         item = {
-          "uuid"         => uuid,
+          "uuid"         => SecureRandom.uuid,
+          "variant"      => SecureRandom.uuid,
           "mikuType"     => "NxAnniversary",
           "unixtime"     => Time.new.to_i,
           "description"  => description,
@@ -127,9 +121,7 @@ class Anniversaries
           "repeatType"   => repeatType,
           "lastCelebrationDate" => lastCelebrationDate,
         }
-
-        Anniversaries::commitItemToDisk(item)
-
+        Librarian::commit(item)
         item
     end
 
@@ -147,7 +139,7 @@ class Anniversaries
     # Anniversaries::done(anniversary)
     def self.done(anniversary)
         anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        Anniversaries::commitItemToDisk(anniversary)
+        Librarian::commit(anniversary)
     end
 
     # Anniversaries::access(anniversary)
@@ -190,18 +182,18 @@ class Anniversaries
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
                 item["description"] = description
-                Anniversaries::commitItemToDisk(item)
+                Librarian::commit(item)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
                 item["startdate"] = startdate
-                Anniversaries::commitItemToDisk(item)
+                Librarian::commit(item)
             end
 
             if Interpreting::match("destroy", command) then
-                Librarian::destroy(item["uuid"])
+                Librarian::destroyClique(item["uuid"])
                 break
             end
         }

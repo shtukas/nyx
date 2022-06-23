@@ -179,7 +179,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Librarian::destroy(item["uuid"])
+                    Librarian::destroyClique(item["uuid"])
                     break
                 end
             end
@@ -307,7 +307,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Librarian::destroy(item["uuid"])
+                    Librarian::destroyClique(item["uuid"])
                     break
                 end
             end
@@ -423,7 +423,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Librarian::destroy(item["uuid"])
+                    Librarian::destroyClique(item["uuid"])
                     break
                 end
             end

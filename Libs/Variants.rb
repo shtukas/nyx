@@ -1,7 +1,7 @@
-class Cliques
+class Variants
 
-    # Cliques::findremovableObjectOrNull(objects)
-    def self.findremovableObjectOrNull(objects)
+    # Variants::findRemovableObjectOrNull(objects)
+    def self.findRemovableObjectOrNull(objects)
         objects.combination(2).each{|pair|
             obj1, obj2 = pair
             if Genealogy::object1ShouldBeReplacedByObject2(obj1, obj2) then
@@ -14,13 +14,14 @@ class Cliques
         nil
     end
 
-    # Cliques::reduceClique(objects, killer)
-    def self.reduceClique(objects, killer)
+    # Variants::performGarbageCollection(objects, killer)
+    def self.performGarbageCollection(objects, killer)
         loop {
-            obj = Cliques::findremovableObjectOrNull(objects)
+            obj = Variants::findRemovableObjectOrNull(objects)
             return objects if obj.nil?
             killer.call(obj)
             objects = objects.reject{|object| object["uuid"] == obj["uuid"] }
         }
+        objects
     end
 end

@@ -38,12 +38,12 @@ class EventsLocalToCentralInbox
         db.close
     end
 
-    # EventsLocalToCentralInbox::localEventsToCentralInbox()
-    def self.localEventsToCentralInbox()
+    # EventsLocalToCentralInbox::sendLocalEventsToCentral()
+    def self.sendLocalEventsToCentral()
         EventsLocalToCentralInbox::getRecords().each{|record|
-            puts "EventsLocalToCentralInbox::localEventsToCentralInbox(): record (from local event repo to central inbox):"
+            puts "EventsLocalToCentralInbox::sendLocalEventsToCentral(): record (from local event repo to central objects):"
             puts JSON.pretty_generate(record)
-            StargateCentralInbox::writeEvent(record["_uuid_"], record["_unixtime_"], JSON.parse(record["_event_"]))
+            StargateCentralObjects::commit(record["_event_"])
             EventsLocalToCentralInbox::deleteRecord(record["_uuid_"])
         }
     end

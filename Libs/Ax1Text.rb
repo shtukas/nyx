@@ -18,14 +18,9 @@ class Ax1Text
             .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
     end
 
-    # Ax1Text::getOrNull(uuid): null or Ax1Text
-    def self.getOrNull(uuid)
-        Librarian::getObjectByUUIDOrNull(uuid)
-    end
-
     # Ax1Text::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian::destroyClique(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -34,11 +29,11 @@ class Ax1Text
     # Ax1Text::interactivelyIssueNewOrNullForOwner(owneruuid)
     def self.interactivelyIssueNewOrNullForOwner(owneruuid)
         text = CommonUtils::editTextSynchronously("")
-        uuid = SecureRandom.uuid
         nhash = EnergyGridElizabeth.new().commitBlob(text)
         unixtime = Time.new.to_i
         item = {
-          "uuid"      => uuid,
+          "uuid"      => SecureRandom.uuid,
+          "variant"   => SecureRandom.uuid,
           "mikuType"  => "Ax1Text",
           "owneruuid" => owneruuid,
           "unixtime"  => unixtime,

@@ -20,20 +20,19 @@ class TxTodos
             puts "description: #{description}"
         end
 
-        uuid = SecureRandom.uuid
-
         nx111 = Nx111::interactivelyCreateNewNx111OrNull()
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxTodo",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
+            "mikuType"    => "TxTodo",
+            "description" => description,
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -66,13 +65,13 @@ class TxTodos
         if NxBallsService::isRunning(uuid) then
              NxBallsService::close(uuid, true)
         end
-        item = Librarian::getObjectByUUIDOrNull(uuid)
+        item = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
         return if item.nil?
         if shouldForce then
-            Librarian::destroy(uuid)
+            Librarian::destroyClique(uuid)
         else
             if LucilleCore::askQuestionAnswerAsBoolean("Delete '#{item["description"].green}' ? ") then
-                Librarian::destroy(uuid)
+                Librarian::destroyClique(uuid)
             end
         end
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
@@ -82,7 +81,7 @@ class TxTodos
 
     # TxTodos::nx20s()
     def self.nx20s()
-        Librarian::getObjectsByMikuType("TxTodo")
+        TxTodos::items()
             .map{|item|
                 {
                     "announce" => TxTodos::toStringForSearch(item),

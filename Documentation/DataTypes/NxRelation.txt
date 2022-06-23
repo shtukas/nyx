@@ -1,7 +1,7 @@
 NxRelation {
-    "clique"    => String
-    "uuid"      => uuid
-    "mikuType"  => "NxRelation"
-    "node1uuid" => String UUID
-    "node2uuid" => String UUID
+    "uuid"      : uuid
+    "variant"   : String # Primary Key
+    "mikuType"  : "NxRelation"
+    "node1uuid" : String UUID
+    "node2uuid" : String UUID
 }

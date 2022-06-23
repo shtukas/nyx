@@ -132,7 +132,6 @@ require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Commands.rb"
 require_relative "CircleNavigation.rb"
-require_relative "Cliques.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
@@ -189,6 +188,8 @@ require_relative "The99Percent.rb"
 
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"
+
+require_relative "Variants.rb"
 
 require_relative "Waves.rb"
 

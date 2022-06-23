@@ -116,7 +116,7 @@ class NxShip
     # NxShip::destroy(uuid)
     def self.destroy(uuid)
         Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1)
-        Librarian::destroy(uuid)
+        Librarian::destroyClique(uuid)
     end
 
     # --------------------------------------------------
@@ -380,7 +380,7 @@ class NxShip
 
     # NxShip::nx20s()
     def self.nx20s()
-        Librarian::getObjectsByMikuType("NxShip")
+        NxShip::items()
             .map{|item|
                 {
                     "announce" => NxShip::toStringForSearch(item),

@@ -1,9 +1,9 @@
 NxShip {
-    "clique"      => String
-    "uuid"        => uuid
-    "mikuType"    => "NxShip"
-    "description" => description
-    "unixtime"    => unixtime
-    "datetime"    => datetime
-    "nx111"       => nx111
+    "uuid"        : uuid
+    "variant"     : String # Primary Key
+    "mikuType"    : "NxShip"
+    "description" : description
+    "unixtime"    : unixtime
+    "datetime"    : datetime
+    "nx111"       : nx111
 }

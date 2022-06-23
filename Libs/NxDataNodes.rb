@@ -11,14 +11,9 @@ class NxDataNodes
         Librarian::getObjectsByMikuType("NxDataNode")
     end
 
-    # NxDataNodes::getOrNull(uuid): null or NxDataNode
-    def self.getOrNull(uuid)
-        Librarian::getObjectByUUIDOrNull(uuid)
-    end
-
     # NxDataNodes::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian::destroyClique(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -26,8 +21,6 @@ class NxDataNodes
 
     # NxDataNodes::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
-
-        uuid = SecureRandom.uuid
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -38,7 +31,8 @@ class NxDataNodes
         datetime   = Time.new.utc.iso8601
 
         item = {
-            "uuid"        => uuid,
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
@@ -52,12 +46,12 @@ class NxDataNodes
     # NxDataNodes::issueNewItemAionPointFromLocation(location)
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
-        objectuuid = SecureRandom.uuid
         nx111 = Nx111::locationToAionPointNx111OrNull(location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         item = {
-            "uuid"        => objectuuid,
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
@@ -72,8 +66,6 @@ class NxDataNodes
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
 
-        uuid = SecureRandom.uuid
-
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
 
         flavour = {
@@ -84,12 +76,13 @@ class NxDataNodes
         datetime   = Time.new.utc.iso8601
 
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "NxDataNode",
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "description" => description,
-          "nx111"       => nx111
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
+            "mikuType"    => "NxDataNode",
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "description" => description,
+            "nx111"       => nx111
         }
         Librarian::commit(item)
         item

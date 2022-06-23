@@ -1,7 +1,7 @@
 
 NxDataNode {
-    "clique"      : String
     "uuid"        : uuid
+    "variant"     : String # Primary Key
     "mikuType"    : "NxDataNode"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu

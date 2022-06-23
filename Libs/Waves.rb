@@ -11,7 +11,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian::destroyClique(uuid)
     end
 
     # --------------------------------------------------
@@ -128,12 +128,11 @@ class Waves
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
 
-        uuid = SecureRandom.uuid
-
         nx111 = Nx111::interactivelyCreateNewNx111OrNull()
 
         catalyst = {
-            "uuid"        => uuid,
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
             "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,
             "description" => description,
@@ -172,7 +171,7 @@ class Waves
 
     # Waves::itemsForListing()
     def self.itemsForListing()
-        Librarian::getObjectsByMikuType("Wave")
+        Waves::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end

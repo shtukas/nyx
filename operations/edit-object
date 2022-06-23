@@ -7,7 +7,7 @@ require_relative "../Libs/loader.rb"
 exit if ARGV[0].nil?
 
 uuid = ARGV[0]
-object = Librarian::getObjectByUUIDOrNull(uuid)
+object = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
 if object then
     object = CommonUtils::editTextSynchronously(JSON.pretty_generate(object))
     object = JSON.parse(object)

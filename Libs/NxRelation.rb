@@ -11,7 +11,8 @@ class NxRelation
     # NxRelation::issue(node1uuid, node2uuid)
     def self.issue(node1uuid, node2uuid)
         item = {
-            "uuid"      => Digest::SHA1.hexdigest("48450b41:#{[node1uuid, node2uuid].sort.join(":")}"), # This way of computing the uuid ensures that arrow creation is an idempotent operation
+            "uuid"      => SecureRandom.uuid,
+            "variant"   => SecureRandom.uuid,
             "mikuType"  => "NxRelation",
             "node1uuid" => node1uuid,
             "node2uuid" => node2uuid
@@ -22,13 +23,13 @@ class NxRelation
 
     # NxRelation::unlink(node1uuid, node2uuid)
     def self.unlink(node1uuid, node2uuid)
-        Librarian::getObjectsByMikuType("NxRelation")
+        NxRelation::links()
             .each{|item|
                 if item["node1uuid"] == node1uuid and item["node2uuid"] == node2uuid then
-                    Librarian::destroy(item["uuid"])
+                    Librarian::destroyClique(item["uuid"])
                 end
                 if item["node1uuid"] == node2uuid and item["node2uuid"] == node1uuid then
-                    Librarian::destroy(item["uuid"])
+                    Librarian::destroyClique(item["uuid"])
                 end
             }
     end
@@ -36,13 +37,13 @@ class NxRelation
     # NxRelation::related(uuid)
     def self.related(uuid)
         items = []
-        Librarian::getObjectsByMikuType("NxRelation")
+        NxRelation::links()
             .each{|item|
                 if item["node1uuid"] == uuid then
-                    items << Librarian::getObjectByUUIDOrNull(item["node2uuid"])
+                    items << Librarian::getObjectsByMikuType(item["node2uuid"])
                 end
                 if item["node2uuid"] == uuid then
-                    items << Librarian::getObjectByUUIDOrNull(item["node1uuid"])
+                    items << Librarian::getObjectsByMikuType(item["node1uuid"])
                 end
             }
         items.compact

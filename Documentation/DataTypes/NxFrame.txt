@@ -1,6 +1,6 @@
 NxFrame = {
-  "clique"      : String
   "uuid"        : String
+  "variant"     : String # Primary Key
   "mikuType"    : "NxFrame"
   "description" : String
   "unixtime"    : Float

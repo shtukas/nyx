@@ -14,6 +14,7 @@ class NxPersons
         datetime = Time.new.utc.iso8601
         item = {
             "uuid"     => SecureRandom.uuid,
+            "variant"  => SecureRandom.uuid,
             "mikuType" => "NxPerson",
             "unixtime" => unixtime,
             "datetime" => datetime,

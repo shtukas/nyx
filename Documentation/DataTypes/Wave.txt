@@ -1,7 +1,7 @@
 
 Wave {
-    "clique"      : String
     "uuid"        : uuid
+    "variant"     : String # Primary Key
     "mikuType"    : "Wave"
     "unixtime"    : unixtime
     "description" : description

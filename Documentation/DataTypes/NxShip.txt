@@ -1,13 +1,13 @@
 NxShip
 
 {
-    "clique"       : String
-    "uuid"         : String
-    "mikuType"     : "NxShip"
-    "unixtime"     : Float
-    "description"  : String
-    "nx111"        : Nx111,
-    "ax38"         : null or Ax38
+    "uuid"        : String
+    "variant"     : String # Primary Key
+    "mikuType"    : "NxShip"
+    "unixtime"    : Float
+    "description" : String
+    "nx111"       : Nx111,
+    "ax38"        : null or Ax38
 }
 
 Ax38
