@@ -143,7 +143,7 @@ class Catalyst
                 break
             end
 
-            EventAWSQueueSync::machineSync()
+            EventSync::awsSync()
 
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
                 item = NxShip::issueFromLocation(location)

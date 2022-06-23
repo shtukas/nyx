@@ -75,10 +75,10 @@ class EventsToAWSQueue
     end
 end
 
-class EventAWSQueueSync
+class EventSync
 
-    # EventAWSQueueSync::machineSync()
-    def self.machineSync()
+    # EventSync::awsSync()
+    def self.awsSync()
         #puts "To Machine Event Maintenance Thread"
         begin
             EventsToAWSQueue::sendEventsToMachine()
@@ -86,5 +86,18 @@ class EventAWSQueueSync
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
         end
+    end
+
+    # EventSync::infinitySync()
+    def self.infinitySync()
+        EventsToCentral::sendLocalEventsToCentral()
+        StargateCentralObjects::objects().each{|object|
+            if object["mikuType"] == "NxDeleted" then
+                Librarian::destroyCliqueNoEvent(object["uuid"])
+                next
+            end
+            next if Librarian::getObjectByVariantOrNull(object["variant"]) # we already have this variant
+            Librarian::incomingEvent(object, "stargate central")
+        }
     end
 end

@@ -157,17 +157,4 @@ class Librarian
         DoNotShowUntil::incomingEvent(event)
         Bank::incomingEvent(event)
     end
-
-    # Librarian::getObjectsFromCentral()
-    def self.getObjectsFromCentral()
-        StargateCentralObjects::objects().each{|object|
-            if object["mikuType"] == "NxDeleted" then
-                Librarian::destroyCliqueNoEvent(object["uuid"])
-                next
-            end
-            next if Librarian::getObjectByVariantOrNull(object["variant"]) # we already have this variant
-            Librarian::incomingEvent(object, "stargate central")
-        }
-    end
-
 end
