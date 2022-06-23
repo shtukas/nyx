@@ -151,11 +151,11 @@ class Librarian
 
     # Librarian::incomingEvent(event, source)
     def self.incomingEvent(event, source)
-        if object["mikuType"] == "NxDeleted" then
-            Librarian::destroyCliqueNoEvent(object["uuid"])
+        if event["mikuType"] == "NxDeleted" then
+            Librarian::destroyCliqueNoEvent(event["uuid"])
             return
         end
-        return if Librarian::getObjectByVariantOrNull(object["variant"]) # we already have this variant
+        return if Librarian::getObjectByVariantOrNull(event["variant"]) # we already have this variant
         puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
         FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, EnergyGridElizabeth.new())
         Librarian::commitNoEvent(event)
