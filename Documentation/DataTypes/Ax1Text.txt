@@ -5,10 +5,9 @@ It replaces regular attachment when we only wanted to store a line or some text.
 
 {
     "uuid"        : String
-    "clique"      : String
+    "variant"     : String # Primary Key
     "mikuType"    : "Ax1Text"
     "owneruuid"   : String
     "unixtime"    : Float
     "nhash"       : Nhash of the blobs of text
 }
-

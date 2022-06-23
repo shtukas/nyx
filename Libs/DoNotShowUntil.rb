@@ -6,6 +6,7 @@ class DoNotShowUntil
     def self.setUnixtime(uid, unixtime)
         item = {
           "uuid"           => SecureRandom.uuid,
+          "variant"        => SecureRandom.uuid,
           "mikuType"       => "NxDNSU",
           "unixtime"       => Time.new.to_i,
           "targetuuid"     => uid,

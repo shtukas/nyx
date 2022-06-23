@@ -2,7 +2,7 @@ NxDNSU (DoNotShowUntil)
 
 {
   "uuid"           : String
-  "clique"         : String
+  "variant"        : String # Primary Key
   "mikuType"       : "NxDNSU"
   "unixtime"       : Float
   "targetuuid"     : UUID

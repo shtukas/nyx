@@ -42,44 +42,6 @@ class StargateCentralDataBlobs
     end
 end
 
-class StargateCentralInbox
-
-    # StargateCentralInbox::pathToDatabase()
-    def self.pathToDatabase()
-        "#{StargateCentralDataBlobs::pathToCentral()}/events-inbox.sqlite3"
-    end
-
-    # StargateCentralInbox::writeEvent(uuid, unixtime, event)
-    def self.writeEvent(uuid, unixtime, event)
-        #puts "StargateCentralInbox::writeEvent(#{uuid}, #{unixtime}, #{JSON.pretty_generate(event)})"
-        db = SQLite3::Database.new(StargateCentralInbox::pathToDatabase())
-        db.execute "delete from _events_ where _uuid_=?", [uuid]
-        db.execute "insert into _events_ (_uuid_, _unixtime_, _event_) values (?, ?, ?)", [uuid, unixtime, JSON.generate(event)]
-        db.close
-    end
-
-    # StargateCentralInbox::getRecords()
-    def self.getRecords()
-        db = SQLite3::Database.new(StargateCentralInbox::pathToDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _events_ order by _unixtime_=?") do |row|
-            answer << row
-        end
-        db.close
-        answer
-    end
-
-    # StargateCentralInbox::deleteRecord(uuid)
-    def self.deleteRecord(uuid)
-        db = SQLite3::Database.new(StargateCentralInbox::pathToDatabase())
-        db.execute "delete from _events_ where _uuid_=?", [uuid]
-        db.close
-    end
-end
-
 class StargateCentralObjects
 
     # StargateCentralObjects::pathToObjectsDatabase()
@@ -101,20 +63,6 @@ class StargateCentralObjects
         answer
     end
 
-    # StargateCentralObjects::getObjectByUUIDOrNull(uuid)
-    def self.getObjectByUUIDOrNull(uuid)
-        db = SQLite3::Database.new(StargateCentralObjects::pathToObjectsDatabase())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = nil
-        db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
-            answer = JSON.parse(row['_object_'])
-        end
-        db.close
-        answer
-    end
-
     # StargateCentralObjects::commit(object)
     def self.commit(object)
         raise "(error: ee5c0d42-685e-433a-9d5b-c043494f19ff, missing attribute uuid)" if object["uuid"].nil?
@@ -122,7 +70,7 @@ class StargateCentralObjects
 
         db = SQLite3::Database.new(StargateCentralObjects::pathToObjectsDatabase())
         db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
-        db.execute "insert into _objects_ (_uuid_, _clique_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["clique"], object["mikuType"], JSON.generate(object)]
+        db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
         db.close
     end
 
@@ -131,49 +79,5 @@ class StargateCentralObjects
         db = SQLite3::Database.new(StargateCentralObjects::pathToObjectsDatabase())
         db.execute "delete from _objects_ where _uuid_=?", [uuid]
         db.close
-    end
-end
-
-class StargateCuration
-
-    # StargateCuration::inboxToObjects()
-    def self.inboxToObjects()
-        StargateCentralInbox::getRecords().each{|record|
-
-            puts "StargateCuration::inboxToObjects(): inbox record: #{JSON.pretty_generate(record)}"
-
-            event = JSON.parse(record["_event_"])
-
-            puts "StargateCuration::inboxToObjects(): event: #{JSON.pretty_generate(event)}"
-
-            if event["lxGenealogyAncestors"].nil? then
-                # We are going to ignore this event because it is not well formed.
-                StargateCentralInbox::deleteRecord(record["_uuid_"])
-                next
-            end
-
-            existingCentralObject = StargateCentralObjects::getObjectByUUIDOrNull(event["uuid"])
-
-            puts "existingCentralObject: #{JSON.pretty_generate(existingCentralObject)}"
-
-            if existingCentralObject.nil? then
-                StargateCentralObjects::commit(event)
-                StargateCentralInbox::deleteRecord(record["_uuid_"])
-                next
-            end
-
-            if existingCentralObject.to_s == event.to_s then
-                StargateCentralInbox::deleteRecord(record["_uuid_"])
-                next
-            end
-
-            if Genealogy::object1ShouldBeReplacedByObject2(existingCentralObject, event) then
-                StargateCentralObjects::commit(event)
-                StargateCentralInbox::deleteRecord(record["_uuid_"])
-                next
-            end
-
-            raise "(error: 986cd6ef-01cf-41bc-b789-8189bdb0fae1) I don't know how to handle this case"
-        }
     end
 end

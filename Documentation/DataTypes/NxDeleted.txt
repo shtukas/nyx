@@ -3,7 +3,7 @@ NxDeleted represents a deleted object. Was introduced when we made the first Luc
 
 NxDeleted {
     "uuid"        : uuid
-    "clique"      : String
+    "variant"     : String # Primary Key
     "mikuType"    : "NxDeleted"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu

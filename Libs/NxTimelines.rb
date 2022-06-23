@@ -11,14 +11,9 @@ class NxTimelines
         Librarian::getObjectsByMikuType("NxTimeline")
     end
 
-    # NxTimelines::getOrNull(uuid): null or NxTimeline
-    def self.getOrNull(uuid)
-        Librarian::getObjectByUUIDOrNull(uuid)
-    end
-
     # NxTimelines::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian::destroyClique(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -27,8 +22,6 @@ class NxTimelines
     # NxTimelines::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
 
-        uuid = SecureRandom.uuid
-
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
@@ -36,7 +29,8 @@ class NxTimelines
         datetime   = Time.new.utc.iso8601
 
         item = {
-            "uuid"        => uuid,
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxTimeline",
             "unixtime"    => unixtime,
             "datetime"    => datetime,

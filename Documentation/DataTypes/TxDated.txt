@@ -1,6 +1,6 @@
 TxDated = {
   "uuid"        : String
-  "clique"      : String
+  "variant"     : String # Primary Key
   "mikuType"    : "TxDated"
   "description" : String
   "unixtime"    : Float

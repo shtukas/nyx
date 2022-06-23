@@ -1,6 +1,6 @@
 {
   "uuid"     : String
-  "clique"   : String
+  "variant"  : String # Primary Key
   "mikuType" : "NxBankOp"
   "setuuid"  : String
   "unixtime" : Float

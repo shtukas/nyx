@@ -9,7 +9,7 @@ class NxFrames
 
     # NxFrames::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian::destroyClique(uuid)
     end
 
     # --------------------------------------------------
@@ -20,20 +20,19 @@ class NxFrames
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        uuid = SecureRandom.uuid
-
         nx111 = Nx111::interactivelyCreateNewNx111OrNull()
 
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
 
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "NxFrame",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
+            "mikuType"    => "NxFrame",
+            "description" => description,
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -60,7 +59,7 @@ class NxFrames
 
     # NxFrames::itemsForListing()
     def self.itemsForListing()
-        Librarian::getObjectsByMikuType("NxFrame")
+        NxFrames::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 

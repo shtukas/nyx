@@ -1,6 +1,6 @@
 NxPerson {
     "uuid"        : uuid
-    "clique"      : String
+    "variant"     : String # Primary Key
     "mikuType"    : "NxPerson"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu

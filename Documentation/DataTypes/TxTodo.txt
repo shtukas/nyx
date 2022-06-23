@@ -1,6 +1,6 @@
 TxTodo = {
   "uuid"        : String
-  "clique"      : String
+  "variant"     : String # Primary Key
   "mikuType"    : "TxTodo"
   "description" : String
   "unixtime"    : Float

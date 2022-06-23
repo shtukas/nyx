@@ -4,8 +4,8 @@
 The librarian manipulate JSON objects which encode the stuctures used both by Catalyst and Nyx.
 
 To be Librarian compatible, an object must have the following keys:
-    - "uuid" 
-    - "clique"
+    - "uuid"
+    - "variant"
     - "mikuType"
 
 and we also need (see below)
@@ -15,14 +15,13 @@ and we also need (see below)
 We can retrieve objects individually by "uuid" or collectively by "mikuType"s.
 
 objects.sqlite3
-CREATE TABLE _objects_ (_uuid_ text primary key, _clique_ text, _mikuType_ text, _object_ text);
-create table _objects_ (_uuid_ text, _variant_ text primary key, _mikuType_ text, _object_ text);
+CREATE TABLE _objects_ (_uuid_ text, _variant_ text primary key, _mikuType_ text, _object_ text);
 
 ### Objects of the Nyx's network
 
-Objects of the Nyx Network, so essentially NxDataNode must have: 
-    - "uuid" 
-    - "clique"
+Objects of the Nyx Network, so essentially NxDataNode must have:
+    - "uuid"
+    - "variant"
     - "mikuType"
     - "unixtime"
     - "datetime"

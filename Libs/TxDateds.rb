@@ -9,7 +9,7 @@ class TxDateds
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroy(uuid)
+        Librarian::destroyClique(uuid)
     end
 
     # --------------------------------------------------
@@ -34,12 +34,13 @@ class TxDateds
         unixtime   = Time.new.to_i
 
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxDated",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111,
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
+            "mikuType"    => "TxDated",
+            "description" => description,
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "nx111"       => nx111,
         }
         Librarian::commit(item)
         item
@@ -62,12 +63,13 @@ class TxDateds
         datetime   = Time.new.utc.iso8601
 
         item = {
-          "uuid"        => uuid,
-          "mikuType"    => "TxDated",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111,
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
+            "mikuType"    => "TxDated",
+            "description" => description,
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "nx111"       => nx111,
         }
         Librarian::commit(item)
         item

@@ -63,7 +63,7 @@ class Streaming
             end
             if command == "landing" then
                 LxAction::action("landing", item)
-                item = Librarian::getObjectByUUIDOrNull(item["uuid"])
+                item = Librarian::getObjectByUUIDOrNullEnforceUnique(item["uuid"])
                 if item.nil? then
                     return nil
                 end

@@ -9,6 +9,7 @@ class Bank
 
         item = {
           "uuid"     => SecureRandom.uuid,
+          "variant"  => SecureRandom.uuid,
           "mikuType" => "NxBankOp",
           "setuuid"  => setuuid,
           "unixtime" => Time.new.to_i,

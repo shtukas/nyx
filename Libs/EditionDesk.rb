@@ -163,7 +163,7 @@ class EditionDesk
             nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")
         end
 
-        item = Librarian::getObjectByUUIDOrNull(itemuuid)
+        item = Librarian::getObjectByUUIDOrNullEnforceUnique(itemuuid)
 
         return nil if item.nil?
         return nil if item["nx111"].nil?
@@ -182,6 +182,7 @@ class EditionDesk
     def self.locationToAttemptedNx111Update(location)
         
         elements = EditionDesk::locationToItemNx111PairOrNull(location)
+
         return if elements.nil?
 
         item, nx111 = elements
