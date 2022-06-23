@@ -83,10 +83,9 @@ class AWSSQS
                 receive_message_result.messages.each{|message|
                     event = JSON.parse(message.body)
 
-                    puts "message from AWS:"
-                    puts JSON.pretty_generate(event)
+                    puts "message from AWS: #{JSON.pretty_generate(event)}".green
 
-                    Librarian::incomingEventFromOutside(event)
+                    Librarian::incomingEvent(event)
 
                     sqs_client.delete_message({
                         queue_url: sqs_url,

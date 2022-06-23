@@ -16,8 +16,8 @@ class DoNotShowUntil
         XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", unixtime)
     end
 
-    # DoNotShowUntil::incomingEventFromOutside(event)
-    def self.incomingEventFromOutside(event)
+    # DoNotShowUntil::incomingEvent(event)
+    def self.incomingEvent(event)
         return if event["mikuType"] != "NxDNSU"
         uid = event["targetuuid"]
         unixtime = event["targetunixtime"]

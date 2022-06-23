@@ -126,16 +126,16 @@ class Librarian
     # --------------------------------------------------------------
     # Incoming Events
 
-    # Librarian::incomingEventFromOutside(event)
-    def self.incomingEventFromOutside(event)
-        puts "Librarian, incoming event: #{JSON.pretty_generate(event)}"
+    # Librarian::incomingEvent(event)
+    def self.incomingEvent(event)
+        puts "Librarian, incoming event: #{JSON.pretty_generate(event)}".green
         Librarian::commitNoEvent(event)
     end
 
     # Librarian::getObjectsFromCentral()
     def self.getObjectsFromCentral()
         StargateCentralObjects::objects().each{|object|
-            Librarian::incomingEventFromOutside(object)
+            Librarian::incomingEvent(object)
         }
     end
 

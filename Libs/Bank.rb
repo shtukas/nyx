@@ -23,8 +23,8 @@ class Bank
         XCache::set("d8feea21-ff06-46b2-b68d-b1d4e23e9a47:#{setuuid}:#{date}", value)
     end
 
-    # Bank::incomingEventFromOutside(event)
-    def self.incomingEventFromOutside(event)
+    # Bank::incomingEvent(event)
+    def self.incomingEvent(event)
         return if event["mikuType"] != "NxBankOp"
         setuuid = event["setuuid"]
         date = event["date"]
