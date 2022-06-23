@@ -66,7 +66,7 @@ class Librarian
     end
 
     # Librarian::getObjectByVariantOrNull(variant)
-    def self.getObjectByVariant(variant)
+    def self.getObjectByVariantOrNull(variant)
         db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }

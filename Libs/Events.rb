@@ -41,9 +41,13 @@ class EventsToCentral
     # EventsToCentral::sendLocalEventsToCentral()
     def self.sendLocalEventsToCentral()
         EventsToCentral::getRecords().each{|record|
-            puts "EventsToCentral::sendLocalEventsToCentral(): record (from local event repo to central objects):"
-            puts JSON.pretty_generate(record)
-            StargateCentralObjects::commit(record["_event_"])
+            puts "EventsToCentral::sendLocalEventsToCentral(): record (from local event repo to central objects): #{JSON.pretty_generate(record)}"
+            object = JSON.parse(record["_event_"])
+            if object["lxGenealogyAncestors"].nil? then
+                EventsToCentral::deleteRecord(record["_uuid_"])
+                next
+            end
+            StargateCentralObjects::commit(object)
             EventsToCentral::deleteRecord(record["_uuid_"])
         }
     end
