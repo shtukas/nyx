@@ -128,7 +128,7 @@ class Librarian
 
     # Librarian::incomingEventFromOutside(event)
     def self.incomingEventFromOutside(event)
-        puts "Librarian::incomingEventFromOutside, event: #{JSON.pretty_generate(event)}"
+        puts "Librarian, incoming event: #{JSON.pretty_generate(event)}"
         Librarian::commitNoEvent(event)
     end
 
