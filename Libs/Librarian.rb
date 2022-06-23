@@ -154,6 +154,8 @@ class Librarian
         puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
         Librarian::commitNoEvent(event)
         Cliques::garbageCollectLocalClique(event["uuid"])
+        DoNotShowUntil::incomingEvent(event)
+        Bank::incomingEvent(event)
     end
 
     # Librarian::getObjectsFromCentral()
