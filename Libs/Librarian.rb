@@ -157,7 +157,11 @@ class Librarian
         end
         return if Librarian::getObjectByVariantOrNull(event["variant"]) # we already have this variant
         puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
-        FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, EnergyGridElizabeth.new())
+
+        if Machines::isLucille20() then
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, EnergyGridElizabeth.new())
+        end
+
         Librarian::commitNoEvent(event)
         Cliques::garbageCollectLocalClique(event["uuid"])
         DoNotShowUntil::incomingEvent(event)
