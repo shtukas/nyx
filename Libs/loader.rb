@@ -189,7 +189,7 @@ require_relative "The99Percent.rb"
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"
 
-require_relative "Variants.rb"
+require_relative "Cliques.rb"
 
 require_relative "Waves.rb"
 

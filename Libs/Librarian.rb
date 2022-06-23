@@ -65,6 +65,20 @@ class Librarian
         raise "(error: 32a9fa87-cf35-4538-8e12-4a29ffc56398) You need to implement this"
     end
 
+    # Librarian::getObjectByVariantOrNull(variant)
+    def self.getObjectByVariant(variant)
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        object = nil
+        db.execute("select * from _objects_ where _variant_=?", [variant]) do |row|
+            object = JSON.parse(row['_object_'])
+        end
+        db.close
+        object
+    end
+
     # ---------------------------------------------------
     # Objects Writing
 
@@ -82,7 +96,7 @@ class Librarian
         object["lxGenealogyAncestors"] << SecureRandom.uuid
 
         db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        #db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
+        #db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
         db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
         db.close
 
@@ -92,15 +106,24 @@ class Librarian
     # Librarian::commit(object)
     def self.commit(object)
         object = Librarian::commitNoEvent(object)
-        puts JSON.pretty_generate(object)
-        EventsLocalToCentralInbox::publish(object)
-        EventsLocalToMachine::publish(object)
+        #puts JSON.pretty_generate(object)
+        EventsToCentral::publish(object)
+        EventsToAWSQueue::publish(object)
+
+        Cliques::garbageCollectLocalClique(object["uuid"])
     end
 
     # --------------------------------------------------------------
     # Object destroy
 
-    # Librarian::destroyCliqueObjectIdentifiedByUUIDNoEvent(uuid)
+    # Librarian::destroyVariantNoEvent(variant)
+    def self.destroyVariantNoEvent(variant)
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+        db.execute "delete from _objects_ where _variant_=?", [variant]
+        db.close
+    end
+
+    # Librarian::destroyCliqueNoEvent(uuid)
     def self.destroyCliqueNoEvent(uuid)
         db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
         db.execute "delete from _objects_ where _uuid_=?", [uuid]
@@ -111,7 +134,7 @@ class Librarian
     def self.destroyClique(uuid)
         objects = Librarian::getClique(uuid)
         return if objects.empty?
-        Librarian::destroyCliqueObjectIdentifiedByUUIDNoEvent(uuid)
+        Librarian::destroyCliqueNoEvent(uuid)
         lxGenealogyAncestors = objects.map{|object| object["lxGenealogyAncestors"] }.flatten + [SecureRandom.uuid]
         event = {
             "uuid"     => uuid,
@@ -119,23 +142,29 @@ class Librarian
             "mikuType" => "NxDeleted",
             "lxGenealogyAncestors" => lxGenealogyAncestors
         }
-        EventsLocalToCentralInbox::publish(event)
-        EventsLocalToMachine::publish(event)
+        EventsToCentral::publish(event)
+        EventsToAWSQueue::publish(event)
     end
 
     # --------------------------------------------------------------
     # Incoming Events
 
-    # Librarian::incomingEventFromOutside(event)
-    def self.incomingEventFromOutside(event)
-        puts "Librarian::incomingEventFromOutside, event: #{JSON.pretty_generate(event)}"
+    # Librarian::incomingEvent(event)
+    def self.incomingEvent(event)
+        puts "Librarian, incoming event: #{JSON.pretty_generate(event)}".green
         Librarian::commitNoEvent(event)
+        Cliques::garbageCollectLocalClique(event["uuid"])
     end
 
     # Librarian::getObjectsFromCentral()
     def self.getObjectsFromCentral()
         StargateCentralObjects::objects().each{|object|
-            Librarian::incomingEventFromOutside(object)
+            if object["mikuType"] == "NxDeleted" then
+                Librarian::destroyCliqueNoEvent(object["uuid"])
+                next
+            end
+            next if Librarian::getObjectByVariantOrNull(object["variant"]) # we already have this variant
+            Librarian::incomingEvent(object)
         }
     end
 
