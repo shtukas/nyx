@@ -92,9 +92,9 @@ class Librarian
     # Librarian::commit(object)
     def self.commit(object)
         object = Librarian::commitNoEvent(object)
-        puts JSON.pretty_generate(object)
-        EventsLocalToCentralInbox::publish(object)
-        EventsLocalToMachine::publish(object)
+        #puts JSON.pretty_generate(object)
+        EventsToCentral::publish(object)
+        EventsToAWSQueue::publish(object)
     end
 
     # --------------------------------------------------------------
@@ -119,8 +119,8 @@ class Librarian
             "mikuType" => "NxDeleted",
             "lxGenealogyAncestors" => lxGenealogyAncestors
         }
-        EventsLocalToCentralInbox::publish(event)
-        EventsLocalToMachine::publish(event)
+        EventsToCentral::publish(event)
+        EventsToAWSQueue::publish(event)
     end
 
     # --------------------------------------------------------------

@@ -8,7 +8,7 @@ puts "Data Propagation (LocalDatablobsBufferOut to StargateCentralDatablobReposi
 StargateCentralDataBlobs::propagateDatablobsWithPrimaryDeletion(LocalDatablobsBufferOut::repositoryFolderpath(), "#{StargateCentralDataBlobs::pathToCentral()}/DatablobsDepth1")
 
 puts "Send local events to stargate event inbox"
-EventsLocalToCentralInbox::sendLocalEventsToCentral()
+EventsToCentral::sendLocalEventsToCentral()
 
 puts "Move stargate central objects to local Librarian"
 Librarian::getObjectsFromCentral()
