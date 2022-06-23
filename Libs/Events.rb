@@ -92,16 +92,9 @@ class EventSync
         end
     end
 
-    # EventSync::infinitySync()
-    def self.infinitySync()
+    # EventSync::infinityEventsSync()
+    def self.infinityEventsSync()
         EventsToCentral::sendLocalEventsToCentral()
-        StargateCentralObjects::objects().each{|object|
-            if object["mikuType"] == "NxDeleted" then
-                Librarian::destroyCliqueNoEvent(object["uuid"])
-                next
-            end
-            next if Librarian::getObjectByVariantOrNull(object["variant"]) # we already have this variant
-            Librarian::incomingEvent(object, "stargate central")
-        }
+        StargateCentralObjects::objects().each{|object| Librarian::incomingEvent(object, "stargate central")}
     end
 end

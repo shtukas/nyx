@@ -8,7 +8,7 @@ puts "Data Propagation (LocalDatablobsBufferOut to StargateCentralDatablobReposi
 StargateCentralDataBlobs::propagateDatablobsWithPrimaryDeletion(LocalDatablobsBufferOut::repositoryFolderpath(), "#{StargateCentralDataBlobs::pathToCentral()}/DatablobsDepth1")
 
 puts "Infinity Sync"
-EventSync::infinitySync()
+EventSync::infinityEventsSync()
 
 # We do the following to make sure we have a self contained datablob repository on local
 if Machines::isLucille20() then

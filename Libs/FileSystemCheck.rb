@@ -134,7 +134,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
     def self.fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
 
-        puts JSON.pretty_generate(item)
+        puts "fsck: #{JSON.pretty_generate(item)}"
 
         if item["mikuType"].nil? then
             raise "(error: d24aa0a4-4a42-40aa-81ca-6ead2d3f7fee) item has no mikuType, #{JSON.pretty_generate(item)}" 
