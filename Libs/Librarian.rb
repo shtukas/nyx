@@ -149,9 +149,9 @@ class Librarian
     # --------------------------------------------------------------
     # Incoming Events
 
-    # Librarian::incomingEvent(event)
-    def self.incomingEvent(event)
-        puts "Librarian, incoming event: #{JSON.pretty_generate(event)}".green
+    # Librarian::incomingEvent(event, source)
+    def self.incomingEvent(event, source)
+        puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
         Librarian::commitNoEvent(event)
         Cliques::garbageCollectLocalClique(event["uuid"])
     end
@@ -164,7 +164,7 @@ class Librarian
                 next
             end
             next if Librarian::getObjectByVariantOrNull(object["variant"]) # we already have this variant
-            Librarian::incomingEvent(object)
+            Librarian::incomingEvent(object, "stargate central")
         }
     end
 
