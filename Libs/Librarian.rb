@@ -96,7 +96,7 @@ class Librarian
         object["lxGenealogyAncestors"] << SecureRandom.uuid
 
         db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        #db.execute "delete from _objects_ where _uuid_=?", [object["uuid"]]
+        #db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
         db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
         db.close
 

@@ -27,7 +27,13 @@ class Cliques
 
     # Cliques::garbageCollectLocalClique(uuid)
     def self.garbageCollectLocalClique(uuid)
-        clique = Librarian::getClique(object["uuid"])
+        clique = Librarian::getClique(uuid)
         Cliques::performGarbageCollection(clique, lambda{|item| Librarian::destroyVariantNoEvent(item["variant"]) })
+    end
+
+    # Cliques::garbageCollectCentralClique(uuid)
+    def self.garbageCollectCentralClique(uuid)
+        clique = StargateCentralObjects::getClique(uuid)
+        Cliques::performGarbageCollection(clique, lambda{|item| StargateCentralObjects::destroyVariantNoEvent(item["variant"]) })
     end
 end
