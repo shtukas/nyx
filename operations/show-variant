@@ -1,0 +1,15 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+exit if ARGV[0].nil? 
+
+variant = ARGV[0]
+object = Librarian::getObjectByVariantOrNull(variant)
+if object then
+    puts JSON.pretty_generate(object)
+else
+    puts "I could not find an object with this variant"
+end

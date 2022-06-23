@@ -1,6 +1,6 @@
-class Variants
+class Cliques
 
-    # Variants::findRemovableObjectOrNull(objects)
+    # Cliques::findRemovableObjectOrNull(objects)
     def self.findRemovableObjectOrNull(objects)
         objects.combination(2).each{|pair|
             obj1, obj2 = pair
@@ -14,14 +14,20 @@ class Variants
         nil
     end
 
-    # Variants::performGarbageCollection(objects, killer)
+    # Cliques::performGarbageCollection(objects, killer)
     def self.performGarbageCollection(objects, killer)
         loop {
-            obj = Variants::findRemovableObjectOrNull(objects)
+            obj = Cliques::findRemovableObjectOrNull(objects)
             return objects if obj.nil?
             killer.call(obj)
             objects = objects.reject{|object| object["uuid"] == obj["uuid"] }
         }
         objects
+    end
+
+    # Cliques::garbageCollectLocalClique(uuid)
+    def self.garbageCollectLocalClique(uuid)
+        clique = Librarian::getClique(object["uuid"])
+        Cliques::performGarbageCollection(clique, lambda{|item| Librarian::destroyVariantNoEvent(item["variant"]) })
     end
 end

@@ -6,10 +6,10 @@ require_relative "../Libs/loader.rb"
 
 exit if ARGV[0].nil?
 
-uuid = ARGV[0]
-object = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
+variant = ARGV[0]
+object = Librarian::getObjectByVariantOrNull(variant)
 if object.nil? then
-    puts "I could not find an object with this uuid"
+    puts "I could not find an object with this variant"
     exit
 end
 operator = EnergyGridElizabeth.new()
