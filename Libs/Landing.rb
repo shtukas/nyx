@@ -21,7 +21,7 @@ class Landing
                 puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
             }
 
-        NxRelation::related(item["uuid"])
+        NxLink::related(item["uuid"])
             .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entity| 
                 indx = store.register(entity, false)
@@ -44,7 +44,7 @@ class Landing
             return if entity.nil?
             NxArrow::unlink(item["uuid"], entity["uuid"])
             NxArrow::unlink(entity["uuid"], item["uuid"])
-            NxRelation::unlink(NxRelation::unlink(node1uuid, node2uuid))
+            NxLink::unlink(NxLink::unlink(node1uuid, node2uuid))
         end
     end
 
@@ -60,7 +60,7 @@ class Landing
         if action == "add related" then
             newItem = Architect::architectOneOrNull()
             return if newItem.nil?
-            NxRelation::issue(item["uuid"], newItem["uuid"])
+            NxLink::issue(item["uuid"], newItem["uuid"])
         end
         if action == "add child" then
             newItem = Architect::architectOneOrNull()
@@ -91,7 +91,7 @@ class Landing
             }
 
             parents  = NxArrow::parents(item["uuid"])
-            related  = NxRelation::related(item["uuid"])
+            related  = NxLink::related(item["uuid"])
             children = NxArrow::children(item["uuid"])
 
             parents
@@ -229,7 +229,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
                 }
 
-            NxRelation::related(item["uuid"])
+            NxLink::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
@@ -345,7 +345,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] (parent) #{LxFunction::function("toString", entity)}"
                 }
 
-            NxRelation::related(item["uuid"])
+            NxLink::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)

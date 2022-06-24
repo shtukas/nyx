@@ -1,19 +1,19 @@
 
 # encoding: UTF-8
 
-class NxRelation
+class NxLink
 
-    # NxRelation::links()
+    # NxLink::links()
     def self.links()
-        Librarian::getObjectsByMikuType("NxRelation")
+        Librarian::getObjectsByMikuType("NxLink")
     end
 
-    # NxRelation::issue(node1uuid, node2uuid)
+    # NxLink::issue(node1uuid, node2uuid)
     def self.issue(node1uuid, node2uuid)
         item = {
             "uuid"      => SecureRandom.uuid,
             "variant"   => SecureRandom.uuid,
-            "mikuType"  => "NxRelation",
+            "mikuType"  => "NxLink",
             "node1uuid" => node1uuid,
             "node2uuid" => node2uuid
         }
@@ -21,9 +21,9 @@ class NxRelation
         item
     end
 
-    # NxRelation::unlink(node1uuid, node2uuid)
+    # NxLink::unlink(node1uuid, node2uuid)
     def self.unlink(node1uuid, node2uuid)
-        NxRelation::links()
+        NxLink::links()
             .each{|item|
                 if item["node1uuid"] == node1uuid and item["node2uuid"] == node2uuid then
                     Librarian::destroyClique(item["uuid"])
@@ -34,10 +34,10 @@ class NxRelation
             }
     end
 
-    # NxRelation::related(uuid)
+    # NxLink::related(uuid)
     def self.related(uuid)
         items = []
-        NxRelation::links()
+        NxLink::links()
             .each{|item|
                 if item["node1uuid"] == uuid then
                     items << Librarian::getObjectsByMikuType(item["node2uuid"])

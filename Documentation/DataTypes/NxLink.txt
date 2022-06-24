@@ -1,7 +1,7 @@
-NxRelation {
+NxLink {
     "uuid"      : uuid
     "variant"   : String # Primary Key
-    "mikuType"  : "NxRelation"
+    "mikuType"  : "NxLink"
     "node1uuid" : String UUID
     "node2uuid" : String UUID
 }

@@ -186,7 +186,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxRelation" then
+        if item["mikuType"] == "NxLink" then
             return
         end
 
