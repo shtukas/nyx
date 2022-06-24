@@ -17,10 +17,10 @@ class AWSSQS
         nil
     end
 
-    # AWSSQS::sendToTheOtherMachine(event) # Boolean
+    # AWSSQS::send(event) # Boolean
     # This function returns true if the message was sent and otherwise false.
-    def self.sendToTheOtherMachine(event) # Boolean
-        #puts "AWSSQS::sendToTheOtherMachine(#{JSON.pretty_generate(event)})"
+    def self.send(event) # Boolean
+        puts "AWSSQS::send(#{JSON.pretty_generate(event)})"
 
         Aws.config.update({
            credentials: Aws::Credentials.new(Config::get("aws.AWS_ACCESS_KEY_ID"), Config::get("aws.AWS_SECRET_ACCESS_KEY"))
@@ -34,7 +34,7 @@ class AWSSQS
         sqs_url = AWSSQS::sqs_url_or_null(machinesource, machinetarget)
 
         if sqs_url.nil? then
-            puts "(error) AWSSQS::sendToTheOtherMachine, machinesource: #{machinesource}, machinetarget: #{machinetarget}, could not determine queue url"
+            puts "(error) AWSSQS::send, machinesource: #{machinesource}, machinetarget: #{machinetarget}, could not determine queue url"
             exit
         end
 

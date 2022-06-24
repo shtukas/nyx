@@ -67,8 +67,8 @@ class EventsToAWSQueue
         loop {
             event = Mercury::readFirstValueOrNull("341307DD-A9C6-494F-B050-CD89745A66C6")
             break if event.nil?
-            #puts "AWSSQS::sendToTheOtherMachine(#{JSON.pretty_generate(event)})"
-            status = AWSSQS::sendToTheOtherMachine(event)
+            #puts "AWSSQS::send(#{JSON.pretty_generate(event)})"
+            status = AWSSQS::send(event)
             #puts "status: #{status}"
             if status then
                 Mercury::dequeueFirstValueOrNull("341307DD-A9C6-494F-B050-CD89745A66C6")
