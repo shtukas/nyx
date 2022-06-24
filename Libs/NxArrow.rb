@@ -37,7 +37,9 @@ class NxArrow
         NxArrow::arrows()
             .each{|item|
                 if item["target"] == uuid then
-                    items << Librarian::getObjectsByMikuType(item["source"])
+                    Librarian::getClique(item["source"]).each{|obj|
+                        items << obj
+                    }
                 end
             }
         items.compact
@@ -49,7 +51,9 @@ class NxArrow
         NxArrow::arrows()
             .each{|item|
                 if item["source"] == uuid then
-                    items << Librarian::getObjectsByMikuType(item["target"])
+                    Librarian::getClique(item["target"]).each{|obj|
+                        items << obj
+                    }
                 end
             }
         items.compact

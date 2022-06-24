@@ -59,21 +59,47 @@ class EventsToAWSQueue
     # EventsToAWSQueue::publish(event)
     def self.publish(event)
         #puts "EventsToAWSQueue::publish(#{JSON.pretty_generate(event)})"
-        Mercury::postValue("341307DD-A9C6-494F-B050-CD89745A66C6", event)
+        Mercury2::put("341307DD-A9C6-494F-B050-CD89745A66C6", event)
     end
 
-    # EventsToAWSQueue::sendEventsToMachine()
-    def self.sendEventsToMachine()
+    # EventsToAWSQueue::sendEventsToSQS()
+    def self.sendEventsToSQS()
+
+        return if Mercury2::empty?("341307DD-A9C6-494F-B050-CD89745A66C6")
+
+        Aws.config.update({
+           credentials: Aws::Credentials.new(Config::get("aws.AWS_ACCESS_KEY_ID"), Config::get("aws.AWS_SECRET_ACCESS_KEY"))
+        })
+
+        region = 'eu-west-1'
+
+        machinesource = Machines::thisMachine()
+        machinetarget = Machines::theOtherMachine()
+
+        sqs_url = AWSSQS::sqs_url_or_null(machinesource, machinetarget)
+
+        if sqs_url.nil? then
+            puts "(error) AWSSQS::send, machinesource: #{machinesource}, machinetarget: #{machinetarget}, could not determine queue url"
+            exit
+        end
+
+        sqs_client = Aws::SQS::Client.new(region: region)
+
         loop {
-            event = Mercury::readFirstValueOrNull("341307DD-A9C6-494F-B050-CD89745A66C6")
+            event = Mercury2::readFirstOrNull("341307DD-A9C6-494F-B050-CD89745A66C6")
             break if event.nil?
-            #puts "AWSSQS::sendToTheOtherMachine(#{JSON.pretty_generate(event)})"
-            status = AWSSQS::sendToTheOtherMachine(event)
-            #puts "status: #{status}"
-            if status then
-                Mercury::dequeueFirstValueOrNull("341307DD-A9C6-494F-B050-CD89745A66C6")
-            else
-                break # will try again later
+
+            puts "AWSSQS::send(#{JSON.pretty_generate(event)})"
+
+            begin 
+                sqs_client.send_message(
+                    queue_url: sqs_url,
+                    message_body: JSON.generate(event)
+                )
+                Mercury2::dequeue("341307DD-A9C6-494F-B050-CD89745A66C6")
+            rescue StandardError => e
+                #puts "Error sending messages: #{e.message}"
+                return false
             end
         }
     end
@@ -85,7 +111,7 @@ class EventSync
     def self.awsSync()
         #puts "To Machine Event Maintenance Thread"
         begin
-            EventsToAWSQueue::sendEventsToMachine()
+            EventsToAWSQueue::sendEventsToSQS()
             AWSSQS::pullAndProcessEvents()
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"

@@ -109,7 +109,6 @@ class Librarian
         #puts JSON.pretty_generate(object)
         EventsToCentral::publish(object)
         EventsToAWSQueue::publish(object)
-
         Cliques::garbageCollectLocalClique(object["uuid"])
     end
 

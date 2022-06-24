@@ -40,10 +40,14 @@ class NxLink
         NxLink::links()
             .each{|item|
                 if item["node1uuid"] == uuid then
-                    items << Librarian::getObjectsByMikuType(item["node2uuid"])
+                    Librarian::getClique(item["node2uuid"]).each{|obj|
+                        items << obj
+                    }
                 end
                 if item["node2uuid"] == uuid then
-                    items << Librarian::getObjectsByMikuType(item["node1uuid"])
+                    Librarian::getClique(item["node1uuid"]).each{|obj|
+                        items << obj
+                    }
                 end
             }
         items.compact

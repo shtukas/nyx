@@ -116,6 +116,13 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
     Mercury::isEmpty(channel)
 =end
 
+require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury2.rb"
+=begin
+    Mercury2::put(channel, value)
+    Mercury2::readOrNull(channel)
+    Mercury2::dequeue(channel)
+=end
+
 # ------------------------------------------------------------
 
 require_relative "Ax1Text.rb"

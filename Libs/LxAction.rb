@@ -57,6 +57,11 @@ class LxAction
                 Transmutation::transmutation1(item, "TxTodo", "NxDataNode")
                 return
             end
+
+            if item["mikuType"] == "TxDated" then
+                Transmutation::transmutation1(item, "TxDated", "NxDataNode")
+                return
+            end
         end
 
         if command == ">todo" then

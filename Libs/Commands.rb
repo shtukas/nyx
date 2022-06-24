@@ -355,6 +355,11 @@ class Commands
                     "lambda" => lambda { CommonUtils::generalCodeTrace() }
                 },
                 {
+                    "name" => "EventSync::awsSync()",
+                    "lambda" => lambda { EventSync::awsSync() }
+                },
+
+                {
                     "name" => "fitness lookup",
                     "lambda" => lambda { JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`) }
                 },
