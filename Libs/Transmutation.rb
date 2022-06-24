@@ -6,16 +6,24 @@ class Transmutation
     # Transmutation::transmutation1(item, source, target, isSimulation)
     def self.transmutation1(item, source, target, isSimulation = false)
 
-        if source == "TxDated" and target == "TxTodo" then
+        if source == "TxDated" and target == "NxDataNode" then
             return true if isSimulation
-            item["mikuType"] = "TxTodo"
+            item["mikuType"] = "NxDataNode"
             Librarian::commit(item)
+            LxAction::action("landing", item)
             return
         end
 
         if source == "TxDated" and target == "NxFrame" then
             return true if isSimulation
             item["mikuType"] = "NxFrame"
+            Librarian::commit(item)
+            return
+        end
+
+        if source == "TxDated" and target == "TxTodo" then
+            return true if isSimulation
+            item["mikuType"] = "TxTodo"
             Librarian::commit(item)
             return
         end
