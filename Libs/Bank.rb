@@ -16,6 +16,7 @@ class Bank
           "date"     => date,
           "weight"   => weight
         }
+
         Librarian::commit(item)
 
         value = Bank::valueAtDate(setuuid, date)

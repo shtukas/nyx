@@ -166,4 +166,48 @@ class Librarian
         DoNotShowUntil::incomingEvent(event)
         Bank::incomingEvent(event)
     end
+
+    # --------------------------------------------------------------
+    # Data Maintenance
+
+    # Librarian::maintenance()
+    def self.maintenance()
+
+        Librarian::getObjectsByMikuType("NxBankOp").each{|item|
+            if (Time.new.to_i - item["unixtime"]) > 86400*30 then
+                puts JSON.pretty_generate(item)
+                Librarian::destroyVariantNoEvent(item["variant"])
+            end
+        }
+
+        if StargateCentral::pathToCentral() then
+
+            StargateCentralObjects::getObjectsByMikuType("NxBankOp").each{|item|
+                if (Time.new.to_i - item["unixtime"]) > 86400*30 then
+                    puts JSON.pretty_generate(item)
+                    StargateCentralObjects::destroyVariantNoEvent(item["variant"])
+                end
+            }
+
+        end
+
+        Librarian::getObjectsByMikuType("NxDNSU").each{|item|
+            if item["targetunixtime"] < Time.new.to_i then
+                puts JSON.pretty_generate(item)
+                Librarian::destroyVariantNoEvent(item["variant"])
+            end
+        }
+
+        if StargateCentral::pathToCentral() then
+
+            StargateCentralObjects::getObjectsByMikuType("NxDNSU").each{|item|
+                if item["targetunixtime"] < Time.new.to_i then
+                    puts JSON.pretty_generate(item)
+                    StargateCentralObjects::destroyVariantNoEvent(item["variant"])
+                end
+            }
+
+        end
+
+    end
 end

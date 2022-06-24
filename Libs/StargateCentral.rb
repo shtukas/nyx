@@ -1,9 +1,12 @@
-class StargateCentralDataBlobs
+class StargateCentral
 
-    # StargateCentralDataBlobs::pathToCentral()
+    # StargateCentral::pathToCentral()
     def self.pathToCentral()
         "/Volumes/Infinity/Data/Pascal/Stargate-Central"
     end
+end
+
+class StargateCentralDataBlobs
 
     # StargateCentralDataBlobs::propagateDatablobs(folderpath1, folderpath2)
     def self.propagateDatablobs(folderpath1, folderpath2)
@@ -46,7 +49,7 @@ class StargateCentralObjects
 
     # StargateCentralObjects::pathToObjectsDatabase()
     def self.pathToObjectsDatabase()
-        "#{StargateCentralDataBlobs::pathToCentral()}/objects.sqlite3"
+        "#{StargateCentral::pathToCentral()}/objects.sqlite3"
     end
 
     # StargateCentralObjects::objects()
@@ -74,6 +77,20 @@ class StargateCentralObjects
         db.close
 
         Cliques::garbageCollectCentralClique(object["uuid"])
+    end
+
+    # StargateCentralObjects::getObjectsByMikuType(mikuType)
+    def self.getObjectsByMikuType(mikuType)
+        db = SQLite3::Database.new(StargateCentralObjects::pathToObjectsDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objects = []
+        db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
+            objects << JSON.parse(row['_object_'])
+        end
+        db.close
+        objects
     end
 
     # StargateCentralObjects::getClique(uuid)
