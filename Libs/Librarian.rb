@@ -180,7 +180,7 @@ class Librarian
             end
         }
 
-        if StargateCentral::pathToCentral() then
+        if File.exists?(StargateCentral::pathToCentral()) then
 
             StargateCentralObjects::getObjectsByMikuType("NxBankOp").each{|item|
                 if (Time.new.to_i - item["unixtime"]) > 86400*30 then
@@ -198,7 +198,7 @@ class Librarian
             end
         }
 
-        if StargateCentral::pathToCentral() then
+        if File.exists?(StargateCentral::pathToCentral()) then
 
             StargateCentralObjects::getObjectsByMikuType("NxDNSU").each{|item|
                 if item["targetunixtime"] < Time.new.to_i then
