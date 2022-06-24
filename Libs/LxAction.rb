@@ -96,7 +96,7 @@ class LxAction
             end
 
             if Iam::isNetworkAggregation(item) then
-                CircleNavigation::navigate(item)
+                RelatedNavigation::navigate(item)
                 return
             end
         end

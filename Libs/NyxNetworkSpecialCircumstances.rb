@@ -24,7 +24,7 @@ class NyxNetworkSpecialCircumstances
         }
         puts JSON.pretty_generate(item2)
         Librarian::commit(item2)
-        NxArrow::issue(item["uuid"], item2["uuid"])
+        NxLink::issue(item["uuid"], item2["uuid"])
 
         Transmutation::transmutation1(item, item["mikuType"], targetType)
     end

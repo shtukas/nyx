@@ -156,10 +156,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxArrow" then
-            return
-        end
-
         if item["mikuType"] == "NxBankOp" then
             return
         end

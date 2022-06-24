@@ -16,7 +16,7 @@ class Upload
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
             child = NxDataNodes::issueNewItemAionPointFromLocation(location)
-            NxArrow::issue(item["uuid"], child["uuid"])
+            NxLink::issue(item["uuid"], child["uuid"])
         }
     end
 
@@ -37,7 +37,7 @@ class Upload
             puts "processing: #{location}"
             child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
-            NxArrow::issue(item["uuid"], child["uuid"])
+            NxLink::issue(item["uuid"], child["uuid"])
         }
     end
 
