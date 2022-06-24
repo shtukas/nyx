@@ -80,7 +80,14 @@ class Landing
 
             store = ItemStore.new()
 
-            puts "(#{item["mikuType"].yellow}) #{item["description"]}"
+            makeFirstLine = lambda{|item|
+                if item["mikuType"] == "NxPerson" then
+                    return "(#{item["mikuType"].yellow}) #{item["name"]}"
+                end
+                "(#{item["mikuType"].yellow}) #{item["description"]}"
+            }
+
+            puts makeFirstLine.call(item)
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
