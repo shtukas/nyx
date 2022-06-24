@@ -1,54 +1,29 @@
 
 # encoding: UTF-8
 
-class EventsToCentral
+=begin
+    Mercury2::put(channel, value)
+    Mercury2::readOrNull(channel)
+    Mercury2::dequeue(channel)
+=end
 
-    # EventsToCentral::pathToDatabaseFile()
-    def self.pathToDatabaseFile()
-        "/Users/pascal/Galaxy/DataBank/Stargate/events-outgoing.sqlite3"
-    end
+
+
+class EventsToCentral
 
     # EventsToCentral::publish(event)
     def self.publish(event)
-        #puts "EventsToCentral::publish(#{JSON.pretty_generate(event)})"
-        db = SQLite3::Database.new(EventsToCentral::pathToDatabaseFile())
-        db.execute "insert into _events_ (_uuid_, _unixtime_, _event_) values (?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, JSON.generate(event)]
-        db.close
-    end
-
-    # EventsToCentral::getRecords()
-    def self.getRecords()
-        db = SQLite3::Database.new(EventsToCentral::pathToDatabaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _events_ order by _unixtime_=?") do |row|
-            answer << row
-        end
-        db.close
-        answer
-    end
-
-    # EventsToCentral::deleteRecord(uuid)
-    def self.deleteRecord(uuid)
-        #puts "EventsToCentral::deleteRecord(#{uuid})"
-        db = SQLite3::Database.new(EventsToCentral::pathToDatabaseFile())
-        db.execute "delete from _events_ where _uuid_=?", [uuid]
-        db.close
+        Mercury2::put("23c340bb-c4b3-4326-ba47-62461ba0d063", event)
     end
 
     # EventsToCentral::sendLocalEventsToCentral()
     def self.sendLocalEventsToCentral()
-        EventsToCentral::getRecords().each{|record|
-            puts "EventsToCentral::sendLocalEventsToCentral(): record (from local event repo to central objects): #{JSON.pretty_generate(record)}"
-            object = JSON.parse(record["_event_"])
-            if object["lxGenealogyAncestors"].nil? then
-                EventsToCentral::deleteRecord(record["_uuid_"])
-                next
-            end
+        loop {
+            object = Mercury2::readFirstOrNull("23c340bb-c4b3-4326-ba47-62461ba0d063")
+            break if object.nil?
+            puts "EventsToCentral::sendLocalEventsToCentral(): record (from local object repo to central objects): #{JSON.pretty_generate(object)}"
             StargateCentralObjects::commit(object)
-            EventsToCentral::deleteRecord(record["_uuid_"])
+            Mercury2::dequeue("23c340bb-c4b3-4326-ba47-62461ba0d063")
         }
     end
 end
