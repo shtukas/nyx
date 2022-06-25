@@ -108,14 +108,6 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury.rb"
-=begin
-    Mercury::postValue(channel, value)
-    Mercury::readFirstValueOrNull(channel)
-    Mercury::dequeueFirstValueOrNull(channel)
-    Mercury::isEmpty(channel)
-=end
-
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury2.rb"
 =begin
     Mercury2::put(channel, value)

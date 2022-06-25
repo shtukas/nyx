@@ -55,6 +55,7 @@ class Librarian
 
     # Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
     def self.getObjectByUUIDOrNullEnforceUnique(uuid)
+        Cliques::garbageCollectLocalClique(uuid)
         clique = Librarian::getClique(uuid)
         if clique.empty? then
             return nil
@@ -62,7 +63,25 @@ class Librarian
         if clique.size == 1 then
             return clique[0]
         end
-        raise "(error: 32a9fa87-cf35-4538-8e12-4a29ffc56398) You need to implement this"
+
+        # --------------------------------------------------------------
+        puts JSON.pretty_generate(clique).green
+        puts "Use the information above to select the correct version"
+        variant = LucilleCore::askQuestionAnswerAsString("variant (to keep as new descendant): ")
+        object = clique.select{|object| object["variant"] == variant }.first
+        if object.nil? then
+            raise "(error: 2f1994d5-759d-42cc-8edc-b6979c2a62b6) this is your fault"
+        end
+        genealogy = clique.map{|object| object["lxGenealogyAncestors"] }.flatten.uniq
+        object["lxGenealogyAncestors"] = genealogy
+        Librarian::commitIdentical(object)
+        Cliques::garbageCollectLocalClique(uuid)
+        clique = Librarian::getClique(uuid)
+        puts JSON.pretty_generate(clique).green
+        if clique.size != 1 then
+            raise "(error: 09f60a03-fd8c-4aeb-8b2b-fb6f97d024e7) this should not happen"
+        end
+        clique[0]
     end
 
     # Librarian::getObjectByVariantOrNull(variant)
@@ -82,8 +101,20 @@ class Librarian
     # ---------------------------------------------------
     # Objects Writing
 
-    # Librarian::commitNoEvent(object)
-    def self.commitNoEvent(object)
+    # Librarian::commitIdentical(object)
+    def self.commitIdentical(object)
+        raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
+        raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
+        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+        db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
+        db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
+        db.close
+        object
+    end
+
+    # Librarian::commit(object)
+    def self.commit(object)
+
         raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
 
@@ -100,13 +131,6 @@ class Librarian
         db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
         db.close
 
-        object
-    end
-
-    # Librarian::commit(object)
-    def self.commit(object)
-        object = Librarian::commitNoEvent(object)
-        #puts JSON.pretty_generate(object)
         EventsToCentral::publish(object)
         EventsToAWSQueue::publish(object)
         Cliques::garbageCollectLocalClique(object["uuid"])
@@ -159,12 +183,12 @@ class Librarian
         if source then
             puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
         end
-        
+
         if Machines::isLucille20() then
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, EnergyGridElizabeth.new())
         end
 
-        Librarian::commitNoEvent(event)
+        Librarian::commitIdentical(event)
         Cliques::garbageCollectLocalClique(event["uuid"])
         DoNotShowUntil::incomingEvent(event)
         Bank::incomingEvent(event)
