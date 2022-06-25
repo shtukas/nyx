@@ -142,12 +142,12 @@ class Catalyst
             }
         end
 
-        EventSync::awsSync()
+        EventSync::awsSync(true)
 
         Thread.new {
             loop {
                 sleep 60
-                EventSync::awsSync()
+                EventSync::awsSync(false)
             }
         }
 

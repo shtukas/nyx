@@ -37,8 +37,8 @@ class EventsToAWSQueue
         Mercury2::put("341307DD-A9C6-494F-B050-CD89745A66C6", event)
     end
 
-    # EventsToAWSQueue::sendEventsToSQS()
-    def self.sendEventsToSQS()
+    # EventsToAWSQueue::sendEventsToSQS(verbose)
+    def self.sendEventsToSQS(verbose)
 
         return if Mercury2::empty?("341307DD-A9C6-494F-B050-CD89745A66C6")
 
@@ -64,7 +64,7 @@ class EventsToAWSQueue
             event = Mercury2::readFirstOrNull("341307DD-A9C6-494F-B050-CD89745A66C6")
             break if event.nil?
 
-            puts "AWSSQS::send(#{JSON.pretty_generate(event)})"
+            puts "AWSSQS::send(#{JSON.pretty_generate(event)})" if verbose
 
             begin 
                 sqs_client.send_message(
@@ -82,12 +82,12 @@ end
 
 class EventSync
 
-    # EventSync::awsSync()
-    def self.awsSync()
+    # EventSync::awsSync(verbose)
+    def self.awsSync(verbose)
         #puts "To Machine Event Maintenance Thread"
         begin
-            EventsToAWSQueue::sendEventsToSQS()
-            AWSSQS::pullAndProcessEvents()
+            EventsToAWSQueue::sendEventsToSQS(verbose)
+            AWSSQS::pullAndProcessEvents(verbose)
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
         end

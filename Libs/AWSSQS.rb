@@ -52,8 +52,8 @@ class AWSSQS
         end
     end
 
-    # AWSSQS::pullAndProcessEvents()
-    def self.pullAndProcessEvents()
+    # AWSSQS::pullAndProcessEvents(verbose)
+    def self.pullAndProcessEvents(verbose)
 
         Aws.config.update({
            credentials: Aws::Credentials.new(Config::get("aws.AWS_ACCESS_KEY_ID"), Config::get("aws.AWS_SECRET_ACCESS_KEY"))
@@ -83,7 +83,7 @@ class AWSSQS
                 receive_message_result.messages.each{|message|
                     event = JSON.parse(message.body)
 
-                    Librarian::incomingEvent(event, "aws")
+                    Librarian::incomingEvent(event, verbose ? "aws" : nil)
 
                     sqs_client.delete_message({
                         queue_url: sqs_url,
@@ -92,7 +92,9 @@ class AWSSQS
                 }
             }
         rescue StandardError => e
-            #puts "Error @ AWSSQS::pullAndProcessEvents(): #{e.message}"
+            if verbose then
+                puts "Error @ AWSSQS::pullAndProcessEvents(#{verbose}): #{e.message}"
+            end
         end
     end
 end

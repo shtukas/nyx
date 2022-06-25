@@ -355,8 +355,8 @@ class Commands
                     "lambda" => lambda { CommonUtils::generalCodeTrace() }
                 },
                 {
-                    "name" => "EventSync::awsSync()",
-                    "lambda" => lambda { EventSync::awsSync() }
+                    "name" => "EventSync::awsSync(false)",
+                    "lambda" => lambda { EventSync::awsSync(false) }
                 },
 
                 {

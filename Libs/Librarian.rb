@@ -155,8 +155,11 @@ class Librarian
             return
         end
         return if Librarian::getObjectByVariantOrNull(event["variant"]) # we already have this variant
-        puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
 
+        if source then
+            puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
+        end
+        
         if Machines::isLucille20() then
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, EnergyGridElizabeth.new())
         end
