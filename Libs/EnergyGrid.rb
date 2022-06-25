@@ -42,6 +42,7 @@ class StargateUtils
     def self.transferDatablobsLocalBufferOutToDatablobsStargateCentralSQLBLobStores()
         Find.find(DatablobsLocalBufferOut::repositoryFolderpath()) do |path|
             next if File.basename(path)[-5, 5] != ".data"
+            puts "copying datablob: #{File.basename(path)}"
             blob = IO.read(path)
             DatablobsStargateCentralSQLBLobStores::putBlob(blob)
             FileUtils.rm(path)
