@@ -91,6 +91,83 @@ class StargateCentralDatablobs
     end
 end
 
+class StargateCentralSQLBLobStores
+
+    # StargateCentralSQLBLobStores::computeFilepath(nhash, indx)
+    def self.computeFilepath(nhash, indx)
+        raise "(error: c381f53b-6312-46d4-8621-2a2e6538364b)" if indx < 1
+        "#{StargateCentral::pathToCentral()}/BlobStores/#{nhash[7, indx]}.sqlite3"
+    end
+
+    # StargateCentralSQLBLobStores::decideFilepathForPut(nhash)
+    def self.decideFilepathForPut(nhash)
+        indx = 0
+        loop {
+            indx = indx + 1
+
+            filepath = StargateCentralSQLBLobStores::computeFilepath(nhash, indx)
+
+            if !File.exists?(filepath) then
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute "create table _data_ (_key_ text, _blob_ blob);"
+                db.close
+            end
+
+            gigabyte = 1024*1024*1024
+            if File.size(filepath) < gigabyte then
+                return filepath
+            end
+        }
+    end
+
+    # -----------------------------------------------------
+
+    # StargateCentralSQLBLobStores::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        indx = 0
+        loop {
+            indx = indx + 1
+
+            filepath = StargateCentralSQLBLobStores::computeFilepath(nhash, indx)
+
+            if !File.exists?(filepath) then
+                return nil
+            end
+
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            blob = nil
+            db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
+                blob = row["_blob_"]
+            end
+            db.close
+            blob
+
+            if blob then
+                return blob
+            end
+        }
+    end
+
+    # StargateCentralSQLBLobStores::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        return nhash if !StargateCentralSQLBLobStores::getBlobOrNull(nhash).nil?
+        filepath = StargateCentralSQLBLobStores::decideFilepathForPut(nhash)
+        db = SQLite3::Database.new(filepath)
+        db.execute "delete from _data_ where _key_=?", [nhash]
+        db.execute "insert into _data_ (_key_, _blob_) values (?, ?)", [nhash, blob]
+        db.close
+        nhash
+    end
+
+end
+
 class EnergyGridDatablobs
 
     # EnergyGridDatablobs::putBlob(blob)

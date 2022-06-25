@@ -29,7 +29,6 @@ class EventsToCentral
 end
 
 class EventsToAWSQueue
-    # Here we store the events to send fast to the other machine
 
     # EventsToAWSQueue::publish(event)
     def self.publish(event)
