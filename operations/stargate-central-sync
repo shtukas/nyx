@@ -4,8 +4,8 @@
 
 require_relative "../Libs/loader.rb"
 
-puts "Data Propagation (LocalDatablobsBufferOut to StargateCentralDatablobRepository)"
-StargateCentralDataBlobs::propagateDatablobsWithPrimaryDeletion(LocalDatablobsBufferOut::repositoryFolderpath(), "#{StargateCentral::pathToCentral()}/DatablobsDepth1")
+puts "StargateUtils::transferDatablobsLocalBufferOutToDatablobsStargateCentralSQLBLobStores()"
+StargateUtils::transferDatablobsLocalBufferOutToDatablobsStargateCentralSQLBLobStores()
 
 puts "Infinity Sync"
 EventSync::infinityEventsSync()

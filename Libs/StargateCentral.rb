@@ -6,45 +6,6 @@ class StargateCentral
     end
 end
 
-class StargateCentralDataBlobs
-
-    # StargateCentralDataBlobs::propagateDatablobs(folderpath1, folderpath2)
-    def self.propagateDatablobs(folderpath1, folderpath2)
-        Find.find(folderpath1) do |path|
-            next if File.basename(path)[-5, 5] != ".data"
-            filename = File.basename(path)
-            targetfolderpath = "#{folderpath2}/#{filename[7, 2]}"
-            targetfilepath = "#{targetfolderpath}/#{filename}"
-            next if File.exist?(targetfilepath)
-            if !File.exists?(targetfolderpath) then
-                FileUtils.mkdir(targetfolderpath)
-            end
-            puts "copying datablob: #{filename}"
-            FileUtils.cp(path, targetfilepath)
-        end
-    end
-
-    # StargateCentralDataBlobs::propagateDatablobsWithPrimaryDeletion(folderpath1, folderpath2)
-    def self.propagateDatablobsWithPrimaryDeletion(folderpath1, folderpath2)
-        Find.find(folderpath1) do |path|
-            next if File.basename(path)[-5, 5] != ".data"
-            filename = File.basename(path)
-            targetfolderpath = "#{folderpath2}/#{filename[7, 2]}"
-            targetfilepath = "#{targetfolderpath}/#{filename}"
-            if File.exist?(targetfilepath) then
-                FileUtils.rm(path)
-                next
-            end
-            if !File.exists?(targetfolderpath) then
-                FileUtils.mkdir(targetfolderpath)
-            end
-            puts "copying datablob: #{filename}"
-            FileUtils.cp(path, targetfilepath)
-            FileUtils.rm(path)
-        end
-    end
-end
-
 class StargateCentralObjects
 
     # StargateCentralObjects::pathToObjectsDatabase()
