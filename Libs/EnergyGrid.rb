@@ -168,6 +168,8 @@ class StargateCentralSQLBLobStores
 
 end
 
+# -----------------------------------------------------------
+
 class EnergyGridDatablobs
 
     # EnergyGridDatablobs::putBlob(blob)
