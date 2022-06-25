@@ -133,8 +133,24 @@ class Catalyst
                     XCache::set("numbers-cfa0a4bfba8e", JSON.generate(packet))
                 }
             }
-        end
  
+            Thread.new {
+                loop {
+                    sleep 3600
+                    system("#{File.dirname(__FILE__)}/operations/vienna-import")
+                }
+            }
+        end
+
+        EventSync::awsSync()
+
+        Thread.new {
+            loop {
+                sleep 60
+                EventSync::awsSync()
+            }
+        }
+
         loop {
 
             #puts "(code trace)"
@@ -142,8 +158,6 @@ class Catalyst
                 puts "Code change detected"
                 break
             end
-
-            EventSync::awsSync()
 
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
                 item = NxShip::issueFromLocation(location)
