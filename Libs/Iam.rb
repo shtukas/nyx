@@ -29,7 +29,7 @@ class Iam
         return if targetType.nil?
         if Iam::nx111Types().include?(item["mikuType"]) and Iam::aggregationTypes().include?(targetType) then
             puts "You are moving from a data (Nx111) type to an aggregation type and therefore will lose the contents"
-            return if !LucilleCore::askQuestionAnswerAsBoolean("Do you want to continue ?")
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Do you want to continue ? ")
         end
         Transmutation::transmutation1(item, item["mikuType"], targetType)
     end

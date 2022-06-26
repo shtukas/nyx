@@ -32,8 +32,8 @@ class Landing
         end
     end
 
-    # Landing::addRelated(item)
-    def self.addRelated(item)
+    # Landing::link(item)
+    def self.link(item)
         newItem = Architect::architectOneOrNull()
         return if newItem.nil?
         NxLink::issue(item["uuid"], newItem["uuid"])
@@ -123,7 +123,7 @@ class Landing
             end
 
             if Interpreting::match("link", command) then
-                Landing::addRelated(item)
+                Landing::link(item)
             end
 
             if Interpreting::match("navigation", command) then
@@ -190,7 +190,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | upload | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -245,11 +245,15 @@ class Landing
             end
 
             if Interpreting::match("link", command) then
-                Landing::addRelated(item)
+                Landing::link(item)
             end
 
             if Interpreting::match("unlink", command) then
                 Landing::removeConnected(item)
+            end
+
+            if Interpreting::match("upload", command) then
+                Upload::interactivelyUploadToItem(item)
             end
 
             if Interpreting::match("destroy", command) then
@@ -347,7 +351,7 @@ class Landing
             end
 
             if Interpreting::match("link", command) then
-                Landing::addRelated(item)
+                Landing::link(item)
             end
 
             if Interpreting::match("unlink", command) then

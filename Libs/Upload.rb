@@ -1,7 +1,7 @@
 class Upload
 
-    # Upload::uploadAllLocationsOfAFolderAsAionPointChildren(item)
-    def self.uploadAllLocationsOfAFolderAsAionPointChildren(item)
+    # Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item)
+    def self.linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         if !File.exists?(folder) then
             puts "The given location doesn't exist (#{folder})"
@@ -20,8 +20,8 @@ class Upload
         }
     end
 
-    # Upload::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
-    def self.uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+    # Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item)
+    def self.uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         if !File.exists?(folder) then
             puts "The given location doesn't exist (#{folder})"
@@ -44,13 +44,13 @@ class Upload
     # Upload::interactivelyUploadToItem(item)
     def self.interactivelyUploadToItem(item)
         puts "Upload to '#{LxFunction::function("toString", item)}'".green
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["aion-points children", "files children"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["aion-points", "primitive files"])
         return if action.nil?
-        if action == "aion-points children" then
-            Upload::uploadAllLocationsOfAFolderAsAionPointChildren(item)
+        if action == "aion-points" then
+            Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item)
         end
-        if action == "files children" then
-            Upload::uploadAllLocationsOfAFolderAsAionPrimitiveFilesChildren(item)
+        if action == "primitive files" then
+            Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item)
         end
     end
 end
