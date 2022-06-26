@@ -19,12 +19,16 @@ class StargateCentralObjects
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        answer = []
+        objects = []
         db.execute("select * from _objects_") do |row|
-            answer << JSON.parse(row['_object_'])
+            object = JSON.parse(row['_object_'])
+            if object["variant"].nil? then
+                object["variant"] = row['_variant_']
+            end
+            objects << object
         end
         db.close
-        answer
+        objects
     end
 
     # StargateCentralObjects::commit(object)
@@ -48,7 +52,11 @@ class StargateCentralObjects
         db.results_as_hash = true
         objects = []
         db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
-            objects << JSON.parse(row['_object_'])
+            object = JSON.parse(row['_object_'])
+            if object["variant"].nil? then
+                object["variant"] = row['_variant_']
+            end
+            objects << object
         end
         db.close
         objects
@@ -60,12 +68,16 @@ class StargateCentralObjects
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        answer = []
+        objects = []
         db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
-            answer << JSON.parse(row['_object_'])
+            object = JSON.parse(row['_object_'])
+            if object["variant"].nil? then
+                object["variant"] = row['_variant_']
+            end
+            objects << object
         end
         db.close
-        answer
+        objects
     end
 
     # StargateCentralObjects::destroyVariantNoEvent(variant)

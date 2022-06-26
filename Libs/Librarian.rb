@@ -95,6 +95,9 @@ class Librarian
             db.results_as_hash = true
             db.execute("select * from _objects_ where _variant_=?", [variant]) do |row|
                 object = JSON.parse(row['_object_'])
+                if object["variant"].nil? then
+                    object["variant"] = row['_variant_']
+                end
             end
             db.close
         }
