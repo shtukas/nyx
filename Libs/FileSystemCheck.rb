@@ -131,10 +131,10 @@ class FileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
     end
 
-    # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
-    def self.fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
+    # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, verbose)
+    def self.fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, verbose)
 
-        puts "fsck: #{JSON.pretty_generate(item)}"
+        puts "fsck: #{JSON.pretty_generate(item)}" if verbose
 
         if item["mikuType"].nil? then
             raise "(error: d24aa0a4-4a42-40aa-81ca-6ead2d3f7fee) item has no mikuType, #{JSON.pretty_generate(item)}" 
@@ -220,7 +220,7 @@ class FileSystemCheck
             exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
             next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}")
             operator = EnergyGridElizabeth.new()
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator)
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, true)
             XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}", true)
         }
         puts "fsck completed successfully".green

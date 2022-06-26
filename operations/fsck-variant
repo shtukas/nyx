@@ -13,5 +13,5 @@ if object.nil? then
     exit
 end
 operator = EnergyGridElizabeth.new()
-FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, operator)
+FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, operator, true)
 puts "fsck completed successfully".green
