@@ -76,7 +76,7 @@ class Landing
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                     .each{|entity|
                         indx = store.register(entity, false)
-                        puts "[#{indx.to_s.ljust(3)}] (child) #{LxFunction::function("toString", entity)}"
+                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                     }
             end
 
