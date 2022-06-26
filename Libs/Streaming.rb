@@ -8,7 +8,7 @@ class Streaming
         LxAction::action("start", item)
         LxAction::action("access", item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done, detach (running), (keep and) next {default}, replace, >nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done/.., detach (running), (keep and) next (default), replace, >nyx: ")
             if command == ".." or command == "done" then
                 LxAction::action("stop", item)
                 TxTodos::destroy(item["uuid"], true)
@@ -57,7 +57,7 @@ class Streaming
     # Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
     def self.processItem(item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run (start and access), landing (and back), done, return (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run/.. (start and access), landing (and back), done, next (default), exit (rstream): ")
             if command == ".." or command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
@@ -76,7 +76,7 @@ class Streaming
                 TxTodos::destroy(item["uuid"], true)
                 return "item-done"
             end
-            if command == "" or command == "return" then
+            if command == "" or command == "next" then
                 return nil
             end
             if command == "exit" then
