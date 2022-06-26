@@ -308,6 +308,12 @@ class Commands
             return
         end
 
+
+        if input == "top" then
+            system("open '/Users/pascal/Desktop/top.txt'")
+            return
+        end
+
         if Interpreting::match("transmute", input) then
             LxAction::action("transmute", store.getDefault())
             return
