@@ -1,19 +1,6 @@
 
 # encoding: UTF-8
 
-=begin
-
-The Edition Desk replaces the original Nx111 export on the desktop, but notably allows for better editions of text elements
-(without the synchronicity currently required by text edit)
-
-Conventions:
-
-Each item is exported at a location with a basename of the form <description>|itemuuid|nx111uuid<optional dotted extension>
-
-The type (file versus folder) of the location as well as the structure of the folder are nx111 type dependent.
-
-=end
-
 class EditionDesk
 
     # ----------------------------------------------------
