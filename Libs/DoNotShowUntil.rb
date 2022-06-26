@@ -20,7 +20,11 @@ class DoNotShowUntil
     def self.incomingEvent(event)
         return if event["mikuType"] != "NxDNSU"
         uid = event["targetuuid"]
+        existingUnixtimeOpt = DoNotShowUntil::getUnixtimeOrNull(uid)
         unixtime = event["targetunixtime"]
+        if existingUnixtimeOpt then
+            unixtime = [unixtime, existingUnixtimeOpt].max
+        end
         XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", unixtime)
     end
 
