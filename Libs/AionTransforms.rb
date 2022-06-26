@@ -21,6 +21,9 @@ class AionTransforms
         namef = (lambda{|name1, name2|
 
             aBetterExtension = lambda {|na|
+                if na.size < 10 then
+                    return File.extname(na)
+                end
                 File.extname(na[-10, 10])
             }
 
