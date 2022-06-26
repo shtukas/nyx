@@ -6,10 +6,11 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | ondate | ondate: <line> | todo | todo: <line>",
-            "anniversaries | calendar | zeroes | ondates | todos",
-            "<datecode> | <n> | .. (<n>) | expose (<n>) | Ax38 | transmute (<n>) | start (<n>) | search | nyx | >nyx",
+            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line>",
+            "anniversaries | calendar | zeroes | ondates | todos | ships",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >todo | >nyx",
             "require internet",
+            "rstream | search | nyx | speed",
         ].join("\n")
     end
 
