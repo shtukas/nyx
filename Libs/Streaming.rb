@@ -97,15 +97,26 @@ class Streaming
 
     # Streaming::rstream()
     def self.rstream()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # uuid of the Streaming::rstreamTokens()
+        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a" # (rstream) bank account
 
         if !NxBallsService::isRunning(uuid) then
-            NxBallsService::issue(uuid, "(rstream)" , [uuid]) # rstream itself doesn't publish time to bank accounts.
+            NxBallsService::issue(uuid, "(rstream)" , [uuid])
         end
 
         items = TxTodos::items().shuffle.take(20)
         Streaming::stream(items)
 
         NxBallsService::close(uuid, true)
+    end
+
+    # Streaming::listingItemForAnHour()
+    def self.listingItemForAnHour()
+        rt = BankExtended::stdRecoveredDailyTimeInHours("1ee2805a-f8ee-4a73-a92a-c76d9d45359a")
+        return [] if rt > 1
+        [{
+            "uuid" => "27b84911-11f6-4f61-9adc-b0aa0941a110",
+            "mikuType" => "(rstream)",
+            "announce" => "(rstream, rt: #{rt.round(3)})"
+        }]
     end
 end

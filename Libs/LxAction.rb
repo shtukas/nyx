@@ -75,11 +75,6 @@ class LxAction
 
             puts LxFunction::function("toString", item).green
 
-            if item["lambda"] then
-                item["lambda"].call()
-                return
-            end
-
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::access(item)
                 return
@@ -87,6 +82,11 @@ class LxAction
 
             if item["mikuType"] == "fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
+                return
+            end
+
+            if item["mikuType"] == "(rstream)" then
+                Streaming::rstream()
                 return
             end
 

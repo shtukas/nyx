@@ -5,6 +5,7 @@ class Catalyst
     # Catalyst::itemsForListing()
     def self.itemsForListing()
         [
+            Streaming::listingItemForAnHour(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),

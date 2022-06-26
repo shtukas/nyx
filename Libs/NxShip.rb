@@ -370,12 +370,14 @@ class NxShip
             .select{|item| NxShip::itemShouldShow(item) }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-        items1, items2 = items.partition{|item| TxZNumbersAcceleration::rt(item["uuid"]) > 0 }
-        items1 = items1
-                    .sort{|i1, i2| TxZNumbersAcceleration::rt(i1["uuid"]) <=> TxZNumbersAcceleration::rt(i2["uuid"]) }
-                    .reverse
-        items1 + items2
-        
+
+        i0s, items = items.partition{|item| item["ax38"].nil? }
+        i1s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
+        i2s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
+        i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
+        i4s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
+
+        i0s + i1s + i2s + i3s + i4s + items
     end
 
     # NxShip::nx20s()
