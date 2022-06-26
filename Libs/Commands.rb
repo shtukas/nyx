@@ -10,7 +10,7 @@ class Commands
             "anniversaries | calendar | zeroes | ondates | todos | ships",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >todo | >nyx",
             "require internet",
-            "rstream | search | nyx | speed",
+            "rstream | search | nyx | speed | desk pickup",
         ].join("\n")
     end
 
@@ -71,6 +71,11 @@ class Commands
             return if item["mikuType"] != "NxShip"
             item["ax38"] = Ax38::interactivelyCreateNewAxOrNull()
             Librarian::commit(item)
+            return
+        end
+
+        if input == "desk pickup" then
+            EditionDesk::batchPickUpAndGarbageCollection_v2()
             return
         end
 

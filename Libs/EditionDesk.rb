@@ -1,6 +1,9 @@
 
 # encoding: UTF-8
 
+# nx111 items : index|description|itemuuid|nx111uuid
+# collections : index|description|itemuuid|label
+
 class EditionDesk
 
     # ----------------------------------------------------
@@ -8,7 +11,7 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        "#{Config::pathToDataBankStargate()}/EditionDesk"
+        "/Users/pascal/Desktop"
     end
 
     # EditionDesk::getMaxIndex(parentLocation)
@@ -21,24 +24,72 @@ class EditionDesk
     end
 
     # ----------------------------------------------------
-    # Nx111 carriers (utils)
+    # names and locations
 
     # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) [boolean, string], first element indicates whether the file was already there or not
     def self.decideItemNx111PairEditionLocation(parentLocation, item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
-        part2and3 = "#{item["uuid"]}|#{nx111["uuid"]}"
+        part3and4 = "#{item["uuid"]}|#{nx111["uuid"]}"
         LucilleCore::locationsAtFolder(parentLocation)
             .each{|location|
-                if File.basename(location).include?(part2and3) then
+                if File.basename(location).include?(part3and4) then
                     return [true, location]
                 end
             }
 
         index1 = EditionDesk::getMaxIndex(parentLocation) + 1
-        name1 = "#{index1}|#{part2and3}"
+        name1 = "#{index1}|#{LxFunction::function("toString", item).gsub("|","-")}|#{part3and4}"
 
         [false, "#{parentLocation}/#{name1}"]
+    end
+
+    # EditionDesk::decideCollectionItemEditionLocation(item, label)
+    def self.decideCollectionItemEditionLocation(item, label)
+        # This function returns the location if there already is one, or otherwise returns a new one.
+        
+        part3andLabel = "#{item["uuid"]}|#{label}"
+        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
+            .each{|location|
+                if File.basename(location).include?(part3andLabel) then
+                    return location
+                end
+            }
+
+        index1 = EditionDesk::getMaxIndex(EditionDesk::pathToEditionDesk()) + 1
+        name1 = "#{index1}|#{LxFunction::function("toString", item).gsub("|","-")}|#{part3andLabel}"
+
+        "#{EditionDesk::pathToEditionDesk()}/#{name1}"
+    end
+
+    # EditionDesk::locationToItemNx111PairOrNull(location) # null or [item, nx111]
+    # This function takes a location, tries and interpret the location name as a index|description|itemuuid|nx111uuid and return [item, nx111]
+    def self.locationToItemNx111PairOrNull(location)
+        filename = File.basename(location)
+
+        elements = filename.split("|")
+
+        return if elements.size != 4
+
+        _, description, itemuuid, nx111uuidOnDisk = elements
+
+        if nx111uuidOnDisk.include?(".") then
+            nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")
+        end
+
+        item = Librarian::getObjectByUUIDOrNullEnforceUnique(itemuuid)
+
+        return nil if item.nil?
+        return nil if item["nx111"].nil?
+
+        nx111 = item["nx111"].clone
+
+        # The below happens when the nx111 has been manually updated (created a new one) 
+        # after the previous edition desk export. In which case we ignore the one 
+        # on disk since it's not relevant anymore.
+        return nil if nx111["uuid"] != nx111uuidOnDisk 
+
+        [item, nx111]
     end
 
     # ----------------------------------------------------
@@ -135,36 +186,6 @@ class EditionDesk
     # ----------------------------------------------------
     # Nx111 carriers (pickup)
 
-    # EditionDesk::locationToItemNx111PairOrNull(location) # null or [item, nx111]
-    # This function takes a location, tries and interpret the location name as a (index, itemuuid, nx111uuid) and return [item, nx111]
-    def self.locationToItemNx111PairOrNull(location)
-        filename = File.basename(location)
-
-        elements = filename.split("|")
-
-        return if elements.size != 3
-
-        _, itemuuid, nx111uuidOnDisk = elements
-
-        if nx111uuidOnDisk.include?(".") then
-            nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")
-        end
-
-        item = Librarian::getObjectByUUIDOrNullEnforceUnique(itemuuid)
-
-        return nil if item.nil?
-        return nil if item["nx111"].nil?
-
-        nx111 = item["nx111"].clone
-
-        # The below happens when the nx111 has been manually updated (created a new one) 
-        # after the previous edition desk export. In which case we ignore the one 
-        # on disk since it's not relevant anymore.
-        return nil if nx111["uuid"] != nx111uuidOnDisk 
-
-        [item, nx111]
-    end
-
     # EditionDesk::locationToAttemptedNx111Update(location)
     def self.locationToAttemptedNx111Update(location)
         
@@ -226,27 +247,6 @@ class EditionDesk
     end
 
     # ----------------------------------------------------
-    # Collections (utils)
-
-    # EditionDesk::decideCollectionItemEditionLocation(item, label)
-    def self.decideCollectionItemEditionLocation(item, label)
-        # This function returns the location if there already is one, or otherwise returns a new one.
-        
-        part2andLabel = "#{item["uuid"]}|#{label}"
-        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
-            .each{|location|
-                if File.basename(location).include?(part2andLabel) then
-                    return location
-                end
-            }
-
-        index1 = EditionDesk::getMaxIndex(EditionDesk::pathToEditionDesk()) + 1
-        name1 = "#{index1}|#{part2andLabel}"
-
-        "#{EditionDesk::pathToEditionDesk()}/#{name1}"
-    end
-
-    # ----------------------------------------------------
     # Collections (access)
 
     # EditionDesk::accessCollectionItemItemsPair(collectionitem, items, label)
@@ -275,9 +275,12 @@ class EditionDesk
     # ----------------------------------------------------
     # Operations
 
-    # EditionDesk::batchPickUpAndGarbageCollection()
-    def self.batchPickUpAndGarbageCollection()
-        LucilleCore::locationsAtFolder("#{Config::pathToDataBankStargate()}/EditionDesk").each{|location|
+    # EditionDesk::batchPickUpAndGarbageCollection_v1()
+    # This function dates from the time the edition desk was in DataBank and we were using 
+    # Tx202 to manage it. On 26th June 2022 we moved the edition desk to be the Desktop 
+    # and we no longer need to use automatic management
+    def self.batchPickUpAndGarbageCollection_v1()
+        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk()).each{|location|
 
             issueTx202ForLocation = lambda{|location|
                 tx202 = {
@@ -328,6 +331,15 @@ class EditionDesk
             # And we make a new one with updated unixtime and updated trace
             # Issuing a new one is a cheap way to update the unixtime
             issueTx202ForLocation.call(location)
+        }
+    end
+
+    # EditionDesk::batchPickUpAndGarbageCollection_v2()
+    def self.batchPickUpAndGarbageCollection_v2()
+        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk()).each{|location|
+            next if EditionDesk::locationToItemNx111PairOrNull(location).nil?
+            puts "Edition desk updating location: #{File.basename(location)}"
+            EditionDesk::locationToAttemptedNx111Update(location)
         }
     end
 end
