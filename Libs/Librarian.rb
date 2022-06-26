@@ -13,43 +13,49 @@ class Librarian
 
     # Librarian::objects()
     def self.objects()
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         answer = []
-        db.execute("select * from _objects_") do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _objects_") do |row|
+                answer << JSON.parse(row['_object_'])
+            end
+            db.close
+        }
         answer
     end
 
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         objects = []
-        db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
-            objects << JSON.parse(row['_object_'])
-        end
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
+                objects << JSON.parse(row['_object_'])
+            end
+            db.close
+        }
         objects
     end
 
     # Librarian::getClique(uuid)
     def self.getClique(uuid) 
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         answer = []
-        db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
-            answer << JSON.parse(row['_object_'])
-        end
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
+                answer << JSON.parse(row['_object_'])
+            end
+            db.close
+        }
         answer
     end
 
@@ -86,15 +92,17 @@ class Librarian
 
     # Librarian::getObjectByVariantOrNull(variant)
     def self.getObjectByVariantOrNull(variant)
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         object = nil
-        db.execute("select * from _objects_ where _variant_=?", [variant]) do |row|
-            object = JSON.parse(row['_object_'])
-        end
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _objects_ where _variant_=?", [variant]) do |row|
+                object = JSON.parse(row['_object_'])
+            end
+            db.close
+        }
         object
     end
 
@@ -105,11 +113,13 @@ class Librarian
     def self.commitIdentical(object)
         raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
-        db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
-        db.close
-        object
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
+            db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
+            db.close
+        }
+        Cliques::garbageCollectLocalClique(object["uuid"])
     end
 
     # Librarian::commit(object)
@@ -126,10 +136,12 @@ class Librarian
 
         object["lxGenealogyAncestors"] << SecureRandom.uuid
 
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        #db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
-        db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            #db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
+            db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
+            db.close
+        }
 
         EventsToCentral::publish(object)
         EventsToAWSQueue::publish(object)
@@ -141,16 +153,20 @@ class Librarian
 
     # Librarian::destroyVariantNoEvent(variant)
     def self.destroyVariantNoEvent(variant)
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        db.execute "delete from _objects_ where _variant_=?", [variant]
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.execute "delete from _objects_ where _variant_=?", [variant]
+            db.close
+        }
     end
 
     # Librarian::destroyCliqueNoEvent(uuid)
     def self.destroyCliqueNoEvent(uuid)
-        db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-        db.execute "delete from _objects_ where _uuid_=?", [uuid]
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.execute "delete from _objects_ where _uuid_=?", [uuid]
+            db.close
+        }
     end
 
     # Librarian::destroyClique(uuid)

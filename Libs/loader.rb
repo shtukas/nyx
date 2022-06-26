@@ -192,3 +192,7 @@ require_relative "Cliques.rb"
 require_relative "Waves.rb"
 
 # ------------------------------------------------------------
+
+$database_semaphore = Mutex.new
+
+# ------------------------------------------------------------
