@@ -37,9 +37,17 @@ class Cliques
         Cliques::garbageCollectionAutomatic(clique, lambda{|item| StargateCentralObjects::destroyVariantNoEvent(item["variant"]) })
     end
 
-    # Cliques::reduceLocalCliqueToOneManual(uuid)
-    def self.reduceLocalCliqueToOneManual(uuid)
+    # Cliques::reduceLocalCliqueToOne(uuid)
+    def self.reduceLocalCliqueToOne(uuid)
         clique = Librarian::getClique(uuid)
+        if clique.size == 1 then
+            return clique[0]
+        end
+        Cliques::garbageCollectLocalCliqueAutomatic(uuid)
+        clique = Librarian::getClique(uuid)
+        if clique.size == 1 then
+            return clique[0]
+        end
         puts JSON.pretty_generate(clique).green
         puts "Use the information above to select the correct version"
         variant = LucilleCore::askQuestionAnswerAsString("variant (to keep as new descendant): ")

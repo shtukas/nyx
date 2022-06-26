@@ -73,16 +73,11 @@ class Librarian
 
     # Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
     def self.getObjectByUUIDOrNullEnforceUnique(uuid)
-        Cliques::garbageCollectLocalCliqueAutomatic(uuid)
         clique = Librarian::getClique(uuid)
-        if clique.empty? then
-            return nil
+        if clique.size <= 1 then
+            return clique.first # covers the empty case (nil) and the 1 case (object)
         end
-        if clique.size == 1 then
-            return clique[0]
-        end
-        object = Cliques::reduceLocalCliqueToOneManual(uuid)
-        object
+        Cliques::reduceLocalCliqueToOne(uuid)
     end
 
     # Librarian::getObjectByVariantOrNull(variant)
@@ -203,7 +198,6 @@ class Librarian
         end
 
         Librarian::commitIdentical(event)
-        Cliques::garbageCollectLocalCliqueAutomatic(event["uuid"])
         DoNotShowUntil::incomingEvent(event)
         Bank::incomingEvent(event)
     end
