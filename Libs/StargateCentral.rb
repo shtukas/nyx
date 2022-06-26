@@ -37,7 +37,7 @@ class StargateCentralObjects
         db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
         db.close
 
-        Cliques::garbageCollectCentralClique(object["uuid"])
+        Cliques::garbageCollectCentralCliqueAutomatic(object["uuid"])
     end
 
     # StargateCentralObjects::getObjectsByMikuType(mikuType)

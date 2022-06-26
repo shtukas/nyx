@@ -20,7 +20,11 @@ class Librarian
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute("select * from _objects_") do |row|
-                answer << JSON.parse(row['_object_'])
+                object = JSON.parse(row['_object_'])
+                if object["variant"].nil? then
+                    object["variant"] = row['_variant_']
+                end
+                answer << object
             end
             db.close
         }
@@ -36,7 +40,11 @@ class Librarian
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
-                objects << JSON.parse(row['_object_'])
+                object = JSON.parse(row['_object_'])
+                if object["variant"].nil? then
+                    object["variant"] = row['_variant_']
+                end
+                objects << object
             end
             db.close
         }
@@ -52,7 +60,11 @@ class Librarian
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
-                answer << JSON.parse(row['_object_'])
+                object = JSON.parse(row['_object_'])
+                if object["variant"].nil? then
+                    object["variant"] = row['_variant_']
+                end
+                answer << object
             end
             db.close
         }
@@ -61,7 +73,7 @@ class Librarian
 
     # Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
     def self.getObjectByUUIDOrNullEnforceUnique(uuid)
-        Cliques::garbageCollectLocalClique(uuid)
+        Cliques::garbageCollectLocalCliqueAutomatic(uuid)
         clique = Librarian::getClique(uuid)
         if clique.empty? then
             return nil
@@ -69,25 +81,8 @@ class Librarian
         if clique.size == 1 then
             return clique[0]
         end
-
-        # --------------------------------------------------------------
-        puts JSON.pretty_generate(clique).green
-        puts "Use the information above to select the correct version"
-        variant = LucilleCore::askQuestionAnswerAsString("variant (to keep as new descendant): ")
-        object = clique.select{|object| object["variant"] == variant }.first
-        if object.nil? then
-            raise "(error: 2f1994d5-759d-42cc-8edc-b6979c2a62b6) this is your fault"
-        end
-        genealogy = clique.map{|object| object["lxGenealogyAncestors"] }.flatten.uniq
-        object["lxGenealogyAncestors"] = genealogy
-        Librarian::commitIdentical(object)
-        Cliques::garbageCollectLocalClique(uuid)
-        clique = Librarian::getClique(uuid)
-        puts JSON.pretty_generate(clique).green
-        if clique.size != 1 then
-            raise "(error: 09f60a03-fd8c-4aeb-8b2b-fb6f97d024e7) this should not happen"
-        end
-        clique[0]
+        object = Cliques::reduceLocalCliqueToOneManual(uuid)
+        object
     end
 
     # Librarian::getObjectByVariantOrNull(variant)
@@ -119,7 +114,7 @@ class Librarian
             db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
             db.close
         }
-        Cliques::garbageCollectLocalClique(object["uuid"])
+        Cliques::garbageCollectLocalCliqueAutomatic(object["uuid"])
     end
 
     # Librarian::commit(object)
@@ -145,7 +140,7 @@ class Librarian
 
         EventsToCentral::publish(object)
         EventsToAWSQueue::publish(object)
-        Cliques::garbageCollectLocalClique(object["uuid"])
+        Cliques::garbageCollectLocalCliqueAutomatic(object["uuid"])
     end
 
     # --------------------------------------------------------------
@@ -205,7 +200,7 @@ class Librarian
         end
 
         Librarian::commitIdentical(event)
-        Cliques::garbageCollectLocalClique(event["uuid"])
+        Cliques::garbageCollectLocalCliqueAutomatic(event["uuid"])
         DoNotShowUntil::incomingEvent(event)
         Bank::incomingEvent(event)
     end
