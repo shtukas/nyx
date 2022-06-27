@@ -1,33 +1,5 @@
 # encoding: UTF-8
 
-class TxZNumbersAcceleration
-
-    # TxZNumbersAcceleration::rt(item)
-    def self.rt(item)
-        XCache::getOrDefaultValue("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", "0").to_f
-    end
-
-    # TxZNumbersAcceleration::combined_value(item)
-    def self.combined_value(item)
-        XCache::getOrDefaultValue("combined-value-53a4f8ab8a64:#{item["uuid"]}", "0").to_f
-    end
-end
-
-if $RunNonEssentialThreads then
-    Thread.new {
-        loop {
-            sleep 600
-            NxShip::items().each{|item|
-                rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
-                XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
-                cvalue = Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday())
-                XCache::set("combined-value-53a4f8ab8a64:#{item["uuid"]}", rt)
-            }
-            
-        }
-    }
-end
-
 class NxShip
 
     # NxShip::items()
@@ -127,7 +99,7 @@ class NxShip
     # NxShip::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(ship) #{item["description"]}#{nx111String} (#{Ax38::toString(item["ax38"])}) (rt: #{TxZNumbersAcceleration::rt(item).round(2)})"
+        "(ship) #{item["description"]}#{nx111String} (#{Ax38::toString(item["ax38"])}) (rt: #{TxNumbersAcceleration::rt(item).round(2)})"
     end
 
     # NxShip::toStringForSearch(item)
@@ -140,12 +112,12 @@ class NxShip
         return false if XCache::getFlag("something-is-done-for-today-a849e9355626:#{CommonUtils::today()}:#{item["uuid"]}")
 
         if item["ax38"] and item["ax38"]["type"] == "daily-time-commitment" then
-            return TxZNumbersAcceleration::rt(item) < item["ax38"]["hours"]
+            return TxNumbersAcceleration::rt(item) < item["ax38"]["hours"]
         end
 
         if item["ax38"] and item["ax38"]["type"] == "weekly-time-commitment" then
             return false if Time.new.wday == 5 # We don't show those on Fridays
-            return TxZNumbersAcceleration::combined_value(item) < item["ax38"]["hours"]
+            return TxNumbersAcceleration::combined_value(item) < item["ax38"]["hours"]
         end
 
         true

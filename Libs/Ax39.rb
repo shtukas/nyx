@@ -44,14 +44,27 @@ class Ax39
         }
     end
 
-    # Ax39::toString(ax39)
-    def self.toString(ax39)
-        if ax39["type"] == "daily-time-commitment" then
-            return "today: #{ax39["hours"]} hours ⏱"
+    # Ax39::toString(item)
+    def self.toString(item)
+        if item["ax39"]["type"] == "daily-time-commitment" then
+            return "(today: #{TxNumbersAcceleration::rt(item).round(2)} of #{item["ax39"]["hours"]} hours ⏱ )"
         end
 
-        if ax39["type"] == "weekly-time-commitment" then
-            return "weekly: #{ax39["hours"]} hours ⏱"
+        if item["ax39"]["type"] == "weekly-time-commitment" then
+            return "(weekly: #{TxNumbersAcceleration::rt(item).round(2)} of #{item["ax39"]["hours"]} hours ⏱ )"
         end
+    end
+
+    # Ax39::itemShouldShow(item)
+    def self.itemShouldShow(item)
+        if item["ax39"] and item["ax39"]["type"] == "daily-time-commitment" then
+            return TxNumbersAcceleration::rt(item) < item["ax39"]["hours"]
+        end
+        if item["ax39"] and item["ax39"]["type"] == "weekly-time-commitment" then
+            return false if Time.new.wday == 5 # We don't show those on Fridays
+            return TxNumbersAcceleration::combined_value(item) < item["ax39"]["hours"]
+        end
+
+        true
     end
 end

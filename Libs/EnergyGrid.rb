@@ -246,6 +246,16 @@ class EnergyGridDatablobs
         #    return blob
         #end
 
+        if !File.exists?(StargateCentral::pathToCentral()) then
+            puts "I need the Infinity drive"
+            LucilleCore:: pressEnterToContinue()
+        end
+
+        if !File.exists?(StargateCentral::pathToCentral()) then
+            puts "I needed the Infinity drive. Exiting"
+            exit
+        end
+
         puts "downloading blob from Stargate Central: #{nhash}"
         blob = DatablobsStargateCentralSQLBLobStores::getBlobOrNull(nhash)
         if blob then

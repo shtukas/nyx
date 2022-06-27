@@ -6,11 +6,11 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line>",
-            "anniversaries | calendar | zeroes | ondates | todos | ships",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >todo | >nyx",
+            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line> | queue",
+            "anniversaries | calendar | zeroes | ondates | todos | ships | queues",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "require internet",
-            "rstream | search | nyx | speed | desk pickup",
+            "rstream | search | nyx | speed | desk pickup | nxballs",
         ].join("\n")
     end
 
@@ -30,8 +30,10 @@ class Commands
             return
         end
 
-        if Interpreting::match(">todo", input) then
-            LxAction::action(">todo", store.getDefault())
+        if Interpreting::match(">queue", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Transmutation::transmutation1(item, item["mikuType"], "NxTask")
             return
         end
 
@@ -155,6 +157,12 @@ class Commands
             return
         end
 
+        if Interpreting::match("nxballs", input) then
+            puts JSON.pretty_generate(NxBallsIO::getDataSet())
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
         if Interpreting::match("ondate", input) then
             item = TxDateds::interactivelyCreateNewOrNull()
             return if item.nil?
@@ -215,6 +223,12 @@ class Commands
             return if unixtime.nil?
             NxBallsService::close(item["uuid"], true)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            return
+        end
+
+        if input == "queue" then
+            item = TxTaskQueues::interactivelyIssueNewItemOrNull()
+            puts JSON.pretty_generate(item)
             return
         end
 

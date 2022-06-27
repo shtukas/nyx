@@ -5,11 +5,12 @@ class Catalyst
     # Catalyst::itemsForListing()
     def self.itemsForListing()
         [
-            Streaming::listingItemForAnHour(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Anniversaries::itemsForListing(),
-            Waves::itemsForListing(),
-            TxDateds::itemsForListing(),
+            #Streaming::listingItemForAnHour(),
+            #JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            #Anniversaries::itemsForListing(),
+            #Waves::itemsForListing(),
+            #TxDateds::itemsForListing(),
+            TxTaskQueues::tasksForSection2Listing(),
             NxShip::itemsForListing(),
         ]
             .flatten
@@ -50,10 +51,17 @@ class Catalyst
             .each{|item|
                 store.register(item, false)
                 line = "#{store.prefixString()} #{NxFrames::toString(item)}"
-                break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
+                puts line.yellow
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+
+        TxTaskQueues::items()
+            .each{|item|
+                store.register(item, false)
+                line = "#{store.prefixString()} #{TxTaskQueues::toString(item)}"
                 puts line.yellow
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }

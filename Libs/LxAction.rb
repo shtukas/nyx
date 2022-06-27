@@ -20,16 +20,29 @@ class LxAction
 
         if command == ".." then
 
+            # Special circumstances
+
             if item["mikuType"] == "NxShip" then
                 NxShip::doubleDot(item)
                 return
             end
 
-            if !NxBallsService::isRunning(item["uuid"]) then
-                NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
+            if item["mikuType"] == "TxTaskQueue" then
+                task = TxTaskQueues::getFirstTaskOrNull(item)
+                return if task.nil?
+                LxAction::action("start", task)
+                return
             end
 
+            # Stardard starting of the item
+
+            LxAction::action("start", item)
+
+            # Stardard access
+
             LxAction::action("access", item)
+
+            # Dedicated post access (otherwise we carry on running)
 
             if item["mikuType"] == "fitness1" then
                 NxBallsService::close(item["uuid"], true)
@@ -64,13 +77,6 @@ class LxAction
             end
         end
 
-        if command == ">todo" then
-            if item["mikuType"] == "TxDated" then
-                Transmutation::transmutation1(item, "TxDated", "TxTodo")
-                return
-            end
-        end
-
         if command == "access" then
 
             puts LxFunction::function("toString", item).green
@@ -87,6 +93,11 @@ class LxAction
 
             if item["mikuType"] == "(rstream)" then
                 Streaming::rstream()
+                return
+            end
+
+            if item["mikuType"] == "TxTaskQueue" then
+                TxTaskQueues::queueDiving(item)
                 return
             end
 
@@ -172,6 +183,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxTaskQueue" then
+                TxTaskQueues::landing(item)
+                return
+            end
+
             Landing::landing(item)
             return
         end
@@ -186,7 +202,13 @@ class LxAction
         end
 
         if command == "start" then
-            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
+            return if NxBallsService::isRunning(item["uuid"])
+            accounts = [item["uuid"]]
+            if item["mikuType"] == "NxTask" then
+                queue = TxTaskQueues::getQueueForTaskOrNull(item)
+                accounts << queue["uuid"]
+            end
+            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end
 
