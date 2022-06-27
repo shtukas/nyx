@@ -93,9 +93,15 @@ class Landing
             end
 
             if Interpreting::match("description", command) then
-                description = CommonUtils::editTextSynchronously(item["description"]).strip
-                next if description == ""
-                item["description"] = description
+                if item["mikuType"] == "NxPerson" then
+                    name1 = CommonUtils::editTextSynchronously(item["name"]).strip
+                    next if name1 == ""
+                    item["name"] = name1
+                else
+                    description = CommonUtils::editTextSynchronously(item["description"]).strip
+                    next if description == ""
+                    item["description"] = description
+                end
                 Librarian::commit(item)
                 next
             end
