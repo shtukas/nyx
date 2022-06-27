@@ -1,0 +1,22 @@
+
+TxTaskQueue {
+    "uuid"        : uuid
+    "variant"     : String # Primary Key
+    "mikuType"    : "TxTaskQueue"
+    "unixtime"    : unixtime
+    "description" : description
+    "ax39"        : Ax39
+    "tasks"       : Array[String] # uuids of elements
+}
+
+Ax39
+
+    {
+        "type"  => "daily-time-commitment"
+        "hours" => Float
+    }
+
+    {
+        "type"  => "weekly-time-commitment"
+        "hours" => Float
+    }
