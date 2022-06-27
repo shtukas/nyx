@@ -123,6 +123,53 @@ class NxShip
         true
     end
 
+    # NxShip::itemsForListingHighPriority()
+    def self.itemsForListingHighPriority()
+        items = NxShip::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .select{|item| NxShip::itemShouldShow(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+
+        i0s, items = items.partition{|item| item["ax38"].nil? }
+        i1s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
+        i2s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
+        i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
+        i4s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
+
+        i0s + i1s
+    end
+
+
+    # NxShip::itemsForListingLowPriority()
+    def self.itemsForListingLowPriority()
+        items = NxShip::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .select{|item| NxShip::itemShouldShow(item) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+
+        i0s, items = items.partition{|item| item["ax38"].nil? }
+        i1s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
+        i2s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
+        i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
+        i4s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
+
+        i2s + i3s + i4s + items
+    end
+
+    # NxShip::nx20s()
+    def self.nx20s()
+        NxShip::items()
+            .map{|item|
+                {
+                    "announce" => NxShip::toStringForSearch(item),
+                    "unixtime" => item["unixtime"],
+                    "payload"  => item
+                }
+            }
+    end
+
     # --------------------------------------------------
     # Operations
 
@@ -254,36 +301,5 @@ class NxShip
             break if item.nil?
             Landing::implementsNx111Landing(item)
         }
-    end
-
-    # --------------------------------------------------
-
-    # NxShip::itemsForListing()
-    def self.itemsForListing()
-        items = NxShip::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| NxShip::itemShouldShow(item) }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-
-        i0s, items = items.partition{|item| item["ax38"].nil? }
-        i1s, items = items.partition{|item| item["ax38"]["type"] == "today/asap" }
-        i2s, items = items.partition{|item| item["ax38"]["type"] == "daily-fire-and-forget" }
-        i3s, items = items.partition{|item| item["ax38"]["type"] == "daily-time-commitment" }
-        i4s, items = items.partition{|item| item["ax38"]["type"] == "weekly-time-commitment" }
-
-        i0s + i1s + i2s + i3s + i4s + items
-    end
-
-    # NxShip::nx20s()
-    def self.nx20s()
-        NxShip::items()
-            .map{|item|
-                {
-                    "announce" => NxShip::toStringForSearch(item),
-                    "unixtime" => item["unixtime"],
-                    "payload"  => item
-                }
-            }
     end
 end

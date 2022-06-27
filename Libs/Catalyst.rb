@@ -5,21 +5,22 @@ class Catalyst
     # Catalyst::itemsForListing()
     def self.itemsForListing()
         [
-            #Streaming::listingItemForAnHour(),
-            #JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            #Anniversaries::itemsForListing(),
-            #Waves::itemsForListing(),
-            #TxDateds::itemsForListing(),
+            Streaming::listingItemForAnHour(),
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            Anniversaries::itemsForListing(),
+            Waves::itemsForListing(),
+            TxDateds::itemsForListing(),
+            NxShip::itemsForListingHighPriority(),
             TxTaskQueues::tasksForSection2Listing(),
-            NxShip::itemsForListing(),
+            NxShip::itemsForListingLowPriority(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(section1, section2, section3)
-    def self.printListing(section1, section2, section3)
+    # Catalyst::printListing(section1, section2)
+    def self.printListing(section1, section2)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -47,21 +48,14 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        NxFrames::itemsForListing()
+        (NxFrames::items()+TxTaskQueues::items())
+            .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
             .each{|item|
                 store.register(item, false)
-                line = "#{store.prefixString()} #{NxFrames::toString(item)}"
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
-                puts line.yellow
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-
-        TxTaskQueues::items()
-            .each{|item|
-                store.register(item, false)
-                line = "#{store.prefixString()} #{TxTaskQueues::toString(item)}"
                 puts line.yellow
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
@@ -107,7 +101,6 @@ class Catalyst
         vspaceleft = vspaceleft - 1
         printSection.call(section1, store)
         printSection.call(section2, store)
-        printSection.call(section3, store)
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -176,16 +169,8 @@ class Catalyst
 
             #puts "(items for listing)"
             section2 = Catalyst::itemsForListing()
-
-            # section1  : running items
-            # section2  : non zeroes: waves, ondates, frames
-            # section3  : zeroes (active)
-
             section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
-
-            section2, section3 = section2.partition{|item| item["mikuType"] != "NxShip" }
-
-            Catalyst::printListing(section1, section2, section3)
+            Catalyst::printListing(section1, section2)
         }
     end
 end

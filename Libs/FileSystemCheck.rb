@@ -191,12 +191,21 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxTask" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            return
+        end
+
         if item["mikuType"] == "NxTimeline" then
             return
         end
 
         if item["mikuType"] == "TxDated" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            return
+        end
+
+        if item["mikuType"] == "TxTaskQueue" then
             return
         end
 

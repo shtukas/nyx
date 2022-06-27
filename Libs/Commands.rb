@@ -402,8 +402,8 @@ class Commands
                     "lambda" => lambda { TxDateds::itemsForListing() }
                 },
                 {
-                    "name" => "NxShip::itemsForListing()",
-                    "lambda" => lambda { NxShip::itemsForListing() }
+                    "name" => "NxShip::itemsForListingLowPriority()",
+                    "lambda" => lambda { NxShip::itemsForListingLowPriority() }
                 },
             ]
 

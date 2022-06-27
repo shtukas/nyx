@@ -39,7 +39,7 @@ class NxFrames
     end
 
     # --------------------------------------------------
-    # toString
+    # Data
 
     # NxFrames::toString(item)
     def self.toString(item)
@@ -51,19 +51,6 @@ class NxFrames
     def self.toStringForSearch(item)
         "(frame) #{item["description"]}"
     end
-
-    # --------------------------------------------------
-    # Operations
-
-    # --------------------------------------------------
-
-    # NxFrames::itemsForListing()
-    def self.itemsForListing()
-        NxFrames::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-    end
-
-    # --------------------------------------------------
 
     # NxFrames::nx20s()
     def self.nx20s()
