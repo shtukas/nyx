@@ -5,7 +5,6 @@ class NxTasks
     # NxTasks::items()
     def self.items()
         Librarian::getObjectsByMikuType("NxTask")
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # NxTasks::destroy(uuid)
