@@ -13,7 +13,7 @@ class Search
             NxTimelines::nx20s(),
             TxDateds::nx20s(),
             NxFrames::nx20s(),
-            TxTodos::nx20s(),
+            NxTasks::nx20s(),
             Waves::nx20s(),
             NxShip::nx20s()
         ].flatten

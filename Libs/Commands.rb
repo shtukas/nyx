@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line> | queue | ordinal | project",
+            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | ordinal | project",
             "anniversaries | calendar | zeroes | ondates | todos | ships | queues | projects",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >> | >nyx",
             "require internet",
@@ -318,6 +318,13 @@ class Commands
             return
         end
 
+        if Interpreting::match("task", input) then
+            item = NxTasks::interactivelyCreateNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            return
+        end
+
         if Interpreting::match("time * *", input) then
             _, ordinal, timeInHours = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
@@ -341,22 +348,6 @@ class Commands
             puts JSON.pretty_generate(item)
             return
         end
-
-        if Interpreting::match("todo", input) then
-            item = TxTodos::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if input.start_with?("todo:") then
-            message = input[5, input.length].strip
-            item = TxTodos::interactivelyCreateNewOrNull(message)
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
 
         if input == "top" then
             system("open '/Users/pascal/Desktop/top.txt'")

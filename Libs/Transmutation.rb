@@ -14,13 +14,6 @@ class Transmutation
             return
         end
 
-        if source == "NxFrame" and target == "TxTodo" then
-            return true if isSimulation
-            item["mikuType"] = "TxTodo"
-            Librarian::commit(item)
-            return
-        end
-
         if source == "NxDataNode" and target == "NxCollection'" then
             return true if isSimulation
             item["mikuType"] = "NxCollection"
@@ -53,11 +46,19 @@ class Transmutation
 
         if source == "NxShip" and target == "NxTask" then
             return true if isSimulation
-            queue = TxTaskQueues::architectItemOrNull()
+            queue = Nx07::architectOwnerOrNull()
             item["mikuType"] = "NxTask"
             queue["tasks"] << item["uuid"]
             Librarian::commit(queue)
             Librarian::commit(item)
+            return
+        end
+
+        if source == "NxTask" and target == "NxDataNode" then
+            return true if isSimulation
+            item["mikuType"] = "NxDataNode"
+            Librarian::commit(item)
+            LxAction::action("landing", item)
             return
         end
 
@@ -73,21 +74,6 @@ class Transmutation
             return true if isSimulation
             item["mikuType"] = "NxFrame"
             Librarian::commit(item)
-            return
-        end
-
-        if source == "TxDated" and target == "TxTodo" then
-            return true if isSimulation
-            item["mikuType"] = "TxTodo"
-            Librarian::commit(item)
-            return
-        end
-
-        if source == "TxTodo" and target == "NxDataNode" then
-            return true if isSimulation
-            item["mikuType"] = "NxDataNode"
-            Librarian::commit(item)
-            LxAction::action("landing", item)
             return
         end
 

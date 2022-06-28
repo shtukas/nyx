@@ -66,8 +66,8 @@ class LxAction
         end
 
         if command == ">nyx" then
-            if item["mikuType"] == "TxTodo" then
-                Transmutation::transmutation1(item, "TxTodo", "NxDataNode")
+            if item["mikuType"] == "NxTask" then
+                Transmutation::transmutation1(item, "NxTask", "NxDataNode")
                 return
             end
 
@@ -170,11 +170,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxTodo" then
-                TxTodos::done(item)
-                return
-            end
-
             if item["mikuType"] == "NxShip" then
                 NxShip::done(item)
                 return
@@ -254,8 +249,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxTodo" then
-                Transmutation::transmutation2(item, "TxTodo")
+            if item["mikuType"] == "NxTask" then
+                Transmutation::transmutation2(item, "NxTask")
                 return
             end
         end

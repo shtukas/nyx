@@ -8,10 +8,10 @@ class Streaming
         LxAction::action("start", item)
         LxAction::action("access", item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done/.., detach (running), (keep and) next (default), replace, >nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done/.., detach (running), (keep and) next (default), >nyx: ")
             if command == ".." or command == "done" then
                 LxAction::action("stop", item)
-                TxTodos::destroy(item["uuid"], true)
+                NxTasks::destroy(item["uuid"], true)
                 return "item-done"
             end
             if command == "detach" then
@@ -26,20 +26,9 @@ class Streaming
                 LxAction::action("stop", item)
                 return nil
             end
-            if command == "replace" then
-                if item["mikuType"] != "TxTodo" then
-                    puts "I cannot replace something that is not a TxTodo item"
-                    LucilleCore::pressEnterToContinue()
-                    next
-                end
-                TxTodos::interactivelyCreateNewOrNull()
-                LxAction::action("stop", item)
-                TxTodos::destroy(item["uuid"])
-                return nil
-            end
             if command == ">nyx" then
-                if item["mikuType"] != "TxTodo" then
-                    puts "I cannot >nyx something that is not a TxTodo item"
+                if item["mikuType"] != "NxTask" then
+                    puts "I cannot >nyx something that is not a NxTask"
                     LucilleCore::pressEnterToContinue()
                     next
                 end
@@ -48,7 +37,7 @@ class Streaming
                 item["nx111"] = item["nx111"]
                 Librarian::commit(item)
                 LxAction::action("landing", item)
-                Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1) # The item has not been destroyed, it's just not a TxTodo anymore
+                Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1) # The item has not been destroyed, it's just not a NxTask anymore
                 return nil
             end
         }
@@ -67,13 +56,13 @@ class Streaming
                 if item.nil? then
                     return nil
                 end
-                if item["mikuType"] != "TxTodo" then
+                if item["mikuType"] != "NxTask" then
                     return nil
                 end
                 next
             end
             if command == "done" then
-                TxTodos::destroy(item["uuid"], true)
+                NxTasks::destroy(item["uuid"], true)
                 return "item-done"
             end
             if command == "" or command == "next" then
@@ -97,7 +86,7 @@ class Streaming
 
     # Streaming::rstream()
     def self.rstream()
-        items = TxTodos::items().shuffle.take(20)
+        items = NxTasks::items().shuffle.take(20)
         Streaming::stream(items)
         NxBallsService::close("1ee2805a-f8ee-4a73-a92a-c76d9d45359a", true)
     end

@@ -15,6 +15,30 @@ class NxTasks
     # --------------------------------------------------
     # Makers
 
+    # NxTasks::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+
+        item = {
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
+            "mikuType"    => "NxTask",
+            "description" => description,
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "nx111"       => nx111,
+            "status"      => "active"
+        }
+        Librarian::commit(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 

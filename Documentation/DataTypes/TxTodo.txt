@@ -1,9 +1,0 @@
-TxTodo = {
-  "uuid"        : String
-  "variant"     : String # Primary Key
-  "mikuType"    : "TxTodo"
-  "description" : String
-  "unixtime"    : Float
-  "datetime"    : DateTime Iso8601
-  "nx111"       : null or Nx111
-}
