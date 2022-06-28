@@ -53,7 +53,7 @@ class Transmutation
 
         if source == "NxShip" and target == "NxTask" then
             return true if isSimulation
-            queue = TxTaskQueues::architectQueueOrNull()
+            queue = TxTaskQueues::architectItemOrNull()
             item["mikuType"] = "NxTask"
             queue["tasks"] << item["uuid"]
             Librarian::commit(queue)

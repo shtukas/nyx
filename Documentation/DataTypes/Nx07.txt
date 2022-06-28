@@ -5,6 +5,6 @@ Nx07 is the link between TxTaskQueue and NxTask
     "variant"     : String # Primary Key
     "mikuType"    : "Nx07"
     "unixtime"    : Float
-    "queueuuid"   : String
+    "owneruuid"   : String
     "taskuuid"    : String
 }

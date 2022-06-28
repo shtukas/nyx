@@ -2,8 +2,19 @@
 
 class Catalyst
 
-    # Catalyst::itemsForListing()
-    def self.itemsForListing()
+    # Catalyst::itemsForSection1()
+    def self.itemsForSection1()
+        [
+            NxFrames::items(),
+            TxTaskQueues::items(),
+            TxProjects::items()
+        ]   
+            .flatten
+            .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+    end
+
+    # Catalyst::itemsForSection2()
+    def self.itemsForSection2()
         [
             Streaming::listingItemForAnHour(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
@@ -11,7 +22,8 @@ class Catalyst
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
             NxShip::itemsForListingHighPriority(),
-            TxTaskQueues::tasksForSection2Listing(),
+            TxProjects::itemsForMainListing(),
+            TxTaskQueues::itemsForMainListing(),
             NxShip::itemsForListingLowPriority(),
         ]
             .flatten
@@ -19,8 +31,8 @@ class Catalyst
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(section1, section2)
-    def self.printListing(section1, section2)
+    # Catalyst::printListing(floatingItems, runningItems, mainListingItems)
+    def self.printListing(floatingItems, runningItems, mainListingItems)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -48,8 +60,7 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        (NxFrames::items()+TxTaskQueues::items())
-            .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+        floatingItems
             .each{|item|
                 store.register(item, false)
                 line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
@@ -60,7 +71,7 @@ class Catalyst
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        running = NxBallsIO::getItems().select{|nxball| !section1.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
+        running = NxBallsIO::getItems().select{|nxball| !runningItems.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -112,8 +123,8 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        printSection.call(section1, store)
-        printSection.call(section2, store)
+        printSection.call(runningItems, store)
+        printSection.call(mainListingItems, store)
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -181,9 +192,10 @@ class Catalyst
             }
 
             #puts "(items for listing)"
-            section2 = Catalyst::itemsForListing()
-            section1, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
-            Catalyst::printListing(section1, section2)
+            floatingItems = Catalyst::itemsForSection1()
+            mainListingItems = Catalyst::itemsForSection2()
+            runningItems, mainListingItems = mainListingItems.partition{|item| NxBallsService::isActive(item["uuid"]) }
+            Catalyst::printListing(floatingItems, runningItems, mainListingItems)
         }
     end
 end

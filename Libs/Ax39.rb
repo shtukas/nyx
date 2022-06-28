@@ -47,11 +47,11 @@ class Ax39
     # Ax39::toString(item)
     def self.toString(item)
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return "(today: #{TxNumbersAcceleration::rt(item).round(2)} of #{item["ax39"]["hours"]} hours ⏱ )"
+            return "(today: #{TxNumbersAcceleration::rt(item).round(2)} of #{item["ax39"]["hours"]} hours)"
         end
 
         if item["ax39"]["type"] == "weekly-time-commitment" then
-            return "(weekly: #{TxNumbersAcceleration::rt(item).round(2)} of #{item["ax39"]["hours"]} hours ⏱ )"
+            return "(weekly: #{TxNumbersAcceleration::rt(item).round(2)} of #{item["ax39"]["hours"]} hours)"
         end
     end
 

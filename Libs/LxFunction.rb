@@ -42,6 +42,9 @@ class LxFunction
             if item["mikuType"] == "NxPerson" then
                 return NxPersons::toString(item)
             end
+            if item["mikuType"] == "TxProject" then
+                return TxProjects::toString(item)
+            end
             if item["mikuType"] == "NxShip" then
                 return NxShip::toString(item)
             end

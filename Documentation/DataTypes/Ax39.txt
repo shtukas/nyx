@@ -1,0 +1,11 @@
+Ax39 represents a time commitment, either daily or weekly
+
+{
+    "type"  => "daily-time-commitment"
+    "hours" => Float
+}
+
+{
+    "type"  => "weekly-time-commitment"
+    "hours" => Float
+}

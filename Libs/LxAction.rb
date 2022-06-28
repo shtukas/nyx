@@ -236,7 +236,7 @@ class LxAction
             return if NxBallsService::isRunning(item["uuid"])
             accounts = [item["uuid"]]
             if item["mikuType"] == "NxTask" then
-                queue = TxTaskQueues::getQueueForTaskOrNull(item)
+                queue = Nx07::getOwnerForTaskOrNull(item)
                 accounts << queue["uuid"]
             end
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)

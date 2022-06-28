@@ -1,9 +1,9 @@
-NxShip {
+
+TxProject {
     "uuid"        : uuid
     "variant"     : String # Primary Key
-    "mikuType"    : "NxShip"
-    "description" : description
+    "mikuType"    : "TxProject"
     "unixtime"    : unixtime
-    "datetime"    : datetime
-    "nx111"       : nx111
+    "description" : description
+    "ax39"        : Ax39
 }

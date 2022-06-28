@@ -8,33 +8,58 @@ class Nx07
         Librarian::getObjectsByMikuType("Nx07")
     end
 
-    # Nx07::issue(queueuuid, taskuuid)
-    def self.issue(queueuuid, taskuuid)
+    # Nx07::issue(owneruuid, taskuuid)
+    def self.issue(owneruuid, taskuuid)
         item = {
             "uuid"      => SecureRandom.uuid,
             "variant"   => SecureRandom.uuid,
             "mikuType"  => "Nx07",
             "unixtime"  => Time.new.to_f,
-            "queueuuid" => queueuuid,
+            "owneruuid" => owneruuid,
             "taskuuid"  => taskuuid
         }
         Librarian::commit(item)
         item
     end
 
-    # Nx07::queueuuidToTaskuuids(queueuuid)
-    def self.queueuuidToTaskuuids(queueuuid)
+    # Nx07::owneruuidToTaskuuids(owneruuid)
+    def self.owneruuidToTaskuuids(owneruuid)
         Nx07::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| item["queueuuid"] == queueuuid }
+            .select{|item| item["owneruuid"] == owneruuid }
             .map{|item| item["taskuuid"] }
     end
 
-    # Nx07::taskuuidToQueueuuidOrNull(taskuuid)
-    def self.taskuuidToQueueuuidOrNull(taskuuid)
+    # Nx07::taskuuidToOwneruuidOrNull(taskuuid)
+    def self.taskuuidToOwneruuidOrNull(taskuuid)
         Nx07::items()
             .select{|item| item["taskuuid"] == taskuuid }
-            .map{|item| item["queueuuid"] }
+            .map{|item| item["owneruuid"] }
             .first
+    end
+
+    # Nx07::getOwnerForTaskOrNull(task)
+    def self.getOwnerForTaskOrNull(task)
+        owneruuid = Nx07::taskuuidToOwneruuidOrNull(task["uuid"])
+        return nil if owneruuid.nil?
+        Librarian::getObjectByUUIDOrNullEnforceUnique(owneruuid)
+    end
+
+    # Nx07::architectOwnerOrNull()
+    def self.architectOwnerOrNull()
+        items = (TxTaskQueues::items()+TxProjects::items())
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", items, lambda{|item| LxFunction::function("toString", item) })
+        return item if item
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner (queue or project) ? ") then
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["project", "queue"])
+            return nil if action.nil
+            if action == "project" then
+                return TxProjects::interactivelyIssueNewItemOrNull()
+            end
+            if action == "queue" then
+                return TxTaskQueues::interactivelyIssueNewItemOrNull()
+            end
+        end
     end
 end

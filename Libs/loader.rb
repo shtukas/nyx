@@ -190,6 +190,7 @@ require_relative "TxTodos.rb"
 require_relative "The99Percent.rb"
 require_relative "TxTaskQueues.rb"
 require_relative "TxNumbersAcceleration.rb"
+require_relative "TxProjects.rb"
 
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"

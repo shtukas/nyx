@@ -6,9 +6,9 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line> | queue | ordinal",
-            "anniversaries | calendar | zeroes | ondates | todos | ships | queues",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
+            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line> | queue | ordinal | project",
+            "anniversaries | calendar | zeroes | ondates | todos | ships | queues | projects",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >> | >nyx",
             "require internet",
             "rstream | search | nyx | speed | desk pickup | nxballs",
         ].join("\n")
@@ -30,10 +30,16 @@ class Commands
             return
         end
 
-        if Interpreting::match(">queue", input) then
+        if Interpreting::match(">>", input) then
             item = store.getDefault()
             return if item.nil?
-            Transmutation::transmutation1(item, item["mikuType"], "NxTask")
+            if item["mikuType"] != "NxTask" then
+                puts "The operation >> only works on NxTasks"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            owner = Nx07::architectOwnerOrNull()
+            Nx07::issue(owner["uuid"], item["uuid"])
             return
         end
 
@@ -191,6 +197,17 @@ class Commands
             return
         end
 
+        if input == "project" then
+            item = TxProjects::interactivelyIssueNewItemOrNull()
+            puts JSON.pretty_generate(item)
+            return
+        end
+
+        if input == "projects" then
+            TxProjects::projectsDiving()
+            return
+        end
+
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -237,6 +254,11 @@ class Commands
         if input == "queue" then
             item = TxTaskQueues::interactivelyIssueNewItemOrNull()
             puts JSON.pretty_generate(item)
+            return
+        end
+
+        if input == "queues" then
+            TxTaskQueues::queuesDiving()
             return
         end
 
@@ -412,6 +434,18 @@ class Commands
                 {
                     "name" => "NxShip::itemsForListingLowPriority()",
                     "lambda" => lambda { NxShip::itemsForListingLowPriority() }
+                },
+                {
+                    "name" => "NxFrames::items()",
+                    "lambda" => lambda { NxFrames::items() }
+                },
+                {
+                    "name" => "TxTaskQueues::items()",
+                    "lambda" => lambda { TxTaskQueues::items() }
+                },
+                {
+                    "name" => "TxProjects::items()",
+                    "lambda" => lambda { TxProjects::items() }
                 },
             ]
 

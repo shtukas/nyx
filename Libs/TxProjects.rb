@@ -1,17 +1,17 @@
 
 # encoding: UTF-8
 
-class TxTaskQueues
+class TxProjects
 
     # ----------------------------------------------------------------------
     # IO
 
-    # TxTaskQueues::items()
+    # TxProjects::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxTaskQueue")
+        Librarian::getObjectsByMikuType("TxProject")
     end
 
-    # TxTaskQueues::destroy(uuid)
+    # TxProjects::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroyClique(uuid)
     end
@@ -19,7 +19,7 @@ class TxTaskQueues
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # TxTaskQueues::interactivelyIssueNewItemOrNull()
+    # TxProjects::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -33,7 +33,7 @@ class TxTaskQueues
         item = {
             "uuid"        => SecureRandom.uuid,
             "variant"     => SecureRandom.uuid,
-            "mikuType"    => "TxTaskQueue",
+            "mikuType"    => "TxProject",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
@@ -46,56 +46,67 @@ class TxTaskQueues
     # ----------------------------------------------------------------------
     # Data
 
-    # TxTaskQueues::toString(item)
+    # TxProjects::toString(item)
     def self.toString(item)
-        "(queue) #{item["description"]} #{Ax39::toString(item)}"
+        "(project) #{item["description"]} #{Ax39::toString(item)}"
     end
 
-    # TxTaskQueues::tasks(queue)
-    def self.tasks(queue)
-        Nx07::owneruuidToTaskuuids(queue["uuid"])
+    # TxProjects::tasks(project)
+    def self.tasks(project)
+        Nx07::owneruuidToTaskuuids(project["uuid"])
             .map{|uuid| Librarian::getObjectByUUIDOrNullEnforceUnique(uuid) }
             .compact
     end
 
-    # TxTaskQueues::nx20s()
+    # TxProjects::nx20s()
     def self.nx20s()
-        TxTaskQueues::items().map{|item| 
+        TxProjects::items().map{|item| 
             {
-                "announce" => "(#{item["uuid"][0, 4]}) #{TxTaskQueues::toString(item)}",
+                "announce" => "(#{item["uuid"][0, 4]}) #{TxProjects::toString(item)}",
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }
     end
 
-    # TxTaskQueues::getFirstTaskOrNull(queue)
-    def self.getFirstTaskOrNull(queue)
-        Nx07::owneruuidToTaskuuids(queue["uuid"]).each{|uuid|
-            task = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
-            return task if task
-        }
-        nil
+    # TxProjects::architectItemOrNull()
+    def self.architectItemOrNull()
+        projects = TxProjects::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+        project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|project| TxProjects::toString(project) })
+        return project if project
+        TxProjects::interactivelyIssueNewItemOrNull()
     end
 
-    # TxTaskQueues::itemsForMainListing()
+    # TxProjects::getOwnerForTaskOrNull(task)
+    def self.getOwnerForTaskOrNull(task)
+        TxProjects::items()
+            .select{|project| project["tasks"].include?(task["uuid"]) }
+            .first
+    end
+
+    # TxProjects::itemsForMainListing()
     def self.itemsForMainListing()
-        # We are not displaying the queues (they are independently displayed in section 1, for landing)
-        # Instead we are displaying the first element of any queue that has not yet met they target
-        TxTaskQueues::items()
+        TxProjects::items()
             .select{|item| Ax39::itemShouldShow(item) }
-            .map{|queue| TxTaskQueues::getFirstTaskOrNull(queue) }
-            .compact
     end
 
     # ------------------------------------------------
     # Operations
 
-    # TxTaskQueues::queueDiving(queue)
-    def self.queueDiving(queue)
+    # TxProjects::projectStartTask(project)
+    def self.projectStartTask(project)
+        tasks = TxProjects::tasks(project)
+                    .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+        task = LucilleCore::selectEntityFromListOfEntitiesOrNull("task", tasks, lambda{|task| NxTasks::toString(task) })
+        return if task.nil?
+        LxAction::action("start", task)
+    end
+
+    # TxProjects::projectDiving(project)
+    def self.projectDiving(project)
         loop {
             system("clear")
-            tasks = TxTaskQueues::tasks(queue)
+            tasks = TxProjects::tasks(project)
                         .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
                         .first(10)
             task = LucilleCore::selectEntityFromListOfEntitiesOrNull("task", tasks, lambda{|task| NxTasks::toString(task) })
@@ -104,27 +115,27 @@ class TxTaskQueues
         }
     end
 
-    # TxTaskQueues::landing(queue)
-    def self.landing(queue)
+    # TxProjects::landing(project)
+    def self.landing(project)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["update description", "access/dive"])
         return if action.nil?
         if action == "update description" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
-            queue["description"] = description
-            Librarian::commit(queue)
+            project["description"] = description
+            Librarian::commit(project)
         end
         if action == "access/dive" then
-            TxTaskQueues::queueDiving(queue)
+            TxProjects::projectDiving(project)
         end
     end
 
-    # TxTaskQueues::queuesDiving()
-    def self.queuesDiving()
+    # TxProjects::projectsDiving()
+    def self.projectsDiving()
         loop {
             system("clear")
-            queue = Nx07::architectOwnerOrNull()
-            break if queue.nil?
-            puts "To be written, we need to start and access the task and give the time to the correct queue"
+            project = TxProjects::architectItemOrNull()
+            break if project.nil?
+            puts "To be written, we need to start and access the task and give the time to the correct project"
             exit
         }
     end
