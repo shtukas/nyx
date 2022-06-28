@@ -108,6 +108,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxProject" then
+                TxProjects::selectedTaskAndStart(item)
+                return
+            end
+
             if item["mikuType"] == "TxTaskQueue" then
                 TxTaskQueues::diving(item)
                 return

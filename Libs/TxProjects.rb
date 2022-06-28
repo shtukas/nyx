@@ -48,7 +48,8 @@ class TxProjects
 
     # TxProjects::toString(item)
     def self.toString(item)
-        "(project) #{item["description"]} #{Ax39::toString(item)}"
+        count = Nx07::owneruuidToTaskuuids(item["uuid"]).size
+        "(project) #{item["description"]} #{Ax39::toString(item)} (#{count})"
     end
 
     # TxProjects::tasks(project)
@@ -82,6 +83,11 @@ class TxProjects
     def self.selectedTaskAndStart(project)
         tasks = TxProjects::tasks(project)
                     .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+        if tasks.size == 0 then
+            puts "no tasks found for '#{project["description"]}'"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         task = LucilleCore::selectEntityFromListOfEntitiesOrNull("task", tasks, lambda{|task| NxTasks::toString(task) })
         return if task.nil?
         LxAction::action("start", task)

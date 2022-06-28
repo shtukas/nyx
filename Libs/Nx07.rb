@@ -28,6 +28,7 @@ class Nx07
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| item["owneruuid"] == owneruuid }
             .map{|item| item["taskuuid"] }
+            .uniq
     end
 
     # Nx07::taskuuidToOwneruuidOrNull(taskuuid)

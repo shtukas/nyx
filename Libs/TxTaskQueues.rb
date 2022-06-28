@@ -48,7 +48,8 @@ class TxTaskQueues
 
     # TxTaskQueues::toString(item)
     def self.toString(item)
-        "(queue) #{item["description"]} #{Ax39::toString(item)}"
+        count = Nx07::owneruuidToTaskuuids(item["uuid"]).size
+        "(queue) #{item["description"]} #{Ax39::toString(item)} (#{count})"
     end
 
     # TxTaskQueues::tasks(queue)
@@ -94,10 +95,14 @@ class TxTaskQueues
     # TxTaskQueues::diving(queue)
     def self.diving(queue)
         loop {
-            system("clear")
             tasks = TxTaskQueues::tasks(queue)
                         .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
                         .first(10)
+            if tasks.size == 0 then
+                puts "no tasks found for '#{project["description"]}'"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             task = LucilleCore::selectEntityFromListOfEntitiesOrNull("task", tasks, lambda{|task| NxTasks::toString(task) })
             break if task.nil?
             Landing::implementsNx111Landing(task)
