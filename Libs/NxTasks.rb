@@ -39,6 +39,52 @@ class NxTasks
         item
     end
 
+    # NxTasks::issueFromLocation(location)
+    def self.issueFromLocation(location)
+        description = File.basename(location)
+        uuid = SecureRandom.uuid
+        nx111 = Nx111::locationToAionPointNx111OrNull(location)
+        unixtime = Time.new.to_i
+        datetime = Time.new.utc.iso8601
+        item = {
+          "uuid"         => uuid,
+          "mikuType"     => "NxTask",
+          "description"  => description,
+          "unixtime"     => unixtime,
+          "datetime"     => datetime,
+          "nx111"        => nx111,
+          "status"       => "active"
+        }
+        Librarian::commit(item)
+        item
+    end
+
+    # NxTasks::issueViennaURL(url)
+    def self.issueViennaURL(url)
+        uuid        = SecureRandom.uuid
+        description = "(vienna) #{url}"
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+
+        nx111 = {
+            "uuid" => SecureRandom.uuid,
+            "type" => "url",
+            "url"  => url
+        }
+
+        item = {
+          "uuid"        => uuid,
+          "mikuType"    => "NxTask",
+          "description" => description,
+          "unixtime"    => unixtime,
+          "datetime"    => datetime,
+          "nx111"       => nx111,
+          "status"      => "active"
+        }
+        Librarian::commit(item)
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
@@ -65,10 +111,11 @@ class NxTasks
             }
     end
 
-    # --------------------------------------------------
-    # Operations
-
-    
-
-    # --------------------------------------------------
+    # NxTasks::itemsForMainListing()
+    def self.itemsForMainListing()
+        NxTasks::items()
+            .select{|item| ["inboxed", "active"].include?(item["status"]) }
+            .partition{|item| item["status"] == "inboxed" }
+            .flatten
+    end
 end

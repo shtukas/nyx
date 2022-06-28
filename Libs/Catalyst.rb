@@ -7,7 +7,8 @@ class Catalyst
         [
             NxFrames::items(),
             TxTaskQueues::items(),
-            TxProjects::items()
+            TxProjects::items(),
+            NxShip::itemsForSection1()
         ]   
             .flatten
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
@@ -21,10 +22,10 @@ class Catalyst
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
-            NxShip::itemsForListingHighPriority(),
             TxProjects::itemsForMainListing(),
             TxTaskQueues::itemsForMainListing(),
-            NxShip::itemsForListingLowPriority(),
+            NxShip::itemsForSection2(),
+            NxTasks::itemsForMainListing()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -85,7 +86,7 @@ class Catalyst
                 }
         end
 
-        top = IO.read("/Users/pascal/Desktop/top.txt").strip
+        top = IO.read("/Users/pascal/Desktop/top.txt").strip.lines.select{|line| line.strip.size > 0 }.join.strip
         if top.size > 0 then
             puts ""
             puts "top:"
@@ -101,7 +102,7 @@ class Catalyst
             ordinals.each{|ordinal|
                 store.register(ordinal, true)
                 line = "#{store.prefixString()} #{NxOrdinals::toString(ordinal)}"
-                puts line
+                puts line.green
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
         end
@@ -186,7 +187,7 @@ class Catalyst
             end
 
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
-                item = NxShip::issueFromLocation(location)
+                item = NxTasks::issueFromLocation(location)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             }

@@ -22,11 +22,6 @@ class LxAction
 
             # Special circumstances
 
-            if item["mikuType"] == "NxShip" then
-                NxShip::doubleDot(item)
-                return
-            end
-
             if item["mikuType"] == "TxTaskQueue" then
                 task = TxTaskQueues::getFirstTaskOrNull(item)
                 return if task.nil?

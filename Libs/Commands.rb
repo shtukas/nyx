@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | ordinal | project",
             "anniversaries | calendar | zeroes | ondates | todos | ships | queues | projects",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >> | >nyx",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >> | >nyx",
             "require internet",
             "rstream | search | nyx | speed | desk pickup | nxballs",
         ].join("\n")
@@ -73,11 +73,11 @@ class Commands
             return
         end
 
-        if Interpreting::match("Ax38", input) then
+        if Interpreting::match("Ax39", input) then
             item = store.getDefault()
             return if item.nil?
-            return if item["mikuType"] != "NxShip"
-            item["ax38"] = Ax38::interactivelyCreateNewAxOrNull()
+            return if !["NxShip", "TxProject", "TxTaskQueue"].include?(item["mikuType"])
+            item["ax39"] = Ax39::interactivelyCreateNewAxOrNull()
             Librarian::commit(item)
             return
         end
@@ -423,8 +423,8 @@ class Commands
                     "lambda" => lambda { TxDateds::itemsForListing() }
                 },
                 {
-                    "name" => "NxShip::itemsForListingLowPriority()",
-                    "lambda" => lambda { NxShip::itemsForListingLowPriority() }
+                    "name" => "NxShip::itemsForSection1()",
+                    "lambda" => lambda { NxShip::itemsForSection1() }
                 },
                 {
                     "name" => "NxFrames::items()",
