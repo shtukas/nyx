@@ -79,7 +79,7 @@ class Catalyst
             puts ""
             puts "top:"
             puts top.green
-            vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
+            vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 2)
         end
 
         printSection = lambda {|section, store|
