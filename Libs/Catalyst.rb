@@ -82,6 +82,19 @@ class Catalyst
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 2)
         end
 
+        ordinals = NxOrdinals::itemsForListing()
+        if ordinals.size > 0 then
+            puts ""
+            puts "ordinals:"
+            vspaceleft = vspaceleft - 2
+            ordinals.each{|ordinal|
+                store.register(ordinal, true)
+                line = "#{store.prefixString()} #{NxOrdinals::toString(ordinal)}"
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+        end
+
         printSection = lambda {|section, store|
             section
                 .each{|item|

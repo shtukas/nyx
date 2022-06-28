@@ -81,11 +81,6 @@ class LxAction
 
             puts LxFunction::function("toString", item).green
 
-            if item["mikuType"] == "NxAnniversary" then
-                Anniversaries::access(item)
-                return
-            end
-
             if item["mikuType"] == "fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
@@ -93,6 +88,28 @@ class LxAction
 
             if item["mikuType"] == "(rstream)" then
                 Streaming::rstream()
+                return
+            end
+
+
+            if item["mikuType"] == "NxAnniversary" then
+                Anniversaries::access(item)
+                return
+            end
+
+            if item["mikuType"] == "NxBall.v2" then
+                if NxBallsService::isRunning(item["uuid"]) then
+                    if LucilleCore::askQuestionAnswerAsBoolean("complete '#{LxFunction::function("toString", item).green}' ? ") then
+                        NxBallsService::close(item["uuid"], true)
+                    end
+                end
+                return
+            end
+
+            if item["mikuType"] == "NxOrdinal" then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
+                    Librarian::destroyClique(item["uuid"])
+                end
                 return
             end
 
@@ -118,18 +135,29 @@ class LxAction
             if NxBallsService::isRunning(item["uuid"]) then
                  NxBallsService::close(item["uuid"], true)
             end
+
             if item["mikuType"] == "(rstream)" then
                 # That's the rstream
                 return
             end
-            if item["mikuType"] == "NxBall.v2" then
-                NxBallsService::close(item["uuid"], true)
-                return
-            end
+
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::done(item)
                 return
             end
+
+            if item["mikuType"] == "NxBall.v2" then
+                NxBallsService::close(item["uuid"], true)
+                return
+            end
+
+            if item["mikuType"] == "NxOrdinal" then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
+                    Librarian::destroyClique(item["uuid"])
+                end
+                return
+            end
+
             if item["mikuType"] == "TxDated" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then
@@ -141,14 +169,17 @@ class LxAction
                 end
                 return
             end
+
             if item["mikuType"] == "TxTodo" then
                 TxTodos::done(item)
                 return
             end
+
             if item["mikuType"] == "NxShip" then
                 NxShip::done(item)
                 return
             end
+
             if item["mikuType"] == "Wave" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then

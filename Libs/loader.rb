@@ -174,6 +174,7 @@ require_relative "NxFrames.rb"
 require_relative "NxShip.rb"
 require_relative "NxTasks.rb"
 require_relative "Nx07.rb"
+require_relative "NxOrdinals.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

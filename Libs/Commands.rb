@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line> | queue",
+            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | todo: <line> | queue | ordinal",
             "anniversaries | calendar | zeroes | ondates | todos | ships | queues",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax38 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "require internet",
@@ -180,6 +180,14 @@ class Commands
 
         if Interpreting::match("ondates", input) then
             TxDateds::dive()
+            return
+        end
+
+        if input == "ordinal" then
+            line = LucilleCore::askQuestionAnswerAsString("line: ")
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            ordinal = NxOrdinals::issue(line, ordinal)
+            puts JSON.pretty_generate(ordinal)
             return
         end
 

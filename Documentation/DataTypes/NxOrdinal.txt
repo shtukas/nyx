@@ -1,0 +1,10 @@
+NxOrdinal
+
+{
+    "uuid"        : String
+    "variant"     : String # Primary Key
+    "mikuType"    : "NxOrdinal"
+    "unixtime"    : Float
+    "line"        : String,
+    "ordinal"     : Float
+}
