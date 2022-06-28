@@ -77,7 +77,7 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             running
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] } # || 0 because we had some running while updating this
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
                 .each{|nxball|
                     store.register(nxball, true)
                     line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"

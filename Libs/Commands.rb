@@ -7,7 +7,7 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | ordinal | project",
-            "anniversaries | calendar | zeroes | ondates | todos | ships | queues | projects",
+            "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >> | >nyx",
             "require internet",
             "rstream | search | nyx | speed | desk pickup | nxballs",
@@ -203,11 +203,6 @@ class Commands
             return
         end
 
-        if input == "projects" then
-            TxProjects::projectsDiving()
-            return
-        end
-
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -254,11 +249,6 @@ class Commands
         if input == "queue" then
             item = TxTaskQueues::interactivelyIssueNewItemOrNull()
             puts JSON.pretty_generate(item)
-            return
-        end
-
-        if input == "queues" then
-            TxTaskQueues::queuesDiving()
             return
         end
 
@@ -378,19 +368,6 @@ class Commands
             item = NxShip::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            return
-        end
-
-        if input.start_with?("ship:") then
-            message = input[5, input.length].strip
-            item = NxShip::interactivelyIssueNewOrNull(message)
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("ships", input) then
-            NxShip::dive()
             return
         end
 

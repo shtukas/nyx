@@ -91,8 +91,8 @@ class TxTaskQueues
     # ------------------------------------------------
     # Operations
 
-    # TxTaskQueues::queueDiving(queue)
-    def self.queueDiving(queue)
+    # TxTaskQueues::diving(queue)
+    def self.diving(queue)
         loop {
             system("clear")
             tasks = TxTaskQueues::tasks(queue)
@@ -114,18 +114,7 @@ class TxTaskQueues
             Librarian::commit(queue)
         end
         if action == "access/dive" then
-            TxTaskQueues::queueDiving(queue)
+            TxTaskQueues::diving(queue)
         end
-    end
-
-    # TxTaskQueues::queuesDiving()
-    def self.queuesDiving()
-        loop {
-            system("clear")
-            queue = Nx07::architectOwnerOrNull()
-            break if queue.nil?
-            puts "To be written, we need to start and access the task and give the time to the correct queue"
-            exit
-        }
     end
 end

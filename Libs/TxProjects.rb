@@ -69,21 +69,6 @@ class TxProjects
         }
     end
 
-    # TxProjects::architectItemOrNull()
-    def self.architectItemOrNull()
-        projects = TxProjects::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-        project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|project| TxProjects::toString(project) })
-        return project if project
-        TxProjects::interactivelyIssueNewItemOrNull()
-    end
-
-    # TxProjects::getOwnerForTaskOrNull(task)
-    def self.getOwnerForTaskOrNull(task)
-        TxProjects::items()
-            .select{|project| project["tasks"].include?(task["uuid"]) }
-            .first
-    end
-
     # TxProjects::itemsForMainListing()
     def self.itemsForMainListing()
         TxProjects::items()
@@ -93,8 +78,8 @@ class TxProjects
     # ------------------------------------------------
     # Operations
 
-    # TxProjects::projectStartTask(project)
-    def self.projectStartTask(project)
+    # TxProjects::selectedTaskAndStart(project)
+    def self.selectedTaskAndStart(project)
         tasks = TxProjects::tasks(project)
                     .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
         task = LucilleCore::selectEntityFromListOfEntitiesOrNull("task", tasks, lambda{|task| NxTasks::toString(task) })
@@ -102,8 +87,8 @@ class TxProjects
         LxAction::action("start", task)
     end
 
-    # TxProjects::projectDiving(project)
-    def self.projectDiving(project)
+    # TxProjects::diving(project)
+    def self.diving(project)
         loop {
             system("clear")
             tasks = TxProjects::tasks(project)
@@ -125,18 +110,7 @@ class TxProjects
             Librarian::commit(project)
         end
         if action == "access/dive" then
-            TxProjects::projectDiving(project)
+            TxProjects::diving(project)
         end
-    end
-
-    # TxProjects::projectsDiving()
-    def self.projectsDiving()
-        loop {
-            system("clear")
-            project = TxProjects::architectItemOrNull()
-            break if project.nil?
-            puts "To be written, we need to start and access the task and give the time to the correct project"
-            exit
-        }
     end
 end

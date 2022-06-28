@@ -17,14 +17,10 @@ class NxShip
     # --------------------------------------------------
     # Makers
 
-    # NxShip::interactivelyIssueNewOrNull(description = nil)
-    def self.interactivelyIssueNewOrNull(description = nil)
-        if description.nil? or description == "" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
-        else
-            puts "description: #{description}"
-        end
+    # NxShip::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
 
         uuid = SecureRandom.uuid
 
