@@ -39,8 +39,8 @@ class NxTasks
         item
     end
 
-    # NxTasks::issueFromLocation(location)
-    def self.issueFromLocation(location)
+    # NxTasks::issueFromInboxLocation(location)
+    def self.issueFromInboxLocation(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
         nx111 = Nx111::locationToAionPointNx111OrNull(location)
@@ -53,7 +53,7 @@ class NxTasks
           "unixtime"     => unixtime,
           "datetime"     => datetime,
           "nx111"        => nx111,
-          "status"       => "active"
+          "status"       => "inboxed"
         }
         Librarian::commit(item)
         item
@@ -79,7 +79,7 @@ class NxTasks
           "unixtime"    => unixtime,
           "datetime"    => datetime,
           "nx111"       => nx111,
-          "status"      => "active"
+          "status"      => "inboxed"
         }
         Librarian::commit(item)
         item

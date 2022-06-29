@@ -200,8 +200,8 @@ class Catalyst
                 break
             end
 
-            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/Ships").each{|location|
-                item = NxTasks::issueFromLocation(location)
+            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/NxTasks-Inbox").each{|location|
+                item = NxTasks::issueFromInboxLocation(location)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             }
