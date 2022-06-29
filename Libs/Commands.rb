@@ -10,7 +10,7 @@ class Commands
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "require internet",
-            "rstream | search | nyx | speed | pickup | nxballs",
+            "rstream | search | nyx | speed | pickup | nxballs | transmute",
         ].join("\n")
     end
 

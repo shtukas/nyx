@@ -6,10 +6,10 @@ class Transmutation
     # Transmutation::transmutation1(item, source, target, isSimulation)
     def self.transmutation1(item, source, target, isSimulation = false)
 
-        if source == "NxFrame" and target == "TxDated" then
+        if source == "NxCollection" and target == "NxPerson" then
             return true if isSimulation
-            item["mikuType"] = "TxDated"
-            item["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            item["mikuType"] = "NxPerson"
+            item["name"] = item["description"]
             Librarian::commit(item)
             return
         end
@@ -36,10 +36,10 @@ class Transmutation
             return
         end
 
-        if source == "NxCollection" and target == "NxPerson" then
+        if source == "NxFrame" and target == "TxDated" then
             return true if isSimulation
-            item["mikuType"] = "NxPerson"
-            item["name"] = item["description"]
+            item["mikuType"] = "TxDated"
+            item["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
             Librarian::commit(item)
             return
         end
@@ -63,6 +63,14 @@ class Transmutation
         if source == "TxDated" and target == "NxFrame" then
             return true if isSimulation
             item["mikuType"] = "NxFrame"
+            Librarian::commit(item)
+            return
+        end
+
+        if source == "TxDated" and target == "NxTask" then
+            return true if isSimulation
+            item["mikuType"] = "NxTask"
+            item["status"] = "active"
             Librarian::commit(item)
             return
         end
