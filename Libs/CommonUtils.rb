@@ -352,6 +352,25 @@ class CommonUtils
         dates
     end
 
+    # CommonUtils::interactiveDateTimeBuilder()
+    def self.interactiveDateTimeBuilder()
+        puts ""
+        date = LucilleCore::askQuestionAnswerAsString("date (YYYY-MM-DD) (empty for today) : ")
+        if date == "" then
+            date = Time.new.to_s[0, 10]
+        end
+        time = LucilleCore::askQuestionAnswerAsString("time (HH:MM) (empty for current time) : ")
+        if time == "" then
+            time = Time.new.to_s[11, 5]
+        end
+        construct = "#{date} #{time}#{Time.new.to_s[16, 99]}"
+        if LucilleCore::askQuestionAnswerAsBoolean("Do you mean '#{construct.green}' ? ", true) then
+            DateTime.parse(construct).to_time.utc.iso8601
+        else
+            CommonUtils::interactiveDateTimeBuilder()
+        end
+    end
+
     # ----------------------------------------------------
     # String Utilities
 

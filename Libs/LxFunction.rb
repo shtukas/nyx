@@ -33,6 +33,9 @@ class LxFunction
             if item["mikuType"] == "NxCollection" then
                 return NxCollections::toString(item)
             end
+            if item["mikuType"] == "NxEvent" then
+                return NxEvents::toString(item)
+            end
             if item["mikuType"] == "NxFrame" then
                 return NxFrames::toString(item)
             end

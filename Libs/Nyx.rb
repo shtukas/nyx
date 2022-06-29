@@ -12,7 +12,8 @@ class Nyx
                 "search (interactive)",
                 "search (classic)",
                 "display nodes in timeline order",
-                "make new entity"
+                "make new data entity",
+                "make new event"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -28,9 +29,14 @@ class Nyx
                     .each{|item| puts NxDataNodes::toString(item) }
                 LucilleCore::pressEnterToContinue()
             end
-            if operation == "make new entity" then
+            if operation == "make new data entity" then
                 item = Architect::interactivelyMakeNewOrNull()
                 next if item.nil?
+                LxAction::action("landing", item)
+            end
+            if operation == "make new event" then
+                item = NxEvents::interactivelyIssueNewItemOrNull()
+                puts JSON.pretty_generate(item)
                 LxAction::action("landing", item)
             end
         }

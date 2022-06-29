@@ -1,0 +1,13 @@
+NxEvent
+
+{
+    "uuid"        : String
+    "variant"     : String # Primary Key
+    "mikuType"    : "NxEvent"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu [1]
+    "description" : String
+    "nx111"       : Nx111
+}
+
+[1] This datetime is particularly important as the datetime of the event
