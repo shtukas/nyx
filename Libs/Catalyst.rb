@@ -65,7 +65,6 @@ class Catalyst
             if item["mikuType"] == "NxFrame" then
                 return true
             end
-
             puts JSON.pretty_generate(item)
             raise "(error: 917a8c8e-286f-4c19-9219-ab3e567069f3)"
         }
