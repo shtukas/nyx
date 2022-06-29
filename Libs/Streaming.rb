@@ -8,7 +8,7 @@ class Streaming
         LxAction::action("start", item)
         LxAction::action("access", item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done/.., detach (running), (keep and) next (default), >nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) done/.., detach (running), (keep and) next (default), >queue, >nyx: ")
             if command == ".." or command == "done" then
                 LxAction::action("stop", item)
                 NxTasks::destroy(item["uuid"])
@@ -24,6 +24,12 @@ class Streaming
             end
             if command == "" or command == "next" then
                 LxAction::action("stop", item)
+                return nil
+            end
+            if command == ">queue" then
+                owner = Nx07::architectOwnerOrNull()
+                return if owner.nil?
+                Nx07::issue(owner["uuid"], item["uuid"])
                 return nil
             end
             if command == ">nyx" then
@@ -46,7 +52,7 @@ class Streaming
     # Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
     def self.processItem(item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("(> #{LxFunction::function("toString", item).green}) run/.. (start and access), landing (and back), done, next (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("#{LxFunction::function("toString", item).green} $ run/.. (start and access), landing (and back), done, next (default), exit (rstream): ")
             if command == ".." or command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end

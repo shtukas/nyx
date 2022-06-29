@@ -8,9 +8,9 @@ class Commands
         [
             "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | ordinal | project",
             "anniversaries | calendar | zeroes | ondates | todos",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >> | >nyx",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "require internet",
-            "rstream | search | nyx | speed | desk pickup | nxballs",
+            "rstream | search | nyx | speed | pickup | nxballs",
         ].join("\n")
     end
 
@@ -30,11 +30,11 @@ class Commands
             return
         end
 
-        if Interpreting::match(">>", input) then
+        if Interpreting::match(">queue", input) then
             item = store.getDefault()
             return if item.nil?
             if item["mikuType"] != "NxTask" then
-                puts "The operation >> only works on NxTasks"
+                puts "The operation >queue only works on NxTasks"
                 LucilleCore::pressEnterToContinue()
                 return
             end
@@ -82,7 +82,7 @@ class Commands
             return
         end
 
-        if input == "desk pickup" then
+        if input == "pickup" then
             EditionDesk::batchPickUpAndGarbageCollection_v2()
             return
         end
