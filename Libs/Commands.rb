@@ -83,7 +83,7 @@ class Commands
         end
 
         if input == "pickup" then
-            EditionDesk::batchPickUpAndGarbageCollection_v2()
+            EditionDesk::batchPickUp_v2()
             return
         end
 

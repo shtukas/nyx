@@ -152,7 +152,16 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "Nx07" then
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
+            return
+        end
+
+        if item["mikuType"] == "NxEvent" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
 
@@ -196,6 +205,11 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "TxDated" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            return
+        end
+
+        if item["mikuType"] == "TxProject" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return
         end
