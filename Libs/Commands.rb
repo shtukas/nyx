@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | ordinal | project",
+            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | ordinal | project | task>queue",
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "require internet",
@@ -320,6 +320,11 @@ class Commands
             item = NxTasks::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a queue or project ? ") then
+                owner = Nx07::architectOwnerOrNull()
+                return if owner.nil?
+                Nx07::issue(owner["uuid"], item["uuid"])
+            end
             return
         end
 

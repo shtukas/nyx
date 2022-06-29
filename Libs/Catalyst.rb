@@ -206,9 +206,31 @@ class Catalyst
                 LucilleCore::removeFileSystemLocation(location)
             }
 
+            getOrdinalForListingItem = lambda {|item|
+                ordinal = XCache::getOrNull("9BF9:67703767-B635-486E-683397DEA056:#{CommonUtils::today()}:#{item["uuid"]}")
+                if ordinal then
+                    return ordinal.to_f
+                end
+                # By here we do not have an ordinal for this item, so we need one
+                ordinal = XCache::getOrNull("9BF9:TOP-ORDINAL-486E-683397DEA056:#{CommonUtils::today()}")
+                if ordinal.nil? then
+                    ordinal = 0
+                else
+                    ordinal = ordinal.to_f
+                end
+                ordinal = ordinal + 1
+                XCache::set("9BF9:TOP-ORDINAL-486E-683397DEA056:#{CommonUtils::today()}", ordinal)
+                XCache::set("9BF9:67703767-B635-486E-683397DEA056:#{CommonUtils::today()}:#{item["uuid"]}", ordinal)
+                ordinal
+            }
+
             #puts "(items for listing)"
             floatingItems = Catalyst::itemsForSection1()
+
             mainListingItems = Catalyst::itemsForSection2()
+            mainListingItems.each{|item| getOrdinalForListingItem.call(item) } # to put them in order at start of day
+            mainListingItems = mainListingItems.sort{|i1, i2| getOrdinalForListingItem.call(i1) <=> getOrdinalForListingItem.call(i2) }
+
             runningItems, mainListingItems = mainListingItems.partition{|item| NxBallsService::isActive(item["uuid"]) }
             Catalyst::printListing(floatingItems, runningItems, mainListingItems)
         }
