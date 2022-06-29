@@ -334,8 +334,8 @@ class EditionDesk
         }
     end
 
-    # EditionDesk::batchPickUpAndGarbageCollection_v2()
-    def self.batchPickUpAndGarbageCollection_v2()
+    # EditionDesk::batchPickUp_v2()
+    def self.batchPickUp_v2()
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk()).each{|location|
             next if EditionDesk::locationToItemNx111PairOrNull(location).nil?
             puts "Edition desk updating location: #{File.basename(location)}"
