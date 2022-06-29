@@ -48,7 +48,7 @@ class TxTaskQueues
 
     # TxTaskQueues::toString(item)
     def self.toString(item)
-        count = Nx07::owneruuidToTaskuuids(item["uuid"]).size
+        count = TxNumbersAcceleration::count(item)
         "(queue) #{item["description"]} #{Ax39::toString(item)} (#{count})"
     end
 
@@ -111,14 +111,14 @@ class TxTaskQueues
 
     # TxTaskQueues::landing(queue)
     def self.landing(queue)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["update description", "access/dive"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["update description", "access tasks"])
         return if action.nil?
         if action == "update description" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             queue["description"] = description
             Librarian::commit(queue)
         end
-        if action == "access/dive" then
+        if action == "access tasks" then
             TxTaskQueues::diving(queue)
         end
     end

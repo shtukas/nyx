@@ -3,7 +3,6 @@ Ax39 represents a time commitment, either daily or weekly.
 It is carried by 
     - TxProject
     - TxTaskQueue
-    - NxShip
 
 {
     "type"  => "daily-time-commitment"

@@ -44,16 +44,6 @@ class Transmutation
             return
         end
 
-        if source == "NxShip" and target == "NxTask" then
-            return true if isSimulation
-            queue = Nx07::architectOwnerOrNull()
-            item["mikuType"] = "NxTask"
-            queue["tasks"] << item["uuid"]
-            Librarian::commit(queue)
-            Librarian::commit(item)
-            return
-        end
-
         if source == "NxTask" and target == "NxDataNode" then
             return true if isSimulation
             item["mikuType"] = "NxDataNode"

@@ -45,9 +45,6 @@ class LxFunction
             if item["mikuType"] == "TxProject" then
                 return TxProjects::toString(item)
             end
-            if item["mikuType"] == "NxShip" then
-                return NxShip::toString(item)
-            end
             if item["mikuType"] == "NxTask" then
                 return NxTasks::toString(item)
             end

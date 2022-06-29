@@ -8,7 +8,6 @@ class Catalyst
             NxFrames::items(),
             TxTaskQueues::items(),
             TxProjects::items(),
-            NxShip::itemsForSection1()
         ]   
             .flatten
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
@@ -24,7 +23,6 @@ class Catalyst
             TxDateds::itemsForListing(),
             TxProjects::itemsForMainListing(),
             TxTaskQueues::itemsForMainListing(),
-            NxShip::itemsForSection2(),
             NxTasks::itemsForMainListing(),
             Streaming::listingItemInfinity()
         ]
@@ -61,7 +59,7 @@ class Catalyst
         end
 
         timeCompleted = lambda{|item|
-            if  ["TxProject", "NxShip", "TxTaskQueue"].include?(item["mikuType"]) then
+            if  ["TxProject", "TxTaskQueue"].include?(item["mikuType"]) then
                 return !Ax39::itemShouldShow(item)
             end
             if item["mikuType"] == "NxFrame" then

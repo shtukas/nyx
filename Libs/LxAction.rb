@@ -109,7 +109,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxProject" then
-                TxProjects::selectedTaskAndStart(item)
+                TxProjects::selectedSelfOrTaskAndStart(item)
                 return
             end
 
@@ -170,11 +170,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxShip" then
-                NxShip::done(item)
-                return
-            end
-
             if item["mikuType"] == "Wave" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then
@@ -190,10 +185,6 @@ class LxAction
 
         if command == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{LxFunction::function("toString", item).green}' ") then
-                if item["mikuType"] == "NxShip" then
-                    Librarian::destroyClique(item["uuid"])
-                    return
-                end
                 if item["mikuType"] == "TxProject" then
                     Librarian::destroyClique(item["uuid"])
                     return

@@ -6,4 +6,5 @@ TxProject {
     "unixtime"    : unixtime
     "description" : description
     "ax39"        : Ax39
+    "nx111"       : nil or Nx111
 }

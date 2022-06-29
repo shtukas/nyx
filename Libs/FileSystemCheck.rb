@@ -186,11 +186,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxShip" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
-            return
-        end
-
         if item["mikuType"] == "NxTask" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
             return

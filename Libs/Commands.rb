@@ -76,7 +76,7 @@ class Commands
         if Interpreting::match("Ax39", input) then
             item = store.getDefault()
             return if item.nil?
-            return if !["NxShip", "TxProject", "TxTaskQueue"].include?(item["mikuType"])
+            return if !["TxProject", "TxTaskQueue"].include?(item["mikuType"])
             item["ax39"] = Ax39::interactivelyCreateNewAxOrNull()
             Librarian::commit(item)
             return
@@ -372,13 +372,6 @@ class Commands
             return
         end
 
-        if Interpreting::match("ship", input) then
-            item = NxShip::interactivelyIssueNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
         if Interpreting::match("speed", input) then
 
             tests = [
@@ -406,10 +399,6 @@ class Commands
                 {
                     "name" => "TxDateds::itemsForListing()",
                     "lambda" => lambda { TxDateds::itemsForListing() }
-                },
-                {
-                    "name" => "NxShip::itemsForSection1()",
-                    "lambda" => lambda { NxShip::itemsForSection1() }
                 },
                 {
                     "name" => "NxFrames::items()",
