@@ -192,7 +192,13 @@ class LxAction
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{LxFunction::function("toString", item).green}' ") then
                 if item["mikuType"] == "NxShip" then
                     Librarian::destroyClique(item["uuid"])
+                    return
                 end
+                if item["mikuType"] == "TxProject" then
+                    Librarian::destroyClique(item["uuid"])
+                    return
+                end
+                raise "(error: e6f4ecd7-8dd5-4a5c-93f6-ce9e80e784ed)"
             end
             return
         end
@@ -215,6 +221,11 @@ class LxAction
  
             if item["mikuType"] == "fitness1" then
                 system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
+                return
+            end
+
+            if item["mikuType"] == "TxProject" then
+                TxProjects::landing(item)
                 return
             end
 
