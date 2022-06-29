@@ -92,6 +92,14 @@ class Commands
             return
         end
 
+        if Interpreting::match("destroy *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            LxAction::action("destroy", item)
+            return
+        end
+
         if Interpreting::match("done", input) then
             LxAction::action("done", store.getDefault())
             return

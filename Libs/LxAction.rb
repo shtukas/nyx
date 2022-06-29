@@ -188,6 +188,15 @@ class LxAction
             end
         end
 
+        if command == "destroy" then
+            if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{LxFunction::function("toString", item).green}' ") then
+                if item["mikuType"] == "NxShip" then
+                    Librarian::destroyClique(item["uuid"])
+                end
+            end
+            return
+        end
+
         if command == "exit" then
             exit
         end
