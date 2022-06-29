@@ -301,3 +301,74 @@ class EnergyGridElizabeth
         end
     end
 end
+
+# -----------------------------------------------------------
+
+class TopGunUtils
+
+    # TopGunUtils::locateFilepathForRootHashOrNull(nhash)
+    def self.locateFilepathForRootHashOrNull(nhash)
+
+    end
+end
+
+class TopGunElizabeth
+
+    def initialize(databaseFilepath)
+        @databaseFilepath = databaseFilepath
+        if !File.exists?(databaseFilepath) then
+            db = SQLite3::Database.new(databaseFilepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "create table _data_ (_key_ text, _blob_ blob);"
+            db.close
+        end
+    end
+
+    def commitBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        db = SQLite3::Database.new(@databaseFilepath)
+        db.execute "delete from _data_ where _key_=?", [nhash]
+        db.execute "insert into _data_ (_key_, _blob_) values (?, ?)", [nhash, blob]
+        db.close
+        nhash
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        db = SQLite3::Database.new(@databaseFilepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
+            blob = row["_blob_"]
+        end
+        db.close
+        blob
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "TopGunElizabeth: (error: bccdd3ef-ee8e-4568-a3df-fd75c50343aa) could not find blob, nhash: #{nhash}"
+        raise "(error: baa3100b-8768-48a3-96a6-bd2f1ce24f52, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 5115bb05-6fc6-48cd-b15d-3d538a46d455) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+end
