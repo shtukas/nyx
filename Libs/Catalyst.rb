@@ -25,7 +25,8 @@ class Catalyst
             TxProjects::itemsForMainListing(),
             TxTaskQueues::itemsForMainListing(),
             NxShip::itemsForSection2(),
-            NxTasks::itemsForMainListing()
+            NxTasks::itemsForMainListing(),
+            Streaming::listingItemInfinity()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

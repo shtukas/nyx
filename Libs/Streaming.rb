@@ -86,7 +86,10 @@ class Streaming
 
     # Streaming::rstream()
     def self.rstream()
-        items = NxTasks::items().shuffle.take(20)
+        items = NxTasks::items()
+                    .shuffle
+                    .take(20)
+                    .select{|item| !Nx07::taskHasOwner(item) } # we only select items that are not already in a queue or in a project
         Streaming::stream(items)
         NxBallsService::close("1ee2805a-f8ee-4a73-a92a-c76d9d45359a", true)
     end
@@ -95,7 +98,19 @@ class Streaming
     def self.listingItemForAnHour()
         uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a"
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return [] if rt > 1
+        return [] if rt >= 1
+        [{
+            "uuid" => uuid,
+            "mikuType" => "(rstream)",
+            "announce" => "(rstream, rt: #{rt.round(1)})"
+        }]
+    end
+
+    # Streaming::listingItemInfinity()
+    def self.listingItemInfinity()
+        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a"
+        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
+        return [] if rt < 1
         [{
             "uuid" => uuid,
             "mikuType" => "(rstream)",

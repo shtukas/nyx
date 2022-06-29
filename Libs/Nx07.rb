@@ -46,6 +46,11 @@ class Nx07
         Librarian::getObjectByUUIDOrNullEnforceUnique(owneruuid)
     end
 
+    # Nx07::taskHasOwner(item)
+    def self.taskHasOwner(item)
+        !Nx07::getOwnerForTaskOrNull(item).nil?
+    end
+
     # Nx07::architectOwnerOrNull()
     def self.architectOwnerOrNull()
         items = (TxTaskQueues::items()+TxProjects::items())
