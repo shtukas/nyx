@@ -144,7 +144,7 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = EnergyGridClassicElizabeth.new() 
+            operator = EnergyGridImmutableDataIsland.new()
 
             flag, exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
@@ -238,9 +238,9 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridClassicElizabeth.new()
-            rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
+            dataIsland = EnergyGridOperatorsImmutableDataIslands::getIslandForNhash(nx111["rootnhash"])
+            rootnhash = AionCore::commitLocationReturnHash(dataIsland, location)
+            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(dataIsland, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
             nx111["rootnhash"] = rootnhash
             item["nx111"] = nx111

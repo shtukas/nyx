@@ -8,7 +8,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 
 The operator is an object that has meet the following signatures
 
-    .commitBlob(blob: BinaryData) : Hash
+    .putBlob(blob: BinaryData) : Hash
     .filepathToContentHash(filepath) : Hash
     .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
     .datablobCheck(nhash: Hash): Boolean
@@ -19,7 +19,7 @@ class Elizabeth
 
     end
 
-    def commitBlob(blob)
+    def putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         XCache::set("SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
         nhash
@@ -113,7 +113,8 @@ class FileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            status = AionFsck::structureCheckAionHash(operator, rootnhash)
+            elizabeth = EnergyGridOperatorsImmutableDataIslands::getElizabethForIslandForNhash(rootnhash)
+            status = AionFsck::structureCheckAionHash(elizabeth, rootnhash)
             if !status then
                 puts "object, could not validate aion-point".red
                 puts JSON.pretty_generate(object).red

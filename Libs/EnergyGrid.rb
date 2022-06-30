@@ -267,41 +267,6 @@ class EnergyGridClassicDatablobs
     end
 end
 
-class EnergyGridClassicElizabeth
-
-    def commitBlob(blob)
-        EnergyGridClassicDatablobs::putBlob(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def getBlobOrNull(nhash)
-        EnergyGridClassicDatablobs::getBlobOrNull(nhash)
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = getBlobOrNull(nhash)
-        return blob if blob
-        puts "EnergyGridClassicElizabeth: (error: a02556b0-1852-4dbb-8048-9a3f5b75c3cd) could not find blob, nhash: #{nhash}"
-        raise "(error: 290d45ea-4d54-40f1-9da5-4d6be6e2a8a2, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: b97a25ea-50ad-4d87-8a42-d887be5b37d6) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
-    end
-end
-
 class EnergyGridUniqueBlobs
 
     # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
@@ -329,10 +294,6 @@ class EnergyGridUniqueBlobs
             return IO.read(filepath1)
         end
         blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
-
-        if blob and "SHA256-#{Digest::SHA256.hexdigest(blob)}" != nhash then
-            raise "(error: C786CFCC-6F1F-4C85-A5CA-4D7CF01617B6) nhash: #{nhash}"
-        end
 
         if blob then
             puts "EnergyGridUniqueBlobs: found blob in classical sense, nhash: #{nhash}".green
@@ -376,10 +337,6 @@ class EnergyGridImmutableDataIsland
         end
         db.close
 
-        if blob and "SHA256-#{Digest::SHA256.hexdigest(blob)}" != nhash then
-            raise "(error: 0db76cb5-e611-4220-9926-f08718d02baa) nhash: #{nhash}"
-        end
-
         if blob.nil? then
             blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
             if blob then
@@ -389,6 +346,58 @@ class EnergyGridImmutableDataIsland
         end
 
         blob
+    end
+end
+
+class EnergyGridImmutableDataIslandElizabeth
+
+    def initialize(databaseFilepath)
+        @databaseFilepath = databaseFilepath
+        @island = EnergyGridImmutableDataIsland.new(databaseFilepath)
+    end
+
+    def putBlob(blob)
+        @island.putBlob(blob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        @island.getBlobOrNull(nhash)
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "EnergyGridImmutableDataIslandElizabeth: (error: 321676dc-03c7-4af7-b82b-ef957734e132) could not find blob, nhash: #{nhash}"
+        raise "(error: 60f1fd88-d45b-4aef-96ef-2412e2a3a5d6, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 001b182a-121f-480e-8c26-6b25dd04d03f) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+
+    def relocateToFilepath(filepath)
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
+        end
+        FileUtils.mv(@databaseFilepath, filepath)
+    end
+
+    def relocateToNhash(nhash)
+        filepath1 = EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+        relocateToFilepath(filepath1)
     end
 end
 
@@ -404,10 +413,20 @@ class EnergyGridOperatorsImmutableDataIslands
         filepath1
     end
 
-    # EnergyGridOperatorsImmutableDataIslands::getIslandForReadingOrNull(nhash)
-    def self.getIslandForReadingOrNull(nhash)
+    # EnergyGridOperatorsImmutableDataIslands::getIslandForNhash(nhash)
+    def self.getIslandForNhash(nhash)
         filepath1 = EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
-        return nil if !File.exists?(filepath1)
         EnergyGridImmutableDataIsland.new(filepath1)
+    end
+
+    # EnergyGridOperatorsImmutableDataIslands::getElizabethForTemporaryIsland()
+    def self.getElizabethForTemporaryIsland()
+        EnergyGridImmutableDataIslandElizabeth.new("/tmp/#{SecureRandom.uuid}")
+    end
+
+    # EnergyGridOperatorsImmutableDataIslands::getElizabethForIslandForNhash(nhash)
+    def self.getElizabethForIslandForNhash(nhash)
+        filepath1 = EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+        EnergyGridImmutableDataIslandElizabeth.new(filepath1)
     end
 end

@@ -48,7 +48,7 @@ class UniqueStringsFunctions
             nx111 = item["nx111"]
             if nx111["type"] == "aion-point" then
                 rootnhash = nx111["rootnhash"]
-                operator = EnergyGridClassicElizabeth.new()
+                operator = EnergyGridOperatorsImmutableDataIslands::getElizabethForIslandForNhash(rootnhash)
                 if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
                     EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, nx111)
                     return

@@ -51,6 +51,6 @@ class AionTransforms
         aionObject["name"] = namef
 
         blob = JSON.generate(aionObject)
-        operator.commitBlob(blob)
+        operator.putBlob(blob)
     end
 end

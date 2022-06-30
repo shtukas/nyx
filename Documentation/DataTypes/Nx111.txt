@@ -17,6 +17,7 @@ Nx111
     "uuid"      : String
     "type"      : "aion-point"
     "rootnhash" : nhash # nhash of the aion root
+                  # Managed by EnergyGridImmutableDataIsland, named after the rootnhash (.data-island.sqlite3)
 }
 
 {

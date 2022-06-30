@@ -19,7 +19,7 @@ class Elizabeth
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
-    def commitBlob(blob)
+    def putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         XCache::set(nhash, blob)
         nhash
@@ -59,8 +59,8 @@ class CompositeElizabeth
         "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
     end
 
-    def commitBlob(blob)
-        @primaryElizabeth.commitBlob(blob)
+    def putBlob(blob)
+        @primaryElizabeth.putBlob(blob)
     end
 
     def getBlobOrNull(nhash)
@@ -72,7 +72,7 @@ class CompositeElizabeth
         @secondaryElizabeths.each{|elizabeth|
             blob = elizabeth.getBlobOrNull(nhash)
             if blob then
-                @primaryElizabeth.commitBlob(blob)
+                @primaryElizabeth.putBlob(blob)
                 return blob
             end
         }
@@ -91,7 +91,7 @@ class CompositeElizabeth
         @secondaryElizabeths.each{|elizabeth|
             begin
                 blob = elizabeth.readBlobErrorIfNotFound(nhash)
-                @primaryElizabeth.commitBlob(blob)
+                @primaryElizabeth.putBlob(blob)
                 return blob
             rescue
             end

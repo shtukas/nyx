@@ -63,7 +63,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 
 The operator is an object that has meet the following signatures
 
-    .commitBlob(blob: BinaryData) : Hash
+    .putBlob(blob: BinaryData) : Hash
     .filepathToContentHash(filepath) : Hash
     .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
     .datablobCheck(nhash: Hash): Boolean
@@ -74,7 +74,7 @@ class Elizabeth
 
     end
 
-    def commitBlob(blob)
+    def putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         XCache::set("SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
         nhash

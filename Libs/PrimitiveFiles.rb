@@ -14,20 +14,6 @@ class PrimitiveFiles
         filepath1
     end
 
-    # PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v1(filepath, operator)
-    def self.nhashcommitFileReturnPartsHashsImproved_v1(filepath, operator)
-        raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
-        raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
-        hashes = []
-        partSizeInBytes = 1024*1024 # 1 MegaBytes
-        f = File.open(filepath)
-        while ( blob = f.read(partSizeInBytes) ) do
-            hashes << operator.commitBlob(blob)
-        end
-        f.close()
-        hashes
-    end
-
     # PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(filepath)
     def self.nhashcommitFileReturnPartsHashsImproved_v2(filepath)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
