@@ -219,54 +219,6 @@ end
 
 # -----------------------------------------------------------
 
-class EnergyGridClassicDatablobs
-
-    # EnergyGridClassicDatablobs::putBlob(blob)
-    def self.putBlob(blob)
-        DatablobsLocalBufferOut::putBlob(blob)
-        DatablobsXCache::putBlob(blob)
-    end
-
-    # EnergyGridClassicDatablobs::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-
-        blob = DatablobsXCache::getBlobOrNull(nhash)
-        return blob if blob
-
-        blob = DatablobsLocalBufferOut::getBlobOrNull(nhash)
-        if blob then
-            DatablobsXCache::putBlob(blob)
-            return blob
-        end
-
-        #puts "downloading blob from Stargate Central: #{nhash}"
-        #blob = DatablobsStargateCentralClassic::getBlobOrNull(nhash)
-        #if blob then
-        #    DatablobsXCache::putBlob(blob)
-        #    return blob
-        #end
-
-        if !File.exists?(StargateCentral::pathToCentral()) then
-            puts "I need the Infinity drive"
-            LucilleCore:: pressEnterToContinue()
-        end
-
-        if !File.exists?(StargateCentral::pathToCentral()) then
-            puts "I needed the Infinity drive. Exiting"
-            exit
-        end
-
-        puts "downloading blob from Stargate Central: #{nhash}"
-        blob = DatablobsStargateCentralSQLBLobStores::getBlobOrNull(nhash)
-        if blob then
-            DatablobsXCache::putBlob(blob)
-            return blob
-        end
-
-        nil
-    end
-end
-
 class EnergyGridUniqueBlobs
 
     # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
@@ -293,11 +245,6 @@ class EnergyGridUniqueBlobs
         if File.exists?(filepath1) then
             return IO.read(filepath1)
         end
-        #blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
-        #if blob then
-        #    puts "EnergyGridUniqueBlobs: found blob in classical sense, nhash: #{nhash}".green
-        #    EnergyGridUniqueBlobs::putBlob(blob)
-        #end
         blob
     end
 end
@@ -335,15 +282,6 @@ class EnergyGridImmutableDataIsland
             blob = row["_blob_"]
         end
         db.close
-
-        #if blob.nil? then
-        #    blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
-        #    if blob then
-        #        puts "EnergyGridImmutableDataIsland: found blob in classical sense, nhash: #{nhash}".green
-        #        putBlob(blob)
-        #    end
-        #end
-
         blob
     end
 end
