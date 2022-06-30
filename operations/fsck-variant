@@ -12,6 +12,5 @@ if object.nil? then
     puts "I could not find an object with this variant"
     exit
 end
-operator = EnergyGridClassicElizabeth.new()
-FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, operator, true)
+FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(object, true)
 puts "fsck completed successfully".green

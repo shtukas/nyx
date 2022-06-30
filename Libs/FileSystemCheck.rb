@@ -63,8 +63,8 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckNx111ExitAtFirstFailure(object, nx111, operator)
-    def self.fsckNx111ExitAtFirstFailure(object, nx111, operator)
+    # FileSystemCheck::fsckNx111ExitAtFirstFailure(object, nx111)
+    def self.fsckNx111ExitAtFirstFailure(object, nx111)
         return if nx111.nil?
         if !Nx111::types().include?(nx111["type"]) then
             puts "object has an incorrect nx111 value type".red
@@ -73,8 +73,9 @@ class FileSystemCheck
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            if EnergyGridUniqueBlobs::getBlobOrNull(nhash).nil? then
-                puts "object, could not find the text data".red
+            blob = EnergyGridUniqueBlobs::getBlobOrNull(nhash)
+            if blob.nil? then
+                puts "EnergyGridUniqueBlobs::getBlobOrNull(nhash): could not find the text data".red
                 puts JSON.pretty_generate(object).red
                 exit 1
             end
@@ -88,14 +89,21 @@ class FileSystemCheck
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             if dottedExtension[0, 1] != "." then
-                puts "object".red
+                puts "object:".red
                 puts JSON.pretty_generate(object).red
                 puts "primitive parts, dotted extension is malformed".red
                 exit 1
             end
+            dataIslandFilepath = PrimitiveFiles::decideFilepathForPrimitiveFileDataIsland(parts)
+            if !File.exists?(dataIslandFilepath) then
+                puts "Cannot see a data island for those parts, but this is not failure condition".red
+                return
+            end
+            dataIsland = EnergyGridImmutableDataIsland.new(dataIslandFilepath)
             parts.each{|nhash|
-                if operator.getBlobOrNull(nhash).nil? then
-                    puts "object".red
+                blob = dataIsland.getBlobOrNull(nhash)
+                if blob.nil? then
+                    puts "object:".red
                     puts JSON.pretty_generate(object).red
                     puts "primitive parts, nhash not found: #{nhash}".red
                     exit 1
@@ -131,8 +139,8 @@ class FileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
     end
 
-    # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, verbose)
-    def self.fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, verbose)
+    # FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, verbose)
+    def self.fsckLibrarianMikuObjectExitAtFirstFailure(item, verbose)
 
         puts "fsck: #{JSON.pretty_generate(item)}" if verbose
 
@@ -142,10 +150,9 @@ class FileSystemCheck
 
         if item["mikuType"] == "Ax1Text" then
             nhash = item["nhash"]
-            begin
-                operator.readBlobErrorIfNotFound(nhash)
-            rescue
-                puts "nhash, blob not found".red
+            blob = EnergyGridUniqueBlobs::getBlobOrNull(nhash)
+            if blob.nil? then
+                puts "EnergyGridUniqueBlobs::getBlobOrNull(nhash): blob not found".red
                 puts JSON.pretty_generate(item).red
                 exit 1
             end
@@ -161,7 +168,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "NxEvent" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
         end
 
@@ -174,7 +181,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "NxDataNode" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
         end
 
@@ -183,7 +190,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "NxFrame" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
         end
 
@@ -196,7 +203,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "NxTask" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
         end
 
@@ -205,12 +212,12 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "TxDated" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
         end
 
         if item["mikuType"] == "TxProject" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
         end
 
@@ -219,7 +226,7 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "Wave" then
-            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"], operator)
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
         end
 
@@ -232,8 +239,7 @@ class FileSystemCheck
         Librarian::objects().each{|item|
             exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
             next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}")
-            operator = EnergyGridClassicElizabeth.new()
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, true)
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
             XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}", true)
         }
         puts "fsck completed successfully".green

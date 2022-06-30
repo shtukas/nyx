@@ -9,8 +9,7 @@ exit if ARGV[0].nil?
 mikuType = ARGV[0]
 
 Librarian::getObjectsByMikuType(mikuType).each{|item|
-    operator = EnergyGridClassicElizabeth.new()
-    FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, true)
+    FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
 }
 puts "fsck completed successfully".green
 

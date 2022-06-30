@@ -219,69 +219,6 @@ end
 
 # -----------------------------------------------------------
 
-class NesoiElizabeth
-
-    def initialize(databaseFilepath)
-        @databaseFilepath = databaseFilepath
-        if !File.exists?(databaseFilepath) then
-            db = SQLite3::Database.new(databaseFilepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "create table _data_ (_key_ text, _blob_ blob);"
-            db.close
-        end
-    end
-
-    def commitBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        db = SQLite3::Database.new(@databaseFilepath)
-        db.execute "delete from _data_ where _key_=?", [nhash]
-        db.execute "insert into _data_ (_key_, _blob_) values (?, ?)", [nhash, blob]
-        db.close
-        nhash
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def getBlobOrNull(nhash)
-        db = SQLite3::Database.new(@databaseFilepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
-            blob = row["_blob_"]
-        end
-        db.close
-        blob
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = getBlobOrNull(nhash)
-        return blob if blob
-        puts "NesoiElizabeth: (error: bccdd3ef-ee8e-4568-a3df-fd75c50343aa) could not find blob, nhash: #{nhash}"
-        raise "(error: baa3100b-8768-48a3-96a6-bd2f1ce24f52, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: 5115bb05-6fc6-48cd-b15d-3d538a46d455) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
-    end
-end
-
-# -----------------------------------------------------------
-
 class EnergyGridClassicDatablobs
 
     # EnergyGridClassicDatablobs::putBlob(blob)
@@ -369,7 +306,7 @@ class EnergyGridUniqueBlobs
 
     # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
     def self.decideFilepathForUniqueBlob(nhash)
-        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/UniqueBlobs/#{nhash[7, 2]}/#{nhash}.data"
+        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Unique-Blobs/#{nhash[7, 2]}/#{nhash}.data"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
             FileUtils.mkdir(folderpath1)
@@ -391,11 +328,86 @@ class EnergyGridUniqueBlobs
         if File.exists?(filepath1) then
             return IO.read(filepath1)
         end
-        puts "Using Classic".green
         blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
+
+        if blob and "SHA256-#{Digest::SHA256.hexdigest(blob)}" != nhash then
+            raise "(error: C786CFCC-6F1F-4C85-A5CA-4D7CF01617B6) nhash: #{nhash}"
+        end
+
         if blob then
+            puts "EnergyGridUniqueBlobs: found blob in classical sense, nhash: #{nhash}".green
             EnergyGridUniqueBlobs::putBlob(blob)
         end
         blob
+    end
+end
+
+class EnergyGridImmutableDataIsland
+
+    def initialize(databaseFilepath)
+        @databaseFilepath = databaseFilepath
+        if !File.exists?(databaseFilepath) then
+            db = SQLite3::Database.new(databaseFilepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "create table _data_ (_key_ text, _blob_ blob);"
+            db.close
+        end
+    end
+
+    def putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        db = SQLite3::Database.new(@databaseFilepath)
+        db.execute "delete from _data_ where _key_=?", [nhash]
+        db.execute "insert into _data_ (_key_, _blob_) values (?, ?)", [nhash, blob]
+        db.close
+        nhash
+    end
+
+    def getBlobOrNull(nhash)
+        db = SQLite3::Database.new(@databaseFilepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
+            blob = row["_blob_"]
+        end
+        db.close
+
+        if blob and "SHA256-#{Digest::SHA256.hexdigest(blob)}" != nhash then
+            raise "(error: 0db76cb5-e611-4220-9926-f08718d02baa) nhash: #{nhash}"
+        end
+
+        if blob.nil? then
+            blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
+            if blob then
+                puts "EnergyGridImmutableDataIsland: found blob in classical sense, nhash: #{nhash}".green
+                putBlob(blob)
+            end
+        end
+
+        blob
+    end
+end
+
+class EnergyGridOperatorsImmutableDataIslands
+
+    # EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+    def self.decideFilepathForIslandOrNull(nhash)
+        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data-Islands/#{nhash[7, 2]}/#{nhash}.data"
+        folderpath1 = File.dirname(filepath1)
+        if !File.exists?(folderpath1) then
+            FileUtils.mkdir(folderpath1)
+        end
+        filepath1
+    end
+
+    # EnergyGridOperatorsImmutableDataIslands::getIslandForReadingOrNull(nhash)
+    def self.getIslandForReadingOrNull(nhash)
+        filepath1 = EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+        return nil if !File.exists?(filepath1)
+        EnergyGridImmutableDataIsland.new(filepath1)
     end
 end

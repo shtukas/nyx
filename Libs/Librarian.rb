@@ -194,7 +194,7 @@ class Librarian
         end
 
         if Machines::isLucille20() then
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, EnergyGridClassicElizabeth.new(), false)
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, false)
         end
 
         Librarian::commitIdentical(event)
@@ -216,14 +216,12 @@ class Librarian
         }
 
         if File.exists?(StargateCentral::pathToCentral()) then
-
             StargateCentralObjects::getObjectsByMikuType("NxBankOp").each{|item|
                 if (Time.new.to_i - item["unixtime"]) > 86400*30 then
                     puts JSON.pretty_generate(item)
                     StargateCentralObjects::destroyVariantNoEvent(item["variant"])
                 end
             }
-
         end
 
         Librarian::getObjectsByMikuType("NxDNSU").each{|item|
@@ -234,14 +232,12 @@ class Librarian
         }
 
         if File.exists?(StargateCentral::pathToCentral()) then
-
             StargateCentralObjects::getObjectsByMikuType("NxDNSU").each{|item|
                 if item["targetunixtime"] < Time.new.to_i then
                     puts JSON.pretty_generate(item)
                     StargateCentralObjects::destroyVariantNoEvent(item["variant"])
                 end
             }
-
         end
 
     end

@@ -119,12 +119,23 @@ class EditionDesk
         if nx111["type"] == "file" then
             flag, location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
             return location if flag
+
             dottedExtension = nx111["dottedExtension"]
+            nhash = nx111["nhash"]
             parts = nx111["parts"]
+            
+            dataIslandFilepath = PrimitiveFiles::decideFilepathForPrimitiveFileDataIsland(parts)
+            if !File.exists(dataIslandFilepath) then
+                puts "I could not find a data island for nhash: #{nhash}. Edition aborted."
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            dataIsland = EnergyGridImmutableDataIsland.new(dataIslandFilepath)
+
             filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
-                    blob = EnergyGridClassicElizabeth.new().getBlobOrNull(nhash)
+                    blob = dataIsland.getBlobOrNull(nhash)
                     raise "(error: a614a728-fb28-455f-9430-43aab78ea35f)" if blob.nil?
                     f.write(blob)
                 }
@@ -132,8 +143,9 @@ class EditionDesk
             return filepath
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridClassicElizabeth.new() 
             rootnhash = nx111["rootnhash"]
+            operator = EnergyGridClassicElizabeth.new() 
+
             flag, exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
@@ -199,7 +211,7 @@ class EditionDesk
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = EnergyGridClassicElizabeth.new().commitBlob(text)
+            nhash = EnergyGridUniqueBlobs::putBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             item["nx111"] = nx111
@@ -217,6 +229,7 @@ class EditionDesk
             data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location) # [dottedExtension, nhash, parts]
             raise "(error: 79A50CC2-CDA1-4BCA-B11E-F7AC1A54E0F3)" if data.nil?
             dottedExtension, nhash, parts = data
+            return if nhash == nx111["nhash"]
             nx111["dottedExtension"] = dottedExtension
             nx111["nhash"] = nhash
             nx111["parts"] = parts

@@ -169,17 +169,8 @@ class Landing
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
 
-            nx111toLandingString = lambda {|nx111|
-                nx111 = nx111.clone
-                if nx111["type"] == "file" then
-                    nx111["parts"] = "(...)"
-                    return nx111.to_s
-                end
-                nx111.to_s
-            }
-
             if item["nx111"] then
-                puts "nx111: #{nx111toLandingString.call(item["nx111"])}".yellow
+                puts "nx111: nhash: #{item["nx111"]["nhash"]} (#{item["nx111"]["parts"].size} parts)".yellow
             else
                 puts "nx111: (not found)".yellow
             end
