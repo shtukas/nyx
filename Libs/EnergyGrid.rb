@@ -304,15 +304,15 @@ end
 
 # -----------------------------------------------------------
 
-class TopGunUtils
+class NesoiUtils
 
-    # TopGunUtils::locateFilepathForRootHashOrNull(nhash)
+    # NesoiUtils::locateFilepathForRootHashOrNull(nhash)
     def self.locateFilepathForRootHashOrNull(nhash)
 
     end
 end
 
-class TopGunElizabeth
+class NesoiElizabeth
 
     def initialize(databaseFilepath)
         @databaseFilepath = databaseFilepath
@@ -355,7 +355,7 @@ class TopGunElizabeth
     def readBlobErrorIfNotFound(nhash)
         blob = getBlobOrNull(nhash)
         return blob if blob
-        puts "TopGunElizabeth: (error: bccdd3ef-ee8e-4568-a3df-fd75c50343aa) could not find blob, nhash: #{nhash}"
+        puts "NesoiElizabeth: (error: bccdd3ef-ee8e-4568-a3df-fd75c50343aa) could not find blob, nhash: #{nhash}"
         raise "(error: baa3100b-8768-48a3-96a6-bd2f1ce24f52, nhash: #{nhash})" if blob.nil?
     end
 
