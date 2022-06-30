@@ -219,99 +219,6 @@ end
 
 # -----------------------------------------------------------
 
-class EnergyGridDatablobs
-
-    # EnergyGridDatablobs::putBlob(blob)
-    def self.putBlob(blob)
-        DatablobsLocalBufferOut::putBlob(blob)
-        DatablobsXCache::putBlob(blob)
-    end
-
-    # EnergyGridDatablobs::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-
-        blob = DatablobsXCache::getBlobOrNull(nhash)
-        return blob if blob
-
-        blob = DatablobsLocalBufferOut::getBlobOrNull(nhash)
-        if blob then
-            DatablobsXCache::putBlob(blob)
-            return blob
-        end
-
-        #puts "downloading blob from Stargate Central: #{nhash}"
-        #blob = DatablobsStargateCentralClassic::getBlobOrNull(nhash)
-        #if blob then
-        #    DatablobsXCache::putBlob(blob)
-        #    return blob
-        #end
-
-        if !File.exists?(StargateCentral::pathToCentral()) then
-            puts "I need the Infinity drive"
-            LucilleCore:: pressEnterToContinue()
-        end
-
-        if !File.exists?(StargateCentral::pathToCentral()) then
-            puts "I needed the Infinity drive. Exiting"
-            exit
-        end
-
-        puts "downloading blob from Stargate Central: #{nhash}"
-        blob = DatablobsStargateCentralSQLBLobStores::getBlobOrNull(nhash)
-        if blob then
-            DatablobsXCache::putBlob(blob)
-            return blob
-        end
-
-        nil
-    end
-end
-
-class EnergyGridElizabeth
-
-    def commitBlob(blob)
-        EnergyGridDatablobs::putBlob(blob)
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def getBlobOrNull(nhash)
-        EnergyGridDatablobs::getBlobOrNull(nhash)
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = getBlobOrNull(nhash)
-        return blob if blob
-        puts "EnergyGridElizabeth: (error: a02556b0-1852-4dbb-8048-9a3f5b75c3cd) could not find blob, nhash: #{nhash}"
-        raise "(error: 290d45ea-4d54-40f1-9da5-4d6be6e2a8a2, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: b97a25ea-50ad-4d87-8a42-d887be5b37d6) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
-    end
-end
-
-# -----------------------------------------------------------
-
-class NesoiUtils
-
-    # NesoiUtils::locateFilepathForRootHashOrNull(nhash)
-    def self.locateFilepathForRootHashOrNull(nhash)
-
-    end
-end
-
 class NesoiElizabeth
 
     def initialize(databaseFilepath)
@@ -370,5 +277,125 @@ class NesoiElizabeth
         rescue
             false
         end
+    end
+end
+
+# -----------------------------------------------------------
+
+class EnergyGridClassicDatablobs
+
+    # EnergyGridClassicDatablobs::putBlob(blob)
+    def self.putBlob(blob)
+        DatablobsLocalBufferOut::putBlob(blob)
+        DatablobsXCache::putBlob(blob)
+    end
+
+    # EnergyGridClassicDatablobs::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+
+        blob = DatablobsXCache::getBlobOrNull(nhash)
+        return blob if blob
+
+        blob = DatablobsLocalBufferOut::getBlobOrNull(nhash)
+        if blob then
+            DatablobsXCache::putBlob(blob)
+            return blob
+        end
+
+        #puts "downloading blob from Stargate Central: #{nhash}"
+        #blob = DatablobsStargateCentralClassic::getBlobOrNull(nhash)
+        #if blob then
+        #    DatablobsXCache::putBlob(blob)
+        #    return blob
+        #end
+
+        if !File.exists?(StargateCentral::pathToCentral()) then
+            puts "I need the Infinity drive"
+            LucilleCore:: pressEnterToContinue()
+        end
+
+        if !File.exists?(StargateCentral::pathToCentral()) then
+            puts "I needed the Infinity drive. Exiting"
+            exit
+        end
+
+        puts "downloading blob from Stargate Central: #{nhash}"
+        blob = DatablobsStargateCentralSQLBLobStores::getBlobOrNull(nhash)
+        if blob then
+            DatablobsXCache::putBlob(blob)
+            return blob
+        end
+
+        nil
+    end
+end
+
+class EnergyGridClassicElizabeth
+
+    def commitBlob(blob)
+        EnergyGridClassicDatablobs::putBlob(blob)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        EnergyGridClassicDatablobs::getBlobOrNull(nhash)
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "EnergyGridClassicElizabeth: (error: a02556b0-1852-4dbb-8048-9a3f5b75c3cd) could not find blob, nhash: #{nhash}"
+        raise "(error: 290d45ea-4d54-40f1-9da5-4d6be6e2a8a2, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: b97a25ea-50ad-4d87-8a42-d887be5b37d6) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+end
+
+class EnergyGridUniqueBlobs
+
+    # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
+    def self.decideFilepathForUniqueBlob(nhash)
+        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/UniqueBlobs/#{nhash[7, 2]}/#{nhash}.data"
+        folderpath1 = File.dirname(filepath1)
+        if !File.exists?(folderpath1) then
+            FileUtils.mkdir(folderpath1)
+        end
+        filepath1
+    end
+
+    # EnergyGridUniqueBlobs::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
+        File.open(filepath1, "w"){|f| f.write(blob) }
+        nhash
+    end
+
+    # EnergyGridUniqueBlobs::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
+        if File.exists?(filepath1) then
+            return IO.read(filepath1)
+        end
+        puts "Using Classic".green
+        blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
+        if blob then
+            EnergyGridUniqueBlobs::putBlob(blob)
+        end
+        blob
     end
 end

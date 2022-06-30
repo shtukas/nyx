@@ -73,7 +73,7 @@ class FileSystemCheck
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            if operator.getBlobOrNull(nhash).nil? then
+            if EnergyGridUniqueBlobs::getBlobOrNull(nhash).nil? then
                 puts "object, could not find the text data".red
                 puts JSON.pretty_generate(object).red
                 exit 1
@@ -232,7 +232,7 @@ class FileSystemCheck
         Librarian::objects().each{|item|
             exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
             next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}")
-            operator = EnergyGridElizabeth.new()
+            operator = EnergyGridClassicElizabeth.new()
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, true)
             XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}", true)
         }

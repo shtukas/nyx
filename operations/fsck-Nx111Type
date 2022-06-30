@@ -1,0 +1,18 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+exit if ARGV[0].nil?
+
+type = ARGV[0]
+
+Librarian::objects().each{|item|
+    next if item["nx111"].nil?
+    next if item["nx111"]["type"] != type
+    operator = EnergyGridClassicElizabeth.new()
+    FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, operator, true)
+}
+puts "fsck completed successfully".green
+

@@ -106,7 +106,7 @@ class EditionDesk
             end
             location = "#{location}.txt"
             nhash = nx111["nhash"]
-            text = EnergyGridElizabeth.new().getBlobOrNull(nhash)
+            text = EnergyGridUniqueBlobs::getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             return location
         end
@@ -124,7 +124,7 @@ class EditionDesk
             filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
-                    blob = EnergyGridElizabeth.new().getBlobOrNull(nhash)
+                    blob = EnergyGridClassicElizabeth.new().getBlobOrNull(nhash)
                     raise "(error: a614a728-fb28-455f-9430-43aab78ea35f)" if blob.nil?
                     f.write(blob)
                 }
@@ -132,7 +132,7 @@ class EditionDesk
             return filepath
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridElizabeth.new() 
+            operator = EnergyGridClassicElizabeth.new() 
             rootnhash = nx111["rootnhash"]
             flag, exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
@@ -199,7 +199,7 @@ class EditionDesk
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = EnergyGridElizabeth.new().commitBlob(text)
+            nhash = EnergyGridClassicElizabeth.new().commitBlob(text)
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             item["nx111"] = nx111
@@ -225,7 +225,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridElizabeth.new()
+            operator = EnergyGridClassicElizabeth.new()
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash

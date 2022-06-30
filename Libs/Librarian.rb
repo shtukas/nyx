@@ -194,7 +194,7 @@ class Librarian
         end
 
         if Machines::isLucille20() then
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, EnergyGridElizabeth.new(), false)
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, EnergyGridClassicElizabeth.new(), false)
         end
 
         Librarian::commitIdentical(event)

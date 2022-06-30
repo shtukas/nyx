@@ -26,7 +26,7 @@ class PrimitiveFiles
         return nil if !File.file?(filepath)
         dottedExtension = File.extname(filepath)
         nhash = CommonUtils::filepathToContentHash(filepath)
-        parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, EnergyGridElizabeth.new())
+        parts = PrimitiveFiles::commitFileReturnPartsHashsImproved(filepath, EnergyGridClassicElizabeth.new())
         return [dottedExtension, nhash, parts]
     end
 end
