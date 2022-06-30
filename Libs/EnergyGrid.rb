@@ -306,7 +306,7 @@ class EnergyGridUniqueBlobs
 
     # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
     def self.decideFilepathForUniqueBlob(nhash)
-        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Unique-Blobs/#{nhash[7, 2]}/#{nhash}.data"
+        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data/#{nhash[7, 2]}/#{nhash}.data"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
             FileUtils.mkdir(folderpath1)
@@ -396,7 +396,7 @@ class EnergyGridOperatorsImmutableDataIslands
 
     # EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
     def self.decideFilepathForIslandOrNull(nhash)
-        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data-Islands/#{nhash[7, 2]}/#{nhash}.data"
+        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
             FileUtils.mkdir(folderpath1)

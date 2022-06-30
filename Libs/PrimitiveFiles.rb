@@ -6,7 +6,7 @@ class PrimitiveFiles
     # PrimitiveFiles::decideFilepathForPrimitiveFileDataIsland(parts)
     def self.decideFilepathForPrimitiveFileDataIsland(parts)
         nhash = Digest::SHA1.hexdigest(parts.join(":"))
-        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data-Islands/#{nhash[0, 2]}/#{nhash}.primitive-file-island.sqlite3"
+        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data/#{nhash[0, 2]}/#{nhash}.primitive-file-island.sqlite3"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
             FileUtils.mkdir(folderpath1)
