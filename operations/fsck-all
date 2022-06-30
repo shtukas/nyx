@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-FileSystemCheck::fsck(false)
+FileSystemCheck::fsck(true)

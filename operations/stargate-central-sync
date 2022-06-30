@@ -13,5 +13,5 @@ EventSync::infinityEventsSync()
 # We do the following to make sure we have a self contained datablob repository on local
 if Machines::isLucille20() then
     puts "File system check"
-    FileSystemCheck::fsck()
+    FileSystemCheck::fsck(false)
 end

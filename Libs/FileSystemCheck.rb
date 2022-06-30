@@ -43,7 +43,6 @@ class Elizabeth
             false
         end
     end
-
 end
 
 AionCore::commitLocationReturnHash(operator, location)
@@ -113,7 +112,7 @@ class FileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            elizabeth = EnergyGridOperatorsImmutableDataIslands::getElizabethForIslandForNhash(rootnhash)
+            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(rootnhash)
             status = AionFsck::structureCheckAionHash(elizabeth, rootnhash)
             if !status then
                 puts "object, could not validate aion-point".red
@@ -129,11 +128,8 @@ class FileSystemCheck
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::dx8UnitFolder(unitId)
             puts "location: #{location}"
-            status = File.exists?(location)
-            if !status then
-                puts "could not find location".red
-                puts JSON.pretty_generate(object).red
-                exit 1
+            if !File.exists?(location) then
+                puts "note: could not find location for Dx8Unit: #{unitId}".red
             end
             return
         end
@@ -235,11 +231,13 @@ class FileSystemCheck
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc) unsupported mikuType: #{item["mikuType"]}"
     end
 
-    # FileSystemCheck::fsck()
-    def self.fsck()
+    # FileSystemCheck::fsck(all)
+    def self.fsck(all)
         Librarian::objects().each{|item|
             exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-            next if XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}")
+            if !all and XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}") then
+                next
+            end
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
             XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}", true)
         }

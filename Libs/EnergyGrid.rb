@@ -293,12 +293,11 @@ class EnergyGridUniqueBlobs
         if File.exists?(filepath1) then
             return IO.read(filepath1)
         end
-        blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
-
-        if blob then
-            puts "EnergyGridUniqueBlobs: found blob in classical sense, nhash: #{nhash}".green
-            EnergyGridUniqueBlobs::putBlob(blob)
-        end
+        #blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
+        #if blob then
+        #    puts "EnergyGridUniqueBlobs: found blob in classical sense, nhash: #{nhash}".green
+        #    EnergyGridUniqueBlobs::putBlob(blob)
+        #end
         blob
     end
 end
@@ -337,13 +336,13 @@ class EnergyGridImmutableDataIsland
         end
         db.close
 
-        if blob.nil? then
-            blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
-            if blob then
-                puts "EnergyGridImmutableDataIsland: found blob in classical sense, nhash: #{nhash}".green
-                putBlob(blob)
-            end
-        end
+        #if blob.nil? then
+        #    blob = EnergyGridClassicDatablobs::getBlobOrNull(nhash)
+        #    if blob then
+        #        puts "EnergyGridImmutableDataIsland: found blob in classical sense, nhash: #{nhash}".green
+        #        putBlob(blob)
+        #    end
+        #end
 
         blob
     end
@@ -396,14 +395,15 @@ class EnergyGridImmutableDataIslandElizabeth
     end
 
     def relocateToNhash(nhash)
-        filepath1 = EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+        filepath1 = EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
         relocateToFilepath(filepath1)
+        puts "island #{nhash} relocated to #{filepath1}"
     end
 end
 
-class EnergyGridOperatorsImmutableDataIslands
+class EnergyGridImmutableDataIslandsOperator
 
-    # EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+    # EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
     def self.decideFilepathForIslandOrNull(nhash)
         filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
         folderpath1 = File.dirname(filepath1)
@@ -413,20 +413,20 @@ class EnergyGridOperatorsImmutableDataIslands
         filepath1
     end
 
-    # EnergyGridOperatorsImmutableDataIslands::getIslandForNhash(nhash)
+    # EnergyGridImmutableDataIslandsOperator::getIslandForNhash(nhash)
     def self.getIslandForNhash(nhash)
-        filepath1 = EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+        filepath1 = EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
         EnergyGridImmutableDataIsland.new(filepath1)
     end
 
-    # EnergyGridOperatorsImmutableDataIslands::getElizabethForTemporaryIsland()
+    # EnergyGridImmutableDataIslandsOperator::getElizabethForTemporaryIsland()
     def self.getElizabethForTemporaryIsland()
         EnergyGridImmutableDataIslandElizabeth.new("/tmp/#{SecureRandom.uuid}")
     end
 
-    # EnergyGridOperatorsImmutableDataIslands::getElizabethForIslandForNhash(nhash)
+    # EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(nhash)
     def self.getElizabethForIslandForNhash(nhash)
-        filepath1 = EnergyGridOperatorsImmutableDataIslands::decideFilepathForIslandOrNull(nhash)
+        filepath1 = EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
         EnergyGridImmutableDataIslandElizabeth.new(filepath1)
     end
 end

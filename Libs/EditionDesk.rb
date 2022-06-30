@@ -238,7 +238,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            dataIsland = EnergyGridOperatorsImmutableDataIslands::getIslandForNhash(nx111["rootnhash"])
+            dataIsland = EnergyGridImmutableDataIslandsOperator::getIslandForNhash(nx111["rootnhash"])
             rootnhash = AionCore::commitLocationReturnHash(dataIsland, location)
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(dataIsland, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash
