@@ -1,55 +1,5 @@
 # encoding: UTF-8
 
-class StargateUtils
-
-    # StargateUtils::propagateDatablobs(folderpath1, folderpath2)
-    def self.propagateDatablobs(folderpath1, folderpath2)
-        Find.find(folderpath1) do |path|
-            next if File.basename(path)[-5, 5] != ".data"
-            filename = File.basename(path)
-            targetfolderpath = "#{folderpath2}/#{filename[7, 2]}"
-            targetfilepath = "#{targetfolderpath}/#{filename}"
-            next if File.exist?(targetfilepath)
-            if !File.exists?(targetfolderpath) then
-                FileUtils.mkdir(targetfolderpath)
-            end
-            puts "copying datablob: #{filename}"
-            DatablobsStargateCentralSQLBLobStores::putBlob(blob)
-        end
-    end
-
-    # StargateUtils::propagateDatablobsWithPrimaryDeletion(folderpath1, folderpath2)
-    def self.propagateDatablobsWithPrimaryDeletion(folderpath1, folderpath2)
-        Find.find(folderpath1) do |path|
-            next if File.basename(path)[-5, 5] != ".data"
-            filename = File.basename(path)
-            targetfolderpath = "#{folderpath2}/#{filename[7, 2]}"
-            targetfilepath = "#{targetfolderpath}/#{filename}"
-            if File.exist?(targetfilepath) then
-                FileUtils.rm(path)
-                next
-            end
-            if !File.exists?(targetfolderpath) then
-                FileUtils.mkdir(targetfolderpath)
-            end
-            puts "copying datablob: #{filename}"
-            FileUtils.cp(path, targetfilepath)
-            FileUtils.rm(path)
-        end
-    end
-
-    # StargateUtils::transferDatablobsLocalBufferOutToDatablobsStargateCentralSQLBLobStores()
-    def self.transferDatablobsLocalBufferOutToDatablobsStargateCentralSQLBLobStores()
-        Find.find(DatablobsLocalBufferOut::repositoryFolderpath()) do |path|
-            next if File.basename(path)[-5, 5] != ".data"
-            puts "copying datablob: #{File.basename(path)}"
-            blob = IO.read(path)
-            DatablobsStargateCentralSQLBLobStores::putBlob(blob)
-            FileUtils.rm(path)
-        end
-    end
-end
-
 class DatablobsXCache
 
     # DatablobsXCache::putBlob(blob)
@@ -65,165 +15,13 @@ class DatablobsXCache
     end
 end
 
-class DatablobsLocalBufferOut
-
-    # DatablobsLocalBufferOut::repositoryFolderpath()
-    def self.repositoryFolderpath()
-        "#{Config::pathToDataBankStargate()}/DatablobsBufferOut"
-    end
-
-    # DatablobsLocalBufferOut::decideFilepathForBlob(nhash)
-    def self.decideFilepathForBlob(nhash)
-        filepath = "#{DatablobsLocalBufferOut::repositoryFolderpath()}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        filepath
-    end
-
-    # DatablobsLocalBufferOut::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = DatablobsLocalBufferOut::decideFilepathForBlob(nhash)
-        File.open(filepath, "w"){|f| f.write(blob) }
-        nhash
-    end
-
-    # DatablobsLocalBufferOut::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        filepath = DatablobsLocalBufferOut::decideFilepathForBlob(nhash)
-        if File.exists?(filepath) then
-            return IO.read(filepath)
-        end
-        nil
-    end
-end
-
-class DatablobsStargateCentralClassic
-
-    # DatablobsStargateCentralClassic::repositoryFolderpath()
-    def self.repositoryFolderpath()
-        "#{StargateCentral::pathToCentral()}/DatablobsDepth1"
-    end
-
-    # DatablobsStargateCentralClassic::decideFilepathForBlob(nhash)
-    def self.decideFilepathForBlob(nhash)
-        if !File.exists?(DatablobsStargateCentralClassic::repositoryFolderpath()) then
-            puts "Please plug the drive"
-            LucilleCore::pressEnterToContinue()
-            if !File.exists?(DatablobsStargateCentralClassic::repositoryFolderpath()) then
-                puts "Could not find the drive"
-                exit
-            end
-        end
-        filepath = "#{DatablobsStargateCentralClassic::repositoryFolderpath()}/#{nhash[7, 2]}/#{nhash}.data"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkpath(File.dirname(filepath))
-        end
-        filepath
-    end
-
-    # DatablobsStargateCentralClassic::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath = DatablobsStargateCentralClassic::decideFilepathForBlob(nhash)
-        File.open(filepath, "w"){|f| f.write(blob) }
-        nhash
-    end
-
-    # DatablobsStargateCentralClassic::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        filepath = DatablobsStargateCentralClassic::decideFilepathForBlob(nhash)
-        if File.exists?(filepath) then
-            return IO.read(filepath)
-        end
-        nil
-    end
-end
-
-class DatablobsStargateCentralSQLBLobStores
-
-    # DatablobsStargateCentralSQLBLobStores::computeFilepath(nhash, indx)
-    def self.computeFilepath(nhash, indx)
-        raise "(error: c381f53b-6312-46d4-8621-2a2e6538364b)" if indx < 1
-        "#{StargateCentral::pathToCentral()}/BlobStores/#{nhash[7, indx]}.sqlite3"
-    end
-
-    # DatablobsStargateCentralSQLBLobStores::decideFilepathForPut(nhash)
-    def self.decideFilepathForPut(nhash)
-        indx = 0
-        loop {
-            indx = indx + 1
-
-            filepath = DatablobsStargateCentralSQLBLobStores::computeFilepath(nhash, indx)
-
-            if !File.exists?(filepath) then
-                db = SQLite3::Database.new(filepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute "create table _data_ (_key_ text, _blob_ blob);"
-                db.close
-            end
-
-            gigabyte = 1024*1024*1024
-            if File.size(filepath) < gigabyte then
-                return filepath
-            end
-        }
-    end
-
-    # -----------------------------------------------------
-
-    # DatablobsStargateCentralSQLBLobStores::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        indx = 0
-        loop {
-            indx = indx + 1
-
-            filepath = DatablobsStargateCentralSQLBLobStores::computeFilepath(nhash, indx)
-
-            if !File.exists?(filepath) then
-                return nil
-            end
-
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            blob = nil
-            db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
-                blob = row["_blob_"]
-            end
-            db.close
-            blob
-
-            if blob then
-                return blob
-            end
-        }
-    end
-
-    # DatablobsStargateCentralSQLBLobStores::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        return nhash if !DatablobsStargateCentralSQLBLobStores::getBlobOrNull(nhash).nil?
-        filepath = DatablobsStargateCentralSQLBLobStores::decideFilepathForPut(nhash)
-        db = SQLite3::Database.new(filepath)
-        db.execute "delete from _data_ where _key_=?", [nhash]
-        db.execute "insert into _data_ (_key_, _blob_) values (?, ?)", [nhash, blob]
-        db.close
-        nhash
-    end
-end
-
 # -----------------------------------------------------------
 
 class EnergyGridUniqueBlobs
 
     # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
     def self.decideFilepathForUniqueBlob(nhash)
-        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data/#{nhash[7, 2]}/#{nhash}.data"
+        filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
             FileUtils.mkdir(folderpath1)
@@ -245,7 +43,15 @@ class EnergyGridUniqueBlobs
         if File.exists?(filepath1) then
             return IO.read(filepath1)
         end
-        blob
+
+        #blob = DatablobsXCache::getBlobOrNull(nhash)
+        #if blob then
+        #    puts "EnergyGridUniqueBlobs: Got from xcache: #{nhash}".green
+        #    EnergyGridUniqueBlobs::putBlob(blob)
+        #    return blob
+        #end
+
+        nil
     end
 end
 
@@ -282,6 +88,14 @@ class EnergyGridImmutableDataIsland
             blob = row["_blob_"]
         end
         db.close
+        return blob if blob
+
+        #blob = DatablobsXCache::getBlobOrNull(nhash)
+        #if blob then
+        #    puts "EnergyGridImmutableDataIsland: Got from xcache: #{nhash}".green
+        #    putBlob(blob)
+        #end
+
         blob
     end
 end
@@ -343,7 +157,7 @@ class EnergyGridImmutableDataIslandsOperator
 
     # EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
     def self.decideFilepathForIslandOrNull(nhash)
-        filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
+        filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
             FileUtils.mkdir(folderpath1)

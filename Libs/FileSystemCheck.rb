@@ -231,15 +231,27 @@ class FileSystemCheck
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc) unsupported mikuType: #{item["mikuType"]}"
     end
 
-    # FileSystemCheck::fsck(all)
-    def self.fsck(all)
+    # FileSystemCheck::fsck(shouldReset)
+    def self.fsck(shouldReset)
+        runHash = XCache::getOrNull("76001cea-f0c6-4e68-862b-5060d3c8bcd5")
+
+        if runHash.nil? then
+            runHash = SecureRandom.hex
+            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
+        end
+
+        if shouldReset then
+            puts "resetting fsck runhash"
+            sleep 1
+            runHash = SecureRandom.hex
+            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
+        end
+
         Librarian::objects().each{|item|
             exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
-            if !all and XCache::getFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}") then
-                next
-            end
+            next if XCache::getFlag("#{runHash}:#{JSON.generate(item)}")
             FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
-            XCache::setFlag("625ef9cb-9586-4537-97e9-f25daed3bca7:#{JSON.generate(item)}", true)
+            XCache::setFlag("#{runHash}:#{JSON.generate(item)}", true)
         }
         puts "fsck completed successfully".green
     end
