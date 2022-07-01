@@ -47,7 +47,7 @@ class PrimitiveFiles
         return nil if !File.exists?(filepath)
         return nil if !File.file?(filepath)
         dottedExtension = File.extname(filepath)
-        nhash, hashes = PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(filepath)
+        nhash, parts = PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(filepath)
         [dottedExtension, nhash, parts]
     end
 end

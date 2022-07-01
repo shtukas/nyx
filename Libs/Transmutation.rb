@@ -21,6 +21,14 @@ class Transmutation
             return
         end
 
+        if source == "NxDataNode" and target == "NxEvent" then
+            return true if isSimulation
+            item["mikuType"] = "NxEvent"
+            item["datetime"] = CommonUtils::interactiveDateTimeBuilder()
+            Librarian::commit(item)
+            return
+        end
+
         if source == "NxDataNode" and target == "NxPerson" then
             return true if isSimulation
             item["mikuType"] = "NxPerson"

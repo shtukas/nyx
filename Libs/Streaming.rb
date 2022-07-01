@@ -92,6 +92,7 @@ class Streaming
 
     # Streaming::rstream()
     def self.rstream()
+        NxBallsService::issue("1ee2805a-f8ee-4a73-a92a-c76d9d45359a", "(rstream)", ["1ee2805a-f8ee-4a73-a92a-c76d9d45359a"])
         items = NxTasks::items()
                     .shuffle
                     .take(20)
@@ -108,19 +109,19 @@ class Streaming
         [{
             "uuid" => uuid,
             "mikuType" => "(rstream)",
-            "announce" => "(rstream, rt: #{rt.round(1)})"
+            "announce" => "(rstream, hour, rt: #{rt.round(1)})"
         }]
     end
 
     # Streaming::listingItemInfinity()
     def self.listingItemInfinity()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a"
+        uuid = "b8f2a945-9b7f-42d8-99d2-676f2822254a"
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return [] if rt < 1
         [{
             "uuid" => uuid,
             "mikuType" => "(rstream)",
-            "announce" => "(rstream, rt: #{rt.round(1)})"
+            "announce" => "(rstream, infinity, rt: #{rt.round(1)})"
         }]
     end
 end

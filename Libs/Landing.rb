@@ -171,7 +171,7 @@ class Landing
 
             if item["nx111"] then
                 if item["nx111"]["type"] == "file" then
-                    puts "nx111: nhash: #{item["nx111"]["nhash"]} (#{item["nx111"]["parts"].size} parts)".yellow
+                    puts "nx111: file: nhash: #{item["nx111"]["nhash"]} (#{item["nx111"]["parts"].size} parts)".yellow
                 else
                     puts "nx111: #{item["nx111"]}".yellow
                 end

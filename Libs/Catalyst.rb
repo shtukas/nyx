@@ -15,7 +15,7 @@ class Catalyst
 
     # Catalyst::itemsForSection2()
     def self.itemsForSection2()
-        [
+        items = [
             Streaming::listingItemForAnHour(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
@@ -23,12 +23,17 @@ class Catalyst
             TxDateds::itemsForListing(),
             TxProjects::itemsForMainListing(),
             TxTaskQueues::itemsForMainListing(),
-            NxTasks::itemsForMainListing(),
-            Streaming::listingItemInfinity()
+            NxTasks::itemsForMainListing()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+
+        if items.size == 0 then
+            items = Streaming::listingItemInfinity()
+        end
+
+        items
     end
 
     # Catalyst::printListing(floatingItems, runningItems, mainListingItems)
