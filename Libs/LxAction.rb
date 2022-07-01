@@ -257,15 +257,8 @@ class LxAction
         end
 
         if command == "transmute" then
-            if item["mikuType"] == "TxDated" then
-                Transmutation::transmutation2(item, "TxDated")
-                return
-            end
-
-            if item["mikuType"] == "NxTask" then
-                Transmutation::transmutation2(item, "NxTask")
-                return
-            end
+            Transmutation::transmutation2(item, item["mikuType"])
+            return
         end
 
         if command == "wave" then
