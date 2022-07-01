@@ -204,6 +204,7 @@ class Catalyst
                 break
             end
 
+            #puts "(NxTasks-Inbox)"
             LucilleCore::locationsAtFolder("/Users/pascal/Desktop/NxTasks-Inbox").each{|location|
                 item = NxTasks::issueFromInboxLocation(location)
                 puts JSON.pretty_generate(item)
@@ -228,14 +229,17 @@ class Catalyst
                 ordinal
             }
 
-            #puts "(items for listing)"
+            #puts "(floatingItems)"
             floatingItems = Catalyst::itemsForSection1()
 
+            #puts "(mainListingItems)"
             mainListingItems = Catalyst::itemsForSection2()
             mainListingItems.each{|item| getOrdinalForListingItem.call(item) } # to put them in order at start of day
             mainListingItems = mainListingItems.sort{|i1, i2| getOrdinalForListingItem.call(i1) <=> getOrdinalForListingItem.call(i2) }
 
             runningItems, mainListingItems = mainListingItems.partition{|item| NxBallsService::isActive(item["uuid"]) }
+
+            #puts "(Catalyst::printListing)"
             Catalyst::printListing(floatingItems, runningItems, mainListingItems)
         }
     end

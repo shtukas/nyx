@@ -417,6 +417,18 @@ class Commands
                     "name" => "TxProjects::items()",
                     "lambda" => lambda { TxProjects::items() }
                 },
+                {
+                    "name" => "Catalyst::itemsForSection2()",
+                    "lambda" => lambda { Catalyst::itemsForSection2() }
+                },
+                {
+                    "name" => "Streaming::listingItemForAnHour()",
+                    "lambda" => lambda { Streaming::listingItemForAnHour() }
+                },
+                {
+                    "name" => "NxTasks::itemsForMainListing()",
+                    "lambda" => lambda { NxTasks::itemsForMainListing() }
+                },
             ]
 
             # dry run to initialise things
@@ -430,11 +442,11 @@ class Commands
             results = tests
                         .map{|test|
                             t1 = Time.new.to_f
-                            test["lambda"].call()
+                            (1..5).each{ test["lambda"].call() }
                             t2 = Time.new.to_f
                             {
                                 "name" => test["name"],
-                                "runtime" => t2 - t1
+                                "runtime" => (t2 - t1).to_f/5
                             }
                         }
                         .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
