@@ -22,6 +22,14 @@ class Nx07
         item
     end
 
+    # Nx07::unlink(owneruuid, targetuuid)
+    def self.unlink(owneruuid, targetuuid)
+        Nx07::items()
+            .select{|item| item["owneruuid"] == owneruuid and item["taskuuid"] == targetuuid }
+            .each{|item| Librarian::destroyClique(item["uuid"]) }
+
+    end
+
     # Nx07::owneruuidToTaskuuids(owneruuid)
     def self.owneruuidToTaskuuids(owneruuid)
         Nx07::items()

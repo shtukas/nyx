@@ -74,6 +74,14 @@ class TxTaskQueues
     def self.getFirstTaskOrNull(queue)
         Nx07::owneruuidToTaskuuids(queue["uuid"]).each{|uuid|
             task = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
+            next if task.nil?
+            if task["mikuType"] != "NxTask" then
+                # Some maintenance:
+                # Happens when the task has been transformed to a Nyx node, but the link between
+                # the queue and the task still exists.
+                Nx07::unlink(queue["uuid"], task["uuid"])
+                next
+            end
             return task if task
         }
         nil
