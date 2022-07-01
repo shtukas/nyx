@@ -4,6 +4,9 @@
 
 require_relative "../Libs/loader.rb"
 
+puts "Librarian::maintenance()"
+Librarian::maintenance()
+
 puts "StargateCentralData::propagateData()"
 StargateCentralData::propagateData()
 

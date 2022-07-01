@@ -138,7 +138,7 @@ class Librarian
 
         EventsToCentral::publish(object)
         EventsToAWSQueue::publish(object)
-        Cliques::garbageCollectLocalCliqueAutomatic(object["uuid"])
+        Cliques::reduceLocalCliqueToOne(object["uuid"])
     end
 
     # --------------------------------------------------------------
