@@ -101,10 +101,11 @@ class NxTasks
 
     # NxTasks::nx20s()
     def self.nx20s()
+        return []
         NxTasks::items()
             .map{|item|
                 {
-                    "announce" => NxTasks::toStringForSearch(item),
+                    "announce" => "(#{item["uuid"][0, 4]}) #{NxTasks::toString(item)}",
                     "unixtime" => item["unixtime"],
                     "payload"  => item
                 }
