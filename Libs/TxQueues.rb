@@ -1,17 +1,17 @@
 
 # encoding: UTF-8
 
-class TxTaskQueues
+class TxQueues
 
     # ----------------------------------------------------------------------
     # IO
 
-    # TxTaskQueues::items()
+    # TxQueues::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxTaskQueue")
+        Librarian::getObjectsByMikuType("TxQueue")
     end
 
-    # TxTaskQueues::destroy(uuid)
+    # TxQueues::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroyClique(uuid)
     end
@@ -19,7 +19,7 @@ class TxTaskQueues
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # TxTaskQueues::interactivelyIssueNewItemOrNull()
+    # TxQueues::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -33,7 +33,7 @@ class TxTaskQueues
         item = {
             "uuid"        => SecureRandom.uuid,
             "variant"     => SecureRandom.uuid,
-            "mikuType"    => "TxTaskQueue",
+            "mikuType"    => "TxQueue",
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
@@ -46,31 +46,31 @@ class TxTaskQueues
     # ----------------------------------------------------------------------
     # Data
 
-    # TxTaskQueues::toString(item)
+    # TxQueues::toString(item)
     def self.toString(item)
         count = TxNumbersAcceleration::count(item)
         "(queue) #{item["description"]} #{Ax39::toString(item)} (#{count})"
     end
 
-    # TxTaskQueues::tasks(queue)
+    # TxQueues::tasks(queue)
     def self.tasks(queue)
         Nx07::owneruuidToTaskuuids(queue["uuid"])
             .map{|uuid| Librarian::getObjectByUUIDOrNullEnforceUnique(uuid) }
             .compact
     end
 
-    # TxTaskQueues::nx20s()
+    # TxQueues::nx20s()
     def self.nx20s()
-        TxTaskQueues::items().map{|item| 
+        TxQueues::items().map{|item| 
             {
-                "announce" => "(#{item["uuid"][0, 4]}) #{TxTaskQueues::toString(item)}",
+                "announce" => "(#{item["uuid"][0, 4]}) #{TxQueues::toString(item)}",
                 "unixtime" => item["unixtime"],
                 "payload"  => item
             }
         }
     end
 
-    # TxTaskQueues::getFirstTaskOrNull(queue)
+    # TxQueues::getFirstTaskOrNull(queue)
     def self.getFirstTaskOrNull(queue)
         Nx07::owneruuidToTaskuuids(queue["uuid"]).each{|uuid|
             task = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
@@ -87,23 +87,23 @@ class TxTaskQueues
         nil
     end
 
-    # TxTaskQueues::itemsForMainListing()
+    # TxQueues::itemsForMainListing()
     def self.itemsForMainListing()
         # We are not displaying the queues (they are independently displayed in section 1, for landing)
         # Instead we are displaying the first element of any queue that has not yet met they target
-        TxTaskQueues::items()
+        TxQueues::items()
             .select{|item| Ax39::itemShouldShow(item) }
-            .map{|queue| TxTaskQueues::getFirstTaskOrNull(queue) }
+            .map{|queue| TxQueues::getFirstTaskOrNull(queue) }
             .compact
     end
 
     # ------------------------------------------------
     # Operations
 
-    # TxTaskQueues::diving(queue)
+    # TxQueues::diving(queue)
     def self.diving(queue)
         loop {
-            tasks = TxTaskQueues::tasks(queue)
+            tasks = TxQueues::tasks(queue)
                         .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
                         .first(10)
             if tasks.size == 0 then
@@ -117,7 +117,7 @@ class TxTaskQueues
         }
     end
 
-    # TxTaskQueues::landing(queue)
+    # TxQueues::landing(queue)
     def self.landing(queue)
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["update description", "access tasks"])
         return if action.nil?
@@ -127,7 +127,7 @@ class TxTaskQueues
             Librarian::commit(queue)
         end
         if action == "access tasks" then
-            TxTaskQueues::diving(queue)
+            TxQueues::diving(queue)
         end
     end
 end

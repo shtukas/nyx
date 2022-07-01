@@ -1,8 +1,8 @@
 
-TxTaskQueue {
+TxQueue {
     "uuid"        : uuid
     "variant"     : String # Primary Key
-    "mikuType"    : "TxTaskQueue"
+    "mikuType"    : "TxQueue"
     "unixtime"    : unixtime
     "description" : description
     "ax39"        : Ax39

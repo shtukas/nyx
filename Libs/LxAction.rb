@@ -22,8 +22,8 @@ class LxAction
 
             # Special circumstances
 
-            if item["mikuType"] == "TxTaskQueue" then
-                task = TxTaskQueues::getFirstTaskOrNull(item)
+            if item["mikuType"] == "TxQueue" then
+                task = TxQueues::getFirstTaskOrNull(item)
                 return if task.nil?
                 LxAction::action("start", task)
                 return
@@ -61,15 +61,9 @@ class LxAction
         end
 
         if command == ">nyx" then
-            if item["mikuType"] == "NxTask" then
-                Transmutation::transmutation1(item, "NxTask", "NxDataNode")
-                return
-            end
-
-            if item["mikuType"] == "TxDated" then
-                Transmutation::transmutation1(item, "TxDated", "NxDataNode")
-                return
-            end
+            NxBallsService::close(item["uuid"], true)
+            Transmutation::transmutation1(item, item["mikuType"], "NxDataNode")
+            return
         end
 
         if command == "access" then
@@ -108,8 +102,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxTaskQueue" then
-                TxTaskQueues::diving(item)
+            if item["mikuType"] == "TxQueue" then
+                TxQueues::diving(item)
                 return
             end
 
@@ -143,6 +137,13 @@ class LxAction
 
             if item["mikuType"] == "NxBall.v2" then
                 NxBallsService::close(item["uuid"], true)
+                return
+            end
+
+            if item["mikuType"] == "NxTask" then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
+                    Librarian::destroyClique(item["uuid"])
+                end
                 return
             end
 
@@ -210,8 +211,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxTaskQueue" then
-                TxTaskQueues::landing(item)
+            if item["mikuType"] == "TxQueue" then
+                TxQueues::landing(item)
                 return
             end
 

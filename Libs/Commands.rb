@@ -73,11 +73,12 @@ class Commands
             return
         end
 
-        if Interpreting::match("Ax39", input) then
-            item = store.getDefault()
+        if Interpreting::match("Ax39 *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
             return if item.nil?
-            return if !["TxProject", "TxTaskQueue"].include?(item["mikuType"])
-            item["ax39"] = Ax39::interactivelyCreateNewAxOrNull()
+            return if !["TxProject", "TxQueue"].include?(item["mikuType"])
+            item["ax39"] = Ax39::interactivelyCreateNewAx(item["mikuType"])
             Librarian::commit(item)
             return
         end
@@ -255,7 +256,7 @@ class Commands
         end
 
         if input == "queue" then
-            item = TxTaskQueues::interactivelyIssueNewItemOrNull()
+            item = TxQueues::interactivelyIssueNewItemOrNull()
             puts JSON.pretty_generate(item)
             return
         end
@@ -410,8 +411,8 @@ class Commands
                     "lambda" => lambda { NxFrames::items() }
                 },
                 {
-                    "name" => "TxTaskQueues::items()",
-                    "lambda" => lambda { TxTaskQueues::items() }
+                    "name" => "TxQueues::items()",
+                    "lambda" => lambda { TxQueues::items() }
                 },
                 {
                     "name" => "TxProjects::items()",

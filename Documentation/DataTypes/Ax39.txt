@@ -2,7 +2,11 @@ Ax39 represents a time commitment, either daily or weekly.
 
 It is carried by 
     - TxProject
-    - TxTaskQueue
+    - TxQueue
+
+{
+    "type"  => "daily-singleton-run" # limited to projects
+}
 
 {
     "type"  => "daily-time-commitment"

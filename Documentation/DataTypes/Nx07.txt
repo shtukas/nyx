@@ -1,4 +1,4 @@
-Nx07 is the link between TxTaskQueue and NxTask
+Nx07 is the link between TxQueue and NxTask
 
 {
     "uuid"        : String

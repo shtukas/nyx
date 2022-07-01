@@ -6,7 +6,7 @@ class Catalyst
     def self.itemsForSection1()
         [
             NxFrames::items(),
-            TxTaskQueues::items(),
+            TxQueues::items(),
             TxProjects::items(),
         ]   
             .flatten
@@ -22,7 +22,7 @@ class Catalyst
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
             TxProjects::itemsForMainListing(),
-            TxTaskQueues::itemsForMainListing(),
+            TxQueues::itemsForMainListing(),
             NxTasks::itemsForMainListing()
         ]
             .flatten
@@ -63,26 +63,12 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
-        timeCompleted = lambda{|item|
-            if  ["TxProject", "TxTaskQueue"].include?(item["mikuType"]) then
-                return !Ax39::itemShouldShow(item)
-            end
-            if item["mikuType"] == "NxFrame" then
-                return true
-            end
-            puts JSON.pretty_generate(item)
-            raise "(error: 917a8c8e-286f-4c19-9219-ab3e567069f3)"
-        }
-
         puts ""
         vspaceleft = vspaceleft - 1
         floatingItems
             .each{|item|
                 store.register(item, false)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
-                if timeCompleted.call(item) then
-                    line = line.yellow
-                end
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end

@@ -218,7 +218,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxTaskQueue" then
+        if item["mikuType"] == "TxQueue" then
             return
         end
 

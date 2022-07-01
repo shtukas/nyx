@@ -23,7 +23,7 @@ if $RunNonEssentialThreads then
     Thread.new {
         sleep 10
         loop {
-            (TxProjects::items()+TxTaskQueues::items()).each{|item|
+            (TxProjects::items()+TxQueues::items()).each{|item|
 
                 rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
                 XCache::set("zero-rt-6e6e6fbebbc5:#{item["uuid"]}", rt)
