@@ -11,13 +11,6 @@ class Ax1Text
         Librarian::getObjectsByMikuType("Ax1Text")
     end
 
-    # Ax1Text::itemsForOwner(owneruuid)
-    def self.itemsForOwner(owneruuid)
-        Ax1Text::items()
-            .select{|item| item["owneruuid"] == owneruuid }
-            .sort{|a1, a2| a1["unixtime"] <=> a2["unixtime"] }
-    end
-
     # Ax1Text::destroy(uuid)
     def self.destroy(uuid)
         Librarian::destroyClique(uuid)
@@ -26,18 +19,19 @@ class Ax1Text
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # Ax1Text::interactivelyIssueNewOrNullForOwner(owneruuid)
-    def self.interactivelyIssueNewOrNullForOwner(owneruuid)
+    # Ax1Text::interactivelyIssueNewOrNullForOwner()
+    def self.interactivelyIssueNewOrNullForOwner()
         text = CommonUtils::editTextSynchronously("")
         nhash = EnergyGridUniqueBlobs::putBlob(text)
         unixtime = Time.new.to_i
+        datetime = Time.new.utc.iso8601
         item = {
-          "uuid"      => SecureRandom.uuid,
-          "variant"   => SecureRandom.uuid,
-          "mikuType"  => "Ax1Text",
-          "owneruuid" => owneruuid,
-          "unixtime"  => unixtime,
-          "nhash"     => nhash
+          "uuid"     => SecureRandom.uuid,
+          "variant"  => SecureRandom.uuid,
+          "mikuType" => "Ax1Text",
+          "unixtime" => unixtime,
+          "datetime" => datetime,
+          "nhash"    => nhash
         }
         Librarian::commit(item)
         item

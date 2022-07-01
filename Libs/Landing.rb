@@ -9,11 +9,6 @@ class Landing
 
         store = ItemStore.new()
 
-        Ax1Text::itemsForOwner(uuid).each{|note|
-            indx = store.register(note, false)
-            puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
-        }
-
         NxLink::related(item["uuid"])
             .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entity| 
@@ -61,11 +56,6 @@ class Landing
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-
-            Ax1Text::itemsForOwner(uuid).each{|note|
-                indx = store.register(note, false)
-                puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
-            }
 
             related  = NxLink::related(item["uuid"])
 
@@ -118,7 +108,8 @@ class Landing
             end
 
             if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner()
+                NxLink::issue(item["uuid"], ox["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end
@@ -179,11 +170,6 @@ class Landing
                 puts "nx111: (not found)".yellow
             end
 
-            Ax1Text::itemsForOwner(uuid).each{|note|
-                indx = store.register(note, false)
-                puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
-            }
-
             NxLink::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
@@ -235,7 +221,8 @@ class Landing
             end
 
             if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner()
+                NxLink::issue(item["uuid"], ox["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end
@@ -285,11 +272,6 @@ class Landing
             puts "nhash: #{item["nhash"]}".yellow
             puts "parts (count): #{item["parts"].size}".yellow
 
-            Ax1Text::itemsForOwner(uuid).each{|note|
-                indx = store.register(note, false)
-                puts "[#{indx.to_s.ljust(3)}] (note) #{Ax1Text::toString(note)}" 
-            }
-
             NxLink::related(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
@@ -330,7 +312,8 @@ class Landing
             end
 
             if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner(item["uuid"])
+                ox = Ax1Text::interactivelyIssueNewOrNullForOwner()
+                NxLink::issue(item["uuid"], ox["uuid"])
                 puts JSON.pretty_generate(ox)
                 next
             end

@@ -108,11 +108,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxProject" then
-                TxProjects::selectedSelfOrTaskAndStart(item)
-                return
-            end
-
             if item["mikuType"] == "TxTaskQueue" then
                 TxTaskQueues::diving(item)
                 return
@@ -215,11 +210,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxProject" then
-                TxProjects::landing(item)
-                return
-            end
-
             if item["mikuType"] == "TxTaskQueue" then
                 TxTaskQueues::landing(item)
                 return
@@ -231,7 +221,7 @@ class LxAction
 
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
-                datetime = (CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull() || Time.new.utc.iso8601)
+                datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
                 item["datetime"] = datetime
                 Librarian::commit(item)
                 return

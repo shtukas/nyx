@@ -47,7 +47,7 @@ class Transmutation
         if source == "NxFrame" and target == "TxDated" then
             return true if isSimulation
             item["mikuType"] = "TxDated"
-            item["datetime"] = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+            item["datetime"] = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
             Librarian::commit(item)
             return
         end

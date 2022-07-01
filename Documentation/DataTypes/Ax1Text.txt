@@ -1,4 +1,4 @@
-The Ax1Text is a type of attachement to a node. 
+The Ax1Text is a type of Nyx node
 It contains (editable) text.
 The toString function takes the first line.
 It replaces regular attachment when we only wanted to store a line or some text.
@@ -7,7 +7,6 @@ It replaces regular attachment when we only wanted to store a line or some text.
     "uuid"        : String
     "variant"     : String # Primary Key
     "mikuType"    : "Ax1Text"
-    "owneruuid"   : String
     "unixtime"    : Float
     "nhash"       : nhash of the blobs of text
                     # Managed by EnergyGridUniqueBlobs (.data)

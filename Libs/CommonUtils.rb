@@ -201,8 +201,8 @@ class CommonUtils
         Time.at(unixtime).to_s[0, 10]
     end
 
-    # CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
-    def self.interactivelySelectAUTCIso8601DateTimeOrNull()
+    # CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
+    def self.interactivelySelectDateTimeIso8601OrNullUsingDateCode()
         unixtime = CommonUtils::interactivelySelectUnixtimeOrNull()
         return nil if unixtime.nil?
         Time.at(unixtime).utc.iso8601

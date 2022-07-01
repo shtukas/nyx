@@ -24,7 +24,7 @@ class TxDateds
             puts "description: #{description}"
         end
 
-        datetime = CommonUtils::interactivelySelectAUTCIso8601DateTimeOrNull()
+        datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
         return nil if datetime.nil?
 
         uuid = SecureRandom.uuid
