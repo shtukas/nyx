@@ -144,7 +144,7 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = EnergyGridImmutableDataIsland.new()
+            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(rootnhash)
 
             flag, exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))

@@ -170,7 +170,11 @@ class Landing
             puts "datetime: #{item["datetime"]}".yellow
 
             if item["nx111"] then
-                puts "nx111: nhash: #{item["nx111"]["nhash"]} (#{item["nx111"]["parts"].size} parts)".yellow
+                if item["nx111"]["type"] == "file" then
+                    puts "nx111: nhash: #{item["nx111"]["nhash"]} (#{item["nx111"]["parts"].size} parts)".yellow
+                else
+                    puts "nx111: #{item["nx111"]}".yellow
+                end
             else
                 puts "nx111: (not found)".yellow
             end
