@@ -419,16 +419,16 @@ class Commands
                     "lambda" => lambda { TxProjects::items() }
                 },
                 {
-                    "name" => "Catalyst::itemsForSection2()",
-                    "lambda" => lambda { Catalyst::itemsForSection2() }
-                },
-                {
                     "name" => "Streaming::listingItemForAnHour()",
                     "lambda" => lambda { Streaming::listingItemForAnHour() }
                 },
                 {
                     "name" => "NxTasks::itemsForMainListing()",
                     "lambda" => lambda { NxTasks::itemsForMainListing() }
+                },
+                {
+                    "name" => "NxOrdinals::itemsForListing()",
+                    "lambda" => lambda { NxOrdinals::itemsForListing() }
                 },
             ]
 

@@ -1,5 +1,8 @@
 # encoding: UTF-8
 
+
+$OrdinalForListingItems = {}
+
 class Catalyst
 
     # Catalyst::itemsForSection1()
@@ -198,10 +201,17 @@ class Catalyst
             }
 
             getOrdinalForListingItem = lambda {|item|
+                if $OrdinalForListingItems[item["uuid"]] then
+                    return $OrdinalForListingItems[item["uuid"]]
+                end
+
                 ordinal = XCache::getOrNull("9BF9:67703767-B635-486E-683397DEA056:#{CommonUtils::today()}:#{item["uuid"]}")
                 if ordinal then
-                    return ordinal.to_f
+                    ordinal = ordinal.to_f
+                    $OrdinalForListingItems[item["uuid"]] = ordinal
+                    return ordinal
                 end
+
                 # By here we do not have an ordinal for this item, so we need one
                 ordinal = XCache::getOrNull("9BF9:TOP-ORDINAL-486E-683397DEA056:#{CommonUtils::today()}")
                 if ordinal.nil? then
@@ -210,19 +220,27 @@ class Catalyst
                     ordinal = ordinal.to_f
                 end
                 ordinal = ordinal + 1
+
                 XCache::set("9BF9:TOP-ORDINAL-486E-683397DEA056:#{CommonUtils::today()}", ordinal)
                 XCache::set("9BF9:67703767-B635-486E-683397DEA056:#{CommonUtils::today()}:#{item["uuid"]}", ordinal)
+                $OrdinalForListingItems[item["uuid"]] = ordinal
+
                 ordinal
             }
 
             #puts "(floatingItems)"
             floatingItems = Catalyst::itemsForSection1()
 
-            #puts "(mainListingItems)"
+            #puts "(mainListingItems) 1"
             mainListingItems = Catalyst::itemsForSection2()
+
+            #puts "(mainListingItems) 2"
             mainListingItems.each{|item| getOrdinalForListingItem.call(item) } # to put them in order at start of day
+
+            #puts "(mainListingItems) 3"
             mainListingItems = mainListingItems.sort{|i1, i2| getOrdinalForListingItem.call(i1) <=> getOrdinalForListingItem.call(i2) }
 
+            #puts "(mainListingItems) 4"
             runningItems, mainListingItems = mainListingItems.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
             #puts "(Catalyst::printListing)"

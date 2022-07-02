@@ -90,10 +90,19 @@ class NxTasks
 
     # NxTasks::toString(item)
     def self.toString(item)
-        nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        owner = Nx07::getOwnerForTaskOrNull(item)
-        ownerstring = owner ? " (queue: #{owner["description"]})" : ""
-        "(task) #{item["description"]}#{nx111String}#{ownerstring}"
+        data = XCache::getOrNull("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}")
+        if data then
+            return data
+        end
+        builder = lambda{
+            nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
+            owner = Nx07::getOwnerForTaskOrNull(item)
+            ownerstring = owner ? " (queue: #{owner["description"]})" : ""
+            "(task) #{item["description"]}#{nx111String}#{ownerstring}"
+        }
+        data = builder.call()
+        XCache::set("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}", data) # string
+        data
     end
 
     # NxTasks::toStringForSearch(item)
@@ -116,9 +125,18 @@ class NxTasks
 
     # NxTasks::itemsForMainListing()
     def self.itemsForMainListing()
-        NxTasks::items()
-            .select{|item| ["inboxed", "active"].include?(item["status"]) }
-            .partition{|item| item["status"] == "inboxed" }
-            .flatten
+        data = XCache::getOrNull("97e294c5-d00d-4be6-a4f6-f3a99d36bf83")
+        if data then
+            return JSON.parse(data)
+        end
+        builder = lambda {
+            NxTasks::items()
+                .select{|item| ["inboxed", "active"].include?(item["status"]) }
+                .partition{|item| item["status"] == "inboxed" }
+                .flatten
+        }
+        data = builder.call()
+        XCache::set("97e294c5-d00d-4be6-a4f6-f3a99d36bf83", JSON.generate(data))
+        data
     end
 end
