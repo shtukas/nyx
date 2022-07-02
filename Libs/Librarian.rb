@@ -182,6 +182,7 @@ class Librarian
         EventsToAWSQueue::publish(event)
         EventsInternal::broadcast({
             "mikuType"        => "(object has been deleted)",
+            "deletedUUID"     => uuid,
             "deletedMikuType" => mikuType
         })
     end

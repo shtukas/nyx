@@ -132,11 +132,7 @@ class EventsInternal
         end
 
         if event["mikuType"] == "(object has been deleted)" then
-            if event["deletedMikuType"] == "NxTask" then
-                EventsInternal::broadcast({
-                    "mikuType" => "(tasks modified)"
-                })
-            end
+            NxTasks::objectDeletionEvent(event["deletedUUID"])
         end
 
         if event["mikuType"] == "(target is getting a new owner)" then

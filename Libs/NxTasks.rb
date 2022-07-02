@@ -127,8 +127,7 @@ class NxTasks
     def self.itemsForMainListing()
         data = XCache::getOrNull("97e294c5-d00d-4be6-a4f6-f3a99d36bf83")
         if data then
-            data = JSON.parse(data)
-            return data.select{|item| Librarian::getClique(item["uuid"]).size > 0 }
+            return JSON.parse(data)
         end
         builder = lambda {
             NxTasks::items()
@@ -140,5 +139,13 @@ class NxTasks
         data = builder.call()
         XCache::set("97e294c5-d00d-4be6-a4f6-f3a99d36bf83", JSON.generate(data))
         data
+    end
+
+    # NxTasks::objectDeletionEvent(uuid)
+    def self.objectDeletionEvent(uuid)
+        data = XCache::getOrNull("97e294c5-d00d-4be6-a4f6-f3a99d36bf83")
+        return if data.nil?
+        data = JSON.parse(data).select{|item| item["uuid"] != uuid }
+        XCache::set("97e294c5-d00d-4be6-a4f6-f3a99d36bf83", JSON.generate(data))
     end
 end
