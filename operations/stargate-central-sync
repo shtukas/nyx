@@ -11,4 +11,4 @@ puts "StargateCentralData::propagateData()"
 StargateCentralData::propagateData()
 
 puts "Infinity Sync"
-EventSync::infinityEventsSync()
+EventsToCentral::sync()

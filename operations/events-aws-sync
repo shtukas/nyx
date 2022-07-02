@@ -4,5 +4,5 @@
 
 require_relative "../Libs/loader.rb"
 
-EventSync::awsSync()
+EventsToAWSQueue::sync()
 

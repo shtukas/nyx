@@ -386,8 +386,8 @@ class Commands
                     "lambda" => lambda { CommonUtils::generalCodeTrace() }
                 },
                 {
-                    "name" => "EventSync::awsSync(false)",
-                    "lambda" => lambda { EventSync::awsSync(false) }
+                    "name" => "EventsToAWSQueue::sync(false)",
+                    "lambda" => lambda { EventsToAWSQueue::sync(false) }
                 },
 
                 {

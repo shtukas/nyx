@@ -7,8 +7,6 @@
     Mercury2::dequeue(channel)
 =end
 
-
-
 class EventsToCentral
 
     # EventsToCentral::publish(event)
@@ -25,6 +23,12 @@ class EventsToCentral
             StargateCentralObjects::commit(object)
             Mercury2::dequeue("23c340bb-c4b3-4326-ba47-62461ba0d063")
         }
+    end
+
+    # EventsToCentral::sync()
+    def self.sync()
+        EventsToCentral::sendLocalEventsToCentral()
+        StargateCentralObjects::objects().each{|object| Librarian::incomingEvent(object, "stargate central")}
     end
 end
 
@@ -77,24 +81,19 @@ class EventsToAWSQueue
             end
         }
     end
-end
 
-class EventSync
+    # EventsToAWSQueue::pullEventsFromSQS(verbose)
+    def self.pullEventsFromSQS(verbose)
+        AWSSQS::pullAndProcessEvents(verbose)
+    end
 
-    # EventSync::awsSync(verbose)
-    def self.awsSync(verbose)
-        #puts "To Machine Event Maintenance Thread"
+    # EventsToAWSQueue::sync(verbose)
+    def self.sync(verbose)
         begin
             EventsToAWSQueue::sendEventsToSQS(verbose)
             AWSSQS::pullAndProcessEvents(verbose)
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
         end
-    end
-
-    # EventSync::infinityEventsSync()
-    def self.infinityEventsSync()
-        EventsToCentral::sendLocalEventsToCentral()
-        StargateCentralObjects::objects().each{|object| Librarian::incomingEvent(object, "stargate central")}
     end
 end
