@@ -40,7 +40,7 @@ class EnergyGridUniqueBlobs
     # EnergyGridUniqueBlobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
-        puts filepath1.green
+        #puts filepath1.green
         if File.exists?(filepath1) then
             return IO.read(filepath1)
         end
@@ -48,7 +48,7 @@ class EnergyGridUniqueBlobs
         StargateCentral::askForInfinityAndFailIfNot()
 
         filepath1 = filepath1.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
-        puts filepath1.green
+        #puts filepath1.green
         if File.exists?(filepath1) then
             return IO.read(filepath1)
         end

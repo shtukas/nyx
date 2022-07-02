@@ -200,7 +200,6 @@ class Librarian
             if source then
                 puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
             end
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, false)
             Librarian::commitIdentical(event)
         end
 
