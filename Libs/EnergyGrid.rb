@@ -40,16 +40,18 @@ class EnergyGridUniqueBlobs
     # EnergyGridUniqueBlobs::getBlobOrNull(nhash)
     def self.getBlobOrNull(nhash)
         filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
+        puts filepath1.green
         if File.exists?(filepath1) then
             return IO.read(filepath1)
         end
 
-        #blob = DatablobsXCache::getBlobOrNull(nhash)
-        #if blob then
-        #    puts "EnergyGridUniqueBlobs: Got from xcache: #{nhash}".green
-        #    EnergyGridUniqueBlobs::putBlob(blob)
-        #    return blob
-        #end
+        StargateCentral::askForInfinityAndFailIfNot()
+
+        filepath1 = filepath1.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
+        puts filepath1.green
+        if File.exists?(filepath1) then
+            return IO.read(filepath1)
+        end
 
         nil
     end
@@ -93,7 +95,7 @@ class EnergyGridImmutableDataIsland
         StargateCentral::askForInfinityAndFailIfNot()
 
         stargateFilepath = @databaseFilepath.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
-        
+
         db = SQLite3::Database.new(stargateFilepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -105,13 +107,7 @@ class EnergyGridImmutableDataIsland
         db.close
         return blob if blob
 
-        #blob = DatablobsXCache::getBlobOrNull(nhash)
-        #if blob then
-        #    puts "EnergyGridImmutableDataIsland: Got from xcache: #{nhash}".green
-        #    putBlob(blob)
-        #end
-
-        blob
+        nil
     end
 end
 
