@@ -4,6 +4,18 @@ class StargateCentral
     def self.pathToCentral()
         "/Volumes/Infinity/Data/Pascal/Stargate-Central"
     end
+
+    # StargateCentral::askForInfinityAndFailIfNot()
+    def self.askForInfinityAndFailIfNot()
+        if !File.exists?(StargateCentral::pathToCentral()) then
+            puts "Please plug the Infinity drive"
+            LucilleCore::pressEnterToContinue()
+        end
+        if !File.exists?(StargateCentral::pathToCentral()) then
+            puts "Could not find the Infinity drive. Exiting."
+            exit
+        end
+    end
 end
 
 class StargateCentralData

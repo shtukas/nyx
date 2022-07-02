@@ -90,6 +90,21 @@ class EnergyGridImmutableDataIsland
         db.close
         return blob if blob
 
+        StargateCentral::askForInfinityAndFailIfNot()
+
+        stargateFilepath = @databaseFilepath.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
+        
+        db = SQLite3::Database.new(stargateFilepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _data_ where _key_=?", [nhash]) do |row|
+            blob = row["_blob_"]
+        end
+        db.close
+        return blob if blob
+
         #blob = DatablobsXCache::getBlobOrNull(nhash)
         #if blob then
         #    puts "EnergyGridImmutableDataIsland: Got from xcache: #{nhash}".green
