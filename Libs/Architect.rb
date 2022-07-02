@@ -48,7 +48,7 @@ class Architect
             return NxPersons::interactivelyIssueNewOrNull()
         end
         if action == "NxEntity" then
-            return NxEntities::interactivelyIssueNewOrNull()
+            return NxEntities::interactivelyIssueNewItemOrNull()
         end
         if action == "NxConcepts" then
             return NxConcepts::interactivelyIssueNewItemOrNull()
