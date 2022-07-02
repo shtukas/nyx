@@ -28,7 +28,7 @@ class TxQueues
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        ax39 = Ax39::interactivelyCreateNewAx()
+        ax39 = Ax39::interactivelyCreateNewAx("TxQueue")
 
         item = {
             "uuid"        => SecureRandom.uuid,

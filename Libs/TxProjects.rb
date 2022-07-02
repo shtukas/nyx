@@ -30,7 +30,7 @@ class TxProjects
 
         nx111 = Nx111::interactivelyCreateNewNx111OrNull()
 
-        ax39 = Ax39::interactivelyCreateNewAx()
+        ax39 = Ax39::interactivelyCreateNewAx("TxProject")
 
         item = {
             "uuid"        => SecureRandom.uuid,
