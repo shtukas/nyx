@@ -20,18 +20,18 @@ class PrimitiveFiles
         raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
 
         # The interface of v2 is simpler, we get the filepath and return the hashes. In the meantime 
-        # an island will have been created and populated.
+        # an island (through the Elizabeth) will have been created and populated
 
         nhash = CommonUtils::filepathToContentHash(filepath)
 
         filepath1 = "/tmp/#{SecureRandom.uuid}"
-        island = EnergyGridImmutableDataIsland.new(filepath1)
+        elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath1)
 
         parts = []
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            parts << island.putBlob(blob)
+            parts << elizabeth.putBlob(blob)
         end
         f.close()
 

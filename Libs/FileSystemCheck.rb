@@ -93,14 +93,9 @@ class FileSystemCheck
                 puts "primitive parts, dotted extension is malformed".red
                 exit 1
             end
-            dataIslandFilepath = PrimitiveFiles::decideFilepathForPrimitiveFileDataIsland(parts)
-            if !File.exists?(dataIslandFilepath) then
-                puts "Cannot see a data island for those parts, but this is not failure condition".red
-                return
-            end
-            dataIsland = EnergyGridImmutableDataIsland.new(dataIslandFilepath)
+            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForPrimitiveFileParts(parts)
             parts.each{|nhash|
-                blob = dataIsland.getBlobOrNull(nhash)
+                blob = elizabeth.getBlobOrNull(nhash)
                 if blob.nil? then
                     puts "object:".red
                     puts JSON.pretty_generate(object).red

@@ -124,18 +124,11 @@ class EditionDesk
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             
-            dataIslandFilepath = PrimitiveFiles::decideFilepathForPrimitiveFileDataIsland(parts)
-            if !File.exists(dataIslandFilepath) then
-                puts "I could not find a data island for nhash: #{nhash}. Edition aborted."
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            dataIsland = EnergyGridImmutableDataIsland.new(dataIslandFilepath)
-
+            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForPrimitiveFileParts(parts)
             filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
-                    blob = dataIsland.getBlobOrNull(nhash)
+                    blob = elizabeth.getBlobOrNull(nhash)
                     raise "(error: a614a728-fb28-455f-9430-43aab78ea35f)" if blob.nil?
                     f.write(blob)
                 }

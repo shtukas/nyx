@@ -192,4 +192,15 @@ class EnergyGridImmutableDataIslandsOperator
         filepath1 = EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
         EnergyGridImmutableDataIslandElizabeth.new(filepath1)
     end
+
+    # EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath)
+    def self.getElizabethForFilepath(filepath)
+        EnergyGridImmutableDataIslandElizabeth.new(filepath)
+    end
+
+    # EnergyGridImmutableDataIslandsOperator::getElizabethForPrimitiveFileParts(parts)
+    def self.getElizabethForPrimitiveFileParts(parts)
+        filepath = PrimitiveFiles::decideFilepathForPrimitiveFileDataIsland(parts)
+        EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath)
+    end
 end
