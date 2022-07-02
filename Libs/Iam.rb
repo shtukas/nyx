@@ -10,7 +10,7 @@ class Iam
 
     # Iam::aggregationTypes()
     def self.aggregationTypes()
-        ["NxCollection", "NxPerson", "NxTimeline"]
+        ["NxPerson", "NxEntity", "NxConcept", "NxCollection", "NxTimeline"]
     end
 
     # Iam::implementsNx111(item)

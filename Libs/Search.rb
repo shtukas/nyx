@@ -15,7 +15,9 @@ class Search
             NxFrames::nx20s(),
             NxTasks::nx20s(),
             Waves::nx20s(),
-            NxEvents::nx20s()
+            NxEvents::nx20s(),
+            NxEntities::nx20s(),
+            NxConcepts::nx20s()
         ].flatten
 
         nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }

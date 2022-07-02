@@ -1,0 +1,9 @@
+
+NxEntity {
+    "uuid"        : uuid
+    "variant"     : String # Primary Key
+    "mikuType"    : "NxEntity"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : description
+}
