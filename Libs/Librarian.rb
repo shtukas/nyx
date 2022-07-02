@@ -187,15 +187,14 @@ class Librarian
             Librarian::destroyCliqueNoEvent(event["uuid"])
             return
         end
+
         return if Librarian::getObjectByVariantOrNull(event["variant"]) # we already have this variant
 
         if source then
             puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
         end
 
-        if Machines::isLucille20() then
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, false)
-        end
+        FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, false)
 
         Librarian::commitIdentical(event)
         DoNotShowUntil::incomingEvent(event)

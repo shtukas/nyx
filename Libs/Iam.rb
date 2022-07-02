@@ -23,8 +23,14 @@ class Iam
         Iam::aggregationTypes().include?(item["mikuType"])
     end
 
-    # Iam::processItem(item)
-    def self.processItem(item)
+    # Iam::interactivelyGetTransmutationTargetOrNull()
+    def self.interactivelyGetTransmutationTargetOrNull()
+        options = Iam::nx111Types() + Iam::aggregationTypes()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", options)
+    end
+
+    # Iam::transmutation(item)
+    def self.transmutation(item)
         targetType = Iam::interactivelyGetTransmutationTargetOrNull()
         return if targetType.nil?
         if Iam::nx111Types().include?(item["mikuType"]) and Iam::aggregationTypes().include?(targetType) then
@@ -32,11 +38,5 @@ class Iam
             return if !LucilleCore::askQuestionAnswerAsBoolean("Do you want to continue ? ")
         end
         Transmutation::transmutation1(item, item["mikuType"], targetType)
-    end
-
-    # Iam::interactivelyGetTransmutationTargetOrNull()
-    def self.interactivelyGetTransmutationTargetOrNull()
-        options = Iam::nx111Types() + Iam::aggregationTypes()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("target type", options)
     end
 end

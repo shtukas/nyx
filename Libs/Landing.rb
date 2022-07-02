@@ -104,7 +104,7 @@ class Landing
             end
 
             if Interpreting::match("iam", command) then
-                Iam::processItem(item)
+                Iam::transmutation(item)
             end
 
             if Interpreting::match("note", command) then
@@ -216,7 +216,7 @@ class Landing
             end
 
             if Interpreting::match("iam", command) then
-                Iam::processItem(item)
+                Iam::transmutation(item)
                 return
             end
 
