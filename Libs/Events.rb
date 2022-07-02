@@ -7,31 +7,6 @@
     Mercury2::dequeue(channel)
 =end
 
-class EventsToCentral
-
-    # EventsToCentral::publish(event)
-    def self.publish(event)
-        Mercury2::put("23c340bb-c4b3-4326-ba47-62461ba0d063", event)
-    end
-
-    # EventsToCentral::sendLocalEventsToCentral()
-    def self.sendLocalEventsToCentral()
-        loop {
-            object = Mercury2::readFirstOrNull("23c340bb-c4b3-4326-ba47-62461ba0d063")
-            break if object.nil?
-            puts "EventsToCentral::sendLocalEventsToCentral(): record (from local object repo to central objects): #{JSON.pretty_generate(object)}"
-            StargateCentralObjects::commit(object)
-            Mercury2::dequeue("23c340bb-c4b3-4326-ba47-62461ba0d063")
-        }
-    end
-
-    # EventsToCentral::sync()
-    def self.sync()
-        EventsToCentral::sendLocalEventsToCentral()
-        StargateCentralObjects::objects().each{|object| Librarian::incomingDatabaseObject(object, "stargate central")}
-    end
-end
-
 class EventsToAWSQueue
 
     # EventsToAWSQueue::publish(event)
@@ -87,6 +62,20 @@ class EventsToAWSQueue
         AWSSQS::pullAndProcessEvents(verbose)
     end
 
+    # EventsToAWSQueue::incomingEventFromSQS(event, verbose)
+    def self.incomingEventFromSQS(event, verbose)
+        if event["mikuType"] == "NxBankEvent" then
+            Bank::incomingEvent(event)
+            return
+        end
+        if event["mikuType"] == "NxDoNotShowUntil" then
+            DoNotShowUntil::incomingEvent(event)
+            return
+        end
+        # If an event has not be catured, then we assume it's a database object 
+        Librarian::incomingEvent(event, verbose ? "aws" : nil)
+    end
+
     # EventsToAWSQueue::sync(verbose)
     def self.sync(verbose)
         begin
@@ -104,28 +93,6 @@ class EventsInternal
     def self.broadcast(event)
 
         puts "broadcast: #{JSON.pretty_generate(event)}"
-
-        # --------------------------------------------------------
-        # Librarian Types
-
-        if event["mikuType"] == "NxDNSU" then
-            DoNotShowUntil::incomingEvent(event)
-        end
-
-        if event["mikuType"] == "NxBankOp" then
-            BankExtended::incomingEvent(event)
-        end
-
-        if event["mikuType"] == "Nx07" then
-            EventsInternal::broadcast({
-                "mikuType" => "(tasks modified)"
-            })
-        end
-
-        # --------------------------------------------------------
-        # Internal Operations Types
-
-        # To avoid loops, a latter event type can issue a earlier one, but not the opposite 
 
         if event["mikuType"] == "(tasks modified)" then
             XCache::destroy("97e294c5-d00d-4be6-a4f6-f3a99d36bf83") # Decache the answer of NxTasks::itemsForMainListing()

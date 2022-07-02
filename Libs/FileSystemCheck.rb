@@ -164,20 +164,12 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxBankOp" then
-            return
-        end
-
         if item["mikuType"] == "NxCollection" then
             return
         end
 
         if item["mikuType"] == "NxDataNode" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
-            return
-        end
-
-        if item["mikuType"] == "NxDNSU" then
             return
         end
 

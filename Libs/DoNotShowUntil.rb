@@ -1,68 +1,66 @@
 # encoding: UTF-8
 
+# create table _mapping_ (_uuid_ text primary key, _unixtime_ float);
+
 class DoNotShowUntil
 
-    # DoNotShowUntil::setUnixtime(uid, unixtime)
-    def self.setUnixtime(uid, unixtime)
-        item = {
+    # DoNotShowUntil::pathToMapping()
+    def self.pathToMapping()
+        "/Users/pascal/Galaxy/DataBank/Stargate/DoNotShowUntil.sqlite3"
+    end
+
+    # DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
+    def self.setUnixtimeNoEvent(uuid, unixtime)
+        db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
+        db.execute "delete from _mapping_ where _uuid_=?", [uuid]
+        db.execute "insert into _mapping_ (_uuid_, _unixtime_) values (?, ?)", [uuid, unixtime]
+        db.close
+    end
+
+    # DoNotShowUntil::setUnixtime(uuid, unixtime)
+    def self.setUnixtime(uuid, unixtime)
+        DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
+        event = {
           "uuid"           => SecureRandom.uuid,
-          "variant"        => SecureRandom.uuid,
-          "mikuType"       => "NxDNSU",
+          "mikuType"       => "NxDoNotShowUntil",
           "unixtime"       => Time.new.to_i,
           "targetuuid"     => uid,
           "targetunixtime" => unixtime
         }
-        Librarian::commit(item)
-        XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", unixtime)
+        EventsToAWSQueue::publish(event)
     end
 
     # DoNotShowUntil::incomingEvent(event)
     def self.incomingEvent(event)
-        return if event["mikuType"] != "NxDNSU"
-        uid = event["targetuuid"]
-        existingUnixtimeOpt = DoNotShowUntil::getUnixtimeOrNull(uid)
+        return if event["mikuType"] != "NxDoNotShowUntil"
+        uuid     = event["targetuuid"]
         unixtime = event["targetunixtime"]
-        if existingUnixtimeOpt then
-            unixtime = [unixtime, existingUnixtimeOpt].max
-        end
-        XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", unixtime)
+        DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
     end
 
-    # DoNotShowUntil::getUnixtimeOrNull(uid)
-    def self.getUnixtimeOrNull(uid)
-        unixtime = XCache::getOrNull("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}")
-        if unixtime then
-            return nil if unixtime == "null"
-            return unixtime.to_i
+    # DoNotShowUntil::getUnixtimeOrNull(uuid)
+    def self.getUnixtimeOrNull(uuid)
+        db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        unixtime = nil
+        db.execute("select * from _mapping_ where _uuid_=?", [uuid]) do |row|
+            unixtime = row['_unixtime_']
         end
-
-        #puts "DoNotShowUntil::getUnixtimeOrNull(#{uid})"
-
-        unixtime = Librarian::getObjectsByMikuType("NxDNSU")
-                        .select{|item| item["targetuuid"] == uid }
-                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
-                        .map{|item| item["targetunixtime"] }
-                        .last
-
-        if unixtime then
-            XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", unixtime)
-        else
-            XCache::set("86d82d66-de30-46e6-a7d3-7987b70b80e2:#{uid}", "null")
-        end
-
         unixtime
     end
 
-    # DoNotShowUntil::getDateTimeOrNull(uid)
-    def self.getDateTimeOrNull(uid)
-        unixtime = DoNotShowUntil::getUnixtimeOrNull(uid)
+    # DoNotShowUntil::getDateTimeOrNull(uuid)
+    def self.getDateTimeOrNull(uuid)
+        unixtime = DoNotShowUntil::getUnixtimeOrNull(uuid)
         return nil if unixtime.nil?
         Time.at(unixtime).utc.iso8601
     end
 
-    # DoNotShowUntil::isVisible(uid)
-    def self.isVisible(uid)
-        unixtime = DoNotShowUntil::getUnixtimeOrNull(uid)
+    # DoNotShowUntil::isVisible(uuid)
+    def self.isVisible(uuid)
+        unixtime = DoNotShowUntil::getUnixtimeOrNull(uuid)
         return true if unixtime.nil?
         Time.new.to_i >= unixtime.to_i
     end

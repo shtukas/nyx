@@ -1,9 +1,0 @@
-{
-  "uuid"     : String
-  "variant"  : String # Primary Key
-  "mikuType" : "NxBankOp"
-  "setuuid"  : String
-  "unixtime" : Float
-  "date"     : Date # YYYY-MM-DD
-  "weight"   : real
-}

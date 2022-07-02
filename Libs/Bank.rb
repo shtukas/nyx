@@ -1,31 +1,63 @@
-
 # encoding: UTF-8
+
+# create table _bank_ (_eventuuid_ text primary key, _setuuid_ text, _unixtime_ float, _date_ text, _weight_ float);
 
 class Bank
 
-    # Bank::put(setuuid, weight: Float)
+    # Bank::pathToBank()
+    def self.pathToBank()
+        "/Users/pascal/Galaxy/DataBank/Stargate/bank.sqlite3"
+    end
+
+    # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
+    def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+        db = SQLite3::Database.new(Bank::pathToBank())
+        db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [eventuuid, setuuid, unixtime, date, weight]
+        db.close
+    end
+
+    # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
     def self.put(setuuid, weight)
-        date = CommonUtils::today()
-        item = {
-          "uuid"     => SecureRandom.uuid,
-          "variant"  => SecureRandom.uuid,
-          "mikuType" => "NxBankOp",
+        eventuuid = SecureRandom.uuid
+        unixtime  = Time.new.to_f
+        date      = CommonUtils::today()
+        Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+
+        event = {
+          "uuid"     => eventuuid,
+          "mikuType" => "NxBankEvent",
           "setuuid"  => setuuid,
-          "unixtime" => Time.new.to_i,
+          "unixtime" => unixtime,
           "date"     => date,
           "weight"   => weight
         }
-
-        Librarian::commit(item)
+        EventsToAWSQueue::publish(event)
     end
+
+    # Bank::incomingEvent(event)
+    def self.incomingEvent(event)
+        return if event["mikuType"] != "NxBankEvent"
+        eventuuid = event["uuid"]
+        setuuid   = event["setuuid"]
+        unixtime  = event["unixtime"]
+        date      = event["date"]
+        weight    = event["weight"]
+        Bank::put2(eventuuid, setuuid, unixtime, date, weight)
+    end
+
+
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        Librarian::getObjectsByMikuType("NxBankOp")
-            .select{|item| item["setuuid"] == setuuid }
-            .select{|item| item["date"] == date }
-            .map{|item| item["weight"] }
-            .inject(0, :+)
+        db = SQLite3::Database.new(Bank::pathToBank())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        value = 0
+        db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
+            value = value + row['_weight_']
+        end
+        value
     end
 
     # Bank::combinedValueOnThoseDays(setuuid, dates)
@@ -35,15 +67,6 @@ class Bank
 end
 
 class BankExtended
-
-    # BankExtended::incomingEvent(event)
-    def self.incomingEvent(event)
-        return if event["mikuType"] != "NxBankOp"
-        setuuid = event["setuuid"]
-        date    = event["date"]
-        weight  = event["weight"]
-        
-    end
 
     # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
     def self.timeRatioOverDayCount(setuuid, daysCount)

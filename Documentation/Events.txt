@@ -1,0 +1,7 @@
+### Events
+
+We have two types of events
+
+1. Internal events, at the time those lines are written and reason why they were introduced, mostly used for decaching.
+
+2. SQS events. They are composed of Librarian objects and machine to machine events that are not Librarian objects: NxBankEvent and NxDoNotShowUntil.

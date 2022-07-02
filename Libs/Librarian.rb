@@ -139,7 +139,6 @@ class Librarian
             db.close
         }
 
-        EventsToCentral::publish(object)
         EventsToAWSQueue::publish(object)
         Cliques::reduceLocalCliqueToOne(object["uuid"])
     end
@@ -178,7 +177,6 @@ class Librarian
             "mikuType" => "NxDeleted",
             "lxGenealogyAncestors" => lxGenealogyAncestors
         }
-        EventsToCentral::publish(event)
         EventsToAWSQueue::publish(event)
         EventsInternal::broadcast({
             "mikuType"        => "(object has been deleted)",
@@ -190,59 +188,16 @@ class Librarian
     # --------------------------------------------------------------
     # Incoming Events
 
-    # Librarian::incomingDatabaseObject(event, source)
-    def self.incomingDatabaseObject(event, source)
+    # Librarian::incomingEvent(event, source)
+    def self.incomingEvent(event, source)
         if event["mikuType"] == "NxDeleted" then
             Librarian::destroyCliqueNoEvent(event["uuid"])
             return
         end
-
-        if !Librarian::getObjectByVariantOrNull(event["variant"]) then
-            if source then
-                puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
-            end
-            Librarian::commitIdentical(event)
+        return if Librarian::getObjectByVariantOrNull(event["variant"])
+        if source then
+            puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
         end
-
-        EventsInternal::broadcast(event)
-    end
-
-    # --------------------------------------------------------------
-    # Data Maintenance
-
-    # Librarian::maintenance()
-    def self.maintenance()
-
-        Librarian::getObjectsByMikuType("NxBankOp").each{|item|
-            if (Time.new.to_i - item["unixtime"]) > 86400*30 then
-                puts JSON.pretty_generate(item)
-                Librarian::destroyVariantNoEvent(item["variant"])
-            end
-        }
-
-        if File.exists?(StargateCentral::pathToCentral()) then
-            StargateCentralObjects::getObjectsByMikuType("NxBankOp").each{|item|
-                if (Time.new.to_i - item["unixtime"]) > 86400*30 then
-                    puts JSON.pretty_generate(item)
-                    StargateCentralObjects::destroyVariantNoEvent(item["variant"])
-                end
-            }
-        end
-
-        Librarian::getObjectsByMikuType("NxDNSU").each{|item|
-            if item["targetunixtime"] < Time.new.to_i then
-                puts JSON.pretty_generate(item)
-                Librarian::destroyVariantNoEvent(item["variant"])
-            end
-        }
-
-        if File.exists?(StargateCentral::pathToCentral()) then
-            StargateCentralObjects::getObjectsByMikuType("NxDNSU").each{|item|
-                if item["targetunixtime"] < Time.new.to_i then
-                    puts JSON.pretty_generate(item)
-                    StargateCentralObjects::destroyVariantNoEvent(item["variant"])
-                end
-            }
-        end
+        Librarian::commitIdentical(event)
     end
 end
