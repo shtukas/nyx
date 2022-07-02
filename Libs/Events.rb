@@ -113,7 +113,7 @@ class EventsInternal
         end
 
         if event["mikuType"] == "NxBankOp" then
-            Bank::incomingEvent(event)
+            BankExtended::incomingEvent(event)
         end
 
         if event["mikuType"] == "Nx07" then
