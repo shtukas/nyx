@@ -46,7 +46,13 @@ class Commands
         end
 
         if Interpreting::match(">nyx", input) then
-            LxAction::action(">nyx", store.getDefault())
+            item = store.getDefault()
+            LxAction::action(">nyx", item.clone)
+            if item["mikuType"] == "NxTask" then
+                EventsInternal::broadcast({
+                    "mikuType" => "(tasks modified)"
+                })
+            end
             return
         end
 
