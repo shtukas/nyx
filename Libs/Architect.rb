@@ -39,18 +39,28 @@ class Architect
     def self.interactivelyMakeNewOrNull()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["NxDataNode"] + Iam::aggregationTypes())
         return if action.nil?
-        if action == "NxCollection" then
-            return NxCollections::interactivelyIssueNewItemOrNull()
-        end
-        if action == "NxPerson" then
-            return NxPersons::interactivelyIssueNewOrNull()
-        end
-        if action == "NxTimeline" then
-            return NxTimelines::interactivelyIssueNewItemOrNull()
-        end
+
         if action == "NxDataNode" then
             return NxDataNodes::interactivelyIssueNewItemOrNull()
         end
+
+        if action == "NxPerson" then
+            return NxPersons::interactivelyIssueNewOrNull()
+        end
+        if action == "NxEntity" then
+            return NxEntities::interactivelyIssueNewOrNull()
+        end
+        if action == "NxConcepts" then
+            return NxConcepts::interactivelyIssueNewItemOrNull()
+        end
+        if action == "NxCollection" then
+            return NxCollections::interactivelyIssueNewItemOrNull()
+        end
+
+        if action == "NxTimeline" then
+            return NxTimelines::interactivelyIssueNewItemOrNull()
+        end
+
         raise "(error: 46cb00c3-9c1d-41cd-8d3d-bfc6598d3e73)"
     end
 
