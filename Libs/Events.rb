@@ -132,7 +132,7 @@ class EventsInternal
         end
 
         if event["mikuType"] == "(object has been deleted)" then
-            if event["deletedMikuType"] == "Nxtask" then
+            if event["deletedMikuType"] == "NxTask" then
                 EventsInternal::broadcast({
                     "mikuType" => "(tasks modified)"
                 })

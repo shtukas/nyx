@@ -66,7 +66,7 @@ class NxDataNodes
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
 
-        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(SecureRandom.uuid, location)
+        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(location)
 
         flavour = {
             "type" => "pure-data"

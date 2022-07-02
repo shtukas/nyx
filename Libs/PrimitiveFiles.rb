@@ -50,4 +50,18 @@ class PrimitiveFiles
         nhash, parts = PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(filepath)
         [dottedExtension, nhash, parts]
     end
+
+    # PrimitiveFiles::locationToPrimitiveFileNx111OrNull(location) # Nx111
+    def self.locationToPrimitiveFileNx111OrNull(location)
+        data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location)
+        return nil if data.nil?
+        dottedExtension, nhash, parts = data
+        {
+            "uuid"            => SecureRandom.uuid,
+            "type"            => "file",
+            "dottedExtension" => dottedExtension,
+            "nhash"           => nhash,
+            "parts"           => parts
+        }
+    end
 end

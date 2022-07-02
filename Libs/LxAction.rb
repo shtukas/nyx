@@ -141,14 +141,14 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                     Librarian::destroyClique(item["uuid"])
                 end
                 return
             end
 
             if item["mikuType"] == "NxOrdinal" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxOrdinal '#{LxFunction::function("toString", item).green}' ? ") then
                     Librarian::destroyClique(item["uuid"])
                 end
                 return
@@ -160,7 +160,7 @@ class LxAction
                     TxDateds::destroy(item["uuid"])
                     return
                 end
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of dated '#{item["description"].green}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
                 return
@@ -172,7 +172,7 @@ class LxAction
                     Waves::performWaveNx46WaveDone(item)
                     return
                 end
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm done-ing '#{Waves::toString(item).green} ? '", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm wave done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                 end
                 return
@@ -180,12 +180,8 @@ class LxAction
         end
 
         if command == "destroy" then
-            if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of '#{LxFunction::function("toString", item).green}' ") then
-                if item["mikuType"] == "TxProject" then
-                    Librarian::destroyClique(item["uuid"])
-                    return
-                end
-                raise "(error: e6f4ecd7-8dd5-4a5c-93f6-ce9e80e784ed)"
+            if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
+                Librarian::destroyClique(item["uuid"])
             end
             return
         end
