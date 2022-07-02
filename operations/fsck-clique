@@ -1,0 +1,15 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+exit if ARGV[0].nil?
+
+uuid = ARGV[0]
+
+Librarian::getClique(uuid).each{|item|
+    FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
+}
+puts "fsck completed successfully".green
+

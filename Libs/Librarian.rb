@@ -244,6 +244,5 @@ class Librarian
                 end
             }
         end
-
     end
 end
