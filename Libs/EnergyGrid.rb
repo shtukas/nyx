@@ -150,24 +150,23 @@ class EnergyGridImmutableDataIslandElizabeth
         end
     end
 
-    def relocateToFilepath(filepath)
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkdir(File.dirname(filepath))
-        end
-        FileUtils.mv(@databaseFilepath, filepath)
-    end
+    def recastToNhash(nhash)
+        filepath1 = @databaseFilepath # Where we are.
+        filepath2 = EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash) # Where we are going
 
-    def relocateToNhash(nhash)
-        filepath1 = EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
-        relocateToFilepath(filepath1)
-        puts "island #{nhash} relocated to #{filepath1}"
+        if !File.exists?(File.dirname(filepath2)) then
+            FileUtils.mkdir(File.dirname(filepath2))
+        end
+
+        puts "data island relocating from #{filepath1} to #{filepath2}".green
+        FileUtils.cp(filepath1, filepath2)
     end
 end
 
 class EnergyGridImmutableDataIslandsOperator
 
-    # EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
-    def self.decideFilepathForIslandOrNull(nhash)
+    # EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash)
+    def self.decideIslandFilepathForNhash(nhash)
         filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
@@ -178,19 +177,19 @@ class EnergyGridImmutableDataIslandsOperator
 
     # EnergyGridImmutableDataIslandsOperator::getIslandForNhash(nhash)
     def self.getIslandForNhash(nhash)
-        filepath1 = EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
+        filepath1 = EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash)
         EnergyGridImmutableDataIsland.new(filepath1)
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getElizabethForTemporaryIsland()
-    def self.getElizabethForTemporaryIsland()
+    # EnergyGridImmutableDataIslandsOperator::getElizabethWithTemporaryIsland()
+    def self.getElizabethWithTemporaryIsland()
         EnergyGridImmutableDataIslandElizabeth.new("/tmp/#{SecureRandom.uuid}")
     end
 
     # EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(nhash)
     def self.getElizabethForIslandForNhash(nhash)
-        filepath1 = EnergyGridImmutableDataIslandsOperator::decideFilepathForIslandOrNull(nhash)
-        EnergyGridImmutableDataIslandElizabeth.new(filepath1)
+        filepath = EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash)
+        EnergyGridImmutableDataIslandElizabeth.new(filepath)
     end
 
     # EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath)

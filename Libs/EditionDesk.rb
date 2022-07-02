@@ -231,11 +231,14 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            dataIsland = EnergyGridImmutableDataIslandsOperator::getIslandForNhash(nx111["rootnhash"])
-            rootnhash = AionCore::commitLocationReturnHash(dataIsland, location)
-            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(dataIsland, rootnhash, CommonUtils::sanitiseStringForFilenaming(item["description"]))
-            return if nx111["rootnhash"] == rootnhash
-            nx111["rootnhash"] = rootnhash
+
+            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(nx111["rootnhash"])
+            rootnhash1 = AionCore::commitLocationReturnHash(elizabeth, location)
+            rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(elizabeth, rootnhash1, CommonUtils::sanitiseStringForFilenaming(item["description"]))
+            return if nx111["rootnhash"] == rootnhash2
+            nx111["rootnhash"] = rootnhash2
+            # If we update the nx111's roothash, then we need to make a copy of the existing island and rename it
+            elizabeth.recastToNhash(rootnhash2)
             item["nx111"] = nx111
             Librarian::commit(item)
             return
