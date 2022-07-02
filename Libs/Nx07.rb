@@ -22,6 +22,11 @@ class Nx07
         EventsInternal::broadcast({
             "mikuType" => "(tasks modified)"
         })
+        EventsInternal::broadcast({
+            "mikuType"   => "(target is getting a new owner)",
+            "owneruuid"  => owneruuid,
+            "targetuuid" => taskuuid
+        })
         item
     end
 
@@ -44,10 +49,27 @@ class Nx07
 
     # Nx07::taskuuidToOwneruuidOrNull(taskuuid)
     def self.taskuuidToOwneruuidOrNull(taskuuid)
-        Nx07::items()
-            .select{|item| item["taskuuid"] == taskuuid }
-            .map{|item| item["owneruuid"] }
-            .first
+        owneruuid = XCache::getOrNull("a2f66362-9959-424a-ae64-759998f1119b:#{taskuuid}")
+        if owneruuid == "nothing" then
+            return nil
+        end
+        if owneruuid then
+            return owneruuid
+        end
+        databuilder = lambda{
+            Nx07::items()
+                .select{|item| item["taskuuid"] == taskuuid }
+                .map{|item| item["owneruuid"] }
+                .first
+        }
+        owneruuid = databuilder.call()
+        if owneruuid then
+            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{taskuuid}", owneruuid)
+            owneruuid
+        else
+            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{taskuuid}", "nothing")
+            nil
+        end
     end
 
     # Nx07::getOwnerForTaskOrNull(task)
