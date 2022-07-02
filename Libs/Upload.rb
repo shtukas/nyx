@@ -44,8 +44,15 @@ class Upload
     # Upload::interactivelyUploadToItem(item)
     def self.interactivelyUploadToItem(item)
         puts "Upload to '#{LxFunction::function("toString", item)}'".green
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["aion-points", "primitive files"])
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["single file", "aion-points", "primitive files"])
         return if action.nil?
+        if action == "single file" then
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            return if location.nil?
+            child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
+            return if child.nil?
+            NxLink::issue(item["uuid"], child["uuid"])
+        end
         if action == "aion-points" then
             Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item)
         end
