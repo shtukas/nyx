@@ -19,6 +19,9 @@ class Nx07
             "taskuuid"  => taskuuid
         }
         Librarian::commit(item)
+        EventsInternal::broadcast({
+            "mikuType" => "(tasks modified)"
+        })
         item
     end
 

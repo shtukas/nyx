@@ -28,7 +28,7 @@ class EventsToCentral
     # EventsToCentral::sync()
     def self.sync()
         EventsToCentral::sendLocalEventsToCentral()
-        StargateCentralObjects::objects().each{|object| Librarian::incomingEvent(object, "stargate central")}
+        StargateCentralObjects::objects().each{|object| Librarian::incomingDatabaseObject(object, "stargate central")}
     end
 end
 
@@ -94,6 +94,47 @@ class EventsToAWSQueue
             AWSSQS::pullAndProcessEvents(verbose)
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
+        end
+    end
+end
+
+class EventsInternal
+
+    # EventsInternal::broadcast(event)
+    def self.broadcast(event)
+
+        puts "broadcast: #{JSON.pretty_generate(event)}"
+
+        # --------------------------------------------------------
+        # Librarian Types
+
+        if event["mikuType"] == "NxDNSU" then
+            DoNotShowUntil::incomingEvent(event)
+        end
+
+        if event["mikuType"] == "NxBankOp" then
+            Bank::incomingEvent(event)
+        end
+
+        if event["mikuType"] == "Nx07" then
+            EventsInternal::broadcast({
+                "mikuType" => "(tasks modified)"
+            })
+        end
+
+        # --------------------------------------------------------
+        # Internal Operations Types
+
+        if event["mikuType"] == "(object has been deleted)" then
+            if event["deletedMikuType"] == "Nxtask" then
+                EventsInternal::broadcast({
+                    "mikuType" => "(tasks modified)"
+                })
+            end
+        end
+
+        if event["mikuType"] == "(tasks modified)" then
+            XCache::destroy("97e294c5-d00d-4be6-a4f6-f3a99d36bf83") # Decache the answer of NxTasks::itemsForMainListing()
         end
     end
 end

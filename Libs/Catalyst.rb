@@ -235,7 +235,7 @@ class Catalyst
             mainListingItems = Catalyst::itemsForSection2()
 
             #puts "(mainListingItems) 2"
-            mainListingItems.shuffle.each{|item| getOrdinalForListingItem.call(item) }
+            mainListingItems.each{|item| getOrdinalForListingItem.call(item) }
 
             #puts "(mainListingItems) 3"
             mainListingItems = mainListingItems.sort{|i1, i2| getOrdinalForListingItem.call(i1) <=> getOrdinalForListingItem.call(i2) }

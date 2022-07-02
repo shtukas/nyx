@@ -104,6 +104,8 @@ class Librarian
 
     # Librarian::commitIdentical(object)
     def self.commitIdentical(object)
+        # Do not internal event broadcast from inside this function
+
         raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
         $database_semaphore.synchronize {
@@ -117,6 +119,7 @@ class Librarian
 
     # Librarian::commit(object)
     def self.commit(object)
+        # Do not internal event broadcast from inside this function
 
         raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
@@ -166,6 +169,7 @@ class Librarian
     def self.destroyClique(uuid)
         objects = Librarian::getClique(uuid)
         return if objects.empty?
+        mikuType = objects[0]["mikuType"]
         Librarian::destroyCliqueNoEvent(uuid)
         lxGenealogyAncestors = objects.map{|object| object["lxGenealogyAncestors"] }.flatten + [SecureRandom.uuid]
         event = {
@@ -176,29 +180,31 @@ class Librarian
         }
         EventsToCentral::publish(event)
         EventsToAWSQueue::publish(event)
+        EventsInternal::broadcast({
+            "mikuType"        => "(object has been deleted)",
+            "deletedMikuType" => mikuType
+        })
     end
 
     # --------------------------------------------------------------
     # Incoming Events
 
-    # Librarian::incomingEvent(event, source)
-    def self.incomingEvent(event, source)
+    # Librarian::incomingDatabaseObject(event, source)
+    def self.incomingDatabaseObject(event, source)
         if event["mikuType"] == "NxDeleted" then
             Librarian::destroyCliqueNoEvent(event["uuid"])
             return
         end
 
-        return if Librarian::getObjectByVariantOrNull(event["variant"]) # we already have this variant
-
-        if source then
-            puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
+        if !Librarian::getObjectByVariantOrNull(event["variant"]) then
+            if source then
+                puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
+            end
+            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, false)
+            Librarian::commitIdentical(event)
         end
 
-        FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(event, false)
-
-        Librarian::commitIdentical(event)
-        DoNotShowUntil::incomingEvent(event)
-        Bank::incomingEvent(event)
+        EventsInternal::broadcast(event)
     end
 
     # --------------------------------------------------------------

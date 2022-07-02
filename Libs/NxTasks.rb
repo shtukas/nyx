@@ -132,6 +132,7 @@ class NxTasks
         builder = lambda {
             NxTasks::items()
                 .select{|item| ["inboxed", "active"].include?(item["status"]) }
+                .select{|item| Nx07::getOwnerForTaskOrNull(item).nil? }
                 .partition{|item| item["status"] == "inboxed" }
                 .flatten
         }
