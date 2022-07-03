@@ -86,19 +86,12 @@ class Nx07
 
     # Nx07::architectOwnerOrNull()
     def self.architectOwnerOrNull()
-        items = (TxQueues::items()+TxProjects::items())
+        items = TxQueues::items()
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         item = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", items, lambda{|item| LxFunction::function("toString", item) })
         return item if item
-        if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner (queue or project) ? ") then
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["project", "queue"])
-            return nil if action.nil
-            if action == "project" then
-                return TxProjects::interactivelyIssueNewItemOrNull()
-            end
-            if action == "queue" then
-                return TxQueues::interactivelyIssueNewItemOrNull()
-            end
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner (queue) ? ") then
+            return TxQueues::interactivelyIssueNewItemOrNull()
         end
     end
 end
