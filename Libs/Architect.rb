@@ -43,20 +43,18 @@ class Architect
         if action == "NxDataNode" then
             return NxDataNodes::interactivelyIssueNewItemOrNull()
         end
-
         if action == "NxPerson" then
             return NxPersons::interactivelyIssueNewOrNull()
         end
         if action == "NxEntity" then
             return NxEntities::interactivelyIssueNewItemOrNull()
         end
-        if action == "NxConcepts" then
+        if action == "NxConcept" then
             return NxConcepts::interactivelyIssueNewItemOrNull()
         end
         if action == "NxCollection" then
             return NxCollections::interactivelyIssueNewItemOrNull()
         end
-
         if action == "NxTimeline" then
             return NxTimelines::interactivelyIssueNewItemOrNull()
         end
