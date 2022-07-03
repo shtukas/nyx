@@ -93,12 +93,15 @@ class Catalyst
                 }
         end
 
-        top = IO.read("/Users/pascal/Desktop/top.txt").strip.lines.select{|line| line.strip.size > 0 }.join.strip
-        if top.size > 0 then
-            puts ""
-            puts "top:"
-            puts top.green
-            vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 2)
+        content = IO.read("/Users/pascal/Desktop/top.txt").strip
+        if content.size > 0 then
+            top = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
+            if top.size > 0 then
+                puts ""
+                puts "top:"
+                puts top.green
+                vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 2)
+            end
         end
 
         ordinals = NxOrdinals::itemsForListing()
