@@ -24,7 +24,7 @@ class DoNotShowUntil
           "uuid"           => SecureRandom.uuid,
           "mikuType"       => "NxDoNotShowUntil",
           "unixtime"       => Time.new.to_i,
-          "targetuuid"     => uid,
+          "targetuuid"     => uuid,
           "targetunixtime" => unixtime
         }
         EventsToAWSQueue::publish(event)
