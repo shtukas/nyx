@@ -12,6 +12,7 @@ class Bank
     # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
     def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
         db = SQLite3::Database.new(Bank::pathToBank())
+        db.execute "delete from _bank_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [eventuuid, setuuid, unixtime, date, weight]
         db.close
     end
