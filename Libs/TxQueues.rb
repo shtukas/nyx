@@ -46,10 +46,18 @@ class TxQueues
     # ----------------------------------------------------------------------
     # Data
 
+    # TxQueues::queueSize(item)
+    def self.queueSize(item)
+        size = XCache::getOrNull("78fe9aa9-99b2-4430-913b-1512880bf323:#{item["uuid"]}")
+        return size.to_i if size
+        size = Nx07::principaluuidToTaskuuids(item["uuid"]).size
+        XCache::set("78fe9aa9-99b2-4430-913b-1512880bf323:#{item["uuid"]}", size)
+        size
+    end
+
     # TxQueues::toString(item)
     def self.toString(item)
-        count = Nx07::principaluuidToTaskuuids(item["uuid"]).size
-        "(queue) #{item["description"]} #{Ax39::toString(item)} (#{count})"
+        "(queue) #{item["description"]} #{Ax39::toString(item)} (#{TxQueues::queueSize(item)})"
     end
 
     # TxQueues::tasks(queue)
