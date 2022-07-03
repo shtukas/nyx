@@ -31,6 +31,7 @@ class Bank
         unixtime  = Time.new.to_f
         date      = CommonUtils::today()
         Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+        XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
 
         event = {
           "uuid"     => eventuuid,
@@ -52,10 +53,14 @@ class Bank
         date      = event["date"]
         weight    = event["weight"]
         Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+        XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
     end
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
+        value = XCache::getOrNull("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}")
+        return value.to_f if value
+
         value = 0
         $database_semaphore.synchronize {
             db = SQLite3::Database.new(Bank::pathToBank())
@@ -66,6 +71,9 @@ class Bank
                 value = value + row['_weight_']
             end
         }
+
+        XCache::set("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}", value)
+
         value
     end
 
