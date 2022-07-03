@@ -95,7 +95,7 @@ class EventsInternal
         puts "broadcast: #{JSON.pretty_generate(event)}"
 
         if event["mikuType"] == "(tasks modified)" then
-            XCache::destroy("97e294c5-d00d-4be6-a4f6-f3a99d36bf83") # Decache the answer of NxTasks::itemsForMainListing()
+            NxTasks::listingModifiedEvent()
         end
 
         if event["mikuType"] == "(object has been deleted)" then
@@ -103,7 +103,10 @@ class EventsInternal
         end
 
         if event["mikuType"] == "(target is getting a new owner)" then
-            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{event["targetuuid"]}", event["owneruuid"])
+            owneruuid = event["owneruuid"]
+            targetuuid = event["targetuuid"]
+            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}", owneruuid) # natural target -> owner mapping
+            XCache::destroy("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{targetuuid}") # task toString 
         end
     end
 end

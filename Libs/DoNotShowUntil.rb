@@ -13,6 +13,8 @@ class DoNotShowUntil
     def self.setUnixtimeNoEvent(uuid, unixtime)
         $database_semaphore.synchronize { 
             db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
             db.execute "delete from _mapping_ where _uuid_=?", [uuid]
             db.execute "insert into _mapping_ (_uuid_, _unixtime_) values (?, ?)", [uuid, unixtime]
             db.close

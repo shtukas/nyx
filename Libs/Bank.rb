@@ -13,6 +13,8 @@ class Bank
     def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
         $database_semaphore.synchronize {
             db = SQLite3::Database.new(Bank::pathToBank())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
             db.execute "delete from _bank_ where _eventuuid_=?", [eventuuid] # (1)
             db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [eventuuid, setuuid, unixtime, date, weight]
             db.close

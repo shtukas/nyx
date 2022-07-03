@@ -151,4 +151,9 @@ class NxTasks
         data = JSON.parse(data).select{|item| item["uuid"] != uuid }
         XCache::set("97e294c5-d00d-4be6-a4f6-f3a99d36bf83", JSON.generate(data))
     end
+
+    # NxTasks::listingModifiedEvent()
+    def self.listingModifiedEvent()
+        XCache::destroy("97e294c5-d00d-4be6-a4f6-f3a99d36bf83") # Decache the answer of NxTasks::itemsForMainListing()
+    end
 end
