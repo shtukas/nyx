@@ -12,9 +12,13 @@ class Bank
     # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
     def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
         db = SQLite3::Database.new(Bank::pathToBank())
-        db.execute "delete from _bank_ where _eventuuid_=?", [eventuuid]
+        db.execute "delete from _bank_ where _eventuuid_=?", [eventuuid] # (1)
         db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [eventuuid, setuuid, unixtime, date, weight]
         db.close
+
+        # (1) In principle this is not needed because the eventuuids are unique, but
+        # I once copied a bank file from one computer to the other before the events
+        # propagated and we were trying to insert eventuuids that already existed.
     end
 
     # Bank::put(setuuid, weight: Float) # Used by regular activity. Emits events for the other computer,
