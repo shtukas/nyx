@@ -205,7 +205,7 @@ class Catalyst
                     return $OrdinalForListingItems[item["uuid"]]
                 end
 
-                ordinal = XCache::getOrNull("9CF9:67703767-B635-486E-683397DEA056:#{item["uuid"]}")
+                ordinal = XCache::getOrNull("9CFA:67703767-B635-486E-683397DEA056:#{item["uuid"]}")
                 if ordinal then
                     ordinal = ordinal.to_f
                     $OrdinalForListingItems[item["uuid"]] = ordinal
@@ -213,7 +213,7 @@ class Catalyst
                 end
 
                 # By here we do not have an ordinal for this item, so we need one
-                ordinal = XCache::getOrNull("9CF9:TOP-ORDINAL-486E-683397DEA056")
+                ordinal = XCache::getOrNull("9CFA:TOP-ORDINAL-486E-683397DEA056")
                 if ordinal.nil? then
                     ordinal = 0
                 else
@@ -221,8 +221,8 @@ class Catalyst
                 end
                 ordinal = ordinal + 1
 
-                XCache::set("9CF9:TOP-ORDINAL-486E-683397DEA056", ordinal)
-                XCache::set("9CF9:67703767-B635-486E-683397DEA056:#{item["uuid"]}", ordinal)
+                XCache::set("9CFA:TOP-ORDINAL-486E-683397DEA056", ordinal)
+                XCache::set("9CFA:67703767-B635-486E-683397DEA056:#{item["uuid"]}", ordinal)
                 $OrdinalForListingItems[item["uuid"]] = ordinal
 
                 ordinal
@@ -233,9 +233,6 @@ class Catalyst
 
             #puts "(mainListingItems) 1"
             mainListingItems = Catalyst::itemsForSection2()
-
-            #puts "(mainListingItems) 2"
-            mainListingItems.each{|item| getOrdinalForListingItem.call(item) }
 
             #puts "(mainListingItems) 3"
             mainListingItems = mainListingItems.sort{|i1, i2| getOrdinalForListingItem.call(i1) <=> getOrdinalForListingItem.call(i2) }

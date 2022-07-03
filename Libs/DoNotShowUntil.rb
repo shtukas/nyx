@@ -11,10 +11,12 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
     def self.setUnixtimeNoEvent(uuid, unixtime)
-        db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
-        db.execute "delete from _mapping_ where _uuid_=?", [uuid]
-        db.execute "insert into _mapping_ (_uuid_, _unixtime_) values (?, ?)", [uuid, unixtime]
-        db.close
+        $database_semaphore.synchronize { 
+            db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
+            db.execute "delete from _mapping_ where _uuid_=?", [uuid]
+            db.execute "insert into _mapping_ (_uuid_, _unixtime_) values (?, ?)", [uuid, unixtime]
+            db.close
+        }
     end
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
@@ -40,14 +42,16 @@ class DoNotShowUntil
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
-        db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         unixtime = nil
-        db.execute("select * from _mapping_ where _uuid_=?", [uuid]) do |row|
-            unixtime = row['_unixtime_']
-        end
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _mapping_ where _uuid_=?", [uuid]) do |row|
+                unixtime = row['_unixtime_']
+            end
+        }
         unixtime
     end
 

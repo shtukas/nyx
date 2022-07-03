@@ -11,10 +11,12 @@ class Bank
 
     # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
     def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
-        db = SQLite3::Database.new(Bank::pathToBank())
-        db.execute "delete from _bank_ where _eventuuid_=?", [eventuuid] # (1)
-        db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [eventuuid, setuuid, unixtime, date, weight]
-        db.close
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Bank::pathToBank())
+            db.execute "delete from _bank_ where _eventuuid_=?", [eventuuid] # (1)
+            db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [eventuuid, setuuid, unixtime, date, weight]
+            db.close
+        }
 
         # (1) In principle this is not needed because the eventuuids are unique, but
         # I once copied a bank file from one computer to the other before the events
@@ -52,14 +54,16 @@ class Bank
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
-        db = SQLite3::Database.new(Bank::pathToBank())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         value = 0
-        db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
-            value = value + row['_weight_']
-        end
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Bank::pathToBank())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
+                value = value + row['_weight_']
+            end
+        }
         value
     end
 
