@@ -8,79 +8,79 @@ class Nx07
         Librarian::getObjectsByMikuType("Nx07")
     end
 
-    # Nx07::issue(owneruuid, taskuuid)
-    def self.issue(owneruuid, taskuuid)
+    # Nx07::issue(principaluuid, targetuuid)
+    def self.issue(principaluuid, targetuuid)
         item = {
-            "uuid"      => SecureRandom.uuid,
-            "variant"   => SecureRandom.uuid,
-            "mikuType"  => "Nx07",
-            "unixtime"  => Time.new.to_f,
-            "owneruuid" => owneruuid,
-            "taskuuid"  => taskuuid
+            "uuid"          => SecureRandom.uuid,
+            "variant"       => SecureRandom.uuid,
+            "mikuType"      => "Nx07",
+            "unixtime"      => Time.new.to_f,
+            "principaluuid" => principaluuid,
+            "targetuuid"    => targetuuid
         }
         Librarian::commit(item)
         EventsInternal::broadcast({
             "mikuType" => "(tasks modified)"
         })
         EventsInternal::broadcast({
-            "mikuType"   => "(target is getting a new owner)",
-            "owneruuid"  => owneruuid,
-            "targetuuid" => taskuuid
+            "mikuType"      => "(target is getting a new principal)",
+            "principaluuid" => principaluuid,
+            "targetuuid"    => targetuuid
         })
         item
     end
 
-    # Nx07::unlink(owneruuid, targetuuid)
-    def self.unlink(owneruuid, targetuuid)
+    # Nx07::unlink(principaluuid, targetuuid)
+    def self.unlink(principaluuid, targetuuid)
         Nx07::items()
-            .select{|item| item["owneruuid"] == owneruuid and item["taskuuid"] == targetuuid }
+            .select{|item| item["principaluuid"] == principaluuid and item["targetuuid"] == targetuuid }
             .each{|item| Librarian::destroyClique(item["uuid"]) }
 
     end
 
-    # Nx07::owneruuidToTaskuuids(owneruuid)
-    def self.owneruuidToTaskuuids(owneruuid)
+    # Nx07::principaluuidToTaskuuids(principaluuid)
+    def self.principaluuidToTaskuuids(principaluuid)
         Nx07::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| item["owneruuid"] == owneruuid }
-            .map{|item| item["taskuuid"] }
+            .select{|item| item["principaluuid"] == principaluuid }
+            .map{|item| item["targetuuid"] }
             .uniq
     end
 
-    # Nx07::taskuuidToOwneruuidOrNull(taskuuid)
-    def self.taskuuidToOwneruuidOrNull(taskuuid)
-        owneruuid = XCache::getOrNull("a2f66362-9959-424a-ae64-759998f1119b:#{taskuuid}")
-        if owneruuid == "nothing" then
+    # Nx07::targetUuidToPrincipalUuidOrNull(targetuuid)
+    def self.targetUuidToPrincipalUuidOrNull(targetuuid)
+        principaluuid = XCache::getOrNull("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}")
+        if principaluuid == "nothing" then
             return nil
         end
-        if owneruuid then
-            return owneruuid
+        if principaluuid then
+            return principaluuid
         end
         databuilder = lambda{
             Nx07::items()
-                .select{|item| item["taskuuid"] == taskuuid }
-                .map{|item| item["owneruuid"] }
+                .select{|item| item["targetuuid"] == targetuuid }
+                .map{|item| item["principaluuid"] }
                 .first
         }
-        owneruuid = databuilder.call()
-        if owneruuid then
-            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{taskuuid}", owneruuid)
-            owneruuid
+        principaluuid = databuilder.call()
+        if principaluuid then
+            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}", principaluuid)
+            principaluuid
         else
-            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{taskuuid}", "nothing")
+            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}", "nothing")
             nil
         end
     end
 
     # Nx07::getOwnerForTaskOrNull(task)
     def self.getOwnerForTaskOrNull(task)
-        owneruuid = Nx07::taskuuidToOwneruuidOrNull(task["uuid"])
-        return nil if owneruuid.nil?
-        Librarian::getObjectByUUIDOrNullEnforceUnique(owneruuid)
+        principaluuid = Nx07::targetUuidToPrincipalUuidOrNull(task["uuid"])
+        return nil if principaluuid.nil?
+        Librarian::getObjectByUUIDOrNullEnforceUnique(principaluuid)
     end
 
-    # Nx07::taskHasOwner(item)
-    def self.taskHasOwner(item)
+    # Nx07::itemHasPrincipal(item)
+    def self.itemHasPrincipal(item)
         !Nx07::getOwnerForTaskOrNull(item).nil?
     end
 

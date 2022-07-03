@@ -48,13 +48,13 @@ class TxQueues
 
     # TxQueues::toString(item)
     def self.toString(item)
-        count = Nx07::owneruuidToTaskuuids(item["uuid"]).size
+        count = Nx07::principaluuidToTaskuuids(item["uuid"]).size
         "(queue) #{item["description"]} #{Ax39::toString(item)} (#{count})"
     end
 
     # TxQueues::tasks(queue)
     def self.tasks(queue)
-        Nx07::owneruuidToTaskuuids(queue["uuid"])
+        Nx07::principaluuidToTaskuuids(queue["uuid"])
             .map{|uuid| Librarian::getObjectByUUIDOrNullEnforceUnique(uuid) }
             .compact
     end
@@ -72,7 +72,7 @@ class TxQueues
 
     # TxQueues::getFirstTaskOrNull(queue)
     def self.getFirstTaskOrNull(queue)
-        Nx07::owneruuidToTaskuuids(queue["uuid"]).each{|uuid|
+        Nx07::principaluuidToTaskuuids(queue["uuid"]).each{|uuid|
             task = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
             next if task.nil?
             if task["mikuType"] != "NxTask" then

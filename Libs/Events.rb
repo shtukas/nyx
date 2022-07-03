@@ -102,10 +102,10 @@ class EventsInternal
             NxTasks::objectDeletionEvent(event["deletedUUID"])
         end
 
-        if event["mikuType"] == "(target is getting a new owner)" then
-            owneruuid = event["owneruuid"]
+        if event["mikuType"] == "(target is getting a new principal)" then
+            principaluuid = event["principaluuid"]
             targetuuid = event["targetuuid"]
-            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}", owneruuid) # natural target -> owner mapping
+            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}", principaluuid) # natural target -> owner mapping
             XCache::destroy("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{targetuuid}") # task toString 
         end
     end

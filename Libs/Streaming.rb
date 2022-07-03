@@ -113,7 +113,7 @@ class Streaming
         items = NxTasks::items()
                     .shuffle
                     .take(20)
-                    .select{|item| !Nx07::taskHasOwner(item) } # we only select items that are not already in a queue or in a project
+                    .select{|item| !Nx07::itemHasPrincipal(item) } # we only select items that are not already in a queue or in a project
         Streaming::runstream(items)
         NxBallsService::close("1ee2805a-f8ee-4a73-a92a-c76d9d45359a", true)
     end

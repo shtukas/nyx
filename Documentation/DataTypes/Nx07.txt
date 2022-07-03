@@ -1,10 +1,10 @@
 Nx07 is the link between TxQueue and NxTask
 
 {
-    "uuid"        : String
-    "variant"     : String # Primary Key
-    "mikuType"    : "Nx07"
-    "unixtime"    : Float
-    "owneruuid"   : String
-    "taskuuid"    : String
+    "uuid"          : String
+    "variant"       : String # Primary Key
+    "mikuType"      : "Nx07"
+    "unixtime"      : Float
+    "principaluuid" : String
+    "targetuuid"    : String
 }
