@@ -141,6 +141,9 @@ class NxTasks
         data
     end
 
+    # ---------------------------------------
+    # Events processing
+
     # NxTasks::objectDeletionEvent(uuid)
     def self.objectDeletionEvent(uuid)
         data = XCache::getOrNull("97e294c5-d00d-4be6-a4f6-f3a99d36bf83")
