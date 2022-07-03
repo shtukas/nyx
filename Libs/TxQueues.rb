@@ -48,7 +48,7 @@ class TxQueues
 
     # TxQueues::toString(item)
     def self.toString(item)
-        count = TxNumbersAcceleration::count(item)
+        count = Nx07::owneruuidToTaskuuids(item["uuid"]).size
         "(queue) #{item["description"]} #{Ax39::toString(item)} (#{count})"
     end
 

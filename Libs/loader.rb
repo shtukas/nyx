@@ -189,7 +189,6 @@ require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
 require_relative "TxQueues.rb"
-require_relative "TxNumbersAcceleration.rb"
 require_relative "TxProjects.rb"
 
 require_relative "UniqueStringsFunctions.rb"
