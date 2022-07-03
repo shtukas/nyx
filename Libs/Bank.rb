@@ -42,10 +42,8 @@ class Bank
         unixtime  = event["unixtime"]
         date      = event["date"]
         weight    = event["weight"]
-        Bank::put2(eventuuid, setuuid, unixtime, date, weight)
+        Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
     end
-
-
 
     # Bank::valueAtDate(setuuid, date)
     def self.valueAtDate(setuuid, date)
