@@ -208,7 +208,7 @@ class Catalyst
                     return $OrdinalForListingItems[item["uuid"]]
                 end
 
-                ordinal = XCache::getOrNull("9CFA:67703767-B635-486E-683397DEA056:#{item["uuid"]}")
+                ordinal = XCache::getOrNull("9CFA:#{CommonUtils::today()}:67703767-B635-486E-683397DEA056:#{item["uuid"]}")
                 if ordinal then
                     ordinal = ordinal.to_f
                     $OrdinalForListingItems[item["uuid"]] = ordinal
@@ -216,7 +216,7 @@ class Catalyst
                 end
 
                 # By here we do not have an ordinal for this item, so we need one
-                ordinal = XCache::getOrNull("9CFA:TOP-ORDINAL-486E-683397DEA056")
+                ordinal = XCache::getOrNull("9CFA:#{CommonUtils::today()}:TOP-ORDINAL-486E-683397DEA056")
                 if ordinal.nil? then
                     ordinal = 0
                 else
@@ -224,8 +224,8 @@ class Catalyst
                 end
                 ordinal = ordinal + 1
 
-                XCache::set("9CFA:TOP-ORDINAL-486E-683397DEA056", ordinal)
-                XCache::set("9CFA:67703767-B635-486E-683397DEA056:#{item["uuid"]}", ordinal)
+                XCache::set("9CFA:#{CommonUtils::today()}:TOP-ORDINAL-486E-683397DEA056", ordinal)
+                XCache::set("9CFA:#{CommonUtils::today()}:67703767-B635-486E-683397DEA056:#{item["uuid"]}", ordinal)
                 $OrdinalForListingItems[item["uuid"]] = ordinal
 
                 ordinal
