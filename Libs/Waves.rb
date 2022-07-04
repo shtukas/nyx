@@ -146,7 +146,7 @@ class Waves
     end
 
     # -------------------------------------------------------------------------
-    # Operations
+    # Data
 
     # Waves::toString(item)
     def self.toString(item)
@@ -156,22 +156,19 @@ class Waves
         "(wave) #{item["description"]}#{nx111String} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊"
     end
 
-    # Waves::performWaveNx46WaveDone(item)
-    def self.performWaveNx46WaveDone(item)
-        puts "done-ing: #{Waves::toString(item)}"
-        item["lastDoneDateTime"] = Time.now.utc.iso8601
-        Librarian::commit(item)
-
-        unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
-        puts "not shown until: #{Time.at(unixtime).to_s}"
-        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+    # Waves::isPriority(item)
+    def self.isPriority(item)
+        nx46 = item["nx46"]
+        return true if nx46["type"] == "sticky"
+        return true if nx46["type"] == "every-this-day-of-the-week"
+        return true if nx46["type"] == "every-this-day-of-the-month"
+        false
     end
 
-    # -------------------------------------------------------------------------
-
-    # Waves::itemsForListing()
-    def self.itemsForListing()
+    # Waves::itemsForListing(isPriority)
+    def self.itemsForListing(isPriority)
         Waves::items()
+            .select{|item| Waves::isPriority(item) == isPriority }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
@@ -185,5 +182,18 @@ class Waves
                 "payload"  => item
             }
         }
+    end
+
+    # -------------------------------------------------------------------------
+
+    # Waves::performWaveNx46WaveDone(item)
+    def self.performWaveNx46WaveDone(item)
+        puts "done-ing: #{Waves::toString(item)}"
+        item["lastDoneDateTime"] = Time.now.utc.iso8601
+        Librarian::commit(item)
+
+        unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
+        puts "not shown until: #{Time.at(unixtime).to_s}"
+        DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
     end
 end

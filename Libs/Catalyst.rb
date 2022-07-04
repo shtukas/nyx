@@ -19,11 +19,12 @@ class Catalyst
             Streaming::listingItemForAnHour(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
-            Waves::itemsForListing(),
+            Waves::itemsForListing(true),
             TxDateds::itemsForListing(),
             TxProjects::itemsForMainListing(),
             NxTasks::itemsForMainListing(),
             TxQueues::itemsForMainListing(),
+            Waves::itemsForListing(false),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

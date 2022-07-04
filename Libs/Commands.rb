@@ -407,8 +407,12 @@ class Commands
                     "lambda" => lambda { Anniversaries::itemsForListing() }
                 },
                 {
-                    "name" => "Waves::itemsForListing()",
-                    "lambda" => lambda { Waves::itemsForListing() }
+                    "name" => "Waves::itemsForListing(true)",
+                    "lambda" => lambda { Waves::itemsForListing(true) }
+                },
+                {
+                    "name" => "Waves::itemsForListing(false)",
+                    "lambda" => lambda { Waves::itemsForListing(false) }
                 },
                 {
                     "name" => "TxDateds::itemsForListing()",
