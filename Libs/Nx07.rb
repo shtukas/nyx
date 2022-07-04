@@ -27,6 +27,10 @@ class Nx07
             "principaluuid" => principaluuid,
             "targetuuid"    => targetuuid
         })
+        EventsInternal::broadcast({
+            "mikuType"      => "(principal has been updated)",
+            "principaluuid" => principaluuid
+        })
         item
     end
 

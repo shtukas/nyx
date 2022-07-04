@@ -108,5 +108,9 @@ class EventsInternal
             XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}", principaluuid) # natural target -> owner mapping
             XCache::destroy("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{targetuuid}") # task toString 
         end
+
+        if event["mikuType"] == "(principal has been updated)" then
+            XCache::destroy("78fe9aa9-99b2-4430-913b-1512880bf323:#{event["principaluuid"]}") # decaching queue size
+        end
     end
 end
