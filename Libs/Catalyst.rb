@@ -1,8 +1,5 @@
 # encoding: UTF-8
 
-
-$OrdinalForListingItems = {}
-
 class Catalyst
 
     # Catalyst::itemsForSection1()
@@ -25,8 +22,8 @@ class Catalyst
             Waves::itemsForListing(),
             TxDateds::itemsForListing(),
             TxProjects::itemsForMainListing(),
+            NxTasks::itemsForMainListing(),
             TxQueues::itemsForMainListing(),
-            NxTasks::itemsForMainListing()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -203,42 +200,11 @@ class Catalyst
                 LucilleCore::removeFileSystemLocation(location)
             }
 
-            getOrdinalForListingItem = lambda {|item|
-                if $OrdinalForListingItems[item["uuid"]] then
-                    return $OrdinalForListingItems[item["uuid"]]
-                end
-
-                ordinal = XCache::getOrNull("9CFA:#{CommonUtils::today()}:67703767-B635-486E-683397DEA056:#{item["uuid"]}")
-                if ordinal then
-                    ordinal = ordinal.to_f
-                    $OrdinalForListingItems[item["uuid"]] = ordinal
-                    return ordinal
-                end
-
-                # By here we do not have an ordinal for this item, so we need one
-                ordinal = XCache::getOrNull("9CFA:#{CommonUtils::today()}:TOP-ORDINAL-486E-683397DEA056")
-                if ordinal.nil? then
-                    ordinal = 0
-                else
-                    ordinal = ordinal.to_f
-                end
-                ordinal = ordinal + 1
-
-                XCache::set("9CFA:#{CommonUtils::today()}:TOP-ORDINAL-486E-683397DEA056", ordinal)
-                XCache::set("9CFA:#{CommonUtils::today()}:67703767-B635-486E-683397DEA056:#{item["uuid"]}", ordinal)
-                $OrdinalForListingItems[item["uuid"]] = ordinal
-
-                ordinal
-            }
-
             #puts "(floatingItems)"
             floatingItems = Catalyst::itemsForSection1()
 
             #puts "(mainListingItems) 1"
             mainListingItems = Catalyst::itemsForSection2()
-
-            #puts "(mainListingItems) 3"
-            mainListingItems = mainListingItems.sort{|i1, i2| getOrdinalForListingItem.call(i1) <=> getOrdinalForListingItem.call(i2) }
 
             #puts "(mainListingItems) 4"
             runningItems, mainListingItems = mainListingItems.partition{|item| NxBallsService::isActive(item["uuid"]) }
