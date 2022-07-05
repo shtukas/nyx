@@ -68,7 +68,6 @@ class TxProjects
 
     # TxProjects::itemsForMainListing()
     def self.itemsForMainListing()
-        return [] if Time.new.wday == 5
         TxProjects::items()
             .select{|item| Ax39::itemShouldShow(item) }
     end
