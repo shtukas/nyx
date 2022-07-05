@@ -62,11 +62,11 @@ class Ax39
         end
 
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return "(today: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)} of #{item["ax39"]["hours"]} hours)"
+            return "(today: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)} of #{item["ax39"]["hours"]} hours; #{(100*Ax39::completionRatio(item)).round(2)} %)"
         end
 
         if item["ax39"]["type"] == "weekly-time-commitment" then
-            return "(weekly: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)} of #{item["ax39"]["hours"]} hours)"
+            return "(weekly: #{BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).round(2)} of #{item["ax39"]["hours"]} hours; #{(100*Ax39::completionRatio(item)).round(2)} %)"
         end
     end
 
@@ -82,6 +82,20 @@ class Ax39
             return false if Time.new.wday == 5 # We don't show those on Fridays
             return Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) < item["ax39"]["hours"]
         end
-        true
+        raise "(error: f2261ec2-25e1-4b60-b548-cee05162151e)"
+    end
+
+    # Ax39::completionRatio(item)
+    def self.completionRatio(item)
+        if item["ax39"]["type"] == "daily-singleton-run" then
+            return (Bank::valueAtDate(item["uuid"], CommonUtils::today()) == 0) ? 0 : 1
+        end
+        if item["ax39"]["type"] == "daily-time-commitment" then
+            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).to_f/item["ax39"]["hours"]
+        end
+        if item["ax39"]["type"] == "weekly-time-commitment" then
+            return 1 if Time.new.wday == 5 # We don't show those on Fridays
+            return Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/item["ax39"]["hours"]
+        end
     end
 end
