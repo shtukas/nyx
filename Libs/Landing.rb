@@ -13,7 +13,7 @@ class Landing
             .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entity| 
                 indx = store.register(entity, false)
-                puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
             }
 
         i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")
@@ -174,7 +174,7 @@ class Landing
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
             puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | upload | destroy".yellow
@@ -276,7 +276,7 @@ class Landing
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] (related) #{LxFunction::function("toString", entity)}"
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
             puts "commands: access | <n> | description | datetime | note | json | update | link | unlink | destroy".yellow

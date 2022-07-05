@@ -46,6 +46,7 @@ class Streaming
                 owner = Nx07::architectOwnerOrNull()
                 return if owner.nil?
                 Nx07::issue(owner["uuid"], item["uuid"])
+                NxBallsService::close(item["uuid"], true)
                 return nil
             end
             if command == ">nyx" then

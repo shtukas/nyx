@@ -244,7 +244,7 @@ class LxAction
         end
 
         if command == "transmute" then
-            Transmutation::transmutation2(item, item["mikuType"])
+            Transmutation::transmutationToInteractivelySelectedTargetType(item)
             return
         end
 

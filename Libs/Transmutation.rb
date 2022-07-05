@@ -89,8 +89,9 @@ class Transmutation
         LucilleCore::pressEnterToContinue()
     end
 
-    # Transmutation::transmutation2(item, source)
-    def self.transmutation2(item, source)
+    # Transmutation::transmutationToInteractivelySelectedTargetType(item)
+    def self.transmutationToInteractivelySelectedTargetType(item)
+        source = item["mikuType"]
         target = Iam::interactivelyGetTransmutationTargetOrNull()
         return if target.nil?
         Transmutation::transmutation1(item, source, target)
