@@ -158,6 +158,18 @@ class EnergyGridImmutableDataIslandElizabeth
             FileUtils.mkdir(File.dirname(filepath2))
         end
 
+        # If we are moving to a file that already exists, we remove it
+        if File.exists?(filepath2) then
+            puts "We are moving"
+            puts "    source: #{filepath1}"
+            puts "    target: #{filepath2}"
+            puts "(info: fbfdbf1c-b85d-4d4e-a120-5f6c6c59e342)"
+            puts "    We already have that target. This is surprising 🤔"
+            puts "    I am going to remove target and move source, but I thought you might want to know"
+            LucilleCore::pressEnterToContinue()
+            FileUtils.rm(filepath2)
+        end
+
         puts "data island relocating from #{filepath1} to #{filepath2}".green
         FileUtils.cp(filepath1, filepath2)
     end
