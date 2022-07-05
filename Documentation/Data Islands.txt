@@ -1,0 +1,12 @@
+### The data islands 
+
+At the beginning I used to store all the individual blobs in their own files. This was convenient but caused two problems
+
+1. That many files cause slow computer backups and slow snapshots. 
+2. Although its's not difficult to implement garbage collection, I could not find a way that I really liked.
+
+I then experimented with using sqlite files for datablobs. For instance 256 files, from 00.sqlite3 to ff.sqlite3. This works well, we have then significantly reduced the number of files, but IO can be a bit slow on on external drives, and snapshots consume too much space because creating even a small aion-point can change all the databases files resulting in hundred of gigabytes being added to an archive as new files.
+
+An hybrid solution is to use one database file per node. Given a node with uuid 1234567890 we have the database file 1234567890.sqlite3. This works very well and is better suited for garbage collection. But as we discovered in practice, doesn't work well with synchronisation between machines (where each machine has its own 1234567890.sqlite3 file, and they may have diverged independently.)
+
+The idea with islands was to name those sqlite files not after the uuid of the object, but after the nhash of the object content, thereby making an island a more general version of a text node datablob. Islands are then content addressed immutable collection of datablobs.
