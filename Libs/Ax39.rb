@@ -76,7 +76,7 @@ class Ax39
             return Bank::valueAtDate(item["uuid"], CommonUtils::today()) > 0
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) < item["ax39"]["hours"]
+            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < item["ax39"]["hours"]
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
             return false if Time.new.wday == 5 # We don't show those on Fridays
