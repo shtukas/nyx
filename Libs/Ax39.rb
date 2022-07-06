@@ -72,16 +72,21 @@ class Ax39
 
     # Ax39::itemShouldShow(item)
     def self.itemShouldShow(item)
+        return false if !DoNotShowUntil::isVisible(item["uuid"])
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return Bank::valueAtDate(item["uuid"], CommonUtils::today()) == 0
+            return !XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{item["uuid"]}")
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < item["ax39"]["hours"]
+            return false if XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{item["uuid"]}")
+            return false if BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) >= item["ax39"]["hours"]
+            return true
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
             return false if Time.new.wday == 5 # We don't show those on Fridays
-            return false if Bank::valueAtDate(item["uuid"], CommonUtils::today()) > 0.3*(3600*item["ax39"]["hours"])
-            return Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) < 3600*item["ax39"]["hours"]
+            return false if XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{item["uuid"]}")
+            return false if Bank::valueAtDate(item["uuid"], CommonUtils::today()) >= 0.3*(3600*item["ax39"]["hours"])
+            return false if Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) >= 3600*item["ax39"]["hours"]
+            return true
         end
         raise "(error: f2261ec2-25e1-4b60-b548-cee05162151e)"
     end
@@ -89,13 +94,12 @@ class Ax39
     # Ax39::completionRatio(item)
     def self.completionRatio(item)
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return (Bank::valueAtDate(item["uuid"], CommonUtils::today()) == 0) ? 0 : 1
+            return XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{item["uuid"]}") ? 1 : 0
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
             return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).to_f/item["ax39"]["hours"]
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
-            return 1 if Time.new.wday == 5 # We don't show those on Fridays
             return Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/(3600*item["ax39"]["hours"])
         end
     end

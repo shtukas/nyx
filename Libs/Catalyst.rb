@@ -6,11 +6,9 @@ class Catalyst
     def self.itemsForSection1()
         [
             NxFrames::items(),
-            TxQueues::items(),
-            TxProjects::items(),
+            TxProjects::itemsForSection1(),
         ]   
             .flatten
-            .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
     end
 
     # Catalyst::itemsForSection2()
@@ -21,7 +19,7 @@ class Catalyst
             Anniversaries::itemsForListing(),
             Waves::itemsForListing(true),
             TxDateds::itemsForListing(),
-            TxProjects::itemsForMainListing(),
+            TxProjects::itemsForSection2(),
             NxTasks::itemsForMainListing(),
             TxQueues::itemsForMainListing(),
             Waves::itemsForListing(false),

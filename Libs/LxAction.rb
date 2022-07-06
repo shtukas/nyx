@@ -157,6 +157,12 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxProject" then
+                NxBallsService::close(item["uuid"], true)
+                XCache::setFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{item["uuid"]}", true)
+                return
+            end
+
             if item["mikuType"] == "Wave" then
                 shouldForce = options and options["forcedone"]
                 if shouldForce then
