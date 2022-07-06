@@ -11,7 +11,7 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        "/Users/pascal/Desktop"
+        "/Users/pascal/Galaxy/DataBank/Stargate/EditionDesk"
     end
 
     # EditionDesk::getMaxIndex(parentLocation)
