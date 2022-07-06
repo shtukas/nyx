@@ -80,6 +80,7 @@ class Ax39
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
             return false if Time.new.wday == 5 # We don't show those on Fridays
+            return false if Bank::valueAtDate(item["uuid"], CommonUtils::today()) > 0.3*(3600*item["ax39"]["hours"])
             return Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) < 3600*item["ax39"]["hours"]
         end
         raise "(error: f2261ec2-25e1-4b60-b548-cee05162151e)"
