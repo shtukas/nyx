@@ -39,7 +39,7 @@ class EditionDesk
             }
 
         index1 = EditionDesk::getMaxIndex(parentLocation) + 1
-        name1 = "#{index1}|#{LxFunction::function("toString", item).gsub("|","-")}|#{part3and4}"
+        name1 = "#{index1}|#{CommonUtils::sanitiseStringForFilenaming(LxFunction::function("toString", item)).gsub("|","-")}|#{part3and4}"
 
         [false, "#{parentLocation}/#{name1}"]
     end
