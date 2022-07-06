@@ -44,16 +44,16 @@ class Catalyst
         vspaceleft = CommonUtils::screenHeight()-3
 
         if Machines::isLucille20() then
-            packet = XCache::getOrNull("numbers-cfa0a4bfba8e") # {"line": String, "ratio": Float}
-            if packet then
-                packet = JSON.parse(packet)
-                puts ""
-                puts packet["line"]
-                vspaceleft = vspaceleft - 2
-                if packet["ratio"] < 0.99 then
-                    The99Percent::issueNewReference()
-                    return
-                end
+            reference = The99Percent::getReference()
+            current   = The99Percent::getCurrentCount()
+            ratio     = current.to_f/reference["count"]
+            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+            puts ""
+            puts line
+            vspaceleft = vspaceleft - 2
+            if ratio < 0.99 then
+                The99Percent::issueNewReference()
+                return
             end
         end
 
@@ -156,19 +156,7 @@ class Catalyst
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
  
-        if Machines::isLucille20() then
-            Thread.new {
-                loop {
-                    sleep 120
-                    reference = The99Percent::getReference()
-                    current   = The99Percent::getCurrentCount()
-                    ratio     = current.to_f/reference["count"]
-                    line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-                    packet    = {"line" => line, "ratio" => ratio}
-                    XCache::set("numbers-cfa0a4bfba8e", JSON.generate(packet))
-                }
-            }
- 
+        if Machines::isLucille20() then 
             Thread.new {
                 loop {
                     sleep 3600

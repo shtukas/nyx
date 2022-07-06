@@ -42,8 +42,8 @@ class Nx07
 
     end
 
-    # Nx07::principaluuidToTaskuuids(principaluuid)
-    def self.principaluuidToTaskuuids(principaluuid)
+    # Nx07::principaluuidToTaskuuidsOrdered(principaluuid)
+    def self.principaluuidToTaskuuidsOrdered(principaluuid)
         Nx07::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| item["principaluuid"] == principaluuid }

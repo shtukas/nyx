@@ -31,6 +31,22 @@ class Librarian
         answer
     end
 
+    # Librarian::countObjectsByMikuType(mikuType)
+    def self.countObjectsByMikuType(mikuType)
+        count = nil
+        $database_semaphore.synchronize {
+            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select count(*) as _count_ from _objects_ where _mikuType_=?", [mikuType]) do |row|
+                count = row['_count_']
+            end
+            db.close
+        }
+        count
+    end
+
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
         objects = []

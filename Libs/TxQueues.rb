@@ -50,7 +50,7 @@ class TxQueues
     def self.queueSize(item)
         size = XCache::getOrNull("78fe9aa9-99b2-4430-913b-1512880bf323:#{item["uuid"]}")
         return size.to_i if size
-        size = Nx07::principaluuidToTaskuuids(item["uuid"]).size
+        size = Nx07::principaluuidToTaskuuidsOrdered(item["uuid"]).size
         XCache::set("78fe9aa9-99b2-4430-913b-1512880bf323:#{item["uuid"]}", size)
         size
     end
@@ -62,7 +62,7 @@ class TxQueues
 
     # TxQueues::tasks(queue)
     def self.tasks(queue)
-        Nx07::principaluuidToTaskuuids(queue["uuid"])
+        Nx07::principaluuidToTaskuuidsOrdered(queue["uuid"])
             .map{|uuid| Librarian::getObjectByUUIDOrNullEnforceUnique(uuid) }
             .compact
     end
@@ -78,21 +78,29 @@ class TxQueues
         }
     end
 
-    # TxQueues::getFirstTaskOrNull(queue)
-    def self.getFirstTaskOrNull(queue)
-        Nx07::principaluuidToTaskuuids(queue["uuid"]).each{|uuid|
-            task = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
-            next if task.nil?
-            if task["mikuType"] != "NxTask" then
-                # Some maintenance:
-                # Happens when the task has been transformed to a Nyx node, but the link between
-                # the queue and the task still exists.
-                Nx07::unlink(queue["uuid"], task["uuid"])
-                next
-            end
-            return task if task
-        }
-        nil
+    # TxQueues::getFirstTasksOrNull(queue)
+    def self.getFirstTasksOrNull(queue)
+        Nx07::principaluuidToTaskuuidsOrdered(queue["uuid"])
+            .first(3)
+            .map{|uuid|
+                task = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
+                if task.nil? then
+                    nil
+                else
+                    if task["mikuType"] != "NxTask" then
+                        # Some maintenance:
+                        # Happens when the task has been transformed to a Nyx node, but the link between
+                        # the queue and the task still exists.
+                        Nx07::unlink(queue["uuid"], task["uuid"])
+                        nil
+                    else
+                        task
+                    end
+                end
+            }
+            .compact
+            .sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
+            .first(1)
     end
 
     # TxQueues::itemsForMainListing()
@@ -101,7 +109,8 @@ class TxQueues
         # Instead we are displaying the first element of any queue that has not yet met they target
         TxQueues::items()
             .select{|item| Ax39::itemShouldShow(item) }
-            .map{|queue| TxQueues::getFirstTaskOrNull(queue) }
+            .map{|queue| TxQueues::getFirstTasksOrNull(queue) }
+            .flatten
             .compact
     end
 

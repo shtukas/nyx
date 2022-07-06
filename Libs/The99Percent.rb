@@ -12,7 +12,7 @@ class The99Percent
         count = The99Percent::getCurrentCount()
         reference = {
             "count"    => count,
-            "datetime" => Time.new.to_s
+            "datetime" => Time.new.utc.iso8601
         }
         puts "Issuing a new reference:".green
         puts JSON.pretty_generate(reference).green
@@ -33,7 +33,9 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        TxDateds::items().size + TxProjects::items().size + NxTasks::items().size
+        ["TxDated", "TxProject", "NxTask"]
+            .map{|mikuType| Librarian::countObjectsByMikuType(mikuType) }
+            .inject(0, :+)
     end
 
     # The99Percent::ratio()

@@ -442,6 +442,10 @@ class Commands
                     "name" => "NxOrdinals::itemsForListing()",
                     "lambda" => lambda { NxOrdinals::itemsForListing() }
                 },
+                {
+                    "name" => "The99Percent::getCurrentCount()",
+                    "lambda" => lambda { The99Percent::getCurrentCount() }
+                },
             ]
 
             # dry run to initialise things

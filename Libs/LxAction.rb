@@ -20,15 +20,6 @@ class LxAction
 
         if command == ".." then
 
-            # Special circumstances
-
-            if item["mikuType"] == "TxQueue" then
-                task = TxQueues::getFirstTaskOrNull(item)
-                return if task.nil?
-                LxAction::action("start", task)
-                return
-            end
-
             # Stardard starting of the item
 
             LxAction::action("start", item)
