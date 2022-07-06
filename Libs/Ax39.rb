@@ -73,7 +73,7 @@ class Ax39
     # Ax39::itemShouldShow(item)
     def self.itemShouldShow(item)
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return Bank::valueAtDate(item["uuid"], CommonUtils::today()) > 0
+            return Bank::valueAtDate(item["uuid"], CommonUtils::today()) == 0
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
             return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) < item["ax39"]["hours"]
