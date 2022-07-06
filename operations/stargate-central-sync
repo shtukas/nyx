@@ -4,5 +4,8 @@
 
 require_relative "../Libs/loader.rb"
 
+puts "EditionDesk::batchPickUpAndGarbageCollection_v1()"
+EditionDesk::batchPickUpAndGarbageCollection_v1()
+
 puts "StargateCentralData::propagateDataFromLocalToCentral()"
 StargateCentralData::propagateDataFromLocalToCentral()
