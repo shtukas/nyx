@@ -97,8 +97,8 @@ class NxTasks
         builder = lambda{
             nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
             owner = Nx07::getOwnerForTaskOrNull(item)
-            ownerstring = owner ? " (queue: #{owner["description"]})" : ""
-            "(task) #{item["description"]}#{nx111String}#{ownerstring}"
+            ownerstring = owner ? "(queue: #{owner["description"]}) " : ""
+            "(task) #{ownerstring}#{item["description"]}#{nx111String}"
         }
         data = builder.call()
         XCache::set("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}", data) # string

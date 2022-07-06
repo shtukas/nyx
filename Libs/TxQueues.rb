@@ -94,7 +94,11 @@ class TxQueues
                         Nx07::unlink(queue["uuid"], task["uuid"])
                         nil
                     else
-                        task
+                        if DoNotShowUntil::isVisible(task["uuid"]) then
+                            task
+                        else
+                            nil
+                        end
                     end
                 end
             }
