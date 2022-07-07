@@ -83,7 +83,7 @@ class Catalyst
             running
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
                 .each{|nxball|
-                    store.register(nxball, true)
+                    store.register(nxball, false)
                     line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                     puts line.green
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
@@ -107,7 +107,7 @@ class Catalyst
             puts "ordinals:"
             vspaceleft = vspaceleft - 2
             ordinals.each{|ordinal|
-                store.register(ordinal, true)
+                store.register(ordinal, false)
                 line = "#{store.prefixString()} #{NxOrdinals::toString(ordinal)}"
                 puts line.green
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)

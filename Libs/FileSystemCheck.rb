@@ -186,6 +186,10 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxOrdinal" then
+            return
+        end
+
         if item["mikuType"] == "NxPerson" then
             return
         end
