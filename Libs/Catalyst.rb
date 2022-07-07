@@ -5,7 +5,7 @@ class Catalyst
     # Catalyst::itemsForSection1()
     def self.itemsForSection1()
         [
-            NxFrames::items(),
+            NxFrames::itemsForSection1(),
             TxProjects::itemsForSection1(),
         ]   
             .flatten
@@ -17,6 +17,7 @@ class Catalyst
             Streaming::listingItemForAnHour(),
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
+            NxFrames::itemsForSection2(),
             Waves::itemsForListing(true),
             TxDateds::itemsForListing(),
             TxProjects::itemsForSection2(),

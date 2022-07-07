@@ -52,7 +52,8 @@ class TxProjects
     # TxProjects::toString(item)
     def self.toString(item)
         nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(project) #{item["description"]}#{nx111String} #{Ax39::toString(item)}"
+        dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
+        "(project) #{item["description"]}#{nx111String} #{Ax39::toString(item)}#{dnsustr}"
     end
 
     # TxProjects::nx20s()

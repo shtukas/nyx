@@ -131,6 +131,12 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "NxFrame" then
+                NxBallsService::close(item["uuid"], true)
+                XCache::setFlag("29279b2e-57b3-40e2-89be-033889a8593d:#{CommonUtils::today()}:#{item["uuid"]}", true)
+                return
+            end
+
             if item["mikuType"] == "NxTask" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                     Librarian::destroyClique(item["uuid"])
@@ -159,7 +165,7 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
-                XCache::setFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{item["uuid"]}", true)
+                XCache::setFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{item["uuid"]}", true)
                 return
             end
 

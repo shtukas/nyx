@@ -62,4 +62,22 @@ class NxFrames
             }
         }
     end
+
+    # NxFrames::itemsForSection1()
+    def self.itemsForSection1()
+        NxFrames::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .select{|item| XCache::getFlag("29279b2e-57b3-40e2-89be-033889a8593d:#{CommonUtils::today()}:#{item["uuid"]}") }
+    end
+
+    # NxFrames::itemsForSection2()
+    def self.itemsForSection2()
+        NxFrames::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .map{|item|  
+                item["description"] = "(ack: done) #{item["description"]}"
+                item
+            }
+            .select{|item| !XCache::getFlag("29279b2e-57b3-40e2-89be-033889a8593d:#{CommonUtils::today()}:#{item["uuid"]}") }
+    end
 end
