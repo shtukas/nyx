@@ -173,6 +173,10 @@ class FileSystemCheck
             return
         end
 
+        if item["mikuType"] == "NxEntity" then
+            return
+        end
+
         if item["mikuType"] == "NxFrame" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return
