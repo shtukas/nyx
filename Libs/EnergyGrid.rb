@@ -96,6 +96,10 @@ class EnergyGridImmutableDataIsland
 
         stargateFilepath = @databaseFilepath.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
 
+        return if !File.exists?(stargateFilepath)
+
+        puts "accessing #{stargateFilepath}".green
+
         db = SQLite3::Database.new(stargateFilepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }

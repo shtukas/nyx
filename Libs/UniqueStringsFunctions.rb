@@ -21,7 +21,9 @@ class UniqueStringsFunctions
 
     # UniqueStringsFunctions::uniqueStringIsInNhash(operator, nhash, uniquestring)
     def self.uniqueStringIsInNhash(operator, nhash, uniquestring)
-        object = JSON.parse(operator.getBlobOrNull(nhash))
+        blob = operator.getBlobOrNull(nhash)
+        return false if blob.nil?
+        object = JSON.parse(blob)
         UniqueStringsFunctions::uniqueStringIsInAionPointObject(operator, object, uniquestring)
     end
 
