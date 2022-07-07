@@ -80,6 +80,12 @@ class TxQueues
 
     # TxQueues::getFirstTasksOrNull(queue)
     def self.getFirstTasksOrNull(queue)
+
+        adaptedRecovering = lambda {|item|
+            rt = BankExtended::stdRecoveredDailyTimeInHours(item["uuid"])
+            (rt == 0) ? 0.4 : rt
+        }
+
         Nx07::principaluuidToTaskuuidsOrdered(queue["uuid"])
             .first(3)
             .map{|uuid|
@@ -103,7 +109,7 @@ class TxQueues
                 end
             }
             .compact
-            .sort{|i1, i2| BankExtended::stdRecoveredDailyTimeInHours(i1["uuid"]) <=> BankExtended::stdRecoveredDailyTimeInHours(i2["uuid"]) }
+            .sort{|i1, i2| adaptedRecovering.call(i1) <=> adaptedRecovering.call(i2) }
             .first(1)
     end
 
