@@ -2,8 +2,8 @@ NxFrame = {
   "uuid"        : String
   "variant"     : String # Primary Key
   "mikuType"    : "NxFrame"
-  "description" : String
   "unixtime"    : Float
   "datetime"    : DateTime Iso8601
+  "description" : String
   "nx111"       : null or Nx111
 }
