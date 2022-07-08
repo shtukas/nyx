@@ -56,8 +56,8 @@ class Catalyst
         items
     end
 
-    # Catalyst::printListing(floatingItems, runningItems, mainListingItems)
-    def self.printListing(floatingItems, runningItems, mainListingItems)
+    # Catalyst::printListing(floatingItems, runningItems, priority, stratification)
+    def self.printListing(floatingItems, runningItems, priority, stratification)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -152,7 +152,22 @@ class Catalyst
         puts ""
         vspaceleft = vspaceleft - 1
         printSection.call(runningItems, store)
-        printSection.call(mainListingItems, store)
+        printSection.call(priority, store)
+
+        puts ""
+        stratification
+                .each{|nxStratificationItem|
+                    item = nxStratificationItem["item"]
+                    store.register(item, true)
+                    line = "(ord: #{"%5.2f" % nxStratificationItem["ordinal"]}) #{LxFunction::function("toString", item)}"
+                    line = "#{store.prefixString()} #{line}"
+                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -211,14 +226,75 @@ class Catalyst
             #puts "(floatingItems)"
             floatingItems = Catalyst::itemsForSection1()
 
-            #puts "(mainListingItems) 1"
-            mainListingItems = Catalyst::itemsForSection2()
+            #puts "(section2) 1"
+            section2 = Catalyst::itemsForSection2()
 
-            #puts "(mainListingItems) 4"
-            runningItems, mainListingItems = mainListingItems.partition{|item| NxBallsService::isActive(item["uuid"]) }
+            #puts "(section2) 4"
+            runningItems, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
+
+            priorityMikuTypes = ["fitness1"]
+
+            priority, section2 = section2.partition{|item| priorityMikuTypes.include?(item["mikuType"]) }
+
+            # --------------------------------------------------------------------------------------------
+            # stratification
+
+            #{
+            #    "ordinal"   : Float
+            #    "mikuType"  : "NxStratificationItem"
+            #    "item"      : Item
+            #    "keepAlive" : Boolean # reset to false at start of replacement process and then to true indicating that the item has been replaced.
+            #}
+
+            # stratification : Array[NxStratificationItem]
+
+            digest = lambda {|stratification, item|
+                hasBeenReplaced = false
+                stratification = stratification.map{|i|
+                    if i["item"]["uuid"] == item["uuid"] then
+                        i["item"] = item
+                        i["keepAlive"] = true
+                        hasBeenReplaced = true
+                    end
+                    i
+                }
+                if !hasBeenReplaced then
+                    ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
+                    nxStratificationItem = {
+                        "ordinal"   => ordinal,
+                        "mikuType"  => "NxStratificationItem",
+                        "item"      => item,
+                        "keepAlive" => true
+                    }
+                    stratification = stratification + [nxStratificationItem]
+                end
+                stratification
+            }
+
+            # --------------------------------------
+
+            stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
+
+            # reset all keepAlive
+            stratification = stratification.map{|item|
+                item["keepAlive"] = false
+                item
+            }
+
+            stratification = section2.reduce(stratification) {|strat, item|
+                digest.call(strat, item)
+            }
+
+            stratification = stratification.select{|item| item["keepAlive"]}
+
+            stratification = stratification.sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+
+            File.open("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
+
+            # --------------------------------------------------------------------------------------------
 
             #puts "(Catalyst::printListing)"
-            Catalyst::printListing(floatingItems, runningItems, mainListingItems)
+            Catalyst::printListing(floatingItems, runningItems, priority, stratification)
         }
     end
 end
