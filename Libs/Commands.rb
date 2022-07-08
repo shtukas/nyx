@@ -6,9 +6,10 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | ordinal | project | task>queue",
+            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
+            "ordinal <itemPosition> <newOrdinal>",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute",
         ].join("\n")
@@ -206,11 +207,22 @@ class Commands
             return
         end
 
-        if input == "ordinal" then
-            line = LucilleCore::askQuestionAnswerAsString("line: ")
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            ordinal = NxOrdinals::issue(line, ordinal)
-            puts JSON.pretty_generate(ordinal)
+        if Interpreting::match("ordinal * *", input) then
+            _, ordinalItem, ordinalFloat = Interpreting::tokenizer(input)
+            item = store.get(ordinalItem.to_i)
+            return if item.nil?
+
+            stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
+
+            stratification = stratification.map{|i|
+                if i["item"]["uuid"] == item["uuid"] then
+                    i["ordinal"] = ordinalFloat.to_f
+                end
+                i
+            }
+
+            File.open("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
+
             return
         end
 
