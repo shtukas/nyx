@@ -72,6 +72,10 @@ class EventsToAWSQueue
             DoNotShowUntil::incomingEvent(event)
             return
         end
+        if event["mikuType"] == "SetDoneToday" then
+            DoneToday::incomingEvent(event)
+            return
+        end
         # If an event has not be catured, then we assume it's a database object 
         Librarian::incomingEvent(event, verbose ? "aws" : nil)
     end
