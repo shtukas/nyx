@@ -8,7 +8,7 @@ class Catalyst
                 [
                     JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
                     Anniversaries::itemsForListing(),
-                    NxFrames::listingItems(),
+                    NxFrames::items(),
                     Waves::itemsForListing(true),
                     TxDateds::itemsForListing(),
                     TxProjects::items(),

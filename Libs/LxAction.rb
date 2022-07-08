@@ -133,7 +133,7 @@ class LxAction
 
             if item["mikuType"] == "NxFrame" then
                 NxBallsService::close(item["uuid"], true)
-                XCache::setFlag("29279b2e-57b3-40e2-89be-033889a8593d:#{CommonUtils::today()}:#{item["uuid"]}", true)
+                DoneToday::setDoneToday(item["uuid"])
                 return
             end
 
