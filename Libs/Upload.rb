@@ -1,7 +1,7 @@
 class Upload
 
-    # Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item)
-    def self.linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item)
+    # Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)
+    def self.linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         if !File.exists?(folder) then
             puts "The given location doesn't exist (#{folder})"
@@ -16,12 +16,16 @@ class Upload
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
             child = NxDataNodes::issueNewItemAionPointFromLocation(location)
+            if overrideDatetime then
+                child["datetime"] = overrideDatetime
+                Librarian::commit(child)
+            end
             NxLink::issue(item["uuid"], child["uuid"])
         }
     end
 
-    # Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item)
-    def self.uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item)
+    # Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item, overrideDatetime)
+    def self.uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item, overrideDatetime)
         folder = LucilleCore::askQuestionAnswerAsString("folder: ")
         if !File.exists?(folder) then
             puts "The given location doesn't exist (#{folder})"
@@ -37,6 +41,10 @@ class Upload
             puts "processing: #{location}"
             child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
+            if overrideDatetime then
+                child["datetime"] = overrideDatetime
+                Librarian::commit(child)
+            end
             NxLink::issue(item["uuid"], child["uuid"])
         }
     end
@@ -46,18 +54,26 @@ class Upload
         puts "Upload to '#{LxFunction::function("toString", item)}'".green
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["single file", "aion-points", "primitive files"])
         return if action.nil?
+        overrideDatetime = nil
+        if !LucilleCore::askQuestionAnswerAsBoolean("Use current datetime ? ", true) then
+            overrideDatetime = CommonUtils::interactiveDateTimeBuilder()
+        end
         if action == "single file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return if location.nil?
             child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
             return if child.nil?
+            if overrideDatetime then
+                child["datetime"] = overrideDatetime
+                Librarian::commit(child)
+            end
             NxLink::issue(item["uuid"], child["uuid"])
         end
         if action == "aion-points" then
-            Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item)
+            Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)
         end
         if action == "primitive files" then
-            Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item)
+            Upload::uploadAllLocationsOfAFolderAsLinkedPrimitiveFiles(item, overrideDatetime)
         end
     end
 end
