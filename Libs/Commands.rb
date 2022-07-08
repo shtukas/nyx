@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
+            "wave | anniversary | frame | ship | ship: <line> | line: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
             "anniversaries | calendar | zeroes | ondates | todos",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "ordinal <itemPosition> <newOrdinal>",
@@ -204,6 +204,28 @@ class Commands
 
         if Interpreting::match("ondates", input) then
             TxDateds::dive()
+            return
+        end
+
+        if input.start_with?("line:") then
+            line = input[5, input.length].strip
+            item = NxLines::issue(line)
+            puts JSON.pretty_generate(item)
+
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+
+            stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
+
+            nxStratificationItem = {
+                "mikuType"  => "NxStratificationItem",
+                "item"      => item,
+                "ordinal"   => ordinal,
+                "keepAlive" => true
+            }
+            stratification << nxStratificationItem
+
+            File.open("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
+
             return
         end
 
@@ -451,8 +473,8 @@ class Commands
                     "lambda" => lambda { NxTasks::itemsForMainListing() }
                 },
                 {
-                    "name" => "NxOrdinals::itemsForListing()",
-                    "lambda" => lambda { NxOrdinals::itemsForListing() }
+                    "name" => "NxLines::items()",
+                    "lambda" => lambda { NxLines::items() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",

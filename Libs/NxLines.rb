@@ -1,28 +1,27 @@
 
 # encoding: UTF-8
 
-class NxOrdinals
+class NxLines
 
     # ----------------------------------------------------------------------
     # IO
 
-    # NxOrdinals::items()
+    # NxLines::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxOrdinal")
+        Librarian::getObjectsByMikuType("NxLine")
     end
 
     # ----------------------------------------------------------------------
     # Makers
 
-    # NxOrdinals::issue(line, ordinal)
-    def self.issue(line, ordinal)
+    # NxLines::issue(line)
+    def self.issue(line)
         item = {
           "uuid"      => SecureRandom.uuid,
           "variant"   => SecureRandom.uuid,
-          "mikuType"  => "NxOrdinal",
+          "mikuType"  => "NxLine",
           "unixtime"  => Time.new.to_f,
           "line"      => line,
-          "ordinal"   => ordinal
         }
         Librarian::commit(item)
         item
@@ -31,13 +30,8 @@ class NxOrdinals
     # ----------------------------------------------------------------------
     # Data
 
-    # NxOrdinals::toString(item)
+    # NxLines::toString(item)
     def self.toString(item)
-        "(ordinal) (#{"%5.2f" % item["ordinal"]}) #{item["line"]}"
-    end
-
-    # NxOrdinals::itemsForListing()
-    def self.itemsForListing()
-        NxOrdinals::items().sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
+        "(line) #{item["line"]}"
     end
 end

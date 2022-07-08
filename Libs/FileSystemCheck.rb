@@ -186,7 +186,7 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "NxOrdinal" then
+        if item["mikuType"] == "NxLine" then
             return
         end
 

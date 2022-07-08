@@ -15,7 +15,7 @@ class Catalyst
                     TxQueues::itemsForMainListing(),
                     Waves::itemsForListing(false),
                     Streaming::listingItemForAnHour(),
-                    NxOrdinals::itemsForListing()
+                    NxLines::items()
                 ]
                     .flatten
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -189,9 +189,9 @@ class Catalyst
         # stratification
 
         #{
-        #    "ordinal"   : Float
         #    "mikuType"  : "NxStratificationItem"
         #    "item"      : Item
+        #    "ordinal"   : Float
         #    "keepAlive" : Boolean # reset to false at start of replacement process and then to true indicating that the item has been replaced.
         #}
 
@@ -200,9 +200,9 @@ class Catalyst
         insert = lambda {|stratification, item, ordinal|
             ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
             nxStratificationItem = {
-                "ordinal"   => ordinal,
                 "mikuType"  => "NxStratificationItem",
                 "item"      => item,
+                "ordinal"   => ordinal,
                 "keepAlive" => true
             }
             stratification + [nxStratificationItem]
@@ -282,9 +282,9 @@ class Catalyst
             end
 
             nxStratificationItem = {
-                "ordinal"   => ordinal,
                 "mikuType"  => "NxStratificationItem",
                 "item"      => item,
+                "ordinal"   => ordinal,
                 "keepAlive" => true
             }
             stratification << nxStratificationItem

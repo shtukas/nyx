@@ -86,7 +86,7 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxOrdinal" then
+            if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
                     Librarian::destroyClique(item["uuid"])
                 end
@@ -144,8 +144,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "NxOrdinal" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxOrdinal '#{LxFunction::function("toString", item).green}' ? ") then
+            if item["mikuType"] == "NxLine" then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ") then
                     Librarian::destroyClique(item["uuid"])
                 end
                 return

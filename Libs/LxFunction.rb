@@ -48,8 +48,8 @@ class LxFunction
             if item["mikuType"] == "NxFrame" then
                 return NxFrames::toString(item)
             end
-            if item["mikuType"] == "NxOrdinal" then
-                return NxOrdinals::toString(item)
+            if item["mikuType"] == "NxLine" then
+                return NxLines::toString(item)
             end
             if item["mikuType"] == "NxPerson" then
                 return NxPersons::toString(item)
