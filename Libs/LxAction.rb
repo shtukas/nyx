@@ -165,7 +165,7 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
-                XCache::setFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{item["uuid"]}", true)
+                DoneToday::setDoneToday(item["uuid"])
                 return
             end
 

@@ -74,16 +74,16 @@ class Ax39
     def self.itemShouldShow(item)
         return false if !DoNotShowUntil::isVisible(item["uuid"])
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return !XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{item["uuid"]}")
+            return !DoneToday::isDoneToday(item["uuid"])
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return false if XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{item["uuid"]}")
+            return false if DoneToday::isDoneToday(item["uuid"])
             return false if BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) >= item["ax39"]["hours"]
             return true
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
             return false if Time.new.wday == 5 # We don't show those on Fridays
-            return false if XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{item["uuid"]}")
+            return false if DoneToday::isDoneToday(item["uuid"])
             return false if Bank::valueAtDate(item["uuid"], CommonUtils::today()) >= 0.3*(3600*item["ax39"]["hours"])
             return false if Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()) >= 3600*item["ax39"]["hours"]
             return true
@@ -94,7 +94,7 @@ class Ax39
     # Ax39::completionRatio(item)
     def self.completionRatio(item)
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{item["uuid"]}") ? 1 : 0
+            return DoneToday::isDoneToday(item["uuid"]) ? 1 : 0
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
             return BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).to_f/item["ax39"]["hours"]
