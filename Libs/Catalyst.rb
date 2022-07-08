@@ -13,19 +13,39 @@ class Catalyst
 
     # Catalyst::itemsForSection2()
     def self.itemsForSection2()
-        items = [
-            Streaming::listingItemForAnHour(),
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Anniversaries::itemsForListing(),
-            NxFrames::itemsForSection2(),
-            Waves::itemsForListing(true),
-            TxDateds::itemsForListing(),
-            TxProjects::itemsForSection2(),
-            NxTasks::itemsForMainListing(),
-            TxQueues::itemsForMainListing(),
-            Waves::itemsForListing(false),
-        ]
-            .flatten
+        items = 
+            if Time.new.hour < 6 or Time.new.hour > 17 then
+                [
+                    # Together in the morning
+                    Waves::itemsForListing(true),
+                    Waves::itemsForListing(false),
+
+                    Streaming::listingItemForAnHour(), # Only out of hours
+
+                    Anniversaries::itemsForListing(),
+                    NxFrames::itemsForSection2(),
+                    TxDateds::itemsForListing(),
+                    TxProjects::itemsForSection2(),
+                    TxQueues::itemsForMainListing(),
+                    NxTasks::itemsForMainListing(),
+                ]
+                    .flatten
+            else
+                [
+                    JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`), # day only
+                    Anniversaries::itemsForListing(),
+                    NxFrames::itemsForSection2(),
+                    Waves::itemsForListing(true),
+                    TxDateds::itemsForListing(),
+                    TxProjects::itemsForSection2(),
+                    TxQueues::itemsForMainListing(),
+                    NxTasks::itemsForMainListing(),
+                    Waves::itemsForListing(false),
+                ]
+                    .flatten
+            end
+
+        items
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
