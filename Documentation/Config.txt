@@ -1,0 +1,15 @@
+
+{
+    "aws.AWS_ACCESS_KEY_ID"            : (String),
+    "aws.AWS_SECRET_ACCESS_KEY"        : (String),
+    "aws.SQS.URL.Lucille18ToLucille20" : (URL),
+    "aws.SQS.URL.Lucille20ToLucille18" : (URL),
+    "catalyst.node-type"               : "primary" | "secondary"
+}
+
+The config file is located at `path-to-stargate/config.json`
+
+The AWS id and the access key are both used to access the two SQS queues.
+
+"catalyst.node-type" indicates whether the current node is the primary node or a secondary node. There should only be one one primary node. The currenty primary node is Lucille20.
+
