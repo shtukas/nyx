@@ -2,50 +2,21 @@
 
 class Catalyst
 
-    # Catalyst::itemsForSection1()
-    def self.itemsForSection1()
-        [
-            NxFrames::itemsForSection1(),
-            TxProjects::itemsForSection1(),
-        ]   
-            .flatten
-    end
-
-    # Catalyst::itemsForSection2()
-    def self.itemsForSection2()
+    # Catalyst::items()
+    def self.items()
         items = 
-            if Time.new.hour < 6 or Time.new.hour > 17 then
                 [
-                    # Together in the morning
-                    Waves::itemsForListing(true),
-                    Waves::itemsForListing(false),
-
-                    Streaming::listingItemForAnHour(), # Only out of hours
-
+                    JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
                     Anniversaries::itemsForListing(),
-                    NxFrames::itemsForSection2(),
-                    TxDateds::itemsForListing(),
-                    TxProjects::itemsForSection2(),
-                    TxQueues::itemsForMainListing(),
-                    NxTasks::itemsForMainListing(),
-                ]
-                    .flatten
-            else
-                [
-                    JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`), # day only
-                    Anniversaries::itemsForListing(),
-                    NxFrames::itemsForSection2(),
+                    NxFrames::listingItems(),
                     Waves::itemsForListing(true),
                     TxDateds::itemsForListing(),
-                    TxProjects::itemsForSection2(),
+                    TxProjects::items(),
                     TxQueues::itemsForMainListing(),
-                    NxTasks::itemsForMainListing(),
                     Waves::itemsForListing(false),
+                    Streaming::listingItemForAnHour()
                 ]
                     .flatten
-            end
-
-        items = items
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
@@ -56,8 +27,8 @@ class Catalyst
         items
     end
 
-    # Catalyst::printListing(floatingItems, runningItems, priority, stratification)
-    def self.printListing(floatingItems, runningItems, priority, stratification)
+    # Catalyst::printListing(section1, runningItems, priority, stratification)
+    def self.printListing(section1, runningItems, priority, stratification)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -83,18 +54,20 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
-        puts ""
-        vspaceleft = vspaceleft - 1
-        floatingItems
-            .each{|item|
-                store.register(item, false)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-                if NxBallsService::isActive(item["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
+        if section1.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            section1
+                .each{|item|
+                    store.register(item, false)
+                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
 
         running = NxBallsIO::getItems().select{|nxball| !runningItems.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
         if running.size > 0 then
@@ -223,18 +196,17 @@ class Catalyst
                 LucilleCore::removeFileSystemLocation(location)
             }
 
-            #puts "(floatingItems)"
-            floatingItems = Catalyst::itemsForSection1()
+            #puts "(listing) 1"
+            listing = Catalyst::items()
 
-            #puts "(section2) 1"
-            section2 = Catalyst::itemsForSection2()
+            #puts "(listing) 4"
+            runningItems, listing = listing.partition{|item| NxBallsService::isActive(item["uuid"]) }
 
-            #puts "(section2) 4"
-            runningItems, section2 = section2.partition{|item| NxBallsService::isActive(item["uuid"]) }
+            section1, listing = listing.partition{|item| DoneToday::isDoneToday(item["uuid"]) }
 
             priorityMikuTypes = ["fitness1"]
 
-            priority, section2 = section2.partition{|item| priorityMikuTypes.include?(item["mikuType"]) }
+            priority, listing = listing.partition{|item| priorityMikuTypes.include?(item["mikuType"]) }
 
             # --------------------------------------------------------------------------------------------
             # stratification
@@ -281,7 +253,7 @@ class Catalyst
                 item
             }
 
-            stratification = section2.reduce(stratification) {|strat, item|
+            stratification = listing.reduce(stratification) {|strat, item|
                 digest.call(strat, item)
             }
 
@@ -294,7 +266,7 @@ class Catalyst
             # --------------------------------------------------------------------------------------------
 
             #puts "(Catalyst::printListing)"
-            Catalyst::printListing(floatingItems, runningItems, priority, stratification)
+            Catalyst::printListing(section1, runningItems, priority, stratification)
         }
     end
 end

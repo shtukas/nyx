@@ -419,8 +419,8 @@ class Commands
                     "lambda" => lambda { TxDateds::itemsForListing() }
                 },
                 {
-                    "name" => "NxFrames::items()",
-                    "lambda" => lambda { NxFrames::items() }
+                    "name" => "NxFrames::listingItems()",
+                    "lambda" => lambda { NxFrames::listingItems() }
                 },
                 {
                     "name" => "TxQueues::items()",

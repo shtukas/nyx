@@ -66,17 +66,4 @@ class TxProjects
             }
         }
     end
-
-    # TxProjects::itemsForSection1()
-    def self.itemsForSection1()
-        TxProjects::items()
-            .select{|item| !Ax39::itemShouldShow(item) }
-    end
-
-    # TxProjects::itemsForSection2()
-    def self.itemsForSection2()
-        TxProjects::items()
-            .select{|item| Ax39::itemShouldShow(item) }
-            .sort{|i1, i2| Ax39::completionRatio(i1) <=> Ax39::completionRatio(i2) }
-    end
 end
