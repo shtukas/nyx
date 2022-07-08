@@ -28,8 +28,8 @@ class Catalyst
         items
     end
 
-    # Catalyst::printListing(itemsDoneToday, runnings, top, priority, stratification)
-    def self.printListing(itemsDoneToday, runnings, top, priority, stratification)
+    # Catalyst::printListing(itemsDoneToday, top, priority, stratification)
+    def self.printListing(itemsDoneToday, top, priority, stratification)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -70,7 +70,8 @@ class Catalyst
                 }
         end
 
-        running = NxBallsIO::getItems().select{|nxball| !runnings.map{|item| item["uuid"] }.include?(nxball["uuid"]) }
+        uuids = (itemsDoneToday + priority + stratification.map{|nx| nx["item"] }).map{|item| item["uuid"] }
+        running = NxBallsIO::getItems().select{|nxball| !uuids.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -89,24 +90,6 @@ class Catalyst
             puts "top:"
             puts top.green
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 2)
-        end
-
-        if runnings.size > 0 then
-            puts ""
-            puts "runnings:"
-            vspaceleft = vspaceleft - 2
-            runnings
-                .each{|item|
-                    store.register(item, true)
-                    line = LxFunction::function("toString", item)
-                    line = "#{store.prefixString()} #{line}"
-                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
         end
 
         if priority.size > 0 then
@@ -164,11 +147,8 @@ class Catalyst
 
     # Catalyst::program3()
     def self.program3()
-        #puts "(listing) 1"
-        listing = Catalyst::items()
 
-        #puts "(listing) 4"
-        runnings, listing = listing.partition{|item| NxBallsService::isActive(item["uuid"]) }
+        listing = Catalyst::items()
 
         itemsDoneToday, listing = listing.partition{|item| DoneToday::isDoneToday(item["uuid"]) }
 
@@ -298,7 +278,7 @@ class Catalyst
         # --------------------------------------------------------------------------------------------
 
         #puts "(Catalyst::printListing)"
-        Catalyst::printListing(itemsDoneToday, runnings, top, priority, stratification)
+        Catalyst::printListing(itemsDoneToday, top, priority, stratification)
     end
 
     # Catalyst::program2()
