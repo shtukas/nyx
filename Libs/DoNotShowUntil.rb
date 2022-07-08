@@ -23,7 +23,9 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
+
         DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
+
         event = {
           "uuid"           => SecureRandom.uuid,
           "mikuType"       => "NxDoNotShowUntil",

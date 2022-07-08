@@ -45,9 +45,9 @@ class Catalyst
                     .flatten
             end
 
-        items
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+        items = items
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
 
         if items.size == 0 then
             items = Streaming::listingItemInfinity()
