@@ -3,6 +3,17 @@
 
 class Nyx
 
+    # Nyx::nyxNodes()
+    def self.nyxNodes()
+        [
+            NxConcepts::items(),
+            NxDataNodes::items(),
+            NxEntities::items(),
+            NxEvents::items(),
+            NxPersons::items(),
+        ].flatten
+    end
+
     # Nyx::program()
     def self.program()
         loop {
@@ -11,7 +22,7 @@ class Nyx
             operations = [
                 "search (interactive)",
                 "search (classic)",
-                "display nodes in timeline order",
+                "last [n] nodes dive",
                 "make new data entity",
                 "make new event"
             ]
@@ -23,12 +34,22 @@ class Nyx
             if operation == "search (classic)" then
                 Search::classicInterface()
             end
-            if operation == "display nodes in timeline order" then
-                NxDataNodes::items()
-                    .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-                    .each{|item| puts NxDataNodes::toString(item) }
-                LucilleCore::pressEnterToContinue()
+            if operation == "last [n] nodes dive" then
+                cardinal = LucilleCore::askQuestionAnswerAsString("cardinal : ").to_i
+
+                nodes = Nyx::nyxNodes()
+                            .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+                            .reverse
+                            .first(cardinal)
+                            .reverse
+
+                loop {
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|item| LxFunction::function("toString", item) })
+                    break if node.nil?
+                    Landing::landing(node)
+                }
             end
+
             if operation == "make new data entity" then
                 item = Architect::interactivelyMakeNewOrNull()
                 next if item.nil?
