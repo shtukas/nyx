@@ -39,10 +39,8 @@ class AionTransforms
         if aionRootNameExtension and desiredNameExtension.nil? then
             return "#{desiredName}#{aionRootNameExtension}"
         end
-        puts "AionTransforms::decideLocationName(aionRootName, desiredName)"
-        puts "aionRootName: #{aionRootName}, aionRootNameExtension: #{aionRootNameExtension}"
-        puts "desiredName:  #{desiredName}, desiredNameExtension: #{desiredNameExtension}"
-        raise "(error: 5857269b-ac3d-40b2-8a89-3023043e8355)"
+
+        desiredName
     end
 
     # AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, desiredName)
