@@ -15,7 +15,7 @@ class LxFunction
         end
 
         if command == "toString" then
-            if item["mikuType"] == "(rstream)" then
+            if item["mikuType"] == "(rstream-to-target)" then
                 return item["announce"]
             end
             if item["mikuType"] == "fitness1" then

@@ -304,7 +304,7 @@ class Commands
         end
 
         if Interpreting::match("rstream", input) then
-            Streaming::rstream()
+            Streaming::rstreamToInfinity()
             return
         end
 
@@ -465,8 +465,8 @@ class Commands
                     "lambda" => lambda { TxProjects::items() }
                 },
                 {
-                    "name" => "Streaming::listingItemForAnHour()",
-                    "lambda" => lambda { Streaming::listingItemForAnHour() }
+                    "name" => "Streaming::listingItemToTarget()",
+                    "lambda" => lambda { Streaming::listingItemToTarget() }
                 },
                 {
                     "name" => "NxTasks::itemsForMainListing()",

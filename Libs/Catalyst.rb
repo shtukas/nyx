@@ -15,28 +15,21 @@ class Catalyst
 
     # Catalyst::items()
     def self.items()
-        items = 
-                [
-                    JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-                    Anniversaries::itemsForListing(),
-                    NxFrames::items(),
-                    Waves::itemsForListing(true),
-                    TxDateds::itemsForListing(),
-                    TxProjects::items(),
-                    TxQueues::itemsForMainListing(),
-                    Waves::itemsForListing(false),
-                    Streaming::listingItemForAnHour(),
-                    NxLines::items()
-                ]
-                    .flatten
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-
-        if items.size == 0 then
-            items = Streaming::listingItemInfinity()
-        end
-
-        items
+        [
+            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
+            Anniversaries::itemsForListing(),
+            NxFrames::items(),
+            Waves::itemsForListing(true),
+            TxDateds::itemsForListing(),
+            TxProjects::items(),
+            TxQueues::itemsForMainListing(),
+            Waves::itemsForListing(false),
+            Streaming::listingItemToTarget(),
+            NxLines::items()
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
     # Catalyst::printListing(itemsDoneToday, top, priority, stratification)

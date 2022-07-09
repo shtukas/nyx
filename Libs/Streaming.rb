@@ -124,38 +124,48 @@ class Streaming
         }
     end
 
-    # Streaming::rstream()
-    def self.rstream()
-        NxBallsService::issue("1ee2805a-f8ee-4a73-a92a-c76d9d45359a", "(rstream)", ["1ee2805a-f8ee-4a73-a92a-c76d9d45359a"])
-        items = NxTasks::items()
-                    .shuffle
-                    .take(20)
-                    .select{|item| !Nx07::itemHasPrincipal(item) } # we only select items that are not already in a queue or in a project
-        Streaming::runstream(items)
-        NxBallsService::close("1ee2805a-f8ee-4a73-a92a-c76d9d45359a", true)
+    # Streaming::rstreamUUID()
+    def self.rstreamUUID()
+        "1ee2805a-f8ee-4a73-a92a-c76d9d45359a"
     end
 
-    # Streaming::listingItemForAnHour()
-    def self.listingItemForAnHour()
-        uuid = "1ee2805a-f8ee-4a73-a92a-c76d9d45359a"
+    # Streaming::rstreamToTarget()
+    def self.rstreamToTarget()
+        uuid = Streaming::rstreamUUID()
+        NxBallsService::issue(uuid, "(rstream-to-target)", [uuid])
+        items = NxTasks::items().shuffle
+        loop {
+            item = items.shift
+            next if Nx07::itemHasPrincipal(item)
+            command = Streaming::runItem(item)
+            break if command == "should-stop-rstream"
+            break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
+        }
+        NxBallsService::close(uuid, true)
+    end
+
+    # Streaming::rstreamToInfinity()
+    def self.rstreamToInfinity()
+        uuid = Streaming::rstreamUUID()
+        NxBallsService::issue(uuid, "(rstream-to-infinity)", [uuid])
+        items = NxTasks::items().shuffle
+        loop {
+            item = items.shift
+            next if Nx07::itemHasPrincipal(item)
+            command = Streaming::runItem(item)
+        }
+        NxBallsService::close(uuid, true)
+    end
+
+    # Streaming::listingItemToTarget()
+    def self.listingItemToTarget()
+        uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return [] if rt >= 1
         [{
             "uuid" => uuid,
-            "mikuType" => "(rstream)",
+            "mikuType" => "(rstream-to-target)",
             "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
-        }]
-    end
-
-    # Streaming::listingItemInfinity()
-    def self.listingItemInfinity()
-        uuid = "b8f2a945-9b7f-42d8-99d2-676f2822254a"
-        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return [] if rt < 1
-        [{
-            "uuid" => uuid,
-            "mikuType" => "(rstream)",
-            "announce" => "(rstream, infinity, rt: #{rt.round(1)})"
         }]
     end
 end

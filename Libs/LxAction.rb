@@ -66,8 +66,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "(rstream)" then
-                Streaming::rstream()
+            if item["mikuType"] == "(rstream-to-target)" then
+                Streaming::rstreamToTarget()
                 return
             end
 
@@ -116,8 +116,7 @@ class LxAction
                  NxBallsService::close(item["uuid"], true)
             end
 
-            if item["mikuType"] == "(rstream)" then
-                # That's the rstream
+            if item["mikuType"] == "(rstream-to-target)" then
                 return
             end
 
@@ -179,8 +178,7 @@ class LxAction
                  NxBallsService::close(item["uuid"], true)
             end
 
-            if item["mikuType"] == "(rstream)" then
-                # That's the rstream
+            if item["mikuType"] == "(rstream-to-target)" then
                 return
             end
 
