@@ -85,6 +85,11 @@ end
 
 class BankExtended
 
+    # BankExtended::lastWeekHoursDone(setuuid)
+    def self.lastWeekHoursDone(setuuid)
+        (-6..0).map{|i| CommonUtils::nDaysInTheFuture(i) }.map{|date| Bank::valueAtDate(setuuid, date).to_f/3600 }
+    end
+
     # BankExtended::timeRatioOverDayCount(setuuid, daysCount)
     def self.timeRatioOverDayCount(setuuid, daysCount)
         value = (0..(daysCount-1))

@@ -135,7 +135,7 @@ class Streaming
         [{
             "uuid" => uuid,
             "mikuType" => "(rstream)",
-            "announce" => "(rstream, hour, rt: #{rt.round(1)})"
+            "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
         }]
     end
 
