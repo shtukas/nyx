@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | ship | ship: <line> | line: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
             "anniversaries | calendar | zeroes | ondates | todos",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "ordinal <itemPosition> <newOrdinal>",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute",
@@ -269,18 +269,18 @@ class Commands
             return
         end
 
-        if Interpreting::match("pursue", input) then
+        if Interpreting::match("resume", input) then
             item = store.getDefault()
             return if item.nil?
-            NxBallsService::pursue(item["uuid"])
+            NxBallsService::resume(item["uuid"])
             return
         end
 
-        if Interpreting::match("pursue *", input) then
+        if Interpreting::match("resume *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            NxBallsService::pursue(item["uuid"])
+            NxBallsService::resume(item["uuid"])
             return
         end
 
