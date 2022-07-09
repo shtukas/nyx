@@ -11,7 +11,9 @@ class AionTransforms
         # We are making the following small adjustement to prevent:
         # str       = 51|(task) Screenshot 2021-09-28 at 15.13.39.png (aion-point)|fa5ab5d4-e2d3-44c2-9fe3-82ff19761f52|eaa0487d9f91e11256dfee4faaa2a282
         # extension = .png (aion-point)|fa5ab5d4-e2d3-44c2-9fe3-82ff19761f52|eaa0487d9f91e11256dfee4faaa2a282
-        str = str[-10, 10]
+        if str.length > 10 then
+            str = str[-10, 10]
+        end
 
         extension = File.extname(str)
 
