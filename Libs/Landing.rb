@@ -211,6 +211,7 @@ class Landing
 
             if Interpreting::match("nx111", command) then
                 nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+                next if nx111.nil?
                 item["nx111"] = nx111
                 Librarian::commit(item)
             end
