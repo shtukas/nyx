@@ -1,8 +1,8 @@
 
 class LxAction
 
-    # LxAction::action(command, item or nil, options = nil)
-    def self.action(command, item = nil, options = nil)
+    # LxAction::action(command, item or nil)
+    def self.action(command, item = nil)
 
         # All items sent to this are expected to have an mikyType attribute
 
@@ -152,11 +152,6 @@ class LxAction
             end
 
             if item["mikuType"] == "TxDated" then
-                shouldForce = options and options["forcedone"]
-                if shouldForce then
-                    TxDateds::destroy(item["uuid"])
-                    return
-                end
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
@@ -170,14 +165,64 @@ class LxAction
             end
 
             if item["mikuType"] == "Wave" then
-                shouldForce = options and options["forcedone"]
-                if shouldForce then
-                    Waves::performWaveNx46WaveDone(item)
-                    return
-                end
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm wave done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                 end
+                return
+            end
+        end
+
+        if command == "done-no-confirmation-prompt" then
+
+            # If the item was running, then we stop it
+            if NxBallsService::isRunning(item["uuid"]) then
+                 NxBallsService::close(item["uuid"], true)
+            end
+
+            if item["mikuType"] == "(rstream)" then
+                # That's the rstream
+                return
+            end
+
+            if item["mikuType"] == "NxAnniversary" then
+                Anniversaries::done(item)
+                return
+            end
+
+            if item["mikuType"] == "NxBall.v2" then
+                NxBallsService::close(item["uuid"], true)
+                return
+            end
+
+            if item["mikuType"] == "NxFrame" then
+                NxBallsService::close(item["uuid"], true)
+                DoneToday::setDoneToday(item["uuid"])
+                return
+            end
+
+            if item["mikuType"] == "NxTask" then
+                Librarian::destroyClique(item["uuid"])
+                return
+            end
+
+            if item["mikuType"] == "NxLine" then
+                Librarian::destroyClique(item["uuid"])
+                return
+            end
+
+            if item["mikuType"] == "TxDated" then
+                TxDateds::destroy(item["uuid"])
+                return
+            end
+
+            if item["mikuType"] == "TxProject" then
+                NxBallsService::close(item["uuid"], true)
+                DoneToday::setDoneToday(item["uuid"])
+                return
+            end
+
+            if item["mikuType"] == "Wave" then
+                Waves::performWaveNx46WaveDone(item)
                 return
             end
         end

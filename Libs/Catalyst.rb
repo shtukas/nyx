@@ -230,6 +230,13 @@ class Catalyst
                 }
 
             item = incoming.first
+
+            if item["mikuType"] == "NxFrame" then
+                # Automatically done for the day
+                DoneToday::setDoneToday(item["uuid"])
+                return
+            end
+
             puts ""
             puts "incoming:"
             command = LucilleCore::askQuestionAnswerAsString("#{LxFunction::function("toString", item).green} ; run, done, next (ordinal) #default, <ordinal>, +datecode : ")
@@ -244,12 +251,13 @@ class Catalyst
                 return
             end
             if command == "done" then
-                LxAction::action("done", item)
+                LxAction::action("done-no-confirmation-prompt", item)
                 return
             end
 
             if command.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
                 NxBallsService::close(item["uuid"], true)
+                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             end
 
