@@ -4,11 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-puts Commands::commands().yellow
-
-input = LucilleCore::askQuestionAnswerAsString("> ")
-
-command, objectOpt = Commands::run(input, nil)
-#puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-LxAction::action(command, objectOpt)
-
+Catalyst::primaryCommandProcess()

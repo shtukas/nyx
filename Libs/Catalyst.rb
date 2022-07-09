@@ -2,6 +2,17 @@
 
 class Catalyst
 
+    # Catalyst::primaryCommandProcess()
+    def self.primaryCommandProcess()
+        puts Commands::commands().yellow
+
+        input = LucilleCore::askQuestionAnswerAsString("> ")
+
+        command, objectOpt = Commands::run(input, nil)
+        #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
+        LxAction::action(command, objectOpt)
+    end
+
     # Catalyst::items()
     def self.items()
         items = 
