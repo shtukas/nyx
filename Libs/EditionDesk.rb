@@ -193,6 +193,14 @@ class EditionDesk
     # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
     def self.accessItemNx111Pair(parentLocation, item, nx111)
         return if nx111.nil?
+
+        if nx111["type"] == "url" then
+            url = nx111["url"]
+            puts "url: #{url}"
+            CommonUtils::openUrlUsingSafari(url)
+            return
+        end
+
         location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item, nx111)
         if location.nil? then
             puts "I could not accessItemNx111Pair for"
