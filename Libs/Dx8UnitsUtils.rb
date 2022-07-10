@@ -11,24 +11,18 @@ class Dx8UnitsUtils
     def self.acquireUnit(dx8UnitId) # returns the location of the unit, or nil if it could not be acquired
 
         location1 = XCache::filepath("213a1c6e-df37-46ed-95b2-15ef742c5512:#{dx8UnitId}")
-        if File.exists?(location1) then
-            return location1
-        end
+        return location1 if File.exists?(location1)
 
         # We could not find the file in xcache, now looking in stargate central
         status = StargateCentral::askForInfinityReturnBoolean()
-
-        if status then
-            location2 = "#{Dx8UnitsUtils::infinityRepository()}/#{dx8UnitId}"
-            if File.exists?(location2) then
-                puts "copying Dx8Unit #{dx8UnitId} from Stargate Central to local (XCache)".green
-                FileUtils.cp(location2, location1)
-                location1
-            else
-                nil
-            end
-        else
-            nil
+        if !status then
+            puts "Could not access dx8UnitId #{dx8UnitId}"
+            return nil
         end
+
+        location2 = "#{Dx8UnitsUtils::infinityRepository()}/#{dx8UnitId}"
+        return location2 if File.exists?(location2)
+
+        nil
     end
 end
