@@ -9,7 +9,7 @@ class Landing
 
         store = ItemStore.new()
 
-        NxLink::related(item["uuid"])
+        NxLink::relatedItems(item["uuid"])
             .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entity| 
                 indx = store.register(entity, false)
@@ -57,7 +57,7 @@ class Landing
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
 
-            related  = NxLink::related(item["uuid"])
+            related  = NxLink::relatedItems(item["uuid"])
 
             if related.size > 50 then
                 puts "Many related, please use `navigation`"
@@ -124,7 +124,7 @@ class Landing
             end
 
             if Interpreting::match("navigation", command) then
-                RelatedNavigation::navigate(item)
+                LinkedNavigation::navigate(item)
             end
 
             if Interpreting::match("unlink", command) then
@@ -170,7 +170,7 @@ class Landing
                 puts "nx111: (not found)".yellow
             end
 
-            NxLink::related(item["uuid"])
+            NxLink::relatedItems(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
@@ -273,7 +273,7 @@ class Landing
             puts "nhash: #{item["nhash"]}".yellow
             puts "parts (count): #{item["parts"].size}".yellow
 
-            NxLink::related(item["uuid"])
+            NxLink::relatedItems(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)

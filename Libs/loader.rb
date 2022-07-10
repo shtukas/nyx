@@ -133,7 +133,7 @@ require_relative "Config.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Commands.rb"
-require_relative "RelatedNavigation.rb"
+require_relative "LinkedNavigation.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)

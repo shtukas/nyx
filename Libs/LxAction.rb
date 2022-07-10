@@ -104,7 +104,7 @@ class LxAction
             end
 
             if Iam::isNetworkAggregation(item) then
-                RelatedNavigation::navigate(item)
+                LinkedNavigation::navigate(item)
                 return
             end
         end
