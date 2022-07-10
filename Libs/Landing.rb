@@ -57,17 +57,23 @@ class Landing
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
 
-            related  = NxLink::relatedItems(item["uuid"])
+            linkeduuids  = NxLink::linkedUUIDs(uuid)
 
-            if related.size > 50 then
-                puts "Many related, please use `navigation`"
-            else
-                related
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    .each{|entity|
-                        indx = store.register(entity, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
-                    }
+            counter = 0
+            linkeduuids.each{|linkeduuid|
+                entity = Librarian::getObjectByUUIDOrNullEnforceUnique(linkeduuid)
+                if entity.nil? then
+                    # doing a bit of garbage collection
+                    NxLink::unlink(uuid, linkeduuid)
+                    next
+                end
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+                counter = counter + 1
+                break if counter >= 200
+            }
+            if linkeduuids.size > 200 then
+                puts "(... more linked ...)"
             end
 
             puts "commands: iam | <n> | description | datetime | note | json | link | unlink | navigation | upload | destroy".yellow

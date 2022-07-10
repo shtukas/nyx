@@ -34,6 +34,21 @@ class NxLink
             }
     end
 
+    # NxLink::linkedUUIDs(uuid)
+    def self.linkedUUIDs(uuid)
+        uuids = []
+        NxLink::links()
+            .each{|item|
+                if item["node1uuid"] == uuid then
+                    uuids << item["node2uuid"]
+                end
+                if item["node2uuid"] == uuid then
+                    uuids << item["node1uuid"]
+                end
+            }
+        uuids
+    end
+
     # NxLink::relatedItems(uuid)
     def self.relatedItems(uuid)
         items = []
