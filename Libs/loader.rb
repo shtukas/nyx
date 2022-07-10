@@ -127,6 +127,7 @@ require_relative "AWSSQS.rb"
 require_relative "Ax39.rb"
 
 require_relative "Bank.rb"
+require_relative "Boxes.rb"
 
 require_relative "Catalyst.rb"
 require_relative "Config.rb"
