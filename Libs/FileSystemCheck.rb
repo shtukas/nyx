@@ -121,7 +121,12 @@ class FileSystemCheck
         end
         if nx111["type"] == "Dx8Unit" then
             unitId = nx111["unitId"]
-            location = Dx8UnitsUtils::dx8UnitFolder(unitId)
+            location = Dx8UnitsUtils::acquireUnit(unitId)
+            if location.nil? then
+                puts "I could not acquire the Dx8Unit. Aborting operation."
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             puts "location: #{location}"
             if !File.exists?(location) then
                 puts "note: could not find location for Dx8Unit: #{unitId}".red

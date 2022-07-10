@@ -48,6 +48,8 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 
     XCache::setFlag(key, flag)
     XCache::getFlag(key)
+
+    XCache::filepath(key)
 =end
 
 require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
