@@ -5,8 +5,6 @@ class Landing
 
     # Landing::removeConnected(item)
     def self.removeConnected(item)
-        uuid = item["uuid"]
-
         store = ItemStore.new()
 
         NxLink::related(item["uuid"])
@@ -23,7 +21,7 @@ class Landing
         if (indx = Interpreting::readAsIntegerOrNull(i)) then
             entity = store.get(indx)
             return if entity.nil?
-            NxLink::unlink(node1uuid, node2uuid)
+            NxLink::unlink(item["uuid"], entity["uuid"])
         end
     end
 
@@ -40,6 +38,8 @@ class Landing
             return if item.nil?
 
             system("clear")
+
+            Boxes::printBoxes(true)
 
             uuid = item["uuid"]
 
@@ -70,7 +70,7 @@ class Landing
                     }
             end
 
-            puts "commands: iam | <n> | description | datetime | note | json | link | unlink | navigation | upload | destroy".yellow
+            puts "commands: iam | <n> | description | datetime | note | json | link | unlink | boxing | navigation | upload | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -131,6 +131,10 @@ class Landing
                 Landing::removeConnected(item)
             end
 
+            if Interpreting::match("boxing", command) then
+                Boxes::boxing(item)
+            end
+
             if Interpreting::match("upload", command) then
                 Upload::interactivelyUploadToItem(item)
             end
@@ -150,6 +154,8 @@ class Landing
             return if item.nil?
 
             system("clear")
+
+            Boxes::printBoxes(true)
 
             uuid = item["uuid"]
 
@@ -177,7 +183,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | upload | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | boxing | upload | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -241,6 +247,10 @@ class Landing
                 Landing::removeConnected(item)
             end
 
+            if Interpreting::match("boxing", command) then
+                Boxes::boxing(item)
+            end
+
             if Interpreting::match("upload", command) then
                 Upload::interactivelyUploadToItem(item)
             end
@@ -261,6 +271,8 @@ class Landing
 
             system("clear")
 
+            Boxes::printBoxes(true)
+
             uuid = item["uuid"]
 
             store = ItemStore.new()
@@ -280,7 +292,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | <n> | description | datetime | note | json | update | link | unlink | destroy".yellow
+            puts "commands: access | <n> | description | datetime | note | json | update | link | unlink | boxing | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -341,6 +353,10 @@ class Landing
 
             if Interpreting::match("unlink", command) then
                 Landing::removeConnected(item)
+            end
+
+            if Interpreting::match("boxing", command) then
+                Boxes::boxing(item)
             end
 
             if Interpreting::match("destroy", command) then

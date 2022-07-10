@@ -23,6 +23,7 @@ box = {
 class Boxes
 
     # -------------------------------------------------------
+    # Boxes
 
     # Boxes::issueBox(name1)
     def self.issueBox(name1)
@@ -50,17 +51,21 @@ class Boxes
 
     # Boxes::interactivelySelectBoxPossiblyCreatedOrNull()
     def self.interactivelySelectBoxPossiblyCreatedOrNull()
-        box = LucilleCore::selectEntityFromListOfEntitiesOrNull("box", Boxes::boxes(), lambda {|item| item["name"] })
-        return box if box
+        boxes = Boxes::boxes()
+        if boxes.size > 0 then
+            box = LucilleCore::selectEntityFromListOfEntitiesOrNull("box", boxes, lambda {|item| item["name"] })
+            return box if box
+        end
         if LucilleCore::askQuestionAnswerAsBoolean("create a new box ? ") then
             name1 = LucilleCore::askQuestionAnswerAsString("name (empty to abort): ")
-            return nil if name1 = ""
+            return nil if name1 == ""
             return Boxes::issueBox(name1)
         end
         nil
     end
 
     # -------------------------------------------------------
+    # nodeuuids contained in boxes
 
     # Boxes::addNodeuuidToBox(box, nodeuuid)
     def self.addNodeuuidToBox(box, nodeuuid)
@@ -78,5 +83,44 @@ class Boxes
     # Boxes::getNodeuuidsForBox(box)
     def self.getNodeuuidsForBox(box)
         XCacheSets::values("879bc249-cba1-4197-aa86-3a1e32e3ea23:#{box["uuid"]}")
+            .uniq
     end
+
+    # -------------------------------------------------------
+
+    # Boxes::boxToString(box)
+    def self.boxToString(box)
+        "(box) #{box["name"]} (#{Boxes::getNodeuuidsForBox(box).size} items)"
+    end
+
+    # Boxes::printBoxes(shouldPrintExtraLineAfter)
+    def self.printBoxes(shouldPrintExtraLineAfter)
+        boxes = Boxes::boxes()
+        return if boxes.empty?
+        boxes.each{|box|
+            puts Boxes::boxToString(box)
+        }
+        if shouldPrintExtraLineAfter then
+            puts ""
+        end
+    end
+
+    # Boxes::boxing(item)
+    def self.boxing(item)
+        box = Boxes::interactivelySelectBoxPossiblyCreatedOrNull()
+        return if box.nil?
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["select linked(s) and add to box", "link to box contents"])
+        return if action.nil?
+        if action == "select linked(s) and add to box" then
+            selected, _ = LucilleCore::selectZeroOrMore("linked", NxLink::related(item["uuid"]), [], lambda{ |item| LxFunction::function("toString", item) })
+            nodeuuids = selected.map{|item| item["uuid"] }
+            Boxes::addNodeuuidsToBox(box, nodeuuids)
+        end
+        if action == "link to box contents" then
+            Boxes::getNodeuuidsForBox(box).each{|nodeuuid|
+                NxLink::issue(item["uuid"], nodeuuid)
+            }
+        end
+    end
+
 end
