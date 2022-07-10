@@ -1,0 +1,25 @@
+## Fx18 Files
+
+### Introduction
+
+Fx18 files, introduced in 10th July 2022, are are attempt to solve the problem of locality of Librarian objects. The Fx18 files on the Infinity drive are the source of truth.
+
+Each Fx18 file is a sqlite3 file
+
+The file is named after the object's uuid. For instance 81592901-1ec6-460e-9bae-6cb68f6ad33d.fx18.sqlite3
+
+create table _attributes_ (_recorduuid_ text, _recordtime_ float, _attributename_ text, _attributevalue_ blob);
+create table _data_ (_recorduuid_ text, _key_ text, _value_ blob);
+
+### class Fx18
+
+Fx18::constructNewFile(uuid: String): String # location (That function constructs the database and create the three tables)
+
+Fx18::setAttribute(uuid, name, value)
+Fx18::getAttributeOrNull(uuid, name)
+
+Fx18::putData(uuid, key, data)
+Fx18::getDataOrNull(uuid, key) # in content addressing situation, this can be cached
+
+### Fx18Elizabeth
+
