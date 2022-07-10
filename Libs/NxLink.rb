@@ -49,8 +49,8 @@ class NxLink
         uuids
     end
 
-    # NxLink::relatedItems(uuid)
-    def self.relatedItems(uuid)
+    # NxLink::linkedItems(uuid)
+    def self.linkedItems(uuid)
         items = []
         NxLink::links()
             .each{|item|

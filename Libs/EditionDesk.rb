@@ -26,8 +26,8 @@ class EditionDesk
     # ----------------------------------------------------
     # names and locations
 
-    # EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) [boolean, string], first element indicates whether the file was already there or not
-    def self.decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+    # EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111) [boolean, string], first element indicates whether the file was already there or not
+    def self.findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
         part3and4 = "#{item["uuid"]}|#{nx111["uuid"]}"
@@ -44,20 +44,18 @@ class EditionDesk
         [false, "#{parentLocation}/#{name1}"]
     end
 
-    # EditionDesk::decideCollectionItemEditionLocation(item, label)
-    def self.decideCollectionItemEditionLocation(item, label)
+    # EditionDesk::findOrJustConstructMiscItemsEditionReadOnlyExportLocation(trace)
+    def self.findOrJustConstructMiscItemsEditionReadOnlyExportLocation(trace)
         # This function returns the location if there already is one, or otherwise returns a new one.
-        
-        part3andLabel = "#{item["uuid"]}|#{label}"
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk())
             .each{|location|
-                if File.basename(location).include?(part3andLabel) then
+                if File.basename(location).include?(trace) then
                     return location
                 end
             }
 
         index1 = EditionDesk::getMaxIndex(EditionDesk::pathToEditionDesk()) + 1
-        name1 = "#{index1}|#{LxFunction::function("toString", item).gsub("|","-")}|#{part3andLabel}"
+        name1 = "#{index1}|#{trace}"
 
         "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
@@ -95,12 +93,12 @@ class EditionDesk
     # ----------------------------------------------------
     # Nx111 carriers (access)
 
-    # EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, item, nx111) # location or nil
-    def self.getLocationOrAccessItemNx111Pair(parentLocation, item, nx111)
+    # EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item, nx111) # location or nil
+    def self.getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item, nx111)
         return nil if nx111.nil?
         if nx111["type"] == "text" then
             # In this case we are not using the flag, in fact the check was already there when the flag was introduced and we left it like that
-            flag, location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+            flag, location = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111)
             if flag then
                 return location
             end
@@ -117,18 +115,24 @@ class EditionDesk
             return
         end
         if nx111["type"] == "file" then
-            flag, location = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111)
+            flag, location = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111)
             return location if flag
 
             dottedExtension = nx111["dottedExtension"]
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             
-            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForPrimitiveFileParts(parts)
+            operator = EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, true)
+            if operator.nil? then
+                puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
+                puts "... probably because I could not find the island."
+                LucilleCore::pressEnterToContinue()
+                return nil
+            end
             filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
-                    blob = elizabeth.getBlobOrNull(nhash)
+                    blob = operator.getBlobOrNull(nhash)
                     raise "(error: a614a728-fb28-455f-9430-43aab78ea35f)" if blob.nil?
                     f.write(blob)
                 }
@@ -137,9 +141,15 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(rootnhash)
+            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(rootnhash, true)
+            if operator.nil? then
+                puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
+                puts "... probably because I could not find the island."
+                LucilleCore::pressEnterToContinue()
+                return nil
+            end
 
-            flag, exportLocation = EditionDesk::decideItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
+            flag, exportLocation = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
             # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
@@ -183,8 +193,16 @@ class EditionDesk
     # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
     def self.accessItemNx111Pair(parentLocation, item, nx111)
         return if nx111.nil?
-        location = EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, item, nx111)
-        return if location.nil? # something wasn't right or it was a url that is already open
+        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item, nx111)
+        if location.nil? then
+            puts "I could not accessItemNx111Pair for"
+            puts "item:"
+            puts JSON.pretty_generate(item)
+            puts "nx111:"
+            puts JSON.pretty_generate(nx111)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         system("open '#{location}'")
 
         # (comment group: f3bfa5db-2000-488d-90a5-1770c63a34f9)
@@ -236,14 +254,19 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-
-            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(nx111["rootnhash"])
-            rootnhash1 = AionCore::commitLocationReturnHash(elizabeth, location)
-            rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(elizabeth, rootnhash1, CommonUtils::sanitiseStringForFilenaming(item["description"]))
+            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(nx111["rootnhash"], true)
+            if operator.nil? then
+                puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
+                puts "... probably because I could not find the island."
+                LucilleCore::pressEnterToContinue()
+                return nil
+            end
+            rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
+            rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
             # If we update the nx111's roothash, then we need to make a copy of the existing island and rename it
-            elizabeth.recastToNhash(rootnhash2)
+            operator.recastToNhash(rootnhash2)
             item["nx111"] = nx111
             Librarian::commit(item)
             return
@@ -263,27 +286,29 @@ class EditionDesk
     # ----------------------------------------------------
     # Collections (access)
 
-    # EditionDesk::accessCollectionItemItemsPair(collectionitem, items, label)
-    def self.accessCollectionItemItemsPair(collectionitem, items, label)
-        # The logic here is dirrerent. We create a directory for the collection and put the children inside
-        parentLocation = EditionDesk::decideCollectionItemEditionLocation(collectionitem, label)
-        if !File.exists?(parentLocation) then
-            FileUtils.mkdir(parentLocation)
+    # EditionDesk::exportAndAccessMiscItemsReadOnly(items)
+    def self.exportAndAccessMiscItemsReadOnly(items)
+        trace = items.reduce("b90c73a8-5772-4f95-8f6a-245a7db0e8ef"){|str, item|
+            Digest::SHA1.hexdigest("#{str}:#{item.to_s}")
+        }
+        exportLocation = EditionDesk::findOrJustConstructMiscItemsEditionReadOnlyExportLocation(trace)
+        if !File.exists?(exportLocation) then
+            FileUtils.mkdir(exportLocation)
+            puts "I am going to write the Iam::implementsNx111(collectionitem) children here: #{exportLocation}"
+            puts "This is a read only export (!)"
+            items
+                .select{|item| Iam::implementsNx111(item) }
+                .each{|item|
+                    next if item["type"] == "url"
+                    EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(exportLocation, item, item["nx111"])
+                }
         end
-        puts "I am going to write the Iam::implementsNx111(collectionitem) children here: #{parentLocation}"
-        puts "This is a read only export (!)"
-        items
-            .select{|ix| Iam::implementsNx111(ix) }
-            .each{|ix|
-                next if ix["type"] == "url"
-                EditionDesk::getLocationOrAccessItemNx111Pair(parentLocation, ix, ix["nx111"])
-            }
-        system("open '#{parentLocation}'")
+        system("open '#{exportLocation}'")
 
         # (comment group: f3bfa5db-2000-488d-90a5-1770c63a34f9)
         # Because we want to keep the items after the last access instead of after the last modification
         # we reset the Tx202 now
-        XCache::destroy("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{parentLocation}")
+        XCache::destroy("51b218b8-b69d-4f7e-b503-39b0f8abf29b:#{exportLocation}")
     end
 
     # ----------------------------------------------------
@@ -334,6 +359,7 @@ class EditionDesk
             if tx202["trace"] == CommonUtils::locationTrace(location) then # Nothing has happened at the location since the last time we checked
                 if (Time.new.to_i - tx202["unixtime"]) > 86400*30 then # We keep them for 30 days
                     puts "Edition desk processing location: (removing) [please update the code]: #{File.basename(location)}"
+                    exit
                     #LucilleCore::removeFileSystemLocation(location)
                 end
                 next

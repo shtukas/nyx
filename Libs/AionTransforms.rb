@@ -8,21 +8,29 @@ class AionTransforms
     # AionTransforms::extractDottedExtensionOrNull(str)
     def self.extractDottedExtensionOrNull(str)
 
-        # We are making the following small adjustement to prevent:
-        # str       = 51|(task) Screenshot 2021-09-28 at 15.13.39.png (aion-point)|fa5ab5d4-e2d3-44c2-9fe3-82ff19761f52|eaa0487d9f91e11256dfee4faaa2a282
-        # extension = .png (aion-point)|fa5ab5d4-e2d3-44c2-9fe3-82ff19761f52|eaa0487d9f91e11256dfee4faaa2a282
-        if str.length > 10 then
-            str = str[-10, 10]
-        end
-
         extension = File.extname(str)
-
-        # Handling special cirumstances.
-        return nil if extension == ".)"
 
         return nil if extension == ""
 
-        extension
+        if XCache::getFlag("extension-is-valid-be8815b71e65:#{extension}") then
+            return extension
+        end
+
+        if XCache::getFlag("extension-is-NOT-valid-0f93768b37d9:#{extension}") then
+            return extension
+        end
+
+        # By this point, we do not know if the extension is valid or not
+
+        puts "str      : #{str}"
+        puts "extension: #{extension}"
+        if LucilleCore::askQuestionAnswerAsBoolean("extension valid ? ") then
+            XCache::setFlag("extension-is-valid-be8815b71e65:#{extension}", true)
+            return extension
+        else
+            XCache::setFlag("extension-is-NOT-valid-0f93768b37d9:#{extension}", true)
+            return nil
+        end
     end
 
     # AionTransforms::decideLocationName(aionRootName, desiredName)

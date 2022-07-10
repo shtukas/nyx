@@ -156,7 +156,7 @@ class EnergyGridImmutableDataIslandElizabeth
 
     def recastToNhash(nhash)
         filepath1 = @databaseFilepath # Where we are.
-        filepath2 = EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash) # Where we are going
+        filepath2 = EnergyGridImmutableDataIslandsOperator::forNewIslandConstructLocalDataIslandFilepathForNhash(nhash) # Where we are going
 
         if !File.exists?(File.dirname(filepath2)) then
             FileUtils.mkdir(File.dirname(filepath2))
@@ -181,8 +181,8 @@ end
 
 class EnergyGridImmutableDataIslandsOperator
 
-    # EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash)
-    def self.decideIslandFilepathForNhash(nhash)
+    # EnergyGridImmutableDataIslandsOperator::forNewIslandConstructLocalDataIslandFilepathForNhash(nhash)
+    def self.forNewIslandConstructLocalDataIslandFilepathForNhash(nhash)
         filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
         folderpath1 = File.dirname(filepath1)
         if !File.exists?(folderpath1) then
@@ -191,10 +191,32 @@ class EnergyGridImmutableDataIslandsOperator
         filepath1
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getIslandForNhash(nhash)
-    def self.getIslandForNhash(nhash)
-        filepath1 = EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash)
-        EnergyGridImmutableDataIsland.new(filepath1)
+    # EnergyGridImmutableDataIslandsOperator::forExistingIslandLocateIslandFilepathForNhashOrError(nhash, shouldDownloadFromCentralIfMissingOnLocal)
+    def self.forExistingIslandLocateIslandFilepathForNhashOrError(nhash, shouldDownloadFromCentralIfMissingOnLocal)
+        filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
+        return filepath1 if File.exists?(filepath1)
+
+        # We could not find the file in xcache, now looking in stargate central
+        status = StargateCentral::askForInfinityReturnBoolean()
+
+        if !status then
+            puts "Could not access Infinity drive while looking for island #{nhash}.data-island.sqlite3"
+            raise "(error: f52e43e4-b157-412d-b39e-78ece2ffe48d)"
+        end
+
+        filepath2 = "#{StargateCentral::pathToCentral()}/Data/#{nhash[7, 2]}/#{nhash}.data-island.sqlite3"
+        if !File.exists?(filepath2) then
+            puts "Could not find island #{nhash}.data-island.sqlite3 on Stargate Central"
+            raise "(error: 82f87c4e-75de-4de4-80ee-952a2d7d2aef)"
+        end
+
+        if shouldDownloadFromCentralIfMissingOnLocal then
+            puts "copying island #{nhash}.data-island.sqlite3 from Stargate Central to local Data folder".green
+            FileUtils.cp(filepath2, filepath1)
+            return filepath1
+        else
+            return filepath2
+        end
     end
 
     # EnergyGridImmutableDataIslandsOperator::getElizabethWithTemporaryIsland()
@@ -202,9 +224,10 @@ class EnergyGridImmutableDataIslandsOperator
         EnergyGridImmutableDataIslandElizabeth.new("/tmp/#{SecureRandom.uuid}")
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(nhash)
-    def self.getElizabethForIslandForNhash(nhash)
-        filepath = EnergyGridImmutableDataIslandsOperator::decideIslandFilepathForNhash(nhash)
+    # EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(nhash, shouldDownloadFromCentralIfMissingOnLocal)
+    def self.getElizabethForExistingIslandForNhashOrNull(nhash, shouldDownloadFromCentralIfMissingOnLocal)
+        filepath = EnergyGridImmutableDataIslandsOperator::forExistingIslandLocateIslandFilepathForNhashOrError(nhash, shouldDownloadFromCentralIfMissingOnLocal)
+        return nil if !File.exists?(filepath)
         EnergyGridImmutableDataIslandElizabeth.new(filepath)
     end
 
@@ -213,9 +236,10 @@ class EnergyGridImmutableDataIslandsOperator
         EnergyGridImmutableDataIslandElizabeth.new(filepath)
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getElizabethForPrimitiveFileParts(parts)
-    def self.getElizabethForPrimitiveFileParts(parts)
-        filepath = PrimitiveFiles::decideFilepathForPrimitiveFileDataIsland(parts)
+    # EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, shouldDownloadFromCentralIfMissingOnLocal)
+    def self.getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, shouldDownloadFromCentralIfMissingOnLocal)
+        filepath = PrimitiveFiles::locateFilepathForExistingPrimitiveFileDataIsland(parts, shouldDownloadFromCentralIfMissingOnLocal)
+        return nil if !File.exists?(filepath)
         EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath)
     end
 end

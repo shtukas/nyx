@@ -7,7 +7,7 @@ class Landing
     def self.removeConnected(item)
         store = ItemStore.new()
 
-        NxLink::relatedItems(item["uuid"])
+        NxLink::linkedItems(item["uuid"])
             .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entity| 
                 indx = store.register(entity, false)
@@ -182,7 +182,7 @@ class Landing
                 puts "nx111: (not found)".yellow
             end
 
-            NxLink::relatedItems(item["uuid"])
+            NxLink::linkedItems(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)
@@ -291,7 +291,7 @@ class Landing
             puts "nhash: #{item["nhash"]}".yellow
             puts "parts (count): #{item["parts"].size}".yellow
 
-            NxLink::relatedItems(item["uuid"])
+            NxLink::linkedItems(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entity| 
                     indx = store.register(entity, false)

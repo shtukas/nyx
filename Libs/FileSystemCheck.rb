@@ -93,9 +93,14 @@ class FileSystemCheck
                 puts "primitive parts, dotted extension is malformed".red
                 exit 1
             end
-            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForPrimitiveFileParts(parts)
+            operator = EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, false)
+            if operator.nil? then
+                puts "I could not make an Elizabeth for this item"
+                puts "... probably because I could not find the island."
+                exit 1
+            end
             parts.each{|nhash|
-                blob = elizabeth.getBlobOrNull(nhash)
+                blob = operator.getBlobOrNull(nhash)
                 if blob.nil? then
                     puts "object:".red
                     puts JSON.pretty_generate(object).red
@@ -107,8 +112,13 @@ class FileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForIslandForNhash(rootnhash)
-            status = AionFsck::structureCheckAionHash(elizabeth, rootnhash)
+            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(rootnhash, false)
+            if operator.nil? then
+                puts "I could not make an Elizabeth for this item"
+                puts "... probably because I could not find the island."
+                exit 1
+            end
+            status = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
                 puts "object, could not validate aion-point".red
                 puts JSON.pretty_generate(object).red
@@ -254,7 +264,13 @@ class FileSystemCheck
         Librarian::objects().each{|item|
             exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
             next if XCache::getFlag("#{runHash}:#{JSON.generate(item)}")
-            FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
+            begin
+                FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
+            rescue
+                if LucilleCore::askQuestionAnswerAsBoolean("should delete ? ") then
+                    Librarian::destroyClique(item["uuid"])
+                end
+            end
             XCache::setFlag("#{runHash}:#{JSON.generate(item)}", true)
         }
         puts "fsck completed successfully".green
