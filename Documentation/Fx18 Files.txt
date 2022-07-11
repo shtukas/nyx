@@ -8,18 +8,41 @@ Each Fx18 file is a sqlite3 file
 
 The file is named after the object's uuid. For instance 81592901-1ec6-460e-9bae-6cb68f6ad33d.fx18.sqlite3
 
-create table _attributes_ (_recorduuid_ text, _recordtime_ float, _attributename_ text, _attributevalue_ blob);
-create table _data_ (_recorduuid_ text, _key_ text, _value_ blob);
+create table _events_ (
+    _eventuuid_ text,
+    _eventTime_ float,
+    _eventType1_ text,
+    _eventType2_ text,
+    _eventType3_ text,
+    _eventType4_ text,
+    _data_ blob
+);
+
+|---------------------------------------------------------------------|
+| _eventType1_ | _eventType2_ | _eventType3_ | _eventType4_ | _data_  |
+|---------------------------------------------------------------------|
+| "attribute"  | <name>       | <value>      |              |         |
+| "setops"     | "add"        | <setuuid>    | <itemuuid>   | <value> |
+| "setops"     | "remove"     | <setuuid>    | <itemuuid>   |         |
+| "data"       | <nhash>      |              |              | <blob>  |
+|---------------------------------------------------------------------|
+
+So a Fx18 file is essentially just a log of events. Some are attributes being set, some are 
+set operations and the third type is content addressed datablobs being stored.
 
 ### class Fx18
 
-Fx18::constructNewFile(uuid: String): String # location (That function constructs the database and create the three tables)
+Fx18::constructNewFile(uuid: String): String # location (That function constructs the database and create the _events_ table)
 
-Fx18::setAttribute(uuid, name, value)
-Fx18::getAttributeOrNull(uuid, name)
+Fx18::setAttribute(eventuuid, eventTime, objectuuid, attname, attvalue)
+Fx18::getAttributeOrNull(objectuuid, attname)
 
-Fx18::putData(uuid, key, data)
-Fx18::getDataOrNull(uuid, key) # in content addressing situation, this can be cached
+Fx18::setsAdd(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
+Fx18::setsRemove(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
+Fx18::setsItems(objectuuid, setuuid)
+
+Fx18::putData(eventuuid, eventTime, objectuuid, key, data)
+Fx18::getDataOrNull(objectuuid, key) # in content addressing situation, this can be cached
 
 ### Fx18Elizabeth
 
