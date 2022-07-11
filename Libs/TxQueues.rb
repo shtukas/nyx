@@ -127,8 +127,22 @@ class TxQueues
     # ------------------------------------------------
     # Operations
 
-    # TxQueues::diving(queue)
-    def self.diving(queue)
+    # TxQueues::landing(queue)
+    def self.landing(queue)
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["update description", "access tasks"])
+        return if action.nil?
+        if action == "update description" then
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            queue["description"] = description
+            Librarian::commit(queue)
+        end
+        if action == "access tasks" then
+            TxQueues::queueDive(queue)
+        end
+    end
+
+    # TxQueues::queueDive(queue)
+    def self.queueDive(queue)
         loop {
             tasks = TxQueues::tasks(queue)
                         .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
@@ -144,17 +158,12 @@ class TxQueues
         }
     end
 
-    # TxQueues::landing(queue)
-    def self.landing(queue)
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["update description", "access tasks"])
-        return if action.nil?
-        if action == "update description" then
-            description = LucilleCore::askQuestionAnswerAsString("description: ")
-            queue["description"] = description
-            Librarian::commit(queue)
-        end
-        if action == "access tasks" then
-            TxQueues::diving(queue)
-        end
+    # TxQueues::dive()
+    def self.dive()
+        loop {
+            queue = LucilleCore::selectEntityFromListOfEntitiesOrNull("queue", TxQueues::items(), lambda{|item| TxQueues::toString(item) })
+            break if queue.nil?
+            TxQueues::landing(queue)
+        }
     end
 end

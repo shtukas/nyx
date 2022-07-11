@@ -7,8 +7,8 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | ship | ship: <line> | line: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
-            "anniversaries | calendar | zeroes | ondates | todos",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
+            "anniversaries | calendar | zeroes | ondates | todos | projects | queues",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "ordinal <itemPosition> <newOrdinal>",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute",
@@ -212,7 +212,14 @@ class Commands
             item = NxLines::issue(line)
             puts JSON.pretty_generate(item)
 
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
+
+            if ordinal == "" then
+                stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
+                ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
+            else
+                ordinal = ordinal.to_f
+            end
 
             stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
 
@@ -248,12 +255,6 @@ class Commands
             return
         end
 
-        if input == "project" then
-            item = TxProjects::interactivelyIssueNewItemOrNull()
-            puts JSON.pretty_generate(item)
-            return
-        end
-
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -269,10 +270,41 @@ class Commands
             return
         end
 
+        if Interpreting::match("pursue", input) then
+            item = store.getDefault()
+            return if item.nil?
+            NxBallsService::carryOn(item["uuid"])
+            return
+        end
+
+        if Interpreting::match("pursue *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            NxBallsService::carryOn(item["uuid"])
+            return
+        end
+
+        if input == "project" then
+            item = TxProjects::interactivelyIssueNewItemOrNull()
+            puts JSON.pretty_generate(item)
+            return
+        end
+
+        if Interpreting::match("projects", input) then
+            TxProjects::dive()
+            return
+        end
+
+        if Interpreting::match("queues", input) then
+            TxQueues::dive()
+            return
+        end
+
         if Interpreting::match("resume", input) then
             item = store.getDefault()
             return if item.nil?
-            NxBallsService::resume(item["uuid"])
+            NxBallsService::carryOn(item["uuid"])
             return
         end
 
@@ -280,7 +312,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            NxBallsService::resume(item["uuid"])
+            NxBallsService::carryOn(item["uuid"])
             return
         end
 

@@ -66,4 +66,17 @@ class TxProjects
             }
         }
     end
+
+    # ----------------------------------------------------------------------
+    # Operations
+
+    # TxProjects::dive()
+    def self.dive()
+        loop {
+            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", TxProjects::items(), lambda{|item| TxProjects::toString(item) })
+            break if project.nil?
+            Landing::landing(project)
+        }
+    end
+
 end

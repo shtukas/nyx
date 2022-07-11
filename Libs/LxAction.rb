@@ -94,7 +94,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxQueue" then
-                TxQueues::diving(item)
+                TxQueues::queueDive(item)
                 return
             end
 

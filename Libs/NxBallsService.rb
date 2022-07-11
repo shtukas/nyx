@@ -100,8 +100,8 @@ class NxBallsService
         NxBallsIO::commitItem(nxball)
     end
 
-    # NxBallsService::resume(uuid)
-    def self.resume(uuid)
+    # NxBallsService::carryOn(uuid)
+    def self.carryOn(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return if nxball.nil?
         NxBallsService::close(uuid, true)
