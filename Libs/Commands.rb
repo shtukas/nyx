@@ -7,7 +7,7 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | ship | ship: <line> | line: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
-            "anniversaries | calendar | zeroes | ondates | todos",
+            "anniversaries | calendar | zeroes | ondates | todos | projects | queues",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "ordinal <itemPosition> <newOrdinal>",
             "require internet",
@@ -255,12 +255,6 @@ class Commands
             return
         end
 
-        if input == "project" then
-            item = TxProjects::interactivelyIssueNewItemOrNull()
-            puts JSON.pretty_generate(item)
-            return
-        end
-
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -288,6 +282,22 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             NxBallsService::carryOn(item["uuid"])
+            return
+        end
+
+        if input == "project" then
+            item = TxProjects::interactivelyIssueNewItemOrNull()
+            puts JSON.pretty_generate(item)
+            return
+        end
+
+        if Interpreting::match("projects", input) then
+            TxProjects::dive()
+            return
+        end
+
+        if Interpreting::match("queues", input) then
+            TxQueues::dive()
             return
         end
 
