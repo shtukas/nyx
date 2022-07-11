@@ -212,7 +212,14 @@ class Commands
             item = NxLines::issue(line)
             puts JSON.pretty_generate(item)
 
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
+
+            if ordinal == "" then
+                stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
+                ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
+            else
+                ordinal = ordinal.to_f
+            end
 
             stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
 
