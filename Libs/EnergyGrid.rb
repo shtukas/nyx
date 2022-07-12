@@ -74,6 +74,8 @@ class EnergyGridImmutableDataIsland
     def putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         db = SQLite3::Database.new(@databaseFilepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
         db.execute "delete from _data_ where _key_=?", [nhash]
         db.execute "insert into _data_ (_key_, _blob_) values (?, ?)", [nhash, blob]
         db.close

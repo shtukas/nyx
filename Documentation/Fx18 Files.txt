@@ -1,0 +1,43 @@
+## Fx18 Files
+
+### Introduction
+
+Fx18 files, introduced in July 2022, are are attempt to solve the problem of locality of Librarian objects. The Fx18 files on the Infinity drive are the source of truth.
+
+Each Fx18 file is a sqlite3 file
+
+The file is named after the object's uuid. For instance 81592901-1ec6-460e-9bae-6cb68f6ad33d.fx18.sqlite3
+
+create table _fx18_ (
+    _eventuuid_ text,
+    _eventTime_ float,
+    _eventData1_ blob,
+    _eventData2_ blob,
+    _eventData3_ blob,
+    _eventData4_ blob,
+    _eventData5_ blob
+);
+
+create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);
+
+|--------------------------------------------------------------------------|
+| _eventData1_ | _eventData2_ | _eventData3_ | _eventData4_ | _eventData5_ |
+|--------------------------------------------------------------------------|
+| "attribute"  | <name>       | <value>      |              |              |
+| "setops"     | "add"        | <setuuid>    | <itemuuid>   | <value>      |
+| "setops"     | "remove"     | <setuuid>    | <itemuuid>   |              |
+| "datablob"   | <nhash>      | <blob>       |              |              |
+|--------------------------------------------------------------------------|
+
+So a Fx18 file is essentially just a log of events. Some are attributes being set, some are 
+sets operations and the third type is content addressed datablobs being stored.
+
+### class Fx18
+
+Contains all the functions needed to
+
+1. Create new Fx18 files
+2. Read from them and write to them.
+
+### Fx18Elizabeth
+
