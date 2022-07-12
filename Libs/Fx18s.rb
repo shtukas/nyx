@@ -1,16 +1,16 @@
 
-class Fx18
+class Fx18s
 
     # --------------------------------------------------------------
 
-    # Fx18s::computeLocalFilepathForObjectUUID(objectuuid)
-    def self.computeLocalFilepathForObjectUUID(objectuuid)
-        "#{Config::pathToDataBankStargate()}/Fx18s"
+    # Fx18s::computeLocalFx18Filepath(objectuuid)
+    def self.computeLocalFx18Filepath(objectuuid)
+        "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
     end
 
-    # Fx18s::constructNewFile(objectuuid) # location (That function constructs the database and create the _events_ table)
+    # Fx18s::constructNewFile(objectuuid) # location (That function constructs the database and creates the _fx18_ table)
     def self.constructNewFile(objectuuid)
-        filepath = Fx18s::computeLocalFilepathForObjectUUID(objectuuid)
+        filepath = Fx18s::computeLocalFx18Filepath(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -26,6 +26,11 @@ class Fx18
         
     end
 
+    # Fx18s::setAttribute2(objectuuid, attname, attvalue)
+    def self.setAttribute2(objectuuid, attname, attvalue)
+        
+    end
+
     # Fx18s::getAttributeOrNull(objectuuid, attname)
     def self.getAttributeOrNull(objectuuid, attname)
         
@@ -38,8 +43,18 @@ class Fx18
         
     end
 
+    # Fx18s::setsAdd2(objectuuid, setuuid, itemuuid, value)
+    def self.setsAdd2(objectuuid, setuuid, itemuuid, value)
+        
+    end
+
     # Fx18s::setsRemove(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
     def self.setsRemove(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
+        
+    end
+
+    # Fx18s::setsRemove2(objectuuid, setuuid, itemuuid)
+    def self.setsRemove2(objectuuid, setuuid, itemuuid)
         
     end
 
@@ -52,6 +67,11 @@ class Fx18
 
     # Fx18s::putData(eventuuid, eventTime, objectuuid, key, data)
     def self.putData(eventuuid, eventTime, objectuuid, key, data)
+        
+    end
+
+    # Fx18s::putData2(objectuuid, key, data)
+    def self.putData2(objectuuid, key, data)
         
     end
 
