@@ -34,17 +34,10 @@ sets operations and the third type is content addressed datablobs being stored.
 
 ### class Fx18
 
-Fx18s::constructNewFile(uuid: String): String # location (That function constructs the database and create the _fx18_ table)
+Contains all the functions needed to
 
-Fx18s::setAttribute(eventuuid, eventTime, objectuuid, attname, attvalue)
-Fx18s::getAttributeOrNull(objectuuid, attname)
-
-Fx18s::setsAdd(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
-Fx18s::setsRemove(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
-Fx18s::setsItems(objectuuid, setuuid)
-
-Fx18s::putData(eventuuid, eventTime, objectuuid, key, data)
-Fx18s::getDataOrNull(objectuuid, key) # in content addressing situation, this can be cached
+1. Create new Fx18 files
+2. Read from them and write to them.
 
 ### Fx18Elizabeth
 
