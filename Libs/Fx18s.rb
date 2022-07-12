@@ -25,8 +25,8 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::acquireFilepath(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.acquireFilepath(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    def self.acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
         Fx18s::computeLocalFx18Filepath(objectuuid)
     end
 
@@ -34,7 +34,7 @@ class Fx18s
 
     # Fx18s::setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue, shouldDownloadFileIfFoundOnRemoteDrive)
-        filepath = Fx18s::acquireFilepath(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -50,7 +50,18 @@ class Fx18s
 
     # Fx18s::getAttributeOrNull(objectuuid, attname, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.getAttributeOrNull(objectuuid, attname, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        attvalue = nil
+        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=? order by _eventTime_", ["attribute", attname]) do |row|
+            attvalue = row["_eventData3_"]
+        end
+        db.close
+        attvalue
     end
 
     # --------------------------------------------------------------
