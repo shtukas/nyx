@@ -29,6 +29,8 @@ create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData
 | "datablob"   | <nhash>      | <blob>       |              |              |
 |--------------------------------------------------------------------------|
 
+note: Given the value of a set `value`, we encode it as JSON.generate(value)
+
 So a Fx18 file is essentially just a log of events. Some are attributes being set, some are 
 sets operations and the third type is content addressed datablobs being stored.
 

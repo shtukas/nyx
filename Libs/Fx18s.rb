@@ -68,27 +68,68 @@ class Fx18s
 
     # Fx18s::setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value)]
+        db.close
     end
 
     # Fx18s::setsAdd2(objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.setsAdd2(objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+        Fx18s::setsAdd1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
     end
 
     # Fx18s::setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_) values (?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, "setops", "remove", setuuid, itemuuid]
+        db.close
     end
 
     # Fx18s::setsRemove2(objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.setsRemove2(objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+        Fx18s::setsRemove1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
     end
 
     # Fx18s::setsItems(objectuuid, setuuid, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.setsItems(objectuuid, setuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+
+        # -----------------------------|
+        # item = {"itemuuid", "value"} |
+        # items = Array[item]          |
+        # -----------------------------|
+
+        items = []
+
+        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData3_=? order by _eventTime_", ["setops", setuuid]) do |row|
+            operation = row["_eventData2_"]
+            if operation == "add" then
+                itemuuid = row["_eventData4_"]
+                value = JSON.parse(row["_eventData5_"])
+                items = items.reject{|item| item["itemuuid"] == itemuuid } # remove any existing item with that itemuuid
+                items << {"itemuuid" => itemuuid, "value" => value}        # performing the add operation
+            end
+            if operation == "remove" then
+                itemuuid = row["_eventData4_"]
+                items = items.reject{|item| item["itemuuid"] == itemuuid } # remove the item with that itemuuid
+            end
+        end
+        db.close
         
+        items.map{|item| item["value"]}
     end
 
     # --------------------------------------------------------------
