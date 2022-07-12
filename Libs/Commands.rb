@@ -212,6 +212,15 @@ class Commands
             item = NxLines::issue(line)
             puts JSON.pretty_generate(item)
 
+            if LucilleCore::askQuestionAnswerAsBoolean("set time companion object ? ") then
+                companion = Architect::interactivelySelectProjectOrQueueOrNull()
+                if companion then
+                    item["companionuuid"] = companion["uuid"]
+                    Librarian::commit(item)
+                    puts JSON.pretty_generate(item)
+                end
+            end
+
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
 
             if ordinal == "" then

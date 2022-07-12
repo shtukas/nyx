@@ -156,6 +156,8 @@ class Catalyst
 
         itemsDoneToday, listing = listing.partition{|item| DoneToday::isDoneToday(item["uuid"]) }
 
+        itemsDoneToday = itemsDoneToday.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+
         priorityMikuTypes = ["fitness1"]
 
         priority, listing = listing.partition{|item| priorityMikuTypes.include?(item["mikuType"]) }
