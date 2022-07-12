@@ -2,47 +2,49 @@
 
 ### Introduction
 
-Fx18 files, introduced in 10th July 2022, are are attempt to solve the problem of locality of Librarian objects. The Fx18 files on the Infinity drive are the source of truth.
+Fx18 files, introduced in July 2022, are are attempt to solve the problem of locality of Librarian objects. The Fx18 files on the Infinity drive are the source of truth.
 
 Each Fx18 file is a sqlite3 file
 
 The file is named after the object's uuid. For instance 81592901-1ec6-460e-9bae-6cb68f6ad33d.fx18.sqlite3
 
-create table _events_ (
+create table _fx18_ (
     _eventuuid_ text,
     _eventTime_ float,
-    _eventType1_ text,
-    _eventType2_ text,
-    _eventType3_ text,
-    _eventType4_ text,
-    _data_ blob
+    _eventData1_ blob,
+    _eventData2_ blob,
+    _eventData3_ blob,
+    _eventData4_ blob,
+    _eventData5_ blob
 );
 
-|---------------------------------------------------------------------|
-| _eventType1_ | _eventType2_ | _eventType3_ | _eventType4_ | _data_  |
-|---------------------------------------------------------------------|
-| "attribute"  | <name>       | <value>      |              |         |
-| "setops"     | "add"        | <setuuid>    | <itemuuid>   | <value> |
-| "setops"     | "remove"     | <setuuid>    | <itemuuid>   |         |
-| "data"       | <nhash>      |              |              | <blob>  |
-|---------------------------------------------------------------------|
+create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);
+
+|--------------------------------------------------------------------------|
+| _eventData1_ | _eventData2_ | _eventData3_ | _eventData4_ | _eventData5_ |
+|--------------------------------------------------------------------------|
+| "attribute"  | <name>       | <value>      |              |              |
+| "setops"     | "add"        | <setuuid>    | <itemuuid>   | <value>      |
+| "setops"     | "remove"     | <setuuid>    | <itemuuid>   |              |
+| "datablob"   | <nhash>      | <blob>       |              |              |
+|--------------------------------------------------------------------------|
 
 So a Fx18 file is essentially just a log of events. Some are attributes being set, some are 
-set operations and the third type is content addressed datablobs being stored.
+sets operations and the third type is content addressed datablobs being stored.
 
 ### class Fx18
 
-Fx18::constructNewFile(uuid: String): String # location (That function constructs the database and create the _events_ table)
+Fx18s::constructNewFile(uuid: String): String # location (That function constructs the database and create the _fx18_ table)
 
-Fx18::setAttribute(eventuuid, eventTime, objectuuid, attname, attvalue)
-Fx18::getAttributeOrNull(objectuuid, attname)
+Fx18s::setAttribute(eventuuid, eventTime, objectuuid, attname, attvalue)
+Fx18s::getAttributeOrNull(objectuuid, attname)
 
-Fx18::setsAdd(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
-Fx18::setsRemove(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
-Fx18::setsItems(objectuuid, setuuid)
+Fx18s::setsAdd(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
+Fx18s::setsRemove(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
+Fx18s::setsItems(objectuuid, setuuid)
 
-Fx18::putData(eventuuid, eventTime, objectuuid, key, data)
-Fx18::getDataOrNull(objectuuid, key) # in content addressing situation, this can be cached
+Fx18s::putData(eventuuid, eventTime, objectuuid, key, data)
+Fx18s::getDataOrNull(objectuuid, key) # in content addressing situation, this can be cached
 
 ### Fx18Elizabeth
 
