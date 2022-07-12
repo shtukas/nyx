@@ -194,23 +194,25 @@ class Commands
             return
         end
 
-        if input.start_with?("ondate:") then
-            message = input[7, input.length].strip
-            item = TxDateds::interactivelyCreateNewOrNull(message)
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
         if Interpreting::match("ondates", input) then
             TxDateds::dive()
             return
         end
 
-        if input.start_with?("line:") then
-            line = input[5, input.length].strip
+        if input == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+            return if line.nil?
             item = NxLines::issue(line)
             puts JSON.pretty_generate(item)
+
+            if LucilleCore::askQuestionAnswerAsBoolean("set time companion object ? ") then
+                companion = Architect::interactivelySelectProjectOrQueueOrNull()
+                if companion then
+                    item["companionuuid"] = companion["uuid"]
+                    Librarian::commit(item)
+                    puts JSON.pretty_generate(item)
+                end
+            end
 
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
 
@@ -414,14 +416,6 @@ class Commands
 
         if Interpreting::match("today", input) then
             item = TxDateds::interactivelyCreateNewTodayOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if input.start_with?("today:") then
-            message = input[6, input.length].strip
-            item = TxDateds::interactivelyCreateNewTodayOrNull(message)
             return if item.nil?
             puts JSON.pretty_generate(item)
             return

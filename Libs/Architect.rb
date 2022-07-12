@@ -76,4 +76,11 @@ class Architect
             return Architect::interactivelyMakeNewOrNull()
         end
     end
+
+    # Architect::interactivelySelectProjectOrQueueOrNull()
+    def self.interactivelySelectProjectOrQueueOrNull()
+        items = TxProjects::items() + TxQueues::items()
+        items = items.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| LxFunction::function("toString", item) })
+    end
 end

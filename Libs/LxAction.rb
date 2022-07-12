@@ -280,6 +280,11 @@ class LxAction
                     accounts << queue["uuid"]
                 end
             end
+            if item["mikuType"] == "NxLine" then
+                if item["companionuuid"] then
+                    accounts << item["companionuuid"]
+                end
+            end
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end

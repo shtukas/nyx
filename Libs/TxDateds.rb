@@ -15,14 +15,10 @@ class TxDateds
     # --------------------------------------------------
     # Makers
 
-    # TxDateds::interactivelyCreateNewOrNull(description = nil)
-    def self.interactivelyCreateNewOrNull(description = nil)
-        if description.nil? or description == "" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
-        else
-            puts "description: #{description}"
-        end
+    # TxDateds::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
 
         datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
         return nil if datetime.nil?
@@ -46,14 +42,10 @@ class TxDateds
         item
     end
 
-    # TxDateds::interactivelyCreateNewTodayOrNull(description = nil)
-    def self.interactivelyCreateNewTodayOrNull(description = nil)
-        if description.nil? or description == "" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return nil if description == ""
-        else
-            puts "description: #{description}"
-        end
+    # TxDateds::interactivelyCreateNewTodayOrNull()
+    def self.interactivelyCreateNewTodayOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
 
         uuid = SecureRandom.uuid
 

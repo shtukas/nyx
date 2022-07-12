@@ -1,9 +1,10 @@
 NxLine
 
 {
-    "uuid"        : String
-    "variant"     : String # Primary Key
-    "mikuType"    : "NxLine"
-    "unixtime"    : Float
-    "line"        : String
+    "uuid"          : String
+    "variant"       : String # Primary Key
+    "mikuType"      : "NxLine"
+    "unixtime"      : Float
+    "line"          : String
+    "companionuuid" : nil or String # uuid to give one's time to
 }
