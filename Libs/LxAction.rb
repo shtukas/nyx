@@ -66,6 +66,7 @@ class LxAction
         if command == ">nyx" then
             NxBallsService::close(item["uuid"], true)
             Transmutation::transmutation1(item, item["mikuType"], "NxDataNode")
+            Stratification::removeItemByUUID(item["uuid"])
             return
         end
 

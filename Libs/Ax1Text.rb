@@ -21,12 +21,14 @@ class Ax1Text
 
     # Ax1Text::interactivelyIssueNewOrNullForOwner()
     def self.interactivelyIssueNewOrNullForOwner()
+        uuid = SecureRandom.uuid
+        Fx18s::constructNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
-        nhash = EnergyGridUniqueBlobs::putBlob(text)
+        nhash = Fx18s::putBlob3(uuid, text, false)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         item = {
-          "uuid"     => SecureRandom.uuid,
+          "uuid"     => uuid,
           "variant"  => SecureRandom.uuid,
           "mikuType" => "Ax1Text",
           "unixtime" => unixtime,
@@ -42,7 +44,7 @@ class Ax1Text
 
     # Ax1Text::toString(item)
     def self.toString(item)
-        text = EnergyGridUniqueBlobs::getBlobOrNull(item["nhash"]) # This should not be null
+        text = Fx18s::getBlobOrNull(item["uuid"], item["nhash"], false) # This should not be null
         description = (text != "") ? text.lines.first : "(empty text)"
         "(note) #{description}"
     end
@@ -63,9 +65,9 @@ class Ax1Text
             break if operation.nil?
             if operation == "access/edit" then
                 nhash = item["nhash"]
-                text = EnergyGridUniqueBlobs::getBlobOrNull(nhash)
+                text = Fx18s::getBlobOrNull(item["uuid"], nhash, false)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = EnergyGridUniqueBlobs::putBlob(text)
+                nhash = Fx18s::putBlob3(item["uuid"], text, false)
                 item["nhash"] = nhash
                 Librarian::commit(item)
             end

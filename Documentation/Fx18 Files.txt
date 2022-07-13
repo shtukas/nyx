@@ -26,7 +26,7 @@ create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData
 | "attribute"  | <name>       | <value>      |              |              |
 | "setops"     | "add"        | <setuuid>    | <itemuuid>   | <value>      |
 | "setops"     | "remove"     | <setuuid>    | <itemuuid>   |              |
-| "datablob"   | <nhash>      | <blob>       |              |              |
+| "datablob"   | <key>        | <blob>       |              |              |
 |--------------------------------------------------------------------------|
 
 note: Given the value of a set `value`, we encode it as JSON.generate(value)

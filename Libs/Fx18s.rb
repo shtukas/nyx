@@ -1,4 +1,44 @@
 
+class EnergyGridUniqueBlobs
+
+    # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
+    def self.decideFilepathForUniqueBlob(nhash)
+        filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data"
+        folderpath1 = File.dirname(filepath1)
+        if !File.exists?(folderpath1) then
+            FileUtils.mkdir(folderpath1)
+        end
+        filepath1
+    end
+
+    # EnergyGridUniqueBlobs::putBlob(blob)
+    def self.putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
+        File.open(filepath1, "w"){|f| f.write(blob) }
+        nhash
+    end
+
+    # EnergyGridUniqueBlobs::getBlobOrNull(nhash)
+    def self.getBlobOrNull(nhash)
+        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
+        #puts filepath1.green
+        if File.exists?(filepath1) then
+            return IO.read(filepath1)
+        end
+
+        StargateCentral::askForInfinityAndFailIfNot()
+
+        filepath1 = filepath1.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
+        #puts filepath1.green
+        if File.exists?(filepath1) then
+            return IO.read(filepath1)
+        end
+
+        nil
+    end
+end
+
 class Fx18s
 
     # --------------------------------------------------------------
@@ -23,6 +63,13 @@ class Fx18s
         db.results_as_hash = true
         db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
         db.close
+    end
+
+    # Fx18s::ensureFile(objectuuid)
+    def self.ensureFile(objectuuid)
+        filepath = Fx18s::computeLocalFx18Filepath(objectuuid)
+        return if File.exists?(filepath)
+        Fx18s::constructNewFile(objectuuid)
     end
 
     # Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
@@ -134,18 +181,41 @@ class Fx18s
 
     # --------------------------------------------------------------
 
-    # Fx18s::putData1(eventuuid, eventTime, objectuuid, key, data, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.putData1(eventuuid, eventTime, objectuuid, key, data, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+    # Fx18s::putBlob1(eventuuid, eventTime, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+    def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, "datablob", key, blob]
+        db.close
     end
 
-    # Fx18s::putData2(objectuuid, key, data, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.putData2(objectuuid, key, data, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+    # Fx18s::putBlob2(objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+    def self.putBlob2(objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+        Fx18s::putBlob1(SecureRandom.uuid, Time.new.to_f, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
     end
 
-    # Fx18s::getDataOrNull(objectuuid, key, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.getDataOrNull(objectuuid, key, shouldDownloadFileIfFoundOnRemoteDrive)
-        
+    # Fx18s::putBlob3(objectuuid, blob, shouldDownloadFileIfFoundOnRemoteDrive) # nhash
+    def self.putBlob3(objectuuid, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        Fx18s::putBlob2(objectuuid, nhash, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+        nhash
+    end
+
+    # Fx18s::getBlobOrNull(objectuuid, key, shouldDownloadFileIfFoundOnRemoteDrive)
+    def self.getBlobOrNull(objectuuid, key, shouldDownloadFileIfFoundOnRemoteDrive)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        data = nil
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", key]) do |row|
+            data = row["_eventData3_"]
+        end
+        db.close
+        data
     end
 end

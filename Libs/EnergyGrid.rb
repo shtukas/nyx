@@ -17,46 +17,6 @@ end
 
 # -----------------------------------------------------------
 
-class EnergyGridUniqueBlobs
-
-    # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
-    def self.decideFilepathForUniqueBlob(nhash)
-        filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data"
-        folderpath1 = File.dirname(filepath1)
-        if !File.exists?(folderpath1) then
-            FileUtils.mkdir(folderpath1)
-        end
-        filepath1
-    end
-
-    # EnergyGridUniqueBlobs::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
-        File.open(filepath1, "w"){|f| f.write(blob) }
-        nhash
-    end
-
-    # EnergyGridUniqueBlobs::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
-        #puts filepath1.green
-        if File.exists?(filepath1) then
-            return IO.read(filepath1)
-        end
-
-        StargateCentral::askForInfinityAndFailIfNot()
-
-        filepath1 = filepath1.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
-        #puts filepath1.green
-        if File.exists?(filepath1) then
-            return IO.read(filepath1)
-        end
-
-        nil
-    end
-end
-
 class EnergyGridImmutableDataIsland
 
     def initialize(databaseFilepath)
