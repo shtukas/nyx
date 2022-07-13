@@ -94,4 +94,15 @@ class Stratification
         average = numbers.inject(0, :+).to_f/86400
         XCache::set("6ee981a4-315f-4f82-880f-5806424c904f", average)
     end
+
+    # Stratification::rotate()
+    def self.rotate()
+        stratification = Stratification::getStratificationFromDisk()
+        return if stratification.empty?
+        stratification = Stratification::orderByOrdinal(stratification)
+        item = stratification.shift
+        item["ordinal"] = Stratification::nextOrdinal()
+        stratification << item
+        Stratification::commitStratificationToDisk(stratification)
+    end
 end
