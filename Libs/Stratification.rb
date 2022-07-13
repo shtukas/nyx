@@ -47,13 +47,14 @@ class Stratification
 
     # Stratification::applyDoNotDisplayUntilUnixtime(itemuuid, unixtime)
     def self.applyDoNotDisplayUntilUnixtime(itemuuid, unixtime)
-        stratification = Stratification::getStratificationFromDisk()
-            .map{|i|
-                if i["item"]["uuid"] == itemuuid then
-                    i["DoNotDisplayUntilUnixtime"] = unixtime
-                end
-                i
-            }
+        stratification = 
+            Stratification::getStratificationFromDisk()
+                .map{|i|
+                    if i["item"]["uuid"] == itemuuid then
+                        i["DoNotDisplayUntilUnixtime"] = unixtime
+                    end
+                    i
+                }
         Stratification::commitStratificationToDisk(stratification)
     end
 
@@ -77,4 +78,12 @@ class Stratification
 
         Stratification::commitStratificationToDisk(stratification)
     end
+
+    # Stratification::removeItemByUUID(itemuuid)
+    def self.removeItemByUUID(itemuuid)
+        stratification = Stratification::getStratificationFromDisk()
+        stratification = stratification.select{|i| i["item"]["uuid"] != itemuuid }
+        Stratification::commitStratificationToDisk(stratification)
+    end
+
 end

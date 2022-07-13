@@ -38,6 +38,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
+                    Stratification::removeItemByUUID(item["uuid"])
                 end
             end
 
@@ -45,6 +46,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' done ? ", true) then
                     Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
+                    Stratification::removeItemByUUID(item["uuid"])
                 end
             end
 
@@ -115,6 +117,8 @@ class LxAction
             if NxBallsService::isRunning(item["uuid"]) then
                  NxBallsService::close(item["uuid"], true)
             end
+
+            Stratification::removeItemByUUID(item["uuid"])
 
             if item["mikuType"] == "(rstream-to-target)" then
                 return
