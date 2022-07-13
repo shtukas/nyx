@@ -171,58 +171,14 @@ class Catalyst
             end
         end
 
-        # --------------------------------------------------------------------------------------------
-        # stratification
-
-        #{
-        #    "mikuType"  : "NxStratificationItem"
-        #    "item"      : Item
-        #    "ordinal"   : Float
-        #    "keepAlive" : Boolean # reset to false at start of replacement process and then to true indicating that the item has been replaced.
-        #}
-
-        # stratification : Array[NxStratificationItem]
-
-        insert = lambda {|stratification, item, ordinal|
-            ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
-            nxStratificationItem = {
-                "mikuType"  => "NxStratificationItem",
-                "item"      => item,
-                "ordinal"   => ordinal,
-                "keepAlive" => true
-            }
-            stratification + [nxStratificationItem]
-        }
-
-        replaceIfPresentWithKeepAliveUpdate = lambda {|stratification, item|
-            stratification.map{|i|
-                if i["item"]["uuid"] == item["uuid"] then
-                    i["item"] = item
-                    i["keepAlive"] = true
-                end
-                i
-            }
-        }
-
         # --------------------------------------
 
-        stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
-
-        # reset all keepAlive
-        stratification = stratification.map{|item|
-            item["keepAlive"] = false
-            item
-        }
-
-        stratification = listing.reduce(stratification) {|strat, item|
-            replaceIfPresentWithKeepAliveUpdate.call(strat, item)
-        }
-
-        stratification = stratification.select{|item| item["keepAlive"]}
-
-        stratification = stratification.sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"] }
-
-        File.open("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
+        stratification = Stratification::getStratificationFromDisk()
+        stratification = Stratification::setAllKeepALiveToFalse(stratification)
+        stratification = Stratification::reduce(listing, stratification)
+        stratification = Stratification::keepKeepAlive(stratification)
+        stratification = Stratification::orderByOrdinal(stratification)
+        Stratification::commitStratificationToDisk(stratification)
 
         incoming = listing.select{|item| !stratification.map{|i| i["item"]["uuid"] }.include?(item["uuid"])}
 
@@ -283,10 +239,9 @@ class Catalyst
             }
             stratification << nxStratificationItem
 
-            File.open("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
+            Stratification::commitStratificationToDisk(stratification)
 
             return
-
         end
 
         # --------------------------------------------------------------------------------------------
