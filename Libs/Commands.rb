@@ -348,6 +348,9 @@ class Commands
         end
 
         if Interpreting::match("rotate", input) then
+            item = store.getDefault()
+            return if item.nil?
+            NxBallsService::close(item["uuid"], true)
             Stratification::rotate()
             return
         end
