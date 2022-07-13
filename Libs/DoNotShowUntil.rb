@@ -34,6 +34,7 @@ class DoNotShowUntil
           "targetunixtime" => unixtime
         }
         EventsToAWSQueue::publish(event)
+        EventsInternal::broadcast(event)
     end
 
     # DoNotShowUntil::incomingEvent(event)

@@ -174,9 +174,7 @@ class Catalyst
         # --------------------------------------
 
         stratification = Stratification::getStratificationFromDisk()
-        stratification = Stratification::setAllKeepALiveToFalse(stratification)
         stratification = Stratification::reduce(listing, stratification)
-        stratification = Stratification::keepKeepAlive(stratification)
         stratification = Stratification::orderByOrdinal(stratification)
         Stratification::commitStratificationToDisk(stratification)
 
@@ -247,6 +245,9 @@ class Catalyst
         # --------------------------------------------------------------------------------------------
 
         #puts "(Catalyst::printListing)"
+        stratification = stratification.select{|item|
+            item["DoNotDisplayUntilUnixtime"].nil? or (Time.new.to_f > item["DoNotDisplayUntilUnixtime"])
+        }
         Catalyst::printListing(itemsDoneToday, top, priority, stratification)
     end
 

@@ -116,5 +116,11 @@ class EventsInternal
         if event["mikuType"] == "(principal has been updated)" then
             XCache::destroy("78fe9aa9-99b2-4430-913b-1512880bf323:#{event["principaluuid"]}") # decaching queue size
         end
+
+        if event["mikuType"] == "NxDoNotShowUntil" then
+            targetuuid = event["targetuuid"]
+            targetunixtime = event["targetunixtime"]
+            Stratification::applyDoNotDisplayUntilUnixtime(targetuuid, targetunixtime)
+        end
     end
 end

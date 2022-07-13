@@ -213,28 +213,13 @@ class Commands
                     puts JSON.pretty_generate(item)
                 end
             end
-
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
-
             if ordinal == "" then
-                stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
-                ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
+                ordinal = Stratification::nextOrdinal()
             else
                 ordinal = ordinal.to_f
             end
-
-            stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
-
-            nxStratificationItem = {
-                "mikuType"  => "NxStratificationItem",
-                "item"      => item,
-                "ordinal"   => ordinal,
-                "keepAlive" => true
-            }
-            stratification << nxStratificationItem
-
-            File.open("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
-
+            Stratification::injectItemAtOrdinal(item, ordinal)
             return
         end
 
