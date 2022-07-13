@@ -76,6 +76,11 @@ class EventsToAWSQueue
             DoneToday::incomingEvent(event)
             return
         end
+        if event["mikuType"] == "StratificationRemove" then
+            itemuuid = event["itemuuid"]
+            Stratification::removeItemByUUID(itemuuid)
+            return
+        end
         # If an event has not be catured, then we assume it's a database object 
         Librarian::incomingEvent(event, verbose ? "aws" : nil)
     end

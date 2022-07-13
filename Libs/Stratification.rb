@@ -6,6 +6,7 @@
 #    "item"      : Item
 #    "ordinal"   : Float
 #    "DoNotDisplayUntilUnixtime" : nil or Unixtime
+#    "createdAt" : Unixtime
 #}
 
 # stratification : Array[NxStratificationItem]
@@ -67,15 +68,13 @@ class Stratification
     # Stratification::injectItemAtOrdinal(item, ordinal)
     def self.injectItemAtOrdinal(item, ordinal)
         stratification = Stratification::getStratificationFromDisk()
-
         nxStratificationItem = {
             "mikuType"  => "NxStratificationItem",
             "item"      => item,
             "ordinal"   => ordinal,
-            "keepAlive" => true
+            "createdAt" => Time.new.to_f
         }
         stratification << nxStratificationItem
-
         Stratification::commitStratificationToDisk(stratification)
     end
 
@@ -86,4 +85,13 @@ class Stratification
         Stratification::commitStratificationToDisk(stratification)
     end
 
+    # Stratification::publishAverageAgeInDays()
+    def self.publishAverageAgeInDays()
+        numbers = Stratification::getStratificationFromDisk()
+            .select{|i| !i["createdAt"].nil?  }
+            .map{|i| Time.new.to_i-i["createdAt"] }
+        return if numbers.empty?
+        average = numbers.inject(0, :+).to_f/86400
+        XCache::set("6ee981a4-315f-4f82-880f-5806424c904f", average)
+    end
 end

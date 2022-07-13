@@ -39,6 +39,11 @@ class LxAction
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                     Stratification::removeItemByUUID(item["uuid"])
+                    EventsToAWSQueue::publish({
+                      "uuid"       => SecureRandom.uuid,
+                      "mikuType"   => "StratificationRemove",
+                      "itemuuid"   => item["uuid"],
+                    })
                 end
             end
 
@@ -47,6 +52,11 @@ class LxAction
                     Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
                     Stratification::removeItemByUUID(item["uuid"])
+                    EventsToAWSQueue::publish({
+                      "uuid"       => SecureRandom.uuid,
+                      "mikuType"   => "StratificationRemove",
+                      "itemuuid"   => item["uuid"],
+                    })
                 end
             end
 
@@ -119,6 +129,11 @@ class LxAction
             end
 
             Stratification::removeItemByUUID(item["uuid"])
+            EventsToAWSQueue::publish({
+              "uuid"       => SecureRandom.uuid,
+              "mikuType"   => "StratificationRemove",
+              "itemuuid"   => item["uuid"],
+            })
 
             if item["mikuType"] == "(rstream-to-target)" then
                 return

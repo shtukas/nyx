@@ -42,7 +42,7 @@ class Catalyst
             reference = The99Percent::getReference()
             current   = The99Percent::getCurrentCount()
             ratio     = current.to_f/reference["count"]
-            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} ) [stratification: #{(XCache::getOrDefaultValue("6ee981a4-315f-4f82-880f-5806424c904f", "0").to_f).round(2)} days]"
             puts ""
             puts line
             vspaceleft = vspaceleft - 2
@@ -229,25 +229,19 @@ class Catalyst
                 ordinal = command.to_f
             end
 
-            nxStratificationItem = {
-                "mikuType"  => "NxStratificationItem",
-                "item"      => item,
-                "ordinal"   => ordinal,
-                "keepAlive" => true
-            }
-            stratification << nxStratificationItem
-
-            Stratification::commitStratificationToDisk(stratification)
-
+            Stratification::injectItemAtOrdinal(item, ordinal)
             return
         end
 
         # --------------------------------------------------------------------------------------------
 
+        Stratification::publishAverageAgeInDays()
+
         #puts "(Catalyst::printListing)"
-        stratification = stratification.select{|item|
-            item["DoNotDisplayUntilUnixtime"].nil? or (Time.new.to_f > item["DoNotDisplayUntilUnixtime"])
-        }
+        stratification = Stratification::getStratificationFromDisk()
+                            .select{|item|
+                                item["DoNotDisplayUntilUnixtime"].nil? or (Time.new.to_f > item["DoNotDisplayUntilUnixtime"])
+                            }
         Catalyst::printListing(itemsDoneToday, top, priority, stratification)
     end
 
