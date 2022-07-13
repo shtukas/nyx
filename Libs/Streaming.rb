@@ -161,7 +161,10 @@ class Streaming
     def self.listingItemToTarget()
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return [] if rt >= 1
+        if rt >= 1 then
+            Stratification::removeItemByUUID(uuid)
+            return []
+        end
         [{
             "uuid" => uuid,
             "mikuType" => "(rstream-to-target)",
