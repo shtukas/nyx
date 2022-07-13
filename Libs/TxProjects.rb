@@ -67,6 +67,12 @@ class TxProjects
         }
     end
 
+    # TxProjects::itemsForMainListing()
+    def self.itemsForMainListing()
+        Librarian::getObjectsByMikuType("TxProject")
+            .select{|item| Ax39::itemShouldShow(item) or NxBallsService::isRunning(item["uuid"]) }
+    end
+
     # ----------------------------------------------------------------------
     # Operations
 

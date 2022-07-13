@@ -21,7 +21,7 @@ class Catalyst
             NxFrames::items(),
             Waves::itemsForListing(true),
             TxDateds::itemsForListing(),
-            TxProjects::items(),
+            TxProjects::itemsForMainListing(),
             TxQueues::itemsForMainListing(),
             Waves::itemsForListing(false),
             Streaming::listingItemToTarget(),
@@ -219,6 +219,7 @@ class Catalyst
                 NxBallsService::close(item["uuid"], true)
                 puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
             end
 
             if command == "next" then
