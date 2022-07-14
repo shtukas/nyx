@@ -91,7 +91,7 @@ class Stratification
             .select{|i| !i["createdAt"].nil?  }
             .map{|i| Time.new.to_i-i["createdAt"] }
         return if numbers.empty?
-        average = numbers.inject(0, :+).to_f/86400
+        average = (numbers.inject(0, :+).to_f/86400)/numbers.size
         XCache::set("6ee981a4-315f-4f82-880f-5806424c904f", average)
     end
 

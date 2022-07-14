@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | line: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
+            "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | queue | project ",
             "anniversaries | calendar | zeroes | ondates | todos | projects | queues",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
             "ordinal <itemPosition> <newOrdinal> | rotate | remove",
@@ -201,7 +201,7 @@ class Commands
 
         if input == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
-            return if line.nil?
+            return if line == ""
             item = NxLines::issue(line)
             puts JSON.pretty_generate(item)
 
