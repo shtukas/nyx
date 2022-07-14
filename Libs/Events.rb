@@ -103,14 +103,6 @@ class EventsInternal
 
         puts "broadcast: #{JSON.pretty_generate(event)}"
 
-        if event["mikuType"] == "(tasks modified)" then
-            NxTasks::listingModifiedEvent()
-        end
-
-        if event["mikuType"] == "(object has been deleted)" then
-            NxTasks::objectDeletionEvent(event["deletedUUID"])
-        end
-
         if event["mikuType"] == "(target is getting a new principal)" then
             principaluuid = event["principaluuid"]
             targetuuid = event["targetuuid"]

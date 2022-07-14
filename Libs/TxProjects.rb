@@ -28,8 +28,6 @@ class TxProjects
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
-
         ax39 = Ax39::interactivelyCreateNewAx("TxProject")
 
         item = {
@@ -39,11 +37,50 @@ class TxProjects
             "unixtime"    => unixtime,
             "datetime"    => datetime,
             "description" => description,
-            "ax39"        => ax39,
-            "nx111"       => nx111
+            "ax39"        => ax39
         }
         Librarian::commit(item)
         item
+    end
+
+    # ----------------------------------------------------------------------
+    # Elements
+
+    # TxProjects::addElement(project, item)
+    def self.addElement(project, item)
+        Fx18s::ensureFile(project["uuid"])
+        Fx18s::setsAdd2(project["uuid"], "project-items-3f154988", item["uuid"], item["uuid"], false)
+    end
+
+    # TxProjects::removeElement(project, uuid)
+    def self.removeElement(project, uuid)
+        Fx18s::ensureFile(project["uuid"])
+        Fx18s::setsRemove2(project["uuid"], "project-items-3f154988", uuid, false)
+    end
+
+    # TxProjects::elementuuids(project)
+    def self.elementuuids(project)
+        Fx18s::ensureFile(project["uuid"])
+        Fx18s::setsItems(project["uuid"], "project-items-3f154988", false)
+    end
+
+    # TxProjects::elements(project)
+    def self.elements(project)
+        TxProjects::elementuuids(project)
+            .map{|elementuuid| Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid)}
+            .compact
+    end
+
+    # TxProjects::uuidIsProjectElement(uuid)
+    def self.uuidIsProjectElement(uuid)
+        TxProjects::items().any?{|project| TxProjects::elementuuids(project).include?(uuid) }
+    end
+
+    # TxProjects::getProjectPerElementUUIDOrNull(uuid)
+    def self.getProjectPerElementUUIDOrNull(uuid)
+        TxProjects::items()
+            .select{|project| TxProjects::elementuuids(project).include?(uuid) }
+            .first
     end
 
     # ----------------------------------------------------------------------
@@ -51,9 +88,8 @@ class TxProjects
 
     # TxProjects::toString(item)
     def self.toString(item)
-        nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        "(project) #{item["description"]}#{nx111String} #{Ax39::toString(item)}#{dnsustr}"
+        "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
     end
 
     # TxProjects::nx20s()
@@ -70,13 +106,29 @@ class TxProjects
     # TxProjects::itemsForSection1()
     def self.itemsForSection1()
         Librarian::getObjectsByMikuType("TxProject")
-            .select{|item| !Ax39::itemShouldShow(item) and !NxBallsService::isRunning(item["uuid"]) }
     end
 
     # TxProjects::itemsForMainListing()
     def self.itemsForMainListing()
-        Librarian::getObjectsByMikuType("TxProject")
-            .select{|item| Ax39::itemShouldShow(item) or NxBallsService::isRunning(item["uuid"]) }
+        projects = Librarian::getObjectsByMikuType("TxProject")
+                    .select{|project|
+                        b1 = Ax39::itemShouldShow(project) 
+                        b2 = TxProjects::elementuuids(project).none?{|elementuuid| NxBallsService::isRunning(elementuuid) }
+                        b1 and b2
+                    }
+        tasks = Librarian::getObjectsByMikuType("TxProject")
+                    .map{|project|
+                        runningElements = TxProjects::elementuuids(project)
+                                            .select{|elementuuid| NxBallsService::isRunning(elementuuid) }
+                                            .map{|elementuuid| Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid) }
+                                            .compact
+                        if runningElements.size > 0 then
+                            Stratification::removeItemByUUID(project["uuid"])
+                        end
+                        runningElements
+                    }
+                    .flatten
+        projects+tasks
     end
 
     # ----------------------------------------------------------------------
@@ -89,6 +141,13 @@ class TxProjects
             break if project.nil?
             Landing::landing(project)
         }
+    end
+
+    # TxProjects::start(project)
+    def self.start(project)
+        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxProjects::elements(project), lambda{|item| LxFunction::function("toString", item) } )
+        return if element.nil?
+        LxAction::action("..", element)
     end
 
 end

@@ -100,7 +100,6 @@ class Transmutation
         if source == "TxDated" and target == "NxTask" then
             return true if isSimulation
             item["mikuType"] = "NxTask"
-            item["status"] = "active"
             Librarian::commit(item)
             return
         end

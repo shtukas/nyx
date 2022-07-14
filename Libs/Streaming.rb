@@ -136,7 +136,7 @@ class Streaming
         items = NxTasks::items().shuffle
         loop {
             item = items.shift
-            next if TxQueues::uuidIsQueueElement(item["uuid"])
+            next if (TxQueues::uuidIsQueueElement(item["uuid"]) or TxProjects::uuidIsProjectElement(item["uuid"]))
             command = Streaming::runItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
@@ -151,7 +151,7 @@ class Streaming
         items = NxTasks::items().shuffle
         loop {
             item = items.shift
-            next if TxQueues::uuidIsQueueElement(item["uuid"])
+            next if (TxQueues::uuidIsQueueElement(item["uuid"]) or TxProjects::uuidIsProjectElement(item["uuid"]))
             command = Streaming::runItem(item)
         }
         NxBallsService::close(uuid, true)

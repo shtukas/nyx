@@ -48,12 +48,8 @@ class Commands
 
         if Interpreting::match(">nyx", input) then
             item = store.getDefault()
+            return if item.nil?
             LxAction::action(">nyx", item.clone)
-            if item["mikuType"] == "NxTask" then
-                EventsInternal::broadcast({
-                    "mikuType" => "(tasks modified)"
-                })
-            end
             return
         end
 
@@ -494,10 +490,6 @@ class Commands
                 {
                     "name" => "Streaming::listingItemToTarget()",
                     "lambda" => lambda { Streaming::listingItemToTarget() }
-                },
-                {
-                    "name" => "NxTasks::itemsForMainListing()",
-                    "lambda" => lambda { NxTasks::itemsForMainListing() }
                 },
                 {
                     "name" => "NxLines::items()",

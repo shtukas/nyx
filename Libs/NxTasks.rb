@@ -32,8 +32,7 @@ class NxTasks
             "description" => description,
             "unixtime"    => unixtime,
             "datetime"    => datetime,
-            "nx111"       => nx111,
-            "status"      => "active"
+            "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -52,8 +51,7 @@ class NxTasks
           "description"  => description,
           "unixtime"     => unixtime,
           "datetime"     => datetime,
-          "nx111"        => nx111,
-          "status"       => "inboxed"
+          "nx111"        => nx111
         }
         Librarian::commit(item)
         item
@@ -78,8 +76,7 @@ class NxTasks
           "description" => description,
           "unixtime"    => unixtime,
           "datetime"    => datetime,
-          "nx111"       => nx111,
-          "status"      => "inboxed"
+          "nx111"       => nx111
         }
         Librarian::commit(item)
         item
@@ -90,7 +87,7 @@ class NxTasks
 
     # NxTasks::toString(item)
     def self.toString(item)
-        data = XCache::getOrNull("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}")
+        data = XCache::getOrNull("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}:#{CommonUtils::today()}")
         if data then
             return data
         end
@@ -98,10 +95,13 @@ class NxTasks
             nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
             queue = TxQueues::getQueuePerElementUUIDOrNull(item["uuid"])
             queuestring = queue ? "(queue: #{queue["description"]}) " : ""
-            "(task) #{queuestring}#{item["description"]}#{nx111String}"
+            project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
+            projectstring = project ? "(project: #{project["description"]}) " : ""
+            ownerstring = "#{queuestring}#{projectstring}"
+            "(task) #{ownerstring}#{item["description"]}#{nx111String}"
         }
         data = builder.call()
-        XCache::set("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}", data) # string
+        XCache::set("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}:#{CommonUtils::today()}", data) # string
         data
     end
 
@@ -121,39 +121,5 @@ class NxTasks
                     "payload"  => item
                 }
             }
-    end
-
-    # NxTasks::itemsForMainListing()
-    def self.itemsForMainListing()
-        data = XCache::getOrNull("97e294c5-d00d-4be6-a4f6-f3a99d36bf83")
-        if data then
-            return JSON.parse(data)
-        end
-        builder = lambda {
-            NxTasks::items()
-                .select{|item| ["inboxed", "active"].include?(item["status"]) }
-                .select{|item| !TxQueues::uuidIsQueueElement(item["uuid"]) }
-                .partition{|item| item["status"] == "inboxed" }
-                .flatten
-        }
-        data = builder.call()
-        XCache::set("97e294c5-d00d-4be6-a4f6-f3a99d36bf83", JSON.generate(data))
-        data
-    end
-
-    # ---------------------------------------
-    # Events processing
-
-    # NxTasks::objectDeletionEvent(uuid)
-    def self.objectDeletionEvent(uuid)
-        data = XCache::getOrNull("97e294c5-d00d-4be6-a4f6-f3a99d36bf83")
-        return if data.nil?
-        data = JSON.parse(data).select{|item| item["uuid"] != uuid }
-        XCache::set("97e294c5-d00d-4be6-a4f6-f3a99d36bf83", JSON.generate(data))
-    end
-
-    # NxTasks::listingModifiedEvent()
-    def self.listingModifiedEvent()
-        XCache::destroy("97e294c5-d00d-4be6-a4f6-f3a99d36bf83") # Decache the answer of NxTasks::itemsForMainListing()
     end
 end

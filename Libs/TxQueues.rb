@@ -28,6 +28,33 @@ class TxQueues
     end
 
     # ----------------------------------------------------------------------
+    # Objects Makers
+
+    # TxQueues::interactivelyIssueNewItemOrNull()
+    def self.interactivelyIssueNewItemOrNull()
+
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+
+        unixtime   = Time.new.to_i
+        datetime   = Time.new.utc.iso8601
+
+        ax39 = Ax39::interactivelyCreateNewAx("TxQueue")
+
+        item = {
+            "uuid"        => SecureRandom.uuid,
+            "variant"     => SecureRandom.uuid,
+            "mikuType"    => "TxQueue",
+            "unixtime"    => unixtime,
+            "datetime"    => datetime,
+            "description" => description,
+            "ax39"        => ax39
+        }
+        Librarian::commit(item)
+        item
+    end
+
+    # ----------------------------------------------------------------------
     # Elements
 
     # TxQueues::addElement(queue, item)
@@ -58,33 +85,6 @@ class TxQueues
         TxQueues::items()
             .select{|queue| TxQueues::elementuuids(queue).include?(uuid) }
             .first
-    end
-
-    # ----------------------------------------------------------------------
-    # Objects Makers
-
-    # TxQueues::interactivelyIssueNewItemOrNull()
-    def self.interactivelyIssueNewItemOrNull()
-
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
-
-        ax39 = Ax39::interactivelyCreateNewAx("TxQueue")
-
-        item = {
-            "uuid"        => SecureRandom.uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "TxQueue",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-            "ax39"        => ax39
-        }
-        Librarian::commit(item)
-        item
     end
 
     # ----------------------------------------------------------------------

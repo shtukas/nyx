@@ -20,6 +20,11 @@ class LxAction
 
         if command == ".." then
 
+            if item["mikuType"] == "TxProject" then
+                TxProjects::start(item)
+                return
+            end
+
             # Stardard starting of the item
 
             LxAction::action("start", item)
@@ -157,8 +162,14 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
-                    Librarian::destroyClique(item["uuid"])
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["stop and remove from strat", "destroy"])
+                if action == "remove from strat" then
+                    Stratification::removeItemByUUID(item["uuid"])
+                end
+                if action == "destroy" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
+                        Librarian::destroyClique(item["uuid"])
+                    end
                 end
                 return
             end
@@ -179,6 +190,9 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
+                TxProjects::elementuuids(project).each{|elementuuid|
+                    NxBallsService::close(elementuuid, true)
+                }
                 DoneToday::setDoneToday(item["uuid"])
                 return
             end
@@ -292,12 +306,23 @@ class LxAction
         end
 
         if command == "start" then
+            if item["mikuType"] == "TxProject" then
+                TxProjects::start(item)
+                return
+            end
+
             return if NxBallsService::isRunning(item["uuid"])
+
             accounts = [item["uuid"]]
+
             if item["mikuType"] == "NxTask" then
                 queue = TxQueues::getQueuePerElementUUIDOrNull(item["uuid"])
                 if queue then
                     accounts << queue["uuid"]
+                end
+                project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
+                if project then
+                    accounts << project["uuid"]
                 end
             end
             if item["mikuType"] == "NxLine" then
@@ -305,6 +330,7 @@ class LxAction
                     accounts << item["companionuuid"]
                 end
             end
+
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end

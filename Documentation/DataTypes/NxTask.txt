@@ -7,5 +7,4 @@ NxTask
     "unixtime"    : Float
     "description" : String
     "nx111"       : Nx111
-    "status"      : "inboxed" | "active" | "sleeping"
 }
