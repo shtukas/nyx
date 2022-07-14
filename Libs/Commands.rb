@@ -9,7 +9,7 @@ class Commands
             "wave | anniversary | frame | ship | ship: <line> | line: <line> | today | today: <line> | ondate | ondate: <line> | todo | task | queue | project | task>queue",
             "anniversaries | calendar | zeroes | ondates | todos | projects | queues",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
-            "ordinal <itemPosition> <newOrdinal> | rotate",
+            "ordinal <itemPosition> <newOrdinal> | rotate | remove",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute",
         ].join("\n")
@@ -344,6 +344,14 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             InternetStatus::markIdAsRequiringInternet(item["uuid"])
+            return
+        end
+
+        if Interpreting::match("remove", input) then
+            item = store.getDefault()
+            return if item.nil?
+            NxBallsService::close(item["uuid"], true)
+            Stratification::remove()
             return
         end
 

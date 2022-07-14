@@ -95,6 +95,15 @@ class Stratification
         XCache::set("6ee981a4-315f-4f82-880f-5806424c904f", average)
     end
 
+    # Stratification::remove()
+    def self.remove()
+        stratification = Stratification::getStratificationFromDisk()
+        return if stratification.empty?
+        stratification = Stratification::orderByOrdinal(stratification)
+        item = stratification.shift
+        Stratification::commitStratificationToDisk(stratification)
+    end
+
     # Stratification::rotate()
     def self.rotate()
         stratification = Stratification::getStratificationFromDisk()
