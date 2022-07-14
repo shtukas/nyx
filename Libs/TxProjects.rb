@@ -113,6 +113,9 @@ class TxProjects
         projects = Librarian::getObjectsByMikuType("TxProject")
                     .select{|project|
                         b1 = Ax39::itemShouldShow(project) 
+                        if !b1 then
+                            Stratification::removeItemByUUID(project["uuid"])
+                        end
                         b2 = TxProjects::elementuuids(project).none?{|elementuuid| NxBallsService::isRunning(elementuuid) }
                         b1 and b2
                     }

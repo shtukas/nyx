@@ -488,8 +488,8 @@ class Commands
                     "lambda" => lambda { TxProjects::items() }
                 },
                 {
-                    "name" => "Streaming::listingItemToTarget()",
-                    "lambda" => lambda { Streaming::listingItemToTarget() }
+                    "name" => "Streaming::section2()",
+                    "lambda" => lambda { Streaming::section2() }
                 },
                 {
                     "name" => "NxLines::items()",

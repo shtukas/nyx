@@ -19,6 +19,7 @@ class Catalyst
             TxQueues::itemsForSection1(),
             TxProjects::itemsForSection1(),
             NxFrames::items(),
+            Streaming::section1()
         ]
             .flatten
     end
@@ -33,7 +34,7 @@ class Catalyst
             TxProjects::itemsForMainListing(),
             TxQueues::itemsForMainListing(),
             Waves::itemsForListing(false),
-            Streaming::listingItemToTarget(),
+            Streaming::section2(),
             NxLines::items()
         ]
             .flatten
