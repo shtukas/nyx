@@ -113,6 +113,13 @@ class TxQueues
             .first(1)
     end
 
+    # TxQueues::itemsForSection1()
+    def self.itemsForSection1()
+        # We are not displaying the queues (they are independently displayed in section 1, for landing)
+        # Instead we are displaying the first element of any queue that has not yet met they target
+        TxQueues::items()
+    end
+
     # TxQueues::itemsForMainListing()
     def self.itemsForMainListing()
         # We are not displaying the queues (they are independently displayed in section 1, for landing)

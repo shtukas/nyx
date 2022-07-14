@@ -13,12 +13,21 @@ class Catalyst
         LxAction::action(command, objectOpt)
     end
 
+    # Catalyst::section1()
+    def self.section1()
+        [
+            TxQueues::itemsForSection1(),
+            TxProjects::itemsForSection1(),
+            NxFrames::items(),
+        ]
+            .flatten
+    end
+
     # Catalyst::items()
     def self.items()
         [
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
             Anniversaries::itemsForListing(),
-            NxFrames::items(),
             Waves::itemsForListing(true),
             TxDateds::itemsForListing(),
             TxProjects::itemsForMainListing(),
@@ -32,8 +41,8 @@ class Catalyst
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(itemsDoneToday, top, priority, stratification)
-    def self.printListing(itemsDoneToday, top, priority, stratification)
+    # Catalyst::printListing(section1, top, priority, stratification)
+    def self.printListing(section1, top, priority, stratification)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -59,10 +68,10 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
-        if itemsDoneToday.size > 0 then
+        if section1.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            itemsDoneToday
+            section1
                 .each{|item|
                     store.register(item, false)
                     line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
@@ -74,7 +83,7 @@ class Catalyst
                 }
         end
 
-        uuids = (itemsDoneToday + priority + stratification.map{|nx| nx["item"] }).map{|item| item["uuid"] }
+        uuids = (section1 + priority + stratification.map{|nx| nx["item"] }).map{|item| item["uuid"] }
         running = NxBallsIO::getItems().select{|nxball| !uuids.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
@@ -152,11 +161,9 @@ class Catalyst
     # Catalyst::program3()
     def self.program3()
 
+        section1 = Catalyst::section1().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+
         listing = Catalyst::items()
-
-        itemsDoneToday, listing = listing.partition{|item| DoneToday::isDoneToday(item["uuid"]) }
-
-        itemsDoneToday = itemsDoneToday.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
 
         priorityMikuTypes = ["fitness1"]
 
@@ -243,7 +250,7 @@ class Catalyst
                             .select{|item|
                                 item["DoNotDisplayUntilUnixtime"].nil? or (Time.new.to_f > item["DoNotDisplayUntilUnixtime"])
                             }
-        Catalyst::printListing(itemsDoneToday, top, priority, stratification)
+        Catalyst::printListing(section1, top, priority, stratification)
     end
 
     # Catalyst::program2()

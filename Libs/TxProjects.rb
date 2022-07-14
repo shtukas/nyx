@@ -67,6 +67,12 @@ class TxProjects
         }
     end
 
+    # TxProjects::itemsForSection1()
+    def self.itemsForSection1()
+        Librarian::getObjectsByMikuType("TxProject")
+            .select{|item| !Ax39::itemShouldShow(item) and !NxBallsService::isRunning(item["uuid"]) }
+    end
+
     # TxProjects::itemsForMainListing()
     def self.itemsForMainListing()
         Librarian::getObjectsByMikuType("TxProject")
