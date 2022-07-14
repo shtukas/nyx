@@ -2,25 +2,19 @@
 
 class Ax39
 
-    # Ax39::types(mikuType)
-    def self.types(mikuType)
-        if mikuType == "TxProject" then
-            return ["daily-singleton-run", "daily-time-commitment", "weekly-time-commitment"]
-        end
-        if mikuType == "TxQueue" then
-            return ["daily-time-commitment", "weekly-time-commitment"]
-        end
-        raise "(error: dbc96edc-58b7-485c-aabc-b436db342881)"
+    # Ax39::types()
+    def self.types()
+        ["daily-singleton-run", "daily-time-commitment", "weekly-time-commitment"]
     end
 
-    # Ax39::interactivelySelectTypeOrNull(mikuType)
-    def self.interactivelySelectTypeOrNull(mikuType)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", Ax39::types(mikuType))
+    # Ax39::interactivelySelectTypeOrNull()
+    def self.interactivelySelectTypeOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", Ax39::types())
     end
 
-    # Ax39::interactivelyCreateNewAxOrNull(mikuType)
-    def self.interactivelyCreateNewAxOrNull(mikuType)
-        type = Ax39::interactivelySelectTypeOrNull(mikuType)
+    # Ax39::interactivelyCreateNewAxOrNull()
+    def self.interactivelyCreateNewAxOrNull()
+        type = Ax39::interactivelySelectTypeOrNull()
         return nil if type.nil?
         if type == "daily-singleton-run" then
             return {
@@ -45,10 +39,10 @@ class Ax39
         end
     end
 
-    # Ax39::interactivelyCreateNewAx(mikuType)
-    def self.interactivelyCreateNewAx(mikuType)
+    # Ax39::interactivelyCreateNewAx()
+    def self.interactivelyCreateNewAx()
         loop {
-            ax39 = Ax39::interactivelyCreateNewAxOrNull(mikuType)
+            ax39 = Ax39::interactivelyCreateNewAxOrNull()
             if ax39 then
                 return ax39
             end
@@ -74,7 +68,6 @@ class Ax39
     def self.itemShouldShow(item)
         return false if !DoNotShowUntil::isVisible(item["uuid"])
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return false if Bank::valueAtDate(item["uuid"], CommonUtils::today()) > 0
             return false if DoneToday::isDoneToday(item["uuid"])
             return true
         end

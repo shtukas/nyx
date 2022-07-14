@@ -24,7 +24,7 @@ class Streaming
         LxAction::action("start", item)
         LxAction::action("access", item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), insert, >queue, >nyx, nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), insert, >project, >nyx, nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
                 NxTasks::destroy(item["uuid"])
@@ -46,10 +46,10 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">queue" then
-                queue = TxQueues::architectOneOrNull()
-                return if queue.nil?
-                TxQueues::addElement(queue, item)
+            if command == ">project" then
+                project = TxProjects::architectOneOrNull()
+                return if project.nil?
+                TxProjects::addElement(project, item)
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -68,7 +68,7 @@ class Streaming
     def self.processItem(item)
         puts LxFunction::function("toString", item).green
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >queue, , >nyx, nyx, next (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >project, >nyx, nyx, next (default), exit (rstream): ")
             if command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
@@ -91,10 +91,10 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">queue" then
-                queue = TxQueues::architectOneOrNull()
-                return if queue.nil?
-                TxQueues::addElement(queue, item)
+            if command == ">project" then
+                project = TxProjects::architectOneOrNull()
+                return if project.nil?
+                TxProjects::addElement(project, item)
                 return nil
             end
             if command == ">nyx" then
@@ -136,7 +136,7 @@ class Streaming
         items = NxTasks::items().shuffle
         loop {
             item = items.shift
-            next if (TxQueues::uuidIsQueueElement(item["uuid"]) or TxProjects::uuidIsProjectElement(item["uuid"]))
+            next if TxProjects::uuidIsProjectElement(item["uuid"])
             command = Streaming::runItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
@@ -151,7 +151,7 @@ class Streaming
         items = NxTasks::items().shuffle
         loop {
             item = items.shift
-            next if (TxQueues::uuidIsQueueElement(item["uuid"]) or TxProjects::uuidIsProjectElement(item["uuid"]))
+            next if TxProjects::uuidIsProjectElement(item["uuid"])
             command = Streaming::runItem(item)
         }
         NxBallsService::close(uuid, true)

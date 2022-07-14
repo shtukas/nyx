@@ -93,12 +93,9 @@ class NxTasks
         end
         builder = lambda{
             nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-            queue = TxQueues::getQueuePerElementUUIDOrNull(item["uuid"])
-            queuestring = queue ? "(queue: #{queue["description"]}) " : ""
             project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
             projectstring = project ? "(project: #{project["description"]}) " : ""
-            ownerstring = "#{queuestring}#{projectstring}"
-            "(task) #{ownerstring}#{item["description"]}#{nx111String}"
+            "(task) #{projectstring}#{item["description"]}#{nx111String}"
         }
         data = builder.call()
         XCache::set("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}:#{CommonUtils::today()}", data) # string

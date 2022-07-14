@@ -16,7 +16,6 @@ class Catalyst
     # Catalyst::section1()
     def self.section1()
         [
-            TxQueues::itemsForSection1(),
             TxProjects::itemsForSection1(),
             NxFrames::items(),
             Streaming::section1()
@@ -32,7 +31,6 @@ class Catalyst
             Waves::itemsForListing(true),
             TxDateds::itemsForListing(),
             TxProjects::itemsForMainListing(),
-            TxQueues::itemsForMainListing(),
             Waves::itemsForListing(false),
             Streaming::section2(),
             NxLines::section2()

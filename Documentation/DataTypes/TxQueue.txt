@@ -1,9 +1,0 @@
-
-TxQueue {
-    "uuid"        : uuid
-    "variant"     : String # Primary Key
-    "mikuType"    : "TxQueue"
-    "unixtime"    : unixtime
-    "description" : description
-    "ax39"        : Ax39
-}

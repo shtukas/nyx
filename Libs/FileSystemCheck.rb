@@ -222,10 +222,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "TxQueue" then
-            return
-        end
-
         if item["mikuType"] == "Wave" then
             FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
             return

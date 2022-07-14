@@ -63,9 +63,6 @@ class LxFunction
             if item["mikuType"] == "NxTimeline" then
                 return NxTimelines::toString(item)
             end
-            if item["mikuType"] == "TxQueue" then
-                return TxQueues::toString(item)
-            end
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
             end

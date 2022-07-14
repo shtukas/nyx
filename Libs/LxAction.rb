@@ -116,11 +116,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxQueue" then
-                TxQueues::queueDive(item)
-                return
-            end
-
             if Iam::implementsNx111(item) then
                 EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
                 return
@@ -161,8 +156,6 @@ class LxAction
             end
 
             if item["mikuType"] == "NxFrame" then
-                NxBallsService::close(item["uuid"], true)
-                DoneToday::setDoneToday(item["uuid"])
                 return
             end
 
@@ -292,11 +285,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxQueue" then
-                TxQueues::landing(item)
-                return
-            end
-
             Landing::landing(item)
             return
         end
@@ -321,18 +309,9 @@ class LxAction
             accounts = [item["uuid"]]
 
             if item["mikuType"] == "NxTask" then
-                queue = TxQueues::getQueuePerElementUUIDOrNull(item["uuid"])
-                if queue then
-                    accounts << queue["uuid"]
-                end
                 project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
                 if project then
                     accounts << project["uuid"]
-                end
-            end
-            if item["mikuType"] == "NxLine" then
-                if item["companionuuid"] then
-                    accounts << item["companionuuid"]
                 end
             end
 

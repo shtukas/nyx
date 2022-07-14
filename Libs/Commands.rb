@@ -31,21 +31,6 @@ class Commands
             return
         end
 
-        if Interpreting::match(">queue", input) then
-            item = store.getDefault()
-            return if item.nil?
-            if !["NxTask", "NxLine"].include?(item["mikuType"]) then
-                puts "The operation >queue only works on NxTasks and NxLines"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            queue = TxQueues::architectOneOrNull()
-            return if queue.nil?
-            TxQueues::addElement(queue, item)
-            NxBallsService::close(item["uuid"], true)
-            return
-        end
-
         if Interpreting::match(">project", input) then
             item = store.getDefault()
             return if item.nil?
@@ -97,8 +82,8 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            return if !["TxProject", "TxQueue"].include?(item["mikuType"])
-            item["ax39"] = Ax39::interactivelyCreateNewAx(item["mikuType"])
+            return if item["mikuType"] != "TxProject"
+            item["ax39"] = Ax39::interactivelyCreateNewAx()
             Librarian::commit(item)
             return
         end
@@ -215,15 +200,6 @@ class Commands
             return if line == ""
             item = NxLines::issue(line)
             puts JSON.pretty_generate(item)
-
-            if LucilleCore::askQuestionAnswerAsBoolean("set time companion object ? ") then
-                companion = Architect::interactivelySelectProjectOrQueueOrNull()
-                if companion then
-                    item["companionuuid"] = companion["uuid"]
-                    Librarian::commit(item)
-                    puts JSON.pretty_generate(item)
-                end
-            end
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
             if ordinal == "" then
                 ordinal = Stratification::nextOrdinal()
@@ -294,11 +270,6 @@ class Commands
             return
         end
 
-        if Interpreting::match("queues", input) then
-            TxQueues::dive()
-            return
-        end
-
         if Interpreting::match("resume", input) then
             item = store.getDefault()
             return if item.nil?
@@ -324,12 +295,6 @@ class Commands
             return if unixtime.nil?
             NxBallsService::close(item["uuid"], true)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            return
-        end
-
-        if input == "queue" then
-            item = TxQueues::interactivelyIssueNewItemOrNull()
-            puts JSON.pretty_generate(item)
             return
         end
 
@@ -409,10 +374,10 @@ class Commands
             item = NxTasks::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a queue ? ") then
-                queue = TxQueues::architectOneOrNull()
-                return if queue.nil?
-                TxQueues::addElement(queue, item)
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a project ? ") then
+                project = TxProjects::architectOneOrNull()
+                return if project.nil?
+                TxProjects::addElement(project, item)
             end
             return
         end
@@ -493,10 +458,6 @@ class Commands
                 {
                     "name" => "NxFrames::items()",
                     "lambda" => lambda { NxFrames::items() }
-                },
-                {
-                    "name" => "TxQueues::items()",
-                    "lambda" => lambda { TxQueues::items() }
                 },
                 {
                     "name" => "TxProjects::items()",

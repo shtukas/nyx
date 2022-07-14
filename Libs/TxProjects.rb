@@ -28,7 +28,7 @@ class TxProjects
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        ax39 = Ax39::interactivelyCreateNewAx("TxProject")
+        ax39 = Ax39::interactivelyCreateNewAx()
 
         item = {
             "uuid"        => SecureRandom.uuid,
