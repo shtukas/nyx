@@ -96,9 +96,9 @@ class NxTasks
         end
         builder = lambda{
             nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-            owner = Nx07::getOwnerForTaskOrNull(item)
-            ownerstring = owner ? "(queue: #{owner["description"]}) " : ""
-            "(task) #{ownerstring}#{item["description"]}#{nx111String}"
+            queue = TxQueues::getQueuePerElementUUIDOrNull(item["uuid"])
+            queuestring = queue ? "(queue: #{queue["description"]}) " : ""
+            "(task) #{queuestring}#{item["description"]}#{nx111String}"
         }
         data = builder.call()
         XCache::set("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}", data) # string
@@ -132,7 +132,7 @@ class NxTasks
         builder = lambda {
             NxTasks::items()
                 .select{|item| ["inboxed", "active"].include?(item["status"]) }
-                .select{|item| Nx07::getOwnerForTaskOrNull(item).nil? }
+                .select{|item| !TxQueues::uuidIsQueueElement(item["uuid"]) }
                 .partition{|item| item["status"] == "inboxed" }
                 .flatten
         }

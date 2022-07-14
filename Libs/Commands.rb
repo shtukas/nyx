@@ -39,9 +39,9 @@ class Commands
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            owner = Nx07::architectOwnerOrNull()
-            return if owner.nil?
-            Nx07::issue(owner["uuid"], item["uuid"])
+            queue = TxQueues::architectOneOrNull()
+            return if queue.nil?
+            TxQueues::addElement(queue, item)
             NxBallsService::close(item["uuid"], true)
             return
         end
@@ -398,10 +398,10 @@ class Commands
             item = NxTasks::interactivelyCreateNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a queue or project ? ") then
-                owner = Nx07::architectOwnerOrNull()
-                return if owner.nil?
-                Nx07::issue(owner["uuid"], item["uuid"])
+            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a queue ? ") then
+                queue = TxQueues::architectOneOrNull()
+                return if queue.nil?
+                TxQueues::addElement(queue, item)
             end
             return
         end

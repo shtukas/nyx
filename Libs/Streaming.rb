@@ -47,9 +47,9 @@ class Streaming
                 next
             end
             if command == ">queue" then
-                owner = Nx07::architectOwnerOrNull()
-                return if owner.nil?
-                Nx07::issue(owner["uuid"], item["uuid"])
+                queue = TxQueues::architectOneOrNull()
+                return if queue.nil?
+                TxQueues::addElement(queue, item)
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -92,9 +92,9 @@ class Streaming
                 next
             end
             if command == ">queue" then
-                owner = Nx07::architectOwnerOrNull()
-                next if owner.nil?
-                Nx07::issue(owner["uuid"], item["uuid"])
+                queue = TxQueues::architectOneOrNull()
+                return if queue.nil?
+                TxQueues::addElement(queue, item)
                 return nil
             end
             if command == ">nyx" then
@@ -136,7 +136,7 @@ class Streaming
         items = NxTasks::items().shuffle
         loop {
             item = items.shift
-            next if Nx07::itemHasPrincipal(item)
+            next if TxQueues::uuidIsQueueElement(item["uuid"])
             command = Streaming::runItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
@@ -151,7 +151,7 @@ class Streaming
         items = NxTasks::items().shuffle
         loop {
             item = items.shift
-            next if Nx07::itemHasPrincipal(item)
+            next if TxQueues::uuidIsQueueElement(item["uuid"])
             command = Streaming::runItem(item)
         }
         NxBallsService::close(uuid, true)

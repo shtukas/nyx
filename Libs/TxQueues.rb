@@ -16,6 +16,50 @@ class TxQueues
         Librarian::destroyClique(uuid)
     end
 
+    # TxQueues::architectOneOrNull()
+    def self.architectOneOrNull()
+        items = TxQueues::items()
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("queue", items, lambda{|item| LxFunction::function("toString", item) })
+        return item if item
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new queue ? ") then
+            return TxQueues::interactivelyIssueNewItemOrNull()
+        end
+    end
+
+    # ----------------------------------------------------------------------
+    # Elements
+
+    # TxQueues::addElement(queue, item)
+    def self.addElement(queue, item)
+        Fx18s::ensureFile(queue["uuid"])
+        Fx18s::setsAdd2(queue["uuid"], "queue-items-fb98ca7d", item["uuid"], item["uuid"], false)
+    end
+
+    # TxQueues::removeElement(queue, uuid)
+    def self.removeElement(queue, uuid)
+        Fx18s::ensureFile(queue["uuid"])
+        Fx18s::setsRemove2(queue["uuid"], "queue-items-fb98ca7d", uuid, false)
+    end
+
+    # TxQueues::elementuuids(queue)
+    def self.elementuuids(queue)
+        Fx18s::ensureFile(queue["uuid"])
+        Fx18s::setsItems(queue["uuid"], "queue-items-fb98ca7d", false)
+    end
+
+    # TxQueues::uuidIsQueueElement(uuid)
+    def self.uuidIsQueueElement(uuid)
+        TxQueues::items().any?{|queue| TxQueues::elementuuids(queue).include?(uuid) }
+    end
+
+    # TxQueues::getQueuePerElementUUIDOrNull(uuid)
+    def self.getQueuePerElementUUIDOrNull(uuid)
+        TxQueues::items()
+            .select{|queue| TxQueues::elementuuids(queue).include?(uuid) }
+            .first
+    end
+
     # ----------------------------------------------------------------------
     # Objects Makers
 
@@ -50,7 +94,7 @@ class TxQueues
     def self.queueSize(item)
         size = XCache::getOrNull("78fe9aa9-99b2-4430-913b-1512880bf323:#{item["uuid"]}")
         return size.to_i if size
-        size = Nx07::principaluuidToTaskuuidsOrdered(item["uuid"]).size
+        size = TxQueues::elementuuids(item).size
         XCache::set("78fe9aa9-99b2-4430-913b-1512880bf323:#{item["uuid"]}", size)
         size
     end
@@ -62,7 +106,7 @@ class TxQueues
 
     # TxQueues::tasks(queue)
     def self.tasks(queue)
-        Nx07::principaluuidToTaskuuidsOrdered(queue["uuid"])
+        TxQueues::elementuuids(queue)
             .map{|uuid| Librarian::getObjectByUUIDOrNullEnforceUnique(uuid) }
             .compact
     end
@@ -86,18 +130,19 @@ class TxQueues
             (rt == 0) ? 0.4 : rt
         }
 
-        Nx07::principaluuidToTaskuuidsOrdered(queue["uuid"])
+        TxQueues::elementuuids(queue)
             .first(3)
             .map{|uuid|
                 task = Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
                 if task.nil? then
+                    TxQueues::removeElement(queue, uuid)
                     nil
                 else
                     if task["mikuType"] != "NxTask" then
                         # Some maintenance:
                         # Happens when the task has been transformed to a Nyx node, but the link between
                         # the queue and the task still exists.
-                        Nx07::unlink(queue["uuid"], task["uuid"])
+                        TxQueues::removeElement(queue, uuid)
                         nil
                     else
                         if DoNotShowUntil::isVisible(task["uuid"]) then

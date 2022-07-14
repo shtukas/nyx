@@ -165,10 +165,6 @@ class FileSystemCheck
             return
         end
 
-        if item["mikuType"] == "Nx07" then
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             return
         end
