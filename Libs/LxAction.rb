@@ -21,7 +21,7 @@ class LxAction
         if command == ".." then
 
             if item["mikuType"] == "TxProject" then
-                TxProjects::start(item)
+                TxProjects::startAccessProject(item)
                 return
             end
 
@@ -108,6 +108,11 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
                     Librarian::destroyClique(item["uuid"])
                 end
+                return
+            end
+
+            if item["mikuType"] == "TxProject" then
+                TxProjects::startAccessProject(item)
                 return
             end
 
@@ -307,7 +312,7 @@ class LxAction
 
         if command == "start" then
             if item["mikuType"] == "TxProject" then
-                TxProjects::start(item)
+                TxProjects::startAccessProject(item)
                 return
             end
 

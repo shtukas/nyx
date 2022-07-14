@@ -74,7 +74,9 @@ class Ax39
     def self.itemShouldShow(item)
         return false if !DoNotShowUntil::isVisible(item["uuid"])
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return !DoneToday::isDoneToday(item["uuid"])
+            return false if Bank::valueAtDate(item["uuid"], CommonUtils::today()) > 0
+            return false if DoneToday::isDoneToday(item["uuid"])
+            return true
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
             return false if DoneToday::isDoneToday(item["uuid"])

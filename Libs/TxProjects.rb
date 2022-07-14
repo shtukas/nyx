@@ -43,6 +43,17 @@ class TxProjects
         item
     end
 
+    # TxProjects::architectOneOrNull()
+    def self.architectOneOrNull()
+        items = TxProjects::items()
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", items, lambda{|item| LxFunction::function("toString", item) })
+        return item if item
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new project ? ") then
+            return TxProjects::interactivelyIssueNewItemOrNull()
+        end
+    end
+
     # ----------------------------------------------------------------------
     # Elements
 
@@ -115,6 +126,9 @@ class TxProjects
                         b1 = Ax39::itemShouldShow(project) 
                         if !b1 then
                             Stratification::removeItemByUUID(project["uuid"])
+                            TxProjects::elementuuids(project)
+                                .select{|elementuuid| !NxBallsService::isRunning(elementuuid) }
+                                .each{|elementuuid| Stratification::removeItemByUUID(elementuuid) }
                         end
                         b2 = TxProjects::elementuuids(project).none?{|elementuuid| NxBallsService::isRunning(elementuuid) }
                         b1 and b2
@@ -146,9 +160,14 @@ class TxProjects
         }
     end
 
-    # TxProjects::start(project)
-    def self.start(project)
-        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxProjects::elements(project), lambda{|item| LxFunction::function("toString", item) } )
+    # TxProjects::startAccessProject(project)
+    def self.startAccessProject(project)
+        elements = TxProjects::elements(project)
+        if elements.size == 1 then
+            LxAction::action("..", elements[0])
+            return
+        end
+        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
         return if element.nil?
         LxAction::action("..", element)
     end

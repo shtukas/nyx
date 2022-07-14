@@ -112,4 +112,13 @@ class Stratification
         stratification << item
         Stratification::commitStratificationToDisk(stratification)
     end
+
+    # Stratification::ordinalsdrop()
+    def self.ordinalsdrop()
+        stratification = Stratification::getStratificationFromDisk()
+        return if stratification.empty?
+        return if stratification[0]["ordinal"] < 10
+        stratification = stratification.map{|item| item["ordinal"] = item["ordinal"] - 10 ; item }
+        Stratification::commitStratificationToDisk(stratification)  
+    end
 end

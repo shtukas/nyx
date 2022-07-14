@@ -34,4 +34,9 @@ class NxLines
     def self.toString(item)
         "(line) #{item["line"]}"
     end
+
+    # NxLines::section2()
+    def self.section2()
+        NxLines::items().select{|item| !(TxProjects::uuidIsProjectElement(item["uuid"]) or TxQueues::uuidIsQueueElement(item["uuid"])) }
+    end
 end

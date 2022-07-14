@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | queue | project ",
             "anniversaries | calendar | zeroes | ondates | todos | projects | queues",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >nyx",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >project | >nyx",
             "ordinal <itemPosition> <newOrdinal> | rotate | remove",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute",
@@ -34,14 +34,29 @@ class Commands
         if Interpreting::match(">queue", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] != "NxTask" then
-                puts "The operation >queue only works on NxTasks"
+            if !["NxTask", "NxLine"].include?(item["mikuType"]) then
+                puts "The operation >queue only works on NxTasks and NxLines"
                 LucilleCore::pressEnterToContinue()
                 return
             end
             queue = TxQueues::architectOneOrNull()
             return if queue.nil?
             TxQueues::addElement(queue, item)
+            NxBallsService::close(item["uuid"], true)
+            return
+        end
+
+        if Interpreting::match(">project", input) then
+            item = store.getDefault()
+            return if item.nil?
+            if !["NxTask", "NxLine"].include?(item["mikuType"]) then
+                puts "The operation >project only works on NxTasks and NxLines"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            project = TxProjects::architectOneOrNull()
+            return if project.nil?
+            TxProjects::addElement(project, item)
             NxBallsService::close(item["uuid"], true)
             return
         end

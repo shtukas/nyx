@@ -35,7 +35,7 @@ class Catalyst
             TxQueues::itemsForMainListing(),
             Waves::itemsForListing(false),
             Streaming::section2(),
-            NxLines::items()
+            NxLines::section2()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -291,6 +291,8 @@ class Catalyst
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             }
+
+            Stratification::ordinalsdrop()
 
             Catalyst::program3()
         }
