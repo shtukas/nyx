@@ -66,6 +66,7 @@ class Fx18s
     end
 
     # Fx18s::ensureFile(objectuuid)
+    # Only used for migrations
     def self.ensureFile(objectuuid)
         filepath = Fx18s::computeLocalFx18Filepath(objectuuid)
         return if File.exists?(filepath)
