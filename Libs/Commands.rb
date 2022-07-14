@@ -6,9 +6,9 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | queue | project ",
-            "anniversaries | calendar | zeroes | ondates | todos | projects | queues",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >queue | >project | >nyx",
+            "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | project ",
+            "anniversaries | calendar | zeroes | ondates | todos | projects",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >project | >nyx",
             "ordinal <itemPosition> <newOrdinal> | rotate | remove",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute",
