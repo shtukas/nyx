@@ -72,7 +72,7 @@ class FileSystemCheck
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            blob = Fx18s::getBlobOrNull(object["uuid"], nhash, false)
+            blob = Fx18s::getBlobOrNull(object["uuid"], nhash)
             if blob.nil? then
                 puts "Fx18s::getBlobOrNull: could not find the text data".red
                 puts JSON.pretty_generate(object).red
@@ -156,9 +156,9 @@ class FileSystemCheck
         end
 
         if item["mikuType"] == "Ax1Text" then
-            blob = Fx18s::getBlobOrNull(item["uuid"], item["nhash"], false)
+            blob = Fx18s::getBlobOrNull(item["uuid"], item["nhash"])
             if blob.nil? then
-                puts "Fx18s::getBlobOrNull(nhash): blob not found".red
+                puts "Fx18s::getBlobOrNull: blob not found".red
                 puts JSON.pretty_generate(item).red
                 exit 1
             end

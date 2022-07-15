@@ -33,16 +33,16 @@ class Fx18s
         Fx18s::constructNewFile(objectuuid)
     end
 
-    # Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::acquireFilepathOrError(objectuuid)
+    def self.acquireFilepathOrError(objectuuid)
         Fx18s::computeLocalFx18Filepath(objectuuid)
     end
 
     # --------------------------------------------------------------
 
-    # Fx18s::setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue, shouldDownloadFileIfFoundOnRemoteDrive)
-        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue)
+    def self.setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -51,14 +51,14 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::setAttribute2(objectuuid, attname, attvalue, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.setAttribute2(objectuuid, attname, attvalue, shouldDownloadFileIfFoundOnRemoteDrive)
-        Fx18s::setAttribute1(SecureRandom.uuid, Time.new.to_f, objectuuid, attname, attvalue, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::setAttribute2(objectuuid, attname, attvalue)
+    def self.setAttribute2(objectuuid, attname, attvalue)
+        Fx18s::setAttribute1(SecureRandom.uuid, Time.new.to_f, objectuuid, attname, attvalue)
     end
 
-    # Fx18s::getAttributeOrNull(objectuuid, attname, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.getAttributeOrNull(objectuuid, attname, shouldDownloadFileIfFoundOnRemoteDrive)
-        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::getAttributeOrNull(objectuuid, attname)
+    def self.getAttributeOrNull(objectuuid, attname)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -74,9 +74,9 @@ class Fx18s
 
     # --------------------------------------------------------------
 
-    # Fx18s::setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
-        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
+    def self.setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -85,14 +85,14 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::setsAdd2(objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.setsAdd2(objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
-        Fx18s::setsAdd1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid, value, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::setsAdd2(objectuuid, setuuid, itemuuid, value)
+    def self.setsAdd2(objectuuid, setuuid, itemuuid, value)
+        Fx18s::setsAdd1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid, value)
     end
 
-    # Fx18s::setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
+    def self.setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -101,14 +101,14 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::setsRemove2(objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.setsRemove2(objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-        Fx18s::setsRemove1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::setsRemove2(objectuuid, setuuid, itemuuid)
+    def self.setsRemove2(objectuuid, setuuid, itemuuid)
+        Fx18s::setsRemove1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid)
     end
 
-    # Fx18s::setsItems(objectuuid, setuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.setsItems(objectuuid, setuuid, shouldDownloadFileIfFoundOnRemoteDrive)
-        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::setsItems(objectuuid, setuuid)
+    def self.setsItems(objectuuid, setuuid)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -142,11 +142,11 @@ class Fx18s
 
     # --------------------------------------------------------------
 
-    # Fx18s::putBlob1(eventuuid, eventTime, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
+    def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
         Fx18s::ensureFile(objectuuid)
 
-        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -155,23 +155,23 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::putBlob2(objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.putBlob2(objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
-        Fx18s::putBlob1(SecureRandom.uuid, Time.new.to_f, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::putBlob2(objectuuid, key, blob)
+    def self.putBlob2(objectuuid, key, blob)
+        Fx18s::putBlob1(SecureRandom.uuid, Time.new.to_f, objectuuid, key, blob)
     end
 
-    # Fx18s::putBlob3(objectuuid, blob, shouldDownloadFileIfFoundOnRemoteDrive) # nhash
-    def self.putBlob3(objectuuid, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::putBlob3(objectuuid, blob) # nhash
+    def self.putBlob3(objectuuid, blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18s::putBlob2(objectuuid, nhash, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+        Fx18s::putBlob2(objectuuid, nhash, blob)
         nhash
     end
 
-    # Fx18s::getBlobOrNull(objectuuid, nhash, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.getBlobOrNull(objectuuid, nhash, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::getBlobOrNull(objectuuid, nhash)
+    def self.getBlobOrNull(objectuuid, nhash)
         Fx18s::ensureFile(objectuuid)
 
-        filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -189,13 +189,12 @@ end
 
 class Fx18Elizabeth
 
-    def initialize(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+    def initialize(objectuuid)
         @objectuuid = dobjectuuid
-        @shouldDownloadFileIfFoundOnRemoteDrive = shouldDownloadFileIfFoundOnRemoteDrive
     end
 
     def putBlob(blob)
-        Fx18s::putBlob3(@objectuuid, blob, @shouldDownloadFileIfFoundOnRemoteDrive)
+        Fx18s::putBlob3(@objectuuid, blob)
     end
 
     def filepathToContentHash(filepath)
@@ -203,7 +202,7 @@ class Fx18Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        Fx18s::getBlobOrNull(@objectuuid, nhash, @shouldDownloadFileIfFoundOnRemoteDrive)
+        Fx18s::getBlobOrNull(@objectuuid, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)

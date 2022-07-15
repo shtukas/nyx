@@ -9,13 +9,13 @@ class NxLink
         if !File.exists?(fx18filepath) then
             Fx18s::constructNewFile(node1uuid)
         end
-        Fx18s::setsAdd2(node1uuid, "network-link", node2uuid, node2uuid, false)
+        Fx18s::setsAdd2(node1uuid, "network-link", node2uuid, node2uuid)
 
         fx18filepath = Fx18s::computeLocalFx18Filepath(node2uuid)
         if !File.exists?(fx18filepath) then
             Fx18s::constructNewFile(node2uuid)
         end
-        Fx18s::setsAdd2(node2uuid, "network-link", node1uuid, node1uuid, false)
+        Fx18s::setsAdd2(node2uuid, "network-link", node1uuid, node1uuid)
     end
 
     # NxLink::unlink(node1uuid, node2uuid)
@@ -24,13 +24,13 @@ class NxLink
         if !File.exists?(fx18filepath) then
             Fx18s::constructNewFile(node1uuid)
         end
-        Fx18s::setsRemove2(node1uuid, "network-link", node2uuid, false)
+        Fx18s::setsRemove2(node1uuid, "network-link", node2uuid)
 
         fx18filepath = Fx18s::computeLocalFx18Filepath(node2uuid)
         if !File.exists?(fx18filepath) then
             Fx18s::constructNewFile(node2uuid)
         end
-        Fx18s::setsRemove2(node2uuid, "network-link", node1uuid, false)
+        Fx18s::setsRemove2(node2uuid, "network-link", node1uuid)
     end
 
     # NxLink::linkedUUIDs(uuid)
@@ -39,7 +39,7 @@ class NxLink
         if !File.exists?(fx18filepath) then
             Fx18s::constructNewFile(uuid)
         end
-        Fx18s::setsItems(uuid, "network-link", false)
+        Fx18s::setsItems(uuid, "network-link")
     end
 
     # NxLink::linkedItems(uuid)

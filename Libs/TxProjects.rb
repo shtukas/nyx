@@ -60,19 +60,19 @@ class TxProjects
     # TxProjects::addElement(project, item)
     def self.addElement(project, item)
         Fx18s::ensureFile(project["uuid"])
-        Fx18s::setsAdd2(project["uuid"], "project-items-3f154988", item["uuid"], item["uuid"], false)
+        Fx18s::setsAdd2(project["uuid"], "project-items-3f154988", item["uuid"], item["uuid"])
     end
 
     # TxProjects::removeElement(project, uuid)
     def self.removeElement(project, uuid)
         Fx18s::ensureFile(project["uuid"])
-        Fx18s::setsRemove2(project["uuid"], "project-items-3f154988", uuid, false)
+        Fx18s::setsRemove2(project["uuid"], "project-items-3f154988", uuid)
     end
 
     # TxProjects::elementuuids(project)
     def self.elementuuids(project)
         Fx18s::ensureFile(project["uuid"])
-        Fx18s::setsItems(project["uuid"], "project-items-3f154988", false)
+        Fx18s::setsItems(project["uuid"], "project-items-3f154988")
     end
 
     # TxProjects::elements(project)

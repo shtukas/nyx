@@ -71,7 +71,7 @@ class EnergyGridImmutableDataIslandElizabeth
     end
 
     def putBlob(blob)
-        Fx18s::putBlob3(@objectuuid, blob, false)
+        Fx18s::putBlob3(@objectuuid, blob)
     end
 
     def filepathToContentHash(filepath)
@@ -79,14 +79,14 @@ class EnergyGridImmutableDataIslandElizabeth
     end
 
     def getBlobOrNull(nhash)
-        blob = Fx18s::getBlobOrNull(@objectuuid, nhash, false)
+        blob = Fx18s::getBlobOrNull(@objectuuid, nhash)
         return blob if blob
 
         puts "EnergyGridImmutableDataIslandElizabeth: looking into the island for #{nhash}".green
         blob = @island.getBlobOrNull(nhash)
 
         if blob then
-            Fx18s::putBlob3(@objectuuid, blob, false)
+            Fx18s::putBlob3(@objectuuid, blob)
             return blob
         end
 

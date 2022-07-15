@@ -24,7 +24,7 @@ class Ax1Text
         uuid = SecureRandom.uuid
         Fx18s::constructNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
-        nhash = Fx18s::putBlob3(uuid, text, false)
+        nhash = Fx18s::putBlob3(uuid, text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         item = {
@@ -44,7 +44,7 @@ class Ax1Text
 
     # Ax1Text::toString(item)
     def self.toString(item)
-        text = Fx18s::getBlobOrNull(item["uuid"], item["nhash"], false) # This should not be null
+        text = Fx18s::getBlobOrNull(item["uuid"], item["nhash"]) # This should not be null
         description = (text != "") ? text.lines.first : "(empty text)"
         "(note) #{description}"
     end
@@ -65,9 +65,9 @@ class Ax1Text
             break if operation.nil?
             if operation == "access/edit" then
                 nhash = item["nhash"]
-                text = Fx18s::getBlobOrNull(item["uuid"], nhash, false)
+                text = Fx18s::getBlobOrNull(item["uuid"], nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = Fx18s::putBlob3(item["uuid"], text, false)
+                nhash = Fx18s::putBlob3(item["uuid"], text)
                 item["nhash"] = nhash
                 Librarian::commit(item)
             end

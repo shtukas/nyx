@@ -1,5 +1,5 @@
 
 The first use of the Fx18 files has been the encoding of network links
 
-Fx18s::setsAdd2(item["uuid"], "network-link", linkeduuid, linkeduuid, false)
+Fx18s::setsAdd2(item["uuid"], "network-link", linkeduuid, linkeduuid)
 
