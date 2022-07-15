@@ -165,10 +165,9 @@ class Waves
         false
     end
 
-    # Waves::itemsForSection2(isPriority)
-    def self.itemsForSection2(isPriority)
+    # Waves::section2()
+    def self.section2()
         Waves::items()
-            .select{|item| Waves::isPriority(item) == isPriority }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end

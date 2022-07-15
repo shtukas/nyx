@@ -34,21 +34,37 @@ class Catalyst
             .flatten
     end
 
-    # Catalyst::section2()
-    def self.section2()
+    # Catalyst::section2Ops()
+    def self.section2Ops()
+        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`).each{|item|
+            Listing::insertOrReInsert("section2", item)
+        }
+
         [
-            JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Anniversaries::section2(),
-            Waves::itemsForSection2(true),
-            TxDateds::section2(),
-            TxProjects::section2(),
-            Waves::itemsForSection2(false),
-            Streaming::section2(),
-            NxLines::section2()
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            lambda { Anniversaries::section2() },
+            lambda { Waves::section2() },
+            lambda { TxDateds::section2() },
+            lambda { NxLines::section2() },
+        ].each{|l|
+            l.call().each{|item|
+                Listing::insertOrReInsert("section2", item)
+            }
+        }
+
+        [
+            lambda { TxProjects::section2Xp() },
+            lambda { Streaming::section2Xp() },
+        ].each{|l|
+            l.call().each{|pair|
+                items1, itemuuids2 = pair
+                items1.each{|item|
+                    Listing::insertOrReInsert("section2", item)
+                }
+                itemuuids2.each{|itemuuid|
+                    Listing::remove(itemuuid)
+                }
+            }
+        }
     end
 
     # Catalyst::program2()
@@ -77,9 +93,7 @@ class Catalyst
         Thread.new {
             loop {
                 sleep 300
-                Catalyst::section2().each{|item|
-                    Listing::insertOrReInsert("section2", item)
-                }
+                Catalyst::section2Ops()
                 Listing::ordinalsdrop()
                 Listing::publishAverageAgeInDays()
             }

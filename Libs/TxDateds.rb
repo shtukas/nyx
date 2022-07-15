@@ -103,6 +103,8 @@ class TxDateds
         TxDateds::items()
             .select{|item| item["datetime"][0, 10] <= CommonUtils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
     # --------------------------------------------------

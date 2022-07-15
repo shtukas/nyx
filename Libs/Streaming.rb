@@ -172,18 +172,25 @@ class Streaming
         }]
     end
 
-    # Streaming::section2()
-    def self.section2()
+    # Streaming::section2Xp()
+    def self.section2Xp()
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         if rt >= 1 then
             Listing::remove(uuid)
-            return []
+            [
+                [], 
+                [uuid]
+            ]
+        else
+            [
+                [{
+                    "uuid" => uuid,
+                    "mikuType" => "(rstream-to-target)",
+                    "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
+                }],
+                []
+            ]
         end
-        [{
-            "uuid" => uuid,
-            "mikuType" => "(rstream-to-target)",
-            "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
-        }]
     end
 end

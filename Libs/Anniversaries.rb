@@ -154,6 +154,9 @@ class Anniversaries
     def self.section2()
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
+            .each{|item|
+                Listing::insertOrReInsert("section2", item)
+            }
     end
 
     # Anniversaries::dailyBriefing()

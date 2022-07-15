@@ -141,37 +141,35 @@ class TxProjects
         10
     end
 
-    # TxProjects::section2()
-    def self.section2()
-        projects = Librarian::getObjectsByMikuType("TxProject")
-                    .select{|project|
-                        b1 = Ax39::itemShouldShow(project) 
-                        if !b1 then
-                            Listing::remove(project["uuid"])
-                            TxProjects::elementuuids(project)
-                                .first(TxProjects::elementsDepth())
-                                .select{|elementuuid| !NxBallsService::isRunning(elementuuid) }
-                                .each{|elementuuid| Listing::remove(elementuuid) }
-                        end
-                        b2 = TxProjects::elementuuids(project)
-                                .first(TxProjects::elementsDepth())
-                                .none?{|elementuuid| NxBallsService::isRunning(elementuuid) }
-                        b1 and b2
+    # TxProjects::section2Xp()
+    def self.section2Xp()
+        itemsToKeepOrReInject = []
+        itemsToDelistIfPresentInListing = []
+
+        Librarian::getObjectsByMikuType("TxProject")
+            .each{|project|
+                if Ax39::itemShouldShow(project) or NxBallsService::isRunning(project["uuid"]) then
+                    itemsToKeepOrReInject << project
+                else
+                    itemsToDelistIfPresentInListing << project["uuid"]
+                end
+            }
+
+        Librarian::getObjectsByMikuType("TxProject")
+            .each{|project|
+                TxProjects::elementuuids(project)
+                    .first(TxProjects::elementsDepth())
+                    .select{|elementuuid|  
+                        item = Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid)
+                        next if item.nil?
+                        if NxBallsService::isRunning(elementuuid) then
+                            itemsToKeepOrReInject << item
+                        else
+                            itemsToDelistIfPresentInListing << item["uuid"]
+                        end   
                     }
-        tasks = Librarian::getObjectsByMikuType("TxProject")
-                    .map{|project|
-                        runningElements = TxProjects::elementuuids(project)
-                                            .first(TxProjects::elementsDepth())
-                                            .select{|elementuuid| NxBallsService::isRunning(elementuuid) }
-                                            .map{|elementuuid| Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid) }
-                                            .compact
-                        if runningElements.size > 0 then
-                            Listing::remove(project["uuid"])
-                        end
-                        runningElements
-                    }
-                    .flatten
-        projects+tasks
+            }
+        [itemsToKeepOrReInject, itemsToDelistIfPresentInListing]
     end
 
     # ----------------------------------------------------------------------

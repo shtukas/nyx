@@ -444,12 +444,12 @@ class Commands
                     "lambda" => lambda { Anniversaries::section2() }
                 },
                 {
-                    "name" => "Waves::itemsForSection2(true)",
-                    "lambda" => lambda { Waves::itemsForSection2(true) }
+                    "name" => "Waves::section2(true)",
+                    "lambda" => lambda { Waves::section2(true) }
                 },
                 {
-                    "name" => "Waves::itemsForSection2(false)",
-                    "lambda" => lambda { Waves::itemsForSection2(false) }
+                    "name" => "Waves::section2(false)",
+                    "lambda" => lambda { Waves::section2(false) }
                 },
                 {
                     "name" => "TxDateds::section2()",

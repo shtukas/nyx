@@ -125,7 +125,7 @@ class Listing
     # Listing::insertOrReInsert(zone, item)
     def self.insertOrReInsert(zone, item)
         existingEntry = Listing::entries()
-                            .select{|entry| entry["uuid"] == item["uuid"] }
+                            .select{|entry| entry["_uuid_"] == item["uuid"] }
                             .first
         if existingEntry then
             Listing::insert2(zone, item, existingEntry["_ordinal_"])
