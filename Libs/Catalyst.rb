@@ -93,6 +93,9 @@ class Catalyst
         Thread.new {
             loop {
                 sleep 300
+                Catalyst::section1().each{|item|
+                    Listing::insertOrReInsert("section1", item)
+                }
                 Catalyst::section2Ops()
                 Listing::ordinalsdrop()
                 Listing::publishAverageAgeInDays()
@@ -139,8 +142,8 @@ class Catalyst
         }
     end
 
-    # Catalyst::printListing(top, section1, running, stratification)
-    def self.printListing(top, section1, running, stratification)
+    # Catalyst::printListing(top, section1, running, section2)
+    def self.printListing(top, section1, running, section2)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -149,7 +152,7 @@ class Catalyst
             reference = The99Percent::getReference()
             current   = The99Percent::getCurrentCount()
             ratio     = current.to_f/reference["count"]
-            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} ) [stratification: #{(XCache::getOrDefaultValue("6ee981a4-315f-4f82-880f-5806424c904f", "0").to_f).round(2)} days]"
+            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} ) [section2: #{(XCache::getOrDefaultValue("6ee981a4-315f-4f82-880f-5806424c904f", "0").to_f).round(2)} days]"
             puts ""
             puts line
             vspaceleft = vspaceleft - 2
@@ -166,7 +169,7 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
-        uuids = (section1 + stratification.map{|nx| nx["item"] }).map{|item| item["uuid"] }
+        uuids = (section1 + section2.map{|nx| nx["item"] }).map{|item| item["uuid"] }
         running = NxBallsIO::getItems().select{|nxball| !uuids.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
@@ -208,25 +211,21 @@ class Catalyst
             puts ""
             puts "running:"
             vspaceleft = vspaceleft - 2
-            stratification
+            running
                 .each{|item|
                     store.register(item, true)
-                    line = "(ord: #{"%5.2f" % item["ordinal"]}) #{LxFunction::function("toString", item)}"
-                    line = "#{store.prefixString()} #{line}"
-                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
+                    line = LxFunction::function("toString", item)
+                    line = "#{store.prefixString()} #{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
 
-        if stratification.size > 0 then
+        if section2.size > 0 then
             puts ""
             puts "section 2:"
             vspaceleft = vspaceleft - 2
-            stratification
+            section2
                 .each{|packet|
                     item = packet["item"]
                     store.register(item, true)

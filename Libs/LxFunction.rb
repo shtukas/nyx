@@ -9,7 +9,8 @@ class LxFunction
         if item and item["mikuType"].nil? then
             puts "Objects sent to LxFunction if not null should have a mikuType attribute."
             puts "Got:"
-            puts JSON.pretty_generate(item)
+            puts "command: #{command}"
+            puts "object: #{JSON.pretty_generate(item)}"
             puts "Aborting."
             exit
         end
