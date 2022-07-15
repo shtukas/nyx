@@ -55,14 +55,12 @@ class Catalyst
             lambda { TxProjects::section2Xp() },
             lambda { Streaming::section2Xp() },
         ].each{|l|
-            l.call().each{|pair|
-                items1, itemuuids2 = pair
-                items1.each{|item|
-                    Listing::insertOrReInsert("section2", item)
-                }
-                itemuuids2.each{|itemuuid|
-                    Listing::remove(itemuuid)
-                }
+            items1, itemuuids2 = l.call()
+            items1.each{|item|
+                Listing::insertOrReInsert("section2", item)
+            }
+            itemuuids2.each{|itemuuid|
+                Listing::remove(itemuuid)
             }
         }
     end
