@@ -23,9 +23,8 @@ class Nx111
     # Nx111::locationToAionPointNx111OrNull(objectuuid, location)
     def self.locationToAionPointNx111OrNull(objectuuid, location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethWithTemporaryIsland(objectuuid)
-        rootnhash = AionCore::commitLocationReturnHash(elizabeth, location)
-        elizabeth.recastToNhash(rootnhash)
+        operator = Fx18Elizabeth.new(objectuuid)
+        rootnhash = AionCore::commitLocationReturnHash(operator, location)
         {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",

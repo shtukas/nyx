@@ -3,8 +3,7 @@ Nx111
 {
     "uuid"  : String
     "type"  : "text"
-    "nhash" : nhash # nhash of the blob of text 
-                    # Managed by EnergyGridUniqueBlobs (.data)
+    "nhash" : nhash # nhash of the blob of text
 }
 
 {
@@ -17,7 +16,6 @@ Nx111
     "uuid"      : String
     "type"      : "aion-point"
     "rootnhash" : nhash # nhash of the aion root
-                  # Managed by EnergyGridImmutableDataIsland, named after the rootnhash (.data-island.sqlite3)
 }
 
 {
@@ -38,5 +36,4 @@ Nx111
     "dottedExtension" : dottedExtension
     "nhash"           : nhash
     "parts"           : Array[nhash]
-                        # Managed by EnergyGridImmutableDataIsland, named after the parts (.primitive-file-island.sqlite3)
 }

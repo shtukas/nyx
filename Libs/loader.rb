@@ -144,7 +144,6 @@ require_relative "DoneToday.rb"
 require_relative "DatablobsXCache.rb"
 
 require_relative "EditionDesk.rb"
-require_relative "EnergyGrid.rb"
 require_relative "Events.rb"
 
 require_relative "Galaxy.rb"

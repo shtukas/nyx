@@ -195,7 +195,7 @@ end
 class Fx18Elizabeth
 
     def initialize(objectuuid)
-        @objectuuid = dobjectuuid
+        @objectuuid = objectuuid
     end
 
     def putBlob(blob)

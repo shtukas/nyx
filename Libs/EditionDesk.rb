@@ -122,13 +122,7 @@ class EditionDesk
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             
-            operator = EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(item["uuid"], parts, true)
-            if operator.nil? then
-                puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
-                puts "... probably because I could not find the island."
-                LucilleCore::pressEnterToContinue()
-                return nil
-            end
+            operator = Fx18Elizabeth.new(item["uuid"])
             filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -141,14 +135,7 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(item["uuid"], rootnhash, true)
-            if operator.nil? then
-                puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
-                puts "... probably because I could not find the island."
-                LucilleCore::pressEnterToContinue()
-                return nil
-            end
-
+            operator = Fx18Elizabeth.new(item["uuid"])
             flag, exportLocation = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
@@ -262,19 +249,11 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(item["uuid"], nx111["rootnhash"], true)
-            if operator.nil? then
-                puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
-                puts "... probably because I could not find the island."
-                LucilleCore::pressEnterToContinue()
-                return nil
-            end
+            operator = Fx18Elizabeth.new(item["uuid"])
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
-            # If we update the nx111's roothash, then we need to make a copy of the existing island and rename it
-            operator.recastToNhash(rootnhash2)
             item["nx111"] = nx111
             Librarian::commit(item)
             return
