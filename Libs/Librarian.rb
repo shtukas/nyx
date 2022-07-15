@@ -14,7 +14,7 @@ class Librarian
     # Librarian::objects()
     def self.objects()
         answer = []
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -34,7 +34,7 @@ class Librarian
     # Librarian::countObjectsByMikuType(mikuType)
     def self.countObjectsByMikuType(mikuType)
         count = nil
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -50,7 +50,7 @@ class Librarian
     # Librarian::getObjectsByMikuType(mikuType)
     def self.getObjectsByMikuType(mikuType)
         objects = []
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -70,7 +70,7 @@ class Librarian
     # Librarian::getClique(uuid)
     def self.getClique(uuid) 
         answer = []
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -99,7 +99,7 @@ class Librarian
     # Librarian::getObjectByVariantOrNull(variant)
     def self.getObjectByVariantOrNull(variant)
         object = nil
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -124,7 +124,7 @@ class Librarian
 
         raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
         raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
             db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
@@ -148,7 +148,7 @@ class Librarian
 
         object["lxGenealogyAncestors"] << SecureRandom.uuid
 
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             #db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
             db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
@@ -164,7 +164,7 @@ class Librarian
 
     # Librarian::destroyVariantNoEvent(variant)
     def self.destroyVariantNoEvent(variant)
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.execute "delete from _objects_ where _variant_=?", [variant]
             db.close
@@ -173,7 +173,7 @@ class Librarian
 
     # Librarian::destroyCliqueNoEvent(uuid)
     def self.destroyCliqueNoEvent(uuid)
-        $database_semaphore.synchronize {
+        $librarian_database_semaphore.synchronize {
             db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
             db.execute "delete from _objects_ where _uuid_=?", [uuid]
             db.close

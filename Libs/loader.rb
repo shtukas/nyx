@@ -205,6 +205,9 @@ require_relative "Waves.rb"
 
 # ------------------------------------------------------------
 
-$database_semaphore = Mutex.new
+$librarian_database_semaphore = Mutex.new
+$bank_database_semaphore = Mutex.new
+$dnsu_database_semaphore = Mutex.new
+$listing_database_semaphore = Mutex.new
 
 # ------------------------------------------------------------

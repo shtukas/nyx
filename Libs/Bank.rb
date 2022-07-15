@@ -11,7 +11,7 @@ class Bank
 
     # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
     def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
-        $database_semaphore.synchronize {
+        $bank_database_semaphore.synchronize {
             db = SQLite3::Database.new(Bank::pathToBank())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -62,7 +62,7 @@ class Bank
         return value.to_f if value
 
         value = 0
-        $database_semaphore.synchronize {
+        $bank_database_semaphore.synchronize {
             db = SQLite3::Database.new(Bank::pathToBank())
             db.busy_timeout = 117
             db.busy_handler { |count| true }

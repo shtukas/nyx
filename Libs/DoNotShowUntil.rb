@@ -11,7 +11,7 @@ class DoNotShowUntil
 
     # DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
     def self.setUnixtimeNoEvent(uuid, unixtime)
-        $database_semaphore.synchronize { 
+        $dnsu_database_semaphore.synchronize { 
             db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -47,7 +47,7 @@ class DoNotShowUntil
     # DoNotShowUntil::getUnixtimeOrNull(uuid)
     def self.getUnixtimeOrNull(uuid)
         unixtime = nil
-        $database_semaphore.synchronize {
+        $dnsu_database_semaphore.synchronize {
             db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
