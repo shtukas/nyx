@@ -431,8 +431,8 @@ class Commands
                     "lambda" => lambda { CommonUtils::generalCodeTrace() }
                 },
                 {
-                    "name" => "EventsToAWSQueue::sync(false)",
-                    "lambda" => lambda { EventsToAWSQueue::sync(false) }
+                    "name" => "ExternalEvents::sync(false)",
+                    "lambda" => lambda { ExternalEvents::sync(false) }
                 },
 
                 {

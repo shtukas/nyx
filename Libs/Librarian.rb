@@ -155,7 +155,7 @@ class Librarian
             db.close
         }
 
-        EventsToAWSQueue::publish(object)
+        ExternalEvents::sendEventToSQSStage1(object)
         Cliques::reduceLocalCliqueToOne(object["uuid"])
     end
 
@@ -193,8 +193,8 @@ class Librarian
             "mikuType" => "NxDeleted",
             "lxGenealogyAncestors" => lxGenealogyAncestors
         }
-        EventsToAWSQueue::publish(event)
-        EventsInternal::broadcast({
+        ExternalEvents::sendEventToSQSStage1(event)
+        InternalEvents::broadcast({
             "mikuType"        => "(object has been deleted)",
             "deletedUUID"     => uuid,
             "deletedMikuType" => mikuType

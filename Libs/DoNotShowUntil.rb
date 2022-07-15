@@ -33,7 +33,7 @@ class DoNotShowUntil
           "targetuuid"     => uuid,
           "targetunixtime" => unixtime
         }
-        EventsToAWSQueue::publish(event)
+        ExternalEvents::sendEventToSQSStage1(event)
     end
 
     # DoNotShowUntil::incomingEvent(event)

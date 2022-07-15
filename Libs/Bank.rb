@@ -41,7 +41,7 @@ class Bank
           "date"     => date,
           "weight"   => weight
         }
-        EventsToAWSQueue::publish(event)
+        ExternalEvents::sendEventToSQSStage1(event)
     end
 
     # Bank::incomingEvent(event)

@@ -7,16 +7,16 @@
     Mercury2::dequeue(channel)
 =end
 
-class EventsToAWSQueue
+class ExternalEvents
 
-    # EventsToAWSQueue::publish(event)
-    def self.publish(event)
-        #puts "EventsToAWSQueue::publish(#{JSON.pretty_generate(event)})"
+    # ExternalEvents::sendEventToSQSStage1(event)
+    def self.sendEventToSQSStage1(event)
+        #puts "ExternalEvents::sendEventToSQSStage1(#{JSON.pretty_generate(event)})"
         Mercury2::put("341307DD-A9C6-494F-B050-CD89745A66C6", event)
     end
 
-    # EventsToAWSQueue::sendEventsToSQS(verbose)
-    def self.sendEventsToSQS(verbose)
+    # ExternalEvents::sendEventsToSQSStage2(verbose)
+    def self.sendEventsToSQSStage2(verbose)
 
         return if Mercury2::empty?("341307DD-A9C6-494F-B050-CD89745A66C6")
 
@@ -57,13 +57,16 @@ class EventsToAWSQueue
         }
     end
 
-    # EventsToAWSQueue::pullEventsFromSQS(verbose)
+    # ExternalEvents::pullEventsFromSQS(verbose)
     def self.pullEventsFromSQS(verbose)
         AWSSQS::pullAndProcessEvents(verbose)
     end
 
-    # EventsToAWSQueue::incomingEventFromSQS(event, verbose)
+    # ExternalEvents::incomingEventFromSQS(event, verbose)
     def self.incomingEventFromSQS(event, verbose)
+        if verbose then
+            puts "ExternalEvents::incomingEventFromSQS(#{JSON.pretty_generate(event)})"
+        end
         if event["mikuType"] == "NxBankEvent" then
             Bank::incomingEvent(event)
             return
@@ -85,10 +88,10 @@ class EventsToAWSQueue
         Librarian::incomingEvent(event, verbose ? "aws" : nil)
     end
 
-    # EventsToAWSQueue::sync(verbose)
+    # ExternalEvents::sync(verbose)
     def self.sync(verbose)
         begin
-            EventsToAWSQueue::sendEventsToSQS(verbose)
+            ExternalEvents::sendEventsToSQSStage2(verbose)
             AWSSQS::pullAndProcessEvents(verbose)
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
@@ -96,9 +99,9 @@ class EventsToAWSQueue
     end
 end
 
-class EventsInternal
+class InternalEvents
 
-    # EventsInternal::broadcast(event)
+    # InternalEvents::broadcast(event)
     def self.broadcast(event)
 
         puts "broadcast: #{JSON.pretty_generate(event)}"

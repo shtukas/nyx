@@ -81,12 +81,12 @@ class Catalyst
             }
         end
 
-        EventsToAWSQueue::sync(true)
+        ExternalEvents::sync(true)
 
         Thread.new {
             loop {
                 sleep 60
-                EventsToAWSQueue::sync(false)
+                ExternalEvents::sync(false)
             }
         }
 

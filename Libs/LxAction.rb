@@ -44,7 +44,7 @@ class LxAction
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                     Listing::remove(item["uuid"])
-                    EventsToAWSQueue::publish({
+                    ExternalEvents::sendEventToSQSStage1({
                       "uuid"       => SecureRandom.uuid,
                       "mikuType"   => "StratificationRemove",
                       "itemuuid"   => item["uuid"],
@@ -57,7 +57,7 @@ class LxAction
                     Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
                     Listing::remove(item["uuid"])
-                    EventsToAWSQueue::publish({
+                    ExternalEvents::sendEventToSQSStage1({
                       "uuid"       => SecureRandom.uuid,
                       "mikuType"   => "StratificationRemove",
                       "itemuuid"   => item["uuid"],
@@ -135,7 +135,7 @@ class LxAction
             end
 
             Listing::remove(item["uuid"])
-            EventsToAWSQueue::publish({
+            ExternalEvents::sendEventToSQSStage1({
               "uuid"       => SecureRandom.uuid,
               "mikuType"   => "StratificationRemove",
               "itemuuid"   => item["uuid"],
