@@ -1,0 +1,6 @@
+
+listing.sqlite3
+
+create table _listing_ (_uuid_ text primary key, _zone_ text, _ordinal_ float, _announce_ text, _object_ text, _createdAt_ float);
+
+_zone_ takes the two values "section1" and "section2"

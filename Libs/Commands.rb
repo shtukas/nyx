@@ -202,11 +202,11 @@ class Commands
             puts JSON.pretty_generate(item)
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
             if ordinal == "" then
-                ordinal = Stratification::nextOrdinal()
+                ordinal = Listing::nextOrdinal()
             else
                 ordinal = ordinal.to_f
             end
-            Stratification::injectItemAtOrdinal(item, ordinal)
+            Listing::insert2("section2", item, ordinal)
             return
         end
 
@@ -327,7 +327,7 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             NxBallsService::close(item["uuid"], true)
-            Stratification::remove()
+            Listing::removeFirstEntry()
             return
         end
 
@@ -335,7 +335,7 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             NxBallsService::close(item["uuid"], true)
-            Stratification::rotate()
+            Listing::rotate()
             return
         end
 
@@ -440,20 +440,20 @@ class Commands
                     "lambda" => lambda { JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`) }
                 },
                 {
-                    "name" => "Anniversaries::itemsForListing()",
-                    "lambda" => lambda { Anniversaries::itemsForListing() }
+                    "name" => "Anniversaries::section2()",
+                    "lambda" => lambda { Anniversaries::section2() }
                 },
                 {
-                    "name" => "Waves::itemsForListing(true)",
-                    "lambda" => lambda { Waves::itemsForListing(true) }
+                    "name" => "Waves::itemsForSection2(true)",
+                    "lambda" => lambda { Waves::itemsForSection2(true) }
                 },
                 {
-                    "name" => "Waves::itemsForListing(false)",
-                    "lambda" => lambda { Waves::itemsForListing(false) }
+                    "name" => "Waves::itemsForSection2(false)",
+                    "lambda" => lambda { Waves::itemsForSection2(false) }
                 },
                 {
-                    "name" => "TxDateds::itemsForListing()",
-                    "lambda" => lambda { TxDateds::itemsForListing() }
+                    "name" => "TxDateds::section2()",
+                    "lambda" => lambda { TxDateds::section2() }
                 },
                 {
                     "name" => "NxFrames::items()",

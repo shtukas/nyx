@@ -43,7 +43,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
-                    Stratification::removeItemByUUID(item["uuid"])
+                    Listing::remove(item["uuid"])
                     EventsToAWSQueue::publish({
                       "uuid"       => SecureRandom.uuid,
                       "mikuType"   => "StratificationRemove",
@@ -56,7 +56,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' done ? ", true) then
                     Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
-                    Stratification::removeItemByUUID(item["uuid"])
+                    Listing::remove(item["uuid"])
                     EventsToAWSQueue::publish({
                       "uuid"       => SecureRandom.uuid,
                       "mikuType"   => "StratificationRemove",
@@ -71,7 +71,7 @@ class LxAction
         if command == ">nyx" then
             NxBallsService::close(item["uuid"], true)
             Transmutation::transmutation1(item, item["mikuType"], "NxDataNode")
-            Stratification::removeItemByUUID(item["uuid"])
+            Listing::remove(item["uuid"])
             return
         end
 
@@ -134,7 +134,7 @@ class LxAction
                  NxBallsService::close(item["uuid"], true)
             end
 
-            Stratification::removeItemByUUID(item["uuid"])
+            Listing::remove(item["uuid"])
             EventsToAWSQueue::publish({
               "uuid"       => SecureRandom.uuid,
               "mikuType"   => "StratificationRemove",
@@ -162,7 +162,7 @@ class LxAction
             if item["mikuType"] == "NxTask" then
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["stop and remove from strat", "destroy"])
                 if action == "remove from strat" then
-                    Stratification::removeItemByUUID(item["uuid"])
+                    Listing::remove(item["uuid"])
                 end
                 if action == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then

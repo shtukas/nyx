@@ -165,8 +165,8 @@ class Waves
         false
     end
 
-    # Waves::itemsForListing(isPriority)
-    def self.itemsForListing(isPriority)
+    # Waves::itemsForSection2(isPriority)
+    def self.itemsForSection2(isPriority)
         Waves::items()
             .select{|item| Waves::isPriority(item) == isPriority }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }

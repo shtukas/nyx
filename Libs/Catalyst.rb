@@ -1,18 +1,27 @@
 # encoding: UTF-8
 
-$CatalystItems = nil
-
 class Catalyst
 
     # Catalyst::primaryCommandProcess()
     def self.primaryCommandProcess()
         puts Commands::commands().yellow
-
         input = LucilleCore::askQuestionAnswerAsString("> ")
-
         command, objectOpt = Commands::run(input, nil)
         #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
         LxAction::action(command, objectOpt)
+    end
+
+    # Catalyst::getTopOrNull()
+    def self.getTopOrNull()
+        top = nil
+        content = IO.read("/Users/pascal/Desktop/top.txt").strip
+        if content.size > 0 then
+            text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
+            if text.size > 0 then
+                top = text
+            end
+        end
+        top
     end
 
     # Catalyst::section1()
@@ -25,15 +34,15 @@ class Catalyst
             .flatten
     end
 
-    # Catalyst::items()
-    def self.items()
+    # Catalyst::section2()
+    def self.section2()
         [
             JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`),
-            Anniversaries::itemsForListing(),
-            Waves::itemsForListing(true),
-            TxDateds::itemsForListing(),
-            TxProjects::itemsForMainListing(),
-            Waves::itemsForListing(false),
+            Anniversaries::section2(),
+            Waves::itemsForSection2(true),
+            TxDateds::section2(),
+            TxProjects::section2(),
+            Waves::itemsForSection2(false),
             Streaming::section2(),
             NxLines::section2()
         ]
@@ -68,7 +77,11 @@ class Catalyst
         Thread.new {
             loop {
                 sleep 300
-                $CatalystItems = Catalyst::items()
+                Catalyst::section2().each{|item|
+                    Listing::insertOrReInsert("section2", item)
+                }
+                Listing::ordinalsdrop()
+                Listing::publishAverageAgeInDays()
             }
         }
 
@@ -87,93 +100,29 @@ class Catalyst
                 LucilleCore::removeFileSystemLocation(location)
             }
 
-            Catalyst::program3()
+            top = Catalyst::getTopOrNull()
+
+            section1 = Listing::entries()
+                        .select{|entry| entry["_zone_"] == "section1" }
+                        .map{|entry| JSON.parse(entry["_object_"]) }
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+
+            running = Listing::entries()
+                        .map{|entry| JSON.parse(entry["_object_"]) }
+                        .select{|item| NxBallsService::isRunning(item["uuid"])}
+
+            section2 = Listing::entries()
+                        .select{|entry| entry["_zone_"] == "section2" }
+                        .map{|entry|  
+                            {
+                                "ordinal" => entry["_ordinal_"],
+                                "item"    => JSON.parse(entry["_object_"])
+                            }
+                        }
+                        .select{|st| DoNotShowUntil::isVisible(st["item"]["uuid"])}
+
+            Catalyst::printListing(top, section1, running, section2)
         }
-    end
-
-    # Catalyst::synchronouslyUpdateStratificationWithListing(listing)
-    def self.synchronouslyUpdateStratificationWithListing(listing)
-        return if listing.nil?
-
-        Stratification::ordinalsdrop()
-
-        stratification = Stratification::getStratificationFromDisk()
-        stratification = Stratification::reduce(listing, stratification)
-        Stratification::commitStratificationToDisk(stratification)
-
-        incoming = listing.select{|item| !stratification.map{|i| i["item"]["uuid"] }.include?(item["uuid"])}
-
-        incoming.each{|item|
-            system("clear")
-            puts "stratification:"
-            stratification
-                .each{|nxStratificationItem|
-                    item = nxStratificationItem["item"]
-                    puts "(ord: #{"%5.2f" % nxStratificationItem["ordinal"]}) #{LxFunction::function("toString", item)}"
-                }
-
-            puts ""
-            puts "incoming:"
-            command = LucilleCore::askQuestionAnswerAsString("#{LxFunction::function("toString", item).green} ; run, done, next (ordinal) #default, <ordinal>, +datecode : ")
-
-            if command == "" or command == "next" then
-                ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
-                Stratification::injectItemAtOrdinal(item, ordinal)
-                stratification = Stratification::getStratificationFromDisk()
-                next
-            end
-            if command == "run" then
-                LxAction::action("..", item)
-                next
-            end
-            if command == "done" then
-                LxAction::action("done-no-confirmation-prompt", item)
-                next
-            end
-
-            if command.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                NxBallsService::close(item["uuid"], true)
-                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                next
-            end
-
-            ordinal = command.to_f
-
-            Stratification::injectItemAtOrdinal(item, ordinal)
-        }
-
-    end
-
-    # Catalyst::getTopOrNull()
-    def self.getTopOrNull()
-        top = nil
-        content = IO.read("/Users/pascal/Desktop/top.txt").strip
-        if content.size > 0 then
-            text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
-            if text.size > 0 then
-                top = text
-            end
-        end
-        top
-    end
-
-    # Catalyst::program3()
-    def self.program3()
-
-        section1 = Catalyst::section1().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-
-        top = Catalyst::getTopOrNull()
-
-        Catalyst::synchronouslyUpdateStratificationWithListing($CatalystItems)
-
-        Stratification::publishAverageAgeInDays()
-
-        stratification = Stratification::getStratificationFromDisk()
-        stratification = Stratification::orderByOrdinal(stratification)
-        stratification = stratification.select{|item| item["DoNotDisplayUntilUnixtime"].nil? or (Time.new.to_f > item["DoNotDisplayUntilUnixtime"]) }
-
-        Catalyst::printListing(top, section1, [], stratification)
     end
 
     # Catalyst::printListing(top, section1, running, stratification)
@@ -246,10 +195,9 @@ class Catalyst
             puts "running:"
             vspaceleft = vspaceleft - 2
             stratification
-                .each{|nxStratificationItem|
-                    item = nxStratificationItem["item"]
+                .each{|item|
                     store.register(item, true)
-                    line = "(ord: #{"%5.2f" % nxStratificationItem["ordinal"]}) #{LxFunction::function("toString", item)}"
+                    line = "(ord: #{"%5.2f" % item["ordinal"]}) #{LxFunction::function("toString", item)}"
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
@@ -265,10 +213,10 @@ class Catalyst
             puts "section 2:"
             vspaceleft = vspaceleft - 2
             stratification
-                .each{|nxStratificationItem|
-                    item = nxStratificationItem["item"]
+                .each{|packet|
+                    item = packet["item"]
                     store.register(item, true)
-                    line = "(ord: #{"%5.2f" % nxStratificationItem["ordinal"]}) #{LxFunction::function("toString", item)}"
+                    line = "(ord: #{"%5.2f" % packet["ordinal"]}) #{LxFunction::function("toString", item)}"
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then

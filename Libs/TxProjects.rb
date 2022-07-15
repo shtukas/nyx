@@ -141,17 +141,17 @@ class TxProjects
         10
     end
 
-    # TxProjects::itemsForMainListing()
-    def self.itemsForMainListing()
+    # TxProjects::section2()
+    def self.section2()
         projects = Librarian::getObjectsByMikuType("TxProject")
                     .select{|project|
                         b1 = Ax39::itemShouldShow(project) 
                         if !b1 then
-                            Stratification::removeItemByUUID(project["uuid"])
+                            Listing::remove(project["uuid"])
                             TxProjects::elementuuids(project)
                                 .first(TxProjects::elementsDepth())
                                 .select{|elementuuid| !NxBallsService::isRunning(elementuuid) }
-                                .each{|elementuuid| Stratification::removeItemByUUID(elementuuid) }
+                                .each{|elementuuid| Listing::remove(elementuuid) }
                         end
                         b2 = TxProjects::elementuuids(project)
                                 .first(TxProjects::elementsDepth())
@@ -166,7 +166,7 @@ class TxProjects
                                             .map{|elementuuid| Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid) }
                                             .compact
                         if runningElements.size > 0 then
-                            Stratification::removeItemByUUID(project["uuid"])
+                            Listing::remove(project["uuid"])
                         end
                         runningElements
                     }

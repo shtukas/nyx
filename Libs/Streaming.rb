@@ -177,7 +177,7 @@ class Streaming
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         if rt >= 1 then
-            Stratification::removeItemByUUID(uuid)
+            Listing::remove(uuid)
             return []
         end
         [{

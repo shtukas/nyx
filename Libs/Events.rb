@@ -78,7 +78,7 @@ class EventsToAWSQueue
         end
         if event["mikuType"] == "StratificationRemove" then
             itemuuid = event["itemuuid"]
-            Stratification::removeItemByUUID(itemuuid)
+            Listing::remove(itemuuid)
             return
         end
         # If an event has not be catured, then we assume it's a database object 
@@ -112,12 +112,6 @@ class EventsInternal
 
         if event["mikuType"] == "(principal has been updated)" then
             XCache::destroy("78fe9aa9-99b2-4430-913b-1512880bf323:#{event["principaluuid"]}") # decaching queue size
-        end
-
-        if event["mikuType"] == "NxDoNotShowUntil" then
-            targetuuid = event["targetuuid"]
-            targetunixtime = event["targetunixtime"]
-            Stratification::applyDoNotDisplayUntilUnixtime(targetuuid, targetunixtime)
         end
     end
 end
