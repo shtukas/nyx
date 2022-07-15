@@ -82,6 +82,23 @@ class TxProjects
             .compact
     end
 
+    # TxProjects::elements2(project, n)
+    def self.elements2(project, n)
+        elementuuids = TxProjects::elementuuids(project)
+        elementuuids.reduce([]){|elems, elementuuid|
+            if elems.size >= n then
+                elems
+            else
+                element = Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid)
+                if element then
+                    elems + [element]
+                else
+                    elems
+                end
+            end
+        }
+    end
+
     # TxProjects::uuidIsProjectElement(uuid)
     def self.uuidIsProjectElement(uuid)
         TxProjects::items().any?{|project| TxProjects::elementuuids(project).include?(uuid) }
@@ -119,6 +136,11 @@ class TxProjects
         Librarian::getObjectsByMikuType("TxProject")
     end
 
+    # TxProjects::elementsDepth()
+    def self.elementsDepth()
+        10
+    end
+
     # TxProjects::itemsForMainListing()
     def self.itemsForMainListing()
         projects = Librarian::getObjectsByMikuType("TxProject")
@@ -127,15 +149,19 @@ class TxProjects
                         if !b1 then
                             Stratification::removeItemByUUID(project["uuid"])
                             TxProjects::elementuuids(project)
+                                .first(TxProjects::elementsDepth())
                                 .select{|elementuuid| !NxBallsService::isRunning(elementuuid) }
                                 .each{|elementuuid| Stratification::removeItemByUUID(elementuuid) }
                         end
-                        b2 = TxProjects::elementuuids(project).none?{|elementuuid| NxBallsService::isRunning(elementuuid) }
+                        b2 = TxProjects::elementuuids(project)
+                                .first(TxProjects::elementsDepth())
+                                .none?{|elementuuid| NxBallsService::isRunning(elementuuid) }
                         b1 and b2
                     }
         tasks = Librarian::getObjectsByMikuType("TxProject")
                     .map{|project|
                         runningElements = TxProjects::elementuuids(project)
+                                            .first(TxProjects::elementsDepth())
                                             .select{|elementuuid| NxBallsService::isRunning(elementuuid) }
                                             .map{|elementuuid| Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid) }
                                             .compact
@@ -162,7 +188,7 @@ class TxProjects
 
     # TxProjects::startAccessProject(project)
     def self.startAccessProject(project)
-        elements = TxProjects::elements(project)
+        elements = TxProjects::elements2(project, TxProjects::elementsDepth())
         if elements.size == 1 then
             LxAction::action("..", elements[0])
             return
@@ -171,5 +197,4 @@ class TxProjects
         return if element.nil?
         LxAction::action("..", element)
     end
-
 end

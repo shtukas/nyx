@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+$CatalystItems = nil
+
 class Catalyst
 
     # Catalyst::primaryCommandProcess()
@@ -40,8 +42,142 @@ class Catalyst
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
-    # Catalyst::printListing(section1, top, priority, stratification)
-    def self.printListing(section1, top, priority, stratification)
+    # Catalyst::program2()
+    def self.program2()
+
+        initialCodeTrace = CommonUtils::generalCodeTrace()
+ 
+        if Machines::isLucille20() then 
+            Thread.new {
+                loop {
+                    sleep 3600
+                    system("#{File.dirname(__FILE__)}/operations/vienna-import")
+                }
+            }
+        end
+
+        EventsToAWSQueue::sync(true)
+
+        Thread.new {
+            loop {
+                sleep 60
+                EventsToAWSQueue::sync(false)
+            }
+        }
+
+        Thread.new {
+            loop {
+                sleep 300
+                $CatalystItems = Catalyst::items()
+            }
+        }
+
+        loop {
+
+            #puts "(code trace)"
+            if CommonUtils::generalCodeTrace() != initialCodeTrace then
+                puts "Code change detected"
+                break
+            end
+
+            #puts "(NxTasks-Inbox)"
+            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/NxTasks-Inbox").each{|location|
+                item = NxTasks::issueFromInboxLocation(location)
+                puts JSON.pretty_generate(item)
+                LucilleCore::removeFileSystemLocation(location)
+            }
+
+            Catalyst::program3()
+        }
+    end
+
+    # Catalyst::synchronouslyUpdateStratificationWithListing(listing)
+    def self.synchronouslyUpdateStratificationWithListing(listing)
+        return if listing.nil?
+
+        Stratification::ordinalsdrop()
+
+        stratification = Stratification::getStratificationFromDisk()
+        stratification = Stratification::reduce(listing, stratification)
+        Stratification::commitStratificationToDisk(stratification)
+
+        incoming = listing.select{|item| !stratification.map{|i| i["item"]["uuid"] }.include?(item["uuid"])}
+
+        incoming.each{|item|
+            system("clear")
+            puts "stratification:"
+            stratification
+                .each{|nxStratificationItem|
+                    item = nxStratificationItem["item"]
+                    puts "(ord: #{"%5.2f" % nxStratificationItem["ordinal"]}) #{LxFunction::function("toString", item)}"
+                }
+
+            puts ""
+            puts "incoming:"
+            command = LucilleCore::askQuestionAnswerAsString("#{LxFunction::function("toString", item).green} ; run, done, next (ordinal) #default, <ordinal>, +datecode : ")
+
+            if command == "" or command == "next" then
+                ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
+                Stratification::injectItemAtOrdinal(item, ordinal)
+                stratification = Stratification::getStratificationFromDisk()
+                next
+            end
+            if command == "run" then
+                LxAction::action("..", item)
+                next
+            end
+            if command == "done" then
+                LxAction::action("done-no-confirmation-prompt", item)
+                next
+            end
+
+            if command.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
+                NxBallsService::close(item["uuid"], true)
+                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                next
+            end
+
+            ordinal = command.to_f
+
+            Stratification::injectItemAtOrdinal(item, ordinal)
+        }
+
+    end
+
+    # Catalyst::getTopOrNull()
+    def self.getTopOrNull()
+        top = nil
+        content = IO.read("/Users/pascal/Desktop/top.txt").strip
+        if content.size > 0 then
+            text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
+            if text.size > 0 then
+                top = text
+            end
+        end
+        top
+    end
+
+    # Catalyst::program3()
+    def self.program3()
+
+        section1 = Catalyst::section1().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+
+        top = Catalyst::getTopOrNull()
+
+        Catalyst::synchronouslyUpdateStratificationWithListing($CatalystItems)
+
+        Stratification::publishAverageAgeInDays()
+
+        stratification = Stratification::getStratificationFromDisk()
+        stratification = Stratification::orderByOrdinal(stratification)
+        stratification = stratification.select{|item| item["DoNotDisplayUntilUnixtime"].nil? or (Time.new.to_f > item["DoNotDisplayUntilUnixtime"]) }
+
+        Catalyst::printListing(top, section1, [], stratification)
+    end
+
+    # Catalyst::printListing(top, section1, running, stratification)
+    def self.printListing(top, section1, running, stratification)
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -67,22 +203,7 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
-        if section1.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            section1
-                .each{|item|
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
-        uuids = (section1 + priority + stratification.map{|nx| nx["item"] }).map{|item| item["uuid"] }
+        uuids = (section1 + stratification.map{|nx| nx["item"] }).map{|item| item["uuid"] }
         running = NxBallsIO::getItems().select{|nxball| !uuids.include?(nxball["uuid"]) }
         if running.size > 0 then
             puts ""
@@ -104,14 +225,31 @@ class Catalyst
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 2)
         end
 
-        if priority.size > 0 then
+        if section1.size > 0 then
             puts ""
-            puts "priority:"
-            vspaceleft = vspaceleft - 2
-            priority
+            puts "section 1:"
+            vspaceleft = vspaceleft - 1
+            section1
                 .each{|item|
                     store.register(item, false)
-                    line = LxFunction::function("toString", item)
+                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+        if running.size > 0 then
+            puts ""
+            puts "running:"
+            vspaceleft = vspaceleft - 2
+            stratification
+                .each{|nxStratificationItem|
+                    item = nxStratificationItem["item"]
+                    store.register(item, true)
+                    line = "(ord: #{"%5.2f" % nxStratificationItem["ordinal"]}) #{LxFunction::function("toString", item)}"
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
@@ -124,7 +262,7 @@ class Catalyst
 
         if stratification.size > 0 then
             puts ""
-            puts "stratification:"
+            puts "section 2:"
             vspaceleft = vspaceleft - 2
             stratification
                 .each{|nxStratificationItem|
@@ -155,144 +293,5 @@ class Catalyst
         end
 
         Commands::run(input, store)
-    end
-
-    # Catalyst::program3()
-    def self.program3()
-
-        section1 = Catalyst::section1().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-
-        listing = Catalyst::items()
-
-        priorityMikuTypes = ["fitness1"]
-
-        priority, listing = listing.partition{|item| priorityMikuTypes.include?(item["mikuType"]) }
-
-        top = nil
-        content = IO.read("/Users/pascal/Desktop/top.txt").strip
-        if content.size > 0 then
-            text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
-            if text.size > 0 then
-                top = text
-            end
-        end
-
-        # --------------------------------------
-
-        stratification = Stratification::getStratificationFromDisk()
-        stratification = Stratification::reduce(listing, stratification)
-        stratification = Stratification::orderByOrdinal(stratification)
-        Stratification::commitStratificationToDisk(stratification)
-
-        incoming = listing.select{|item| !stratification.map{|i| i["item"]["uuid"] }.include?(item["uuid"])}
-
-        if incoming.size > 0 then
-            system("clear")
-            puts "stratification:"
-            stratification
-                .each{|nxStratificationItem|
-                    item = nxStratificationItem["item"]
-                    puts "(ord: #{"%5.2f" % nxStratificationItem["ordinal"]}) #{LxFunction::function("toString", item)}"
-                }
-
-            item = incoming.first
-
-            if item["mikuType"] == "NxFrame" then
-                # Automatically done for the day
-                DoneToday::setDoneToday(item["uuid"])
-                return
-            end
-
-            puts ""
-            puts "incoming:"
-            command = LucilleCore::askQuestionAnswerAsString("#{LxFunction::function("toString", item).green} ; run, done, next (ordinal) #default, <ordinal>, +datecode : ")
-
-            ordinal = nil
-
-            if command == "" then
-                ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
-            end
-            if command == "run" then
-                LxAction::action("..", item)
-                return
-            end
-            if command == "done" then
-                LxAction::action("done-no-confirmation-prompt", item)
-                return
-            end
-
-            if command.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(command.gsub(" ", ""))) then
-                NxBallsService::close(item["uuid"], true)
-                puts "DoNotShowUntil: #{Time.at(unixtime).to_s}"
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return
-            end
-
-            if command == "next" then
-                ordinal = ([0] + stratification.map{|nx| nx["ordinal"]}).max + 1
-            end
-
-            if ordinal.nil? then
-                ordinal = command.to_f
-            end
-
-            Stratification::injectItemAtOrdinal(item, ordinal)
-            return
-        end
-
-        # --------------------------------------------------------------------------------------------
-
-        Stratification::publishAverageAgeInDays()
-
-        #puts "(Catalyst::printListing)"
-        stratification = Stratification::getStratificationFromDisk()
-                            .select{|item|
-                                item["DoNotDisplayUntilUnixtime"].nil? or (Time.new.to_f > item["DoNotDisplayUntilUnixtime"])
-                            }
-        Catalyst::printListing(section1, top, priority, stratification)
-    end
-
-    # Catalyst::program2()
-    def self.program2()
-
-        initialCodeTrace = CommonUtils::generalCodeTrace()
- 
-        if Machines::isLucille20() then 
-            Thread.new {
-                loop {
-                    sleep 3600
-                    system("#{File.dirname(__FILE__)}/operations/vienna-import")
-                }
-            }
-        end
-
-        EventsToAWSQueue::sync(true)
-
-        Thread.new {
-            loop {
-                sleep 60
-                EventsToAWSQueue::sync(false)
-            }
-        }
-
-        loop {
-
-            #puts "(code trace)"
-            if CommonUtils::generalCodeTrace() != initialCodeTrace then
-                puts "Code change detected"
-                break
-            end
-
-            #puts "(NxTasks-Inbox)"
-            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/NxTasks-Inbox").each{|location|
-                item = NxTasks::issueFromInboxLocation(location)
-                puts JSON.pretty_generate(item)
-                LucilleCore::removeFileSystemLocation(location)
-            }
-
-            Stratification::ordinalsdrop()
-
-            Catalyst::program3()
-        }
     end
 end
