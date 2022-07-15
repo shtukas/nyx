@@ -39,7 +39,7 @@ class Nx111
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = EnergyGridUniqueBlobs::putBlob(text)
+            nhash = DatablobsXCache::putBlob(text) # We do not have the objectuuid, so let's put that in Xcache and we will pick it put during fsck
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",

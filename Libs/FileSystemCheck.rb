@@ -72,9 +72,9 @@ class FileSystemCheck
         end
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            blob = EnergyGridUniqueBlobs::getBlobOrNull(nhash)
+            blob = Fx18s::getBlobOrNull(object["uuid"], nhash, false)
             if blob.nil? then
-                puts "EnergyGridUniqueBlobs::getBlobOrNull(nhash): could not find the text data".red
+                puts "Fx18s::getBlobOrNull: could not find the text data".red
                 puts JSON.pretty_generate(object).red
                 exit 1
             end
@@ -158,7 +158,7 @@ class FileSystemCheck
         if item["mikuType"] == "Ax1Text" then
             blob = Fx18s::getBlobOrNull(item["uuid"], item["nhash"], false)
             if blob.nil? then
-                puts "EnergyGridUniqueBlobs::getBlobOrNull(nhash): blob not found".red
+                puts "Fx18s::getBlobOrNull(nhash): blob not found".red
                 puts JSON.pretty_generate(item).red
                 exit 1
             end

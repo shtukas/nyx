@@ -1,44 +1,4 @@
 
-class EnergyGridUniqueBlobs
-
-    # EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
-    def self.decideFilepathForUniqueBlob(nhash)
-        filepath1 = "#{Config::pathToDataBankStargate()}/Data/#{nhash[7, 2]}/#{nhash}.data"
-        folderpath1 = File.dirname(filepath1)
-        if !File.exists?(folderpath1) then
-            FileUtils.mkdir(folderpath1)
-        end
-        filepath1
-    end
-
-    # EnergyGridUniqueBlobs::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
-        File.open(filepath1, "w"){|f| f.write(blob) }
-        nhash
-    end
-
-    # EnergyGridUniqueBlobs::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        filepath1 = EnergyGridUniqueBlobs::decideFilepathForUniqueBlob(nhash)
-        #puts filepath1.green
-        if File.exists?(filepath1) then
-            return IO.read(filepath1)
-        end
-
-        StargateCentral::askForInfinityAndFailIfNot()
-
-        filepath1 = filepath1.gsub("#{Config::pathToDataBankStargate()}/Data", "#{StargateCentral::pathToCentral()}/Data")
-        #puts filepath1.green
-        if File.exists?(filepath1) then
-            return IO.read(filepath1)
-        end
-
-        nil
-    end
-end
-
 class Fx18s
 
     # --------------------------------------------------------------
@@ -184,6 +144,8 @@ class Fx18s
 
     # Fx18s::putBlob1(eventuuid, eventTime, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
     def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob, shouldDownloadFileIfFoundOnRemoteDrive)
+        Fx18s::ensureFile(objectuuid)
+
         filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -205,18 +167,32 @@ class Fx18s
         nhash
     end
 
-    # Fx18s::getBlobOrNull(objectuuid, key, shouldDownloadFileIfFoundOnRemoteDrive)
-    def self.getBlobOrNull(objectuuid, key, shouldDownloadFileIfFoundOnRemoteDrive)
+    # Fx18s::getBlobOrNull(objectuuid, nhash, shouldDownloadFileIfFoundOnRemoteDrive)
+    def self.getBlobOrNull(objectuuid, nhash, shouldDownloadFileIfFoundOnRemoteDrive)
+        Fx18s::ensureFile(objectuuid)
+
         filepath = Fx18s::acquireFilepathOrError(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        data = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", key]) do |row|
-            data = row["_eventData3_"]
+        blob = nil
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+            blob = row["_eventData3_"]
         end
         db.close
-        data
+        return blob if blob
+
+        # This look up is important and can happens during the first fsck of an object
+        # When we create some nx111, we do not provide the objectuuid, so the blobs 
+        # are put into the local Xcache waiting to be picked up by the fsck
+        puts "Looking up blob #{nhash} in XCache"
+        blob = DatablobsXCache::getBlobOrNull(nhash)
+        if blob then
+            Fx18s::putBlob3(objectuuid, blob, false)
+            return blob
+        end
+
+        nil
     end
 end

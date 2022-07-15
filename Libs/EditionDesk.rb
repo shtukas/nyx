@@ -104,7 +104,7 @@ class EditionDesk
             end
             location = "#{location}.txt"
             nhash = nx111["nhash"]
-            text = EnergyGridUniqueBlobs::getBlobOrNull(nhash)
+            text = Fx18s::getBlobOrNull(item["uuid"], nhash, false)
             File.open(location, "w"){|f| f.puts(text) }
             return location
         end
@@ -235,7 +235,7 @@ class EditionDesk
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = EnergyGridUniqueBlobs::putBlob(text)
+            nhash = Fx18s::putBlob3(item["uuid"], text, false) # we should probably compute the nhash without actually commiting the blob to the file
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             item["nx111"] = nx111
