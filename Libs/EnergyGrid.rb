@@ -1,20 +1,5 @@
 # encoding: UTF-8
 
-class DatablobsXCache
-
-    # DatablobsXCache::putBlob(blob)
-    def self.putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        XCache::set(nhash, blob)
-        nhash
-    end
-
-    # DatablobsXCache::getBlobOrNull(nhash)
-    def self.getBlobOrNull(nhash)
-        XCache::getOrNull(nhash)
-    end
-end
-
 # -----------------------------------------------------------
 
 class EnergyGridImmutableDataIsland
@@ -79,13 +64,14 @@ end
 
 class EnergyGridImmutableDataIslandElizabeth
 
-    def initialize(databaseFilepath)
+    def initialize(objectuuid, databaseFilepath)
+        @objectuuid = objectuuid
         @databaseFilepath = databaseFilepath
         @island = EnergyGridImmutableDataIsland.new(databaseFilepath)
     end
 
     def putBlob(blob)
-        @island.putBlob(blob)
+        Fx18s::putBlob3(@objectuuid, blob, false)
     end
 
     def filepathToContentHash(filepath)
@@ -93,7 +79,18 @@ class EnergyGridImmutableDataIslandElizabeth
     end
 
     def getBlobOrNull(nhash)
-        @island.getBlobOrNull(nhash)
+        blob = Fx18s::getBlobOrNull(@objectuuid, nhash, false)
+        return blob if blob
+
+        puts "EnergyGridImmutableDataIslandElizabeth: looking into the island for #{nhash}".green
+        blob = @island.getBlobOrNull(nhash)
+
+        if blob then
+            Fx18s::putBlob3(@objectuuid, blob, false)
+            return blob
+        end
+
+        nil
     end
 
     def readBlobErrorIfNotFound(nhash)
@@ -181,27 +178,27 @@ class EnergyGridImmutableDataIslandsOperator
         end
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getElizabethWithTemporaryIsland()
-    def self.getElizabethWithTemporaryIsland()
-        EnergyGridImmutableDataIslandElizabeth.new("/tmp/#{SecureRandom.uuid}")
+    # EnergyGridImmutableDataIslandsOperator::getElizabethWithTemporaryIsland(objectuuid)
+    def self.getElizabethWithTemporaryIsland(objectuuid)
+        EnergyGridImmutableDataIslandElizabeth.new(objectuuid, "/tmp/#{SecureRandom.uuid}")
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(nhash, shouldDownloadFromCentralIfMissingOnLocal)
-    def self.getElizabethForExistingIslandForNhashOrNull(nhash, shouldDownloadFromCentralIfMissingOnLocal)
+    # EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(objectuuid, nhash, shouldDownloadFromCentralIfMissingOnLocal)
+    def self.getElizabethForExistingIslandForNhashOrNull(objectuuid, nhash, shouldDownloadFromCentralIfMissingOnLocal)
         filepath = EnergyGridImmutableDataIslandsOperator::forExistingIslandLocateIslandFilepathForNhashOrError(nhash, shouldDownloadFromCentralIfMissingOnLocal)
         return nil if !File.exists?(filepath)
-        EnergyGridImmutableDataIslandElizabeth.new(filepath)
+        EnergyGridImmutableDataIslandElizabeth.new(objectuuid, filepath)
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath)
-    def self.getElizabethForFilepath(filepath)
-        EnergyGridImmutableDataIslandElizabeth.new(filepath)
+    # EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(objectuuid, filepath)
+    def self.getElizabethForFilepath(objectuuid, filepath)
+        EnergyGridImmutableDataIslandElizabeth.new(objectuuid, filepath)
     end
 
-    # EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, shouldDownloadFromCentralIfMissingOnLocal)
-    def self.getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, shouldDownloadFromCentralIfMissingOnLocal)
+    # EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(objectuuid, parts, shouldDownloadFromCentralIfMissingOnLocal)
+    def self.getExistingIslandElizabethForPrimitiveFilePartsOrNull(objectuuid, parts, shouldDownloadFromCentralIfMissingOnLocal)
         filepath = PrimitiveFiles::locateFilepathForExistingPrimitiveFileDataIsland(parts, shouldDownloadFromCentralIfMissingOnLocal)
         return nil if !File.exists?(filepath)
-        EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath)
+        EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(objectuuid, filepath)
     end
 end

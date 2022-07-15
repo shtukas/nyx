@@ -122,7 +122,7 @@ class EditionDesk
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             
-            operator = EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, true)
+            operator = EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(item["uuid"], parts, true)
             if operator.nil? then
                 puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
                 puts "... probably because I could not find the island."
@@ -141,7 +141,7 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(rootnhash, true)
+            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(item["uuid"], rootnhash, true)
             if operator.nil? then
                 puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
                 puts "... probably because I could not find the island."
@@ -250,7 +250,7 @@ class EditionDesk
             # Let's compute the hash of the file and see if something has changed
             filehash = CommonUtils::filepathToContentHash(location)
             return if nx111["nhash"] == filehash
-            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location) # [dottedExtension, nhash, parts]
+            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(item["uuid"], location) # [dottedExtension, nhash, parts]
             raise "(error: 79A50CC2-CDA1-4BCA-B11E-F7AC1A54E0F3)" if data.nil?
             dottedExtension, nhash, parts = data
             return if nhash == nx111["nhash"]
@@ -262,7 +262,7 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(nx111["rootnhash"], true)
+            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(item["uuid"], nx111["rootnhash"], true)
             if operator.nil? then
                 puts "I could not make an Elizabeth for this item `#{LxFunction::function("toString", item)}`"
                 puts "... probably because I could not find the island."

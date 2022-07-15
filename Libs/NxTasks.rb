@@ -20,13 +20,15 @@ class NxTasks
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+        uuid = SecureRandom.uuid
+
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
 
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxTask",
             "description" => description,
@@ -42,7 +44,7 @@ class NxTasks
     def self.issueFromInboxLocation(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        nx111 = Nx111::locationToAionPointNx111OrNull(location)
+        nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         item = {

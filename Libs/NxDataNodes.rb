@@ -25,13 +25,15 @@ class NxDataNodes
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+        uuid = SecureRandom.uuid
+
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
 
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,
@@ -46,11 +48,12 @@ class NxDataNodes
     # NxDataNodes::issueNewItemAionPointFromLocation(location)
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
-        nx111 = Nx111::locationToAionPointNx111OrNull(location)
+        uuid = SecureRandom.uuid
+        nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,
@@ -66,7 +69,9 @@ class NxDataNodes
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
 
-        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(location)
+        uuid = SecureRandom.uuid
+
+        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
 
         flavour = {
             "type" => "pure-data"
@@ -76,7 +81,7 @@ class NxDataNodes
         datetime   = Time.new.utc.iso8601
 
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxDataNode",
             "unixtime"    => unixtime,

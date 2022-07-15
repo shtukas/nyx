@@ -222,7 +222,7 @@ class Landing
             end
 
             if Interpreting::match("nx111", command) then
-                nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+                nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
                 next if nx111.nil?
                 item["nx111"] = nx111
                 Librarian::commit(item)
@@ -345,7 +345,7 @@ class Landing
             if Interpreting::match("update", command) then
                 location = CommonUtils::interactivelySelectDesktopLocationOrNull()
                 next if location.nil?
-                data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location) # [dottedExtension, nhash, parts]
+                data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(item["uuid"], location) # [dottedExtension, nhash, parts]
                 next if data.nil?
                 item["dottedExtension"] = dottedExtension
                 item["nhash"] = nhash

@@ -183,16 +183,46 @@ class Fx18s
         db.close
         return blob if blob
 
-        # This look up is important and can happens during the first fsck of an object
-        # When we create some nx111, we do not provide the objectuuid, so the blobs 
-        # are put into the local Xcache waiting to be picked up by the fsck
-        puts "Looking up blob #{nhash} in XCache"
-        blob = DatablobsXCache::getBlobOrNull(nhash)
-        if blob then
-            Fx18s::putBlob3(objectuuid, blob, false)
-            return blob
-        end
-
         nil
+    end
+end
+
+class Fx18Elizabeth
+
+    def initialize(objectuuid, shouldDownloadFileIfFoundOnRemoteDrive)
+        @objectuuid = dobjectuuid
+        @shouldDownloadFileIfFoundOnRemoteDrive = shouldDownloadFileIfFoundOnRemoteDrive
+    end
+
+    def putBlob(blob)
+        Fx18s::putBlob3(@objectuuid, blob, @shouldDownloadFileIfFoundOnRemoteDrive)
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        Fx18s::getBlobOrNull(@objectuuid, nhash, @shouldDownloadFileIfFoundOnRemoteDrive)
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "EnergyGridImmutableDataIslandElizabeth: (error: 18e9ac55-934b-4153-8cde-a93a6504d237) could not find blob, nhash: #{nhash}"
+        raise "(error: 744f2b80-2c30-497f-ae5e-b6fc26799cbd, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 466a0cab-a836-4643-a66a-b9e38aae1c1f) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
     end
 end

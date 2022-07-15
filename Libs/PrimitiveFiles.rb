@@ -44,8 +44,8 @@ class PrimitiveFiles
         end
     end
 
-    # PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(filepath)
-    def self.nhashcommitFileReturnPartsHashsImproved_v2(filepath)
+    # PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(objectuuid, filepath)
+    def self.nhashcommitFileReturnPartsHashsImproved_v2(objectuuid, filepath)
         raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
         raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
 
@@ -55,7 +55,7 @@ class PrimitiveFiles
         nhash = CommonUtils::filepathToContentHash(filepath)
 
         filepath1 = "/tmp/#{SecureRandom.uuid}"
-        elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(filepath1)
+        elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethForFilepath(objectuuid, filepath1)
 
         parts = []
         partSizeInBytes = 1024*1024 # 1 MegaBytes
@@ -72,18 +72,18 @@ class PrimitiveFiles
         [nhash, parts]
     end
 
-    # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(filepath) # [dottedExtension, nhash, parts]
-    def self.locationToPrimitiveFileDataArrayOrNull(filepath)
+    # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath) # [dottedExtension, nhash, parts]
+    def self.locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath)
         return nil if !File.exists?(filepath)
         return nil if !File.file?(filepath)
         dottedExtension = File.extname(filepath)
-        nhash, parts = PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(filepath)
+        nhash, parts = PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(objectuuid, filepath)
         [dottedExtension, nhash, parts]
     end
 
-    # PrimitiveFiles::locationToPrimitiveFileNx111OrNull(location) # Nx111
-    def self.locationToPrimitiveFileNx111OrNull(location)
-        data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location)
+    # PrimitiveFiles::locationToPrimitiveFileNx111OrNull(objectuuid, location) # Nx111
+    def self.locationToPrimitiveFileNx111OrNull(objectuuid, location)
+        data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, location)
         return nil if data.nil?
         dottedExtension, nhash, parts = data
         {

@@ -24,13 +24,15 @@ class NxEvents
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+        uuid = SecureRandom.uuid
+
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
 
         unixtime   = Time.new.to_i
         datetime   = CommonUtils::interactiveDateTimeBuilder()
 
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "NxEvent",
             "unixtime"    => unixtime,

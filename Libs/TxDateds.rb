@@ -25,12 +25,12 @@ class TxDateds
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
 
         unixtime   = Time.new.to_i
 
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "TxDated",
             "description" => description,
@@ -49,13 +49,13 @@ class TxDateds
 
         uuid = SecureRandom.uuid
 
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
 
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
         item = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "TxDated",
             "description" => description,

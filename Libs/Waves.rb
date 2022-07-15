@@ -128,10 +128,12 @@ class Waves
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
 
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull()
+        uuid = SecureRandom.uuid
+
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
 
         catalyst = {
-            "uuid"        => SecureRandom.uuid,
+            "uuid"        => uuid,
             "variant"     => SecureRandom.uuid,
             "mikuType"    => "Wave",
             "unixtime"    => Time.new.to_f,

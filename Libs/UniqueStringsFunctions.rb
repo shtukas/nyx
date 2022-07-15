@@ -50,7 +50,7 @@ class UniqueStringsFunctions
             nx111 = item["nx111"]
             if nx111["type"] == "aion-point" then
                 rootnhash = nx111["rootnhash"]
-                operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(rootnhash, false)
+                operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(item["uuid"], rootnhash, false)
                 if operator.nil? then
                     puts "I could not make an Elizabeth for this item... probably because I could not find the island, but I am not going to raise an error"
                     next

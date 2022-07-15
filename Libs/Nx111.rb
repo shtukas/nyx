@@ -20,10 +20,10 @@ class Nx111
         LucilleCore::selectEntityFromListOfEntitiesOrNull("nx111 type", types)
     end
 
-    # Nx111::locationToAionPointNx111OrNull(location)
-    def self.locationToAionPointNx111OrNull(location)
+    # Nx111::locationToAionPointNx111OrNull(objectuuid, location)
+    def self.locationToAionPointNx111OrNull(objectuuid, location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethWithTemporaryIsland()
+        elizabeth = EnergyGridImmutableDataIslandsOperator::getElizabethWithTemporaryIsland(objectuuid)
         rootnhash = AionCore::commitLocationReturnHash(elizabeth, location)
         elizabeth.recastToNhash(rootnhash)
         {
@@ -33,13 +33,13 @@ class Nx111
         }
     end
 
-    # Nx111::interactivelyCreateNewNx111OrNull()
-    def self.interactivelyCreateNewNx111OrNull()
+    # Nx111::interactivelyCreateNewNx111OrNull(objectuuid)
+    def self.interactivelyCreateNewNx111OrNull(objectuuid)
         type = Nx111::interactivelySelectIamTypeOrNull(Nx111::types())
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = DatablobsXCache::putBlob(text) # We do not have the objectuuid, so let's put that in Xcache and we will pick it put during fsck
+            nhash = Fx18s::putBlob3(objectuuid, text, false)
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",
@@ -58,7 +58,7 @@ class Nx111
         if type == "file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(location) # [dottedExtension, nhash, parts]
+            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, location) # [dottedExtension, nhash, parts]
             raise "(error: a3339b50-e3df-4e5d-912d-a6b23aeb5c33)" if data.nil?
             dottedExtension, nhash, parts = data
             return {
@@ -72,7 +72,7 @@ class Nx111
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx111::locationToAionPointNx111OrNull(location)
+            return Nx111::locationToAionPointNx111OrNull(objectuuid, location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")

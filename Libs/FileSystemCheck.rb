@@ -93,7 +93,7 @@ class FileSystemCheck
                 puts "primitive parts, dotted extension is malformed".red
                 exit 1
             end
-            operator = EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(parts, false)
+            operator = EnergyGridImmutableDataIslandsOperator::getExistingIslandElizabethForPrimitiveFilePartsOrNull(object["uuid"], parts, false)
             if operator.nil? then
                 puts "I could not make an Elizabeth for this item"
                 puts "... probably because I could not find the island."
@@ -112,7 +112,7 @@ class FileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(rootnhash, false)
+            operator = EnergyGridImmutableDataIslandsOperator::getElizabethForExistingIslandForNhashOrNull(object["uuid"], rootnhash, false)
             if operator.nil? then
                 puts "I could not make an Elizabeth for this item"
                 puts "... probably because I could not find the island."
@@ -248,7 +248,7 @@ class FileSystemCheck
         end
 
         Librarian::objects().each{|item|
-            exit if !File.exists?("/Users/pascal/Desktop/Pascal.png")
+            FileSystemCheck::exitIfMissingCanary()
             next if XCache::getFlag("#{runHash}:#{JSON.generate(item)}")
             begin
                 FileSystemCheck::fsckLibrarianMikuObjectExitAtFirstFailure(item, true)
