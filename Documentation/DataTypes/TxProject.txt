@@ -7,3 +7,5 @@ TxProject {
     "description" : description
     "ax39"        : Ax39
 }
+
+In Fx18, the uuids of the elements under that project are in set "project-items-3f154988".
