@@ -114,9 +114,9 @@ class Landing
             end
 
             if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner()
-                NxLink::issue(item["uuid"], ox["uuid"])
-                puts JSON.pretty_generate(ox)
+                uuid2 = Ax1Text::interactivelyIssueNewOrNullForOwner()
+                NxLink::issue(item["uuid"], uuid2)
+                # puts JSON.pretty_generate(ox) # TODO:
                 next
             end
 
@@ -234,9 +234,9 @@ class Landing
             end
 
             if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner()
-                NxLink::issue(item["uuid"], ox["uuid"])
-                puts JSON.pretty_generate(ox)
+                uuid2 = Ax1Text::interactivelyIssueNewOrNullForOwner()
+                NxLink::issue(item["uuid"], uuid2)
+                # puts JSON.pretty_generate(ox) # TODO:
                 next
             end
 
@@ -331,9 +331,9 @@ class Landing
             end
 
             if Interpreting::match("note", command) then
-                ox = Ax1Text::interactivelyIssueNewOrNullForOwner()
-                NxLink::issue(item["uuid"], ox["uuid"])
-                puts JSON.pretty_generate(ox)
+                uuid2 = Ax1Text::interactivelyIssueNewOrNullForOwner()
+                NxLink::issue(item["uuid"], uuid2)
+                # puts JSON.pretty_generate(ox) # TODO:
                 next
             end
 

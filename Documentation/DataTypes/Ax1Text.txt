@@ -8,12 +8,3 @@ attributes:
     "mikuType"    : "Ax1Text"
     "unixtime"    : Float
     "nhash"       : nhash of the blob of text
-
-{
-    "uuid"        : String
-    "variant"     : String # Primary Key
-    "mikuType"    : "Ax1Text"
-    "unixtime"    : Float
-    "nhash"       : nhash of the blob of text
-                    # Managed by EnergyGridUniqueBlobs (.data)
-}

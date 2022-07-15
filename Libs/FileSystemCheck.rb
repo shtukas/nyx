@@ -155,15 +155,16 @@ class FileSystemCheck
             raise "(error: d24aa0a4-4a42-40aa-81ca-6ead2d3f7fee) item has no mikuType, #{JSON.pretty_generate(item)}" 
         end
 
-        if item["mikuType"] == "Ax1Text" then
-            blob = Fx18s::getBlobOrNull(item["uuid"], item["nhash"])
-            if blob.nil? then
-                puts "Fx18s::getBlobOrNull: blob not found".red
-                puts JSON.pretty_generate(item).red
-                exit 1
-            end
-            return
-        end
+        # TODO:
+        #if item["mikuType"] == "Ax1Text" then
+        #    blob = Fx18s::getBlobOrNull(item["uuid"], item["nhash"])
+        #    if blob.nil? then
+        #        puts "Fx18s::getBlobOrNull: blob not found".red
+        #        puts JSON.pretty_generate(item).red
+        #        exit 1
+        #    end
+        #    return
+        #end
 
         if item["mikuType"] == "NxAnniversary" then
             return

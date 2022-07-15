@@ -22,9 +22,9 @@ class LxFunction
             if item["mikuType"] == "fitness1" then
                 return item["announce"]
             end
-            if item["mikuType"] == "Ax1Text" then
-                return Ax1Text::toString(item)
-            end
+            #if item["mikuType"] == "Ax1Text" then
+            #    return Ax1Text::toString(item["uuid"])
+            #end
             if item["mikuType"] == "NxAnniversary" then
                 return Anniversaries::toString(item)
             end

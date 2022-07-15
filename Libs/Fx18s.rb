@@ -185,6 +185,11 @@ class Fx18s
 
         nil
     end
+
+    # Fx18s::destroy(objectuuid)
+    def self.destroy(objectuuid)
+
+    end
 end
 
 class Fx18Elizabeth

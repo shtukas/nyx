@@ -86,7 +86,7 @@ class EnergyGridImmutableDataIslandElizabeth
         blob = @island.getBlobOrNull(nhash)
 
         if blob then
-            Fx18s::putBlob3(@objectuuid, blob)
+            #x18s::putBlob3(@objectuuid, blob)
             return blob
         end
 
