@@ -1,8 +1,6 @@
-NxPerson {
+NxPerson:
     "uuid"        : uuid
-    "variant"     : String # Primary Key
     "mikuType"    : "NxPerson"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "name"        : String
-}

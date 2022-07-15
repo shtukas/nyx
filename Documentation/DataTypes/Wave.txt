@@ -1,14 +1,12 @@
 
-Wave {
+Wave:
     "uuid"        : uuid
-    "variant"     : String # Primary Key
     "mikuType"    : "Wave"
     "unixtime"    : unixtime
     "description" : description
     "nx46"        : Nx46 # Wave pattern
     "nx111"       : null or Nx111 # standard payload
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
-}
 
 Nx46 {
     "type"  :

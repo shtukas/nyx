@@ -1,57 +1,6 @@
 
 # encoding: UTF-8
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
-
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
-=begin
-
-The operator is an object that has meet the following signatures
-
-    .putBlob(blob: BinaryData) : Hash
-    .filepathToContentHash(filepath) : Hash
-    .readBlobErrorIfNotFound(nhash: Hash) : BinaryData
-    .datablobCheck(nhash: Hash): Boolean
-
-class Elizabeth
-
-    def initialize()
-
-    end
-
-    def putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        XCache::set("SHA256-#{Digest::SHA256.hexdigest(blob)}", blob)
-        nhash
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = XCache::getOrNull(nhash)
-        raise "[Elizabeth error: fc1dd1aa]" if blob.nil?
-        blob
-    end
-
-    def datablobCheck(nhash)
-        begin
-            readBlobErrorIfNotFound(nhash)
-            true
-        rescue
-            false
-        end
-    end
-end
-
-AionCore::commitLocationReturnHash(operator, location)
-AionCore::exportHashAtFolder(operator, nhash, targetReconstructionFolderpath)
-
-AionFsck::structureCheckAionHash(operator, nhash)
-
-=end
-
 class FileSystemCheck
 
     # FileSystemCheck::exitIfMissingCanary()
@@ -220,6 +169,118 @@ class FileSystemCheck
 
         puts JSON.pretty_generate(item).red
         raise "(error: a10f607b-4bc5-4ed2-ac31-dfd72c0108fc) unsupported mikuType: #{item["mikuType"]}"
+    end
+
+    # FileSystemCheck::fsckFx18FilepathExitAtFirstFailure(filepath)
+    def self.fsckFx18FilepathExitAtFirstFailure(filepath)
+        puts "FileSystemCheck, Fx18, filepath: #{filepath}"
+        uuid = Fx18s::getAttributeOrNull2(filepath, "uuid")
+        if uuid.nil? then
+            puts "filepath: #{filepath}".red
+            puts "Malformed Fx18 file, I could not find a uuid".red
+            exit 1
+        end
+        mikuType = Fx18s::getAttributeOrNull2(filepath, "mikuType")
+        if mikuType.nil? then
+            puts "filepath: #{filepath}".red
+            puts "Malformed Fx18 file, I could not find a mikuType".red
+            exit 1
+        end
+
+        ensureAttribute = lambda {|filepath, attname|
+            attvalue = Fx18s::getAttributeOrNull2(filepath, attname)
+            if attvalue.nil? then
+                puts "filepath: #{filepath}".red
+                puts "Malformed fx18 file, I could not find attribute: #{attvalue}".red
+                exit 1
+            end
+        }
+
+        if mikuType == "Ax1Text" then
+            [
+                "uuid",
+                "mikuType",
+                "unixtime",
+                "nhash",
+            ]
+                .each{|attname| ensureAttribute.call(filepath, attname) }
+            return
+        end
+
+        if mikuType == "NxAnniversary" then
+            [
+                "uuid",
+                "mikuType",
+                "unixtime",
+                "description",
+                "startdate",
+                "repeatType",
+                "lastCelebrationDate",
+            ]
+                .each{|attname| ensureAttribute.call(filepath, attname) }
+            return
+        end
+
+        return
+
+        if mikuType == "NxEvent" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
+            return
+        end
+
+        if mikuType == "NxCollection" then
+            return
+        end
+
+        if mikuType == "NxConcept" then
+            return
+        end
+
+        if mikuType == "NxDataNode" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
+            return
+        end
+
+        if mikuType == "NxEntity" then
+            return
+        end
+
+        if mikuType == "NxFrame" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
+            return
+        end
+
+        if mikuType == "NxLine" then
+            return
+        end
+
+        if mikuType == "NxPerson" then
+            return
+        end
+
+        if mikuType == "NxTask" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
+            return
+        end
+
+        if mikuType == "NxTimeline" then
+            return
+        end
+
+        if mikuType == "TxDated" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
+            return
+        end
+
+        if mikuType == "TxProject" then
+            return
+        end
+
+        if mikuType == "Wave" then
+            FileSystemCheck::fsckNx111ExitAtFirstFailure(item, item["nx111"])
+            return
+        end
+
     end
 
     # FileSystemCheck::fsck(shouldReset)

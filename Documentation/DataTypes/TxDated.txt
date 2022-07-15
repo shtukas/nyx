@@ -1,9 +1,7 @@
-TxDated = {
-  "uuid"        : String
-  "variant"     : String # Primary Key
-  "mikuType"    : "TxDated"
-  "description" : String
-  "unixtime"    : Float
-  "datetime"    : DateTime Iso8601
-  "nx111"       : null or Nx111
-}
+TxDated:
+    "uuid"        : String
+    "mikuType"    : "TxDated"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso8601
+    "description" : String
+    "nx111"       : null or Nx111

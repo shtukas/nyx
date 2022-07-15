@@ -42,6 +42,7 @@ class Fx18s
 
     # Fx18s::setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue)
     def self.setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue)
+        puts "Fx18s::setAttribute1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{attname}, #{attvalue})"
         filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -59,6 +60,11 @@ class Fx18s
     # Fx18s::getAttributeOrNull(objectuuid, attname)
     def self.getAttributeOrNull(objectuuid, attname)
         filepath = Fx18s::acquireFilepathOrError(objectuuid)
+        Fx18s::getAttributeOrNull2(filepath, attname)
+    end
+
+    # Fx18s::getAttributeOrNull2(filepath, attname)
+    def self.getAttributeOrNull2(filepath, attname)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -76,6 +82,7 @@ class Fx18s
 
     # Fx18s::setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
     def self.setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
+        puts "Fx18s::setsAdd1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{setuuid}, #{itemuuid}, #{value})"
         filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -92,6 +99,7 @@ class Fx18s
 
     # Fx18s::setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
     def self.setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
+        puts "Fx18s::setsRemove1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{setuuid}, #{itemuuid})"
         filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -144,8 +152,8 @@ class Fx18s
 
     # Fx18s::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
     def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
+        puts "Fx18s::putBlob1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{key}, blob)"
         Fx18s::ensureFile(objectuuid)
-
         filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -230,3 +238,21 @@ class Fx18Elizabeth
         end
     end
 end
+
+class Fx18Xp
+
+    # Fx18Xp::fx18Filepaths()
+    def self.fx18Filepaths()
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Stargate/Fx18s")
+    end
+
+    # Fx18Xp::fsck()
+    def self.fsck()
+        Fx18Xp::fx18Filepaths()
+            .each{|filepath|
+                FileSystemCheck::fsckFx18FilepathExitAtFirstFailure(filepath)
+            }
+        puts "fsck completed successfully".green
+    end
+end
+

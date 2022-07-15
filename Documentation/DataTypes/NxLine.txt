@@ -1,9 +1,5 @@
-NxLine
-
-{
+NxLine:
     "uuid"          : String
-    "variant"       : String # Primary Key
     "mikuType"      : "NxLine"
     "unixtime"      : Float
     "line"          : String
-}
