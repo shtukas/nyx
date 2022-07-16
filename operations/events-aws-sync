@@ -4,5 +4,5 @@
 
 require_relative "../Libs/loader.rb"
 
-ExternalEvents::sync()
+SystemEvents::sync()
 

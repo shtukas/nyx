@@ -83,7 +83,7 @@ class AWSSQS
                 receive_message_result.messages.each{|message|
                     event = JSON.parse(message.body)
 
-                    ExternalEvents::incomingEventFromSQS(event, verbose)
+                    SystemEvents::processEvent(event, verbose)
 
                     sqs_client.delete_message({
                         queue_url: sqs_url,

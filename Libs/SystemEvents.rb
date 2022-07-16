@@ -7,15 +7,15 @@
     Mercury2::dequeue(channel)
 =end
 
-class ExternalEvents
+class SystemEvents
 
-    # ExternalEvents::sendEventToSQSStage1(event)
+    # SystemEvents::sendEventToSQSStage1(event)
     def self.sendEventToSQSStage1(event)
-        #puts "ExternalEvents::sendEventToSQSStage1(#{JSON.pretty_generate(event)})"
+        #puts "SystemEvents::sendEventToSQSStage1(#{JSON.pretty_generate(event)})"
         Mercury2::put("341307DD-A9C6-494F-B050-CD89745A66C6", event)
     end
 
-    # ExternalEvents::sendEventsToSQSStage2(verbose)
+    # SystemEvents::sendEventsToSQSStage2(verbose)
     def self.sendEventsToSQSStage2(verbose)
 
         return if Mercury2::empty?("341307DD-A9C6-494F-B050-CD89745A66C6")
@@ -57,66 +57,62 @@ class ExternalEvents
         }
     end
 
-    # ExternalEvents::pullEventsFromSQS(verbose)
+    # SystemEvents::pullEventsFromSQS(verbose)
     def self.pullEventsFromSQS(verbose)
         AWSSQS::pullAndProcessEvents(verbose)
     end
 
-    # ExternalEvents::incomingEventFromSQS(event, verbose)
-    def self.incomingEventFromSQS(event, verbose)
-        if verbose then
-            puts "ExternalEvents::incomingEventFromSQS(#{JSON.pretty_generate(event)})"
-        end
-        if event["mikuType"] == "NxBankEvent" then
-            Bank::incomingEvent(event)
-            return
-        end
-        if event["mikuType"] == "NxDoNotShowUntil" then
-            DoNotShowUntil::incomingEvent(event)
-            return
-        end
-        if event["mikuType"] == "SetDoneToday" then
-            DoneToday::incomingEvent(event)
-            return
-        end
-        if event["mikuType"] == "StratificationRemove" then
-            itemuuid = event["itemuuid"]
-            Listing::remove(itemuuid)
-            return
-        end
-        if event["mikuType"] == "NxDeleted" then
-            # Todo:
-            return
-        end
-    end
-
-    # ExternalEvents::sync(verbose)
+    # SystemEvents::sync(verbose)
     def self.sync(verbose)
         begin
-            ExternalEvents::sendEventsToSQSStage2(verbose)
+            SystemEvents::sendEventsToSQSStage2(verbose)
             AWSSQS::pullAndProcessEvents(verbose)
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
         end
     end
-end
 
-class InternalEvents
+    # SystemEvents::processEvent(event, verbose)
+    def self.processEvent(event, verbose)
 
-    # InternalEvents::broadcast(event)
-    def self.broadcast(event)
-
-        puts "broadcast: #{JSON.pretty_generate(event)}"
-
-        if event["mikuType"] == "(target is getting a new principal)" then
-            principaluuid = event["principaluuid"]
-            targetuuid = event["targetuuid"]
-            XCache::set("a2f66362-9959-424a-ae64-759998f1119b:#{targetuuid}", principaluuid) # natural target -> owner mapping
-            XCache::destroy("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{targetuuid}") # task toString 
+        if verbose then
+            puts "SystemEvent(#{JSON.pretty_generate(event)})"
         end
 
-        if event["mikuType"] == "(principal has been updated)" then
-            XCache::destroy("78fe9aa9-99b2-4430-913b-1512880bf323:#{event["principaluuid"]}") # decaching queue size
+        if event["mikuType"] == "(object has a new mikuType)" then
+            Librarian::processEvent(event)
+        end
+
+        #{
+        #    "mikuType"        => "(object has been deleted)",
+        #    "deletedUUID"     => uuid,
+        #    "deletedMikuType" => mikuType
+        #}
+
+        if event["mikuType"] == "NxBankEvent" then
+            Bank::processEvent(event)
+            return
+        end
+
+        if event["mikuType"] == "NxDoNotShowUntil" then
+            DoNotShowUntil::processEvent(event)
+            return
+        end
+
+        if event["mikuType"] == "SetDoneToday" then
+            DoneToday::processEvent(event)
+            return
+        end
+
+        if event["mikuType"] == "RemoveFromListing" then
+            itemuuid = event["itemuuid"]
+            Listing::remove(itemuuid)
+            return
+        end
+
+        if event["mikuType"] == "NxDeleted" then
+            # Todo:
+            return
         end
     end
 end

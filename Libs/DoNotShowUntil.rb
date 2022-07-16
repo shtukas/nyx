@@ -33,11 +33,11 @@ class DoNotShowUntil
           "targetuuid"     => uuid,
           "targetunixtime" => unixtime
         }
-        ExternalEvents::sendEventToSQSStage1(event)
+        SystemEvents::sendEventToSQSStage1(event)
     end
 
-    # DoNotShowUntil::incomingEvent(event)
-    def self.incomingEvent(event)
+    # DoNotShowUntil::processEvent(event)
+    def self.processEvent(event)
         return if event["mikuType"] != "NxDoNotShowUntil"
         uuid     = event["targetuuid"]
         unixtime = event["targetunixtime"]

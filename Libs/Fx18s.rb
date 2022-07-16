@@ -50,6 +50,14 @@ class Fx18s
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, "attribute", attname, attvalue]
         db.close
+
+        if attname == "mikuType" then
+            SystemEvents::processEvent({
+                "mikuType" => "(object has a new mikuType)",
+                "objectuuid" => objectuuid,
+                "objectMikuType" => attvalue
+            }, false)
+        end
     end
 
     # Fx18s::setAttribute2(objectuuid, attname, attvalue)
@@ -196,7 +204,7 @@ class Fx18s
 
     # Fx18s::destroy(objectuuid)
     def self.destroy(objectuuid)
-
+        # TODO:
     end
 end
 

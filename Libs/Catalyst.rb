@@ -79,12 +79,12 @@ class Catalyst
             }
         end
 
-        ExternalEvents::sync(true)
+        SystemEvents::sync(true)
 
         Thread.new {
             loop {
                 sleep 60
-                ExternalEvents::sync(false)
+                SystemEvents::sync(false)
             }
         }
 

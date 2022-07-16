@@ -41,11 +41,11 @@ class Bank
           "date"     => date,
           "weight"   => weight
         }
-        ExternalEvents::sendEventToSQSStage1(event)
+        SystemEvents::sendEventToSQSStage1(event)
     end
 
-    # Bank::incomingEvent(event)
-    def self.incomingEvent(event)
+    # Bank::processEvent(event)
+    def self.processEvent(event)
         return if event["mikuType"] != "NxBankEvent"
         eventuuid = event["uuid"]
         setuuid   = event["setuuid"]

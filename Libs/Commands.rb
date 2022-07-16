@@ -429,8 +429,8 @@ class Commands
                     "lambda" => lambda { CommonUtils::generalCodeTrace() }
                 },
                 {
-                    "name" => "ExternalEvents::sync(false)",
-                    "lambda" => lambda { ExternalEvents::sync(false) }
+                    "name" => "SystemEvents::sync(false)",
+                    "lambda" => lambda { SystemEvents::sync(false) }
                 },
 
                 {

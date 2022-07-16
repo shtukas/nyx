@@ -143,10 +143,8 @@ require_relative "DoneToday.rb"
 require_relative "DatablobsXCache.rb"
 
 require_relative "EditionDesk.rb"
-require_relative "Events.rb"
 
 require_relative "Galaxy.rb"
-require_relative "Genealogy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
@@ -189,6 +187,7 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "Streaming.rb"
 require_relative "StargateCentral.rb"
+require_relative "SystemEvents.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"
