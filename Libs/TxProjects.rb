@@ -148,7 +148,7 @@ class TxProjects
                             # itemsToKeepOrReInject << item
                             # TODO:
                         else
-                            itemsToDelistIfPresentInListing << item["uuid"]
+                            itemsToDelistIfPresentInListing << elementuuid
                         end   
                     }
             }
