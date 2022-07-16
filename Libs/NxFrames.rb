@@ -4,7 +4,7 @@ class NxFrames
 
     # NxFrames::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxFrame").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxFrame").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxFrame",

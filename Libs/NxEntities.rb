@@ -8,7 +8,7 @@ class NxEntities
 
     # NxEntities::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxEntity").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxEntity").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxEntity",

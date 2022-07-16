@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        Librarian::mikuTypeUUIDs("NxAnniversary").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxAnniversary").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxAnniversary",

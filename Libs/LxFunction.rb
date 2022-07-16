@@ -10,7 +10,7 @@ class LxFunction
             puts "Objects sent to LxFunction if not null should have a mikuType attribute."
             puts "Got:"
             puts "command: #{command}"
-            puts "object: #{JSON.pretty_generate(item)}"
+            puts "item: #{JSON.pretty_generate(item)}"
             puts "Aborting."
             raise "(error: f74385d4-5ece-4eae-8a09-90d3a5e0f120)"
         end

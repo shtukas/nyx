@@ -5,7 +5,7 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxPerson").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxPerson").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxPerson",

@@ -8,7 +8,7 @@ class NxDataNodes
 
     # NxDataNodes::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxDataNode").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxDataNode").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxDataNode",

@@ -4,7 +4,7 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("TxDated").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("TxDated").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "TxDated",

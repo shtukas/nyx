@@ -246,11 +246,29 @@ class Fx18Xp
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Stargate/Fx18s")
     end
 
-    # Fx18Xp::fsck()
-    def self.fsck()
+    # Fx18Xp::fsck(shouldReset)
+    def self.fsck(shouldReset)
+        runHash = XCache::getOrNull("76001cea-f0c6-4e68-862b-5060d3c8bcd5")
+
+        if runHash.nil? then
+            runHash = SecureRandom.hex
+            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
+        end
+
+        if shouldReset then
+            puts "resetting fsck runhash"
+            sleep 1
+            runHash = SecureRandom.hex
+            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
+        end
+
         Fx18Xp::fx18Filepaths()
             .each{|filepath|
+                FileSystemCheck::exitIfMissingCanary()
+                trace = "#{runHash}:#{Digest::SHA1.file(filepath).hexdigest}"
+                next if XCache::getFlag(trace)
                 FileSystemCheck::fsckFx18FilepathExitAtFirstFailure(filepath)
+                XCache::setFlag(trace, true)
             }
         puts "fsck completed successfully".green
     end

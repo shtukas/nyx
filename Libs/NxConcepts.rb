@@ -8,7 +8,7 @@ class NxConcepts
 
     # NxConcepts::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxConcept").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxConcept").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxConcept",

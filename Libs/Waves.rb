@@ -6,7 +6,7 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("Wave").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("Wave").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "Wave",

@@ -8,7 +8,7 @@ class NxEvents
 
     # NxEvents::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxEvent").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxEvent").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxEvent",

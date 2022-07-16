@@ -4,7 +4,7 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxTask").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxTask").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxTask",

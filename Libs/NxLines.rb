@@ -8,7 +8,7 @@ class NxLines
 
     # NxLines::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxLine").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxLine").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxLine",

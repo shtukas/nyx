@@ -8,12 +8,11 @@ class TxProjects
 
     # TxProjects::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("TxProject").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("TxProject").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "TxProject",
                 "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
                 "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
                 "ax39"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "ax39")),
             }
@@ -44,7 +43,6 @@ class TxProjects
         Fx18s::ensureFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid2)
         Fx18s::setAttribute2(uuid, "mikuType",    "TxProject")
-        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18s::setAttribute2(uuid, "description", description)
         Fx18s::setAttribute2(uuid, "ax39",        JSON.generate(ax39))

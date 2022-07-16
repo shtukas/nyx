@@ -8,7 +8,7 @@ class NxTimelines
 
     # NxTimelines::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxTimeline").each{|objectuuid|
+        Librarian::mikuTypeUUIDs("NxTimeline").map{|objectuuid|
             {
                 "uuid"        => objectuuid,
                 "mikuType"    => "NxTimeline",
