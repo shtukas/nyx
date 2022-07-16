@@ -39,9 +39,9 @@ class Commands
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            project = TxProjects::architectOneOrNull()
-            return if project.nil?
-            TxProjects::addElement(project, item)
+            projectuuid = TxProjects::architectOneOrNull()
+            return if projectuuid.nil?
+            TxProjects::addElement(projectuuid, item["uuid"])
             NxBallsService::close(item["uuid"], true)
             return
         end
@@ -67,9 +67,7 @@ class Commands
         end
 
         if Interpreting::match("anniversary", input) then
-            item = Anniversaries::issueNewAnniversaryOrNullInteractively()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            Anniversaries::issueNewAnniversaryOrNullInteractively()
             return
         end
 
@@ -83,8 +81,7 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             return if item["mikuType"] != "TxProject"
-            item["ax39"] = Ax39::interactivelyCreateNewAx()
-            Librarian::commit(item)
+            Fx18s::setAttribute2(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
             return
         end
 
@@ -198,15 +195,14 @@ class Commands
         if input == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
-            item = NxLines::issue(line)
-            puts JSON.pretty_generate(item)
+            itemuuid = NxLines::issue(line)
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
             if ordinal == "" then
                 ordinal = Listing::nextOrdinal()
             else
                 ordinal = ordinal.to_f
             end
-            Listing::insert2("section2", item, ordinal)
+            Listing::insert2("section2", item, ordinal) # TODO:
             return
         end
 
@@ -260,8 +256,7 @@ class Commands
         end
 
         if input == "project" then
-            item = TxProjects::interactivelyIssueNewItemOrNull()
-            puts JSON.pretty_generate(item)
+            TxProjects::interactivelyIssueNewItemOrNull()
             return
         end
 
@@ -371,13 +366,12 @@ class Commands
         end
 
         if Interpreting::match("task", input) then
-            item = NxTasks::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            itemuuid = NxTasks::interactivelyCreateNewOrNull()
+            return if itemuuid.nil?
             if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a project ? ") then
-                project = TxProjects::architectOneOrNull()
-                return if project.nil?
-                TxProjects::addElement(project, item)
+                projectuuid = TxProjects::architectOneOrNull()
+                return if projectuuid.nil?
+                TxProjects::addElement(projectuuid, itemuuid)
             end
             return
         end
@@ -392,9 +386,7 @@ class Commands
         end
 
         if Interpreting::match("today", input) then
-            item = TxDateds::interactivelyCreateNewTodayOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            TxDateds::interactivelyCreateNewTodayOrNull()
             return
         end
 
@@ -417,9 +409,7 @@ class Commands
         end
 
         if input.start_with?("wave") then
-            item = Waves::issueNewWaveInteractivelyOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            Waves::issueNewWaveInteractivelyOrNull()
             return
         end
 

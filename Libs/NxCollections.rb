@@ -28,16 +28,16 @@ class NxCollections
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        item = {
-            "uuid"        => SecureRandom.uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "NxCollection",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-        }
-        Librarian::commit(item)
-        item
+        uuid = SecureRandom.uuid
+
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxCollection")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    datetime)
+        Fx18s::setAttribute2(uuid, "description", description)
+
+        uuid
     end
 
     # ----------------------------------------------------------------------

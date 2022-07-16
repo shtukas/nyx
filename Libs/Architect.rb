@@ -35,7 +35,7 @@ class Architect
         }
     end
 
-    # Architect::interactivelyMakeNewOrNull()
+    # Architect::interactivelyMakeNewOrNull() # objectuuid or null
     def self.interactivelyMakeNewOrNull()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["NxDataNode"] + Iam::aggregationTypes())
         return if action.nil?
@@ -62,14 +62,14 @@ class Architect
         raise "(error: 46cb00c3-9c1d-41cd-8d3d-bfc6598d3e73)"
     end
 
-    # Architect::architectOneOrNull()
+    # Architect::architectOneOrNull() # objectuuid or null
     def self.architectOneOrNull()
         operations = ["existing || new", "new"]
         operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
         return nil if operation.nil?
         if operation == "existing || new" then
-            entity = Architect::selectNodesUsingNavigationSandboxOrNull()
-            return entity if entity
+            entityuuid = Architect::selectNodesUsingNavigationSandboxOrNull()
+            return entityuuid if entityuuid
             return Architect::interactivelyMakeNewOrNull()
         end
         if operation == "new" then

@@ -111,18 +111,16 @@ class Anniversaries
             lastCelebrationDate = CommonUtils::today()
         end
 
-        item = {
-          "uuid"         => SecureRandom.uuid,
-          "variant"      => SecureRandom.uuid,
-          "mikuType"     => "NxAnniversary",
-          "unixtime"     => Time.new.to_i,
-          "description"  => description,
-          "startdate"    => startdate,
-          "repeatType"   => repeatType,
-          "lastCelebrationDate" => lastCelebrationDate,
-        }
-        Librarian::commit(item)
-        item
+        uuid = SecureRandom.uuid
+
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxAnniversary")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "startdate",   startdate)
+        Fx18s::setAttribute2(uuid, "repeatType",  repeatType)
+        Fx18s::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]
@@ -136,17 +134,16 @@ class Anniversaries
         "(anniversary) [#{anniversary["startdate"]}, #{date}, #{n.to_s.ljust(4)}, #{anniversary["repeatType"].ljust(7)}] #{anniversary["description"]}"
     end
 
-    # Anniversaries::done(anniversary)
-    def self.done(anniversary)
-        anniversary["lastCelebrationDate"] = Time.new.to_s[0, 10]
-        Librarian::commit(anniversary)
+    # Anniversaries::done(uuid)
+    def self.done(uuid)
+        Fx18s::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
     def self.access(anniversary)
         puts Anniversaries::toString(anniversary).green
         if LucilleCore::askQuestionAnswerAsBoolean("done ? : ") then
-            Anniversaries::done(anniversary)
+            Anniversaries::done(anniversary["uuid"])
         end
     end
 
@@ -184,15 +181,13 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                item["description"] = description
-                Librarian::commit(item)
+                Fx18s::setAttribute2(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                item["startdate"] = startdate
-                Librarian::commit(item)
+                Fx18s::setAttribute2(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then

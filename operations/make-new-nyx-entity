@@ -4,7 +4,7 @@
 
 require_relative "../Libs/loader.rb"
 
-item = Architect::interactivelyMakeNewOrNull()
-exit if item.nil?
-LxAction::action("landing", item)
+itemuuid = Architect::interactivelyMakeNewOrNull()
+exit if itemuuid.nil?
+LxAction::action("landing2", itemuuid)
 

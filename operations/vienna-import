@@ -42,8 +42,8 @@ loop {
     link = viennaLinkFeeder.next()
     break if link.nil?
     #puts "vienna: #{link}"
-    item = NxTasks::issueViennaURL(link)
-    InternetStatus::markIdAsRequiringInternet(item["uuid"])
+    itemuuid = NxTasks::issueViennaURL(link)
+    InternetStatus::markIdAsRequiringInternet(itemuuid)
     viennaLinkFeeder.done(link)
     sleep 1
 }

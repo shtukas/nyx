@@ -106,34 +106,6 @@ class Librarian
         object
     end
 
-    # ---------------------------------------------------
-    # Objects Writing
-
-    # Librarian::commit(object)
-    def self.commit(object)
-        # Do not internal event broadcast from inside this function
-
-        raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
-        raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
-
-        object["variant"] = SecureRandom.uuid
-
-        if object["lxGenealogyAncestors"].nil? then
-            object["lxGenealogyAncestors"] = []
-        end
-
-        object["lxGenealogyAncestors"] << SecureRandom.uuid
-
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            #db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
-            db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
-            db.close
-        }
-
-        ExternalEvents::sendEventToSQSStage1(object)
-    end
-
     # --------------------------------------------------------------
     # Object destroy
 

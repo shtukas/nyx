@@ -31,17 +31,15 @@ class NxEvents
         unixtime   = Time.new.to_i
         datetime   = CommonUtils::interactiveDateTimeBuilder()
 
-        item = {
-            "uuid"        => uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "NxEvent",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-            "nx111"       => nx111
-        }
-        Librarian::commit(item)
-        item
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxEvent")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    datetime)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+
+        uuid
     end
 
     # ----------------------------------------------------------------------

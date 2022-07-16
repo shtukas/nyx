@@ -30,25 +30,25 @@ class TxProjects
 
         ax39 = Ax39::interactivelyCreateNewAx()
 
-        item = {
-            "uuid"        => SecureRandom.uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "TxProject",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-            "ax39"        => ax39
-        }
-        Librarian::commit(item)
-        item
+        uuid = SecureRandom.uuid
+
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid2)
+        Fx18s::setAttribute2(uuid, "mikuType",    "TxProject")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "ax39",        JSON.generate(ax39))
+
+        uuid
     end
 
-    # TxProjects::architectOneOrNull()
+    # TxProjects::architectOneOrNull() # objectuuid or null
     def self.architectOneOrNull()
         items = TxProjects::items()
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         item = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", items, lambda{|item| LxFunction::function("toString", item) })
-        return item if item
+        return item["uuid"] if item
         if LucilleCore::askQuestionAnswerAsBoolean("Issue new project ? ") then
             return TxProjects::interactivelyIssueNewItemOrNull()
         end
@@ -57,10 +57,10 @@ class TxProjects
     # ----------------------------------------------------------------------
     # Elements
 
-    # TxProjects::addElement(project, item)
-    def self.addElement(project, item)
-        Fx18s::ensureFile(project["uuid"])
-        Fx18s::setsAdd2(project["uuid"], "project-items-3f154988", item["uuid"], item["uuid"])
+    # TxProjects::addElement(projectuuid, itemuuid)
+    def self.addElement(projectuuid, itemuuid)
+        Fx18s::ensureFile(projectuuid)
+        Fx18s::setsAdd2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
     end
 
     # TxProjects::removeElement(project, uuid)

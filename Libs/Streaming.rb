@@ -3,19 +3,16 @@
 
 class Streaming
 
-    # Streaming::itemToNyx(item)
-    def self.itemToNyx(item)
-        if item["mikuType"] != "NxTask" then
+    # Streaming::itemToNyx(itemuuid)
+    def self.itemuuidToNyx(itemuuid)
+        if Fx18s::getAttributeOrNull(itemuuid, "mikuType") != "NxTask" then
             puts "I cannot >nyx something that is not a NxTask"
             LucilleCore::pressEnterToContinue()
             return
         end
-        LxAction::action("stop", item)
-        item["mikuType"] = "NxDataNode"
-        item["nx111"] = item["nx111"]
-        Librarian::commit(item)
-        LxAction::action("landing", item)
-        Bank::put("todo-done-count-afb1-11ac2d97a0a8", 1) # The item has not been destroyed, it's just not a NxTask anymore
+        LxAction::action("stop", itemuuid)
+        Fx18s::setAttribute2(itemuuid, "mikuType", "NxDataNode")
+        LxAction::action("landing2", itemuuid)
     end
 
     # Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
@@ -47,14 +44,14 @@ class Streaming
                 next
             end
             if command == ">project" then
-                project = TxProjects::architectOneOrNull()
-                return if project.nil?
-                TxProjects::addElement(project, item)
+                projectuuid = TxProjects::architectOneOrNull()
+                return if projectuuid.nil?
+                TxProjects::addElement(projectuuid, item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
             if command == ">nyx" then
-                Streaming::itemToNyx(item)
+                Streaming::itemToNyx(item["uuid"])
                 return nil
             end
             if command == "nyx" then
@@ -85,13 +82,13 @@ class Streaming
                 next
             end
             if command == ">project" then
-                project = TxProjects::architectOneOrNull()
-                return if project.nil?
-                TxProjects::addElement(project, item)
+                projectuuid = TxProjects::architectOneOrNull()
+                return if projectuuid.nil?
+                TxProjects::addElement(projectuuid, item["uuid"])
                 return nil
             end
             if command == ">nyx" then
-                Streaming::itemToNyx(item)
+                Streaming::itemToNyx(item["uuid"])
                 return nil
             end
             if command == "nyx" then

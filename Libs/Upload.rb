@@ -17,8 +17,7 @@ class Upload
             puts "processing: #{location}"
             child = NxDataNodes::issueNewItemAionPointFromLocation(location)
             if overrideDatetime then
-                child["datetime"] = overrideDatetime
-                Librarian::commit(child)
+                Fx18s::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
             NxLink::issue(item["uuid"], child["uuid"])
         }
@@ -42,8 +41,7 @@ class Upload
             child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
             next if child.nil?
             if overrideDatetime then
-                child["datetime"] = overrideDatetime
-                Librarian::commit(child)
+                Fx18s::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
             NxLink::issue(item["uuid"], child["uuid"])
         }
@@ -64,8 +62,7 @@ class Upload
             child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
             return if child.nil?
             if overrideDatetime then
-                child["datetime"] = overrideDatetime
-                Librarian::commit(child)
+                Fx18s::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
             NxLink::issue(item["uuid"], child["uuid"])
         end

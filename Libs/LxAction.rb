@@ -146,7 +146,7 @@ class LxAction
             end
 
             if item["mikuType"] == "NxAnniversary" then
-                Anniversaries::done(item)
+                Anniversaries::done(item["uuid"])
                 return
             end
 
@@ -215,7 +215,7 @@ class LxAction
             end
 
             if item["mikuType"] == "NxAnniversary" then
-                Anniversaries::done(item)
+                Anniversaries::done(item["uuid"])
                 return
             end
 
@@ -293,8 +293,7 @@ class LxAction
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-                item["datetime"] = datetime
-                Librarian::commit(item)
+                Fx18s::setAttribute2(item["uuid"], "datetime", datetime)
                 return
             end
         end
@@ -331,9 +330,7 @@ class LxAction
         end
 
         if command == "wave" then
-            item = Waves::issueNewWaveInteractivelyOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
+            Waves::issueNewWaveInteractivelyOrNull()
             return
         end
 

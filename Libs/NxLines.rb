@@ -16,15 +16,13 @@ class NxLines
 
     # NxLines::issue(line)
     def self.issue(line)
-        item = {
-          "uuid"      => SecureRandom.uuid,
-          "variant"   => SecureRandom.uuid,
-          "mikuType"  => "NxLine",
-          "unixtime"  => Time.new.to_f,
-          "line"      => line,
-        }
-        Librarian::commit(item)
-        item
+        uuid = SecureRandom.uuid
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxEvent")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "line",        line)
+        uuid
     end
 
     # ----------------------------------------------------------------------

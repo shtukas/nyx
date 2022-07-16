@@ -27,17 +27,15 @@ class NxFrames
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
 
-        item = {
-            "uuid"        => uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "NxFrame",
-            "description" => description,
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "nx111"       => nx111
-        }
-        Librarian::commit(item)
-        item
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxEvent")
+        Fx18s::setAttribute2(uuid, "unixtime",    unixtime)
+        Fx18s::setAttribute2(uuid, "datetime",    datetime)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+
+        uuid
     end
 
     # --------------------------------------------------

@@ -32,17 +32,15 @@ class NxDataNodes
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        item = {
-            "uuid"        => uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "NxDataNode",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-            "nx111"       => nx111
-        }
-        Librarian::commit(item)
-        item
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxDataNode")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    datetime)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+
+        uuid
     end
 
     # NxDataNodes::issueNewItemAionPointFromLocation(location)
@@ -52,17 +50,16 @@ class NxDataNodes
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        item = {
-            "uuid"        => uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "NxDataNode",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-            "nx111"       => nx111
-        }
-        Librarian::commit(item)
-        item
+
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxDataNode")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    datetime)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        
+        uuid
     end
 
     # NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
@@ -73,24 +70,18 @@ class NxDataNodes
 
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
 
-        flavour = {
-            "type" => "pure-data"
-        }
-
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        item = {
-            "uuid"        => uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "NxDataNode",
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "description" => description,
-            "nx111"       => nx111
-        }
-        Librarian::commit(item)
-        item
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxDataNode")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    datetime)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        
+        uuid
     end
 
     # ----------------------------------------------------------------------

@@ -27,17 +27,15 @@ class NxTasks
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
 
-        item = {
-            "uuid"        => uuid,
-            "variant"     => SecureRandom.uuid,
-            "mikuType"    => "NxTask",
-            "description" => description,
-            "unixtime"    => unixtime,
-            "datetime"    => datetime,
-            "nx111"       => nx111
-        }
-        Librarian::commit(item)
-        item
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxTask")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+
+        uuid
     end
 
     # NxTasks::issueFromInboxLocation(location)
@@ -47,16 +45,15 @@ class NxTasks
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        item = {
-          "uuid"         => uuid,
-          "mikuType"     => "NxTask",
-          "description"  => description,
-          "unixtime"     => unixtime,
-          "datetime"     => datetime,
-          "nx111"        => nx111
-        }
-        Librarian::commit(item)
-        item
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxTask")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+
+        uuid
     end
 
     # NxTasks::issueViennaURL(url)
@@ -72,16 +69,15 @@ class NxTasks
             "url"  => url
         }
 
-        item = {
-          "uuid"        => uuid,
-          "mikuType"    => "NxTask",
-          "description" => description,
-          "unixtime"    => unixtime,
-          "datetime"    => datetime,
-          "nx111"       => nx111
-        }
-        Librarian::commit(item)
-        item
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxTask")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+
+        uuid
     end
 
     # --------------------------------------------------

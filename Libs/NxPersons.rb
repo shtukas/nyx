@@ -10,18 +10,14 @@ class NxPersons
 
     # NxPersons::issue(name1)
     def self.issue(name1)
-        unixtime = Time.new.to_i
-        datetime = Time.new.utc.iso8601
-        item = {
-            "uuid"     => SecureRandom.uuid,
-            "variant"  => SecureRandom.uuid,
-            "mikuType" => "NxPerson",
-            "unixtime" => unixtime,
-            "datetime" => datetime,
-            "name"     => name1
-        }
-        Librarian::commit(item)
-        item
+        uuid = SecureRandom.uuid
+        Fx18s::ensureFile(uuid)
+        Fx18s::setAttribute2(uuid, "uuid",        uuid)
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxPerson")
+        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18s::setAttribute2(uuid, "name",        name1)
+        uuid
     end
 
     # NxPersons::interactivelyIssueNewOrNull()
