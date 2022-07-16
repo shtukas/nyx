@@ -185,7 +185,7 @@ class EditionDesk
             return
         end
 
-        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, itemuuid, nx111)
+        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item["uuid"], nx111)
         if location.nil? then
             puts "I could not accessItemNx111Pair for"
             puts "itemuuid: #{itemuuid}"
