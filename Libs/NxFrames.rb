@@ -2,17 +2,24 @@
 
 class NxFrames
 
+    # NxFrames::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+        }
+        raise "(error: 8f6167a3-219c-48ae-8e60-47e59e4a0f03) item: #{item}" if item["mikuType"] != "NxFrame"
+        item
+    end
+
     # NxFrames::items()
     def self.items()
         Librarian::mikuTypeUUIDs("NxFrame").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxFrame",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
-            }
+            NxFrames::objectuuidToItem(objectuuid)
         }
     end
 

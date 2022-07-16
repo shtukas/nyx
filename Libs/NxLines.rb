@@ -6,15 +6,22 @@ class NxLines
     # ----------------------------------------------------------------------
     # IO
 
+    # NxLines::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "line"        => Fx18s::getAttributeOrNull(objectuuid, "line"),
+        }
+        raise "(error: e495b2cf-1c63-4bdb-9461-de116ed036cf) item: #{item}" if item["mikuType"] != "NxLine"
+        item
+    end
+
     # NxLines::items()
     def self.items()
         Librarian::mikuTypeUUIDs("NxLine").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxLine",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "line"        => Fx18s::getAttributeOrNull(objectuuid, "line"),
-            }
+            NxLines::objectuuidToItem(objectuuid)
         }
     end
 

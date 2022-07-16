@@ -6,8 +6,8 @@ class TxProjects
     # ----------------------------------------------------------------------
     # IO
 
-    # TxProjects::objectuuidOfTypeTxProjectToItem(objectuuid)
-    def self.objectuuidOfTypeTxProjectToItem(objectuuid)
+    # TxProjects::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
         item = {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
@@ -22,7 +22,7 @@ class TxProjects
     # TxProjects::items()
     def self.items()
         Librarian::mikuTypeUUIDs("TxProject").map{|objectuuid|
-            TxProjects::objectuuidOfTypeTxProjectToItem(objectuuid)
+            TxProjects::objectuuidToItem(objectuuid)
         }
     end
 

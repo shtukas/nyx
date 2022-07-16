@@ -6,17 +6,24 @@ class NxEvents
     # ----------------------------------------------------------------------
     # IO
 
+    # NxEvents::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+        }
+        raise "(error: e5f5ce99-34ed-4659-8e9e-d5e09b314fd8) item: #{item}" if item["mikuType"] != "NxEvent"
+        item
+    end
+
     # NxEvents::items()
     def self.items()
         Librarian::mikuTypeUUIDs("NxEvent").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxEvent",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
-            }
+            NxEvents::objectuuidToItem(objectuuid)
         }
     end
 

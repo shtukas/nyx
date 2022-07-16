@@ -6,17 +6,24 @@ class NxDataNodes
     # ----------------------------------------------------------------------
     # IO
 
+    # NxDataNodes::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+        }
+        raise "(error: 9e91a609-dc64-4bcb-9e64-fa11121c07d8) item: #{item}" if item["mikuType"] != "NxDataNode"
+        item
+    end
+
     # NxDataNodes::items()
     def self.items()
         Librarian::mikuTypeUUIDs("NxDataNode").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxDataNode",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
-            }
+            NxDataNodes::objectuuidToItem(objectuuid)
         }
     end
 

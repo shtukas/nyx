@@ -275,7 +275,70 @@ class Fx18Xp
 
     # Fx18Xp::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
+        mikuType = Fx18s::getAttributeOrNull(objectuuid, "mikuType")
+        return nil if mikuType.nil?
 
+        if mikuType == "Ax1Text" then
+            return Ax1Text::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxAnniversary" then
+            return Anniversaries::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxCollection" then
+            return NxCollections::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxConcept" then
+            return NxConcepts::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxDataNode" then
+            return NxDataNodes::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxEntity" then
+            return NxEntities::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxEvent" then
+            return NxEvents::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxFrame" then
+            return NxFrames::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxLine" then
+            return NxLines::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxPerson" then
+            return NxPersons::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxTask" then
+            return NxTasks::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "NxTimeline" then
+            return NxTimelines::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "TxDated" then
+            return TxDateds::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "TxProject" then
+            return TxProjects::objectuuidToItem(objectuuid)
+        end
+
+        if mikuType == "Wave" then
+            return Waves::objectuuidToItem(objectuuid)
+        end
+
+        raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
     end
 end
 

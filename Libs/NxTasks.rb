@@ -2,17 +2,24 @@
 
 class NxTasks
 
+    # NxTasks::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+        }
+        raise "(error: 6f348583-af54-429a-bb95-d34fa74fa3d5) item: #{item}" if item["mikuType"] != "NxTask"
+        item
+    end
+
     # NxTasks::items()
     def self.items()
         Librarian::mikuTypeUUIDs("NxTask").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxTask",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
-            }
+            NxTasks::objectuuidToItem(objectuuid)
         }
     end
 

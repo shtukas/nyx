@@ -6,16 +6,23 @@ class NxCollections
     # ----------------------------------------------------------------------
     # IO
 
+    # NxCollections::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description")
+        }
+        raise "(error: 8e9317f6-b7fa-49fb-a060-33a3c84c20f1) item: #{item}" if item["mikuType"] != "NxCollection"
+        item
+    end
+
     # NxCollections::items()
     def self.items()
         Librarian::mikuTypeUUIDs("NxCollection").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxCollection",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description")
-            }
+            NxCollections::objectuuidToItem(objectuuid)
         }
     end
 

@@ -6,6 +6,18 @@ class Ax1Text
     # ----------------------------------------------------------------------
     # Objects Management
 
+    # Ax1Text::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "nhash"       => Fx18s::getAttributeOrNull(objectuuid, "nhash"),
+        }
+        raise "(error: 6ae8de16-cc7c-4782-93f3-741caac46c26) item: #{item}" if item["mikuType"] != "Ax1Text"
+        item
+    end
+
     # Ax1Text::interactivelyIssueNewOrNullForOwner() # uuid
     def self.interactivelyIssueNewOrNullForOwner()
         uuid = SecureRandom.uuid

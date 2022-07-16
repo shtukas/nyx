@@ -6,16 +6,23 @@ class NxTimelines
     # ----------------------------------------------------------------------
     # IO
 
+    # NxTimelines::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+        }
+        raise "(error: 4141cb81-2b51-4f21-9d39-61a8c58c200c) item: #{item}" if item["mikuType"] != "NxTimeline"
+        item
+    end
+
     # NxTimelines::items()
     def self.items()
         Librarian::mikuTypeUUIDs("NxTimeline").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxTimeline",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-            }
+            NxTimelines::objectuuidToItem(objectuuid)
         }
     end
 

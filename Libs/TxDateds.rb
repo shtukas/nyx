@@ -2,17 +2,24 @@
 
 class TxDateds
 
+    # TxDateds::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+        }
+        raise "(error: c31e911a-65b0-41c0-a736-3cd560153190) item: #{item}" if item["mikuType"] != "TxDated"
+        item
+    end
+
     # TxDateds::items()
     def self.items()
         Librarian::mikuTypeUUIDs("TxDated").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "TxDated",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
-            }
+            TxDateds::objectuuidToItem(objectuuid)
         }
     end
 

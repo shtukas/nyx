@@ -4,18 +4,25 @@ class Waves
     # --------------------------------------------------
     # IO
 
+    # Waves::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "nx46"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx46")),
+            "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+            "lastDoneDateTime" => Fx18s::getAttributeOrNull(objectuuid, "lastDoneDateTime"),
+        }
+        raise "(error: 78bd667a-5204-4d17-b500-e0431973c950) item: #{item}" if item["mikuType"] != "Wave"
+        item
+    end
+
     # Waves::items()
     def self.items()
         Librarian::mikuTypeUUIDs("Wave").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "Wave",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "nx46"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx46")),
-                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
-                "lastDoneDateTime" => Fx18s::getAttributeOrNull(objectuuid, "lastDoneDateTime"),
-            }
+            Waves::objectuuidToItem(objectuuid)
         }
     end
 

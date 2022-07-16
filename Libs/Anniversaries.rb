@@ -81,18 +81,25 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
+    # Anniversaries::objectuuidToItem(objectuuid)
+    def self.objectuuidToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "startdate"   => Fx18s::getAttributeOrNull(objectuuid, "startdate"),
+            "repeatType"  => Fx18s::getAttributeOrNull(objectuuid, "repeatType"),
+            "lastCelebrationDate" => Fx18s::getAttributeOrNull(objectuuid, "lastCelebrationDate")
+        }
+        raise "(error: 56b2ea91-d0a5-4752-b539-40c897833571) item: #{item}" if item["mikuType"] != "NxAnniversary"
+        item
+    end
+
     # Anniversaries::anniversaries()
     def self.anniversaries()
         Librarian::mikuTypeUUIDs("NxAnniversary").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "NxAnniversary",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "startdate"   => Fx18s::getAttributeOrNull(objectuuid, "startdate"),
-                "repeatType"  => Fx18s::getAttributeOrNull(objectuuid, "repeatType"),
-                "lastCelebrationDate" => Fx18s::getAttributeOrNull(objectuuid, "lastCelebrationDate")
-            }
+            Anniversaries::objectuuidToItem(objectuuid)
         }
     end
 
