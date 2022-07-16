@@ -26,11 +26,11 @@ class EditionDesk
     # ----------------------------------------------------
     # names and locations
 
-    # EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111) [boolean, string], first element indicates whether the file was already there or not
-    def self.findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111)
+    # EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, itemuuid, nx111) [boolean, string], first element indicates whether the file was already there or not
+    def self.findOrConstructItemNx111PairEditionLocation(parentLocation, itemuuid, nx111)
         # This function returns the location if there already is one, or otherwise returns a new one.
         
-        part3and4 = "#{item["uuid"]}|#{nx111["uuid"]}"
+        part3and4 = "#{itemuuid}|#{nx111["uuid"]}"
         LucilleCore::locationsAtFolder(parentLocation)
             .each{|location|
                 if File.basename(location).include?(part3and4) then
@@ -39,7 +39,7 @@ class EditionDesk
             }
 
         index1 = EditionDesk::getMaxIndex(parentLocation) + 1
-        name1 = "#{index1}|#{CommonUtils::sanitiseStringForFilenaming(LxFunction::function("toString", item)).gsub("|","-")}|#{part3and4}"
+        name1 = "#{index1}|#{CommonUtils::sanitiseStringForFilenaming(LxFunction::function("toString2", itemuuid)).gsub("|","-")}|#{part3and4}"
 
         [false, "#{parentLocation}/#{name1}"]
     end
@@ -60,7 +60,7 @@ class EditionDesk
         "#{EditionDesk::pathToEditionDesk()}/#{name1}"
     end
 
-    # EditionDesk::locationToItemNx111PairOrNull(location) # null or [item, nx111]
+    # EditionDesk::locationToItemNx111PairOrNull(location) # null or [itemuuid, nx111]
     # This function takes a location, tries and interpret the location name as a index|description|itemuuid|nx111uuid and return [item, nx111]
     def self.locationToItemNx111PairOrNull(location)
         filename = File.basename(location)
@@ -75,36 +75,33 @@ class EditionDesk
             nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")
         end
 
-        item = Librarian::getObjectByUUIDOrNullEnforceUnique(itemuuid)
-
-        return nil if item.nil?
-        return nil if item["nx111"].nil?
-
-        nx111 = item["nx111"].clone
+        nx111 = Fx18s::getAttributeOrNull(itemuuid, "nx111")
+        return nil if nx111.nil?
+        nx111 = JSON.parse(nx111)
 
         # The below happens when the nx111 has been manually updated (created a new one) 
         # after the previous edition desk export. In which case we ignore the one 
         # on disk since it's not relevant anymore.
         return nil if nx111["uuid"] != nx111uuidOnDisk 
 
-        [item, nx111]
+        [itemuuid, nx111]
     end
 
     # ----------------------------------------------------
     # Nx111 carriers (access)
 
-    # EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item, nx111) # location or nil
-    def self.getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item, nx111)
+    # EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, itemuuid, nx111) # location or nil
+    def self.getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, itemuuid, nx111)
         return nil if nx111.nil?
         if nx111["type"] == "text" then
             # In this case we are not using the flag, in fact the check was already there when the flag was introduced and we left it like that
-            flag, location = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111)
+            flag, location = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, itemuuid, nx111)
             if flag then
                 return location
             end
             location = "#{location}.txt"
             nhash = nx111["nhash"]
-            text = Fx18s::getBlobOrNull(item["uuid"], nhash)
+            text = Fx18s::getBlobOrNull(itemuuid, nhash)
             File.open(location, "w"){|f| f.puts(text) }
             return location
         end
@@ -115,14 +112,14 @@ class EditionDesk
             return
         end
         if nx111["type"] == "file" then
-            flag, location = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111)
+            flag, location = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, itemuuid, nx111)
             return location if flag
 
             dottedExtension = nx111["dottedExtension"]
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             
-            operator = Fx18Elizabeth.new(item["uuid"])
+            operator = Fx18Elizabeth.new(itemuuid)
             filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -135,8 +132,8 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = Fx18Elizabeth.new(item["uuid"])
-            flag, exportLocation = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, item, nx111) # can come with an extension
+            operator = Fx18Elizabeth.new(itemuuid)
+            flag, exportLocation = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, itemuuid, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
             # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
@@ -174,7 +171,7 @@ class EditionDesk
             end
             return location
         end
-        raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{item}"
+        raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{itemuuid}"
     end
 
     # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
@@ -188,11 +185,10 @@ class EditionDesk
             return
         end
 
-        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item, nx111)
+        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, itemuuid, nx111)
         if location.nil? then
             puts "I could not accessItemNx111Pair for"
-            puts "item:"
-            puts JSON.pretty_generate(item)
+            puts "itemuuid: #{itemuuid}"
             puts "nx111:"
             puts JSON.pretty_generate(nx111)
             LucilleCore::pressEnterToContinue()
@@ -216,17 +212,16 @@ class EditionDesk
 
         return if elements.nil?
 
-        item, nx111 = elements
+        itemuuid, nx111 = elements
 
         # puts "EditionDesk: Updating #{File.basename(location)}"
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = Fx18s::putBlob3(item["uuid"], text) # we should probably compute the nhash without actually commiting the blob to the file
+            nhash = Fx18s::putBlob3(itemuuid, text) # we should probably compute the nhash without actually commiting the blob to the file
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
-            item["nx111"] = nx111
-            Librarian::commit(item)
+            Fx18s::setAttribute2(itemuuid, "nx111", JSON.generate(nx111))
             return
         end
         if nx111["type"] == "url" then
@@ -237,25 +232,23 @@ class EditionDesk
             # Let's compute the hash of the file and see if something has changed
             filehash = CommonUtils::filepathToContentHash(location)
             return if nx111["nhash"] == filehash
-            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(item["uuid"], location) # [dottedExtension, nhash, parts]
+            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(itemuuid, location) # [dottedExtension, nhash, parts]
             raise "(error: 79A50CC2-CDA1-4BCA-B11E-F7AC1A54E0F3)" if data.nil?
             dottedExtension, nhash, parts = data
             return if nhash == nx111["nhash"]
             nx111["dottedExtension"] = dottedExtension
             nx111["nhash"] = nhash
             nx111["parts"] = parts
-            item["nx111"] = nx111
-            Librarian::commit(item)
+            Fx18s::setAttribute2(itemuuid, "nx111", JSON.generate(nx111))
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = Fx18Elizabeth.new(item["uuid"])
+            operator = Fx18Elizabeth.new(itemuuid)
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(item["description"]))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
-            item["nx111"] = nx111
-            Librarian::commit(item)
+            Fx18s::setAttribute2(itemuuid, "nx111", JSON.generate(nx111))
             return
         end
         if nx111["type"] == "unique-string" then
@@ -273,21 +266,24 @@ class EditionDesk
     # ----------------------------------------------------
     # Collections (access)
 
-    # EditionDesk::exportAndAccessMiscItemsReadOnly(items)
-    def self.exportAndAccessMiscItemsReadOnly(items)
-        trace = items.reduce("b90c73a8-5772-4f95-8f6a-245a7db0e8ef"){|str, item|
+    # EditionDesk::exportAndAccessMiscItemsReadOnly(itemuuids)
+    def self.exportAndAccessMiscItemsReadOnly(itemuuids)
+        trace = itemuuids.reduce("b90c73a8-5772-4f95-8f6a-245a7db0e8ef"){|str, item|
             Digest::SHA1.hexdigest("#{str}:#{item.to_s}")
         }
         exportLocation = EditionDesk::findOrJustConstructMiscItemsEditionReadOnlyExportLocation(trace)
         if !File.exists?(exportLocation) then
             FileUtils.mkdir(exportLocation)
-            puts "I am going to write the Iam::implementsNx111(collectionitem) children here: #{exportLocation}"
+            puts "I am going to write the Iam::implementsNx111 children here: #{exportLocation}"
             puts "This is a read only export (!)"
-            items
-                .select{|item| Iam::implementsNx111(item) }
-                .each{|item|
-                    next if item["type"] == "url"
-                    EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(exportLocation, item, item["nx111"])
+            itemuuids
+                .select{|itemuuid| Iam::implementsNx111(itemuuid) }
+                .each{|itemuuid|
+                    nx111 = Fx18s::getAttributeOrNull(itemuuid, "nx111")
+                    next if nx111.nil?
+                    nx111 = JSON.parse(nx111)
+                    next if nx111["type"] == "url"
+                    EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(exportLocation, itemuuid, nx111)
                 }
         end
         system("open '#{exportLocation}'")

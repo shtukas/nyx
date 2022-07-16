@@ -13,7 +13,7 @@ class NxConcepts
 
     # NxConcepts::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyClique(uuid)
+        Librarian::destroyEntity(uuid)
     end
 
     # ----------------------------------------------------------------------

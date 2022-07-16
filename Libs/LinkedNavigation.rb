@@ -11,7 +11,8 @@ class LinkedNavigation
                 Landing::landing(item)
             }
         else
-            EditionDesk::exportAndAccessMiscItemsReadOnly(collectionitem, items, month)
+            uuids = items.map{|item| item["uuid"] }
+            EditionDesk::exportAndAccessMiscItemsReadOnly(uuids)
         end
     end
 
@@ -37,18 +38,18 @@ class LinkedNavigation
 
     # LinkedNavigation::navigate(item)
     def self.navigate(item)
-        entities = NxLink::linkedItems(item["uuid"])
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-        LinkedNavigation::navigateMiscEntities(entities)
+        uuids = NxLink::linkedUUIDs(item["uuid"])
+                    # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] } # TODO:
+        LinkedNavigation::navigateMiscEntities(uuids)
     end
 
-    # LinkedNavigation::navigateMiscEntities(entities)
-    def self.navigateMiscEntities(entities)
+    # LinkedNavigation::navigateMiscEntities(uuids)
+    def self.navigateMiscEntities(uuids)
         loop {
             system("clear")
 
-            puts "lowest  datetime: #{entities.first["datetime"]}"
-            puts "highest datetime: #{entities.last["datetime"]}"
+            puts "lowest  datetime: #{Fx18s::getAttributeOrNull(uuids.first, "datetime")}"
+            puts "highest datetime: #{Fx18s::getAttributeOrNull(uuids.last, "datetime")}"
 
             options = ["display all", "edition desk export all", "zoom on time period"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -57,14 +58,14 @@ class LinkedNavigation
             if option == "display all" then
                 loop {
                     system("clear")
-                    linkeditem = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", entities, lambda{|item| LxFunction::function("toString", item) })
+                    linkeditem = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", uuids, lambda{|itemuuid| LxFunction::function("toString2", itemuuid) })
                     break if linkeditem.nil?
                     Landing::landing(linkeditem)
                 }
             end
 
             if option == "edition desk export all" then
-                EditionDesk::exportAndAccessMiscItemsReadOnly(entities)
+                EditionDesk::exportAndAccessMiscItemsReadOnly(uuids)
             end
 
             if option == "zoom on a time period" then
@@ -72,7 +73,10 @@ class LinkedNavigation
                 datetime1 = CommonUtils::interactiveDateTimeBuilder()
                 puts "datetime2:"
                 datetime2 = CommonUtils::interactiveDateTimeBuilder()
-                subset = entities.select{|ix| ix["datetime"] >= datetime1 and ix["datetime"] <= datetime2 }
+                subset = uuids.select{|uuid| 
+                    datetime = Fx18s::getAttributeOrNull(uuid, "datetime")
+                    datetime >= datetime1 and datetime <= datetime2 
+                }
             end
         }
     end

@@ -13,7 +13,7 @@ class TxProjects
 
     # TxProjects::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyClique(uuid)
+        Librarian::destroyEntity(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -75,30 +75,6 @@ class TxProjects
         Fx18s::setsItems(project["uuid"], "project-items-3f154988")
     end
 
-    # TxProjects::elements(project)
-    def self.elements(project)
-        TxProjects::elementuuids(project)
-            .map{|elementuuid| Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid)}
-            .compact
-    end
-
-    # TxProjects::elements2(project, n)
-    def self.elements2(project, n)
-        elementuuids = TxProjects::elementuuids(project)
-        elementuuids.reduce([]){|elems, elementuuid|
-            if elems.size >= n then
-                elems
-            else
-                element = Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid)
-                if element then
-                    elems + [element]
-                else
-                    elems
-                end
-            end
-        }
-    end
-
     # TxProjects::uuidIsProjectElement(uuid)
     def self.uuidIsProjectElement(uuid)
         TxProjects::items().any?{|project| TxProjects::elementuuids(project).include?(uuid) }
@@ -149,7 +125,8 @@ class TxProjects
         Librarian::getObjectsByMikuType("TxProject")
             .each{|project|
                 if Ax39::itemShouldShow(project) or NxBallsService::isRunning(project["uuid"]) then
-                    itemsToKeepOrReInject << project
+                    # itemsToKeepOrReInject << project
+                    # TODO:
                 else
                     itemsToDelistIfPresentInListing << project["uuid"]
                 end
@@ -160,10 +137,9 @@ class TxProjects
                 TxProjects::elementuuids(project)
                     .first(TxProjects::elementsDepth())
                     .select{|elementuuid|  
-                        item = Librarian::getObjectByUUIDOrNullEnforceUnique(elementuuid)
-                        next if item.nil?
                         if NxBallsService::isRunning(elementuuid) then
-                            itemsToKeepOrReInject << item
+                            # itemsToKeepOrReInject << item
+                            # TODO:
                         else
                             itemsToDelistIfPresentInListing << item["uuid"]
                         end   
@@ -186,13 +162,13 @@ class TxProjects
 
     # TxProjects::startAccessProject(project)
     def self.startAccessProject(project)
-        elements = TxProjects::elements2(project, TxProjects::elementsDepth())
-        if elements.size == 1 then
-            LxAction::action("..", elements[0])
+        elementuuids = TxProjects::elementuuids(project).take(TxProjects::elementsDepth())
+        if elementuuids.size == 1 then
+            LxAction::action("..2", elementuuids[0])
             return
         end
-        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
-        return if element.nil?
-        LxAction::action("..", element)
+        elementuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("elementuuid", elementuuids, lambda{|itemuuid| LxFunction::function("toString2", itemuuid) } )
+        return if elementuuid.nil?
+        LxAction::action("..2", elementuuid)
     end
 end

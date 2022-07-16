@@ -106,7 +106,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
-                    Librarian::destroyClique(item["uuid"])
+                    Librarian::destroyEntity(item["uuid"])
                 end
                 return
             end
@@ -116,7 +116,7 @@ class LxAction
                 return
             end
 
-            if Iam::implementsNx111(item) then
+            if Iam::implementsNx111(item["uuid"]) then
                 EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
                 return
             end
@@ -166,7 +166,7 @@ class LxAction
                 end
                 if action == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
-                        Librarian::destroyClique(item["uuid"])
+                        Librarian::destroyEntity(item["uuid"])
                     end
                 end
                 return
@@ -174,7 +174,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ") then
-                    Librarian::destroyClique(item["uuid"])
+                    Librarian::destroyEntity(item["uuid"])
                 end
                 return
             end
@@ -231,12 +231,12 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
-                Librarian::destroyClique(item["uuid"])
+                Librarian::destroyEntity(item["uuid"])
                 return
             end
 
             if item["mikuType"] == "NxLine" then
-                Librarian::destroyClique(item["uuid"])
+                Librarian::destroyEntity(item["uuid"])
                 return
             end
 
@@ -259,7 +259,7 @@ class LxAction
 
         if command == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
-                Librarian::destroyClique(item["uuid"])
+                Librarian::destroyEntity(item["uuid"])
             end
             return
         end

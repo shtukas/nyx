@@ -87,15 +87,6 @@ class Librarian
         answer
     end
 
-    # Librarian::getObjectByUUIDOrNullEnforceUnique(uuid)
-    def self.getObjectByUUIDOrNullEnforceUnique(uuid)
-        clique = Librarian::getClique(uuid)
-        if clique.size <= 1 then
-            return clique.first # covers the empty case (nil) and the 1 case (object)
-        end
-        Cliques::reduceLocalCliqueToOne(uuid)
-    end
-
     # Librarian::getObjectByVariantOrNull(variant)
     def self.getObjectByVariantOrNull(variant)
         object = nil
@@ -117,21 +108,6 @@ class Librarian
 
     # ---------------------------------------------------
     # Objects Writing
-
-    # Librarian::commitIdentical(object)
-    def self.commitIdentical(object)
-        # Do not internal event broadcast from inside this function
-
-        raise "(error: 22533318-f031-44ef-ae10-8b36e0842223, missing attribute uuid)" if object["uuid"].nil?
-        raise "(error: 60eea9fc-7592-47ad-91b9-b737e09b3520, missing attribute mikuType)" if object["mikuType"].nil?
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.execute "delete from _objects_ where _variant_=?", [object["variant"]]
-            db.execute "insert into _objects_ (_uuid_, _variant_, _mikuType_, _object_) values (?, ?, ?, ?)", [object["uuid"], object["variant"], object["mikuType"], JSON.generate(object)]
-            db.close
-        }
-        Cliques::garbageCollectLocalCliqueAutomatic(object["uuid"])
-    end
 
     # Librarian::commit(object)
     def self.commit(object)
@@ -156,44 +132,19 @@ class Librarian
         }
 
         ExternalEvents::sendEventToSQSStage1(object)
-        Cliques::reduceLocalCliqueToOne(object["uuid"])
     end
 
     # --------------------------------------------------------------
     # Object destroy
 
-    # Librarian::destroyVariantNoEvent(variant)
-    def self.destroyVariantNoEvent(variant)
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.execute "delete from _objects_ where _variant_=?", [variant]
-            db.close
-        }
-    end
-
-    # Librarian::destroyCliqueNoEvent(uuid)
-    def self.destroyCliqueNoEvent(uuid)
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.execute "delete from _objects_ where _uuid_=?", [uuid]
-            db.close
-        }
-    end
-
-    # Librarian::destroyClique(uuid)
-    def self.destroyClique(uuid)
-        objects = Librarian::getClique(uuid)
-        return if objects.empty?
-        mikuType = objects[0]["mikuType"]
-        Librarian::destroyCliqueNoEvent(uuid)
-        lxGenealogyAncestors = objects.map{|object| object["lxGenealogyAncestors"] }.flatten + [SecureRandom.uuid]
-        event = {
+    # Librarian::destroyEntity(uuid)
+    def self.destroyEntity(uuid)
+        ExternalEvents::sendEventToSQSStage1({
             "uuid"     => uuid,
             "variant"  => SecureRandom.uuid,
             "mikuType" => "NxDeleted",
             "lxGenealogyAncestors" => lxGenealogyAncestors
-        }
-        ExternalEvents::sendEventToSQSStage1(event)
+        })
         InternalEvents::broadcast({
             "mikuType"        => "(object has been deleted)",
             "deletedUUID"     => uuid,
@@ -202,18 +153,38 @@ class Librarian
     end
 
     # --------------------------------------------------------------
-    # Incoming Events
+    # Fx18 Interface
 
-    # Librarian::incomingEvent(event, source)
-    def self.incomingEvent(event, source)
-        if event["mikuType"] == "NxDeleted" then
-            Librarian::destroyCliqueNoEvent(event["uuid"])
-            return
+    # Librarian::mikuTypes(shouldComputeFromScratch = false)
+    def self.mikuTypes(shouldComputeFromScratch = false)
+        setuuid = "mikuTypes:a52acbf5"
+        mikuTypes = XCacheSets::values(setuuid)
+        if mikuTypes.empty? or shouldComputeFromScratch  then
+            puts "computing mikuTypes index from scratch"
+            Fx18Xp::fx18Filepaths().each{|filepath|
+                puts "computing mikuTypes index from scratch, filepath: #{filepath}"
+                mikuType = Fx18s::getAttributeOrNull2(filepath, "mikuType")
+                XCacheSets::set(setuuid, mikuType, mikuType)
+            }
+            mikuTypes = XCacheSets::values(setuuid)
         end
-        return if Librarian::getObjectByVariantOrNull(event["variant"])
-        if source then
-            puts "Librarian, incoming event (#{source}): #{JSON.pretty_generate(event)}".green
+        mikuTypes
+    end
+
+    # Librarian::mikuTypeUUIDs(mikuType, shouldComputeFromScratch = false)
+    def self.mikuTypeUUIDs(mikuType, shouldComputeFromScratch = false)
+        setuuid = "Efd9646f3766:#{mikuType}"
+        uuids = XCacheSets::values(setuuid)
+        if uuids.empty? or shouldComputeFromScratch then
+            Fx18Xp::fx18Filepaths().each{|filepath|
+                puts "Librarian::mikuTypeUUIDs, mikuType: #{mikuType}, filepath: #{filepath}"
+                m = Fx18s::getAttributeOrNull2(filepath, "mikuType")
+                next if m != mikuType
+                uuid = Fx18s::getAttributeOrNull2(filepath, "uuid")
+                XCacheSets::set(setuuid, uuid, uuid)
+            }
+            uuids = XCacheSets::values(setuuid)
         end
-        Librarian::commitIdentical(event)
+        uuids
     end
 end

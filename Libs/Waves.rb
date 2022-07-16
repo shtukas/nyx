@@ -11,7 +11,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyClique(uuid)
+        Librarian::destroyEntity(uuid)
     end
 
     # --------------------------------------------------

@@ -13,9 +13,10 @@ class Iam
         ["NxPerson", "NxEntity", "NxConcept", "NxCollection", "NxTimeline"]
     end
 
-    # Iam::implementsNx111(item)
-    def self.implementsNx111(item)
-        Iam::nx111Types().include?(item["mikuType"])
+    # Iam::implementsNx111(itemuuid)
+    def self.implementsNx111(itemuuid)
+        mikuType = Fx18s::getAttributeOrNull(itemuuid, "mikuType")
+        Iam::nx111Types().include?(mikuType)
     end
 
     # Iam::isNetworkAggregation(item)

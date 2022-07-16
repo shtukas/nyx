@@ -73,14 +73,7 @@ class Streaming
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
             if command == "landing" then
-                LxAction::action("landing", item)
-                item = Librarian::getObjectByUUIDOrNullEnforceUnique(item["uuid"])
-                if item.nil? then
-                    return nil
-                end
-                if item["mikuType"] != "NxTask" then
-                    return nil
-                end
+                LxAction::action("landing2", item["uuid"])
                 next
             end
             if command == "done" then

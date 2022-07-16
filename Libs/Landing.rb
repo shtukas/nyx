@@ -7,11 +7,10 @@ class Landing
     def self.removeConnected(item)
         store = ItemStore.new()
 
-        NxLink::linkedItems(item["uuid"])
-            .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-            .each{|entity| 
-                indx = store.register(entity, false)
-                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+        NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+            .each{|entityuuid| 
+                indx = store.register(entityuuid, false)
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString2", entityuuid)}"
             }
 
         i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")
@@ -19,9 +18,9 @@ class Landing
         return if i == ""
 
         if (indx = Interpreting::readAsIntegerOrNull(i)) then
-            entity = store.get(indx)
-            return if entity.nil?
-            NxLink::unlink(item["uuid"], entity["uuid"])
+            entityuuid = store.get(indx)
+            return if entityuuid.nil?
+            NxLink::unlink(item["uuid"], entityuuid)
         end
     end
 
@@ -61,14 +60,8 @@ class Landing
 
             counter = 0
             linkeduuids.each{|linkeduuid|
-                entity = Librarian::getObjectByUUIDOrNullEnforceUnique(linkeduuid)
-                if entity.nil? then
-                    # doing a bit of garbage collection
-                    NxLink::unlink(uuid, linkeduuid)
-                    next
-                end
-                indx = store.register(entity, false)
-                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+                indx = store.register(linkeduuid, false)
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString2", linkeduuid)}"
                 counter = counter + 1
                 break if counter >= 200
             }
@@ -83,9 +76,9 @@ class Landing
             break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
+                entityuuid = store.get(indx)
+                next if entityuuid.nil?
+                LxAction::action("landing2", entityuuid)
             end
 
             if Interpreting::match("description", command) then
@@ -147,7 +140,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Librarian::destroyClique(item["uuid"])
+                    Librarian::destroyEntity(item["uuid"])
                     break
                 end
             end
@@ -182,11 +175,10 @@ class Landing
                 puts "nx111: (not found)".yellow
             end
 
-            NxLink::linkedItems(item["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity| 
-                    indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+            NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entityuuid| 
+                    indx = store.register(entityuuid, false)
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString2", entityuuid)}"
                 }
 
             puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | boxing | upload | destroy".yellow
@@ -196,9 +188,9 @@ class Landing
             break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
+                entityuuid = store.get(indx)
+                next if entityuuid.nil?
+                LxAction::action("landing2", entityuuid)
             end
 
             if Interpreting::match("access", command) then
@@ -263,7 +255,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Librarian::destroyClique(item["uuid"])
+                    Librarian::destroyEntity(item["uuid"])
                     break
                 end
             end
@@ -291,11 +283,10 @@ class Landing
             puts "nhash: #{item["nhash"]}".yellow
             puts "parts (count): #{item["parts"].size}".yellow
 
-            NxLink::linkedItems(item["uuid"])
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entity| 
-                    indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+            NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .each{|entityuuid| 
+                    indx = store.register(entityuuid, false)
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString2", entityuuid)}"
                 }
 
             puts "commands: access | <n> | description | datetime | note | json | update | link | unlink | boxing | destroy".yellow
@@ -305,9 +296,9 @@ class Landing
             break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("landing", entity)
+                entityuuid = store.get(indx)
+                next if entityuuid.nil?
+                LxAction::action("landing2", entityuuid)
             end
 
             if Interpreting::match("access", command) then
@@ -367,7 +358,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Librarian::destroyClique(item["uuid"])
+                    Librarian::destroyEntity(item["uuid"])
                     break
                 end
             end
@@ -376,7 +367,7 @@ class Landing
 
     # Landing::landing(item)
     def self.landing(item)
-        if Iam::implementsNx111(item) then
+        if Iam::implementsNx111(item["uuid"]) then
             Landing::implementsNx111Landing(item)
             return
         end

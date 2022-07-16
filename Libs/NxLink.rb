@@ -41,11 +41,4 @@ class NxLink
         end
         Fx18s::setsItems(uuid, "network-link")
     end
-
-    # NxLink::linkedItems(uuid)
-    def self.linkedItems(uuid)
-        NxLink::linkedUUIDs(uuid)
-            .map{|linkeduuid| Librarian::getObjectByUUIDOrNullEnforceUnique(linkeduuid)}
-            .compact
-    end
 end

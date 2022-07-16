@@ -84,8 +84,10 @@ class ExternalEvents
             Listing::remove(itemuuid)
             return
         end
-        # If an event has not be catured, then we assume it's a database object 
-        Librarian::incomingEvent(event, verbose ? "aws" : nil)
+        if event["mikuType"] == "NxDeleted" then
+            # Todo:
+            return
+        end
     end
 
     # ExternalEvents::sync(verbose)

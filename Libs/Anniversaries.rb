@@ -196,7 +196,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Librarian::destroyClique(item["uuid"])
+                Librarian::destroyEntity(item["uuid"])
                 break
             end
         }
