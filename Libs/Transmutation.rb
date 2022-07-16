@@ -88,6 +88,7 @@ class Transmutation
         if source == "TxDated" and target == "NxTask" then
             return true if isSimulation
             Fx18s::setAttribute2(item["uuid"], "mikuType", "NxTask")
+            TxProjects::interactivelyProposeToAttachTaskToProject(item["uuid"])
             return
         end
 

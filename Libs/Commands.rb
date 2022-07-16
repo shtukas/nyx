@@ -368,11 +368,7 @@ class Commands
         if Interpreting::match("task", input) then
             itemuuid = NxTasks::interactivelyCreateNewOrNull()
             return if itemuuid.nil?
-            if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a project ? ") then
-                projectuuid = TxProjects::architectOneOrNull()
-                return if projectuuid.nil?
-                TxProjects::addElement(projectuuid, itemuuid)
-            end
+            TxProjects::interactivelyProposeToAttachTaskToProject(itemuuid)
             return
         end
 

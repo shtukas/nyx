@@ -6,14 +6,14 @@ class Listing
         "/Users/pascal/Galaxy/DataBank/Stargate/listing.sqlite3"
     end
 
-    # Listing::insert(uuid, zone, ordinal, announce, object)
-    def self.insert(uuid, zone, ordinal, announce, object)
+    # Listing::insert(uuid, zone, ordinal, announce, object, createdAt)
+    def self.insert(uuid, zone, ordinal, announce, object, createdAt)
         $listing_database_semaphore.synchronize {
             db = SQLite3::Database.new(Listing::databaseFilepath())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.execute "delete from _listing_ where _uuid_=?", [uuid]
-            db.execute "insert into _listing_ (_uuid_, _zone_, _ordinal_, _announce_, _object_, _createdAt_) values (?, ?, ?, ?, ?, ?)", [uuid, zone, ordinal, announce, JSON.generate(object), Time.new.to_i]
+            db.execute "insert into _listing_ (_uuid_, _zone_, _ordinal_, _announce_, _object_, _createdAt_) values (?, ?, ?, ?, ?, ?)", [uuid, zone, ordinal, announce, JSON.generate(object), createdAt]
             db.close
         }
     end
@@ -133,9 +133,9 @@ class Listing
         }
     end
 
-    # Listing::insert2(zone, item, ordinal)
-    def self.insert2(zone, item, ordinal)
-        Listing::insert(item["uuid"], zone, ordinal, LxFunction::function("toString", item), item)
+    # Listing::insert2(zone, item, ordinal, createdAt)
+    def self.insert2(zone, item, ordinal, createdAt)
+        Listing::insert(item["uuid"], zone, ordinal, LxFunction::function("toString", item), item, createdAt)
     end
 
     # Listing::insertOrReInsert(zone, item)
@@ -144,10 +144,10 @@ class Listing
                             .select{|entry| entry["_uuid_"] == item["uuid"] }
                             .first
         if existingEntry then
-            Listing::insert2(zone, item, existingEntry["_ordinal_"])
+            Listing::insert2(zone, item, existingEntry["_ordinal_"], existingEntry["_createdAt_"])
         else
             # Instead of using next ordinal here, we could interactively ask for it.
-            Listing::insert2(zone, item, Listing::nextOrdinal())
+            Listing::insert2(zone, item, Listing::nextOrdinal(), Time.new.to_i)
         end
     end
 end

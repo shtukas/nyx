@@ -178,4 +178,13 @@ class TxProjects
         return if elementuuid.nil?
         LxAction::action("..2", elementuuid)
     end
+
+    # TxProjects::interactivelyProposeToAttachTaskToProject(itemuuid)
+    def self.interactivelyProposeToAttachTaskToProject(itemuuid)
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a project ? ") then
+            projectuuid = TxProjects::architectOneOrNull()
+            return if projectuuid.nil?
+            TxProjects::addElement(projectuuid, itemuuid)
+        end
+    end
 end
