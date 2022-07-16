@@ -37,6 +37,7 @@ class LxAction
 
             if item["mikuType"] == "fitness1" then
                 NxBallsService::close(item["uuid"], true)
+                Listing::remove(item["uuid"])
             end
 
             if item["mikuType"] == "TxDated" and item["description"].include?("(vienna)") then
