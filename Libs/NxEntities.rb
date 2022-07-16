@@ -8,7 +8,15 @@ class NxEntities
 
     # NxEntities::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxEntity")
+        Librarian::mikuTypeUUIDs("NxEntity").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxEntity",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description")
+            }
+        }
     end
 
     # NxEntities::destroy(uuid)

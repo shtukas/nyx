@@ -4,7 +4,16 @@ class NxFrames
 
     # NxFrames::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxFrame")
+        Librarian::mikuTypeUUIDs("NxFrame").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxFrame",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+            }
+        }
     end
 
     # NxFrames::destroy(uuid)
@@ -29,7 +38,7 @@ class NxFrames
 
         Fx18s::ensureFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid)
-        Fx18s::setAttribute2(uuid, "mikuType",    "NxEvent")
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxFrame")
         Fx18s::setAttribute2(uuid, "unixtime",    unixtime)
         Fx18s::setAttribute2(uuid, "datetime",    datetime)
         Fx18s::setAttribute2(uuid, "description", description)

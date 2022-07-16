@@ -8,7 +8,16 @@ class TxProjects
 
     # TxProjects::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxProject")
+        Librarian::mikuTypeUUIDs("TxProject").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "TxProject",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "ax39"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "ax39")),
+            }
+        }
     end
 
     # TxProjects::destroy(uuid)
@@ -109,7 +118,7 @@ class TxProjects
 
     # TxProjects::itemsForSection1()
     def self.itemsForSection1()
-        Librarian::getObjectsByMikuType("TxProject")
+        TxProjects::items()
     end
 
     # TxProjects::elementsDepth()
@@ -122,7 +131,7 @@ class TxProjects
         itemsToKeepOrReInject = []
         itemsToDelistIfPresentInListing = []
 
-        Librarian::getObjectsByMikuType("TxProject")
+        TxProjects::items()
             .each{|project|
                 if Ax39::itemShouldShow(project) or NxBallsService::isRunning(project["uuid"]) then
                     # itemsToKeepOrReInject << project
@@ -132,7 +141,7 @@ class TxProjects
                 end
             }
 
-        Librarian::getObjectsByMikuType("TxProject")
+        TxProjects::items()
             .each{|project|
                 TxProjects::elementuuids(project)
                     .first(TxProjects::elementsDepth())

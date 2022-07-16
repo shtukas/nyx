@@ -8,7 +8,16 @@ class NxDataNodes
 
     # NxDataNodes::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxDataNode")
+        Librarian::mikuTypeUUIDs("NxDataNode").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxDataNode",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+            }
+        }
     end
 
     # NxDataNodes::destroy(uuid)

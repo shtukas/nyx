@@ -4,7 +4,16 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxTask")
+        Librarian::mikuTypeUUIDs("NxTask").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxTask",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+            }
+        }
     end
 
     # NxTasks::destroy(uuid)

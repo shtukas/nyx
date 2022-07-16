@@ -5,7 +5,15 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxPerson")
+        Librarian::mikuTypeUUIDs("NxPerson").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxPerson",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "name"        => Fx18s::getAttributeOrNull(objectuuid, "name")
+            }
+        }
     end
 
     # NxPersons::issue(name1)

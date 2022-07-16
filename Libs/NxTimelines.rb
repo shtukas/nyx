@@ -8,7 +8,15 @@ class NxTimelines
 
     # NxTimelines::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxTimeline")
+        Librarian::mikuTypeUUIDs("NxTimeline").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxTimeline",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            }
+        }
     end
 
     # NxTimelines::destroy(uuid)

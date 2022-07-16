@@ -6,7 +6,17 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Librarian::getObjectsByMikuType("Wave")
+        Librarian::mikuTypeUUIDs("Wave").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "Wave",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "nx46"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx46")),
+                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+                "lastDoneDateTime" => Fx18s::getAttributeOrNull(objectuuid, "lastDoneDateTime"),
+            }
+        }
     end
 
     # Waves::destroy(uuid)

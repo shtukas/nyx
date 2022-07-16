@@ -31,81 +31,6 @@ class Librarian
         answer
     end
 
-    # Librarian::countObjectsByMikuType(mikuType)
-    def self.countObjectsByMikuType(mikuType)
-        count = nil
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select count(*) as _count_ from _objects_ where _mikuType_=?", [mikuType]) do |row|
-                count = row['_count_']
-            end
-            db.close
-        }
-        count
-    end
-
-    # Librarian::getObjectsByMikuType(mikuType)
-    def self.getObjectsByMikuType(mikuType)
-        objects = []
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _objects_ where _mikuType_=?", [mikuType]) do |row|
-                object = JSON.parse(row['_object_'])
-                if object["variant"].nil? then
-                    object["variant"] = row['_variant_']
-                end
-                objects << object
-            end
-            db.close
-        }
-        objects
-    end
-
-    # Librarian::getClique(uuid)
-    def self.getClique(uuid) 
-        answer = []
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _objects_ where _uuid_=?", [uuid]) do |row|
-                object = JSON.parse(row['_object_'])
-                if object["variant"].nil? then
-                    object["variant"] = row['_variant_']
-                end
-                answer << object
-            end
-            db.close
-        }
-        answer
-    end
-
-    # Librarian::getObjectByVariantOrNull(variant)
-    def self.getObjectByVariantOrNull(variant)
-        object = nil
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _objects_ where _variant_=?", [variant]) do |row|
-                object = JSON.parse(row['_object_'])
-                if object["variant"].nil? then
-                    object["variant"] = row['_variant_']
-                end
-            end
-            db.close
-        }
-        object
-    end
-
     # --------------------------------------------------------------
     # Object destroy
 
@@ -158,5 +83,10 @@ class Librarian
             uuids = XCacheSets::values(setuuid)
         end
         uuids
+    end
+
+    # Librarian::countObjectsByMikuType(mikuType)
+    def self.countObjectsByMikuType(mikuType)
+        Librarian::mikuTypeUUIDs(mikuType).count
     end
 end

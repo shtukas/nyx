@@ -8,7 +8,14 @@ class NxLines
 
     # NxLines::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxLine")
+        Librarian::mikuTypeUUIDs("NxLine").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxLine",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "line"        => Fx18s::getAttributeOrNull(objectuuid, "line"),
+            }
+        }
     end
 
     # ----------------------------------------------------------------------
@@ -19,7 +26,7 @@ class NxLines
         uuid = SecureRandom.uuid
         Fx18s::ensureFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid)
-        Fx18s::setAttribute2(uuid, "mikuType",    "NxEvent")
+        Fx18s::setAttribute2(uuid, "mikuType",    "NxLine")
         Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         Fx18s::setAttribute2(uuid, "line",        line)
         uuid

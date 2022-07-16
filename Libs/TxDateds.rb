@@ -4,7 +4,16 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        Librarian::getObjectsByMikuType("TxDated")
+        Librarian::mikuTypeUUIDs("TxDated").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "TxDated",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+            }
+        }
     end
 
     # TxDateds::destroy(uuid)

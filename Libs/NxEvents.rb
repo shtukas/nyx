@@ -8,7 +8,16 @@ class NxEvents
 
     # NxEvents::items()
     def self.items()
-        Librarian::getObjectsByMikuType("NxEvent")
+        Librarian::mikuTypeUUIDs("NxEvent").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxEvent",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+            }
+        }
     end
 
     # NxEvents::destroy(uuid)

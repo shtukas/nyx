@@ -83,7 +83,17 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        Librarian::getObjectsByMikuType("NxAnniversary")
+        Librarian::mikuTypeUUIDs("NxAnniversary").each{|objectuuid|
+            {
+                "uuid"        => objectuuid,
+                "mikuType"    => "NxAnniversary",
+                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+                "startdate"   => Fx18s::getAttributeOrNull(objectuuid, "startdate"),
+                "repeatType"  => Fx18s::getAttributeOrNull(objectuuid, "repeatType"),
+                "lastCelebrationDate" => Fx18s::getAttributeOrNull(objectuuid, "lastCelebrationDate")
+            }
+        }
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
