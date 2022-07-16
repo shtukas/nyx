@@ -12,7 +12,7 @@ class LxFunction
             puts "command: #{command}"
             puts "object: #{JSON.pretty_generate(item)}"
             puts "Aborting."
-            exit
+            raise "(error: f74385d4-5ece-4eae-8a09-90d3a5e0f120)"
         end
 
         if command == "toString" then
