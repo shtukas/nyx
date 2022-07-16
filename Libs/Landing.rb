@@ -8,9 +8,11 @@ class Landing
         store = ItemStore.new()
 
         NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-            .each{|entityuuid| 
-                indx = store.register(entityuuid, false)
-                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString2", entityuuid)}"
+            .each{|entityuuid|
+                entity = Fx18Xp::objectuuidToItemOrNull(entityuuid)
+                next if entity.nil?
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
             }
 
         i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")
@@ -18,9 +20,9 @@ class Landing
         return if i == ""
 
         if (indx = Interpreting::readAsIntegerOrNull(i)) then
-            entityuuid = store.get(indx)
-            return if entityuuid.nil?
-            NxLink::unlink(item["uuid"], entityuuid)
+            entity = store.get(indx)
+            return if entity.nil?
+            NxLink::unlink(item["uuid"], entity["uuid"])
         end
     end
 
@@ -60,8 +62,10 @@ class Landing
 
             counter = 0
             linkeduuids.each{|linkeduuid|
-                indx = store.register(linkeduuid, false)
-                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString2", linkeduuid)}"
+                entity = Fx18Xp::objectuuidToItemOrNull(linkeduuid)
+                next if entity.nil?
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 counter = counter + 1
                 break if counter >= 200
             }
@@ -76,9 +80,9 @@ class Landing
             break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entityuuid = store.get(indx)
-                next if entityuuid.nil?
-                LxAction::action("landing2", entityuuid)
+                entity = store.get(indx)
+                next if entity.nil?
+                LxAction::action("landing", entity)
             end
 
             if Interpreting::match("description", command) then
@@ -174,9 +178,11 @@ class Landing
             end
 
             NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .each{|entityuuid| 
-                    indx = store.register(entityuuid, false)
-                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString2", entityuuid)}"
+                .each{|entityuuid|
+                    entity = Fx18Xp::objectuuidToItemOrNull(entityuuid)
+                    next if entity.nil?
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
             puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | boxing | upload | destroy".yellow
@@ -186,9 +192,9 @@ class Landing
             break if command == ""
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entityuuid = store.get(indx)
-                next if entityuuid.nil?
-                LxAction::action("landing2", entityuuid)
+                entity = store.get(indx)
+                next if entity.nil?
+                LxAction::action("landing", entity)
             end
 
             if Interpreting::match("access", command) then

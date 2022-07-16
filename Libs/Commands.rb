@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | project ",
             "anniversaries | calendar | zeroes | ondates | todos | projects",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | destroy | >project | >nyx",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | >> (transmute) | destroy | >project | >nyx",
             "ordinal <itemPosition> <newOrdinal> | rotate | remove",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute",
@@ -391,8 +391,19 @@ class Commands
             return
         end
 
+        if Interpreting::match(">>", input) then
+            item = store.getDefault()
+            return if item.nil?
+            LxAction::action("transmute", item)
+            Listing::remove(item["uuid"])
+            return
+        end
+
         if Interpreting::match("transmute", input) then
-            LxAction::action("transmute", store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            LxAction::action("transmute", item)
+            Listing::remove(item["uuid"])
             return
         end
 
@@ -401,6 +412,7 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("transmute", item)
+            Listing::remove(item["uuid"])
             return
         end
 

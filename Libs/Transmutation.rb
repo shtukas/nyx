@@ -68,14 +68,14 @@ class Transmutation
         if source == "NxTask" and target == "NxDataNode" then
             return true if isSimulation
             Fx18s::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
-            LxAction::action("landing2", item["uuid"])
+            LxAction::action("landing", item)
             return
         end
 
         if source == "TxDated" and target == "NxDataNode" then
             return true if isSimulation
             Fx18s::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
-            LxAction::action("landing2", item["uuid"])
+            LxAction::action("landing", item)
             return
         end
 

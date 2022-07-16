@@ -53,7 +53,9 @@ class Nyx
             if operation == "make new data entity" then
                 itemuuid = Architect::interactivelyMakeNewOrNull()
                 next if itemuuid.nil?
-                LxAction::action("landing2", itemuuid)
+                item = Fx18Xp::objectuuidToItemOrNull(itemuuid)
+                next if item.nil?
+                LxAction::action("landing", item)
             end
             if operation == "make new event" then
                 item = NxEvents::interactivelyIssueNewItemOrNull()

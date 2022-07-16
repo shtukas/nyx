@@ -5,14 +5,16 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        if Fx18s::getAttributeOrNull(itemuuid, "mikuType") != "NxTask" then
+        item = Fx18Xp::objectuuidToItemOrNull(itemuuid)
+        return if item.nil?
+        if item["mikuType"] != "NxTask" then
             puts "I cannot >nyx something that is not a NxTask"
             LucilleCore::pressEnterToContinue()
             return
         end
-        LxAction::action("stop", itemuuid)
-        Fx18s::setAttribute2(itemuuid, "mikuType", "NxDataNode")
-        LxAction::action("landing2", itemuuid)
+        LxAction::action("stop", item["uuid"])
+        Fx18s::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
+        LxAction::action("landing", item)
     end
 
     # Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
@@ -70,7 +72,7 @@ class Streaming
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
             if command == "landing" then
-                LxAction::action("landing2", item["uuid"])
+                LxAction::action("landing", item)
                 next
             end
             if command == "done" then

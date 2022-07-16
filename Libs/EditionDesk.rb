@@ -39,7 +39,9 @@ class EditionDesk
             }
 
         index1 = EditionDesk::getMaxIndex(parentLocation) + 1
-        name1 = "#{index1}|#{CommonUtils::sanitiseStringForFilenaming(LxFunction::function("toString2", itemuuid)).gsub("|","-")}|#{part3and4}"
+        item = Fx18Xp::objectuuidToItemOrNull(itemuuid)
+        str = item ? LxFunction::function("toString", item) : "item not found"
+        name1 = "#{index1}|#{CommonUtils::sanitiseStringForFilenaming(str).gsub("|","-")}|#{part3and4}"
 
         [false, "#{parentLocation}/#{name1}"]
     end

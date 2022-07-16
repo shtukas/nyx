@@ -272,5 +272,10 @@ class Fx18Xp
             }
         puts "fsck completed successfully".green
     end
+
+    # Fx18Xp::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+
+    end
 end
 

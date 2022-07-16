@@ -58,9 +58,10 @@ class LinkedNavigation
             if option == "display all" then
                 loop {
                     system("clear")
-                    linkeditem = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", uuids, lambda{|itemuuid| LxFunction::function("toString2", itemuuid) })
-                    break if linkeditem.nil?
-                    Landing::landing(linkeditem)
+                    lb  = lambda{|itemuuid| LxFunction::function("toString", Fx18Xp::objectuuidToItemOrNull(itemuuid)) }
+                    linkeditemuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", uuids, lb)
+                    break if linkeditemuuid.nil?
+                    Landing::landing(Fx18Xp::objectuuidToItemOrNull(linkeditemuuid))
                 }
             end
 

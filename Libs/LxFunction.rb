@@ -72,11 +72,6 @@ class LxFunction
             end
         end
 
-        if command == "toString2" then
-            # TODO:
-            return item
-        end
-
         puts "I do not know how to LxFunction::function (command: #{command}, item: #{JSON.pretty_generate(item)})"
         puts "Aborting."
         exit

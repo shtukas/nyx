@@ -6,16 +6,23 @@ class TxProjects
     # ----------------------------------------------------------------------
     # IO
 
+    # TxProjects::objectuuidOfTypeTxProjectToItem(objectuuid)
+    def self.objectuuidOfTypeTxProjectToItem(objectuuid)
+        item = {
+            "uuid"        => objectuuid,
+            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
+            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
+            "ax39"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "ax39")),
+        }
+        raise "(error: 7aa5e8bd-8ebf-4098-b125-f95e620f49b8) item: #{item}" if item["mikuType"] != "TxProject"
+        item
+    end
+
     # TxProjects::items()
     def self.items()
         Librarian::mikuTypeUUIDs("TxProject").map{|objectuuid|
-            {
-                "uuid"        => objectuuid,
-                "mikuType"    => "TxProject",
-                "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-                "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-                "ax39"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "ax39")),
-            }
+            TxProjects::objectuuidOfTypeTxProjectToItem(objectuuid)
         }
     end
 
@@ -170,13 +177,15 @@ class TxProjects
     # TxProjects::startAccessProject(project)
     def self.startAccessProject(project)
         elementuuids = TxProjects::elementuuids(project).take(TxProjects::elementsDepth())
-        if elementuuids.size == 1 then
-            LxAction::action("..2", elementuuids[0])
+        elements = elementuuids.map{|elementuuid| Fx18Xp::objectuuidToItemOrNull(elementuuid) }
+        if elements.size == 1 then
+            LxAction::action("..", elements[0])
             return
         end
-        elementuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("elementuuid", elementuuids, lambda{|itemuuid| LxFunction::function("toString2", itemuuid) } )
-        return if elementuuid.nil?
-        LxAction::action("..2", elementuuid)
+
+        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
+        return if element.nil?
+        LxAction::action("..", element)
     end
 
     # TxProjects::interactivelyProposeToAttachTaskToProject(itemuuid)
