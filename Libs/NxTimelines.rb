@@ -36,20 +36,16 @@ class NxTimelines
 
     # NxTimelines::interactivelyIssueNewItemOrNull()
     def self.interactivelyIssueNewItemOrNull()
-
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-
         Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid)
         Fx18s::setAttribute2(uuid, "mikuType",    "NxTimeline")
         Fx18s::setAttribute2(uuid, "unixtime",    unixtime)
         Fx18s::setAttribute2(uuid, "datetime",    datetime)
         Fx18s::setAttribute2(uuid, "description", description)
-
         uuid
     end
 

@@ -138,18 +138,13 @@ class Waves
 
     # Waves::issueNewWaveInteractivelyOrNull()
     def self.issueNewWaveInteractivelyOrNull()
-
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
-
         uuid = SecureRandom.uuid
-
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-
         Fx18s::makeNewFile(uuid)
+        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid2)
         Fx18s::setAttribute2(uuid, "mikuType",    "Wave")
         Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -157,7 +152,6 @@ class Waves
         Fx18s::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
         Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
         Fx18s::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
-        
         uuid
     end
 

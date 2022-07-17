@@ -15,7 +15,6 @@ class NyxNetworkSpecialCircumstances
         end
 
         uuid2 = SecureRandom.uuid
-
         Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid2)
         Fx18s::setAttribute2(uuid, "mikuType",    "NxDataNode")
@@ -23,9 +22,7 @@ class NyxNetworkSpecialCircumstances
         Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18s::setAttribute2(uuid, "description", "#{item["description"]} Genesis")
         Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(item["nx111"]))
-
         NxLink::issue(item["uuid"], uuid2)
-
         Transmutation::transmutation1(item, item["mikuType"], targetType)
     end
 end
