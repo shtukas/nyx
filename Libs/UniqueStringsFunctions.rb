@@ -44,7 +44,9 @@ class UniqueStringsFunctions
 
         puts "" # To accomodate CommonUtils::putsOnPreviousLine
         # Edited when we got rid of Librarian::objects() ( aebe4846-be7b-4688-ab32-eedbf65ce75b )
-        Librarian::objects().each{|item|
+
+        # TODO:
+        [].each{|item|
             next if item["nx111"].nil?
             CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
             nx111 = item["nx111"]

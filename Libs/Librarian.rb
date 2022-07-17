@@ -3,39 +3,11 @@
 
 class Librarian
 
-    # Librarian::pathToObjectsDatabaseFile()
-    def self.pathToObjectsDatabaseFile()
-        "/Users/pascal/Galaxy/DataBank/Stargate/objects.sqlite3"
-    end
-
-    # ---------------------------------------------------
-    # Objects Reading
-
-    # Librarian::objects()
-    def self.objects()
-        answer = []
-        $librarian_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Librarian::pathToObjectsDatabaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _objects_") do |row|
-                object = JSON.parse(row['_object_'])
-                if object["variant"].nil? then
-                    object["variant"] = row['_variant_']
-                end
-                answer << object
-            end
-            db.close
-        }
-        answer
-    end
-
     # --------------------------------------------------------------
-    # Object destroy
+    # Fx18 Adaptation
 
-    # Librarian::destroyEntity(uuid)
-    def self.destroyEntity(uuid)
+    # Librarian::destroyFx18Logically(uuid)
+    def self.destroyFx18Logically(uuid)
         SystemEvents::sendEventToSQSStage1({
             "uuid"     => uuid,
             "variant"  => SecureRandom.uuid,
@@ -47,9 +19,6 @@ class Librarian
             "deletedMikuType" => mikuType
         }, true)
     end
-
-    # --------------------------------------------------------------
-    # Fx18 Adaptation
 
     # Librarian::mikuTypes(shouldComputeFromScratch = false)
     def self.mikuTypes(shouldComputeFromScratch = false)

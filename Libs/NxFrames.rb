@@ -25,7 +25,7 @@ class NxFrames
 
     # NxFrames::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyEntity(uuid)
+        Librarian::destroyFx18Logically(uuid)
     end
 
     # --------------------------------------------------

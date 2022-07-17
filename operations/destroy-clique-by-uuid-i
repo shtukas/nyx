@@ -5,4 +5,4 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-Librarian::destroyEntity(uuid)
+Librarian::destroyFx18Logically(uuid)
