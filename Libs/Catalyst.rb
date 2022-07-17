@@ -192,7 +192,7 @@ class Catalyst
         if section1.size > 0 then
             puts ""
             puts "section 1:"
-            vspaceleft = vspaceleft - 1
+            vspaceleft = vspaceleft - 2
             section1
                 .each{|item|
                     store.register(item, false)
