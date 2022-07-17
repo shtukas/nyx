@@ -617,8 +617,8 @@ class Fx18Synchronisation
         db.close
     end
 
-    # Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
-    def self.propagateFileEvent(filepath1, filepath2)
+    # Fx18Synchronisation::propagateFileEvents(filepath1, filepath2)
+    def self.propagateFileEvents(filepath1, filepath2)
         raise "(error: d5e6f2d3-9eab-484a-bde8-d7e6d479b04f)" if !File.exists?(filepath1)
 
         raise "(error: 5d24c60a-db47-4643-a618-bb2057daafd2)" if !File.exists?(filepath2)
@@ -679,8 +679,8 @@ class Fx18Synchronisation
         }
     end
 
-    # Fx18Synchronisation::propagateRepository(folderpath1, folderpath2)
-    def self.propagateRepository(folderpath1, folderpath2)
+    # Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, shouldMoveFx19s)
+    def self.propagateRepository(folderpath1, folderpath2, shouldMoveFx19s)
 
         LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
             next if filepath1[-13, 13] != ".fx18.sqlite3"
@@ -691,7 +691,7 @@ class Fx18Synchronisation
                 FileUtils.cp(filepath1, filepath2)
             else
                 puts "[repo sync] propagate file events; file: #{filepath1}"
-                Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
+                Fx18Synchronisation::propagateFileEvents(filepath1, filepath2)
             end
         }
 
@@ -700,7 +700,11 @@ class Fx18Synchronisation
             filename = File.basename(filepath1)
             filepath2 = "#{folderpath2}/#{filename}"
             if File.exists?(filepath2) then
-                Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
+                Fx18Synchronisation::propagateFileEvents(filepath1, filepath2)
+            else
+                if shouldMoveFx19s then
+                    FileUtils.cp(filepath1, filepath2)
+                end
             end
         }
     end
@@ -708,8 +712,8 @@ class Fx18Synchronisation
     # Fx18Synchronisation::sync()
     def self.sync()
         folderpath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18s"
-        folderpath2 = "/Volumes/Infinity/Data/Pascal/Stargate-Central/Fx18"
-        Fx18Synchronisation::propagateRepository(folderpath1, folderpath2)
-        Fx18Synchronisation::propagateRepository(folderpath2, folderpath1)
+        folderpath2 = "/Volumes/Infinity/Data/Pascal/Stargate-Central/Fx18s"
+        Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, true)
+        Fx18Synchronisation::propagateRepository(folderpath2, folderpath1, false)
     end
 end
