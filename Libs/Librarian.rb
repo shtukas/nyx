@@ -69,7 +69,7 @@ class Librarian
 
             # Remove the objectuuid from all the sets
             Librarian::mikuTypes().each{|mikuType|
-                XCacheSets::destroy("Efd9646f3766:#{mikuType}", objectuuid, objectuuid)
+                XCacheSets::destroy("Efd9646f3766:#{mikuType}", objectuuid)
             }
 
             # add the objectuuid into the right set
