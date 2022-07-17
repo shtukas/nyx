@@ -31,7 +31,7 @@ class Fx18s
     # Fx18s::acquireFilepathOrError(objectuuid)
     def self.acquireFilepathOrError(objectuuid)
         filepath = Fx18s::computeLocalFx18Filepath(objectuuid)
-        if File.exists?(filepath) then
+        if !File.exists?(filepath) then
             puts "operation: Fx18s::acquireFilepathOrError"
             puts "objectuuid: #{objectuuid}"
             puts "filepath: #{filepath}"
