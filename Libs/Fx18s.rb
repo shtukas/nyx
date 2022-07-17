@@ -703,6 +703,7 @@ class Fx18Synchronisation
                 Fx18Synchronisation::propagateFileEvents(filepath1, filepath2)
             else
                 if shouldMoveFx19s then
+                    puts "[repo sync] propagate file events; file: #{filepath1}"
                     FileUtils.cp(filepath1, filepath2)
                 end
             end
