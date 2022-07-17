@@ -350,3 +350,125 @@ class Fx18Xp
     end
 end
 
+class Fx18Synchronisation
+
+    # Fx18Synchronisation::getEventuuids(filepath)
+    def self.getEventuuids(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select _eventuuid_ from _fx18_", []) do |row|
+            uuids << row["_eventuuid_"]
+        end
+        db.close
+        uuids
+    end
+
+    # Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
+    def self.getRecordOrNull(filepath, eventuuid)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        record = nil
+        db.execute("select * from _fx18_ where _eventuuid_=?", [eventuuid]) do |row|
+            record = row
+        end
+        db.close
+        record
+    end
+
+    # Fx18Synchronisation::putRecord(filepath, record)
+    def self.putRecord(filepath, record)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?)", [record["_eventuuid_"], record["_eventTime_"], record["_eventData1_"], record["_eventData2_"], record["_eventData3_"], record["_eventData4_"], record["_eventData5_"]]
+        db.close
+    end
+
+    # Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
+    def self.propagateFileEvent(filepath1, filepath2)
+
+        raise "(error: d5e6f2d3-9eab-484a-bde8-d7e6d479b04f)" if !File.exists?(filepath1)
+
+        raise "(error: 5d24c60a-db47-4643-a618-bb2057daafd2)" if !File.exists?(filepath2)
+
+        objectuuid1 = Fx18s::getAttributeOrNull2(filepath1, "uuid")
+        raise "(error: 41c552b9-0245-43fc-a1de-e38d58d3c16b) objectuuid1: #{objectuuid1}" if (objectuuid1.nil? or objectuuid1 == "")
+
+        objectuuid2 = Fx18s::getAttributeOrNull2(filepath2, "uuid")
+        raise "(error: 3eced5c4-1bcc-4353-bd0c-2253e5cc4b9d) objectuuid2: #{objectuuid2}" if (objectuuid2.nil? or objectuuid2 == "")
+
+        # Get the events ids from file1
+        eventuuids1 = Fx18Synchronisation::getEventuuids(filepath1)
+
+        # Get the events ids from file2
+        eventuuids2 = Fx18Synchronisation::getEventuuids(filepath2)
+
+        # For each event in eventuuids1 if the event is in file1 but not in file2, then add the entire record in file2
+        eventuuids1.each{|eventuuid|
+            next if eventuuids2.include?(eventuuid) # already in the target file
+            record1 = Fx18Synchronisation::getRecordOrNull(filepath1, eventuuid)
+            if record1.nil? then
+                puts "filepath1: #{filepath1}"
+                puts "filepath2: #{filepath2}"
+                puts "eventuuid: #{eventuuid}"
+                raise "(error: ed875415-3dcc-4c08-ad69-a6bcd07d707a)"
+            end
+            puts "[repo sync] propagate file event; event: #{record1["_eventuuid_"]}"
+            Fx18Synchronisation::putRecord(filepath2, record1)
+            record2 = Fx18Synchronisation::getRecordOrNull(filepath2, eventuuid)
+            if record2.nil? then
+                puts "filepath1: #{filepath1}"
+                puts "filepath2: #{filepath2}"
+                puts "eventuuid: #{eventuuid}"
+                raise "(error: fb257c8e-973b-488a-87f3-e91b11e35a79)"
+            end
+            [
+                "_eventuuid_", 
+                "_eventTime_", 
+                "_eventData1_",
+                "_eventData2_",
+                "_eventData3_",
+                "_eventData4_",
+                "_eventData5_"
+            ].each{|key|
+                if record1[key] != record2[key] then
+                    puts "filepath1: #{filepath1}"
+                    puts "filepath2: #{filepath2}"
+                    puts "eventuuid: #{eventuuid}"
+                    puts "key: #{key}"
+                    raise "(error: 8e8ffb07-21db-4a42-b208-c829775cb2d8)"
+                end
+            }
+        }
+    end
+
+    # Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, shouldCopyFiles)
+    def self.propagateRepository(folderpath1, folderpath2, shouldCopyFiles)
+        #puts "Fx18Synchronisation::propagateRepository(#{folderpath1}, #{folderpath2}, #{shouldCopyFiles})"
+        LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
+            next if filepath1[-13, 13] != ".fx18.sqlite3"
+            filename = File.basename(filepath1)
+            filepath2 = "#{folderpath2}/#{filename}"
+            if !File.exists?(filepath2) and shouldCopyFiles then
+                puts "[repo sync] copy file: #{filepath1}"
+                FileUtils.cp(filepath1, filepath2)
+            else
+                #puts "[repo sync] file sync: #{filepath1}"
+                Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
+            end
+        }
+    end
+
+    # Fx18Synchronisation::sync()
+    def self.sync()
+        folderpath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18s"
+        folderpath2 = "/Volumes/Infinity/Data/Pascal/Stargate-Central/Fx18"
+        Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, true)  # local to remote
+        Fx18Synchronisation::propagateRepository(folderpath2, folderpath1, false) # remote to local
+    end
+end
