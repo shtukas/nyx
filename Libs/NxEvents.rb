@@ -6,9 +6,11 @@ class NxEvents
     # ----------------------------------------------------------------------
     # IO
 
-    # NxEvents::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # NxEvents::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxEvent"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
@@ -16,15 +18,13 @@ class NxEvents
             "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
             "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
         }
-        raise "(error: e5f5ce99-34ed-4659-8e9e-d5e09b314fd8) item: #{item}" if item["mikuType"] != "NxEvent"
-        item
     end
 
     # NxEvents::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxEvent").map{|objectuuid|
-            NxEvents::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("NxEvent")
+            .map{|objectuuid| NxEvents::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # NxEvents::destroy(uuid)

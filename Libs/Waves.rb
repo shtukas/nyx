@@ -4,9 +4,11 @@ class Waves
     # --------------------------------------------------
     # IO
 
-    # Waves::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # Waves::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "Wave"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
@@ -15,15 +17,13 @@ class Waves
             "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
             "lastDoneDateTime" => Fx18s::getAttributeOrNull(objectuuid, "lastDoneDateTime"),
         }
-        raise "(error: 78bd667a-5204-4d17-b500-e0431973c950) item: #{item}" if item["mikuType"] != "Wave"
-        item
     end
 
     # Waves::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("Wave").map{|objectuuid|
-            Waves::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("Wave")
+            .map{|objectuuid| Waves::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # Waves::destroy(uuid)

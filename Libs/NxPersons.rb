@@ -3,24 +3,24 @@
 
 class NxPersons
 
-    # NxPersons::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # NxPersons::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxPerson"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
             "name"        => Fx18s::getAttributeOrNull(objectuuid, "name")
         }
-        raise "(error: e7a6b562-65a1-4785-9337-63be3adabc3d) item: #{item}" if item["mikuType"] != "NxPerson"
-        item
     end
 
     # NxPersons::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxPerson").map{|objectuuid|
-            NxPersons::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("NxPerson")
+            .map{|objectuuid| NxPersons::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # NxPersons::issue(name1)

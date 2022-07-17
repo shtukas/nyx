@@ -2,9 +2,11 @@
 
 class NxTasks
 
-    # NxTasks::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # NxTasks::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxTask"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
@@ -12,15 +14,13 @@ class NxTasks
             "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
             "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
         }
-        raise "(error: 6f348583-af54-429a-bb95-d34fa74fa3d5) item: #{item}" if item["mikuType"] != "NxTask"
-        item
     end
 
     # NxTasks::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxTask").map{|objectuuid|
-            NxTasks::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("NxTask")
+            .map{|objectuuid| NxTasks::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # NxTasks::destroy(uuid)

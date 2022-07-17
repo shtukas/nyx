@@ -8,6 +8,11 @@ class Fx18s
         "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
     end
 
+    # Fx18s::fileExists?(objectuuid)
+    def self.fileExists?(objectuuid)
+        File.exists?(Fx18s::computeLocalFx18Filepath(objectuuid))
+    end
+
     # Fx18s::makeNewFile(objectuuid)
     # Only used for migrations
     def self.makeNewFile(objectuuid)
@@ -284,67 +289,69 @@ class Fx18Xp
 
     # Fx18Xp::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+
         mikuType = Fx18s::getAttributeOrNull(objectuuid, "mikuType")
         return nil if mikuType.nil?
 
         if mikuType == "Ax1Text" then
-            return Ax1Text::objectuuidToItem(objectuuid)
+            return Ax1Text::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxAnniversary" then
-            return Anniversaries::objectuuidToItem(objectuuid)
+            return Anniversaries::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxCollection" then
-            return NxCollections::objectuuidToItem(objectuuid)
+            return NxCollections::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxConcept" then
-            return NxConcepts::objectuuidToItem(objectuuid)
+            return NxConcepts::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxDataNode" then
-            return NxDataNodes::objectuuidToItem(objectuuid)
+            return NxDataNodes::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxEntity" then
-            return NxEntities::objectuuidToItem(objectuuid)
+            return NxEntities::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxEvent" then
-            return NxEvents::objectuuidToItem(objectuuid)
+            return NxEvents::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxFrame" then
-            return NxFrames::objectuuidToItem(objectuuid)
+            return NxFrames::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxLine" then
-            return NxLines::objectuuidToItem(objectuuid)
+            return NxLines::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxPerson" then
-            return NxPersons::objectuuidToItem(objectuuid)
+            return NxPersons::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxTask" then
-            return NxTasks::objectuuidToItem(objectuuid)
+            return NxTasks::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "NxTimeline" then
-            return NxTimelines::objectuuidToItem(objectuuid)
+            return NxTimelines::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "TxDated" then
-            return TxDateds::objectuuidToItem(objectuuid)
+            return TxDateds::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "TxProject" then
-            return TxProjects::objectuuidToItem(objectuuid)
+            return TxProjects::objectuuidToItemOrNull(objectuuid)
         end
 
         if mikuType == "Wave" then
-            return Waves::objectuuidToItem(objectuuid)
+            return Waves::objectuuidToItemOrNull(objectuuid)
         end
 
         raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"

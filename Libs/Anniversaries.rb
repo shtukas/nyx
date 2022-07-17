@@ -81,9 +81,11 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # Anniversaries::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxAnniversary"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
@@ -92,14 +94,12 @@ class Anniversaries
             "repeatType"  => Fx18s::getAttributeOrNull(objectuuid, "repeatType"),
             "lastCelebrationDate" => Fx18s::getAttributeOrNull(objectuuid, "lastCelebrationDate")
         }
-        raise "(error: 56b2ea91-d0a5-4752-b539-40c897833571) item: #{item}" if item["mikuType"] != "NxAnniversary"
-        item
     end
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
         Librarian::mikuTypeUUIDs("NxAnniversary").map{|objectuuid|
-            Anniversaries::objectuuidToItem(objectuuid)
+            Anniversaries::objectuuidToItemOrNull(objectuuid)
         }
     end
 

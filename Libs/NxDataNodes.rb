@@ -6,9 +6,11 @@ class NxDataNodes
     # ----------------------------------------------------------------------
     # IO
 
-    # NxDataNodes::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # NxDataNodes::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxDataNode"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
@@ -16,15 +18,13 @@ class NxDataNodes
             "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
             "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
         }
-        raise "(error: 9e91a609-dc64-4bcb-9e64-fa11121c07d8) item: #{item}" if item["mikuType"] != "NxDataNode"
-        item
     end
 
     # NxDataNodes::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxDataNode").map{|objectuuid|
-            NxDataNodes::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("NxDataNode")
+            .map{|objectuuid| NxDataNodes::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # NxDataNodes::destroy(uuid)

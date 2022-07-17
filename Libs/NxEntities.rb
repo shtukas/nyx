@@ -6,24 +6,24 @@ class NxEntities
     # ----------------------------------------------------------------------
     # IO
 
-    # NxEntities::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # NxEntities::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxEntity"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
             "description" => Fx18s::getAttributeOrNull(objectuuid, "description")
         }
-        raise "(error: 3bd41e8e-ba03-4aae-8837-2f9cf46a4deb) item: #{item}" if item["mikuType"] != "NxEntity"
-        item
     end
 
     # NxEntities::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxEntity").map{|objectuuid|
-            NxEntities::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("NxEntity")
+            .map{|objectuuid| NxEntities::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # NxEntities::destroy(uuid)

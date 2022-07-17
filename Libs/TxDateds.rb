@@ -2,9 +2,11 @@
 
 class TxDateds
 
-    # TxDateds::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # TxDateds::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "TxDated"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
@@ -12,15 +14,13 @@ class TxDateds
             "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
             "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
         }
-        raise "(error: c31e911a-65b0-41c0-a736-3cd560153190) item: #{item}" if item["mikuType"] != "TxDated"
-        item
     end
 
     # TxDateds::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("TxDated").map{|objectuuid|
-            TxDateds::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("TxDated")
+            .map{|objectuuid| TxDateds::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # TxDateds::destroy(uuid)

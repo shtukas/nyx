@@ -6,24 +6,24 @@ class TxProjects
     # ----------------------------------------------------------------------
     # IO
 
-    # TxProjects::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # TxProjects::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "TxProject"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
             "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
             "ax39"        => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "ax39")),
         }
-        raise "(error: 7aa5e8bd-8ebf-4098-b125-f95e620f49b8) item: #{item}" if item["mikuType"] != "TxProject"
-        item
     end
 
     # TxProjects::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("TxProject").map{|objectuuid|
-            TxProjects::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("TxProject")
+            .map{|objectuuid| TxProjects::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # TxProjects::destroy(uuid)

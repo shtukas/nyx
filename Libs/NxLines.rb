@@ -6,23 +6,23 @@ class NxLines
     # ----------------------------------------------------------------------
     # IO
 
-    # NxLines::objectuuidToItem(objectuuid)
-    def self.objectuuidToItem(objectuuid)
-        item = {
+    # NxLines::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18s::fileExists?(objectuuid)
+        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxLine"
+        {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
             "line"        => Fx18s::getAttributeOrNull(objectuuid, "line"),
         }
-        raise "(error: e495b2cf-1c63-4bdb-9461-de116ed036cf) item: #{item}" if item["mikuType"] != "NxLine"
-        item
     end
 
     # NxLines::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxLine").map{|objectuuid|
-            NxLines::objectuuidToItem(objectuuid)
-        }
+        Librarian::mikuTypeUUIDs("NxLine")
+            .map{|objectuuid| NxLines::objectuuidToItemOrNull(objectuuid)}
+            .compact
     end
 
     # ----------------------------------------------------------------------
