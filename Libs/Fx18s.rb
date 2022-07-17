@@ -1,10 +1,28 @@
 
 class Fx19Data
 
+    # Fx19Data::computeFilepath(objectuuid)
+    def self.computeFilepath(objectuuid)
+        "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx19.sqlite3"
+    end
+
+    # Fx19Data::ensureFile(objectuuid)
+    def self.ensureFile(objectuuid)
+        filepath = Fx19Data::computeFilepath(objectuuid)
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
+            db.close
+        end
+        filepath
+    end
+
     # Fx19Data::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
     def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
-        puts "Fx19Data::putBlob1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{key}, blob)"
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
+        filepath = Fx19Data::ensureFile(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -25,9 +43,10 @@ class Fx19Data
         nhash
     end
 
-    # Fx19Data::getBlobOrNull(objectuuid, nhash)
-    def self.getBlobOrNull(objectuuid, nhash)
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
+    # Fx19Data::getBlobOrNullvx(objectuuid, nhash)
+    def self.getBlobOrNullvx(objectuuid, nhash)
+        filepath = Fx19Data::computeFilepath(objectuuid)
+        return nil if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -38,6 +57,56 @@ class Fx19Data
         end
         db.close
         return blob if blob
+        nil
+    end
+
+    # Fx19Data::getBlobOrNull(objectuuid, nhash)
+    def self.getBlobOrNull(objectuuid, nhash)
+        filepath = Fx19Data::computeFilepath(objectuuid)
+        return nil if !File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+            blob = row["_eventData3_"]
+        end
+        db.close
+        return blob if blob
+
+        puts "Looking for (#{objectuuid}, #{nhash}) inside Fx18".green
+
+        filepath = "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+            blob = row["_eventData3_"]
+        end
+        db.close
+
+        if blob then
+
+            puts "Transferring blob from Fx18 to Fx19".green
+
+            Fx19Data::putBlob3(objectuuid, blob)
+
+            blob2 = Fx19Data::getBlobOrNullvx(objectuuid, nhash)
+            raise "error 2100" if blob2 != blob
+
+            filepath = "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("delete from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash])
+            db.close
+
+            return blob
+        end
 
         nil
     end
@@ -90,6 +159,7 @@ class Fx18Utils
     # Fx18Utils::fx18Filepaths()
     def self.fx18Filepaths()
         LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Stargate/Fx18s")
+            .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
     end
 
     # Fx18Utils::objectuuidToItemOrNull(objectuuid)
@@ -184,6 +254,14 @@ class Fx18Utils
                 trace = "#{runHash}:#{Digest::SHA1.file(filepath).hexdigest}"
                 next if XCache::getFlag(trace)
                 FileSystemCheck::fsckFx18FilepathExitAtFirstFailure(filepath)
+
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("vacuum", [])
+                db.close
+
                 XCache::setFlag(trace, true)
             }
         puts "fsck completed successfully".green
@@ -429,7 +507,6 @@ class Fx18Synchronisation
                 puts "eventuuid: #{eventuuid}"
                 raise "(error: ed875415-3dcc-4c08-ad69-a6bcd07d707a)"
             end
-            puts "[repo sync] propagate file event; event: #{record1["_eventuuid_"]}"
             Fx18Synchronisation::putRecord(filepath2, record1)
             record2 = Fx18Synchronisation::getRecordOrNull(filepath2, eventuuid)
             if record2.nil? then
@@ -458,20 +535,27 @@ class Fx18Synchronisation
         }
     end
 
-    # Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, shouldCopyFiles)
-    def self.propagateRepository(folderpath1, folderpath2, shouldCopyFiles)
-        #puts "Fx18Synchronisation::propagateRepository(#{folderpath1}, #{folderpath2}, #{shouldCopyFiles})"
+    # Fx18Synchronisation::propagateRepository(folderpath1, folderpath2)
+    def self.propagateRepository(folderpath1, folderpath2)
+
         LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
             next if filepath1[-13, 13] != ".fx18.sqlite3"
             filename = File.basename(filepath1)
             filepath2 = "#{folderpath2}/#{filename}"
             if !File.exists?(filepath2) then
-                if shouldCopyFiles then
-                    puts "[repo sync] copy file: #{filepath1}"
-                    FileUtils.cp(filepath1, filepath2)
-                end
+                puts "[repo sync] copy file: #{filepath1}"
+                FileUtils.cp(filepath1, filepath2)
             else
-                #puts "[repo sync] file sync: #{filepath1}"
+                puts "[repo sync] propagate file events; file: #{filepath1}"
+                Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
+            end
+        }
+
+        LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
+            next if filepath1[-13, 13] != ".fx19.sqlite3"
+            filename = File.basename(filepath1)
+            filepath2 = "#{folderpath2}/#{filename}"
+            if File.exists?(filepath2) then
                 Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
             end
         }
@@ -481,7 +565,7 @@ class Fx18Synchronisation
     def self.sync()
         folderpath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18s"
         folderpath2 = "/Volumes/Infinity/Data/Pascal/Stargate-Central/Fx18"
-        Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, true)  # local to remote
-        Fx18Synchronisation::propagateRepository(folderpath2, folderpath1, false) # remote to local
+        Fx18Synchronisation::propagateRepository(folderpath1, folderpath2)
+        Fx18Synchronisation::propagateRepository(folderpath2, folderpath1)
     end
 end
