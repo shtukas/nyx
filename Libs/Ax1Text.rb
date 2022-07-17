@@ -21,7 +21,7 @@ class Ax1Text
     # Ax1Text::interactivelyIssueNewOrNullForOwner() # uuid
     def self.interactivelyIssueNewOrNullForOwner()
         uuid = SecureRandom.uuid
-        Fx18s::constructNewFile(uuid)
+        Fx18s::makeNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
         nhash = Fx18s::putBlob3(uuid, text)
         unixtime = Time.new.to_i

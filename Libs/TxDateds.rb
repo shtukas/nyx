@@ -45,7 +45,7 @@ class TxDateds
 
         unixtime   = Time.new.to_i
 
-        Fx18s::ensureFile(uuid)
+        Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid)
         Fx18s::setAttribute2(uuid, "mikuType",    "TxDated")
         Fx18s::setAttribute2(uuid, "unixtime",    unixtime)
@@ -68,7 +68,7 @@ class TxDateds
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        Fx18s::ensureFile(uuid)
+        Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid)
         Fx18s::setAttribute2(uuid, "mikuType",    "TxDated")
         Fx18s::setAttribute2(uuid, "unixtime",    unixtime)

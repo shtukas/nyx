@@ -77,7 +77,13 @@ class EditionDesk
             nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")
         end
 
-        nx111 = Fx18s::getAttributeOrNull(itemuuid, "nx111")
+        begin
+            # If the item has been deleted while the something was exported on the desk,
+            # this lookup is going to fail.
+            nx111 = Fx18s::getAttributeOrNull(itemuuid, "nx111")
+        rescue
+            return nil
+        end
         return nil if nx111.nil?
         nx111 = JSON.parse(nx111)
 
@@ -247,7 +253,8 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = Fx18Elizabeth.new(itemuuid)
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-            rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(item["description"]))
+            item = Fx18Xp::objectuuidToItemOrNull(itemuuid)
+            rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(LxFunction::function("generic-description", item)))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
             Fx18s::setAttribute2(itemuuid, "nx111", JSON.generate(nx111))

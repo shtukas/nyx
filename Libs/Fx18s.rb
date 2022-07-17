@@ -8,15 +8,18 @@ class Fx18s
         "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
     end
 
-    # Fx18s::constructNewFile(objectuuid) # location (That function constructs the database and creates the _fx18_ table)
-    def self.constructNewFile(objectuuid)
+    # Fx18s::makeNewFile(objectuuid)
+    # Only used for migrations
+    def self.makeNewFile(objectuuid)
         filepath = Fx18s::computeLocalFx18Filepath(objectuuid)
         if File.exists?(filepath) then
-            puts "operation: Fx18s::constructNewFile"
+            puts "operation: Fx18s::makeNewFile"
             puts "objectuuid: #{objectuuid}"
             puts "filepath: #{filepath}"
-            raise "(error: a906e951-c38e-4b96-a6b4-0084df2ff854) file already exists"
+            raise "(error: 501f3d32-118f-4844-94e2-f93f96d50fcc) attempting to create a Fx18 file that already exists"
+            exit 1
         end
+
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -25,17 +28,17 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::ensureFile(objectuuid)
-    # Only used for migrations
-    def self.ensureFile(objectuuid)
-        filepath = Fx18s::computeLocalFx18Filepath(objectuuid)
-        return if File.exists?(filepath)
-        Fx18s::constructNewFile(objectuuid)
-    end
-
     # Fx18s::acquireFilepathOrError(objectuuid)
     def self.acquireFilepathOrError(objectuuid)
-        Fx18s::computeLocalFx18Filepath(objectuuid)
+        filepath = Fx18s::computeLocalFx18Filepath(objectuuid)
+        if File.exists?(filepath) then
+            puts "operation: Fx18s::acquireFilepathOrError"
+            puts "objectuuid: #{objectuuid}"
+            puts "filepath: #{filepath}"
+            raise "(error: a76f302d-f376-4d4f-ac2b-dea3f19696e7)"
+            exit 1
+        end
+        filepath
     end
 
     # --------------------------------------------------------------
@@ -73,6 +76,7 @@ class Fx18s
 
     # Fx18s::getAttributeOrNull2(filepath, attname)
     def self.getAttributeOrNull2(filepath, attname)
+        raise "(error: 90beb330-8a09-4909-b8e0-d4522fe66daf) filepath: #{filepath}" if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -161,7 +165,6 @@ class Fx18s
     # Fx18s::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
     def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
         puts "Fx18s::putBlob1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{key}, blob)"
-        Fx18s::ensureFile(objectuuid)
         filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -185,8 +188,6 @@ class Fx18s
 
     # Fx18s::getBlobOrNull(objectuuid, nhash)
     def self.getBlobOrNull(objectuuid, nhash)
-        Fx18s::ensureFile(objectuuid)
-
         filepath = Fx18s::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117

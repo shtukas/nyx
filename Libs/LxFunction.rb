@@ -15,6 +15,46 @@ class LxFunction
             raise "(error: f74385d4-5ece-4eae-8a09-90d3a5e0f120)"
         end
 
+        # This one only exists because NxPerson has it as "name"
+        if command == "generic-description" then
+            if item["mikuType"] == "NxDataNode" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxCollection" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxConcept" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxEntity" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxEvent" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxFrame" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxPerson" then
+                return item["name"]
+            end
+            if item["mikuType"] == "TxProject" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxTask" then
+                return item["description"]
+            end
+            if item["mikuType"] == "NxTimeline" then
+                return item["description"]
+            end
+            if item["mikuType"] == "TxDated" then
+                return item["description"]
+            end
+            if item["mikuType"] == "Wave" then
+                return item["description"]
+            end
+        end
+
         if command == "toString" then
             if item["mikuType"] == "(rstream-to-target)" then
                 return item["announce"]

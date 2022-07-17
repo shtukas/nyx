@@ -31,7 +31,7 @@ class NxLines
     # NxLines::issue(line)
     def self.issue(line)
         uuid = SecureRandom.uuid
-        Fx18s::ensureFile(uuid)
+        Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid)
         Fx18s::setAttribute2(uuid, "mikuType",    "NxLine")
         Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)

@@ -47,7 +47,7 @@ class NxEvents
         unixtime   = Time.new.to_i
         datetime   = CommonUtils::interactiveDateTimeBuilder()
 
-        Fx18s::ensureFile(uuid)
+        Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid)
         Fx18s::setAttribute2(uuid, "mikuType",    "NxEvent")
         Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)

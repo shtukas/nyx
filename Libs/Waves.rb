@@ -149,7 +149,7 @@ class Waves
 
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
 
-        Fx18s::ensureFile(uuid)
+        Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid2)
         Fx18s::setAttribute2(uuid, "mikuType",    "Wave")
         Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)

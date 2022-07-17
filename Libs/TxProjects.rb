@@ -47,7 +47,7 @@ class TxProjects
 
         uuid = SecureRandom.uuid
 
-        Fx18s::ensureFile(uuid)
+        Fx18s::makeNewFile(uuid)
         Fx18s::setAttribute2(uuid, "uuid",        uuid2)
         Fx18s::setAttribute2(uuid, "mikuType",    "TxProject")
         Fx18s::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
@@ -73,19 +73,19 @@ class TxProjects
 
     # TxProjects::addElement(projectuuid, itemuuid)
     def self.addElement(projectuuid, itemuuid)
-        Fx18s::ensureFile(projectuuid)
+        Fx18s::makeNewFile(projectuuid)
         Fx18s::setsAdd2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
     end
 
     # TxProjects::removeElement(project, uuid)
     def self.removeElement(project, uuid)
-        Fx18s::ensureFile(project["uuid"])
+        Fx18s::makeNewFile(project["uuid"])
         Fx18s::setsRemove2(project["uuid"], "project-items-3f154988", uuid)
     end
 
     # TxProjects::elementuuids(project)
     def self.elementuuids(project)
-        Fx18s::ensureFile(project["uuid"])
+        Fx18s::makeNewFile(project["uuid"])
         Fx18s::setsItems(project["uuid"], "project-items-3f154988")
     end
 
