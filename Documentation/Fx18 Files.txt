@@ -26,20 +26,10 @@ create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData
 | "attribute"  | <name>       | <value>      |              |              |
 | "setops"     | "add"        | <setuuid>    | <itemuuid>   | <value>      |
 | "setops"     | "remove"     | <setuuid>    | <itemuuid>   |              |
-| "datablob"   | <key>        | <blob>       |              |              |
+| "datablob"   | <key>        | <blob>       |              |              | # Moved to Fx19
 |--------------------------------------------------------------------------|
 
 note: Given the value of a set `value`, we encode it as JSON.generate(value)
 
 So a Fx18 file is essentially just a log of events. Some are attributes being set, some are 
-sets operations and the third type is content addressed datablobs being stored.
-
-### class Fx18
-
-Contains all the functions needed to
-
-1. Create new Fx18 files
-2. Read from them and write to them.
-
-### Fx18Elizabeth
-
+sets operations and the third type is content addressed datablobs being stored (moved to Fx19).

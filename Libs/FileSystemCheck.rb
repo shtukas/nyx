@@ -25,13 +25,13 @@ class FileSystemCheck
 
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            blob = Fx18File::getBlobOrNull(objectuuid, nhash)
+            blob = Fx19Data::getBlobOrNull(objectuuid, nhash)
             if blob.nil? then
                 puts "filepath: #{filepath}".red
                 puts "objectuuid: #{objectuuid}".red
                 puts "nx111: #{nx111}".red
                 puts "nhash: #{nhash}".red
-                puts "Fx18File::getBlobOrNull: could not find the text data".red
+                puts "Fx19Data::getBlobOrNull: could not find the text data".red
                 exit 1
             end
             return

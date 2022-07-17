@@ -109,7 +109,7 @@ class EditionDesk
             end
             location = "#{location}.txt"
             nhash = nx111["nhash"]
-            text = Fx18File::getBlobOrNull(itemuuid, nhash)
+            text = Fx19Data::getBlobOrNull(itemuuid, nhash)
             File.open(location, "w"){|f| f.puts(text) }
             return location
         end
@@ -226,7 +226,7 @@ class EditionDesk
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = Fx18File::putBlob3(itemuuid, text) # we should probably compute the nhash without actually commiting the blob to the file
+            nhash = Fx19Data::putBlob3(itemuuid, text) # we should probably compute the nhash without actually commiting the blob to the file
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             Fx18File::setAttribute2(itemuuid, "nx111", JSON.generate(nx111))

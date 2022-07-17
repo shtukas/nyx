@@ -38,7 +38,7 @@ class Nx111
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = Fx18File::putBlob3(objectuuid, text)
+            nhash = Fx19Data::putBlob3(objectuuid, text)
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",

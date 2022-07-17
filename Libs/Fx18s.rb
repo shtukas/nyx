@@ -1,7 +1,49 @@
 
-class Fx18Utils
+class Fx19Data
 
-    # --------------------------------------------------------------
+    # Fx19Data::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
+    def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
+        puts "Fx19Data::putBlob1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{key}, blob)"
+        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, "datablob", key, blob]
+        db.close
+    end
+
+    # Fx19Data::putBlob2(objectuuid, key, blob)
+    def self.putBlob2(objectuuid, key, blob)
+        Fx19Data::putBlob1(SecureRandom.uuid, Time.new.to_f, objectuuid, key, blob)
+    end
+
+    # Fx19Data::putBlob3(objectuuid, blob) # nhash
+    def self.putBlob3(objectuuid, blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        Fx19Data::putBlob2(objectuuid, nhash, blob)
+        nhash
+    end
+
+    # Fx19Data::getBlobOrNull(objectuuid, nhash)
+    def self.getBlobOrNull(objectuuid, nhash)
+        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+            blob = row["_eventData3_"]
+        end
+        db.close
+        return blob if blob
+
+        nil
+    end
+end
+
+class Fx18Utils
 
     # Fx18Utils::computeLocalFx18Filepath(objectuuid)
     def self.computeLocalFx18Filepath(objectuuid)
@@ -146,6 +188,11 @@ class Fx18Utils
             }
         puts "fsck completed successfully".green
     end
+
+    # Fx18Utils::destroy(objectuuid)
+    def self.destroy(objectuuid)
+        # TODO:
+    end
 end
 
 class Fx18File
@@ -268,54 +315,6 @@ class Fx18File
         
         items.map{|item| item["value"]}
     end
-
-    # --------------------------------------------------------------
-
-    # Fx18File::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
-    def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
-        puts "Fx18File::putBlob1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{key}, blob)"
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, "datablob", key, blob]
-        db.close
-    end
-
-    # Fx18File::putBlob2(objectuuid, key, blob)
-    def self.putBlob2(objectuuid, key, blob)
-        Fx18File::putBlob1(SecureRandom.uuid, Time.new.to_f, objectuuid, key, blob)
-    end
-
-    # Fx18File::putBlob3(objectuuid, blob) # nhash
-    def self.putBlob3(objectuuid, blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18File::putBlob2(objectuuid, nhash, blob)
-        nhash
-    end
-
-    # Fx18File::getBlobOrNull(objectuuid, nhash)
-    def self.getBlobOrNull(objectuuid, nhash)
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-            blob = row["_eventData3_"]
-        end
-        db.close
-        return blob if blob
-
-        nil
-    end
-
-    # Fx18File::destroy(objectuuid)
-    def self.destroy(objectuuid)
-        # TODO:
-    end
 end
 
 class Fx18Elizabeth
@@ -325,7 +324,7 @@ class Fx18Elizabeth
     end
 
     def putBlob(blob)
-        Fx18File::putBlob3(@objectuuid, blob)
+        Fx19Data::putBlob3(@objectuuid, blob)
     end
 
     def filepathToContentHash(filepath)
@@ -333,7 +332,7 @@ class Fx18Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        Fx18File::getBlobOrNull(@objectuuid, nhash)
+        Fx19Data::getBlobOrNull(@objectuuid, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)

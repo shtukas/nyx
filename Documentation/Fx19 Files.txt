@@ -1,0 +1,9 @@
+## Fx19 Files
+
+Fx19 files are exactly like Fx18 files but they only contain the datablobs of the corresponding Fx18 file
+
+|--------------------------------------------------------------------------|
+| _eventData1_ | _eventData2_ | _eventData3_ | _eventData4_ | _eventData5_ |
+|--------------------------------------------------------------------------|
+| "datablob"   | <key>        | <blob>       |              |              |
+|--------------------------------------------------------------------------|
