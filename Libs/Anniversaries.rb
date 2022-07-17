@@ -83,16 +83,16 @@ class Anniversaries
 
     # Anniversaries::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18s::fileExists?(objectuuid)
-        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxAnniversary"
+        return nil if !Fx18Utils::fileExists?(objectuuid)
+        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "NxAnniversary"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-            "startdate"   => Fx18s::getAttributeOrNull(objectuuid, "startdate"),
-            "repeatType"  => Fx18s::getAttributeOrNull(objectuuid, "repeatType"),
-            "lastCelebrationDate" => Fx18s::getAttributeOrNull(objectuuid, "lastCelebrationDate")
+            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
+            "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
+            "startdate"   => Fx18File::getAttributeOrNull(objectuuid, "startdate"),
+            "repeatType"  => Fx18File::getAttributeOrNull(objectuuid, "repeatType"),
+            "lastCelebrationDate" => Fx18File::getAttributeOrNull(objectuuid, "lastCelebrationDate")
         }
     end
 
@@ -130,14 +130,14 @@ class Anniversaries
 
         uuid = SecureRandom.uuid
 
-        Fx18s::makeNewFile(uuid)
-        Fx18s::setAttribute2(uuid, "uuid",        uuid)
-        Fx18s::setAttribute2(uuid, "mikuType",    "NxAnniversary")
-        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18s::setAttribute2(uuid, "description", description)
-        Fx18s::setAttribute2(uuid, "startdate",   startdate)
-        Fx18s::setAttribute2(uuid, "repeatType",  repeatType)
-        Fx18s::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
+        Fx18Utils::makeNewFile(uuid)
+        Fx18File::setAttribute2(uuid, "uuid",        uuid)
+        Fx18File::setAttribute2(uuid, "mikuType",    "NxAnniversary")
+        Fx18File::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18File::setAttribute2(uuid, "description", description)
+        Fx18File::setAttribute2(uuid, "startdate",   startdate)
+        Fx18File::setAttribute2(uuid, "repeatType",  repeatType)
+        Fx18File::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]
@@ -153,7 +153,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        Fx18s::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        Fx18File::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -198,13 +198,13 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                Fx18s::setAttribute2(item["uuid"], "description", description)
+                Fx18File::setAttribute2(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                Fx18s::setAttribute2(item["uuid"], "startdate",   startdate)
+                Fx18File::setAttribute2(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then

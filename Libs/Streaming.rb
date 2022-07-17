@@ -5,7 +5,7 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        item = Fx18Xp::objectuuidToItemOrNull(itemuuid)
+        item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
         return if item.nil?
         if item["mikuType"] != "NxTask" then
             puts "I cannot >nyx something that is not a NxTask"
@@ -13,7 +13,7 @@ class Streaming
             return
         end
         LxAction::action("stop", item["uuid"])
-        Fx18s::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
+        Fx18File::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
         LxAction::action("landing", item)
     end
 

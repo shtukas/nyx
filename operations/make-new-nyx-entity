@@ -6,5 +6,5 @@ require_relative "../Libs/loader.rb"
 
 itemuuid = Architect::interactivelyMakeNewOrNull()
 exit if itemuuid.nil?
-item = Fx18Xp::objectuuidToItemOrNull(itemuuid)
+item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
 LxAction::action("landing", item)

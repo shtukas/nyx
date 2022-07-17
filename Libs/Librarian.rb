@@ -26,9 +26,9 @@ class Librarian
         if mikuTypes.empty? or shouldComputeFromScratch  then
             XCacheSets::empty("mikuTypes:a52acbf5")
             puts "computing mikuTypes index from scratch"
-            Fx18Xp::fx18Filepaths().each{|filepath|
+            Fx18Utils::fx18Filepaths().each{|filepath|
                 puts "computing mikuTypes index from scratch, filepath: #{filepath}"
-                mikuType = Fx18s::getAttributeOrNull2(filepath, "mikuType")
+                mikuType = Fx18File::getAttributeOrNull2(filepath, "mikuType")
                 XCacheSets::set("mikuTypes:a52acbf5", mikuType, mikuType)
             }
             mikuTypes = XCacheSets::values("mikuTypes:a52acbf5")
@@ -41,11 +41,11 @@ class Librarian
         uuids = XCacheSets::values("Efd9646f3766:#{mikuType}")
         if uuids.empty? or shouldComputeFromScratch then
             XCacheSets::empty("Efd9646f3766:#{mikuType}")
-            Fx18Xp::fx18Filepaths().each{|filepath|
+            Fx18Utils::fx18Filepaths().each{|filepath|
                 puts "Librarian::mikuTypeUUIDs, mikuType: #{mikuType}, filepath: #{filepath}"
-                m = Fx18s::getAttributeOrNull2(filepath, "mikuType")
+                m = Fx18File::getAttributeOrNull2(filepath, "mikuType")
                 next if m != mikuType
-                uuid = Fx18s::getAttributeOrNull2(filepath, "uuid")
+                uuid = Fx18File::getAttributeOrNull2(filepath, "uuid")
                 XCacheSets::set("Efd9646f3766:#{mikuType}", uuid, uuid)
             }
             uuids = XCacheSets::values("Efd9646f3766:#{mikuType}")

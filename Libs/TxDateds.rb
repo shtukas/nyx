@@ -4,15 +4,15 @@ class TxDateds
 
     # TxDateds::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18s::fileExists?(objectuuid)
-        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "TxDated"
+        return nil if !Fx18Utils::fileExists?(objectuuid)
+        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "TxDated"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-            "description" => Fx18s::getAttributeOrNull(objectuuid, "description"),
-            "nx111"       => JSON.parse(Fx18s::getAttributeOrNull(objectuuid, "nx111")),
+            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
+            "nx111"       => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
         }
     end
 
@@ -39,15 +39,15 @@ class TxDateds
         datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
         return nil if datetime.nil?
         uuid = SecureRandom.uuid
-        Fx18s::makeNewFile(uuid)
+        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
-        Fx18s::setAttribute2(uuid, "uuid",        uuid)
-        Fx18s::setAttribute2(uuid, "mikuType",    "TxDated")
-        Fx18s::setAttribute2(uuid, "unixtime",    unixtime)
-        Fx18s::setAttribute2(uuid, "datetime",    datetime)
-        Fx18s::setAttribute2(uuid, "description", description)
-        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18File::setAttribute2(uuid, "uuid",        uuid)
+        Fx18File::setAttribute2(uuid, "mikuType",    "TxDated")
+        Fx18File::setAttribute2(uuid, "unixtime",    unixtime)
+        Fx18File::setAttribute2(uuid, "datetime",    datetime)
+        Fx18File::setAttribute2(uuid, "description", description)
+        Fx18File::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
         uuid
     end
 
@@ -56,16 +56,16 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18s::makeNewFile(uuid)
+        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18s::setAttribute2(uuid, "uuid",        uuid)
-        Fx18s::setAttribute2(uuid, "mikuType",    "TxDated")
-        Fx18s::setAttribute2(uuid, "unixtime",    unixtime)
-        Fx18s::setAttribute2(uuid, "datetime",    datetime)
-        Fx18s::setAttribute2(uuid, "description", description)
-        Fx18s::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18File::setAttribute2(uuid, "uuid",        uuid)
+        Fx18File::setAttribute2(uuid, "mikuType",    "TxDated")
+        Fx18File::setAttribute2(uuid, "unixtime",    unixtime)
+        Fx18File::setAttribute2(uuid, "datetime",    datetime)
+        Fx18File::setAttribute2(uuid, "description", description)
+        Fx18File::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
         uuid
     end
 

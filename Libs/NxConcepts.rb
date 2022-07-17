@@ -8,14 +8,14 @@ class NxConcepts
 
     # NxConcepts::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18s::fileExists?(objectuuid)
-        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "NxConcept"
+        return nil if !Fx18Utils::fileExists?(objectuuid)
+        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "NxConcept"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18s::getAttributeOrNull(objectuuid, "datetime"),
-            "description" => Fx18s::getAttributeOrNull(objectuuid, "description")
+            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
+            "description" => Fx18File::getAttributeOrNull(objectuuid, "description")
         }
     end
 
@@ -45,12 +45,12 @@ class NxConcepts
 
         uuid = SecureRandom.uuid
 
-        Fx18s::makeNewFile(uuid)
-        Fx18s::setAttribute2(uuid, "uuid",        uuid)
-        Fx18s::setAttribute2(uuid, "mikuType",    "NxConcept")
-        Fx18s::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18s::setAttribute2(uuid, "datetime",    datetime)
-        Fx18s::setAttribute2(uuid, "description", description)
+        Fx18Utils::makeNewFile(uuid)
+        Fx18File::setAttribute2(uuid, "uuid",        uuid)
+        Fx18File::setAttribute2(uuid, "mikuType",    "NxConcept")
+        Fx18File::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18File::setAttribute2(uuid, "datetime",    datetime)
+        Fx18File::setAttribute2(uuid, "description", description)
 
         uuid
     end

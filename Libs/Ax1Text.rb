@@ -8,29 +8,29 @@ class Ax1Text
 
     # Ax1Text::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18s::fileExists?(objectuuid)
-        return nil if Fx18s::getAttributeOrNull(objectuuid, "mikuType") != "Ax1Text"
+        return nil if !Fx18Utils::fileExists?(objectuuid)
+        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "Ax1Text"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18s::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18s::getAttributeOrNull(objectuuid, "unixtime"),
-            "nhash"       => Fx18s::getAttributeOrNull(objectuuid, "nhash"),
+            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
+            "nhash"       => Fx18File::getAttributeOrNull(objectuuid, "nhash"),
         }
     end
 
     # Ax1Text::interactivelyIssueNewOrNullForOwner() # uuid
     def self.interactivelyIssueNewOrNullForOwner()
         uuid = SecureRandom.uuid
-        Fx18s::makeNewFile(uuid)
+        Fx18Utils::makeNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
-        nhash = Fx18s::putBlob3(uuid, text)
+        nhash = Fx18File::putBlob3(uuid, text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18s::setAttribute2(uuid, "uuid", uuid)
-        Fx18s::setAttribute2(uuid, "mikuType", "Ax1Text")
-        Fx18s::setAttribute2(uuid, "unixtime", unixtime)
-        Fx18s::setAttribute2(uuid, "datetime", datetime)
-        Fx18s::setAttribute2(uuid, "nhash", nhash)
+        Fx18File::setAttribute2(uuid, "uuid", uuid)
+        Fx18File::setAttribute2(uuid, "mikuType", "Ax1Text")
+        Fx18File::setAttribute2(uuid, "unixtime", unixtime)
+        Fx18File::setAttribute2(uuid, "datetime", datetime)
+        Fx18File::setAttribute2(uuid, "nhash", nhash)
         uuid
     end
 
@@ -39,8 +39,8 @@ class Ax1Text
 
     # Ax1Text::toString(uuid)
     def self.toString(uuid)
-        nhash = Fx18s::getAttributeOrNull(uuid, "nhash")
-        text = Fx18s::getBlobOrNull(uuid, nhash) # This should not be null
+        nhash = Fx18File::getAttributeOrNull(uuid, "nhash")
+        text = Fx18File::getBlobOrNull(uuid, nhash) # This should not be null
         description = (text != "") ? text.lines.first : "(empty text)"
         "(note) #{description}"
     end
@@ -60,15 +60,15 @@ class Ax1Text
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit" then
-                nhash = Fx18s::getAttributeOrNull(uuid, "nhash")
-                text = Fx18s::getBlobOrNull(uuid, nhash)
+                nhash = Fx18File::getAttributeOrNull(uuid, "nhash")
+                text = Fx18File::getBlobOrNull(uuid, nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = Fx18s::putBlob3(uuid, text)
-                Fx18s::setAttribute2(uuid, "nhash", nhash)
+                nhash = Fx18File::putBlob3(uuid, text)
+                Fx18File::setAttribute2(uuid, "nhash", nhash)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(uuid).green}' ? ") then
-                    Fx18s::destroy(uuid)
+                    Fx18File::destroy(uuid)
                     break
                 end
             end
