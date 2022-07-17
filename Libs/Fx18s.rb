@@ -398,16 +398,21 @@ class Fx18Synchronisation
 
     # Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
     def self.propagateFileEvent(filepath1, filepath2)
-
         raise "(error: d5e6f2d3-9eab-484a-bde8-d7e6d479b04f)" if !File.exists?(filepath1)
 
         raise "(error: 5d24c60a-db47-4643-a618-bb2057daafd2)" if !File.exists?(filepath2)
 
         objectuuid1 = Fx18File::getAttributeOrNull2(filepath1, "uuid")
-        raise "(error: 41c552b9-0245-43fc-a1de-e38d58d3c16b) objectuuid1: #{objectuuid1}" if (objectuuid1.nil? or objectuuid1 == "")
+        if (objectuuid1.nil? or objectuuid1 == "") then
+            puts "filepath1: #{filepath1}"
+            raise "(error: 41c552b9-0245-43fc-a1de-e38d58d3c16b) objectuuid1: #{objectuuid1}" 
+        end
 
         objectuuid2 = Fx18File::getAttributeOrNull2(filepath2, "uuid")
-        raise "(error: 3eced5c4-1bcc-4353-bd0c-2253e5cc4b9d) objectuuid2: #{objectuuid2}" if (objectuuid2.nil? or objectuuid2 == "")
+        if (objectuuid2.nil? or objectuuid2 == "") then
+            puts "filepath2: #{filepath2}"
+            raise "(error: 3eced5c4-1bcc-4353-bd0c-2253e5cc4b9d) objectuuid2: #{objectuuid2}" 
+        end
 
         # Get the events ids from file1
         eventuuids1 = Fx18Synchronisation::getEventuuids(filepath1)
@@ -461,9 +466,11 @@ class Fx18Synchronisation
             next if filepath1[-13, 13] != ".fx18.sqlite3"
             filename = File.basename(filepath1)
             filepath2 = "#{folderpath2}/#{filename}"
-            if !File.exists?(filepath2) and shouldCopyFiles then
-                puts "[repo sync] copy file: #{filepath1}"
-                FileUtils.cp(filepath1, filepath2)
+            if !File.exists?(filepath2) then
+                if shouldCopyFiles then
+                    puts "[repo sync] copy file: #{filepath1}"
+                    FileUtils.cp(filepath1, filepath2)
+                end
             else
                 #puts "[repo sync] file sync: #{filepath1}"
                 Fx18Synchronisation::propagateFileEvent(filepath1, filepath2)
