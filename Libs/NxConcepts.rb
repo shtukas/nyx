@@ -21,14 +21,14 @@ class NxConcepts
 
     # NxConcepts::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxConcept")
+        Fx18Index1::mikuType2objectuuids("NxConcept")
             .map{|objectuuid| NxConcepts::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # NxConcepts::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # ----------------------------------------------------------------------

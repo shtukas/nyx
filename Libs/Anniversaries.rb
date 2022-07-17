@@ -98,7 +98,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        Librarian::mikuTypeUUIDs("NxAnniversary").map{|objectuuid|
+        Fx18Index1::mikuType2objectuuids("NxAnniversary").map{|objectuuid|
             Anniversaries::objectuuidToItemOrNull(objectuuid)
         }
     end
@@ -208,7 +208,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Librarian::destroyFx18Logically(item["uuid"])
+                Fx18Utils::destroyFx18Logically(item["uuid"])
                 break
             end
         }

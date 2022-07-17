@@ -21,14 +21,14 @@ class TxProjects
 
     # TxProjects::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("TxProject")
+        Fx18Index1::mikuType2objectuuids("TxProject")
             .map{|objectuuid| TxProjects::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # TxProjects::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # ----------------------------------------------------------------------

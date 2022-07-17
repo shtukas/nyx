@@ -18,14 +18,14 @@ class NxFrames
 
     # NxFrames::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxFrame")
+        Fx18Index1::mikuType2objectuuids("NxFrame")
             .map{|objectuuid| NxFrames::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # NxFrames::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # --------------------------------------------------

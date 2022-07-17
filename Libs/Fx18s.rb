@@ -1,4 +1,306 @@
 
+class Fx18Utils
+
+    # Fx18Utils::computeLocalFx18Filepath(objectuuid)
+    def self.computeLocalFx18Filepath(objectuuid)
+        "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
+    end
+
+    # Fx18Utils::fileExists?(objectuuid)
+    def self.fileExists?(objectuuid)
+        File.exists?(Fx18Utils::computeLocalFx18Filepath(objectuuid))
+    end
+
+    # Fx18Utils::makeNewFile(objectuuid)
+    def self.makeNewFile(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        if File.exists?(filepath) then
+            puts "operation: Fx18Utils::makeNewFile"
+            puts "objectuuid: #{objectuuid}"
+            puts "filepath: #{filepath}"
+            raise "(error: 501f3d32-118f-4844-94e2-f93f96d50fcc) attempting to create a Fx18 file that already exists"
+            exit 1
+        end
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
+        db.close
+    end
+
+    # Fx18Utils::acquireFilepathOrError(objectuuid)
+    def self.acquireFilepathOrError(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        if !File.exists?(filepath) then
+            puts "operation: Fx18Utils::acquireFilepathOrError"
+            puts "objectuuid: #{objectuuid}"
+            puts "filepath: #{filepath}"
+            raise "(error: a76f302d-f376-4d4f-ac2b-dea3f19696e7)"
+            exit 1
+        end
+        filepath
+    end
+
+    # Fx18Utils::fx18FilepathsFromFileSystem()
+    def self.fx18FilepathsFromFileSystem()
+        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Stargate/Fx18s")
+            .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
+    end
+
+    # Fx18Utils::objectuuidToItemOrNull(objectuuid)
+    def self.objectuuidToItemOrNull(objectuuid)
+        return nil if !Fx18Utils::fileExists?(objectuuid)
+
+        mikuType = Fx18File::getAttributeOrNull(objectuuid, "mikuType")
+        return nil if mikuType.nil?
+
+        if mikuType == "Ax1Text" then
+            return Ax1Text::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxAnniversary" then
+            return Anniversaries::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxCollection" then
+            return NxCollections::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxConcept" then
+            return NxConcepts::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxDataNode" then
+            return NxDataNodes::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxEntity" then
+            return NxEntities::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxEvent" then
+            return NxEvents::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxFrame" then
+            return NxFrames::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxLine" then
+            return NxLines::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxPerson" then
+            return NxPersons::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxTask" then
+            return NxTasks::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "NxTimeline" then
+            return NxTimelines::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "TxDated" then
+            return TxDateds::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "TxProject" then
+            return TxProjects::objectuuidToItemOrNull(objectuuid)
+        end
+
+        if mikuType == "Wave" then
+            return Waves::objectuuidToItemOrNull(objectuuid)
+        end
+
+        raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
+    end
+
+    # Fx18Utils::fsck(shouldReset)
+    def self.fsck(shouldReset)
+        runHash = XCache::getOrNull("76001cea-f0c6-4e68-862b-5060d3c8bcd5")
+
+        if runHash.nil? then
+            runHash = SecureRandom.hex
+            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
+        end
+
+        if shouldReset then
+            puts "resetting fsck runhash"
+            sleep 1
+            runHash = SecureRandom.hex
+            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
+        end
+
+        Fx18Utils::fx18FilepathsFromFileSystem()
+            .each{|filepath|
+                FileSystemCheck::exitIfMissingCanary()
+                trace = "#{runHash}:#{Digest::SHA1.file(filepath).hexdigest}"
+                next if XCache::getFlag(trace)
+                FileSystemCheck::fsckFx18FilepathExitAtFirstFailure(filepath)
+
+                db = SQLite3::Database.new(filepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("vacuum", [])
+                db.close
+
+                XCache::setFlag(trace, true)
+            }
+        puts "fsck completed successfully".green
+    end
+
+    # Fx18Utils::destroyFx18Logically(objectuuid)
+    def self.destroy(objectuuid)
+        # TODO:
+    end
+
+    # Fx18Utils::destroyFx18Logically(uuid)
+    def self.destroyFx18Logically(uuid)
+        # TODO:
+        SystemEvents::sendEventToSQSStage1({
+            "uuid"     => uuid,
+            "variant"  => SecureRandom.uuid,
+            "mikuType" => "NxDeleted",
+        })
+        SystemEvents::processEvent({
+            "mikuType"   => "(object has been deleted)",
+            "objectuuid" => uuid,
+        }, true)
+    end
+end
+
+class Fx18Index1 # (filepath, mikuType, objectuuid)
+
+    # Fx18Index1::databaseFilepath()
+    def self.databaseFilepath()
+        "/Users/pascal/Galaxy/DataBank/Stargate/Fx18-Indices/index1.sqlite3"
+    end
+
+    # Fx18Index1::rebuildIndexData()
+    def self.rebuildIndexData()
+
+        databaseFilepath = Fx18Index1::databaseFilepath()
+
+        # Step 1
+        db = SQLite3::Database.new(databaseFilepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _index_"
+        db.close
+
+        Fx18Utils::fx18FilepathsFromFileSystem().each{|filepath|
+            mikuType = Fx18File::getAttributeOrNull2(filepath, "mikuType")
+            objectuuid = Fx18File::getAttributeOrNull2(filepath, "uuid")
+            db = SQLite3::Database.new(databaseFilepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "delete from _index_ where _filepath_=?", [filepath]
+            db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_) values (?, ?, ?)", [filepath, mikuType, objectuuid]
+            db.close
+        }
+    end
+
+    # Fx18Index1::buildIndexIfMissing()
+    def self.buildIndexIfMissing()
+        filepath = Fx18Index1::databaseFilepath()
+        return if File.exists?(filepath)
+        puts "Building Index1"
+
+        # Step 1
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "create table _index_ (_filepath_ text primary key, _mikuType_ text, _objectuuid_ text)"
+        db.close
+
+        # Step 2
+        Fx18Index1::rebuildIndexData()
+    end
+
+    # Fx18Index1::filepaths()
+    def self.filepaths()
+        Fx18Index1::buildIndexIfMissing()
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        filepaths = []
+        db.execute("select * from _index_ order by _filepath_", []) do |row|
+            filepaths << row["_filepath_"]
+        end
+        db.close
+        filepaths
+    end
+
+    # Fx18Index1::mikuTypes()
+    def self.mikuTypes()
+        Fx18Index1::buildIndexIfMissing()
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        mikuTypes = []
+        db.execute("select * from _index_ order by _mikuType_", []) do |row|
+            mikuTypes << row["_mikuType_"]
+        end
+        db.close
+        mikuTypes.uniq
+    end
+
+    # Fx18Index1::mikuType2objectuuids(mikuType)
+    def self.mikuType2objectuuids(mikuType)
+        Fx18Index1::buildIndexIfMissing()
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objectuuids = []
+        db.execute("select * from _index_ where _mikuType_=?", [mikuType]) do |row|
+            objectuuids << row["_objectuuid_"]
+        end
+        db.close
+        objectuuids
+    end
+
+    # Fx18Index1::countObjectsByMikuType(mikuType)
+    def self.countObjectsByMikuType(mikuType)
+        Fx18Index1::mikuType2objectuuids(mikuType).count
+    end
+
+    # Fx18Index1::updateIndexForFilepath(filepath)
+    def self.updateIndexForFilepath(filepath)
+        Fx18Index1::buildIndexIfMissing()
+        mikuType = Fx18File::getAttributeOrNull2(filepath, "mikuType")
+        objectuuid = Fx18File::getAttributeOrNull2(filepath, "uuid")
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _index_ where _filepath_=?", [filepath]
+        db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_) values (?, ?, ?)", [filepath, mikuType, objectuuid]
+        db.close
+    end
+
+    # Fx18Index1::removeRecordForObjectUUID(objectuuid)
+    def self.removeRecordForObjectUUID(objectuuid)
+        Fx18Index1::buildIndexIfMissing()
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _index_ where _objectuuid_=?", [objectuuid]
+        db.close
+    end
+end
+
 class Fx19Data
 
     # Fx19Data::computeFilepath(objectuuid)
@@ -112,167 +414,6 @@ class Fx19Data
     end
 end
 
-class Fx18Utils
-
-    # Fx18Utils::computeLocalFx18Filepath(objectuuid)
-    def self.computeLocalFx18Filepath(objectuuid)
-        "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
-    end
-
-    # Fx18Utils::fileExists?(objectuuid)
-    def self.fileExists?(objectuuid)
-        File.exists?(Fx18Utils::computeLocalFx18Filepath(objectuuid))
-    end
-
-    # Fx18Utils::makeNewFile(objectuuid)
-    def self.makeNewFile(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if File.exists?(filepath) then
-            puts "operation: Fx18Utils::makeNewFile"
-            puts "objectuuid: #{objectuuid}"
-            puts "filepath: #{filepath}"
-            raise "(error: 501f3d32-118f-4844-94e2-f93f96d50fcc) attempting to create a Fx18 file that already exists"
-            exit 1
-        end
-
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
-        db.close
-    end
-
-    # Fx18Utils::acquireFilepathOrError(objectuuid)
-    def self.acquireFilepathOrError(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if !File.exists?(filepath) then
-            puts "operation: Fx18Utils::acquireFilepathOrError"
-            puts "objectuuid: #{objectuuid}"
-            puts "filepath: #{filepath}"
-            raise "(error: a76f302d-f376-4d4f-ac2b-dea3f19696e7)"
-            exit 1
-        end
-        filepath
-    end
-
-    # Fx18Utils::fx18Filepaths()
-    def self.fx18Filepaths()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Stargate/Fx18s")
-            .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
-    end
-
-    # Fx18Utils::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
-
-        mikuType = Fx18File::getAttributeOrNull(objectuuid, "mikuType")
-        return nil if mikuType.nil?
-
-        if mikuType == "Ax1Text" then
-            return Ax1Text::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxAnniversary" then
-            return Anniversaries::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxCollection" then
-            return NxCollections::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxConcept" then
-            return NxConcepts::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxDataNode" then
-            return NxDataNodes::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxEntity" then
-            return NxEntities::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxEvent" then
-            return NxEvents::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxFrame" then
-            return NxFrames::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxLine" then
-            return NxLines::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxPerson" then
-            return NxPersons::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxTask" then
-            return NxTasks::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxTimeline" then
-            return NxTimelines::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "TxDated" then
-            return TxDateds::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "TxProject" then
-            return TxProjects::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "Wave" then
-            return Waves::objectuuidToItemOrNull(objectuuid)
-        end
-
-        raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
-    end
-
-    # Fx18Utils::fsck(shouldReset)
-    def self.fsck(shouldReset)
-        runHash = XCache::getOrNull("76001cea-f0c6-4e68-862b-5060d3c8bcd5")
-
-        if runHash.nil? then
-            runHash = SecureRandom.hex
-            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
-        end
-
-        if shouldReset then
-            puts "resetting fsck runhash"
-            sleep 1
-            runHash = SecureRandom.hex
-            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
-        end
-
-        Fx18Utils::fx18Filepaths()
-            .each{|filepath|
-                FileSystemCheck::exitIfMissingCanary()
-                trace = "#{runHash}:#{Digest::SHA1.file(filepath).hexdigest}"
-                next if XCache::getFlag(trace)
-                FileSystemCheck::fsckFx18FilepathExitAtFirstFailure(filepath)
-
-                db = SQLite3::Database.new(filepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("vacuum", [])
-                db.close
-
-                XCache::setFlag(trace, true)
-            }
-        puts "fsck completed successfully".green
-    end
-
-    # Fx18Utils::destroy(objectuuid)
-    def self.destroy(objectuuid)
-        # TODO:
-    end
-end
-
 class Fx18File
 
     # --------------------------------------------------------------
@@ -291,9 +432,12 @@ class Fx18File
         if attname == "mikuType" then
             SystemEvents::processEvent({
                 "mikuType" => "(object has a new mikuType)",
-                "objectuuid" => objectuuid,
-                "objectMikuType" => attvalue
+                "objectuuid" => objectuuid
             }, false)
+            SystemEvents::sendEventToSQSStage1({
+                "mikuType" => "(object has a new mikuType)",
+                "objectuuid" => objectuuid
+            })
         end
     end
 

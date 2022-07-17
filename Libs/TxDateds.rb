@@ -18,14 +18,14 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("TxDated")
+        Fx18Index1::mikuType2objectuuids("TxDated")
             .map{|objectuuid| TxDateds::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # --------------------------------------------------

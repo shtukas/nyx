@@ -20,7 +20,7 @@ class NxLines
 
     # NxLines::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxLine")
+        Fx18Index1::mikuType2objectuuids("NxLine")
             .map{|objectuuid| NxLines::objectuuidToItemOrNull(objectuuid)}
             .compact
     end

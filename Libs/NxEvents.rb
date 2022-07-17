@@ -22,14 +22,14 @@ class NxEvents
 
     # NxEvents::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxEvent")
+        Fx18Index1::mikuType2objectuuids("NxEvent")
             .map{|objectuuid| NxEvents::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # NxEvents::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # ----------------------------------------------------------------------

@@ -18,14 +18,14 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxTask")
+        Fx18Index1::mikuType2objectuuids("NxTask")
             .map{|objectuuid| NxTasks::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # NxTasks::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # --------------------------------------------------

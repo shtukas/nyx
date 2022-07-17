@@ -21,14 +21,14 @@ class NxTimelines
 
     # NxTimelines::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxTimeline")
+        Fx18Index1::mikuType2objectuuids("NxTimeline")
             .map{|objectuuid| NxTimelines::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # NxTimelines::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # ----------------------------------------------------------------------

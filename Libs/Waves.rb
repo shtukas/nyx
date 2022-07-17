@@ -21,14 +21,14 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("Wave")
+        Fx18Index1::mikuType2objectuuids("Wave")
             .map{|objectuuid| Waves::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # --------------------------------------------------

@@ -18,7 +18,7 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxPerson")
+        Fx18Index1::mikuType2objectuuids("NxPerson")
             .map{|objectuuid| NxPersons::objectuuidToItemOrNull(objectuuid)}
             .compact
     end

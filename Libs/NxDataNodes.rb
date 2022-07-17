@@ -22,14 +22,14 @@ class NxDataNodes
 
     # NxDataNodes::items()
     def self.items()
-        Librarian::mikuTypeUUIDs("NxDataNode")
+        Fx18Index1::mikuType2objectuuids("NxDataNode")
             .map{|objectuuid| NxDataNodes::objectuuidToItemOrNull(objectuuid)}
             .compact
     end
 
     # NxDataNodes::destroy(uuid)
     def self.destroy(uuid)
-        Librarian::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18Logically(uuid)
     end
 
     # ----------------------------------------------------------------------

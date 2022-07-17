@@ -80,14 +80,13 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(object has a new mikuType)" then
-            Librarian::processEvent(event)
+            filepath = Fx18Utils::computeLocalFx18Filepath(event["objectuuid"])
+            Fx18Index1::updateIndexForFilepath(filepath)
         end
 
-        #{
-        #    "mikuType"        => "(object has been deleted)",
-        #    "deletedUUID"     => uuid,
-        #    "deletedMikuType" => mikuType
-        #}
+        if event["mikuType"] == "(object has been deleted)" then
+            Fx18Index1::removeRecordForObjectUUID(event["objectuuid"])
+        end
 
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEvent(event)
@@ -105,8 +104,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "RemoveFromListing" then
-            itemuuid = event["itemuuid"]
-            Listing::remove(itemuuid)
+            Listing::remove(event["itemuuid"])
             return
         end
 
