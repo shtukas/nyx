@@ -154,16 +154,16 @@ class Fx18Utils
         puts "fsck completed successfully".green
     end
 
-    # Fx18Utils::destroyFx18(objectuuid)
-    def self.destroy(objectuuid)
+    # Fx18Utils::destroyFx18NoEvent(objectuuid)
+    def self.destroyFx18NoEvent(objectuuid)
         filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         return if !File.exists?(filepath)
         FileUtils.rm(filepath)
     end
 
-    # Fx18Utils::destroyFx18(uuid)
-    def self.destroyFx18(uuid)
-        # TODO:
+    # Fx18Utils::destroyFx18EmitEvents(objectuuid)
+    def self.destroyFx18(objectuuid)
+        Fx18Utils::destroyFx18NoEvent(objectuuid)
         SystemEvents::issueStargateDrop({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,

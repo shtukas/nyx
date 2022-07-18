@@ -29,7 +29,7 @@ class NxDataNodes
 
     # NxDataNodes::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyFx18(uuid)
+        Fx18Utils::destroyFx18EmitEvents(uuid)
     end
 
     # ----------------------------------------------------------------------
