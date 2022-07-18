@@ -2,6 +2,70 @@
 
 We have two types of events
 
-1. Internal events, at the time those lines are written and reason why they were introduced, mostly used for decaching.
+1. Internal events.
 
-2. SQS events. They are composed of Librarian objects and machine to machine events that are not Librarian objects: NxBankEvent and NxDoNotShowUntil.
+2. Global events, published to the other machine(s)
+
+### Internal only events
+
+{
+    "mikuType"   => "(object has been deleted)",
+    "objectuuid" => uuid,
+}
+
+{
+    "mikuType"      => "Fx18 File Event",
+    "objectuuid"    => objectuuid,
+    "Fx18FileEvent" => {
+        "_eventuuid_"  => eventuuid,
+        "_eventTime_"  => eventTime,
+        "_eventData1_" => eventData1,
+        "_eventData2_" => eventData2,
+        "_eventData3_" => eventData3,
+        "_eventData4_" => eventData4,
+        "_eventData5_" => eventData5
+    }
+}
+
+{
+    "mikuType" => "(object has a new mikuType)",
+    "objectuuid" => objectuuid
+}
+
+### Global events
+
+{
+    "uuid"     => eventuuid,
+    "mikuType" => "NxBankEvent",
+    "setuuid"  => setuuid,
+    "unixtime" => unixtime,
+    "date"     => date,
+    "weight"   => weight
+}
+
+{
+    "uuid"           => SecureRandom.uuid,
+    "mikuType"       => "NxDoNotShowUntil",
+    "unixtime"       => Time.new.to_i,
+    "targetuuid"     => uuid,
+    "targetunixtime" => unixtime
+}
+
+{
+    "uuid"       => SecureRandom.uuid
+    "mikuType"   => "SetDoneToday"
+    "targetuuid" => uuid
+    "targetdate" => CommonUtils::today()
+}
+
+{
+    "uuid"       => SecureRandom.uuid
+    "mikuType"   => "RemoveFromListing"
+    "itemuuid"   => item["uuid"]
+}
+
+{
+    "uuid"     => uuid
+    "variant"  => SecureRandom.uuid
+    "mikuType" => "NxDeleted"
+}

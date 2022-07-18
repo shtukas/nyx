@@ -162,7 +162,7 @@ class Fx18Utils
     # Fx18Utils::destroyFx18Logically(uuid)
     def self.destroyFx18Logically(uuid)
         # TODO:
-        SystemEvents::sendEventToSQSStage1({
+        SystemEvents::publishGlobalEventStage1({
             "uuid"     => uuid,
             "variant"  => SecureRandom.uuid,
             "mikuType" => "NxDeleted",
@@ -177,6 +177,23 @@ class Fx18Utils
     def self.jsonParseIfNotNull(str)
         return nil if str.nil?
         JSON.parse(str)
+    end
+
+    # Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.publishFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+        SystemEvents::publishGlobalEventStage1({
+            "mikuType"      => "Fx18 File Event",
+            "objectuuid"    => objectuuid,
+            "Fx18FileEvent" => {
+                "_eventuuid_"  => eventuuid,
+                "_eventTime_"  => eventTime,
+                "_eventData1_" => eventData1,
+                "_eventData2_" => eventData2,
+                "_eventData3_" => eventData3,
+                "_eventData4_" => eventData4,
+                "_eventData5_" => eventData5
+            }
+        })
     end
 end
 
@@ -436,34 +453,45 @@ end
 
 class Fx18File
 
-    # --------------------------------------------------------------
-
-    # Fx18File::setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue)
-    def self.setAttribute1(eventuuid, eventTime, objectuuid, attname, attvalue)
-        puts "Fx18File::setAttribute1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{attname}, #{attvalue})"
+    # Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+        #puts "Fx18File::genericEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)"
         filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, "attribute", attname, attvalue]
+        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5]
         db.close
+
+        # We do not emit an event here, as this is also called from system event processing
+    end
+
+    # --------------------------------------------------------------
+
+    # Fx18File::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
+    def self.setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
+        puts "Fx18File::setAttribute1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
+
+        Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
 
         if attname == "mikuType" then
             SystemEvents::processEvent({
                 "mikuType" => "(object has a new mikuType)",
                 "objectuuid" => objectuuid
             }, false)
-            SystemEvents::sendEventToSQSStage1({
+            SystemEvents::publishGlobalEventStage1({
                 "mikuType" => "(object has a new mikuType)",
                 "objectuuid" => objectuuid
             })
         end
+
+        Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
     end
 
     # Fx18File::setAttribute2(objectuuid, attname, attvalue)
     def self.setAttribute2(objectuuid, attname, attvalue)
-        Fx18File::setAttribute1(SecureRandom.uuid, Time.new.to_f, objectuuid, attname, attvalue)
+        Fx18File::setAttribute1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
     # Fx18File::getAttributeOrNull(objectuuid, attname)
@@ -490,38 +518,28 @@ class Fx18File
 
     # --------------------------------------------------------------
 
-    # Fx18File::setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
-    def self.setsAdd1(eventuuid, eventTime, objectuuid, setuuid, itemuuid, value)
-        puts "Fx18File::setsAdd1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{setuuid}, #{itemuuid}, #{value})"
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value)]
-        db.close
+    # Fx18File::setsAdd1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
+    def self.setsAdd1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
+        puts "Fx18File::setsAdd1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
+        Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
     end
 
     # Fx18File::setsAdd2(objectuuid, setuuid, itemuuid, value)
     def self.setsAdd2(objectuuid, setuuid, itemuuid, value)
-        Fx18File::setsAdd1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid, value)
+        Fx18File::setsAdd1(objectuuid, SecureRandom.uuid, Time.new.to_f, setuuid, itemuuid, value)
     end
 
-    # Fx18File::setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
-    def self.setsRemove1(eventuuid, eventTime, objectuuid, setuuid, itemuuid)
-        puts "Fx18File::setsRemove1(#{eventuuid}, #{eventTime}, #{objectuuid}, #{setuuid}, #{itemuuid})"
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_) values (?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, "setops", "remove", setuuid, itemuuid]
-        db.close
+    # Fx18File::setsRemove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
+    def self.setsRemove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
+        puts "Fx18File::setsRemove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
+        Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
     end
 
     # Fx18File::setsRemove2(objectuuid, setuuid, itemuuid)
     def self.setsRemove2(objectuuid, setuuid, itemuuid)
-        Fx18File::setsRemove1(SecureRandom.uuid, Time.new.to_f, objectuuid, setuuid, itemuuid)
+        Fx18File::setsRemove1(objectuuid, SecureRandom.uuid, Time.new.to_f, setuuid, itemuuid)
     end
 
     # Fx18File::setsItems(objectuuid, setuuid)

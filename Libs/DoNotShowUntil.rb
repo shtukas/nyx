@@ -33,7 +33,7 @@ class DoNotShowUntil
           "targetuuid"     => uuid,
           "targetunixtime" => unixtime
         }
-        SystemEvents::sendEventToSQSStage1(event)
+        SystemEvents::publishGlobalEventStage1(event)
     end
 
     # DoNotShowUntil::processEvent(event)

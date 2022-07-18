@@ -45,7 +45,7 @@ class LxAction
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                     Listing::remove(item["uuid"])
-                    SystemEvents::sendEventToSQSStage1({
+                    SystemEvents::publishGlobalEventStage1({
                       "uuid"       => SecureRandom.uuid,
                       "mikuType"   => "RemoveFromListing",
                       "itemuuid"   => item["uuid"],
@@ -58,7 +58,7 @@ class LxAction
                     Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
                     Listing::remove(item["uuid"])
-                    SystemEvents::sendEventToSQSStage1({
+                    SystemEvents::publishGlobalEventStage1({
                       "uuid"       => SecureRandom.uuid,
                       "mikuType"   => "RemoveFromListing",
                       "itemuuid"   => item["uuid"],
@@ -136,7 +136,7 @@ class LxAction
             end
 
             Listing::remove(item["uuid"])
-            SystemEvents::sendEventToSQSStage1({
+            SystemEvents::publishGlobalEventStage1({
               "uuid"       => SecureRandom.uuid,
               "mikuType"   => "RemoveFromListing",
               "itemuuid"   => item["uuid"],

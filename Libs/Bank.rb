@@ -41,7 +41,7 @@ class Bank
           "date"     => date,
           "weight"   => weight
         }
-        SystemEvents::sendEventToSQSStage1(event)
+        SystemEvents::publishGlobalEventStage1(event)
     end
 
     # Bank::processEvent(event)

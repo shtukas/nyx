@@ -9,14 +9,14 @@
 
 class SystemEvents
 
-    # SystemEvents::sendEventToSQSStage1(event)
-    def self.sendEventToSQSStage1(event)
-        #puts "SystemEvents::sendEventToSQSStage1(#{JSON.pretty_generate(event)})"
+    # SystemEvents::publishGlobalEventStage1(event)
+    def self.publishGlobalEventStage1(event)
+        #puts "SystemEvents::publishGlobalEventStage1(#{JSON.pretty_generate(event)})"
         Mercury2::put("341307DD-A9C6-494F-B050-CD89745A66C6", event)
     end
 
-    # SystemEvents::sendEventsToSQSStage2(verbose)
-    def self.sendEventsToSQSStage2(verbose)
+    # SystemEvents::publishGlobalEventStage2(verbose)
+    def self.publishGlobalEventStage2(verbose)
 
         return if Mercury2::empty?("341307DD-A9C6-494F-B050-CD89745A66C6")
 
@@ -57,15 +57,15 @@ class SystemEvents
         }
     end
 
-    # SystemEvents::pullEventsFromSQS(verbose)
-    def self.pullEventsFromSQS(verbose)
+    # SystemEvents::getGlobalEventsFromSQS(verbose)
+    def self.getGlobalEventsFromSQS(verbose)
         AWSSQS::pullAndProcessEvents(verbose)
     end
 
     # SystemEvents::sync(verbose)
     def self.sync(verbose)
         begin
-            SystemEvents::sendEventsToSQSStage2(verbose)
+            SystemEvents::publishGlobalEventStage2(verbose)
             AWSSQS::pullAndProcessEvents(verbose)
         rescue StandardError => e
             puts "To Machine Event Maintenance Thread Error: #{e.message}"
@@ -86,6 +86,11 @@ class SystemEvents
 
         if event["mikuType"] == "(object has been deleted)" then
             Fx18Index1::removeRecordForObjectUUID(event["objectuuid"])
+        end
+
+        if event["mikuType"] == "Fx18 File Event" then
+            Fx19Data::ensureFileForPut(event["objectuuid"])
+            return
         end
 
         if event["mikuType"] == "NxBankEvent" then
