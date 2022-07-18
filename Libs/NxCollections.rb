@@ -57,18 +57,4 @@ class NxCollections
     def self.toString(item)
         "(collection) #{item["description"]}"
     end
-
-    # ------------------------------------------------
-    # Nx20s
-
-    # NxCollections::nx20s()
-    def self.nx20s()
-        NxCollections::items().map{|item| 
-            {
-                "announce" => "(#{item["uuid"][0, 4]}) #{NxCollections::toString(item)}",
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
-    end
 end

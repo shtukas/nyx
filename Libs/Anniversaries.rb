@@ -224,15 +224,4 @@ class Anniversaries
             Anniversaries::landing(anniversary)
         }
     end
-
-    # Anniversaries::nx20s()
-    def self.nx20s()
-        Anniversaries::anniversaries().map{|item|
-            {
-                "announce" => Anniversaries::toString(item),
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
-    end
 end

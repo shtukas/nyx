@@ -16,7 +16,7 @@ class NxDataNodes
             "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
             "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx111"       => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
         }
     end
 
@@ -95,21 +95,5 @@ class NxDataNodes
     # NxDataNodes::toString(item)
     def self.toString(item)
         "(data) #{item["description"]}"
-    end
-
-    # ------------------------------------------------
-    # Nx20s
-
-    # NxDataNodes::nx20s()
-    def self.nx20s()
-        NxDataNodes::items()
-            .select{|item| !item["description"].nil? }
-            .map{|item| 
-                {
-                    "announce" => "(#{item["uuid"][0, 4]}) #{NxDataNodes::toString(item)}",
-                    "unixtime" => item["unixtime"],
-                    "payload"  => item
-                }
-            }
     end
 end

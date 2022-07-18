@@ -3,31 +3,11 @@
 
 class Search
 
-    # Search::nx20s()
-    def self.nx20s()
-        nx20s = [
-            Anniversaries::nx20s(),
-            NxCollections::nx20s(),
-            NxDataNodes::nx20s(),
-            NxPersons::nx20s(),
-            NxTimelines::nx20s(),
-            TxDateds::nx20s(),
-            NxFrames::nx20s(),
-            NxTasks::nx20s(),
-            Waves::nx20s(),
-            NxEvents::nx20s(),
-            NxEntities::nx20s(),
-            NxConcepts::nx20s()
-        ].flatten
-
-        nx20s.sort{|x1, x2| x1["unixtime"] <=> x2["unixtime"] }
-    end
-
     # ---------------------------
 
     # Search::interativeInterfaceSelectNx20OrNull()
     def self.interativeInterfaceSelectNx20OrNull()
-        CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Search::nx20s(), lambda{|item| item["announce"].downcase })
+        CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Fx18Index1::nx20s(), lambda{|item| item["announce"].downcase })
     end
 
     # Search::interativeInterface()
@@ -35,7 +15,8 @@ class Search
         loop {
             nx20 = Search::interativeInterfaceSelectNx20OrNull()
             break if nx20.nil?
-            LxAction::action("landing", nx20["payload"])
+            item = Fx18Utils::objectuuidToItemOrNull(nx20["objectuuid"])
+            LxAction::action("landing", item)
         }
     end
 
@@ -47,7 +28,9 @@ class Search
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             break if fragment == ""
-            selected = Search::nx20s().select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+            selected = Fx18Index1::nx20s()
+                .select{|nx20| !nx20["announce"].nil? }
+                .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             if selected.empty? then
                 puts "Could not find a matching element for '#{fragment}'"
                 LucilleCore::pressEnterToContinue()
@@ -55,11 +38,14 @@ class Search
             end
             loop {
                 system('clear')
-                selected = Search::nx20s().select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
+                selected = Fx18Index1::nx20s()
+                    .select{|nx20| !nx20["announce"].nil? }
+                    .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("search", selected, lambda{|item| item["announce"] })
                 break if nx20.nil?
                 system('clear')
-                LxAction::action("landing", nx20["payload"])
+                item = Fx18Utils::objectuuidToItemOrNull(nx20["objectuuid"])
+                LxAction::action("landing", item)
             }
         }
     end

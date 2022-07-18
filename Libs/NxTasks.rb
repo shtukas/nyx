@@ -12,7 +12,7 @@ class NxTasks
             "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
             "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx111"       => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
         }
     end
 
@@ -105,18 +105,5 @@ class NxTasks
     # NxTasks::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(task) #{item["description"]}"
-    end
-
-    # NxTasks::nx20s()
-    def self.nx20s()
-        return []
-        NxTasks::items()
-            .map{|item|
-                {
-                    "announce" => "(#{item["uuid"][0, 4]}) #{NxTasks::toString(item)}",
-                    "unixtime" => item["unixtime"],
-                    "payload"  => item
-                }
-            }
     end
 end

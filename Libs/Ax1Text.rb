@@ -37,12 +37,20 @@ class Ax1Text
     # ----------------------------------------------------------------------
     # Data
 
-    # Ax1Text::toString(uuid)
-    def self.toString(uuid)
-        nhash = Fx18File::getAttributeOrNull(uuid, "nhash")
-        text = Fx19Data::getBlobOrNull(uuid, nhash) # This should not be null
-        description = (text != "") ? text.lines.first : "(empty text)"
-        "(note) #{description}"
+    # Ax1Text::getFirstLineOrNull(item)
+    def self.getFirstLineOrNull(item)
+        nhash = item["nhash"]
+        text = Fx19Data::getBlobOrNull(item["uuid"], nhash)
+        return nil if text.nil?
+        return nil if text == ""
+        text.lines.first
+    end
+
+    # Ax1Text::toString(item)
+    def self.toString(item)
+        firstline = Ax1Text::getFirstLineOrNull(item)
+        return "(note) (no text)" if firstline.nil?
+        "(note) #{firstline}"
     end
 
     # ----------------------------------------------------------------------
@@ -52,7 +60,8 @@ class Ax1Text
     def self.landing(uuid)
         loop {
             system("clear")
-            puts Ax1Text::toString(uuid)
+            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+            puts Ax1Text::toString(item)
             operations = [
                 "access/edit",
                 "destroy"
@@ -67,7 +76,7 @@ class Ax1Text
                 Fx18File::setAttribute2(uuid, "nhash", nhash)
             end
             if operation == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(uuid).green}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
                     Fx18Utils::destroyFx18Logically(uuid)
                     break
                 end

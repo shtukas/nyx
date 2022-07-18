@@ -12,7 +12,7 @@ class TxDateds
             "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
             "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx111"       => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
         }
     end
 
@@ -107,18 +107,5 @@ class TxDateds
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-    end
-
-    # --------------------------------------------------
-
-    # TxDateds::nx20s()
-    def self.nx20s()
-        TxDateds::items().map{|item|
-            {
-                "announce" => TxDateds::toStringForSearch(item),
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
     end
 end

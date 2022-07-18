@@ -46,18 +46,4 @@ class NxPersons
     def self.toString(item)
         "(person) #{item["name"]}"
     end
-
-    # ------------------------------------------------
-    # Nx20s
-
-    # NxPersons::nx20s()
-    def self.nx20s()
-        NxPersons::items().map{|item| 
-            {
-                "announce" => "(#{item["uuid"][0, 4]}) #{NxPersons::toString(item)}",
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
-    end
 end

@@ -16,7 +16,7 @@ class NxEvents
             "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
             "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx111"       => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
         }
     end
 
@@ -59,21 +59,5 @@ class NxEvents
     # NxEvents::toString(item)
     def self.toString(item)
         "(event) #{item["description"]}"
-    end
-
-    # ------------------------------------------------
-    # Nx20s
-
-    # NxEvents::nx20s()
-    def self.nx20s()
-        NxEvents::items()
-            .select{|item| !item["description"].nil? }
-            .map{|item| 
-                {
-                    "announce" => "(#{item["uuid"][0, 4]}) #{NxEvents::toString(item)}",
-                    "unixtime" => item["unixtime"],
-                    "payload"  => item
-                }
-            }
     end
 end

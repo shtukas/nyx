@@ -15,8 +15,14 @@ class LxFunction
             raise "(error: f74385d4-5ece-4eae-8a09-90d3a5e0f120)"
         end
 
-        # This one only exists because NxPerson has it as "name"
         if command == "generic-description" then
+            if item["mikuType"] == "NxAnniversary" then
+                return item["description"]
+            end
+            if item["mikuType"] == "Ax1Text" then
+                firstline = Ax1Text::getFirstLineOrNull(item)
+                return (firstline ? firstline : "(no generic-description)")
+            end
             if item["mikuType"] == "NxDataNode" then
                 return item["description"]
             end
@@ -34,6 +40,9 @@ class LxFunction
             end
             if item["mikuType"] == "NxFrame" then
                 return item["description"]
+            end
+            if item["mikuType"] == "NxLine" then
+                return item["line"]
             end
             if item["mikuType"] == "NxPerson" then
                 return item["name"]
@@ -62,9 +71,9 @@ class LxFunction
             if item["mikuType"] == "fitness1" then
                 return item["announce"]
             end
-            #if item["mikuType"] == "Ax1Text" then
-            #    return Ax1Text::toString(item["uuid"])
-            #end
+            if item["mikuType"] == "Ax1Text" then
+                return Ax1Text::toString(item)
+            end
             if item["mikuType"] == "NxAnniversary" then
                 return Anniversaries::toString(item)
             end

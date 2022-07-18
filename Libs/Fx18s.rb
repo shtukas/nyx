@@ -172,9 +172,15 @@ class Fx18Utils
             "objectuuid" => uuid,
         }, true)
     end
+
+    # Fx18Utils::jsonParseIfNotNull(str)
+    def self.jsonParseIfNotNull(str)
+        return nil if str.nil?
+        JSON.parse(str)
+    end
 end
 
-class Fx18Index1 # (filepath, mikuType, objectuuid)
+class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
 
     # Fx18Index1::databaseFilepath()
     def self.databaseFilepath()
@@ -199,14 +205,23 @@ class Fx18Index1 # (filepath, mikuType, objectuuid)
         db.close
 
         Fx18Utils::fx18FilepathsFromFileSystem().each{|filepath|
+            puts "Fx18Index1::rebuildIndexData: filepath: #{filepath}"
+            
             mikuType = Fx18File::getAttributeOrNull2(filepath, "mikuType")
             objectuuid = Fx18File::getAttributeOrNull2(filepath, "uuid")
+            item = Fx18Utils::objectuuidToItemOrNull(objectuuid)
+            next if item.nil?
+            announce = "(#{mikuType}) #{LxFunction::function("generic-description", item)}"
+            unixtime = item["unixtime"]
+
+            CommonUtils::putsOnPreviousLine("Fx18Index1::rebuildIndexData: filepath: #{filepath} ☑️")
+
             db = SQLite3::Database.new(databaseFilepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute "delete from _index_ where _filepath_=?", [filepath]
-            db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_) values (?, ?, ?)", [filepath, mikuType, objectuuid]
+            db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_, _announce_, _unixtime_) values (?, ?, ?, ?, ?)", [filepath, mikuType, objectuuid, announce, unixtime]
             db.close
         }
     end
@@ -217,14 +232,12 @@ class Fx18Index1 # (filepath, mikuType, objectuuid)
         return if File.exists?(filepath)
         puts "Building Index1"
 
-
-
         # Step 1
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "create table _index_ (_filepath_ text primary key, _mikuType_ text, _objectuuid_ text)"
+        db.execute "create table _index_ (_filepath_ text primary key, _mikuType_ text, _objectuuid_ text, _announce_ text, _unixtime_ float)"
         db.close
 
         # Step 2
@@ -304,6 +317,25 @@ class Fx18Index1 # (filepath, mikuType, objectuuid)
         db.results_as_hash = true
         db.execute "delete from _index_ where _objectuuid_=?", [objectuuid]
         db.close
+    end
+
+    # Fx18Index1::nx20s()
+    def self.nx20s()
+        Fx18Index1::buildIndexIfMissing()
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        nx20s = []
+        db.execute("select * from _index_ order by _unixtime_", []) do |row|
+            nx20s << {
+                "announce"   => row["_announce_"],
+                "unixtime"   => row["_unixtime_"],
+                "objectuuid" => row["_objectuuid_"]
+            }
+        end
+        db.close
+        nx20s
     end
 end
 

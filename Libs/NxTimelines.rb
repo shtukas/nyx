@@ -56,18 +56,4 @@ class NxTimelines
     def self.toString(item)
         "(timeline) #{item["description"]}"
     end
-
-    # ------------------------------------------------
-    # Nx20s
-
-    # NxTimelines::nx20s()
-    def self.nx20s()
-        NxTimelines::items().map{|item| 
-            {
-                "announce" => "(#{item["uuid"][0, 4]}) #{NxTimelines::toString(item)}",
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
-    end
 end

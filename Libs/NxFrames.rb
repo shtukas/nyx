@@ -12,7 +12,7 @@ class NxFrames
             "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
             "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx111"       => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
         }
     end
 
@@ -61,16 +61,5 @@ class NxFrames
     # NxFrames::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(frame) #{item["description"]}"
-    end
-
-    # NxFrames::nx20s()
-    def self.nx20s()
-        NxFrames::items().map{|item|
-            {
-                "announce" => NxFrames::toStringForSearch(item),
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
     end
 end

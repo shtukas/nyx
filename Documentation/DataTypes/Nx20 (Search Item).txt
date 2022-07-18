@@ -1,6 +1,6 @@
 Nx20 
 {
-    "announce" : String
-    "unixtime" : Float # used for ordering the items
-    "payload"  : Permanode
+    "announce"   : String
+    "unixtime"   : Float # used for ordering the items
+    "objectuuid" : String
 }

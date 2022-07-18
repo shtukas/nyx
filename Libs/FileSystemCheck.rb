@@ -14,6 +14,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckNx111ExitAtFirstFailure(filepath, nx111)
     def self.fsckNx111ExitAtFirstFailure(filepath, nx111)
         return if nx111.nil?
+
         if !Nx111::types().include?(nx111["type"]) then
             puts "filepath has an incorrect nx111 value type".red
             puts "filepath: #{filepath}".red
@@ -158,7 +159,7 @@ class FileSystemCheck
             ]
                 .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
 
-            nx111 = JSON.parse(Fx18File::getAttributeOrNull2(filepath, "nx111"))
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull2(filepath, "nx111"))
             FileSystemCheck::fsckNx111ExitAtFirstFailure(filepath, nx111)
             return
         end
@@ -197,7 +198,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = JSON.parse(Fx18File::getAttributeOrNull2(filepath, "nx111"))
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull2(filepath, "nx111"))
             FileSystemCheck::fsckNx111ExitAtFirstFailure(filepath, nx111)
             return
         end
@@ -224,7 +225,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = JSON.parse(Fx18File::getAttributeOrNull2(filepath, "nx111"))
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull2(filepath, "nx111"))
             FileSystemCheck::fsckNx111ExitAtFirstFailure(filepath, nx111)
             return
         end
@@ -261,7 +262,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = JSON.parse(Fx18File::getAttributeOrNull2(filepath, "nx111"))
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull2(filepath, "nx111"))
             FileSystemCheck::fsckNx111ExitAtFirstFailure(filepath, nx111)
             return
         end
@@ -288,7 +289,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = JSON.parse(Fx18File::getAttributeOrNull2(filepath, "nx111"))
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull2(filepath, "nx111"))
             FileSystemCheck::fsckNx111ExitAtFirstFailure(filepath, nx111)
             return
         end
@@ -316,7 +317,7 @@ class FileSystemCheck
                 "lastDoneDateTime",
             ]
                 .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = JSON.parse(Fx18File::getAttributeOrNull2(filepath, "nx111"))
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull2(filepath, "nx111"))
             FileSystemCheck::fsckNx111ExitAtFirstFailure(filepath, nx111)
             return
         end

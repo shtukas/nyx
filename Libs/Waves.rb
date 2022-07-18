@@ -13,8 +13,8 @@ class Waves
             "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
             "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx46"        => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx46")),
-            "nx111"       => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
+            "nx46"        => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx46")),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
             "lastDoneDateTime" => Fx18File::getAttributeOrNull(objectuuid, "lastDoneDateTime"),
         }
     end
@@ -180,17 +180,6 @@ class Waves
         Waves::items()
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-    end
-
-    # Waves::nx20s()
-    def self.nx20s()
-        Waves::items().map{|item|
-            {
-                "announce" => Waves::toString(item),
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
     end
 
     # -------------------------------------------------------------------------

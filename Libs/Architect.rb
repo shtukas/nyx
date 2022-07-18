@@ -12,7 +12,9 @@ class Architect
     def self.selectExistingNetworkElementOrNull()
         nx20 = Search::interativeInterfaceSelectNx20OrNull()
         return nil if nx20.nil?
-        nx20["payload"]
+        item = Fx18Utils::objectuuidToItemOrNull(nx20["objectuuid"])
+        return nil if item.nil?
+        item
     end
 
     # Architect::selectNodesUsingNavigationSandboxOrNull()
@@ -21,7 +23,8 @@ class Architect
         loop {
             nx20 = Search::interativeInterfaceSelectNx20OrNull()
             if nx20 then
-                item = nx20["payload"]
+                item = Fx18Utils::objectuuidToItemOrNull(nx20["objectuuid"])
+                return nil if item.nil?
                 if LucilleCore::askQuestionAnswerAsBoolean("`#{LxFunction::function("toString", item).green}` select ? ") then
                     return item
                 end

@@ -62,18 +62,4 @@ class NxConcepts
     def self.toString(item)
         "(entity) #{item["description"]}"
     end
-
-    # ------------------------------------------------
-    # Nx20s
-
-    # NxConcepts::nx20s()
-    def self.nx20s()
-        NxConcepts::items().map{|item| 
-            {
-                "announce" => "(#{item["uuid"][0, 4]}) #{NxConcepts::toString(item)}",
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
-    end
 end

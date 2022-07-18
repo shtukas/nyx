@@ -15,7 +15,7 @@ class TxProjects
             "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
             "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "ax39"        => JSON.parse(Fx18File::getAttributeOrNull(objectuuid, "ax39")),
+            "ax39"        => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "ax39")),
         }
     end
 
@@ -105,17 +105,6 @@ class TxProjects
     def self.toString(item)
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
         "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
-    end
-
-    # TxProjects::nx20s()
-    def self.nx20s()
-        TxProjects::items().map{|item| 
-            {
-                "announce" => "(#{item["uuid"][0, 4]}) #{TxProjects::toString(item)}",
-                "unixtime" => item["unixtime"],
-                "payload"  => item
-            }
-        }
     end
 
     # TxProjects::itemsForSection1()
