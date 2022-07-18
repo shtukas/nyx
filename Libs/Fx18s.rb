@@ -617,23 +617,11 @@ class Fx18Synchronisation
         db.close
     end
 
-    # Fx18Synchronisation::propagateFileEvents(filepath1, filepath2)
-    def self.propagateFileEvents(filepath1, filepath2)
+    # Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+    def self.propagateFileData(filepath1, filepath2)
         raise "(error: d5e6f2d3-9eab-484a-bde8-d7e6d479b04f)" if !File.exists?(filepath1)
 
         raise "(error: 5d24c60a-db47-4643-a618-bb2057daafd2)" if !File.exists?(filepath2)
-
-        objectuuid1 = Fx18File::getAttributeOrNull2(filepath1, "uuid")
-        if (objectuuid1.nil? or objectuuid1 == "") then
-            puts "filepath1: #{filepath1}"
-            raise "(error: 41c552b9-0245-43fc-a1de-e38d58d3c16b) objectuuid1: #{objectuuid1}" 
-        end
-
-        objectuuid2 = Fx18File::getAttributeOrNull2(filepath2, "uuid")
-        if (objectuuid2.nil? or objectuuid2 == "") then
-            puts "filepath2: #{filepath2}"
-            raise "(error: 3eced5c4-1bcc-4353-bd0c-2253e5cc4b9d) objectuuid2: #{objectuuid2}" 
-        end
 
         # Get the events ids from file1
         eventuuids1 = Fx18Synchronisation::getEventuuids(filepath1)
@@ -649,15 +637,16 @@ class Fx18Synchronisation
                 puts "filepath1: #{filepath1}"
                 puts "filepath2: #{filepath2}"
                 puts "eventuuid: #{eventuuid}"
-                raise "(error: ed875415-3dcc-4c08-ad69-a6bcd07d707a)"
+                raise "(error: e0f0d25c-48da-44b2-8304-832c3aa14421)"
             end
+            puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, eventuuid: #{eventuuid}"
             Fx18Synchronisation::putRecord(filepath2, record1)
             record2 = Fx18Synchronisation::getRecordOrNull(filepath2, eventuuid)
             if record2.nil? then
                 puts "filepath1: #{filepath1}"
                 puts "filepath2: #{filepath2}"
                 puts "eventuuid: #{eventuuid}"
-                raise "(error: fb257c8e-973b-488a-87f3-e91b11e35a79)"
+                raise "(error: 9ad32d45-bbe4-4121-ab08-ff60a644ece4)"
             end
             [
                 "_eventuuid_", 
@@ -673,7 +662,7 @@ class Fx18Synchronisation
                     puts "filepath2: #{filepath2}"
                     puts "eventuuid: #{eventuuid}"
                     puts "key: #{key}"
-                    raise "(error: 8e8ffb07-21db-4a42-b208-c829775cb2d8)"
+                    raise "(error: 5c04dc70-9024-414c-bab6-a9f9dee871ce)"
                 end
             }
         }
@@ -686,12 +675,12 @@ class Fx18Synchronisation
             next if filepath1[-13, 13] != ".fx18.sqlite3"
             filename = File.basename(filepath1)
             filepath2 = "#{folderpath2}/#{filename}"
-            if !File.exists?(filepath2) then
+            if File.exists?(filepath2) then
+                puts "[repo sync] propagate file data; file: #{filepath1}"
+                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+            else
                 puts "[repo sync] copy file: #{filepath1}"
                 FileUtils.cp(filepath1, filepath2)
-            else
-                puts "[repo sync] propagate file events; file: #{filepath1}"
-                Fx18Synchronisation::propagateFileEvents(filepath1, filepath2)
             end
         }
 
@@ -700,10 +689,11 @@ class Fx18Synchronisation
             filename = File.basename(filepath1)
             filepath2 = "#{folderpath2}/#{filename}"
             if File.exists?(filepath2) then
-                Fx18Synchronisation::propagateFileEvents(filepath1, filepath2)
+                puts "[repo sync] propagate file data; file: #{filepath1}"
+                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
             else
                 if shouldMoveFx19s then
-                    puts "[repo sync] propagate file events; file: #{filepath1}"
+                    puts "[repo sync] copy file: #{filepath1}"
                     FileUtils.cp(filepath1, filepath2)
                 end
             end
