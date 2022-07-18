@@ -119,6 +119,16 @@ class CommonUtils
         "10#{str2}-#{str3}-#{str4}-#{str5}-#{str6}#{str7}"
     end
 
+    # CommonUtils::base64_encode(str)
+    def self.base64_encode(str)
+         [str].pack("m")
+    end
+
+    # CommonUtils::base64_decode(encoded)
+    def self.base64_decode(encoded)
+        encoded..unpack("m").first
+    end
+
     # ----------------------------------------------------
     # File System Routines
 

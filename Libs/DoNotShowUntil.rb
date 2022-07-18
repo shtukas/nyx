@@ -29,15 +29,14 @@ class DoNotShowUntil
         event = {
           "uuid"           => SecureRandom.uuid,
           "mikuType"       => "NxDoNotShowUntil",
-          "unixtime"       => Time.new.to_i,
           "targetuuid"     => uuid,
           "targetunixtime" => unixtime
         }
-        SystemEvents::publishGlobalEventStage1(event)
+        SystemEvents::issueStargateDrop(event)
     end
 
-    # DoNotShowUntil::processEvent(event)
-    def self.processEvent(event)
+    # DoNotShowUntil::processEventInternally(event)
+    def self.processEventInternally(event)
         return if event["mikuType"] != "NxDoNotShowUntil"
         uuid     = event["targetuuid"]
         unixtime = event["targetunixtime"]

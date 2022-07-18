@@ -162,15 +162,14 @@ class Fx18Utils
     # Fx18Utils::destroyFx18Logically(uuid)
     def self.destroyFx18Logically(uuid)
         # TODO:
-        SystemEvents::publishGlobalEventStage1({
-            "uuid"     => uuid,
-            "variant"  => SecureRandom.uuid,
+        SystemEvents::issueStargateDrop({
             "mikuType" => "NxDeleted",
+            "uuid"     => uuid,
         })
-        SystemEvents::processEvent({
+        SystemEvents::processEventInternally({
             "mikuType"   => "(object has been deleted)",
             "objectuuid" => uuid,
-        }, true)
+        })
     end
 
     # Fx18Utils::jsonParseIfNotNull(str)
@@ -181,7 +180,7 @@ class Fx18Utils
 
     # Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.publishFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-        SystemEvents::publishGlobalEventStage1({
+        SystemEvents::issueStargateDrop({
             "mikuType"      => "Fx18 File Event",
             "objectuuid"    => objectuuid,
             "Fx18FileEvent" => {
@@ -193,18 +192,6 @@ class Fx18Utils
                 "_eventData4_" => eventData4,
                 "_eventData5_" => eventData5
             }
-        })
-    end
-
-    # Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
-    def self.objectHasBeenModifedBroadcast(objectuuid)
-        SystemEvents::processEvent({
-            "mikuType" => "(object has been updated)",
-            "objectuuid" => objectuuid
-        }, false)
-        SystemEvents::publishGlobalEventStage1({
-            "mikuType" => "(object has been updated)",
-            "objectuuid" => objectuuid
         })
     end
 end
@@ -484,7 +471,10 @@ class Fx18File
         puts "Fx18File::setAttribute1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
-        Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
+        SystemEvents::issueStargateDrop({
+            "mikuType" => "(object has been updated)",
+            "objectuuid" => objectuuid
+        })
     end
 
     # Fx18File::setAttribute2(objectuuid, attname, attvalue)
@@ -521,7 +511,10 @@ class Fx18File
         puts "Fx18File::setsAdd1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
-        Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
+        SystemEvents::issueStargateDrop({
+            "mikuType" => "(object has been updated)",
+            "objectuuid" => objectuuid
+        })
     end
 
     # Fx18File::setsAdd2(objectuuid, setuuid, itemuuid, value)
@@ -534,7 +527,10 @@ class Fx18File
         puts "Fx18File::setsRemove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
-        Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
+        SystemEvents::issueStargateDrop({
+            "mikuType" => "(object has been updated)",
+            "objectuuid" => objectuuid
+        })
     end
 
     # Fx18File::setsRemove2(objectuuid, setuuid, itemuuid)

@@ -429,11 +429,6 @@ class Commands
                     "lambda" => lambda { CommonUtils::generalCodeTrace() }
                 },
                 {
-                    "name" => "SystemEvents::sync(false)",
-                    "lambda" => lambda { SystemEvents::sync(false) }
-                },
-
-                {
                     "name" => "fitness lookup",
                     "lambda" => lambda { JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`) }
                 },

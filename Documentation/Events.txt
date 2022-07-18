@@ -9,33 +9,18 @@ We have two types of events
 ### Internal only events
 
 {
-    "mikuType"   => "(object has been deleted)",
-    "objectuuid" => uuid,
-}
-
-{
-    "mikuType"      => "Fx18 File Event",
-    "objectuuid"    => objectuuid,
-    "Fx18FileEvent" => {
-        "_eventuuid_"  => eventuuid,
-        "_eventTime_"  => eventTime,
-        "_eventData1_" => eventData1,
-        "_eventData2_" => eventData2,
-        "_eventData3_" => eventData3,
-        "_eventData4_" => eventData4,
-        "_eventData5_" => eventData5
-    }
-}
-
-{
     "mikuType" => "(object has been updated)",
     "objectuuid" => objectuuid
+}
+
+{
+    "mikuType"   => "(object has been deleted)",
+    "objectuuid" => uuid,
 }
 
 ### Global events
 
 {
-    "uuid"     => eventuuid,
     "mikuType" => "NxBankEvent",
     "setuuid"  => setuuid,
     "unixtime" => unixtime,
@@ -44,28 +29,37 @@ We have two types of events
 }
 
 {
-    "uuid"           => SecureRandom.uuid,
     "mikuType"       => "NxDoNotShowUntil",
-    "unixtime"       => Time.new.to_i,
     "targetuuid"     => uuid,
     "targetunixtime" => unixtime
 }
 
 {
-    "uuid"       => SecureRandom.uuid
     "mikuType"   => "SetDoneToday"
     "targetuuid" => uuid
     "targetdate" => CommonUtils::today()
 }
 
 {
-    "uuid"       => SecureRandom.uuid
     "mikuType"   => "RemoveFromListing"
     "itemuuid"   => item["uuid"]
 }
 
 {
-    "uuid"     => uuid
-    "variant"  => SecureRandom.uuid
     "mikuType" => "NxDeleted"
+    "uuid"     => uuid
+}
+
+{
+    "mikuType"      => "Fx18 File Event",
+    "objectuuid"    => objectuuid,
+    "Fx18FileEvent" => {
+        "_eventuuid_"  => eventuuid
+        "_eventTime_"  => eventTime
+        "_eventData1_" => eventData1  # base64 encoded for drop
+        "_eventData2_" => eventData2  # base64 encoded for drop
+        "_eventData3_" => eventData3  # base64 encoded for drop
+        "_eventData4_" => eventData4  # base64 encoded for drop
+        "_eventData5_" => eventData5  # base64 encoded for drop
+    }
 }
