@@ -34,8 +34,8 @@ class Catalyst
             .flatten
     end
 
-    # Catalyst::section2Ops()
-    def self.section2Ops()
+    # Catalyst::section2ToListing()
+    def self.section2ToListing()
         JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`).each{|item|
             Listing::insertOrReInsert("section2", item)
         }
@@ -65,8 +65,8 @@ class Catalyst
         }
     end
 
-    # Catalyst::program2()
-    def self.program2()
+    # Catalyst::program()
+    def self.program()
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
  
@@ -85,7 +85,7 @@ class Catalyst
                 Catalyst::section1().each{|item|
                     Listing::insertOrReInsert("section1", item)
                 }
-                Catalyst::section2Ops()
+                Catalyst::section2ToListing()
                 Listing::ordinalsdrop()
                 Listing::publishAverageAgeInDays()
             }
@@ -105,6 +105,8 @@ class Catalyst
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             }
+
+            SystemEvents::pickupDrops()
 
             top = Catalyst::getTopOrNull()
 
