@@ -273,6 +273,10 @@ class Landing
             Landing::networkAggregationNodeLanding(item)
             return
         end
+        if item["mikuType"] == "TxProject" then
+            TxProjects::landing(item)
+            return
+        end
         raise "(error: 1e84c68b-b602-41af-b2e9-00e66fa687ac) item: #{item}"
     end
 end

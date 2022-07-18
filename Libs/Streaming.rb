@@ -46,9 +46,9 @@ class Streaming
                 next
             end
             if command == ">project" then
-                projectuuid = TxProjects::architectOneOrNull()
-                return if projectuuid.nil?
-                TxProjects::addElement(projectuuid, item["uuid"])
+                project = TxProjects::architectOneOrNull()
+                return if project.nil?
+                TxProjects::addElement(project["uuid"], item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -84,9 +84,9 @@ class Streaming
                 next
             end
             if command == ">project" then
-                projectuuid = TxProjects::architectOneOrNull()
-                return if projectuuid.nil?
-                TxProjects::addElement(projectuuid, item["uuid"])
+                project = TxProjects::architectOneOrNull()
+                return if project.nil?
+                TxProjects::addElement(project["uuid"], item["uuid"])
                 return nil
             end
             if command == ">nyx" then

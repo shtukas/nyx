@@ -34,7 +34,7 @@ class TxProjects
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # TxProjects::interactivelyIssueNewItemOrNull()
+    # TxProjects::interactivelyIssueNewItemOrNull() # item
     def self.interactivelyIssueNewItemOrNull()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -54,15 +54,15 @@ class TxProjects
         Fx18File::setAttribute2(uuid, "description", description)
         Fx18File::setAttribute2(uuid, "ax39",        JSON.generate(ax39))
 
-        uuid
+        TxProjects::objectuuidToItemOrNull(objectuuid)
     end
 
-    # TxProjects::architectOneOrNull() # objectuuid or null
+    # TxProjects::architectOneOrNull() # item or null
     def self.architectOneOrNull()
         items = TxProjects::items()
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         item = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", items, lambda{|item| LxFunction::function("toString", item) })
-        return item["uuid"] if item
+        return item if item
         if LucilleCore::askQuestionAnswerAsBoolean("Issue new project ? ") then
             return TxProjects::interactivelyIssueNewItemOrNull()
         end
@@ -151,12 +151,19 @@ class TxProjects
     # ----------------------------------------------------------------------
     # Operations
 
+    # TxProjects::landing(project)
+    def self.landing(project)
+        system("clear")
+        puts TxProjects::toString(item).green
+        LucilleCore::pressEnterToContinue()
+    end
+
     # TxProjects::dive()
     def self.dive()
         loop {
             project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", TxProjects::items(), lambda{|item| TxProjects::toString(item) })
             break if project.nil?
-            Landing::landing(project)
+            TxProjects::landing(project)
         }
     end
 
@@ -177,9 +184,9 @@ class TxProjects
     # TxProjects::interactivelyProposeToAttachTaskToProject(itemuuid)
     def self.interactivelyProposeToAttachTaskToProject(itemuuid)
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a project ? ") then
-            projectuuid = TxProjects::architectOneOrNull()
-            return if projectuuid.nil?
-            TxProjects::addElement(projectuuid, itemuuid)
+            project = TxProjects::architectOneOrNull()
+            return if project.nil?
+            TxProjects::addElement(project["uuid"], itemuuid)
         end
     end
 end

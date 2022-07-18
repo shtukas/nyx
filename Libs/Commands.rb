@@ -39,9 +39,9 @@ class Commands
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            projectuuid = TxProjects::architectOneOrNull()
-            return if projectuuid.nil?
-            TxProjects::addElement(projectuuid, item["uuid"])
+            project = TxProjects::architectOneOrNull()
+            return if project.nil?
+            TxProjects::addElement(project["uuid"], item["uuid"])
             NxBallsService::close(item["uuid"], true)
             return
         end
