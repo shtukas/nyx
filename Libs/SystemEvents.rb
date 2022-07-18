@@ -83,7 +83,7 @@ class SystemEvents
                 next if filepath[-5, 5] == ".json"
                 filename = File.basename(filepath)
                 next if XCache::getFlag("08ea96b0-c44f-4340-9e28-49b0ec2c33d0:#{filename}") # already picked up
-                event = JSON.parse(IO.read(filename))
+                event = JSON.parse(IO.read(filepath))
                 SystemEvents::processEventInternally(event)
             }
     end
