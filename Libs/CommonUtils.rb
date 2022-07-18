@@ -121,11 +121,13 @@ class CommonUtils
 
     # CommonUtils::base64_encode(str)
     def self.base64_encode(str)
-         [str].pack("m")
+        return nil if str.nil?
+        [str].pack("m")
     end
 
     # CommonUtils::base64_decode(encoded)
     def self.base64_decode(encoded)
+        return nil if encoded.nil?
         encoded..unpack("m").first
     end
 
