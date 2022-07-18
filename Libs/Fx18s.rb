@@ -211,6 +211,8 @@ end
 
 class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
 
+    # Index Management ---------------------------------------------------------------------
+
     # Fx18Index1::databaseFilepath()
     def self.databaseFilepath()
         filepath = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18-Indices/index1.sqlite3"
@@ -220,48 +222,12 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         filepath
     end
 
-    # Fx18Index1::rebuildIndexData()
-    def self.rebuildIndexData()
-
-        databaseFilepath = Fx18Index1::databaseFilepath()
-
-        # Step 1
-        db = SQLite3::Database.new(databaseFilepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _index_"
-        db.close
-
-        Fx18Utils::fx18FilepathsFromFileSystem().each{|filepath|
-            puts "Fx18Index1::rebuildIndexData: filepath: #{filepath}"
-            
-            mikuType = Fx18File::getAttributeOrNull2(filepath, "mikuType")
-            objectuuid = Fx18File::getAttributeOrNull2(filepath, "uuid")
-            item = Fx18Utils::objectuuidToItemOrNull(objectuuid)
-            next if item.nil?
-            announce = "(#{mikuType}) #{LxFunction::function("generic-description", item)}"
-            unixtime = item["unixtime"]
-
-            CommonUtils::putsOnPreviousLine("Fx18Index1::rebuildIndexData: filepath: #{filepath} ☑️")
-
-            db = SQLite3::Database.new(databaseFilepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "delete from _index_ where _filepath_=?", [filepath]
-            db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_, _announce_, _unixtime_) values (?, ?, ?, ?, ?)", [filepath, mikuType, objectuuid, announce, unixtime]
-            db.close
-        }
-    end
-
-    # Fx18Index1::buildIndexIfMissing()
-    def self.buildIndexIfMissing()
+    # Fx18Index1::buildIndexDatabaseFileIfMissing()
+    def self.buildIndexDatabaseFileIfMissing()
         filepath = Fx18Index1::databaseFilepath()
         return if File.exists?(filepath)
-        puts "Building Index1"
+        puts "Building Index1 Database File"
 
-        # Step 1
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -269,13 +235,59 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         db.execute "create table _index_ (_filepath_ text primary key, _mikuType_ text, _objectuuid_ text, _announce_ text, _unixtime_ float)"
         db.close
 
-        # Step 2
-        Fx18Index1::rebuildIndexData()
     end
+
+    # Fx18Index1::updateIndexForFilepath(filepath)
+    def self.updateIndexForFilepath(filepath)
+        puts "Fx18Index1::rebuildIndexData: filepath: #{filepath}"
+        
+        mikuType = Fx18File::getAttributeOrNull2(filepath, "mikuType")
+        objectuuid = Fx18File::getAttributeOrNull2(filepath, "uuid")
+        item = Fx18Utils::objectuuidToItemOrNull(objectuuid)
+        return if item.nil?
+        announce = "(#{mikuType}) #{LxFunction::function("generic-description", item)}"
+        unixtime = item["unixtime"]
+
+        CommonUtils::putsOnPreviousLine("Fx18Index1::rebuildIndexData: filepath: #{filepath} ☑️")
+
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _index_ where _filepath_=?", [filepath]
+        db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_, _announce_, _unixtime_) values (?, ?, ?, ?, ?)", [filepath, mikuType, objectuuid, announce, unixtime]
+        db.close
+    end
+
+    # Fx18Index1::rebuildIndex()
+    def self.rebuildIndex()
+        Fx18Index1::buildIndexDatabaseFileIfMissing()
+
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _index_"
+        db.close
+
+        Fx18Utils::fx18FilepathsFromFileSystem().each{|filepath|
+            Fx18Index1::updateIndexForFilepath(filepath)
+        }
+    end
+
+    # Fx18Index1::buildIndexIfMissingFile()
+    def self.buildIndexIfMissingFile()
+        filepath = Fx18Index1::databaseFilepath()
+        return if File.exists?(filepath)
+        puts "Building Index1"
+        Fx18Index1::rebuildIndex()
+    end
+
+    # Index Read Data ---------------------------------------------------------------------
 
     # Fx18Index1::filepaths()
     def self.filepaths()
-        Fx18Index1::buildIndexIfMissing()
+        Fx18Index1::buildIndexIfMissingFile()
         db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -290,7 +302,7 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
 
     # Fx18Index1::mikuTypes()
     def self.mikuTypes()
-        Fx18Index1::buildIndexIfMissing()
+        Fx18Index1::buildIndexIfMissingFile()
         db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -305,7 +317,7 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
 
     # Fx18Index1::mikuType2objectuuids(mikuType)
     def self.mikuType2objectuuids(mikuType)
-        Fx18Index1::buildIndexIfMissing()
+        Fx18Index1::buildIndexIfMissingFile()
         db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -323,23 +335,9 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         Fx18Index1::mikuType2objectuuids(mikuType).count
     end
 
-    # Fx18Index1::updateIndexForFilepath(filepath)
-    def self.updateIndexForFilepath(filepath)
-        Fx18Index1::buildIndexIfMissing()
-        mikuType = Fx18File::getAttributeOrNull2(filepath, "mikuType")
-        objectuuid = Fx18File::getAttributeOrNull2(filepath, "uuid")
-        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _index_ where _filepath_=?", [filepath]
-        db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_) values (?, ?, ?)", [filepath, mikuType, objectuuid]
-        db.close
-    end
-
     # Fx18Index1::removeRecordForObjectUUID(objectuuid)
     def self.removeRecordForObjectUUID(objectuuid)
-        Fx18Index1::buildIndexIfMissing()
+        Fx18Index1::buildIndexIfMissingFile()
         db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -350,7 +348,7 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
 
     # Fx18Index1::nx20s()
     def self.nx20s()
-        Fx18Index1::buildIndexIfMissing()
+        Fx18Index1::buildIndexIfMissingFile()
         db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
