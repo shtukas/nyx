@@ -21,7 +21,6 @@ class Fx18Utils
             raise "(error: 501f3d32-118f-4844-94e2-f93f96d50fcc) attempting to create a Fx18 file that already exists"
             exit 1
         end
-
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -30,17 +29,10 @@ class Fx18Utils
         db.close
     end
 
-    # Fx18Utils::acquireFilepathOrError(objectuuid)
-    def self.acquireFilepathOrError(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if !File.exists?(filepath) then
-            puts "operation: Fx18Utils::acquireFilepathOrError"
-            puts "objectuuid: #{objectuuid}"
-            puts "filepath: #{filepath}"
-            raise "(error: a76f302d-f376-4d4f-ac2b-dea3f19696e7)"
-            exit 1
-        end
-        filepath
+    # Fx18Utils::ensureFx18(objectuuid)
+    def self.ensureFx18(objectuuid)
+        return if Fx18Utils::fileExists?(objectuuid)
+        Fx18Utils::makeNewFile(objectuuid)
     end
 
     # Fx18Utils::fx18FilepathsFromFileSystem()
@@ -181,8 +173,8 @@ class Fx18Utils
         JSON.parse(str)
     end
 
-    # Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.publishFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    # Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.issueStargateDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         SystemEvents::issueStargateDrop({
             "mikuType"      => "Fx18 File Event",
             "objectuuid"    => objectuuid,
@@ -415,7 +407,7 @@ class Fx19Data
             return blob if blob
         end
 
-        # At this point here is what we gonnae do: try to find the file on Stargate Central and get it down on local
+        # At this point here is what we gonna do: try to find the file on Stargate Central and get it down on local
         StargateCentral::ensureInfinityDrive()
 
         filepath2 = Fx19Data::computeStargateCentralFilepath(objectuuid)
@@ -450,7 +442,7 @@ class Fx18File
     # Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         #puts "Fx18File::genericEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)"
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
+        filepath = Fx18Utils::ensureFx18(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -467,7 +459,7 @@ class Fx18File
     def self.setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18File::setAttribute1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
-        Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -485,7 +477,7 @@ class Fx18File
 
     # Fx18File::getAttributeOrNull(objectuuid, attname)
     def self.getAttributeOrNull(objectuuid, attname)
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
+        filepath = Fx18Utils::ensureFx18(objectuuid)
         Fx18File::getAttributeOrNull2(filepath, attname)
     end
 
@@ -511,7 +503,7 @@ class Fx18File
     def self.setsAdd1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18File::setsAdd1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
-        Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -531,7 +523,7 @@ class Fx18File
     def self.setsRemove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18File::setsRemove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
-        Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -549,7 +541,7 @@ class Fx18File
 
     # Fx18File::setsItems(objectuuid, setuuid)
     def self.setsItems(objectuuid, setuuid)
-        filepath = Fx18Utils::acquireFilepathOrError(objectuuid)
+        filepath = Fx18Utils::ensureFx18(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
