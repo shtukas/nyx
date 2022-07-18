@@ -13,6 +13,11 @@ We have two types of events
     "objectuuid" => objectuuid
 }
 
+{
+    "mikuType"   => "(object has been deleted)",
+    "objectuuid" => objectuuid,
+}
+
 ### Global events
 
 {
