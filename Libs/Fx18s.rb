@@ -351,23 +351,6 @@ class Fx19Data
         nhash
     end
 
-    # Fx19Data::getBlobOrNullvx(objectuuid, nhash)
-    def self.getBlobOrNullvx(objectuuid, nhash)
-        filepath = Fx19Data::computeFilepath(objectuuid)
-        return nil if !File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-            blob = row["_eventData3_"]
-        end
-        db.close
-        return blob if blob
-        nil
-    end
-
     # Fx19Data::getBlobOrNull(objectuuid, nhash)
     def self.getBlobOrNull(objectuuid, nhash)
         filepath = Fx19Data::computeFilepath(objectuuid)
@@ -382,40 +365,6 @@ class Fx19Data
         end
         db.close
         return blob if blob
-
-        puts "Looking for (#{objectuuid}, #{nhash}) inside Fx18".green
-
-        filepath = "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-            blob = row["_eventData3_"]
-        end
-        db.close
-
-        if blob then
-
-            puts "Transferring blob from Fx18 to Fx19".green
-
-            Fx19Data::putBlob3(objectuuid, blob)
-
-            blob2 = Fx19Data::getBlobOrNullvx(objectuuid, nhash)
-            raise "error 2100" if blob2 != blob
-
-            filepath = "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("delete from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash])
-            db.close
-
-            return blob
-        end
-
         nil
     end
 end
