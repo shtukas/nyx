@@ -154,14 +154,24 @@ class TxProjects
     # TxProjects::landing(project)
     def self.landing(project)
         system("clear")
-        puts TxProjects::toString(item).green
-        LucilleCore::pressEnterToContinue()
+        puts TxProjects::toString(project).green
+        elementuuids = TxProjects::elementuuids(project)
+        elements = elementuuids.map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
+        if elements.size == 1 then
+            LxAction::action("..", elements[0])
+            return
+        end
+
+        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
+        return if element.nil?
+        LxAction::action("..", element)
     end
 
     # TxProjects::dive()
     def self.dive()
         loop {
-            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", TxProjects::items(), lambda{|item| TxProjects::toString(item) })
+            projects = TxProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|item| TxProjects::toString(item) })
             break if project.nil?
             TxProjects::landing(project)
         }
