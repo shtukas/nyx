@@ -28,7 +28,7 @@ We have two types of events
 }
 
 {
-    "mikuType" => "(object has a new mikuType)",
+    "mikuType" => "(object has been updated)",
     "objectuuid" => objectuuid
 }
 

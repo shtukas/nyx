@@ -79,8 +79,9 @@ class SystemEvents
             puts "SystemEvent(#{JSON.pretty_generate(event)})"
         end
 
-        if event["mikuType"] == "(object has a new mikuType)" then
+        if event["mikuType"] == "(object has been updated)" then
             filepath = Fx18Utils::computeLocalFx18Filepath(event["objectuuid"])
+            return if !File.exists?(filepath) # object has been updated on one computer but has not yet been put on another
             Fx18Index1::updateIndexForFilepath(filepath)
         end
 
@@ -89,7 +90,10 @@ class SystemEvents
         end
 
         if event["mikuType"] == "Fx18 File Event" then
-            Fx19Data::ensureFileForPut(event["objectuuid"])
+            objectuuid = event["objectuuid"]
+            Fx19Data::ensureFileForPut(objectuuid)
+            eventi = event["Fx18FileEvent"]
+            Fx18File::writeGenericFx18FileEvent(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
 

@@ -195,6 +195,18 @@ class Fx18Utils
             }
         })
     end
+
+    # Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
+    def self.objectHasBeenModifedBroadcast(objectuuid)
+        SystemEvents::processEvent({
+            "mikuType" => "(object has been updated)",
+            "objectuuid" => objectuuid
+        }, false)
+        SystemEvents::publishGlobalEventStage1({
+            "mikuType" => "(object has been updated)",
+            "objectuuid" => objectuuid
+        })
+    end
 end
 
 class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
@@ -472,21 +484,9 @@ class Fx18File
     # Fx18File::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18File::setAttribute1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
-
-        if attname == "mikuType" then
-            SystemEvents::processEvent({
-                "mikuType" => "(object has a new mikuType)",
-                "objectuuid" => objectuuid
-            }, false)
-            SystemEvents::publishGlobalEventStage1({
-                "mikuType" => "(object has a new mikuType)",
-                "objectuuid" => objectuuid
-            })
-        end
-
         Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
     end
 
     # Fx18File::setAttribute2(objectuuid, attname, attvalue)
@@ -523,6 +523,7 @@ class Fx18File
         puts "Fx18File::setsAdd1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
     end
 
     # Fx18File::setsAdd2(objectuuid, setuuid, itemuuid, value)
@@ -535,6 +536,7 @@ class Fx18File
         puts "Fx18File::setsRemove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
         Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         Fx18Utils::publishFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18Utils::objectHasBeenModifedBroadcast(objectuuid)
     end
 
     # Fx18File::setsRemove2(objectuuid, setuuid, itemuuid)
