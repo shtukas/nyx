@@ -178,7 +178,11 @@ class Fx18Index1 # (filepath, mikuType, objectuuid)
 
     # Fx18Index1::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Stargate/Fx18-Indices/index1.sqlite3"
+        filepath = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18-Indices/index1.sqlite3"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
+        end
+        filepath
     end
 
     # Fx18Index1::rebuildIndexData()
@@ -212,6 +216,8 @@ class Fx18Index1 # (filepath, mikuType, objectuuid)
         filepath = Fx18Index1::databaseFilepath()
         return if File.exists?(filepath)
         puts "Building Index1"
+
+
 
         # Step 1
         db = SQLite3::Database.new(filepath)
