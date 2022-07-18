@@ -309,14 +309,19 @@ end
 
 class Fx19Data
 
-    # Fx19Data::computeFilepath(objectuuid)
-    def self.computeFilepath(objectuuid)
+    # Fx19Data::computeLocalFilepath(objectuuid)
+    def self.computeLocalFilepath(objectuuid)
         "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx19.sqlite3"
     end
 
-    # Fx19Data::ensureFile(objectuuid)
-    def self.ensureFile(objectuuid)
-        filepath = Fx19Data::computeFilepath(objectuuid)
+    # Fx19Data::computeStargateCentralFilepath(objectuuid)
+    def self.computeStargateCentralFilepath(objectuuid)
+        "#{StargateCentral::pathToCentral()}/Fx18s/#{objectuuid}.fx19.sqlite3"
+    end
+
+    # Fx19Data::ensureFileForPut(objectuuid)
+    def self.ensureFileForPut(objectuuid)
+        filepath = Fx19Data::computeLocalFilepath(objectuuid)
         if !File.exists?(filepath) then
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
@@ -330,7 +335,7 @@ class Fx19Data
 
     # Fx19Data::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
     def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
-        filepath = Fx19Data::ensureFile(objectuuid)
+        filepath = Fx19Data::ensureFileForPut(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -353,18 +358,46 @@ class Fx19Data
 
     # Fx19Data::getBlobOrNull(objectuuid, nhash)
     def self.getBlobOrNull(objectuuid, nhash)
-        filepath = Fx19Data::computeFilepath(objectuuid)
-        return nil if !File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-            blob = row["_eventData3_"]
+        filepath1 = Fx19Data::computeLocalFilepath(objectuuid)
+        if File.exists?(filepath1) then
+            db = SQLite3::Database.new(filepath1)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            blob = nil
+            db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+                blob = row["_eventData3_"]
+            end
+            db.close
+            return blob if blob
         end
-        db.close
-        return blob if blob
+
+        # At this point here is what we gonnae do: try to find the file on Stargate Central and get it down on local
+        StargateCentral::ensureInfinityDrive()
+
+        filepath2 = Fx19Data::computeStargateCentralFilepath(objectuuid)
+        if File.exists?(filepath2) then
+            db = SQLite3::Database.new(filepath2)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            blob = nil
+            db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+                blob = row["_eventData3_"]
+            end
+            db.close
+            if blob then
+                if File.exists?(filepath1) then
+                    puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}"
+                    Fx18Synchronisation::propagateFileData(filepath2, filepath1)
+                else
+                    puts "FileUtils.cp(#{filepath2}, #{filepath1})"
+                    FileUtils.cp(filepath2, filepath1)
+                end
+                return blob
+            end
+        end
+
         nil
     end
 end
@@ -657,8 +690,9 @@ class Fx18Synchronisation
 
     # Fx18Synchronisation::sync()
     def self.sync()
-        folderpath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18s"
-        folderpath2 = "/Volumes/Infinity/Data/Pascal/Stargate-Central/Fx18s"
+        StargateCentral::ensureInfinityDrive()
+        folderpath1 = "#{Config::pathToDataBankStargate()}/Fx18s"
+        folderpath2 = "#{StargateCentral::pathToCentral()}/Fx18s"
         Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, true)
         Fx18Synchronisation::propagateRepository(folderpath2, folderpath1, false)
     end
