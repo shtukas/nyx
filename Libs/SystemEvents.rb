@@ -80,11 +80,14 @@ class SystemEvents
     def self.pickupDrops()
         LucilleCore::locationsAtFolder("/Volumes/Keybase (pascal)/private/0x1021/Stargate-Drops")
             .each{|filepath|
-                next if filepath[-5, 5] != ".json"
                 filename = File.basename(filepath)
+                next if filename[0, 1] == "."
+                next if filename[-5, 5] != ".json"
                 next if XCache::getFlag("08ea96b0-c44f-4340-9e28-49b0ec2c33d0:#{filename}") # already picked up
+                puts "SystemEvents::pickupDrops(), file: #{filepath}"
                 event = JSON.parse(IO.read(filepath))
                 SystemEvents::processEventInternally(event)
+                XCache::setFlag("08ea96b0-c44f-4340-9e28-49b0ec2c33d0:#{filename}", true)
             }
     end
 end

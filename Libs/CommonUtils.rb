@@ -128,7 +128,7 @@ class CommonUtils
     # CommonUtils::base64_decode(encoded)
     def self.base64_decode(encoded)
         return nil if encoded.nil?
-        encoded..unpack("m").first
+        encoded.unpack("m").first
     end
 
     # ----------------------------------------------------
