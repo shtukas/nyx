@@ -11,7 +11,7 @@ class Fx18Utils
         File.exists?(Fx18Utils::computeLocalFx18Filepath(objectuuid))
     end
 
-    # Fx18Utils::makeNewFile(objectuuid)
+    # Fx18Utils::makeNewFile(objectuuid) # filepath
     def self.makeNewFile(objectuuid)
         filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         if File.exists?(filepath) then
@@ -27,12 +27,14 @@ class Fx18Utils
         db.results_as_hash = true
         db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
         db.close
+        filepath
     end
 
-    # Fx18Utils::ensureFx18(objectuuid)
+    # Fx18Utils::ensureFx18(objectuuid) # filepath 
     def self.ensureFx18(objectuuid)
         return if Fx18Utils::fileExists?(objectuuid)
-        Fx18Utils::makeNewFile(objectuuid)
+        filepath = Fx18Utils::makeNewFile(objectuuid)
+        filepath
     end
 
     # Fx18Utils::fx18FilepathsFromFileSystem()
