@@ -81,12 +81,12 @@ class Catalyst
 
         SystemEvents::sync(true)
 
-        Thread.new {
-            loop {
-                sleep 60
-                SystemEvents::sync(false)
-            }
-        }
+        #Thread.new {
+        #    loop {
+        #        sleep 60
+        #        SystemEvents::sync(false)
+        #    }
+        #}
 
         Thread.new {
             loop {
@@ -114,6 +114,8 @@ class Catalyst
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
             }
+
+            SystemEvents::sync(true)
 
             top = Catalyst::getTopOrNull()
 
