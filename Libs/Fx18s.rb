@@ -381,20 +381,15 @@ class Fx19Data
         filepath
     end
 
-    # Fx19Data::putBlob1(eventuuid, eventTime, objectuuid, key, blob)
-    def self.putBlob1(eventuuid, eventTime, objectuuid, key, blob)
+    # Fx19Data::putBlob1(objectuuid, eventuuid, eventTime, key, blob)
+    def self.putBlob1(objectuuid, eventuuid, eventTime, key, blob)
         filepath = Fx19Data::ensureFileForPut(objectuuid)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, "datablob", key, blob]
-        db.close
+        Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "datablob", key, blob, nil, nil)
     end
 
     # Fx19Data::putBlob2(objectuuid, key, blob)
     def self.putBlob2(objectuuid, key, blob)
-        Fx19Data::putBlob1(SecureRandom.uuid, Time.new.to_f, objectuuid, key, blob)
+        Fx19Data::putBlob1(objectuuid, SecureRandom.uuid, Time.new.to_f, key, blob)
     end
 
     # Fx19Data::putBlob3(objectuuid, blob) # nhash

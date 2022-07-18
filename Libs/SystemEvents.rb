@@ -47,11 +47,9 @@ class SystemEvents
         end
 
         if event["mikuType"] == "Fx18 File Event" then
-            event["Fx18FileEvent"]["_eventData1_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData1_"])
-            event["Fx18FileEvent"]["_eventData2_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData2_"])
-            event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
-            event["Fx18FileEvent"]["_eventData4_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData4_"])
-            event["Fx18FileEvent"]["_eventData5_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData5_"])
+            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
+            end
             objectuuid = event["objectuuid"]
             Fx19Data::ensureFileForPut(objectuuid)
             eventi = event["Fx18FileEvent"]
@@ -63,11 +61,9 @@ class SystemEvents
     # SystemEvents::issueStargateDrop(event)
     def self.issueStargateDrop(event)
         if event["mikuType"] == "Fx18 File Event" then
-            event["Fx18FileEvent"]["_eventData1_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData1_"])
-            event["Fx18FileEvent"]["_eventData2_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData2_"])
-            event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
-            event["Fx18FileEvent"]["_eventData4_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData4_"])
-            event["Fx18FileEvent"]["_eventData5_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData5_"])
+            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
+            end
         end
         filename = "#{CommonUtils::nx45()}.json"
         filepath = "/Volumes/Keybase (pascal)/private/0x1021/Stargate-Drops/#{filename}"

@@ -13,7 +13,6 @@ class PrimitiveFiles
 
         nhash = CommonUtils::filepathToContentHash(filepath)
 
-        Fx18Utils::makeNewFile(objectuuid)
         elizabeth = Fx18Elizabeth.new(objectuuid)
 
         parts = []
