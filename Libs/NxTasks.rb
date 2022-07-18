@@ -25,7 +25,7 @@ class NxTasks
 
     # NxTasks::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyFx18Logically(uuid)
+        Fx18Utils::destroyFx18(uuid)
     end
 
     # --------------------------------------------------

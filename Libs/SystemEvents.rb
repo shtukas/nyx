@@ -20,10 +20,6 @@ class SystemEvents
             Fx18Index1::updateIndexForFilepath(filepath)
         end
 
-        if event["mikuType"] == "(object has been deleted)" then
-            Fx18Index1::removeRecordForObjectUUID(event["objectuuid"])
-        end
-
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEventInternally(event)
             return
@@ -45,7 +41,8 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            # Todo:
+            Fx18Utils::destroyFx18(event["objectuuid"])
+            Fx18Index1::removeRecordForObjectUUID(event["objectuuid"])
             return
         end
 

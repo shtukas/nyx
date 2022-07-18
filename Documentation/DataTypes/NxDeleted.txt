@@ -2,6 +2,6 @@
 NxDeleted represents a deleted object. Was introduced when we made the first Lucille18/20 sync.
 
 NxDeleted {
-    "mikuType"    : "NxDeleted"
-    "uuid"        : uuid
+    "mikuType"   : "NxDeleted"
+    "objectuuid" : objectuuid
 }

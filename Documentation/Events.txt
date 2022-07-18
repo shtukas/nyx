@@ -9,13 +9,8 @@ We have two types of events
 ### Internal only events
 
 {
-    "mikuType" => "(object has been updated)",
+    "mikuType"   => "(object has been updated)",
     "objectuuid" => objectuuid
-}
-
-{
-    "mikuType"   => "(object has been deleted)",
-    "objectuuid" => uuid,
 }
 
 ### Global events
@@ -46,8 +41,8 @@ We have two types of events
 }
 
 {
-    "mikuType" => "NxDeleted"
-    "uuid"     => uuid
+    "mikuType"   => "NxDeleted"
+    "objectuuid" => objectuuid
 }
 
 {

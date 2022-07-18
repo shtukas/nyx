@@ -105,7 +105,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx18Utils::destroyFx18Logically(item["uuid"])
+                    Fx18Utils::destroyFx18(item["uuid"])
                 end
                 return
             end
@@ -164,7 +164,7 @@ class LxAction
                 end
                 if action == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
-                        Fx18Utils::destroyFx18Logically(item["uuid"])
+                        Fx18Utils::destroyFx18(item["uuid"])
                     end
                 end
                 return
@@ -172,7 +172,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx18Utils::destroyFx18Logically(item["uuid"])
+                    Fx18Utils::destroyFx18(item["uuid"])
                 end
                 return
             end
@@ -229,12 +229,12 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
-                Fx18Utils::destroyFx18Logically(item["uuid"])
+                Fx18Utils::destroyFx18(item["uuid"])
                 return
             end
 
             if item["mikuType"] == "NxLine" then
-                Fx18Utils::destroyFx18Logically(item["uuid"])
+                Fx18Utils::destroyFx18(item["uuid"])
                 return
             end
 
@@ -257,7 +257,7 @@ class LxAction
 
         if command == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
-                Fx18Utils::destroyFx18Logically(item["uuid"])
+                Fx18Utils::destroyFx18(item["uuid"])
             end
             return
         end
