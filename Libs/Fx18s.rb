@@ -32,8 +32,10 @@ class Fx18Utils
 
     # Fx18Utils::ensureFx18(objectuuid) # filepath 
     def self.ensureFx18(objectuuid)
-        return if Fx18Utils::fileExists?(objectuuid)
-        filepath = Fx18Utils::makeNewFile(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        if !File.exists?(filepath) then
+            Fx18Utils::makeNewFile(objectuuid)
+        end
         filepath
     end
 
