@@ -158,6 +158,7 @@ class Fx18Utils
     def self.destroyFx18NoEvent(objectuuid)
         filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         return if !File.exists?(filepath)
+        puts "delete Fx18 file: #{filepath}"
         FileUtils.rm(filepath)
     end
 
