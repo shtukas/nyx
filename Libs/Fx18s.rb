@@ -162,7 +162,7 @@ class Fx18Utils
     end
 
     # Fx18Utils::destroyFx18EmitEvents(objectuuid)
-    def self.destroyFx18(objectuuid)
+    def self.destroyFx18EmitEvents(objectuuid)
         Fx18Utils::destroyFx18NoEvent(objectuuid)
         SystemEvents::issueStargateDrop({
             "mikuType"   => "NxDeleted",
