@@ -37,9 +37,13 @@ require 'colorize'
 
 require 'drb/drb'
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+# ------------------------------------------------------------
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
+require_relative "Config.rb"
+
+require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
+
+require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
 =begin
     XCache::set(key, value)
     XCache::getOrNull(key)
@@ -52,7 +56,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCache.rb"
     XCache::filepath(key)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
+require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
 =begin
     XCacheSets::values(setuuid: String): Array[Value]
     XCacheSets::set(setuuid: String, valueuuid: String, value)
@@ -60,7 +64,7 @@ require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/XCacheSets.rb"
     XCacheSets::destroy(setuuid: String, valueuuid: String)
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
+require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/AionCore.rb"
 =begin
 
 The operator is an object that has meet the following signatures
@@ -110,7 +114,7 @@ AionFsck::structureCheckAionHash(operator, nhash)
 
 =end
 
-require "/Users/pascal/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury2.rb"
+require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury2.rb"
 =begin
     Mercury2::put(channel, value)
     Mercury2::readOrNull(channel)
@@ -130,7 +134,6 @@ require_relative "Bank.rb"
 require_relative "Boxes.rb"
 
 require_relative "Catalyst.rb"
-require_relative "Config.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Commands.rb"

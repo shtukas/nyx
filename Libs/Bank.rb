@@ -6,7 +6,7 @@ class Bank
 
     # Bank::pathToBank()
     def self.pathToBank()
-        "/Users/pascal/Galaxy/DataBank/Stargate/bank.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/bank.sqlite3"
     end
 
     # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,

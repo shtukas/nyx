@@ -14,7 +14,7 @@ class Catalyst
     # Catalyst::getTopOrNull()
     def self.getTopOrNull()
         top = nil
-        content = IO.read("/Users/pascal/Desktop/top.txt").strip
+        content = IO.read("#{Config::userHomeDirectory()}/Desktop/top.txt").strip
         if content.size > 0 then
             text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
             if text.size > 0 then
@@ -36,7 +36,7 @@ class Catalyst
 
     # Catalyst::section2Ops()
     def self.section2Ops()
-        JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`).each{|item|
+        JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`).each{|item|
             Listing::insertOrReInsert("section2", item)
         }
 
@@ -109,7 +109,7 @@ class Catalyst
             end
 
             #puts "(NxTasks-Inbox)"
-            LucilleCore::locationsAtFolder("/Users/pascal/Desktop/NxTasks-Inbox").each{|location|
+            LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Desktop/NxTasks-Inbox").each{|location|
                 item = NxTasks::issueFromInboxLocation(location)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)

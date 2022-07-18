@@ -81,7 +81,7 @@ class LxAction
             puts LxFunction::function("toString", item).green
 
             if item["mikuType"] == "fitness1" then
-                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
+                system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
             end
 
@@ -283,7 +283,7 @@ class LxAction
             end
  
             if item["mikuType"] == "fitness1" then
-                system("/Users/pascal/Galaxy/LucilleOS/Binaries/fitness doing #{item["fitness-domain"]}")
+                system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
             end
 

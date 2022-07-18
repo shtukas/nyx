@@ -5,7 +5,7 @@ class FileSystemCheck
 
     # FileSystemCheck::exitIfMissingCanary()
     def self.exitIfMissingCanary()
-        if !File.exists?("/Users/pascal/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
+        if !File.exists?("#{Config::userHomeDirectory()}/Desktop/Pascal.png") then # We use this file to interrupt long runs at a place where it would not corrupt any file system.
             puts "Interrupted after missing canary file.".green
             exit
         end

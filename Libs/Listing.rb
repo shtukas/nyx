@@ -3,7 +3,7 @@ class Listing
 
     # Listing::databaseFilepath()
     def self.databaseFilepath()
-        "/Users/pascal/Galaxy/DataBank/Stargate/listing.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/listing.sqlite3"
     end
 
     # Listing::insert(uuid, zone, ordinal, announce, object, createdAt)

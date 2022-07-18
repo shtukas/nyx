@@ -45,7 +45,7 @@ class Fx18Utils
 
     # Fx18Utils::fx18FilepathsFromFileSystem()
     def self.fx18FilepathsFromFileSystem()
-        LucilleCore::locationsAtFolder("/Users/pascal/Galaxy/DataBank/Stargate/Fx18s")
+        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18s")
             .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
     end
 
@@ -215,7 +215,7 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
 
     # Fx18Index1::databaseFilepath()
     def self.databaseFilepath()
-        filepath = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18-Indices/index1.sqlite3"
+        filepath = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18-Indices/index1.sqlite3"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkdir(File.dirname(filepath))
         end

@@ -631,22 +631,22 @@ class CommonUtils
 
     # CommonUtils::atlas(pattern)
     def self.atlas(pattern)
-        location = `/Users/pascal/Galaxy/LucilleOS/Binaries/atlas '#{pattern}'`.strip
+        location = `#{Config::userHomeDirectory()}/Galaxy/Binaries/atlas '#{pattern}'`.strip
         (location != "") ? location : nil
     end
 
     # CommonUtils::interactivelySelectDesktopLocationOrNull() 
     def self.interactivelySelectDesktopLocationOrNull()
-        entries = Dir.entries("/Users/pascal/Desktop").select{|filename| !filename.start_with?(".") }.sort
+        entries = Dir.entries("#{Config::userHomeDirectory()}/Desktop").select{|filename| !filename.start_with?(".") }.sort
         locationNameOnDesktop = LucilleCore::selectEntityFromListOfEntitiesOrNull("locationname", entries)
         return nil if locationNameOnDesktop.nil?
-        "/Users/pascal/Desktop/#{locationNameOnDesktop}"
+        "#{Config::userHomeDirectory()}/Desktop/#{locationNameOnDesktop}"
     end
 
     # CommonUtils::moveFileToBinTimeline(location)
     def self.moveFileToBinTimeline(location)
         return if !File.exists?(location)
-        directory = "/Users/pascal/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
+        directory = "#{Config::userHomeDirectory()}/x-space/bin-timeline/#{Time.new.strftime("%Y%m")}/#{Time.new.strftime("%Y%m%d-%H%M%S-%6N")}"
         FileUtils.mkpath(directory)
         FileUtils.mv(location, directory)
     end
@@ -654,8 +654,8 @@ class CommonUtils
     # CommonUtils::uniqueStringLocationUsingPartialGalaxySearchOrNull(uniquestring)
     def self.uniqueStringLocationUsingPartialGalaxySearchOrNull(uniquestring)
         roots = [
-            "/Users/pascal/Desktop",
-            "/Users/pascal/Galaxy/Documents",
+            "#{Config::userHomeDirectory()}/Desktop",
+            "#{Config::userHomeDirectory()}/Galaxy/Documents",
             EditionDesk::pathToEditionDesk()
         ]
         roots.each{|root|

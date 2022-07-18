@@ -6,7 +6,7 @@ class DoNotShowUntil
 
     # DoNotShowUntil::pathToMapping()
     def self.pathToMapping()
-        "/Users/pascal/Galaxy/DataBank/Stargate/DoNotShowUntil.sqlite3"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/DoNotShowUntil.sqlite3"
     end
 
     # DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)

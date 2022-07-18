@@ -211,7 +211,7 @@ class Commands
             item = store.get(ordinalItem.to_i)
             return if item.nil?
 
-            stratification = JSON.parse(IO.read("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
+            stratification = JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
 
             stratification = stratification.map{|i|
                 if i["item"]["uuid"] == item["uuid"] then
@@ -220,7 +220,7 @@ class Commands
                 i
             }
 
-            File.open("/Users/pascal/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
+            File.open("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
 
             return
         end
@@ -387,7 +387,7 @@ class Commands
         end
 
         if input == "top" then
-            system("open '/Users/pascal/Desktop/top.txt'")
+            system("open '#{Config::userHomeDirectory()}/Desktop/top.txt'")
             return
         end
 
@@ -435,7 +435,7 @@ class Commands
 
                 {
                     "name" => "fitness lookup",
-                    "lambda" => lambda { JSON.parse(`/Users/pascal/Galaxy/LucilleOS/Binaries/fitness ns16s`) }
+                    "lambda" => lambda { JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`) }
                 },
                 {
                     "name" => "Anniversaries::section2()",
