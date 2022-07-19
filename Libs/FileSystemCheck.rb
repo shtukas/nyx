@@ -148,7 +148,7 @@ class FileSystemCheck
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            puts "location: #{location}"
+            puts "Dx8Unit: location: #{location}"
             if !File.exists?(location) then
                 puts "note: could not find location for Dx8Unit: #{unitId}".red
             end

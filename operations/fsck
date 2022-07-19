@@ -1,9 +1,0 @@
-#!/usr/bin/ruby
-
-# encoding: UTF-8
-
-require_relative "../Libs/loader.rb"
-
-shouldReset = (ARGV[0] == "reset")
-repository = "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18s"
-Fx18Utils::fsckRepository(repository, shouldReset)

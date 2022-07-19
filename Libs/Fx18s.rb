@@ -112,31 +112,13 @@ class Fx18Utils
         raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
     end
 
-    # Fx18Utils::fsckRepository(repository, shouldReset)
-    def self.fsckRepository(repository, shouldReset)
-        runHash = XCache::getOrNull("76001cea-f0c6-4e68-862b-5060d3c8bcd5:#{repository}")
-
-        if runHash.nil? then
-            runHash = SecureRandom.hex
-            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5:#{repository}", runHash)
-        end
-
-        if shouldReset then
-            puts "resetting fsck runhash"
-            sleep 1
-            runHash = SecureRandom.hex
-            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5:#{repository}", runHash)
-        end
-
+    # Fx18Utils::fsckRepository(repository)
+    def self.fsckRepository(repository)
         Fx18Utils::fx18FilepathsFromFileSystem2(repository)
             .each{|filepath|
                 FileSystemCheck::exitIfMissingCanary()
-                trace = "#{runHash}:#{Digest::SHA1.file(filepath).hexdigest}:#{repository}"
-                next if XCache::getFlag(trace)
                 FileSystemCheck::fsckFx18Filepath(filepath)
-                XCache::setFlag(trace, true)
             }
-
         puts "fsck completed successfully".green
     end
 
