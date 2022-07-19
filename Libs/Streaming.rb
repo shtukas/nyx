@@ -167,10 +167,9 @@ class Streaming
 
     # Streaming::section2Xp()
     def self.section2Xp()
-        return [] if NxTasks::items().empty?
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        if rt >= 1 then
+        if rt >= 1 or NxTasks::items().empty? then
             Listing::remove(uuid)
             [
                 [], 
