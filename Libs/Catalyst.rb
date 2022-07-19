@@ -82,9 +82,14 @@ class Catalyst
         Thread.new {
             loop {
                 sleep 300
-                Catalyst::section1().each{|item|
-                    Listing::insertOrReInsert("section1", item)
-                }
+
+                # -----------------------------------------------------------
+                # commenting out: group: 2592aae6-5cc6-4561-8f8c-c2688445aa00
+                # Catalyst::section1().each{|item|
+                #     Listing::insertOrReInsert("section1", item)
+                # }
+                # -----------------------------------------------------------
+
                 Catalyst::section2ToListing()
                 Listing::ordinalsdrop()
                 Listing::publishAverageAgeInDays()
@@ -110,10 +115,15 @@ class Catalyst
 
             top = Catalyst::getTopOrNull()
 
-            section1 = Listing::entries()
-                        .select{|entry| entry["_zone_"] == "section1" }
-                        .map{|entry| JSON.parse(entry["_object_"]) }
-                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            # -----------------------------------------------------------
+            # commenting out: group: 2592aae6-5cc6-4561-8f8c-c2688445aa00
+            # section1 = Listing::entries()
+            #            .select{|entry| entry["_zone_"] == "section1" }
+            #            .map{|entry| JSON.parse(entry["_object_"]) }
+            #            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            # -----------------------------------------------------------
+
+            section1 = Catalyst::section1()
 
             running = Listing::entries()
                         .map{|entry| JSON.parse(entry["_object_"]) }
@@ -184,14 +194,15 @@ class Catalyst
 
         if section1.size > 0 then
             puts ""
-            puts "section 1:"
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - 1
             section1
                 .each{|item|
                     store.register(item, false)
                     line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    if line.include?("(project)") and !line.include?("DoNotShowUntil") then
+                        if Ax39::completionRatio(item) < 1 then
+                            line = line.white
+                        end
                     end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
@@ -200,8 +211,7 @@ class Catalyst
 
         if running.size > 0 then
             puts ""
-            puts "running:"
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - 1
             running
                 .each{|item|
                     store.register(item, true)
@@ -214,8 +224,7 @@ class Catalyst
 
         if section2.size > 0 then
             puts ""
-            puts "section 2:"
-            vspaceleft = vspaceleft - 2
+            vspaceleft = vspaceleft - 1
             section2
                 .each{|packet|
                     item = packet["item"]
