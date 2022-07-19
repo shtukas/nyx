@@ -39,9 +39,7 @@ class EditionDesk
             }
 
         index1 = EditionDesk::getMaxIndex(parentLocation) + 1
-        item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
-        str = item ? LxFunction::function("toString", item) : "item not found"
-        name1 = "#{index1}|#{CommonUtils::sanitiseStringForFilenaming(str).gsub("|","-")}|#{part3and4}"
+        name1 = "#{index1}|#{part3and4}"
 
         [false, "#{parentLocation}/#{name1}"]
     end
@@ -69,9 +67,9 @@ class EditionDesk
 
         elements = filename.split("|")
 
-        return if elements.size != 4
+        return if elements.size != 3
 
-        _, description, itemuuid, nx111uuidOnDisk = elements
+        _, itemuuid, nx111uuidOnDisk = elements
 
         if nx111uuidOnDisk.include?(".") then
             nx111uuidOnDisk, _ = nx111uuidOnDisk.split(".")

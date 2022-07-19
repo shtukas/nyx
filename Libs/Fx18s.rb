@@ -30,15 +30,6 @@ class Fx18Utils
         filepath
     end
 
-    # Fx18Utils::ensureFx18(objectuuid) # filepath 
-    def self.ensureFx18(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if !File.exists?(filepath) then
-            Fx18Utils::makeNewFile(objectuuid)
-        end
-        filepath
-    end
-
     # Fx18Utils::fx18FilepathsFromFileSystem()
     def self.fx18FilepathsFromFileSystem()
         LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18s")
@@ -446,7 +437,10 @@ class Fx18File
     # Fx18File::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         #puts "Fx18File::genericEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)"
-        filepath = Fx18Utils::ensureFx18(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        if !File.exists?(filepath) then
+            Fx18Utils::makeNewFile(objectuuid)
+        end
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -481,13 +475,14 @@ class Fx18File
 
     # Fx18File::getAttributeOrNull(objectuuid, attname)
     def self.getAttributeOrNull(objectuuid, attname)
-        filepath = Fx18Utils::ensureFx18(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        return nil if !File.exists?(filepath)
         Fx18File::getAttributeOrNull2(filepath, attname)
     end
 
     # Fx18File::getAttributeOrNull2(filepath, attname)
     def self.getAttributeOrNull2(filepath, attname)
-        raise "(error: 90beb330-8a09-4909-b8e0-d4522fe66daf) filepath: #{filepath}" if !File.exists?(filepath)
+        return nil if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -545,7 +540,8 @@ class Fx18File
 
     # Fx18File::setsItems(objectuuid, setuuid)
     def self.setsItems(objectuuid, setuuid)
-        filepath = Fx18Utils::ensureFx18(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        return [] if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
