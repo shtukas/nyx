@@ -147,27 +147,26 @@ class Catalyst
         puts ""
         vspaceleft = vspaceleft - 1
 
-        Listing::entries2("section1")
-            .each{|entry|
-                item = JSON.parse(entry["_object_"])
-                store.register(item, false)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-                if line.include?("(project)") and !line.include?("DoNotShowUntil") then
-                    if Ax39::completionRatio(item) < 1 then
-                        line = line.white
+        if Listing::entries2("section1").size > 0 then
+            Listing::entries2("section1")
+                .each{|entry|
+                    item = JSON.parse(entry["_object_"])
+                    store.register(item, false)
+                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                    if line.include?("(project)") and !line.include?("DoNotShowUntil") then
+                        if Ax39::completionRatio(item) < 1 then
+                            line = line.white
+                        end
                     end
-                end
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
 
-        running = Listing::entries()
-                    .map{|entry| JSON.parse(entry["_object_"]) }
-                    .select{|item| NxBallsService::isRunning(item["uuid"])}
-        if running.size > 0 then
+        if NxBallsIO::getDataSet().size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            running
+            NxBallsIO::getDataSet()
                 .each{|item|
                     store.register(item, true)
                     line = LxFunction::function("toString", item)
@@ -202,7 +201,7 @@ class Catalyst
                 .each{|packet|
                     item = JSON.parse(packet["_object_"])
                     store.register(item, true)
-                    line = "(ord: #{"%5.2f" % packet["_ordinal_"]}) #{LxFunction::function("toString", item)}"
+                    line = LxFunction::function("toString", item)
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
