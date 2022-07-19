@@ -107,45 +107,21 @@ class TxProjects
         "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
     end
 
-    # TxProjects::itemsForSection1()
-    def self.itemsForSection1()
-        TxProjects::items()
-    end
-
     # TxProjects::elementsDepth()
     def self.elementsDepth()
         10
     end
 
-    # TxProjects::section2Xp()
-    def self.section2Xp()
-        itemsToKeepOrReInject = []
-        itemsToDelistIfPresentInListing = []
-
+    # TxProjects::section2()
+    def self.section2()
         TxProjects::items()
-            .each{|project|
-                if Ax39::itemShouldShow(project) or NxBallsService::isRunning(project["uuid"]) then
-                    itemsToKeepOrReInject << project
-                else
-                    itemsToDelistIfPresentInListing << project["uuid"]
-                end
-            }
-
-        TxProjects::items()
-            .each{|project|
+            .select{|project| Ax39::itemShouldShow(project) }
+            .map{|project|
                 TxProjects::elementuuids(project)
                     .first(TxProjects::elementsDepth())
-                    .select{|elementuuid|  
-                        if NxBallsService::isRunning(elementuuid) then
-                            element = Fx18Utils::objectuuidToItemOrNull(elementuuid)
-                            next if element.nil?
-                            itemsToKeepOrReInject << element
-                        else
-                            itemsToDelistIfPresentInListing << elementuuid
-                        end   
-                    }
+                    .map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid)}
             }
-        [itemsToKeepOrReInject, itemsToDelistIfPresentInListing]
+            .flatten
     end
 
     # ----------------------------------------------------------------------

@@ -24,20 +24,10 @@ class Catalyst
         top
     end
 
-    # Catalyst::section1()
-    def self.section1()
-        [
-            TxProjects::itemsForSection1(),
-            NxFrames::items(),
-            Streaming::section1()
-        ]
-            .flatten
-    end
-
     # Catalyst::section2ToListing()
     def self.section2ToListing()
         JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`).each{|item|
-            Listing::insertOrReInsert("section2", item)
+            Listing::insertOrReInsert("section2", item, nil)
         }
 
         [
@@ -45,22 +35,11 @@ class Catalyst
             lambda { Waves::section2() },
             lambda { TxDateds::section2() },
             lambda { NxLines::section2() },
+            lambda { TxProjects::section2() },
+            lambda { Streaming::section2() },
         ].each{|l|
             l.call().each{|item|
-                Listing::insertOrReInsert("section2", item)
-            }
-        }
-
-        [
-            lambda { TxProjects::section2Xp() },
-            lambda { Streaming::section2Xp() },
-        ].each{|l|
-            items1, itemuuids2 = l.call()
-            items1.each{|item|
-                Listing::insertOrReInsert("section2", item)
-            }
-            itemuuids2.each{|itemuuid|
-                Listing::remove(itemuuid)
+                Listing::insertOrReInsert("section2", item, nil)
             }
         }
     end
@@ -83,12 +62,13 @@ class Catalyst
             loop {
                 sleep 300
 
-                # -----------------------------------------------------------
-                # commenting out: group: 2592aae6-5cc6-4561-8f8c-c2688445aa00
-                # Catalyst::section1().each{|item|
-                #     Listing::insertOrReInsert("section1", item)
-                # }
-                # -----------------------------------------------------------
+                TxProjects::items().each{|item|
+                    Listing::insertOrReInsert("section1", item, Ax39::completionRatio(item))
+                }
+
+                NxFrames::items().each{|item|
+                    Listing::insertOrReInsert("section1", item, nil)
+                }
 
                 Catalyst::section2ToListing()
                 Listing::ordinalsdrop()
@@ -113,38 +93,12 @@ class Catalyst
 
             SystemEvents::pickupDrops()
 
-            top = Catalyst::getTopOrNull()
-
-            # -----------------------------------------------------------
-            # commenting out: group: 2592aae6-5cc6-4561-8f8c-c2688445aa00
-            # section1 = Listing::entries()
-            #            .select{|entry| entry["_zone_"] == "section1" }
-            #            .map{|entry| JSON.parse(entry["_object_"]) }
-            #            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            # -----------------------------------------------------------
-
-            section1 = Catalyst::section1()
-
-            running = Listing::entries()
-                        .map{|entry| JSON.parse(entry["_object_"]) }
-                        .select{|item| NxBallsService::isRunning(item["uuid"])}
-
-            section2 = Listing::entries()
-                        .select{|entry| entry["_zone_"] == "section2" }
-                        .map{|entry|  
-                            {
-                                "ordinal" => entry["_ordinal_"],
-                                "item"    => JSON.parse(entry["_object_"])
-                            }
-                        }
-                        .select{|st| DoNotShowUntil::isVisible(st["item"]["uuid"])}
-
-            Catalyst::printListing(top, section1, running, section2)
+            Catalyst::printListing()
         }
     end
 
-    # Catalyst::printListing(top, section1, running, section2)
-    def self.printListing(top, section1, running, section2)
+    # Catalyst::printListing()
+    def self.printListing()
         system("clear")
 
         vspaceleft = CommonUtils::screenHeight()-3
@@ -170,8 +124,7 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
-        uuids = (section1 + section2.map{|nx| nx["item"] }).map{|item| item["uuid"] }
-        running = NxBallsIO::getItems().select{|nxball| !uuids.include?(nxball["uuid"]) }
+        running = NxBallsIO::getItems()
         if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -185,30 +138,32 @@ class Catalyst
                 }
         end
 
-        if top then
+        if top = Catalyst::getTopOrNull() then
             puts ""
-            puts "top:"
             puts top.green
-            vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 2)
+            vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
         end
 
-        if section1.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            section1
-                .each{|item|
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-                    if line.include?("(project)") and !line.include?("DoNotShowUntil") then
-                        if Ax39::completionRatio(item) < 1 then
-                            line = line.white
-                        end
+        puts ""
+        vspaceleft = vspaceleft - 1
+
+        Listing::entries2("section1")
+            .each{|entry|
+                item = JSON.parse(entry["_object_"])
+                store.register(item, false)
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                if line.include?("(project)") and !line.include?("DoNotShowUntil") then
+                    if Ax39::completionRatio(item) < 1 then
+                        line = line.white
                     end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
+                end
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
 
+        running = Listing::entries()
+                    .map{|entry| JSON.parse(entry["_object_"]) }
+                    .select{|item| NxBallsService::isRunning(item["uuid"])}
         if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -222,14 +177,32 @@ class Catalyst
                 }
         end
 
-        if section2.size > 0 then
+        if Listing::entries3().size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            section2
+            Listing::entries3()
                 .each{|packet|
-                    item = packet["item"]
+                    item = JSON.parse(packet["_object_"])
                     store.register(item, true)
-                    line = "(ord: #{"%5.2f" % packet["ordinal"]}) #{LxFunction::function("toString", item)}"
+                    line = "(ord: #{"%5.2f" % packet["_ordinal_"]}) #{LxFunction::function("toString", item)}"
+                    line = "#{store.prefixString()} #{line}"
+                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
+        if Listing::entries4().size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            Listing::entries4()
+                .each{|packet|
+                    item = JSON.parse(packet["_object_"])
+                    store.register(item, true)
+                    line = "(ord: #{"%5.2f" % packet["_ordinal_"]}) #{LxFunction::function("toString", item)}"
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
@@ -249,6 +222,7 @@ class Catalyst
             if (item = store.getDefault()) then
                 NxBallsService::close(item["uuid"], true)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                Listing::removeIfInSection2(item["uuid"])
                 return
             end
         end

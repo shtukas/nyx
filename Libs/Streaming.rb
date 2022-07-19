@@ -150,40 +150,18 @@ class Streaming
         NxBallsService::close(uuid, true)
     end
 
-    # Streaming::section1()
-    def self.section1()
+    # Streaming::section2()
+    def self.section2()
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        if rt < 1 then
-            return []
-        end
-        [{
-            "uuid" => uuid,
-            "unixtime" => Time.new.to_i,
-            "mikuType" => "(rstream-to-target)",
-            "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
-        }]
-    end
-
-    # Streaming::section2Xp()
-    def self.section2Xp()
-        uuid = Streaming::rstreamUUID()
-        rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        if rt >= 1 or NxTasks::items().empty? then
-            Listing::remove(uuid)
-            [
-                [], 
-                [uuid]
-            ]
+        if rt < 1 and !NxTasks::items().empty? then
+            [{
+                "uuid" => uuid,
+                "mikuType" => "(rstream-to-target)",
+                "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
+            }]
         else
-            [
-                [{
-                    "uuid" => uuid,
-                    "mikuType" => "(rstream-to-target)",
-                    "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
-                }],
-                []
-            ]
+            []
         end
     end
 end

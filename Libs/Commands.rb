@@ -9,7 +9,7 @@ class Commands
             "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | project ",
             "anniversaries | calendar | zeroes | ondates | todos | projects",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | >> (transmute) | destroy | >project | >nyx",
-            "ordinal <itemPosition> <newOrdinal> | rotate | remove",
+            "ordinal <itemPosition> <newOrdinal>",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute | indices",
         ].join("\n")
@@ -202,13 +202,7 @@ class Commands
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
-            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
-            if ordinal == "" then
-                ordinal = Listing::nextOrdinal()
-            else
-                ordinal = ordinal.to_f
-            end
-            Listing::insert2("section2", item, ordinal, Time.new.to_i) 
+            Listing::insert2("section2", item, nil, Time.new.to_i, nil) 
             return
         end
 
@@ -321,22 +315,6 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             InternetStatus::markIdAsRequiringInternet(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("remove", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NxBallsService::close(item["uuid"], true)
-            Listing::removeFirstEntry()
-            return
-        end
-
-        if Interpreting::match("rotate", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NxBallsService::close(item["uuid"], true)
-            Listing::rotate()
             return
         end
 

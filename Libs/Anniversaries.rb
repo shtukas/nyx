@@ -169,7 +169,7 @@ class Anniversaries
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
             .each{|item|
-                Listing::insertOrReInsert("section2", item)
+                Listing::insertOrReInsert("section2", item, nil)
             }
     end
 
