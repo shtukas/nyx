@@ -265,7 +265,7 @@ class Landing
 
     # Landing::landing(item)
     def self.landing(item)
-        if Iam::implementsNx111(item["uuid"]) then
+        if Iam::implementsNx111(item) then
             Landing::implementsNx111Landing(item)
             return
         end

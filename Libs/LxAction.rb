@@ -115,7 +115,7 @@ class LxAction
                 return
             end
 
-            if Iam::implementsNx111(item["uuid"]) then
+            if Iam::implementsNx111(item) then
                 EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
                 return
             end

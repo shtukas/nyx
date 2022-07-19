@@ -284,7 +284,10 @@ class EditionDesk
             puts "I am going to write the Iam::implementsNx111 children here: #{exportLocation}"
             puts "This is a read only export (!)"
             itemuuids
-                .select{|itemuuid| Iam::implementsNx111(itemuuid) }
+                .select{|itemuuid| 
+                    item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
+                    !item.nil? and Iam::implementsNx111(itemuuid)
+                }
                 .each{|itemuuid|
                     nx111 = Fx18Attributes::getOrNull(itemuuid, "nx111")
                     next if nx111.nil?
