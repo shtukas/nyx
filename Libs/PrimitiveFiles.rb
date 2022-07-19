@@ -13,7 +13,7 @@ class PrimitiveFiles
 
         nhash = CommonUtils::filepathToContentHash(filepath)
 
-        elizabeth = Fx18Elizabeth.new(objectuuid)
+        elizabeth = Fx18ElizabethStandard.new(objectuuid)
 
         parts = []
         partSizeInBytes = 1024*1024 # 1 MegaBytes
