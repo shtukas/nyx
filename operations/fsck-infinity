@@ -4,5 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-shouldReset = (ARGV[0] == "reset")
-Fx18Utils::fsck(shouldReset)
+Fx18Utils::fsckRepository("#{StargateCentral::pathToCentral()}/Fx18s")

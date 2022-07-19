@@ -23,7 +23,7 @@ class Ax1Text
         uuid = SecureRandom.uuid
         Fx18Utils::makeNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
-        nhash = Fx18Data::putBlob3(uuid, text)
+        nhash = Fx18LocalObjectsDataWithInfinityHelp::putBlob3(uuid, text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         Fx18Attributes::setAttribute2(uuid, "uuid", uuid)
@@ -40,7 +40,7 @@ class Ax1Text
     # Ax1Text::getFirstLineOrNull(item)
     def self.getFirstLineOrNull(item)
         nhash = item["nhash"]
-        text = Fx18Data::getBlobOrNull(item["uuid"], nhash)
+        text = Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(item["uuid"], nhash)
         return nil if text.nil?
         return nil if text == ""
         text.lines.first
@@ -70,9 +70,9 @@ class Ax1Text
             break if operation.nil?
             if operation == "access/edit" then
                 nhash = Fx18Attributes::getOrNull(uuid, "nhash")
-                text = Fx18Data::getBlobOrNull(uuid, nhash)
+                text = Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(uuid, nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = Fx18Data::putBlob3(uuid, text)
+                nhash = Fx18LocalObjectsDataWithInfinityHelp::putBlob3(uuid, text)
                 Fx18Attributes::setAttribute2(uuid, "nhash", nhash)
             end
             if operation == "destroy" then

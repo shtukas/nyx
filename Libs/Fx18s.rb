@@ -1,19 +1,19 @@
 
 class Fx18Utils
 
-    # Fx18Utils::computeLocalFx18Setspath(objectuuid)
-    def self.computeLocalFx18Setspath(objectuuid)
+    # Fx18Utils::computeLocalFx18Filepath(objectuuid)
+    def self.computeLocalFx18Filepath(objectuuid)
         "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
     end
 
     # Fx18Utils::fileExists?(objectuuid)
     def self.fileExists?(objectuuid)
-        File.exists?(Fx18Utils::computeLocalFx18Setspath(objectuuid))
+        File.exists?(Fx18Utils::computeLocalFx18Filepath(objectuuid))
     end
 
     # Fx18Utils::makeNewFile(objectuuid) # filepath
     def self.makeNewFile(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Setspath(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         if File.exists?(filepath) then
             puts "operation: Fx18Utils::makeNewFile"
             puts "objectuuid: #{objectuuid}"
@@ -33,6 +33,12 @@ class Fx18Utils
     # Fx18Utils::fx18FilepathsFromFileSystem()
     def self.fx18FilepathsFromFileSystem()
         LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18s")
+            .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
+    end
+
+    # Fx18Utils::fx18FilepathsFromFileSystem2(foldepath)
+    def self.fx18FilepathsFromFileSystem2(folderpath)
+        LucilleCore::locationsAtFolder(folderpath)
             .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
     end
 
@@ -106,44 +112,19 @@ class Fx18Utils
         raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
     end
 
-    # Fx18Utils::fsck(shouldReset)
-    def self.fsck(shouldReset)
-        runHash = XCache::getOrNull("76001cea-f0c6-4e68-862b-5060d3c8bcd5")
-
-        if runHash.nil? then
-            runHash = SecureRandom.hex
-            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
-        end
-
-        if shouldReset then
-            puts "resetting fsck runhash"
-            sleep 1
-            runHash = SecureRandom.hex
-            XCache::set("76001cea-f0c6-4e68-862b-5060d3c8bcd5", runHash)
-        end
-
-        Fx18Utils::fx18FilepathsFromFileSystem()
+    # Fx18Utils::fsckRepository(repository)
+    def self.fsckRepository(repository)
+        Fx18Utils::fx18FilepathsFromFileSystem2(repository)
             .each{|filepath|
                 FileSystemCheck::exitIfMissingCanary()
-                trace = "#{runHash}:#{Digest::SHA1.file(filepath).hexdigest}"
-                next if XCache::getFlag(trace)
-                FileSystemCheck::fsckFx18SetspathExitAtFirstFailure(filepath)
-
-                db = SQLite3::Database.new(filepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("vacuum", [])
-                db.close
-
-                XCache::setFlag(trace, true)
+                FileSystemCheck::fsckFx18Filepath(filepath)
             }
         puts "fsck completed successfully".green
     end
 
     # Fx18Utils::destroyFx18NoEvent(objectuuid)
     def self.destroyFx18NoEvent(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Setspath(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         return if !File.exists?(filepath)
         puts "delete Fx18 file: #{filepath}"
         FileUtils.rm(filepath)
@@ -170,7 +151,7 @@ class Fx18Utils
 
     # Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-        filepath = Fx18Utils::computeLocalFx18Setspath(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         if !File.exists?(filepath) then
             Fx18Utils::makeNewFile(objectuuid)
         end
@@ -358,16 +339,16 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
     end
 end
 
-class Fx18Data
+class Fx18LocalObjectsDataWithInfinityHelp
 
-    # Fx18Data::computeStargateCentralFilepath(objectuuid)
+    # Fx18LocalObjectsDataWithInfinityHelp::computeStargateCentralFilepath(objectuuid)
     def self.computeStargateCentralFilepath(objectuuid)
         "#{StargateCentral::pathToCentral()}/Fx18s/#{objectuuid}.fx18.sqlite3"
     end
 
-    # Fx18Data::ensureFileForPut(objectuuid)
+    # Fx18LocalObjectsDataWithInfinityHelp::ensureFileForPut(objectuuid)
     def self.ensureFileForPut(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Setspath(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         if !File.exists?(filepath) then
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
@@ -378,27 +359,27 @@ class Fx18Data
         end
     end
 
-    # Fx18Data::putBlob1(objectuuid, eventuuid, eventTime, key, blob)
+    # Fx18LocalObjectsDataWithInfinityHelp::putBlob1(objectuuid, eventuuid, eventTime, key, blob)
     def self.putBlob1(objectuuid, eventuuid, eventTime, key, blob)
-        Fx18Data::ensureFileForPut(objectuuid)
+        Fx18LocalObjectsDataWithInfinityHelp::ensureFileForPut(objectuuid)
         Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "datablob", key, blob, nil, nil)
     end
 
-    # Fx18Data::putBlob2(objectuuid, key, blob)
+    # Fx18LocalObjectsDataWithInfinityHelp::putBlob2(objectuuid, key, blob)
     def self.putBlob2(objectuuid, key, blob)
-        Fx18Data::putBlob1(objectuuid, SecureRandom.uuid, Time.new.to_f, key, blob)
+        Fx18LocalObjectsDataWithInfinityHelp::putBlob1(objectuuid, SecureRandom.uuid, Time.new.to_f, key, blob)
     end
 
-    # Fx18Data::putBlob3(objectuuid, blob) # nhash
+    # Fx18LocalObjectsDataWithInfinityHelp::putBlob3(objectuuid, blob) # nhash
     def self.putBlob3(objectuuid, blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18Data::putBlob2(objectuuid, nhash, blob)
+        Fx18LocalObjectsDataWithInfinityHelp::putBlob2(objectuuid, nhash, blob)
         nhash
     end
 
-    # Fx18Data::getBlobOrNull(objectuuid, nhash)
+    # Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(objectuuid, nhash)
     def self.getBlobOrNull(objectuuid, nhash)
-        filepath1 = Fx18Utils::computeLocalFx18Setspath(objectuuid)
+        filepath1 = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         if File.exists?(filepath1) then
             db = SQLite3::Database.new(filepath1)
             db.busy_timeout = 117
@@ -415,7 +396,7 @@ class Fx18Data
         # At this point here is what we gonna do: try to find the file on Stargate Central and get it down on local
         StargateCentral::ensureInfinityDrive()
 
-        filepath2 = Fx18Data::computeStargateCentralFilepath(objectuuid)
+        filepath2 = Fx18LocalObjectsDataWithInfinityHelp::computeStargateCentralFilepath(objectuuid)
         if File.exists?(filepath2) then
             db = SQLite3::Database.new(filepath2)
             db.busy_timeout = 117
@@ -430,9 +411,6 @@ class Fx18Data
                 if File.exists?(filepath1) then
                     puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}"
                     Fx18Synchronisation::propagateFileData(filepath2, filepath1)
-                else
-                    puts "FileUtils.cp(#{filepath2}, #{filepath1})"
-                    FileUtils.cp(filepath2, filepath1)
                 end
                 return blob
             end
@@ -466,7 +444,7 @@ class Fx18Attributes
 
     # Fx18Attributes::getOrNull(objectuuid, attname)
     def self.getOrNull(objectuuid, attname)
-        filepath = Fx18Utils::computeLocalFx18Setspath(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         return nil if !File.exists?(filepath)
         Fx18Attributes::getOrNull2(filepath, attname)
     end
@@ -533,7 +511,7 @@ class Fx18Sets
 
     # Fx18Sets::items(objectuuid, setuuid)
     def self.items(objectuuid, setuuid)
-        filepath = Fx18Utils::computeLocalFx18Setspath(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         return [] if !File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -567,14 +545,14 @@ class Fx18Sets
     end
 end
 
-class Fx18Elizabeth
+class Fx18ElizabethStandard
 
     def initialize(objectuuid)
         @objectuuid = objectuuid
     end
 
     def putBlob(blob)
-        Fx18Data::putBlob3(@objectuuid, blob)
+        Fx18LocalObjectsDataWithInfinityHelp::putBlob3(@objectuuid, blob)
     end
 
     def filepathToContentHash(filepath)
@@ -582,7 +560,7 @@ class Fx18Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        Fx18Data::getBlobOrNull(@objectuuid, nhash)
+        Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(@objectuuid, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)
@@ -696,35 +674,18 @@ class Fx18Synchronisation
         }
     end
 
-    # Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, shouldMoveFx19s)
-    def self.propagateRepository(folderpath1, folderpath2, shouldMoveFx19s)
-
+    # Fx18Synchronisation::syncRepositories(folderpath1, folderpath2)
+    def self.syncRepositories(folderpath1, folderpath2)
         LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
             next if filepath1[-13, 13] != ".fx18.sqlite3"
             filename = File.basename(filepath1)
             filepath2 = "#{folderpath2}/#{filename}"
-            if File.exists?(filepath2) then
-                puts "[repo sync] propagate file data; file: #{filepath1}"
-                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-            else
-                puts "[repo sync] copy file: #{filepath1}"
-                FileUtils.cp(filepath1, filepath2)
-            end
-        }
-
-        LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
-            next if filepath1[-13, 13] != ".fx18.sqlite3"
-            filename = File.basename(filepath1)
-            filepath2 = "#{folderpath2}/#{filename}"
-            if File.exists?(filepath2) then
-                puts "[repo sync] propagate file data; file: #{filepath1}"
-                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-            else
-                if shouldMoveFx19s then
-                    puts "[repo sync] copy file: #{filepath1}"
-                    FileUtils.cp(filepath1, filepath2)
-                end
-            end
+            next if !File.exists?(filepath2)
+            puts "Fx18Synchronisation::syncRepositories(folderpath1, folderpath2): folderpath1: #{filepath1}"
+            #puts "[repo sync] propagate file data; file: #{filepath1}"
+            Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+            #puts "[repo sync] propagate file data; file: #{filepath2}"
+            Fx18Synchronisation::propagateFileData(filepath2, filepath1)
         }
     end
 
@@ -733,7 +694,6 @@ class Fx18Synchronisation
         StargateCentral::ensureInfinityDrive()
         folderpath1 = "#{Config::pathToDataBankStargate()}/Fx18s"
         folderpath2 = "#{StargateCentral::pathToCentral()}/Fx18s"
-        Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, true)
-        Fx18Synchronisation::propagateRepository(folderpath2, folderpath1, false)
+        Fx18Synchronisation::syncRepositories(folderpath1, folderpath2)
     end
 end

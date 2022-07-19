@@ -1,0 +1,7 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+Fx18Utils::fsckRepository("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18s")

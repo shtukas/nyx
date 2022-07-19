@@ -23,7 +23,7 @@ class Nx111
     # Nx111::locationToAionPointNx111OrNull(objectuuid, location)
     def self.locationToAionPointNx111OrNull(objectuuid, location)
         raise "(error: e53a9bfb-6901-49e3-bb9c-3e06a4046230) #{location}" if !File.exists?(location)
-        operator = Fx18Elizabeth.new(objectuuid)
+        operator = Fx18ElizabethStandard.new(objectuuid)
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
         {
             "uuid"      => SecureRandom.uuid,
@@ -38,7 +38,7 @@ class Nx111
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = Fx18Data::putBlob3(objectuuid, text)
+            nhash = Fx18LocalObjectsDataWithInfinityHelp::putBlob3(objectuuid, text)
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",
