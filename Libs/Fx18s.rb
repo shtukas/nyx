@@ -168,8 +168,8 @@ class Fx18Utils
         JSON.parse(str)
     end
 
-    # Fx18Utils::writeGenericFx18SetsEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.writeGenericFx18SetsEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    # Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         filepath = Fx18Utils::computeLocalFx18Setspath(objectuuid)
         if !File.exists?(filepath) then
             Fx18Utils::makeNewFile(objectuuid)
@@ -189,7 +189,7 @@ class Fx18Utils
         SystemEvents::issueStargateDrop({
             "mikuType"      => "Fx18 File Event",
             "objectuuid"    => objectuuid,
-            "Fx18SetsEvent" => {
+            "Fx18FileEvent" => {
                 "_eventuuid_"  => eventuuid,
                 "_eventTime_"  => eventTime,
                 "_eventData1_" => eventData1,
@@ -381,7 +381,7 @@ class Fx18Data
     # Fx18Data::putBlob1(objectuuid, eventuuid, eventTime, key, blob)
     def self.putBlob1(objectuuid, eventuuid, eventTime, key, blob)
         Fx18Data::ensureFileForPut(objectuuid)
-        Fx18Utils::writeGenericFx18SetsEvent(objectuuid, eventuuid, eventTime, "datablob", key, blob, nil, nil)
+        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "datablob", key, blob, nil, nil)
     end
 
     # Fx18Data::putBlob2(objectuuid, key, blob)
@@ -447,7 +447,7 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx18Utils::writeGenericFx18SetsEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
@@ -494,7 +494,7 @@ class Fx18Sets
     # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
-        Fx18Utils::writeGenericFx18SetsEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
@@ -514,7 +514,7 @@ class Fx18Sets
     # Fx18Sets::remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
     def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
-        Fx18Utils::writeGenericFx18SetsEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",

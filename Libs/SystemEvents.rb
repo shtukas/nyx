@@ -52,13 +52,13 @@ class SystemEvents
         end
 
         if event["mikuType"] == "Fx18 File Event" then
-            if event["Fx18SetsEvent"]["_eventData1_"] == "datablob" then
-                event["Fx18SetsEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18SetsEvent"]["_eventData3_"])
+            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
             end
             objectuuid = event["objectuuid"]
             Fx18Data::ensureFileForPut(objectuuid)
-            eventi = event["Fx18SetsEvent"]
-            Fx18Utils::writeGenericFx18SetsEvent(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            eventi = event["Fx18FileEvent"]
+            Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
     end
@@ -66,8 +66,8 @@ class SystemEvents
     # SystemEvents::issueStargateDrop(event)
     def self.issueStargateDrop(event)
         if event["mikuType"] == "Fx18 File Event" then
-            if event["Fx18SetsEvent"]["_eventData1_"] == "datablob" then
-                event["Fx18SetsEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18SetsEvent"]["_eventData3_"])
+            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
             end
         end
         filename = "#{CommonUtils::nx45()}.json"

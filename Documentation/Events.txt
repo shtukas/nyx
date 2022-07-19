@@ -53,7 +53,7 @@ We have two types of events
 {
     "mikuType"      => "Fx18 File Event",
     "objectuuid"    => objectuuid,
-    "Fx18SetsEvent" => {
+    "Fx18FileEvent" => {
         "_eventuuid_"  => eventuuid
         "_eventTime_"  => eventTime
         "_eventData1_" => eventData1  # base64 encoded for drop
