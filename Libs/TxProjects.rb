@@ -9,13 +9,13 @@ class TxProjects
     # TxProjects::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
         return nil if !Fx18Utils::fileExists?(objectuuid)
-        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "TxProject"
+        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "TxProject"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
-            "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "ax39"        => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "ax39")),
+            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
+            "ax39"        => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "ax39")),
         }
     end
 
@@ -48,11 +48,11 @@ class TxProjects
         uuid = SecureRandom.uuid
 
         Fx18Utils::makeNewFile(uuid)
-        Fx18File::setAttribute2(uuid, "uuid",        uuid2)
-        Fx18File::setAttribute2(uuid, "mikuType",    "TxProject")
-        Fx18File::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18File::setAttribute2(uuid, "description", description)
-        Fx18File::setAttribute2(uuid, "ax39",        JSON.generate(ax39))
+        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid2)
+        Fx18Attributes::setAttribute2(uuid, "mikuType",    "TxProject")
+        Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setAttribute2(uuid, "description", description)
+        Fx18Attributes::setAttribute2(uuid, "ax39",        JSON.generate(ax39))
 
         TxProjects::objectuuidToItemOrNull(objectuuid)
     end
@@ -73,17 +73,17 @@ class TxProjects
 
     # TxProjects::addElement(projectuuid, itemuuid)
     def self.addElement(projectuuid, itemuuid)
-        Fx18File::setsAdd2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
+        Fx18Sets::add2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
     end
 
     # TxProjects::removeElement(project, uuid)
     def self.removeElement(project, uuid)
-        Fx18File::setsRemove2(project["uuid"], "project-items-3f154988", uuid)
+        Fx18Sets::remove2(project["uuid"], "project-items-3f154988", uuid)
     end
 
     # TxProjects::elementuuids(project)
     def self.elementuuids(project)
-        Fx18File::setsItems(project["uuid"], "project-items-3f154988")
+        Fx18Sets::items(project["uuid"], "project-items-3f154988")
     end
 
     # TxProjects::uuidIsProjectElement(uuid)

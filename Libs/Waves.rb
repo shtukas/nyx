@@ -7,15 +7,15 @@ class Waves
     # Waves::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
         return nil if !Fx18Utils::fileExists?(objectuuid)
-        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "Wave"
+        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "Wave"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
-            "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx46"        => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx46")),
-            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
-            "lastDoneDateTime" => Fx18File::getAttributeOrNull(objectuuid, "lastDoneDateTime"),
+            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
+            "nx46"        => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx46")),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
+            "lastDoneDateTime" => Fx18Attributes::getOrNull(objectuuid, "lastDoneDateTime"),
         }
     end
 
@@ -145,13 +145,13 @@ class Waves
         uuid = SecureRandom.uuid
         Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18File::setAttribute2(uuid, "uuid",        uuid2)
-        Fx18File::setAttribute2(uuid, "mikuType",    "Wave")
-        Fx18File::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18File::setAttribute2(uuid, "description", description)
-        Fx18File::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
-        Fx18File::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        Fx18File::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid2)
+        Fx18Attributes::setAttribute2(uuid, "mikuType",    "Wave")
+        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setAttribute2(uuid, "description", description)
+        Fx18Attributes::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
+        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         uuid
     end
 
@@ -187,7 +187,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        Fx18File::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        Fx18Attributes::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"

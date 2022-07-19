@@ -291,7 +291,7 @@ class LxAction
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-                Fx18File::setAttribute2(item["uuid"], "datetime", datetime)
+                Fx18Attributes::setAttribute2(item["uuid"], "datetime", datetime)
                 return
             end
         end

@@ -9,14 +9,14 @@ class NxEvents
     # NxEvents::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
         return nil if !Fx18Utils::fileExists?(objectuuid)
-        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "NxEvent"
+        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxEvent"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18File::getAttributeOrNull(objectuuid, "datetime"),
-            "description" => Fx18File::getAttributeOrNull(objectuuid, "description"),
-            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18File::getAttributeOrNull(objectuuid, "nx111")),
+            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
+            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
+            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
         }
     end
 
@@ -44,12 +44,12 @@ class NxEvents
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = CommonUtils::interactiveDateTimeBuilder()
-        Fx18File::setAttribute2(uuid, "uuid",        uuid)
-        Fx18File::setAttribute2(uuid, "mikuType",    "NxEvent")
-        Fx18File::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18File::setAttribute2(uuid, "datetime",    datetime)
-        Fx18File::setAttribute2(uuid, "description", description)
-        Fx18File::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
+        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxEvent")
+        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
+        Fx18Attributes::setAttribute2(uuid, "description", description)
+        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
         uuid
     end
 

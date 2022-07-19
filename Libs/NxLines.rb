@@ -9,12 +9,12 @@ class NxLines
     # NxLines::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
         return nil if !Fx18Utils::fileExists?(objectuuid)
-        return nil if Fx18File::getAttributeOrNull(objectuuid, "mikuType") != "NxLine"
+        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxLine"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18File::getAttributeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18File::getAttributeOrNull(objectuuid, "unixtime"),
-            "line"        => Fx18File::getAttributeOrNull(objectuuid, "line"),
+            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "line"        => Fx18Attributes::getOrNull(objectuuid, "line"),
         }
     end
 
@@ -32,10 +32,10 @@ class NxLines
     def self.issue(line)
         uuid = SecureRandom.uuid
         Fx18Utils::makeNewFile(uuid)
-        Fx18File::setAttribute2(uuid, "uuid",        uuid)
-        Fx18File::setAttribute2(uuid, "mikuType",    "NxLine")
-        Fx18File::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18File::setAttribute2(uuid, "line",        line)
+        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
+        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxLine")
+        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setAttribute2(uuid, "line",        line)
         uuid
     end
 

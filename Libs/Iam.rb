@@ -15,7 +15,7 @@ class Iam
 
     # Iam::implementsNx111(itemuuid)
     def self.implementsNx111(itemuuid)
-        mikuType = Fx18File::getAttributeOrNull(itemuuid, "mikuType")
+        mikuType = Fx18Attributes::getOrNull(itemuuid, "mikuType")
         Iam::nx111Types().include?(mikuType)
     end
 
