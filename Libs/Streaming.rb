@@ -126,6 +126,7 @@ class Streaming
         uuid = Streaming::rstreamUUID()
         NxBallsService::issue(uuid, "(rstream-to-target)", [uuid])
         items = NxTasks::items().shuffle
+        return if items.empty?
         loop {
             item = items.shift
             next if TxProjects::uuidIsProjectElement(item["uuid"])
@@ -166,6 +167,7 @@ class Streaming
 
     # Streaming::section2Xp()
     def self.section2Xp()
+        return [] if NxTasks::items().empty?
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         if rt >= 1 then

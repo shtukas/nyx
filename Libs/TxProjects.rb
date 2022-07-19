@@ -125,8 +125,7 @@ class TxProjects
         TxProjects::items()
             .each{|project|
                 if Ax39::itemShouldShow(project) or NxBallsService::isRunning(project["uuid"]) then
-                    # itemsToKeepOrReInject << project
-                    # TODO:
+                    itemsToKeepOrReInject << project
                 else
                     itemsToDelistIfPresentInListing << project["uuid"]
                 end
@@ -138,8 +137,9 @@ class TxProjects
                     .first(TxProjects::elementsDepth())
                     .select{|elementuuid|  
                         if NxBallsService::isRunning(elementuuid) then
-                            # itemsToKeepOrReInject << item
-                            # TODO:
+                            element = Fx18Utils::objectuuidToItemOrNull(elementuuid)
+                            next if element.nil?
+                            itemsToKeepOrReInject << element
                         else
                             itemsToDelistIfPresentInListing << elementuuid
                         end   
