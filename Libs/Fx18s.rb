@@ -696,35 +696,17 @@ class Fx18Synchronisation
         }
     end
 
-    # Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, shouldMoveFx19s)
-    def self.propagateRepository(folderpath1, folderpath2, shouldMoveFx19s)
-
+    # Fx18Synchronisation::syncRepositories(folderpath1, folderpath2)
+    def self.syncRepositories(folderpath1, folderpath2)
         LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
             next if filepath1[-13, 13] != ".fx18.sqlite3"
             filename = File.basename(filepath1)
             filepath2 = "#{folderpath2}/#{filename}"
-            if File.exists?(filepath2) then
-                puts "[repo sync] propagate file data; file: #{filepath1}"
-                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-            else
-                puts "[repo sync] copy file: #{filepath1}"
-                FileUtils.cp(filepath1, filepath2)
-            end
-        }
-
-        LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
-            next if filepath1[-13, 13] != ".fx18.sqlite3"
-            filename = File.basename(filepath1)
-            filepath2 = "#{folderpath2}/#{filename}"
-            if File.exists?(filepath2) then
-                puts "[repo sync] propagate file data; file: #{filepath1}"
-                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-            else
-                if shouldMoveFx19s then
-                    puts "[repo sync] copy file: #{filepath1}"
-                    FileUtils.cp(filepath1, filepath2)
-                end
-            end
+            next if !File.exists?(filepath2)
+            #puts "[repo sync] propagate file data; file: #{filepath1}"
+            Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+            #puts "[repo sync] propagate file data; file: #{filepath2}"
+            Fx18Synchronisation::propagateFileData(filepath2, filepath1)
         }
     end
 
@@ -733,7 +715,6 @@ class Fx18Synchronisation
         StargateCentral::ensureInfinityDrive()
         folderpath1 = "#{Config::pathToDataBankStargate()}/Fx18s"
         folderpath2 = "#{StargateCentral::pathToCentral()}/Fx18s"
-        Fx18Synchronisation::propagateRepository(folderpath1, folderpath2, true)
-        Fx18Synchronisation::propagateRepository(folderpath2, folderpath1, false)
+        Fx18Synchronisation::syncRepositories(folderpath1, folderpath2)
     end
 end
