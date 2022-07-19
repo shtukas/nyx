@@ -238,7 +238,7 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         item = Fx18Utils::objectuuidToItemOrNull(objectuuid)
         return if item.nil?
         announce = "(#{mikuType}) #{LxFunction::function("generic-description", item)}"
-        unixtime = item["unixtime"]
+        unixtime = item["datetime"] ? DateTime.parse(item["datetime"]).to_time.to_i : item["unixtime"]
 
         CommonUtils::putsOnPreviousLine("Fx18Index1::rebuildIndexData: filepath: #{filepath} ☑️")
 

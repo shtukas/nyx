@@ -11,7 +11,7 @@ class Commands
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | >> (transmute) | destroy | >project | >nyx",
             "ordinal <itemPosition> <newOrdinal> | rotate | remove",
             "require internet",
-            "rstream | search | nyx | speed | pickup | nxballs | transmute",
+            "rstream | search | nyx | speed | pickup | nxballs | transmute | indices",
         ].join("\n")
     end
 
@@ -156,6 +156,12 @@ class Commands
             return
         end
 
+        if Interpreting::match("indices", input) then
+            Fx18Index1::rebuildIndex()
+            Catalyst::section2ToListing()
+            return
+        end
+
         if Interpreting::match("landing", input) then
             LxAction::action("landing", store.getDefault())
             return
@@ -195,14 +201,14 @@ class Commands
         if input == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
-            itemuuid = NxLines::issue(line)
+            item = NxLines::issue(line)
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty for next): ")
             if ordinal == "" then
                 ordinal = Listing::nextOrdinal()
             else
                 ordinal = ordinal.to_f
             end
-            Listing::insert2("section2", item, ordinal) # TODO:
+            Listing::insert2("section2", item, ordinal, Time.new.to_i) 
             return
         end
 

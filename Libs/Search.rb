@@ -41,7 +41,8 @@ class Search
                 selected = Fx18Index1::nx20s()
                     .select{|nx20| !nx20["announce"].nil? }
                     .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
-                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("search", selected, lambda{|item| item["announce"] })
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|item| item["announce"] })
                 break if nx20.nil?
                 system('clear')
                 item = Fx18Utils::objectuuidToItemOrNull(nx20["objectuuid"])
