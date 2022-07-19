@@ -157,7 +157,7 @@ class Fx18Utils
             "objectuuid" => objectuuid,
         })
         SystemEvents::processEventInternally({
-            "mikuType"   => "NxDeleted",
+            "mikuType"   => "(object has been deleted)",
             "objectuuid" => objectuuid,
         })
     end

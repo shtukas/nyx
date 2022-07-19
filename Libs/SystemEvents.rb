@@ -20,6 +20,11 @@ class SystemEvents
             Fx18Index1::updateIndexForFilepath(filepath)
         end
 
+        if event["mikuType"] == "(object has been deleted)" then
+            Fx18Index1::removeRecordForObjectUUID(event["objectuuid"])
+            return
+        end
+
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEventInternally(event)
             return
@@ -66,7 +71,7 @@ class SystemEvents
             end
         end
         filename = "#{CommonUtils::nx45()}.json"
-        filepath = "/Volumes/Keybase (pascal)/private/0x1021/Stargate-Drops/#{filename}"
+        filepath = "/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops/#{filename}"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
 
         XCache::setFlag("08ea96b0-c44f-4340-9e28-49b0ec2c33d0:#{filename}", true) # this prevent this intance to pick it up
@@ -74,7 +79,7 @@ class SystemEvents
 
     # SystemEvents::pickupDrops()
     def self.pickupDrops()
-        LucilleCore::locationsAtFolder("/Volumes/Keybase (pascal)/private/0x1021/Stargate-Drops")
+        LucilleCore::locationsAtFolder("/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops")
             .each{|filepath|
                 filename = File.basename(filepath)
                 next if filename[0, 1] == "."
