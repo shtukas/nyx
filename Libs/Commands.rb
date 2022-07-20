@@ -289,6 +289,8 @@ class Commands
             return if unixtime.nil?
             NxBallsService::close(item["uuid"], true)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            puts "Catalyst::section2ToListing()"
+            Catalyst::section2ToListing()
             return
         end
 

@@ -166,6 +166,7 @@ class EditionDesk
                 return
             end
             puts "location: #{location}"
+            StargateCentral::ensureInfinityDrive()
             if LucilleCore::locationsAtFolder(location).size == 1 and LucilleCore::locationsAtFolder(location).first[-5, 5] == ".webm" then
                 location2 = LucilleCore::locationsAtFolder(location).first
                 if File.basename(location2).include?("'") then

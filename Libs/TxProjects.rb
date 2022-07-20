@@ -116,12 +116,11 @@ class TxProjects
     # TxProjects::section2()
     def self.section2()
         TxProjects::items()
-            .select{|project| !Ax39::itemShouldShow(project) }
+            .select{|project| !Ax39::itemShouldShow(project) or !DoNotShowUntil::isVisible(project["uuid"]) }
             .each{|project|
                 TxProjects::elementuuids(project)
                     .each{|elementuuid|
                         next if NxBallsService::isRunning(elementuuid)
-                        puts elementuuid
                         Listing::remove(elementuuid)
                     }
             }
