@@ -36,7 +36,18 @@ class Landing
     # Landing::networkAggregationNodeLanding(item)
     def self.networkAggregationNodeLanding(item)
         loop {
+
             return if item.nil?
+
+            uuid = item["uuid"]
+
+            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+            
+            if item.nil? then
+                Listing::remove(uuid)
+                Fx18Index1::removeEntry(uuid)
+            end
+
 
             system("clear")
 
@@ -152,7 +163,17 @@ class Landing
     # Landing::implementsNx111Landing(item)
     def self.implementsNx111Landing(item)
         loop {
+
             return if item.nil?
+
+            uuid = item["uuid"]
+
+            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+            
+            if item.nil? then
+                Listing::remove(uuid)
+                Fx18Index1::removeEntry(uuid)
+            end
 
             system("clear")
 
@@ -275,6 +296,12 @@ class Landing
         end
         if item["mikuType"] == "TxProject" then
             TxProjects::landing(item)
+            return
+        end
+        if item["mikuType"] == "NxLine" then
+            puts JSON.pretty_generate(item)
+            puts "We do not have a landing for NxLines"
+            LucilleCore::pressEnterToContinue()
             return
         end
         raise "(error: 1e84c68b-b602-41af-b2e9-00e66fa687ac) item: #{item}"

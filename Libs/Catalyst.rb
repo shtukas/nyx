@@ -169,7 +169,7 @@ class Catalyst
             vspaceleft = vspaceleft - 1
             NxBallsIO::nxballs()
                 .each{|item|
-                    store.register(item, true)
+                    store.register(item, false)
                     line = LxFunction::function("toString", item)
                     line = "#{store.prefixString()} #{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     puts line

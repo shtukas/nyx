@@ -181,7 +181,7 @@ class Commands
         end
 
         if Interpreting::match("nxballs", input) then
-            puts JSON.pretty_generate(NxBallsIO::getDataSet())
+            puts JSON.pretty_generate(NxBallsIO::nxballs())
             LucilleCore::pressEnterToContinue()
             return
         end

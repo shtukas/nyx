@@ -674,26 +674,41 @@ class Fx18Synchronisation
         }
     end
 
-    # Fx18Synchronisation::syncRepositories(folderpath1, folderpath2)
-    def self.syncRepositories(folderpath1, folderpath2)
-        LucilleCore::locationsAtFolder(folderpath1).each{|filepath1|
+    # Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
+    def self.syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
+        LucilleCore::locationsAtFolder(localrepositoryfolderpath).each{|filepath1|
             next if filepath1[-13, 13] != ".fx18.sqlite3"
             filename = File.basename(filepath1)
-            filepath2 = "#{folderpath2}/#{filename}"
-            next if !File.exists?(filepath2)
-            puts "Fx18Synchronisation::syncRepositories(folderpath1, folderpath2): folderpath1: #{filepath1}"
-            #puts "[repo sync] propagate file data; file: #{filepath1}"
-            Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-            #puts "[repo sync] propagate file data; file: #{filepath2}"
-            Fx18Synchronisation::propagateFileData(filepath2, filepath1)
+            filepath2 = "#{infinityrepositoryfolderpath}/#{filename}"
+            if File.exists?(filepath2) then
+                puts "Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath): localrepositoryfolderpath: #{filepath1}"
+                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+                Fx18Synchronisation::propagateFileData(filepath2, filepath1)
+            else
+                FileUtils.cp(filepath1, filepath2) # Moving the local file to infinity
+            end
+        }
+
+        LucilleCore::locationsAtFolder(infinityrepositoryfolderpath).each{|filepath1|
+            next if filepath1[-13, 13] != ".fx18.sqlite3"
+            filename = File.basename(filepath1)
+            filepath2 = "#{localrepositoryfolderpath}/#{filename}"
+            if File.exists?(filepath2) then
+                # The sync should have already happen
+            else
+                if File.size(filepath1) < 1024*1024 then # megabyte
+                    puts "FileUtils.cp(#{filepath1}, #{filepath2})"
+                    FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
+                end
+            end
         }
     end
 
     # Fx18Synchronisation::sync()
     def self.sync()
         StargateCentral::ensureInfinityDrive()
-        folderpath1 = "#{Config::pathToDataBankStargate()}/Fx18s"
-        folderpath2 = "#{StargateCentral::pathToCentral()}/Fx18s"
-        Fx18Synchronisation::syncRepositories(folderpath1, folderpath2)
+        localrepositoryfolderpath = "#{Config::pathToDataBankStargate()}/Fx18s"
+        infinityrepositoryfolderpath = "#{StargateCentral::pathToCentral()}/Fx18s"
+        Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
     end
 end
