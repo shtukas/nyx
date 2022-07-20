@@ -185,16 +185,14 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             Listing::entries3()
-                .map {|entry|
-                    [JSON.parse(entry["_object_"]), entry["_ordinal_"]]
-                }
-                .select{|pair| !pair[0].nil? }
-                .select{|pair| DoNotShowUntil::isVisible(pair[0]["uuid"]) }
-                .select{|pair| InternetStatus::itemShouldShow(pair[0]["uuid"]) }
-                .each{|pair|
-                    item, ordinal = pair
+                .select{|entry| DoNotShowUntil::isVisible(entry["_uuid_"]) }
+                .select{|entry| InternetStatus::itemShouldShow(entry["_uuid_"]) }
+                .each{|entry|
+                    item = JSON.parse(entry["_object_"])
+                    ordinal = entry["_ordinal_"]
+                    announce = entry["_announce_"]
                     store.register(item, true)
-                    line = "(ord: #{"%5.2f" % ordinal}) #{LxFunction::function("toString", item)}"
+                    line = "(ord: #{"%5.2f" % ordinal}) #{announce}"
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
@@ -209,14 +207,13 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             Listing::entries4()
-                .map {|entry| JSON.parse(entry["_object_"]) }
-                .compact
-                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-                .each{|item|
+                .select{|entry| DoNotShowUntil::isVisible(entry["_uuid_"]) }
+                .select{|entry| InternetStatus::itemShouldShow(entry["_uuid_"]) }
+                .each{|entry|
+                    item = JSON.parse(entry["_object_"])
+                    announce = entry["_announce_"]
                     store.register(item, true)
-                    line = LxFunction::function("toString", item)
-                    line = "#{store.prefixString()} #{line}"
+                    line = "#{store.prefixString()} #{announce}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
