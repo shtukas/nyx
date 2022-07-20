@@ -43,6 +43,7 @@ class Commands
             return if project.nil?
             TxProjects::addElement(project["uuid"], item["uuid"])
             NxBallsService::close(item["uuid"], true)
+            Listing::remove(item["uuid"])
             return
         end
 
@@ -210,18 +211,15 @@ class Commands
             _, ordinalItem, ordinalFloat = Interpreting::tokenizer(input)
             item = store.get(ordinalItem.to_i)
             return if item.nil?
+            Listing::setOrdinal(item["uuid"], ordinalFloat.to_f)
+            return
+        end
 
-            stratification = JSON.parse(IO.read("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/catalyst-stratification.json"))
-
-            stratification = stratification.map{|i|
-                if i["item"]["uuid"] == item["uuid"] then
-                    i["ordinal"] = ordinalFloat.to_f
-                end
-                i
-            }
-
-            File.open("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/catalyst-stratification.json", "w") {|f| f.puts(JSON.pretty_generate(stratification)) }
-
+        if Interpreting::match("ordinal *", input) then
+            _, ordinalFloat  = store.getDefault()
+            item = store.getDefault()
+            return if item.nil?
+            Listing::setOrdinal(item["uuid"], ordinalFloat.to_f)
             return
         end
 

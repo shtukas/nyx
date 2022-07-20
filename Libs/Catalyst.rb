@@ -150,8 +150,9 @@ class Catalyst
 
         if Listing::entries2("section1").size > 0 then
             Listing::entries2("section1")
-                .each{|entry|
-                    item = JSON.parse(entry["_object_"])
+                .map{|entry| JSON.parse(entry["_object_"]) }
+                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                .each{|item|
                     store.register(item, false)
                     line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
                     if line.include?("(project)") and !line.include?("DoNotShowUntil") then
