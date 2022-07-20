@@ -104,7 +104,7 @@ class Commands
         end
 
         if Interpreting::match("done", input) then
-            LxAction::action("done", store.getDefault())
+            LxAction::action("done-no-confirmation-prompt", store.getDefault())
             return
         end
 
