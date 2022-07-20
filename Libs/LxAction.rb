@@ -310,11 +310,9 @@ class LxAction
 
             accounts = [item["uuid"]]
 
-            if item["mikuType"] == "NxTask" then
-                project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
-                if project then
-                    accounts << project["uuid"]
-                end
+            project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
+            if project then
+                accounts << project["uuid"]
             end
 
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
