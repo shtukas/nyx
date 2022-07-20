@@ -162,8 +162,8 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["stop and remove from strat", "destroy"])
-                if action == "remove from strat" then
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["stop and remove from listing", "destroy"])
+                if action == "remove from listing" then
                     Listing::remove(item["uuid"])
                 end
                 if action == "destroy" then
