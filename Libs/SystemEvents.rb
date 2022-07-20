@@ -27,6 +27,11 @@ class SystemEvents
             return
         end
 
+        if event["mikuType"] == "(remove item from listing)" then
+            Listing::remove(event["objectuuid"])
+            return
+        end
+
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEventInternally(event)
             return

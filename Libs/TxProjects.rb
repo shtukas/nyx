@@ -74,6 +74,11 @@ class TxProjects
     # TxProjects::addElement(projectuuid, itemuuid)
     def self.addElement(projectuuid, itemuuid)
         Fx18Sets::add2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
+        Listing::remove(itemuuid)
+        SystemEvents::issueStargateDrop({
+            "mikuType" => "(remove item from listing)",
+            "objectuuid" => itemuuid
+        })
     end
 
     # TxProjects::removeElement(project, uuid)
@@ -108,11 +113,6 @@ class TxProjects
         "(project) #{item["description"]} (#{count} items) #{Ax39::toString(item)}#{dnsustr}"
     end
 
-    # TxProjects::elementsDepth()
-    def self.elementsDepth()
-        10
-    end
-
     # TxProjects::section2()
     def self.section2()
         return []
@@ -121,7 +121,7 @@ class TxProjects
             .map{|project|
                 items = TxProjects::elementuuids(project)
                             .reduce([]){|items, elementuuid|
-                                if items.size >= TxProjects::elementsDepth() then
+                                if items.size >= 3 then
                                     items
                                 else
                                     item = Fx18Utils::objectuuidToItemOrNull(elementuuid)
@@ -176,7 +176,7 @@ class TxProjects
 
     # TxProjects::startAccessProject(project)
     def self.startAccessProject(project)
-        elementuuids = TxProjects::elementuuids(project).take(TxProjects::elementsDepth())
+        elementuuids = TxProjects::elementuuids(project).take(10)
         elements = elementuuids.map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
         if elements.size == 1 then
             LxAction::action("..", elements[0])

@@ -18,6 +18,11 @@ We have two types of events
     "objectuuid" => objectuuid,
 }
 
+{
+    "mikuType" => "(remove item from listing)"
+    "objectuuid" => itemuuid
+}
+
 ### Global events
 
 {
