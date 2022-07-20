@@ -25,23 +25,34 @@ class Catalyst
         text
     end
 
-    # Catalyst::section2ToListing()
-    def self.section2ToListing()
-        JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`).each{|item|
-            Listing::insertOrReInsert("section2", item, nil)
+    # Catalyst::section1ToListing()
+    def self.section1ToListing()
+        TxProjects::items().each{|item|
+            Listing::insertOrReInsert("section1", item, Ax39::completionRatio(item))
         }
 
+        NxFrames::items().each{|item|
+            Listing::insertOrReInsert("section1", item, nil)
+        }
+    end
+
+    # Catalyst::section2ToListing()
+    def self.section2ToListing()
         [
+            lambda {
+                JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`)
+            },
             lambda { Anniversaries::section2() },
-            lambda { Waves::section2() },
+            lambda { Waves::items() },
             lambda { TxDateds::section2() },
             lambda { NxLines::section2() },
             lambda { TxProjects::section2() },
             lambda { Streaming::section2() },
         ].each{|l|
-            l.call().each{|item|
-                Listing::insertOrReInsert("section2", item, nil)
-            }
+            l.call()
+                .each{|item|
+                    Listing::insertOrReInsert("section2", item, nil)
+                }
         }
     end
 
@@ -62,15 +73,7 @@ class Catalyst
         Thread.new {
             loop {
                 sleep 300
-
-                TxProjects::items().each{|item|
-                    Listing::insertOrReInsert("section1", item, Ax39::completionRatio(item))
-                }
-
-                NxFrames::items().each{|item|
-                    Listing::insertOrReInsert("section1", item, nil)
-                }
-
+                Catalyst::section1ToListing()
                 Catalyst::section2ToListing()
                 Listing::ordinalsdrop()
                 Listing::publishAverageAgeInDays()
@@ -182,10 +185,16 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             Listing::entries3()
-                .each{|packet|
-                    item = JSON.parse(packet["_object_"])
+                .map {|entry|
+                    [JSON.parse(entry["_object_"]), entry["_ordinal_"]]
+                }
+                .select{|pair| !pair[0].nil? }
+                .select{|pair| DoNotShowUntil::isVisible(pair[0]["uuid"]) }
+                .select{|pair| InternetStatus::itemShouldShow(pair[0]["uuid"]) }
+                .each{|pair|
+                    item, ordinal = pair
                     store.register(item, true)
-                    line = "(ord: #{"%5.2f" % packet["_ordinal_"]}) #{LxFunction::function("toString", item)}"
+                    line = "(ord: #{"%5.2f" % ordinal}) #{LxFunction::function("toString", item)}"
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
@@ -200,8 +209,11 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             Listing::entries4()
-                .each{|packet|
-                    item = JSON.parse(packet["_object_"])
+                .map {|entry| JSON.parse(entry["_object_"]) }
+                .compact
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+                .each{|item|
                     store.register(item, true)
                     line = LxFunction::function("toString", item)
                     line = "#{store.prefixString()} #{line}"

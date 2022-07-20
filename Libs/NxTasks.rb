@@ -92,19 +92,13 @@ class NxTasks
 
     # NxTasks::toString(item)
     def self.toString(item)
-        data = XCache::getOrNull("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}:#{CommonUtils::today()}")
-        if data then
-            return data
-        end
         builder = lambda{
             nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
             project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
             projectstring = project ? "(project: #{project["description"]}) " : ""
             "(task) #{projectstring}#{item["description"]}#{nx111String}"
         }
-        data = builder.call()
-        XCache::set("cfbe45a9-aea6-4399-85b6-211d185f7f57:#{item["uuid"]}:#{CommonUtils::today()}", data) # string
-        data
+        builder.call()
     end
 
     # NxTasks::toStringForSearch(item)

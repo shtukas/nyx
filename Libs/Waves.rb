@@ -175,13 +175,6 @@ class Waves
         false
     end
 
-    # Waves::section2()
-    def self.section2()
-        Waves::items()
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-    end
-
     # -------------------------------------------------------------------------
 
     # Waves::performWaveNx46WaveDone(item)

@@ -104,7 +104,8 @@ class TxProjects
     # TxProjects::toString(item)
     def self.toString(item)
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
+        count = TxProjects::elementuuids(item).count
+        "(project) #{item["description"]} (#{count} items) #{Ax39::toString(item)}#{dnsustr}"
     end
 
     # TxProjects::elementsDepth()
@@ -114,13 +115,32 @@ class TxProjects
 
     # TxProjects::section2()
     def self.section2()
+        return []
         TxProjects::items()
             .select{|project| Ax39::itemShouldShow(project) }
             .map{|project|
-                TxProjects::elementuuids(project)
-                    .first(TxProjects::elementsDepth())
-                    .map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid)}
-                    .compact
+                items = TxProjects::elementuuids(project)
+                            .reduce([]){|items, elementuuid|
+                                if items.size >= TxProjects::elementsDepth() then
+                                    items
+                                else
+                                    item = Fx18Utils::objectuuidToItemOrNull(elementuuid)
+                                    if item then
+                                        items + [item]
+                                    else
+                                        items
+                                    end
+                                end
+                            }
+
+                rt = lambda{|item| BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) }
+
+                items
+                    .sort{|i1, i2|
+                        rt.call(i1) <=> rt.call(i2)
+                    }
+
+                items
             }
             .flatten
     end
