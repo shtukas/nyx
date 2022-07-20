@@ -143,7 +143,7 @@ class Listing
                 value = row["ordinal"]
             end
             db.close
-            value
+            value ? value : 0
         }
     end
 
