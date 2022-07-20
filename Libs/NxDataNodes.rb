@@ -44,7 +44,6 @@ class NxDataNodes
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -62,7 +61,6 @@ class NxDataNodes
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -76,10 +74,10 @@ class NxDataNodes
     def self.issuePrimitiveFileFromLocationOrNull(location)
         description = nil
         uuid = SecureRandom.uuid
+        Fx18Utils::makeNewFile(uuid)
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
