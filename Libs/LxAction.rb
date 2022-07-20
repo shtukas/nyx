@@ -169,6 +169,7 @@ class LxAction
                 if action == "destroy" then
                     if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                         Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                        NxBallsService::close(item["uuid"], true)
                     end
                 end
                 return
@@ -177,6 +178,7 @@ class LxAction
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ") then
                     Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
@@ -184,6 +186,7 @@ class LxAction
             if item["mikuType"] == "TxDated" then
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
+                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
