@@ -217,7 +217,7 @@ class Commands
         end
 
         if Interpreting::match("ordinal *", input) then
-            _, ordinalFloat  = store.getDefault()
+            _, ordinalFloat  = Interpreting::tokenizer(input)
             item = store.getDefault()
             return if item.nil?
             Listing::setOrdinal(item["uuid"], ordinalFloat.to_f)
