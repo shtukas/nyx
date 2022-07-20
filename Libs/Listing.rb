@@ -46,7 +46,7 @@ class Listing
             db = SQLite3::Database.new(Listing::databaseFilepath())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
-            db.execute "update _listing_ set _ordinal_=? where _uuid_=?", [ordinal, uuid]
+            db.execute "update _listing_ set _ordinal_=? where _uuid_=?", [ordinal, itemuuid]
             db.close
         }
     end
