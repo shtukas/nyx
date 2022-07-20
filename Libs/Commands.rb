@@ -371,7 +371,7 @@ class Commands
         end
 
         if input == "top" then
-            system("open '#{Config::userHomeDirectory()}/Desktop/top.txt'")
+            system("open '#{Catalyst::topFilepath()}'")
             return
         end
 

@@ -11,17 +11,18 @@ class Catalyst
         LxAction::action(command, objectOpt)
     end
 
+    # Catalyst::topFilepath()
+    def self.topFilepath()
+        "/Volumes/Keybase (#{ENV['USER']})/private/0x1021/top.txt"
+    end
+
     # Catalyst::getTopOrNull()
     def self.getTopOrNull()
-        top = nil
-        content = IO.read("#{Config::userHomeDirectory()}/Desktop/top.txt").strip
-        if content.size > 0 then
-            text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
-            if text.size > 0 then
-                top = text
-            end
-        end
-        top
+        content = IO.read(Catalyst::topFilepath()).strip
+        return nil if content == ""
+        text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
+        return nil if text == ""
+        text
     end
 
     # Catalyst::section2ToListing()
