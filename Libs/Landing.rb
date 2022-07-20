@@ -42,12 +42,13 @@ class Landing
             uuid = item["uuid"]
 
             item = Fx18Utils::objectuuidToItemOrNull(uuid)
-            
+
+            return if item.nil?
+
             if item.nil? then
                 Listing::remove(uuid)
                 Fx18Index1::removeEntry(uuid)
             end
-
 
             system("clear")
 
@@ -169,7 +170,9 @@ class Landing
             uuid = item["uuid"]
 
             item = Fx18Utils::objectuuidToItemOrNull(uuid)
-            
+
+            return if item.nil?
+
             if item.nil? then
                 Listing::remove(uuid)
                 Fx18Index1::removeEntry(uuid)
