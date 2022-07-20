@@ -70,25 +70,27 @@ class SystemEvents
                 event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
             end
         end
-        filename = "#{CommonUtils::nx45()}.json"
-        filepath = "/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops/#{filename}"
-        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
 
-        XCache::setFlag("08ea96b0-c44f-4340-9e28-49b0ec2c33d0:#{filename}", true) # this prevent this intance to pick it up
+        instanceIds = ["Lucille20-pascal", "Lucille20-guardian", "Lucille18-pascal"] - [Config::get("instanceId")]
+
+        instanceIds.each{|instanceId|
+            filename = "#{CommonUtils::nx45()}.json"
+            filepath = "/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops2/#{instanceId}/#{filename}"
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
+        }
     end
 
     # SystemEvents::pickupDrops()
     def self.pickupDrops()
-        LucilleCore::locationsAtFolder("/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops")
+        LucilleCore::locationsAtFolder("/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops2/#{Config::get("instanceId")}")
             .each{|filepath|
                 filename = File.basename(filepath)
                 next if filename[0, 1] == "."
                 next if filename[-5, 5] != ".json"
-                next if XCache::getFlag("08ea96b0-c44f-4340-9e28-49b0ec2c33d0:#{filename}") # already picked up
                 puts "SystemEvents::pickupDrops(), file: #{filepath}"
                 event = JSON.parse(IO.read(filepath))
                 SystemEvents::processEventInternally(event)
-                XCache::setFlag("08ea96b0-c44f-4340-9e28-49b0ec2c33d0:#{filename}", true)
+                FileUtils.rm(filepath)
             }
     end
 end
