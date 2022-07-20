@@ -203,7 +203,8 @@ class Commands
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
-            Listing::insert2("section2", item, nil, Time.new.to_i, nil) 
+            Listing::insert2("section2", item, nil, Time.new.to_i, nil)
+            TxProjects::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 
@@ -348,9 +349,9 @@ class Commands
         end
 
         if Interpreting::match("task", input) then
-            itemuuid = NxTasks::interactivelyCreateNewOrNull()
-            return if itemuuid.nil?
-            TxProjects::interactivelyProposeToAttachTaskToProject(itemuuid)
+            item = NxTasks::interactivelyCreateNewOrNull()
+            return if item.nil?
+            TxProjects::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 
