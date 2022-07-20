@@ -118,11 +118,7 @@ class TxProjects
         TxProjects::items()
             .select{|project| !Ax39::itemShouldShow(project) or !DoNotShowUntil::isVisible(project["uuid"]) }
             .each{|project|
-                TxProjects::elementuuids(project)
-                    .each{|elementuuid|
-                        next if NxBallsService::isRunning(elementuuid)
-                        Listing::remove(elementuuid)
-                    }
+                TxProjects::removeProjectElementsFromListing(project)
             }
 
         TxProjects::items()
@@ -205,5 +201,14 @@ class TxProjects
             return if project.nil?
             TxProjects::addElement(project["uuid"], item["uuid"])
         end
+    end
+
+    # TxProjects::removeProjectElementsFromListing(project)
+    def self.removeProjectElementsFromListing(project)
+        TxProjects::elementuuids(project)
+            .each{|elementuuid|
+                next if NxBallsService::isRunning(elementuuid)
+                Listing::remove(elementuuid)
+            }
     end
 end
