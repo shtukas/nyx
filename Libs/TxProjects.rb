@@ -120,6 +120,7 @@ class TxProjects
                 TxProjects::elementuuids(project)
                     .first(TxProjects::elementsDepth())
                     .map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid)}
+                    .compact
             }
             .flatten
     end
