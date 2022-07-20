@@ -116,6 +116,10 @@ class LxAction
             end
 
             if Iam::implementsNx111(item) then
+                if item["nx111"].nil? then
+                    LucilleCore::pressEnterToContinue()
+                    return
+                end
                 EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
                 return
             end
