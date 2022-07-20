@@ -115,7 +115,17 @@ class TxProjects
 
     # TxProjects::section2()
     def self.section2()
-        return []
+        TxProjects::items()
+            .select{|project| !Ax39::itemShouldShow(project) }
+            .each{|project|
+                TxProjects::elementuuids(project)
+                    .each{|elementuuid|
+                        next if NxBallsService::isRunning(elementuuid)
+                        puts elementuuid
+                        Listing::remove(elementuuid)
+                    }
+            }
+
         TxProjects::items()
             .select{|project| Ax39::itemShouldShow(project) }
             .sort{|p1, p2| Ax39::completionRatio(p1) <=> Ax39::completionRatio(p2) }
