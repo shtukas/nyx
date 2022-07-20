@@ -308,17 +308,6 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         Fx18Index1::mikuType2objectuuids(mikuType).count
     end
 
-    # Fx18Index1::removeRecordForObjectUUID(objectuuid)
-    def self.removeRecordForObjectUUID(objectuuid)
-        Fx18Index1::buildIndexIfMissingFile()
-        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _index_ where _objectuuid_=?", [objectuuid]
-        db.close
-    end
-
     # Fx18Index1::nx20s()
     def self.nx20s()
         Fx18Index1::buildIndexIfMissingFile()

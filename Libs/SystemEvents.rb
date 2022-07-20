@@ -21,7 +21,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(object has been deleted)" then
-            Fx18Index1::removeRecordForObjectUUID(event["objectuuid"])
+            Fx18Utils::destroyFx18NoEvent(event["objectuuid"])
             return
         end
 
@@ -47,7 +47,7 @@ class SystemEvents
 
         if event["mikuType"] == "NxDeleted" then
             Fx18Utils::destroyFx18NoEvent(event["objectuuid"])
-            Fx18Index1::removeRecordForObjectUUID(event["objectuuid"])
+            Fx18Utils::destroyFx18NoEvent(event["objectuuid"])
             return
         end
 
