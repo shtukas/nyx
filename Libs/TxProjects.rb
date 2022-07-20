@@ -48,7 +48,7 @@ class TxProjects
         uuid = SecureRandom.uuid
 
         Fx18Utils::makeNewFile(uuid)
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid2)
+        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "TxProject")
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)

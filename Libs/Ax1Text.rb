@@ -18,8 +18,8 @@ class Ax1Text
         }
     end
 
-    # Ax1Text::interactivelyIssueNewOrNullForOwner() # uuid
-    def self.interactivelyIssueNewOrNullForOwner()
+    # Ax1Text::interactivelyIssueNew()
+    def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
         Fx18Utils::makeNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
@@ -31,7 +31,12 @@ class Ax1Text
         Fx18Attributes::setAttribute2(uuid, "unixtime", unixtime)
         Fx18Attributes::setAttribute2(uuid, "datetime", datetime)
         Fx18Attributes::setAttribute2(uuid, "nhash", nhash)
-        uuid
+
+        item = Ax1Text::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"
+        end
+        item
     end
 
     # ----------------------------------------------------------------------
