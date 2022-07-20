@@ -153,11 +153,12 @@ class Catalyst
 
         if Listing::entries2("section1").size > 0 then
             Listing::entries2("section1")
-                .map{|entry| JSON.parse(entry["_object_"]) }
-                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                .each{|item|
+                .sort{|e1, e2| JSON.parse(e1["_object_"])["unixtime"] <=> JSON.parse(e2["_object_"])["unixtime"] }
+                .each{|entry|
+                    item = JSON.parse(entry["_object_"])
+                    announce = entry["_announce_"]
                     store.register(item, false)
-                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                    line = "#{store.prefixString()} #{announce}".yellow
                     if line.include?("(project)") and !line.include?("DoNotShowUntil") then
                         if Ax39::completionRatio(item) < 1 then
                             line = line.white
