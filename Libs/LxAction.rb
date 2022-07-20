@@ -209,11 +209,13 @@ class LxAction
             end
 
             if item["mikuType"] == "(rstream-to-target)" then
+                Listing::remove(item["uuid"])
                 return
             end
 
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::done(item["uuid"])
+                Listing::remove(item["uuid"])
                 return
             end
 
@@ -225,6 +227,7 @@ class LxAction
             if item["mikuType"] == "NxFrame" then
                 NxBallsService::close(item["uuid"], true)
                 DoneToday::setDoneToday(item["uuid"])
+                Listing::remove(item["uuid"])
                 return
             end
 
@@ -251,6 +254,7 @@ class LxAction
 
             if item["mikuType"] == "Wave" then
                 Waves::performWaveNx46WaveDone(item)
+                Listing::remove(item["uuid"])
                 return
             end
         end

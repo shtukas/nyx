@@ -6,7 +6,11 @@ class LxFunction
 
         return if command.nil?
 
-        if item and item["mikuType"].nil? then
+        if item.nil? then
+            raise "(error: d366d408-93a1-4e91-af92-c115e88c501f) null item sent to LxFuntion with command: #{command}"
+        end
+
+        if item["mikuType"].nil? then
             puts "Objects sent to LxFunction if not null should have a mikuType attribute."
             puts "Got:"
             puts "command: #{command}"

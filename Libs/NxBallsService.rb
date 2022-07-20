@@ -6,39 +6,31 @@ class NxBallsIO
     # --------------------------------------------------------------------
     # IO
 
-    # NxBallsIO::getDataSet()
-    def self.getDataSet()
-        dataset = XCache::getOrNull("2dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9")
-        dataset ? JSON.parse(dataset) : {}
-    end
+=begin
+    XCacheSets::values(setuuid: String): Array[Value]
+    XCacheSets::set(setuuid: String, valueuuid: String, value)
+    XCacheSets::getOrNull(setuuid: String, valueuuid: String): nil | Value
+    XCacheSets::destroy(setuuid: String, valueuuid: String)
+=end
 
-    # NxBallsIO::setDataSet(dataset)
-    def self.setDataSet(dataset)
-        XCache::set("2dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", JSON.generate(dataset))
+    # NxBallsIO::nxballs()
+    def self.nxballs()
+        XCacheSets::values("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9")
     end
 
     # NxBallsIO::getItemByIdOrNull(uuid)
     def self.getItemByIdOrNull(uuid)
-        NxBallsIO::getDataSet()[uuid]
+        XCacheSets::getOrNull("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", uuid)
     end
 
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        dataset = NxBallsIO::getDataSet()
-        dataset[item["uuid"]] = item
-        NxBallsIO::setDataSet(dataset)
-    end
-
-    # NxBallsIO::getItems()
-    def self.getItems()
-        NxBallsIO::getDataSet().values
+        XCacheSets::set("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", item["uuid"], item)
     end
 
     # NxBallsIO::destroyItem(uuid)
     def self.destroyItem(uuid)
-        dataset = NxBallsIO::getDataSet()
-        dataset.delete(uuid)
-        NxBallsIO::setDataSet(dataset)
+        XCacheSets::destroy("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", uuid)
     end
 
 end
@@ -202,7 +194,7 @@ class NxBallsService
 
     # NxBallsService::somethingIsRunning()
     def self.somethingIsRunning()
-        nxballs = NxBallsIO::getItems()
+        nxballs = NxBallsIO::nxballs()
                     .select{|nxball| NxBallsService::isRunning(nxball["uuid"]) }
         !nxballs.empty?
     end
@@ -213,13 +205,13 @@ if $RunNonEssentialThreads then
         loop {
             sleep 60
 
-            NxBallsIO::getItems().each{|nxball|
+            NxBallsIO::nxballs().each{|nxball|
                 uuid = nxball["uuid"]
                 next if (Time.new.to_i - NxBallsService::cursorUnixtimeOrNow(uuid)) < 600
                 NxBallsService::marginCall(uuid)
             }
 
-            NxBallsIO::getItems().each{|nxball|
+            NxBallsIO::nxballs().each{|nxball|
                 uuid = nxball["uuid"]
                 next if (Time.new.to_i - NxBallsService::startUnixtimeOrNow(uuid)) < 3600
                 CommonUtils::onScreenNotification("Catalyst", "NxBall running for more than an hour")

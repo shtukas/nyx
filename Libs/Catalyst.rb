@@ -125,7 +125,7 @@ class Catalyst
             vspaceleft = vspaceleft - 2
         end
 
-        running = NxBallsIO::getItems()
+        running = NxBallsIO::nxballs()
         if running.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -164,10 +164,10 @@ class Catalyst
                 }
         end
 
-        if NxBallsIO::getDataSet().size > 0 then
+        if NxBallsIO::nxballs().size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            NxBallsIO::getDataSet()
+            NxBallsIO::nxballs()
                 .each{|item|
                     store.register(item, true)
                     line = LxFunction::function("toString", item)
