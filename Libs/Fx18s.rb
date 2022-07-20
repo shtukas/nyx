@@ -232,6 +232,17 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         db.close
     end
 
+    # Fx18Index1::removeEntry(objectuuid)
+    def self.removeEntry(objectuuid)
+        puts "Fx18Index1::removeEntry(#{objectuuid})"
+        db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _index_ where _objectuuid_=?", [objectuuid]
+        db.close
+    end
+
     # Fx18Index1::rebuildIndex()
     def self.rebuildIndex()
         Fx18Index1::buildIndexDatabaseFileIfMissing()

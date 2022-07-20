@@ -22,6 +22,8 @@ class SystemEvents
 
         if event["mikuType"] == "(object has been deleted)" then
             Fx18Utils::destroyFx18NoEvent(event["objectuuid"])
+            Fx18Index1::removeEntry(event["objectuuid"])
+            Listing::remove(event["objectuuid"])
             return
         end
 
