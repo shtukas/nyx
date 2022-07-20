@@ -298,7 +298,10 @@ class Commands
         end
 
         if Interpreting::match("redate", input) then
-            LxAction::action("redate", store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            LxAction::action("redate", item)
+            Listing::remove(item["uuid"])
             return
         end
 
@@ -307,6 +310,7 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("redate", item)
+            Listing::remove(item["uuid"])
             return
         end
 
