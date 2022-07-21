@@ -94,9 +94,7 @@ class NxTasks
     def self.toString(item)
         builder = lambda{
             nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-            project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
-            projectstring = project ? "(project: #{project["description"]}) " : ""
-            "(task) #{projectstring}#{item["description"]}#{nx111String}"
+            "(task) #{item["description"]}#{nx111String}"
         }
         builder.call()
     end
