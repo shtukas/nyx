@@ -46,6 +46,7 @@ class NxTimelines
         Fx18Attributes::setAttribute2(uuid, "unixtime",    unixtime)
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 

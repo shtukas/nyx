@@ -50,6 +50,7 @@ class NxDataNodes
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 
@@ -67,6 +68,7 @@ class NxDataNodes
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 
@@ -84,6 +86,7 @@ class NxDataNodes
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 

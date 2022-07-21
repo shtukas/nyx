@@ -47,6 +47,7 @@ class NxCollections
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 

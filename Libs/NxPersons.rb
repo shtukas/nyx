@@ -32,6 +32,7 @@ class NxPersons
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "name",        name1)
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 

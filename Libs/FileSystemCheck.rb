@@ -410,4 +410,17 @@ class FileSystemCheck
             end
         end
     end
+
+    # FileSystemCheck::fsckLocalObjectuuid(objectuuid)
+    def self.fsckLocalObjectuuid(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        if !File.exists?(filepath) then
+            puts "FileSystemCheck::fsckLocalObjectuuid"
+            puts "objectuuid: #{objectuuid}"
+            puts "error: I could not find the file"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        FileSystemCheck::fsckFx18Filepath(filepath)
+    end
 end

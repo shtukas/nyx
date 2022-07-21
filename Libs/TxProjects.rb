@@ -53,7 +53,7 @@ class TxProjects
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "ax39",        JSON.generate(ax39))
-
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         TxProjects::objectuuidToItemOrNull(objectuuid)
     end
 

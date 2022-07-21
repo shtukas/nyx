@@ -52,6 +52,8 @@ class NxConcepts
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
 
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
+
         uuid
     end
 

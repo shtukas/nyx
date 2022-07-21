@@ -44,6 +44,8 @@ class NxTasks
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -84,6 +86,7 @@ class NxTasks
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 

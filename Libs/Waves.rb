@@ -152,6 +152,7 @@ class Waves
         Fx18Attributes::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
         Fx18Attributes::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
         uuid
     end
 

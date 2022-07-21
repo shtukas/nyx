@@ -138,6 +138,8 @@ class Anniversaries
         Fx18Attributes::setAttribute2(uuid, "startdate",   startdate)
         Fx18Attributes::setAttribute2(uuid, "repeatType",  repeatType)
         Fx18Attributes::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
+
+        FileSystemCheck::fsckLocalObjectuuid(uuid)
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]
