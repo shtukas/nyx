@@ -689,7 +689,6 @@ class Fx18Synchronisation
             filename = File.basename(filepath1)
             filepath2 = "#{infinityrepositoryfolderpath}/#{filename}"
             if File.exists?(filepath2) then
-                puts "Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath): localrepositoryfolderpath: #{filepath1}"
                 Fx18Synchronisation::propagateFileData(filepath1, filepath2)
             else
                 puts "FileUtils.cp(#{filepath1}, #{filepath2})"
