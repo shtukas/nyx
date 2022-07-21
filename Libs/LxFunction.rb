@@ -45,6 +45,9 @@ class LxFunction
             if item["mikuType"] == "NxFrame" then
                 return item["description"]
             end
+            if item["mikuType"] == "NxIced" then
+                return item["description"]
+            end
             if item["mikuType"] == "NxLine" then
                 return item["line"]
             end

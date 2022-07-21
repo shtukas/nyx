@@ -81,6 +81,10 @@ class Fx18Utils
             return NxFrames::objectuuidToItemOrNull(objectuuid)
         end
 
+        if mikuType == "NxIced" then
+            return NxIceds::objectuuidToItemOrNull(objectuuid)
+        end
+
         if mikuType == "NxLine" then
             return NxLines::objectuuidToItemOrNull(objectuuid)
         end
