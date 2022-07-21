@@ -82,10 +82,10 @@ class SystemEvents
         # Date: July 21st, 2022
         # This function exists to test the datablobs drops, I think they are incorrects
         drop = JSON.parse(IO.read(filepath))
-        if event["mikuType"] == "Fx18 File Event" then
-            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
-                blob = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
+        if drop["mikuType"] == "Fx18 File Event" then
+            if drop["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+                drop["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(drop["Fx18FileEvent"]["_eventData3_"])
+                blob = CommonUtils::base64_decode(drop["Fx18FileEvent"]["_eventData3_"])
                 nhash2 = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
                 if nhash1 != nhash2 then
                     # problem
