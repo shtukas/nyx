@@ -35,7 +35,6 @@ class Listing
         if existingEntry then
             Listing::insert2(zone, item, existingEntry["_ordinal_"], existingEntry["_createdAt_"], projectRatio)
         else
-            # Instead of using next ordinal here, we could interactively ask for it.
             Listing::insert2(zone, item, nil, Time.new.to_i, projectRatio)
         end
     end
