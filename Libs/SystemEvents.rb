@@ -84,7 +84,7 @@ class SystemEvents
         drop = JSON.parse(IO.read(filepath))
         if drop["mikuType"] == "Fx18 File Event" then
             if drop["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-                drop["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(drop["Fx18FileEvent"]["_eventData3_"])
+                nhash1 = drop["Fx18FileEvent"]["_eventData2_"]
                 blob = CommonUtils::base64_decode(drop["Fx18FileEvent"]["_eventData3_"])
                 nhash2 = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
                 if nhash1 != nhash2 then
