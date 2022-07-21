@@ -106,4 +106,16 @@ class NxTasks
     def self.toStringForSearch(item)
         "(task) #{item["description"]}"
     end
+
+    # NxTasks::section2()
+    def self.section2()
+        NxTasks::items()
+            .select{|item| !TxProjects::uuidIsProjectElement(item["uuid"]) }
+            .map{|item|
+                {
+                    "item" => item,
+                    "toString" => NxTasks::toStringForSearch(item)
+                }
+            }
+    end
 end

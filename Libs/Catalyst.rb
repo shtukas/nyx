@@ -54,6 +54,7 @@ class Catalyst
             TxDateds::section2(),
             NxLines::section2(),
             TxProjects::section2(),
+            NxTasks::section2(),
             Streaming::section2(),
         ]
             .flatten
