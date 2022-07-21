@@ -23,7 +23,7 @@ class Streaming
         LxAction::action("start", item)
         LxAction::action("access", item)
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), insert, >project, >nyx, nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), landing (and back), insert, >project, >nyx, nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
                 NxTasks::destroy(item["uuid"])
@@ -40,6 +40,10 @@ class Streaming
             if command == "" or command == "next" then
                 LxAction::action("stop", item)
                 return nil
+            end
+            if command == "landing" then
+                LxAction::action("landing", item)
+                next
             end
             if command == "insert" then
                 Catalyst::primaryCommandProcess()
@@ -130,7 +134,7 @@ class Streaming
         loop {
             item = items.shift
             next if TxProjects::uuidIsProjectElement(item["uuid"])
-            command = Streaming::runItem(item)
+            command = Streaming::processItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
         }
