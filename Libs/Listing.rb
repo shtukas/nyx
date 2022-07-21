@@ -109,8 +109,8 @@ class Listing
         }
     end
 
-    # Listing::entries3()
-    def self.entries3()
+    # Listing::section2WithOrdinals()
+    def self.section2WithOrdinals()
         $listing_database_semaphore.synchronize {
             db = SQLite3::Database.new(Listing::databaseFilepath())
             db.busy_timeout = 117
@@ -125,8 +125,8 @@ class Listing
         }
     end
 
-    # Listing::entries4()
-    def self.entries4()
+    # Listing::section2WithoutOrdinals()
+    def self.section2WithoutOrdinals()
         $listing_database_semaphore.synchronize {
             db = SQLite3::Database.new(Listing::databaseFilepath())
             db.busy_timeout = 117
