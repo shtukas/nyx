@@ -54,7 +54,7 @@ class SystemEvents
             objectuuid = event["objectuuid"]
             Fx18LocalObjectsDataWithInfinityHelp::ensureFileForPut(objectuuid)
             eventi = event["Fx18FileEvent"]
-            Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Fx18Utils::commitEventToObjectuuidNoDrop(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
     end
@@ -108,6 +108,7 @@ class SystemEvents
                 next if filename[0, 1] == "."
                 next if filename[-5, 5] != ".json"
                 puts "SystemEvents::pickupDrops(), file: #{filepath}"
+                SystemEvents::fsckDrop(filepath)
                 event = JSON.parse(IO.read(filepath))
                 SystemEvents::processEventInternally(event)
                 FileUtils.rm(filepath)

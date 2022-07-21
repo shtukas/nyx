@@ -149,8 +149,8 @@ class Fx18Utils
         JSON.parse(str)
     end
 
-    # Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    # Fx18Utils::commitEventToObjectuuidNoDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.commitEventToObjectuuidNoDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         if !File.exists?(filepath) then
             Fx18Utils::makeNewFile(objectuuid)
@@ -163,6 +163,12 @@ class Fx18Utils
         db.close
 
         # We do not emit an event here, as this is also called from system event processing
+    end
+
+    # Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+        Fx18Utils::commitEventToObjectuuidNoDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     end
 
     # Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
@@ -367,7 +373,7 @@ class Fx18LocalObjectsDataWithInfinityHelp
     # Fx18LocalObjectsDataWithInfinityHelp::putBlob1(objectuuid, eventuuid, eventTime, key, blob)
     def self.putBlob1(objectuuid, eventuuid, eventTime, key, blob)
         Fx18LocalObjectsDataWithInfinityHelp::ensureFileForPut(objectuuid)
-        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "datablob", key, blob, nil, nil)
+        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "datablob", key, blob, nil, nil)
     end
 
     # Fx18LocalObjectsDataWithInfinityHelp::putBlob2(objectuuid, key, blob)
@@ -430,8 +436,7 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
-        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -477,8 +482,7 @@ class Fx18Sets
     # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
-        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
-        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -497,8 +501,7 @@ class Fx18Sets
     # Fx18Sets::remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
     def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
-        Fx18Utils::writeGenericFx18FileEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
-        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -688,7 +691,6 @@ class Fx18Synchronisation
             if File.exists?(filepath2) then
                 puts "Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath): localrepositoryfolderpath: #{filepath1}"
                 Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-                Fx18Synchronisation::propagateFileData(filepath2, filepath1)
             else
                 puts "FileUtils.cp(#{filepath1}, #{filepath2})"
                 FileUtils.cp(filepath1, filepath2) # Moving the local file to infinity
@@ -700,7 +702,7 @@ class Fx18Synchronisation
             filename = File.basename(filepath1)
             filepath2 = "#{localrepositoryfolderpath}/#{filename}"
             if File.exists?(filepath2) then
-                # The sync should have already happen
+                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
             else
                 #puts "FileUtils.cp(#{filepath1}, #{filepath2})"
                 #FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
