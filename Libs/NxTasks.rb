@@ -109,8 +109,9 @@ class NxTasks
 
     # NxTasks::section2()
     def self.section2()
-        return []
         NxTasks::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .first(10)
             .select{|item| !TxProjects::uuidIsProjectElement(item["uuid"]) }
             .map{|item|
                 {
