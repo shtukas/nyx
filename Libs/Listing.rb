@@ -10,32 +10,32 @@ class Listing
 
     # -----------------------------------------------------------------------------
 
-    # Listing::insert(uuid, zone, ordinal, announce, object, createdAt, projectRatio)
-    def self.insert(uuid, zone, ordinal, announce, object, createdAt, projectRatio)
+    # Listing::insert(uuid, zone, ordinal, announce, object, createdAt)
+    def self.insert(uuid, zone, ordinal, announce, object, createdAt)
         $listing_database_semaphore.synchronize {
             db = SQLite3::Database.new(Listing::databaseFilepath())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.execute "delete from _listing_ where _uuid_=?", [uuid]
-            db.execute "insert into _listing_ (_uuid_, _zone_, _ordinal_, _announce_, _object_, _createdAt_, _projectRatio_, _mikuType_) values (?, ?, ?, ?, ?, ?, ?, ?)", [uuid, zone, ordinal, announce, JSON.generate(object), createdAt, projectRatio, object["mikuType"]]
+            db.execute "insert into _listing_ (_uuid_, _zone_, _ordinal_, _announce_, _object_, _createdAt_, _mikuType_) values (?, ?, ?, ?, ?, ?, ?)", [uuid, zone, ordinal, announce, JSON.generate(object), createdAt, object["mikuType"]]
             db.close
         }
     end
 
-    # Listing::insert2(zone, item, ordinal, createdAt, projectRatio)
-    def self.insert2(zone, item, ordinal, createdAt, projectRatio)
-        Listing::insert(item["uuid"], zone, ordinal, LxFunction::function("toString", item), item, createdAt, projectRatio)
+    # Listing::insert2(zone, item, ordinal, createdAt)
+    def self.insert2(zone, item, ordinal, createdAt)
+        Listing::insert(item["uuid"], zone, ordinal, LxFunction::function("toString", item), item, createdAt)
     end
 
-    # Listing::insertOrReInsert(zone, item, projectRatio)
-    def self.insertOrReInsert(zone, item, projectRatio)
+    # Listing::insertOrReInsert(zone, item)
+    def self.insertOrReInsert(zone, item)
         existingEntry = Listing::entries()
                             .select{|entry| entry["_uuid_"] == item["uuid"] }
                             .first
         if existingEntry then
-            Listing::insert2(zone, item, existingEntry["_ordinal_"], existingEntry["_createdAt_"], projectRatio)
+            Listing::insert2(zone, item, existingEntry["_ordinal_"], existingEntry["_createdAt_"])
         else
-            Listing::insert2(zone, item, nil, Time.new.to_i, projectRatio)
+            Listing::insert2(zone, item, nil, Time.new.to_i)
         end
     end
 

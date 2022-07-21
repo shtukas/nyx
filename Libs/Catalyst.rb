@@ -28,11 +28,11 @@ class Catalyst
     # Catalyst::section1ToListing()
     def self.section1ToListing()
         TxProjects::items().each{|item|
-            Listing::insertOrReInsert("section1", item, Ax39::completionRatio(item))
+            Listing::insertOrReInsert("section1", item)
         }
 
         NxFrames::items().each{|item|
-            Listing::insertOrReInsert("section1", item, nil)
+            Listing::insertOrReInsert("section1", item)
         }
     end
 
@@ -51,7 +51,7 @@ class Catalyst
         ].each{|l|
             l.call()
                 .each{|item|
-                    Listing::insertOrReInsert("section2", item, nil)
+                    Listing::insertOrReInsert("section2", item)
                 }
         }
     end
