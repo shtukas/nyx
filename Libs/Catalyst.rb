@@ -109,7 +109,7 @@ class Catalyst
             reference = The99Percent::getReference()
             current   = The99Percent::getCurrentCount()
             ratio     = current.to_f/reference["count"]
-            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} ) [section2: #{(XCache::getOrDefaultValue("6ee981a4-315f-4f82-880f-5806424c904f", "0").to_f).round(2)} days]"
+            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
             puts ""
             puts line
             vspaceleft = vspaceleft - 2
