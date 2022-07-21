@@ -701,10 +701,8 @@ class Fx18Synchronisation
             if File.exists?(filepath2) then
                 # The sync should have already happen
             else
-                if File.size(filepath1) < 1024*1024 then # megabyte
-                    puts "FileUtils.cp(#{filepath1}, #{filepath2})"
-                    FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
-                end
+                puts "FileUtils.cp(#{filepath1}, #{filepath2})"
+                FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
             end
         }
     end
