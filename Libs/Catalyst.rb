@@ -177,8 +177,6 @@ class Catalyst
                 }
         end
 
-        canBeDefault = Listing::section2WithoutOrdinals().empty? 
-
         if Listing::section2WithOrdinals().size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
@@ -189,7 +187,7 @@ class Catalyst
                     item = JSON.parse(entry["_object_"])
                     ordinal = entry["_ordinal_"]
                     announce = entry["_announce_"]
-                    store.register(item, canBeDefault)
+                    store.register(item, true)
                     line = "(ord: #{"%5.2f" % ordinal}) #{announce}"
                     line = "#{store.prefixString()} #{line}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
