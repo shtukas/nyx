@@ -23,12 +23,6 @@ class SystemEvents
         if event["mikuType"] == "(object has been deleted)" then
             Fx18Utils::destroyFx18NoEvent(event["objectuuid"])
             Fx18Index1::removeEntry(event["objectuuid"])
-            Listing::remove(event["objectuuid"])
-            return
-        end
-
-        if event["mikuType"] == "(remove item from listing)" then
-            Listing::remove(event["objectuuid"])
             return
         end
 
@@ -44,11 +38,6 @@ class SystemEvents
 
         if event["mikuType"] == "SetDoneToday" then
             DoneToday::processEventInternally(event)
-            return
-        end
-
-        if event["mikuType"] == "RemoveFromListing" then
-            Listing::remove(event["itemuuid"])
             return
         end
 

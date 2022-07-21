@@ -18,11 +18,6 @@ We have two types of events
     "objectuuid" => objectuuid,
 }
 
-{
-    "mikuType" => "(remove item from listing)"
-    "objectuuid" => itemuuid
-}
-
 ### Global events
 
 {
@@ -43,11 +38,6 @@ We have two types of events
     "mikuType"   => "SetDoneToday"
     "targetuuid" => uuid
     "targetdate" => CommonUtils::today()
-}
-
-{
-    "mikuType"   => "RemoveFromListing"
-    "itemuuid"   => item["uuid"]
 }
 
 {

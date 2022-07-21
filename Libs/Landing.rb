@@ -46,7 +46,6 @@ class Landing
             return if item.nil?
 
             if item.nil? then
-                Listing::remove(uuid)
                 Fx18Index1::removeEntry(uuid)
             end
 
@@ -174,7 +173,6 @@ class Landing
             return if item.nil?
 
             if item.nil? then
-                Listing::remove(uuid)
                 Fx18Index1::removeEntry(uuid)
             end
 

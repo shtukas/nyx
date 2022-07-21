@@ -25,35 +25,28 @@ class Catalyst
         text
     end
 
-    # Catalyst::section1ToListing()
-    def self.section1ToListing()
-        TxProjects::items().each{|item|
-            Listing::insertOrReInsert("section1", item)
-        }
-
-        NxFrames::items().each{|item|
-            Listing::insertOrReInsert("section1", item)
-        }
+    # Catalyst::section1()
+    def self.section1()
+        [
+            TxProjects::items(),
+            NxFrames::items()
+        ].flatten
     end
 
-    # Catalyst::section2ToListing()
-    def self.section2ToListing()
+    # Catalyst::section2()
+    def self.section2()
         [
-            lambda {
-                JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`)
-            },
-            lambda { Anniversaries::section2() },
-            lambda { Waves::items() },
-            lambda { TxDateds::section2() },
-            lambda { NxLines::section2() },
-            lambda { TxProjects::section2() },
-            lambda { Streaming::section2() },
-        ].each{|l|
-            l.call()
-                .each{|item|
-                    Listing::insertOrReInsert("section2", item)
-                }
-        }
+            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
+            Anniversaries::section2(),
+            Waves::items(),
+            TxDateds::section2(),
+            NxLines::section2(),
+            TxProjects::section2(),
+            Streaming::section2(),
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
     # Catalyst::program()
@@ -69,16 +62,6 @@ class Catalyst
                 }
             }
         end
-
-        Thread.new {
-            loop {
-                sleep 300
-                Catalyst::section1ToListing()
-                Catalyst::section2ToListing()
-                Listing::ordinalsdrop()
-                Listing::publishAverageAgeInDays()
-            }
-        }
 
         loop {
 
@@ -148,47 +131,27 @@ class Catalyst
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
         end
 
-        puts ""
-        vspaceleft = vspaceleft - 1
-
-        if Listing::entries2("section1").size > 0 then
-            Listing::entries2("section1")
-                .sort{|e1, e2| JSON.parse(e1["_object_"])["unixtime"] <=> JSON.parse(e2["_object_"])["unixtime"] }
-                .each{|entry|
-                    item = JSON.parse(entry["_object_"])
-                    announce = entry["_announce_"]
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{announce}"
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
-        if NxBallsIO::nxballs().size > 0 then
+        section1 = Catalyst::section1()
+        if !section1.empty? then
             puts ""
             vspaceleft = vspaceleft - 1
-            NxBallsIO::nxballs()
+            Catalyst::section1()
                 .each{|item|
                     store.register(item, false)
-                    line = LxFunction::function("toString", item)
-                    line = "#{store.prefixString()} #{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    line = "#{store.prefixString()} #{LxFunction.function("toString", item)}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
 
-        if Listing::section2().size > 0 then
+        section2 = Catalyst::section2()
+        if !section2.empty? then
             puts ""
             vspaceleft = vspaceleft - 1
-            Listing::section2()
-                .select{|entry| DoNotShowUntil::isVisible(entry["_uuid_"]) }
-                .select{|entry| InternetStatus::itemShouldShow(entry["_uuid_"]) }
-                .each{|entry|
-                    item = JSON.parse(entry["_object_"])
-                    ordinal = entry["_ordinal_"]
-                    announce = entry["_announce_"]
+            section2
+                .each{|item|
                     store.register(item, true)
-                    line = "#{store.prefixString()} #{announce}"
+                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
@@ -207,7 +170,6 @@ class Catalyst
             if (item = store.getDefault()) then
                 NxBallsService::close(item["uuid"], true)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                Listing::removeIfInSection2(item["uuid"])
                 return
             end
         end

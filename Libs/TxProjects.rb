@@ -74,11 +74,6 @@ class TxProjects
     # TxProjects::addElement(projectuuid, itemuuid)
     def self.addElement(projectuuid, itemuuid)
         Fx18Sets::add2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
-        Listing::remove(itemuuid)
-        SystemEvents::issueStargateDrop({
-            "mikuType" => "(remove item from listing)",
-            "objectuuid" => itemuuid
-        })
     end
 
     # TxProjects::removeElement(project, uuid)
@@ -169,14 +164,5 @@ class TxProjects
             return if project.nil?
             TxProjects::addElement(project["uuid"], item["uuid"])
         end
-    end
-
-    # TxProjects::removeProjectElementsFromListing(project)
-    def self.removeProjectElementsFromListing(project)
-        TxProjects::elementuuids(project)
-            .each{|elementuuid|
-                next if NxBallsService::isRunning(elementuuid)
-                Listing::remove(elementuuid)
-            }
     end
 end

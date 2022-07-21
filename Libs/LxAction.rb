@@ -37,18 +37,12 @@ class LxAction
 
             if item["mikuType"] == "fitness1" then
                 NxBallsService::close(item["uuid"], true)
-                Listing::remove(item["uuid"])
             end
 
             if item["mikuType"] == "TxDated" and item["description"].include?("(vienna)") then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
-                    Listing::remove(item["uuid"])
-                    SystemEvents::issueStargateDrop({
-                      "mikuType"   => "RemoveFromListing",
-                      "itemuuid"   => item["uuid"],
-                    })
                 end
             end
 
@@ -56,11 +50,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' done ? ", true) then
                     Waves::performWaveNx46WaveDone(item)
                     NxBallsService::close(item["uuid"], true)
-                    Listing::remove(item["uuid"])
-                    SystemEvents::issueStargateDrop({
-                      "mikuType"   => "RemoveFromListing",
-                      "itemuuid"   => item["uuid"],
-                    })
                 end
             end
 
@@ -70,7 +59,6 @@ class LxAction
         if command == ">nyx" then
             NxBallsService::close(item["uuid"], true)
             Transmutation::transmutation1(item, item["mikuType"], "NxDataNode")
-            Listing::remove(item["uuid"])
             return
         end
 
@@ -137,12 +125,6 @@ class LxAction
                  NxBallsService::close(item["uuid"], true)
             end
 
-            Listing::remove(item["uuid"])
-            SystemEvents::issueStargateDrop({
-              "mikuType"   => "RemoveFromListing",
-              "itemuuid"   => item["uuid"],
-            })
-
             if item["mikuType"] == "(rstream-to-target)" then
                 return
             end
@@ -162,15 +144,9 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["stop and remove from listing", "destroy"])
-                if action == "remove from listing" then
-                    Listing::remove(item["uuid"])
-                end
-                if action == "destroy" then
-                    if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
-                        Fx18Utils::destroyFx18EmitEvents(item["uuid"])
-                        NxBallsService::close(item["uuid"], true)
-                    end
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
+                    Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
@@ -216,13 +192,11 @@ class LxAction
             end
 
             if item["mikuType"] == "(rstream-to-target)" then
-                Listing::remove(item["uuid"])
                 return
             end
 
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::done(item["uuid"])
-                Listing::remove(item["uuid"])
                 return
             end
 
@@ -234,7 +208,6 @@ class LxAction
             if item["mikuType"] == "NxFrame" then
                 NxBallsService::close(item["uuid"], true)
                 DoneToday::setDoneToday(item["uuid"])
-                Listing::remove(item["uuid"])
                 return
             end
 
@@ -261,7 +234,6 @@ class LxAction
 
             if item["mikuType"] == "Wave" then
                 Waves::performWaveNx46WaveDone(item)
-                Listing::remove(item["uuid"])
                 return
             end
         end

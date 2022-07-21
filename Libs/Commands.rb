@@ -9,7 +9,6 @@ class Commands
             "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | project ",
             "anniversaries | calendar | zeroes | ondates | todos | projects",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | >> (transmute) | destroy | >project | >nyx",
-            "ordinal <itemPosition> <newOrdinal>",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | transmute | indices",
         ].join("\n")
@@ -43,7 +42,6 @@ class Commands
             return if project.nil?
             TxProjects::addElement(project["uuid"], item["uuid"])
             NxBallsService::close(item["uuid"], true)
-            Listing::remove(item["uuid"])
             return
         end
 
@@ -159,7 +157,6 @@ class Commands
 
         if Interpreting::match("indices", input) then
             Fx18Index1::rebuildIndex()
-            Catalyst::section2ToListing()
             return
         end
 
@@ -203,24 +200,7 @@ class Commands
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
-            Listing::insert2("section2", item, nil, Time.new.to_i, nil)
             TxProjects::interactivelyProposeToAttachTaskToProject(item)
-            return
-        end
-
-        if Interpreting::match("ordinal * *", input) then
-            _, ordinalItem, ordinalFloat = Interpreting::tokenizer(input)
-            item = store.get(ordinalItem.to_i)
-            return if item.nil?
-            Listing::setOrdinal(item["uuid"], ordinalFloat.to_f)
-            return
-        end
-
-        if Interpreting::match("ordinal *", input) then
-            _, ordinalFloat  = Interpreting::tokenizer(input)
-            item = store.getDefault()
-            return if item.nil?
-            Listing::setOrdinal(item["uuid"], ordinalFloat.to_f)
             return
         end
 
@@ -289,9 +269,6 @@ class Commands
             return if unixtime.nil?
             NxBallsService::close(item["uuid"], true)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            if item["mikuType"] == "TxProject" then
-                TxProjects::removeProjectElementsFromListing(item)
-            end
             return
         end
 
@@ -304,7 +281,6 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             LxAction::action("redate", item)
-            Listing::remove(item["uuid"])
             return
         end
 
@@ -313,7 +289,6 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("redate", item)
-            Listing::remove(item["uuid"])
             return
         end
 
@@ -385,7 +360,6 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             LxAction::action("transmute", item)
-            Listing::remove(item["uuid"])
             return
         end
 
@@ -393,7 +367,6 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             LxAction::action("transmute", item)
-            Listing::remove(item["uuid"])
             return
         end
 
@@ -402,7 +375,6 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("transmute", item)
-            Listing::remove(item["uuid"])
             return
         end
 
