@@ -158,12 +158,7 @@ class Catalyst
                     item = JSON.parse(entry["_object_"])
                     announce = entry["_announce_"]
                     store.register(item, false)
-                    line = "#{store.prefixString()} #{announce}".yellow
-                    if line.include?("(project)") and !line.include?("DoNotShowUntil") then
-                        if Ax39::completionRatio(item) < 1 then
-                            line = line.white
-                        end
-                    end
+                    line = "#{store.prefixString()} #{announce}"
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
