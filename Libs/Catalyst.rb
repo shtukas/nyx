@@ -177,36 +177,15 @@ class Catalyst
                 }
         end
 
-        if Listing::section2WithOrdinals().size > 0 then
+        if Listing::section2().size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            Listing::section2WithOrdinals()
+            Listing::section2()
                 .select{|entry| DoNotShowUntil::isVisible(entry["_uuid_"]) }
                 .select{|entry| InternetStatus::itemShouldShow(entry["_uuid_"]) }
                 .each{|entry|
                     item = JSON.parse(entry["_object_"])
                     ordinal = entry["_ordinal_"]
-                    announce = entry["_announce_"]
-                    store.register(item, true)
-                    line = "(ord: #{"%5.2f" % ordinal}) #{announce}"
-                    line = "#{store.prefixString()} #{line}"
-                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
-        if Listing::section2WithoutOrdinals().size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            Listing::section2WithoutOrdinals()
-                .select{|entry| DoNotShowUntil::isVisible(entry["_uuid_"]) }
-                .select{|entry| InternetStatus::itemShouldShow(entry["_uuid_"]) }
-                .each{|entry|
-                    item = JSON.parse(entry["_object_"])
                     announce = entry["_announce_"]
                     store.register(item, true)
                     line = "#{store.prefixString()} #{announce}"

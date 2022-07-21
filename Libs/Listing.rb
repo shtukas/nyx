@@ -35,7 +35,7 @@ class Listing
         if existingEntry then
             Listing::insert2(zone, item, existingEntry["_ordinal_"], existingEntry["_createdAt_"])
         else
-            Listing::insert2(zone, item, nil, Time.new.to_i)
+            Listing::insert2(zone, item, Listing::nextOrdinal(), Time.new.to_i)
         end
     end
 
@@ -109,31 +109,15 @@ class Listing
         }
     end
 
-    # Listing::section2WithOrdinals()
-    def self.section2WithOrdinals()
+    # Listing::section2()
+    def self.section2()
         $listing_database_semaphore.synchronize {
             db = SQLite3::Database.new(Listing::databaseFilepath())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
             entries = []
-            db.execute("select * from _listing_ where _zone_=? and _ordinal_ is not null order by _ordinal_", ["section2"]) do |row|
-                entries << row
-            end
-            db.close
-            entries
-        }
-    end
-
-    # Listing::section2WithoutOrdinals()
-    def self.section2WithoutOrdinals()
-        $listing_database_semaphore.synchronize {
-            db = SQLite3::Database.new(Listing::databaseFilepath())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            entries = []
-            db.execute("select * from _listing_ where _zone_=? and _ordinal_ is null", ["section2"]) do |row|
+            db.execute("select * from _listing_ where _zone_=? order by _ordinal_", ["section2"]) do |row|
                 entries << row
             end
             db.close
