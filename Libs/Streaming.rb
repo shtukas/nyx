@@ -7,8 +7,8 @@ class Streaming
     def self.itemuuidToNyx(itemuuid)
         item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
         return if item.nil?
-        if item["mikuType"] != "NxTask" then
-            puts "I cannot >nyx something that is not a NxTask"
+        if !["NxTask", "NxIced"].include?(item["mikuType"]) then
+            puts "I am authorised to >nyx only NxTasks and NxIceds in this function"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -26,7 +26,7 @@ class Streaming
             command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), landing (and back), insert, >project, >nyx, nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
-                NxTasks::destroy(item["uuid"])
+                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
                 return "item-done"
             end
             if command == "detach" then
@@ -80,7 +80,7 @@ class Streaming
                 next
             end
             if command == "done" then
-                NxTasks::destroy(item["uuid"])
+                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
                 return "item-done"
             end
             if command == "insert" then
@@ -110,8 +110,8 @@ class Streaming
         }
     end
 
-    # Streaming::runstream(items)
-    def self.runstream(items)
+    # Streaming::stream(items)
+    def self.stream(items)
         items.each{|item| 
             directive = Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
             if directive == "should-stop-rstream" then
@@ -120,16 +120,16 @@ class Streaming
         }
     end
 
-    # Streaming::rstreamUUID()
-    def self.rstreamUUID()
+    # Streaming::uuid()
+    def self.uuid()
         "1ee2805a-f8ee-4a73-a92a-c76d9d45359a"
     end
 
-    # Streaming::rstreamToTarget()
-    def self.rstreamToTarget()
-        uuid = Streaming::rstreamUUID()
+    # Streaming::icedStreamingToTarget()
+    def self.icedStreamingToTarget()
+        uuid = Streaming::uuid()
         NxBallsService::issue(uuid, "(rstream-to-target)", [uuid])
-        items = NxTasks::items().shuffle
+        items = NxIceds::items().shuffle
         return if items.empty?
         loop {
             item = items.shift
@@ -141,11 +141,11 @@ class Streaming
         NxBallsService::close(uuid, true)
     end
 
-    # Streaming::rstreamToInfinity()
-    def self.rstreamToInfinity()
-        uuid = Streaming::rstreamUUID()
+    # Streaming::icedStreamingToInfinity()
+    def self.icedStreamingToInfinity()
+        uuid = Streaming::uuid()
         NxBallsService::issue(uuid, "(rstream-to-infinity)", [uuid])
-        items = NxTasks::items().shuffle
+        items = NxIceds::items().shuffle
         loop {
             item = items.shift
             next if TxProjects::uuidIsProjectElement(item["uuid"])
@@ -156,7 +156,7 @@ class Streaming
 
     # Streaming::section2()
     def self.section2()
-        uuid = Streaming::rstreamUUID()
+        uuid = Streaming::uuid()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return [] if rt > 1 or Fx18Index1::mikuTypeCount("(rstream-to-target)") == 0
 

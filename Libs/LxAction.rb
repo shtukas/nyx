@@ -72,7 +72,7 @@ class LxAction
             end
 
             if item["mikuType"] == "(rstream-to-target)" then
-                Streaming::rstreamToTarget()
+                Streaming::icedStreamingToTarget()
                 return
             end
 

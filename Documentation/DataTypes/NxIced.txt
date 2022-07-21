@@ -1,0 +1,6 @@
+NxIced:
+    "uuid"        : String
+    "mikuType"    : "NxIced"
+    "unixtime"    : Float
+    "description" : String
+    "nx111"       : Nx111
