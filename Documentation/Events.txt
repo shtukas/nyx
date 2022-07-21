@@ -51,10 +51,10 @@ We have two types of events
     "Fx18FileEvent" => {
         "_eventuuid_"  => eventuuid
         "_eventTime_"  => eventTime
-        "_eventData1_" => eventData1  # base64 encoded for drop
-        "_eventData2_" => eventData2  # base64 encoded for drop
+        "_eventData1_" => eventData1
+        "_eventData2_" => eventData2
         "_eventData3_" => eventData3  # base64 encoded for drop
-        "_eventData4_" => eventData4  # base64 encoded for drop
-        "_eventData5_" => eventData5  # base64 encoded for drop
+        "_eventData4_" => eventData4 
+        "_eventData5_" => eventData5
     }
 }

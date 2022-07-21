@@ -73,7 +73,31 @@ class SystemEvents
             filename = "#{CommonUtils::nx45()}.json"
             filepath = "/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops2/#{instanceId}/#{filename}"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
+            SystemEvents::fsckDrop(filepath)
         }
+    end
+
+    # SystemEvents::fsckDrop(filepath)
+    def self.fsckDrop(filepath)
+        # Date: July 21st, 2022
+        # This function exists to test the datablobs drops, I think they are incorrects
+        drop = JSON.parse(IO.read(filepath))
+        if event["mikuType"] == "Fx18 File Event" then
+            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
+                blob = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
+                nhash2 = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+                if nhash1 != nhash2 then
+                    # problem
+                    puts "Huston, we have a problem!"
+                    puts "filepath: #{filepath}"
+                    puts "nhash1: #{nhash1}"
+                    puts "nhash2: #{nhash2}"
+                    puts "I am going to delete that file"
+                    LucilleCore::pressEnterToContinue()
+                end
+            end
+        end
     end
 
     # SystemEvents::pickupDrops()
