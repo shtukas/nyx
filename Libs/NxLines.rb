@@ -46,9 +46,7 @@ class NxLines
 
     # NxLines::toString(item)
     def self.toString(item)
-        project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
-        projectstring = project ? "(project: #{project["description"]}) " : ""
-        "(line) #{projectstring}#{item["line"]}"
+        "(line) #{item["line"]}"
     end
 
     # NxLines::section2()

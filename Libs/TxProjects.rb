@@ -74,6 +74,7 @@ class TxProjects
     # TxProjects::addElement(projectuuid, itemuuid)
     def self.addElement(projectuuid, itemuuid)
         Fx18Sets::add2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
+        XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{itemuuid}", true)
     end
 
     # TxProjects::removeElement(project, uuid)
@@ -86,9 +87,10 @@ class TxProjects
         Fx18Sets::items(project["uuid"], "project-items-3f154988")
     end
 
-    # TxProjects::uuidIsProjectElement(uuid)
-    def self.uuidIsProjectElement(uuid)
-        TxProjects::items().any?{|project| TxProjects::elementuuids(project).include?(uuid) }
+    # TxProjects::uuidIsProjectElement(elementuuid)
+    def self.uuidIsProjectElement(elementuuid)
+        #TxProjects::items().any?{|project| TxProjects::elementuuids(project).include?(elementuuid) }
+        XCache::getFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}")
     end
 
     # TxProjects::getProjectPerElementUUIDOrNull(uuid)
@@ -104,8 +106,7 @@ class TxProjects
     # TxProjects::toString(item)
     def self.toString(item)
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        count = TxProjects::elementuuids(item).count
-        "(project) #{item["description"]} (#{count} items) #{Ax39::toString(item)}#{dnsustr}"
+        "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
     end
 
     # TxProjects::section2()

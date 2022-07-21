@@ -284,17 +284,8 @@ class LxAction
                 TxProjects::startAccessProject(item)
                 return
             end
-
             return if NxBallsService::isRunning(item["uuid"])
-
-            accounts = [item["uuid"]]
-
-            project = TxProjects::getProjectPerElementUUIDOrNull(item["uuid"])
-            if project then
-                accounts << project["uuid"]
-            end
-
-            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
+            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
             return
         end
 

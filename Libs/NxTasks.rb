@@ -109,6 +109,7 @@ class NxTasks
 
     # NxTasks::section2()
     def self.section2()
+        return []
         NxTasks::items()
             .select{|item| !TxProjects::uuidIsProjectElement(item["uuid"]) }
             .map{|item|

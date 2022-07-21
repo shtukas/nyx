@@ -407,8 +407,8 @@ class Commands
                     "lambda" => lambda { TxDateds::section2() }
                 },
                 {
-                    "name" => "TxProjects::items()",
-                    "lambda" => lambda { TxProjects::items() }
+                    "name" => "TxProjects::section2()",
+                    "lambda" => lambda { TxProjects::section2() }
                 },
                 {
                     "name" => "Streaming::section2()",
@@ -438,6 +438,7 @@ class Commands
 
             results = tests
                         .map{|test|
+                            puts "running: #{test["name"]}"
                             t1 = Time.new.to_f
                             (1..3).each{ test["lambda"].call() }
                             t2 = Time.new.to_f
