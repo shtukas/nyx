@@ -690,6 +690,7 @@ class Fx18Synchronisation
                 Fx18Synchronisation::propagateFileData(filepath1, filepath2)
                 Fx18Synchronisation::propagateFileData(filepath2, filepath1)
             else
+                puts "FileUtils.cp(#{filepath1}, #{filepath2})"
                 FileUtils.cp(filepath1, filepath2) # Moving the local file to infinity
             end
         }
@@ -701,8 +702,8 @@ class Fx18Synchronisation
             if File.exists?(filepath2) then
                 # The sync should have already happen
             else
-                puts "FileUtils.cp(#{filepath1}, #{filepath2})"
-                FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
+                #puts "FileUtils.cp(#{filepath1}, #{filepath2})"
+                #FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
             end
         }
     end
