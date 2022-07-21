@@ -112,6 +112,12 @@ class TxProjects
     def self.section2()
         TxProjects::items()
             .select{|project| Ax39::itemShouldShow(project) }
+            .map{|item|
+                {
+                    "item" => item,
+                    "toString" => TxProjects::toString(item)
+                }
+            }
     end
 
     # ----------------------------------------------------------------------

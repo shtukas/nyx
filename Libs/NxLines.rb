@@ -55,5 +55,11 @@ class NxLines
     def self.section2()
         NxLines::items()
             .select{|item| !TxProjects::uuidIsProjectElement(item["uuid"]) }
+            .map{|item|
+                {
+                    "item" => item,
+                    "toString" => NxLines::toString(item)
+                }
+            }
     end
 end

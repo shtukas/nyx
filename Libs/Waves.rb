@@ -175,6 +175,17 @@ class Waves
         false
     end
 
+    # Waves::section2()
+    def self.section2()
+        Waves::items()
+            .map{|item|
+                {
+                    "item" => item,
+                    "toString" => Waves::toString(item)
+                }
+            }
+    end
+
     # -------------------------------------------------------------------------
 
     # Waves::performWaveNx46WaveDone(item)

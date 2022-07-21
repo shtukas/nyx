@@ -168,6 +168,12 @@ class Anniversaries
     def self.section2()
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
+            .map{|item|
+                {
+                    "item" => item,
+                    "toString" => Anniversaries::toString(item)
+                }
+            }
     end
 
     # Anniversaries::dailyBriefing()

@@ -158,14 +158,17 @@ class Streaming
     def self.section2()
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        if rt < 1 and !NxTasks::items().empty? then
-            [{
-                "uuid" => uuid,
-                "mikuType" => "(rstream-to-target)",
-                "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
-            }]
-        else
-            []
-        end
+        return [] if rt > 1 or NxTasks::items().empty?
+
+        item = {
+            "uuid" => uuid,
+            "mikuType" => "(rstream-to-target)",
+            "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
+        }
+
+        [{
+            "item" => item,
+            "toString" => item["announce"]
+        }]
     end
 end

@@ -35,18 +35,32 @@ class Catalyst
 
     # Catalyst::section2()
     def self.section2()
-        [
+        x1 = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
+        ]
+            .flatten
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .map{|item|
+                {
+                    "item" => item,
+                    "toString" => LxFunction.function("toString", item)
+                }
+            }
+
+        x2 = [
             Anniversaries::section2(),
-            Waves::items(),
+            Waves::section2(),
             TxDateds::section2(),
             NxLines::section2(),
             TxProjects::section2(),
             Streaming::section2(),
         ]
             .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|x| DoNotShowUntil::isVisible(x["item"]["uuid"]) }
+            .select{|x| InternetStatus::itemShouldShow(x["item"]["uuid"]) }
+
+        x1 + x2
     end
 
     # Catalyst::program()
@@ -149,9 +163,11 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             section2
-                .each{|item|
+                .each{|p|
+                    item = p["item"]
+                    toString = p["toString"]
                     store.register(item, true)
-                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
+                    line = "#{store.prefixString()} #{toString}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

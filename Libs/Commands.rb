@@ -399,20 +399,12 @@ class Commands
                     "lambda" => lambda { Anniversaries::section2() }
                 },
                 {
-                    "name" => "Waves::section2(true)",
-                    "lambda" => lambda { Waves::section2(true) }
-                },
-                {
-                    "name" => "Waves::section2(false)",
-                    "lambda" => lambda { Waves::section2(false) }
+                    "name" => "Waves::section2()",
+                    "lambda" => lambda { Waves::section2() }
                 },
                 {
                     "name" => "TxDateds::section2()",
                     "lambda" => lambda { TxDateds::section2() }
-                },
-                {
-                    "name" => "NxFrames::items()",
-                    "lambda" => lambda { NxFrames::items() }
                 },
                 {
                     "name" => "TxProjects::items()",
@@ -423,8 +415,8 @@ class Commands
                     "lambda" => lambda { Streaming::section2() }
                 },
                 {
-                    "name" => "NxLines::items()",
-                    "lambda" => lambda { NxLines::items() }
+                    "name" => "NxLines::section2()",
+                    "lambda" => lambda { NxLines::section2() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",
