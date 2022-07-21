@@ -314,6 +314,11 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         objectuuids
     end
 
+    # Fx18Index1::mikuTypeCount(mikuType)
+    def self.mikuTypeCount(mikuType)
+        Fx18Index1::mikuType2objectuuids(mikuType).count
+    end
+
     # Fx18Index1::countObjectsByMikuType(mikuType)
     def self.countObjectsByMikuType(mikuType)
         Fx18Index1::mikuType2objectuuids(mikuType).count

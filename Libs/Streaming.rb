@@ -158,7 +158,7 @@ class Streaming
     def self.section2()
         uuid = Streaming::rstreamUUID()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return [] if rt > 1 or NxTasks::items().empty?
+        return [] if rt > 1 or Fx18Index1::mikuTypeCount("(rstream-to-target)") == 0
 
         item = {
             "uuid" => uuid,
