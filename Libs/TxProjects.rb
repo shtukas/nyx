@@ -116,39 +116,7 @@ class TxProjects
     # TxProjects::section2()
     def self.section2()
         TxProjects::items()
-            .select{|project| !Ax39::itemShouldShow(project) or !DoNotShowUntil::isVisible(project["uuid"]) }
-            .each{|project|
-                TxProjects::removeProjectElementsFromListing(project)
-            }
-
-        TxProjects::items()
             .select{|project| Ax39::itemShouldShow(project) }
-            .sort{|p1, p2| Ax39::completionRatio(p1) <=> Ax39::completionRatio(p2) }
-            .map{|project|
-                items = TxProjects::elementuuids(project)
-                            .reduce([]){|items, elementuuid|
-                                if items.size >= 3 then
-                                    items
-                                else
-                                    item = Fx18Utils::objectuuidToItemOrNull(elementuuid)
-                                    if item then
-                                        items + [item]
-                                    else
-                                        items
-                                    end
-                                end
-                            }
-
-                rt = lambda{|item| BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]) }
-
-                items
-                    .sort{|i1, i2|
-                        rt.call(i1) <=> rt.call(i2)
-                    }
-
-                items
-            }
-            .flatten
     end
 
     # ----------------------------------------------------------------------
