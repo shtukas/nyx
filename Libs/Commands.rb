@@ -419,6 +419,10 @@ class Commands
                     "lambda" => lambda { NxLines::section2() }
                 },
                 {
+                    "name" => "NxTasks::section2()",
+                    "lambda" => lambda { NxTasks::section2() }
+                },
+                {
                     "name" => "The99Percent::getCurrentCount()",
                     "lambda" => lambda { The99Percent::getCurrentCount() }
                 },
