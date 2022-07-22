@@ -707,8 +707,10 @@ class Fx18Synchronisation
             if File.exists?(filepath2) then
                 Fx18Synchronisation::propagateFileData(filepath1, filepath2)
             else
-                #puts "FileUtils.cp(#{filepath1}, #{filepath2})"
-                #FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
+                if Config::get("instanceId") == "Lucille20-pascal" then
+                    puts "FileUtils.cp(#{filepath1}, #{filepath2})"
+                    FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
+                end
             end
         }
     end
