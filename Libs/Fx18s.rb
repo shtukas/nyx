@@ -3,7 +3,7 @@ class Fx18Utils
 
     # Fx18Utils::computeLocalFx18Filepath(objectuuid)
     def self.computeLocalFx18Filepath(objectuuid)
-        "#{Config::pathToDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
+        "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
     end
 
     # Fx18Utils::fileExists?(objectuuid)
@@ -126,17 +126,17 @@ class Fx18Utils
         puts "fsck completed successfully".green
     end
 
-    # Fx18Utils::destroyFx18NoEvent(objectuuid)
-    def self.destroyFx18NoEvent(objectuuid)
+    # Fx18Utils::destroyLocalFx18NoEvent(objectuuid)
+    def self.destroyLocalFx18NoEvent(objectuuid)
         filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         return if !File.exists?(filepath)
         puts "delete Fx18 file: #{filepath}"
         FileUtils.rm(filepath)
     end
 
-    # Fx18Utils::destroyFx18EmitEvents(objectuuid)
-    def self.destroyFx18EmitEvents(objectuuid)
-        Fx18Utils::destroyFx18NoEvent(objectuuid)
+    # Fx18Utils::destroyLocalFx18EmitEvents(objectuuid)
+    def self.destroyLocalFx18EmitEvents(objectuuid)
+        Fx18Utils::destroyLocalFx18NoEvent(objectuuid)
         SystemEvents::issueStargateDrop({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
@@ -718,8 +718,56 @@ class Fx18Synchronisation
     # Fx18Synchronisation::sync()
     def self.sync()
         StargateCentral::ensureInfinityDrive()
-        localrepositoryfolderpath = "#{Config::pathToDataBankStargate()}/Fx18s"
+        localrepositoryfolderpath = "#{Config::pathToLocalDataBankStargate()}/Fx18s"
         infinityrepositoryfolderpath = "#{StargateCentral::pathToCentral()}/Fx18s"
         Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
+    end
+end
+
+class Fx18DeletedFilesMemory
+
+    # Fx18DeletedFilesMemory::databaseFilepath()
+    def self.databaseFilepath()
+        "#{Config::pathToLocalDataBankStargate()}/fx18-deleted.sqlite3"
+    end
+
+    # Fx18DeletedFilesMemory::ensureDatabase()
+    def self.ensureDatabase()
+        filepath = Fx18DeletedFilesMemory::databaseFilepath()
+        return if File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "create table _deleted_ (_objectuuid_ text primary key)"
+        db.close
+    end
+
+    # Fx18DeletedFilesMemory::registerDeleted(objectuuid)
+    def self.registerDeleted(objectuuid)
+        Fx18DeletedFilesMemory::ensureDatabase()
+        db = SQLite3::Database.new(Fx18DeletedFilesMemory::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _deleted_ where _objectuuid_=?", [objectuuid]
+        db.execute "insert into _deleted_ (_objectuuid_) values (?)", [objectuuid]
+        db.close
+    end
+
+    # Fx18DeletedFilesMemory::isDeleted(objectuuid)
+    def self.isDeleted(objectuuid)
+        Fx18DeletedFilesMemory::ensureDatabase()
+        db = SQLite3::Database.new(Fx18DeletedFilesMemory::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        flag = false
+        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
+        db.execute("select * from _deleted_ where _objectuuid_?", [objectuuid]) do |row|
+            flag = true
+        end
+        db.close
+        flag
     end
 end

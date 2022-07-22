@@ -26,7 +26,7 @@ class Streaming
             command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), landing (and back), insert, >project, >nyx, nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
-                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                 return "item-done"
             end
             if command == "detach" then
@@ -80,7 +80,7 @@ class Streaming
                 next
             end
             if command == "done" then
-                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                 return "item-done"
             end
             if command == "insert" then

@@ -213,7 +213,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                 break
             end
         }

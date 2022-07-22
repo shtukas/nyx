@@ -3,14 +3,14 @@
 
 class Config
 
-    # Config::pathToDataBankStargate()
-    def self.pathToDataBankStargate()
+    # Config::pathToLocalDataBankStargate()
+    def self.pathToLocalDataBankStargate()
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate"
     end
 
     # Config::get(key)
     def self.get(key)
-        config = JSON.parse(IO.read("#{Config::pathToDataBankStargate()}/config.json"))
+        config = JSON.parse(IO.read("#{Config::pathToLocalDataBankStargate()}/config.json"))
         config[key]
     end
 

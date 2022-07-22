@@ -93,7 +93,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                    Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                 end
                 return
             end
@@ -145,7 +145,7 @@ class LxAction
 
             if item["mikuType"] == "NxTask" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                    Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                 end
                 return
@@ -153,7 +153,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                    Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                 end
                 return
@@ -212,12 +212,12 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
-                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                 return
             end
 
             if item["mikuType"] == "NxLine" then
-                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
                 return
             end
 
@@ -240,7 +240,7 @@ class LxAction
 
         if command == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
-                Fx18Utils::destroyFx18EmitEvents(item["uuid"])
+                Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
             end
             return
         end
