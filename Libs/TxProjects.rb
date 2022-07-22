@@ -172,7 +172,9 @@ class TxProjects
                 end
             end
             elementuuids = elementuuids.take([50, elementuuids.size].min)
-            elements = elementuuids.map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
+            elements = elementuuids
+                            .map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
+                            .compact
             element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
             break if element.nil?
             Streaming::processItem(element)
