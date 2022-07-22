@@ -176,9 +176,10 @@ class Waves
         false
     end
 
-    # Waves::section2()
-    def self.section2()
+    # Waves::section2(priority)
+    def self.section2(priority)
         Waves::items()
+            .select{|item| priority ? Waves::isPriority(item) : !Waves::isPriority(item) }
             .map{|item|
                 {
                     "item" => item,
