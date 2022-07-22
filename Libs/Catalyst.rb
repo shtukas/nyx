@@ -13,7 +13,7 @@ class Catalyst
 
     # Catalyst::topFilepath()
     def self.topFilepath()
-        "/Volumes/Keybase (#{ENV['USER']})/private/0x1021/top.txt"
+        "/Users/#{ENV['USER']}/Desktop/top.txt"
     end
 
     # Catalyst::getTopOrNull()
