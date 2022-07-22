@@ -23,6 +23,24 @@ class NxTasks
             .compact
     end
 
+    # NxTasks::items2(count)
+    def self.items2(count)
+        Fx18Index1::mikuType2objectuuids("NxTask")
+            .reduce([]){|uuids, uuid|
+                if uuids.size >= count then 
+                    uuids
+                else
+                    if Fx18Utils::fileExists?(uuid) then
+                        uuids + [uuid]
+                    else
+                        uuids
+                    end
+                end
+            }
+            .map{|objectuuid| NxTasks::objectuuidToItemOrNull(objectuuid)}
+            .compact
+    end
+
     # NxTasks::destroy(uuid)
     def self.destroy(uuid)
         Fx18Utils::destroyFx18EmitEvents(uuid)
@@ -109,9 +127,8 @@ class NxTasks
 
     # NxTasks::section2()
     def self.section2()
-        NxTasks::items()
+        NxTasks::items2(10)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .first(10)
             .select{|item| !TxProjects::uuidIsProjectElement(item["uuid"]) }
             .map{|item|
                 {
