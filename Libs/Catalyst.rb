@@ -65,6 +65,33 @@ class Catalyst
         x1 + x2
     end
 
+    # Catalyst::applyImpliedOrder(items)
+    def self.applyImpliedOrder(items)
+        order = JSON.parse(XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", "[]"))
+
+        itemsuuids = items.map{|item| item["uuid"]}
+        order = order.select{|item| itemsuuids.include?(item["uuid"])}
+        orderuuids = order.map{|item| item["uuid"]}
+        items.each{|item|
+            if orderuuids.include?(item["uuid"]) then
+                # replacement
+                order = order.map{|i|
+                    if i["uuid"] == item["uuid"] then
+                        item
+                    else
+                        i
+                    end
+                }
+            else
+                # put at the end
+                order = order + [item]
+            end
+        }
+
+        XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", JSON.generate(order))
+        order
+    end
+
     # Catalyst::program()
     def self.program()
 
@@ -175,7 +202,7 @@ class Catalyst
         if !section2.empty? then
             puts ""
             vspaceleft = vspaceleft - 1
-            section2
+            Catalyst::applyImpliedOrder(section2)
                 .each{|p|
                     item = p["item"]
                     toString = p["toString"]
