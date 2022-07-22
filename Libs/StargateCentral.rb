@@ -5,6 +5,11 @@ class StargateCentral
         "/Volumes/Infinity/Data/Pascal/Stargate-Central"
     end
 
+    # StargateCentral::isVisible()
+    def self.isVisible()
+        File.exists?(StargateCentral::pathToCentral())
+    end
+
     # StargateCentral::ensureInfinityDrive()
     def self.ensureInfinityDrive()
         return if File.exists?(StargateCentral::pathToCentral())

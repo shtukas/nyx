@@ -701,6 +701,12 @@ class Fx18Synchronisation
         }
 
         LucilleCore::locationsAtFolder(infinityrepositoryfolderpath).each{|filepath1|
+            objectuuid1 = File.basename(filepath1).gsub(".fx18.sqlite3", "")
+            objectuuid2 = Fx18Attributes::getOrNull2(filepath, "uuid")
+
+            raise "(error: e6fe9b3e-cb37-4899-956c-3121c2597583)" if (objectuuid1 != objectuuid2)
+            next if Fx18DeletedFilesMemory::isDeleted(objectuuid1)
+
             next if filepath1[-13, 13] != ".fx18.sqlite3"
             filename = File.basename(filepath1)
             filepath2 = "#{localrepositoryfolderpath}/#{filename}"

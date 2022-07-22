@@ -6,11 +6,11 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | ship | ship: <line> | today | ondate | todo | task | project ",
-            "anniversaries | calendar | zeroes | ondates | todos | projects",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute (<n>) | >> (transmute) | destroy | >project | >nyx",
+            "wave | anniversary | frame | today | ondate | todo | task | project ",
+            "anniversaries | calendar | ondates | todos | projects",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
             "require internet",
-            "rstream | search | nyx | speed | pickup | nxballs | transmute | indices",
+            "rstream | search | nyx | speed | pickup | nxballs | indices | maintenance",
         ].join("\n")
     end
 
@@ -204,6 +204,11 @@ class Commands
             return
         end
 
+        if Interpreting::match("maintenance", input) then
+            TxDateds::dive()
+            return
+        end
+
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -353,13 +358,6 @@ class Commands
 
         if input == "top" then
             system("open '#{Catalyst::topFilepath()}'")
-            return
-        end
-
-        if Interpreting::match(">>", input) then
-            item = store.getDefault()
-            return if item.nil?
-            LxAction::action("transmute", item)
             return
         end
 
