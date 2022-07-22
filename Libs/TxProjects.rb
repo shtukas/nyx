@@ -152,16 +152,26 @@ class TxProjects
 
     # TxProjects::startAccessProject(project)
     def self.startAccessProject(project)
-        elementuuids = TxProjects::elementuuids(project).take(10)
-        elements = elementuuids.map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
-        if elements.size == 1 then
-            LxAction::action("..", elements[0])
-            return
-        end
-
-        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
-        return if element.nil?
-        LxAction::action("..", element)
+        NxBallsService::issue(project["uuid"], TxProjects::toString(project), [project["uuid"]])
+        loop {
+            system("clear")
+            puts "running: #{TxProjects::toString(project).green}"
+            elementuuids = TxProjects::elementuuids(project)
+            if elementuuids.empty? then
+                if LucilleCore::askQuestionAnswerAsBoolean("Project '#{TxProjects::toString(project).green}' doesn't have elements. Keep running ? ") then
+                    return
+                else
+                    NxBallsService::close(project["uuid"], true)
+                    return
+                end
+            end
+            elementuuids = elementuuids.take([50, elementuuids.size].min)
+            elements = elementuuids.map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
+            element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
+            break if element.nil?
+            Streaming::processItem(element)
+        }
+        NxBallsService::close(project["uuid"], true)
     end
 
     # TxProjects::interactivelyProposeToAttachTaskToProject(item)

@@ -105,6 +105,9 @@ class LxFunction
             if item["mikuType"] == "NxFrame" then
                 return NxFrames::toString(item)
             end
+            if item["mikuType"] == "NxIced" then
+                return NxIceds::toString(item)
+            end
             if item["mikuType"] == "NxLine" then
                 return NxLines::toString(item)
             end
