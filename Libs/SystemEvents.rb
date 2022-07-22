@@ -12,7 +12,7 @@ class SystemEvents
     # SystemEvents::processEventInternally(event)
     def self.processEventInternally(event)
 
-        puts "SystemEvent(#{JSON.pretty_generate(event)})"
+        # puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
         if event["mikuType"] == "(object has been updated)" then
             filepath = Fx18Utils::computeLocalFx18Filepath(event["objectuuid"])

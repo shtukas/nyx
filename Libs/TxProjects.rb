@@ -119,6 +119,7 @@ class TxProjects
     def self.section2()
         TxProjects::items()
             .select{|project| Ax39::itemShouldShow(project) }
+            .sort{|p1, p2| Ax39::completionRatio(p1) <=> Ax39::completionRatio(p2) }
             .map{|item|
                 {
                     "item" => item,

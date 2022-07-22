@@ -169,7 +169,7 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
-                TxProjects::elementuuids(project).each{|elementuuid|
+                TxProjects::elementuuids(item).each{|elementuuid|
                     NxBallsService::close(elementuuid, true)
                 }
                 DoneToday::setDoneToday(item["uuid"])
