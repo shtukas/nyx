@@ -94,6 +94,17 @@ class Catalyst
                 LucilleCore::removeFileSystemLocation(location)
             }
 
+            if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
+                system("clear")
+                puts "frames:"
+                NxFrames::items().each{|frame|
+                    puts "    - #{NxFrames::toString(frame)}"
+                }
+                LucilleCore::pressEnterToContinue()
+                XCache::setFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}", true)
+                return
+            end
+
             SystemEvents::pickupDrops()
 
             Catalyst::printListing()
