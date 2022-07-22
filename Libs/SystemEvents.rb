@@ -71,7 +71,7 @@ class SystemEvents
 
         instanceIds.each{|instanceId|
             filename = "#{CommonUtils::nx45()}.json"
-            filepath = "/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops2/#{instanceId}/#{filename}"
+            filepath = "/Volumes/Keybase (#{ENV['USER']})/private/0x107/Stargate-Drops2/#{instanceId}/#{filename}"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
             SystemEvents::fsckDrop(filepath)
         }
@@ -102,7 +102,7 @@ class SystemEvents
 
     # SystemEvents::pickupDrops()
     def self.pickupDrops()
-        LucilleCore::locationsAtFolder("/Volumes/Keybase (#{ENV['USER']})/private/0x1021/Stargate-Drops2/#{Config::get("instanceId")}")
+        LucilleCore::locationsAtFolder("/Volumes/Keybase (#{ENV['USER']})/private/0x107/Stargate-Drops2/#{Config::get("instanceId")}")
             .each{|filepath|
                 filename = File.basename(filepath)
                 next if filename[0, 1] == "."
