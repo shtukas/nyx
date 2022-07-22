@@ -65,6 +65,17 @@ class Transmutation
             return
         end
 
+        if source == "NxLine" and target == "NxTask" then
+            return true if isSimulation
+            description = LucilleCore::askQuestionAnswerAsString("description: ")
+            nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
+
+            Fx18Attributes::setAttribute2(item["uuid"], "mikuType", "NxTask")
+            Fx18Attributes::setAttribute2(item["uuid"], "description", description)
+            Fx18Attributes::setAttribute2(item["uuid"], "nx111", JSON.generate(nx111))
+            return
+        end
+
         if source == "NxTask" and target == "NxDataNode" then
             return true if isSimulation
             Fx18Attributes::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
