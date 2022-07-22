@@ -28,7 +28,7 @@ class Catalyst
     # Catalyst::section1()
     def self.section1()
         [
-            TxProjects::items(),
+            TxProjects::section1(),
             NxFrames::items()
         ].flatten
     end
