@@ -143,26 +143,14 @@ class TxProjects
     def self.landing(project)
         system("clear")
         puts TxProjects::toString(project).green
-        elementuuids = TxProjects::elementuuids(project)
-        elements = elementuuids.map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
+        elements = TxProjects::elements(project, 50)
         if elements.size == 1 then
             LxAction::action("..", elements[0])
             return
         end
-
         element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
         return if element.nil?
         LxAction::action("..", element)
-    end
-
-    # TxProjects::dive()
-    def self.dive()
-        loop {
-            projects = TxProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
-            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|item| TxProjects::toString(item) })
-            break if project.nil?
-            TxProjects::landing(project)
-        }
     end
 
     # TxProjects::accessProject(project)
@@ -185,6 +173,16 @@ class TxProjects
             Streaming::processItem(element)
         }
         NxBallsService::close(project["uuid"], true)
+    end
+
+    # TxProjects::dive()
+    def self.dive()
+        loop {
+            projects = TxProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|item| TxProjects::toString(item) })
+            break if project.nil?
+            TxProjects::landing(project)
+        }
     end
 
     # TxProjects::interactivelyProposeToAttachTaskToProject(item)
