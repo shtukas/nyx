@@ -87,6 +87,14 @@ class TxProjects
         Fx18Sets::items(project["uuid"], "project-items-3f154988")
     end
 
+    # TxProjects::elements(project, count)
+    def self.elements(project, count)
+        TxProjects::elementuuids(project)
+            .take(count)
+            .map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid)}
+            .compact
+    end
+
     # TxProjects::uuidIsProjectElement(elementuuid)
     def self.uuidIsProjectElement(elementuuid)
         #TxProjects::items().any?{|project| TxProjects::elementuuids(project).include?(elementuuid) }
@@ -163,8 +171,8 @@ class TxProjects
         loop {
             system("clear")
             puts "running: #{TxProjects::toString(project).green}"
-            elementuuids = TxProjects::elementuuids(project)
-            if elementuuids.empty? then
+            elements = TxProjects::elements(project, 50)
+            if elements.empty? then
                 if LucilleCore::askQuestionAnswerAsBoolean("Project '#{TxProjects::toString(project).green}' doesn't have elements. Keep running ? ") then
                     return
                 else
@@ -172,10 +180,6 @@ class TxProjects
                     return
                 end
             end
-            elementuuids = elementuuids.take([50, elementuuids.size].min)
-            elements = elementuuids
-                            .map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid) }
-                            .compact
             element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
             break if element.nil?
             Streaming::processItem(element)
