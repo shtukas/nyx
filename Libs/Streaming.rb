@@ -22,7 +22,12 @@ class Streaming
         puts LxFunction::function("toString", item).green
         LxAction::action("start", item)
         LxAction::action("access", item)
+        firstLoop = true
         loop {
+            if !firstLoop then
+                puts LxFunction::function("toString", item).green
+            end
+            firstLoop = false
             command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), landing (and back), insert, >project, >nyx, nyx: ")
             if command == "done" then
                 LxAction::action("stop", item)
