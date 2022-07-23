@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | project ",
             "anniversaries | calendar | ondates | todos | projects",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | indices | maintenance | >>",
         ].join("\n")
@@ -121,6 +121,13 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("done", item)
+            return
+        end
+
+        if input == "done today" then
+            item = store.getDefault()
+            return if item.nil?
+            DoneToday::setDoneToday(item["uuid"])
             return
         end
 

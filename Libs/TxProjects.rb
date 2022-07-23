@@ -165,8 +165,8 @@ class TxProjects
         }
     end
 
-    # TxProjects::startAccessProject(project)
-    def self.startAccessProject(project)
+    # TxProjects::accessProject(project)
+    def self.accessProject(project)
         NxBallsService::issue(project["uuid"], TxProjects::toString(project), [project["uuid"]])
         loop {
             system("clear")
