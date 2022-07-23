@@ -127,7 +127,7 @@ class Catalyst
                 }
                 LucilleCore::pressEnterToContinue()
                 XCache::setFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}", true)
-                return
+                next
             end
 
             SystemEvents::pickupDrops()
