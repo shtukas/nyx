@@ -19,6 +19,13 @@ class AionSpheres
             .sort
     end
 
+    # AionSpheres::objectDatabaseFilepathsLessThan100Mb(objectuuid)
+    def self.objectDatabaseFilepathsLessThan100Mb(objectuuid)
+        AionSpheres::objectDatabaseFilepaths(objectuuid).select{|filepath|
+            File.size(filepath) < 1024*1024*100
+        }
+    end
+
     # AionSpheres::getBlobFromFileOrNull(filepath, nhash)
     def self.getBlobFromFileOrNull(filepath, nhash)
        db = SQLite3::Database.new(filepath)
@@ -59,7 +66,7 @@ class AionSpheres
         end
 
         # We need to commit it
-        databaseFilepaths = AionSpheres::objectDatabaseFilepaths(objectuuid)
+        databaseFilepaths = AionSpheres::objectDatabaseFilepathsLessThan100Mb(objectuuid)
         filepath = nil
 
         if databaseFilepaths.empty? then
