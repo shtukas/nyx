@@ -128,6 +128,7 @@ require_relative "Anniversaries.rb"
 require_relative "AionTransforms.rb"
 require_relative "Architect.rb"
 require_relative "Ax39.rb"
+require_relative "AionSpheres.rb"
 
 require_relative "Bank.rb"
 require_relative "Boxes.rb"
