@@ -139,22 +139,68 @@ class TxProjects
     # ----------------------------------------------------------------------
     # Operations
 
-    # TxProjects::landing(project)
-    def self.landing(project)
-        system("clear")
-        puts TxProjects::toString(project).green
-        elements = TxProjects::elements(project, 50)
-        if elements.size == 1 then
-            LxAction::action("..", elements[0])
-            return
-        end
-        element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
-        return if element.nil?
-        LxAction::action("..", element)
+    # TxProjects::landing(item)
+    def self.landing(item)
+        loop {
+
+            return if item.nil?
+
+            uuid = item["uuid"]
+
+            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+
+            return if item.nil?
+
+            if item.nil? then
+                Fx18Index1::removeEntry(uuid)
+            end
+
+            system("clear")
+
+            puts TxProjects::toString(item).green
+
+            store = ItemStore.new()
+
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+
+            linkeduuids  = NxLink::linkedUUIDs(uuid)
+
+            puts "commands: description | json | destroy".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if Interpreting::match("description", command) then
+                if item["mikuType"] == "NxPerson" then
+                    name1 = CommonUtils::editTextSynchronously(item["name"]).strip
+                    next if name1 == ""
+                    Fx18Attributes::setAttribute2(item["uuid"], "name", name1)
+                else
+                    description = CommonUtils::editTextSynchronously(item["description"]).strip
+                    next if description == ""
+                    Fx18Attributes::setAttribute2(item["uuid"], "description", description)
+                end
+                next
+            end
+
+            if Interpreting::match("json", command) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+            end
+
+            if Interpreting::match("destroy", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
+                    Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
+                    break
+                end
+            end
+        }
     end
 
-    # TxProjects::accessProject(project)
-    def self.accessProject(project)
+    # TxProjects::runAndAccessElements(project)
+    def self.runAndAccessElements(project)
         NxBallsService::issue(project["uuid"], TxProjects::toString(project), [project["uuid"]])
         loop {
             system("clear")
@@ -181,7 +227,15 @@ class TxProjects
             projects = TxProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
             project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|item| TxProjects::toString(item) })
             break if project.nil?
-            TxProjects::landing(project)
+            puts TxProjects::toString(project).green
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["landing", "access elements"])
+            next if action.nil?
+            if action == "landing" then
+                TxProjects::landing(project)
+            end
+            if action == "access elements" then
+                TxProjects::runAndAccessElements(project)
+            end
         }
     end
 

@@ -94,7 +94,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxProject" then
-                TxProjects::accessProject(item)
+                TxProjects::runAndAccessElements(item)
                 return
             end
 
