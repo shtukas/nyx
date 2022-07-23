@@ -5,7 +5,6 @@ class AionSpheres
     # AionSpheres::objectRepositoryFolderpath(objectuuid)
     def self.objectRepositoryFolderpath(objectuuid)
         path = "#{StargateCentral::pathToCentral()}/Aion-Spheres/#{objectuuid}"
-        path = "/Users/pascal/Desktop/sphere/#{objectuuid}"
         if !File.exists?(path) then
             FileUtils.mkdir(path)
         end
