@@ -172,8 +172,9 @@ class Anniversaries
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
             .map{|item|
                 {
-                    "item" => item,
-                    "toString" => Anniversaries::toString(item)
+                    "item"     => item,
+                    "toString" => Anniversaries::toString(item),
+                    "metric"   => 0.9 + Catalyst::idToSmallShift(item["uuid"])
                 }
             }
     end

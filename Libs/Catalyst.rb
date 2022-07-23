@@ -2,6 +2,15 @@
 
 class Catalyst
 
+    # Catalyst::idToSmallShift(id)
+    def self.idToSmallShift(id)
+        shift = XCache::getOrNull("0f8a5f9b-d3de-4910-bafd-13c3718007dc:#{id}")
+        return shift.to_f if shift
+        shift = rand.to_f/100
+        XCache::set("0f8a5f9b-d3de-4910-bafd-13c3718007dc:#{id}", shift)
+        shift
+    end
+
     # Catalyst::primaryCommandProcess()
     def self.primaryCommandProcess()
         puts Commands::commands().yellow
@@ -25,14 +34,6 @@ class Catalyst
         text
     end
 
-    # Catalyst::section1()
-    def self.section1()
-        [
-            TxProjects::section1(),
-            NxFrames::items()
-        ].flatten
-    end
-
     # Catalyst::section2()
     def self.section2()
         x1 = [
@@ -44,7 +45,8 @@ class Catalyst
             .map{|item|
                 {
                     "item" => item,
-                    "toString" => LxFunction.function("toString", item)
+                    "toString" => LxFunction.function("toString", item),
+                    "metric"   => 0.9 + Catalyst::idToSmallShift("fitness")
                 }
             }
 
@@ -62,32 +64,9 @@ class Catalyst
             .select{|x| DoNotShowUntil::isVisible(x["item"]["uuid"]) }
             .select{|x| InternetStatus::itemShouldShow(x["item"]["uuid"]) }
 
-        x1 + x2
-    end
-
-    # Catalyst::applyImpliedOrder(packets)
-    def self.applyImpliedOrder(packets)
-        section2 = JSON.parse(XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", "[]"))
-
-        itemsuuids = packets.map{|px| px["item"]["uuid"]}
-        section2 = section2.select{|px| itemsuuids.include?(px["item"]["uuid"])}
-        packets.each{|px1|
-            if section2.map{|px2| px2["item"]["uuid"]}.include?(px1["item"]["uuid"]) then
-                # replacement
-                section2 = section2.map{|px2|
-                    if px2["item"]["uuid"] == px1["item"]["uuid"] then
-                        px1
-                    else
-                        px2
-                    end
-                }
-            else
-                # put at the end
-                section2 = section2 + [px1]
-            end
-        }
-        XCache::set("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", JSON.generate(section2))
-        section2
+        (x1 + x2)
+            .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
+            .reverse
     end
 
     # Catalyst::program()
@@ -183,14 +162,18 @@ class Catalyst
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
         end
 
-        section1 = Catalyst::section1()
-        if !section1.empty? then
+        frames = NxFrames::items()
+        if !frames.empty? then
             puts ""
             vspaceleft = vspaceleft - 1
-            Catalyst::section1()
+            frames
                 .each{|item|
                     store.register(item, false)
-                    line = "#{store.prefixString()} #{LxFunction.function("toString", item)}"
+                    line = "#{store.prefixString()} #{NxFrames::toString(item)}".yellow
+                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
@@ -198,14 +181,15 @@ class Catalyst
 
         section2 = Catalyst::section2()
         if !section2.empty? then
+            XCache::set("c4270054-4a57-402e-9fda-6b90223fca9a", section2.map{|p| p["metric"] }.max)
             puts ""
             vspaceleft = vspaceleft - 1
-            Catalyst::applyImpliedOrder(section2)
+            section2
                 .each{|p|
                     item = p["item"]
                     toString = p["toString"]
                     store.register(item, true)
-                    line = "#{store.prefixString()} #{toString}"
+                    line = "#{store.prefixString()} #{"%.3f" % p["metric"]} #{toString}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

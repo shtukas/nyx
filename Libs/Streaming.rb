@@ -173,7 +173,8 @@ class Streaming
 
         [{
             "item" => item,
-            "toString" => item["announce"]
+            "toString" => item["announce"],
+            "metric"   => 0.6 + Catalyst::idToSmallShift(item["uuid"])
         }]
     end
 end

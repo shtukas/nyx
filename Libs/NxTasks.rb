@@ -133,7 +133,8 @@ class NxTasks
             .map{|item|
                 {
                     "item" => item,
-                    "toString" => NxTasks::toStringForSearch(item)
+                    "toString" => NxTasks::toStringForSearch(item),
+                    "metric"   => 0.6 + Catalyst::idToSmallShift(item["uuid"])
                 }
             }
     end

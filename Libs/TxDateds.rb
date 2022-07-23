@@ -110,7 +110,8 @@ class TxDateds
             .map{|item|
                 {
                     "item" => item,
-                    "toString" => TxDateds::toString(item)
+                    "toString" => TxDateds::toString(item),
+                    "metric"   => 0.8 + Catalyst::idToSmallShift(item["uuid"])
                 }
             }
     end

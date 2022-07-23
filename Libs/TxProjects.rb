@@ -117,21 +117,14 @@ class TxProjects
         "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
     end
 
-    # TxProjects::section1()
-    def self.section1()
-        TxProjects::items()
-            .select{|project| !Ax39::itemShouldShow(project) }
-    end
-
     # TxProjects::section2()
     def self.section2()
         TxProjects::items()
-            .select{|project| Ax39::itemShouldShow(project) }
-            .sort{|p1, p2| Ax39::completionRatio(p1) <=> Ax39::completionRatio(p2) }
             .map{|item|
                 {
                     "item" => item,
-                    "toString" => TxProjects::toString(item)
+                    "toString" => TxProjects::toString(item),
+                    "metric"   => (Ax39::itemShouldShow(item) ? 0.8 : 0.1) + Catalyst::idToSmallShift(item["uuid"])
                 }
             }
     end

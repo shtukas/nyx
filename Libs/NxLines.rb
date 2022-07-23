@@ -56,7 +56,8 @@ class NxLines
             .map{|item|
                 {
                     "item" => item,
-                    "toString" => NxLines::toString(item)
+                    "toString" => NxLines::toString(item),
+                    "metric"   => 0.8 + Catalyst::idToSmallShift(item["uuid"])
                 }
             }
     end
