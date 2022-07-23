@@ -87,6 +87,7 @@ class AionSpheres
 end
 
 class AionSphereElizabeth
+
     def initialize(objectuuid)
         StargateCentral::ensureInfinityDrive()
         @objectuuid = objectuuid
