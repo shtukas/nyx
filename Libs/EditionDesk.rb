@@ -152,6 +152,22 @@ class EditionDesk
             puts "Item exported at #{exportLocation}"
             return exportLocation
         end
+        if nx111["type"] == "aion-sphere" then
+            rootnhash = nx111["rootnhash"]
+            operator = AionSphereElizabeth.new(itemuuid)
+            flag, exportLocation = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, itemuuid, nx111) # can come with an extension
+            rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
+            # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
+            # So we need to update the export location by substituting the old extension-less basename with the one that actually is going to be used during the aion export
+            actuallocationbasename = AionTransforms::extractTopName(operator, rootnhash)
+            exportLocation = "#{File.dirname(exportLocation)}/#{actuallocationbasename}"
+            if File.exists?(exportLocation) then
+                return exportLocation
+            end
+            AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
+            puts "Item exported at #{exportLocation}"
+            return exportLocation
+        end
         if nx111["type"] == "unique-string" then
             uniquestring = nx111["uniquestring"]
             UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
@@ -251,6 +267,16 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             operator = Fx18ElizabethStandard.new(itemuuid)
+            rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
+            item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
+            rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(LxFunction::function("generic-description", item)))
+            return if nx111["rootnhash"] == rootnhash2
+            nx111["rootnhash"] = rootnhash2
+            Fx18Attributes::setAttribute2(itemuuid, "nx111", JSON.generate(nx111))
+            return
+        end
+        if nx111["type"] == "aion-sphere" then
+            operator = AionSphereElizabeth.new(itemuuid)
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
             item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
             rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(LxFunction::function("generic-description", item)))

@@ -68,17 +68,17 @@ class Ax39
     def self.itemShouldShow(item)
         return false if !DoNotShowUntil::isVisible(item["uuid"])
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return false if DoneToday::isDoneToday(item["uuid"])
+            return false if DoneForToday::isDoneToday(item["uuid"])
             return true
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return false if DoneToday::isDoneToday(item["uuid"])
+            return false if DoneForToday::isDoneToday(item["uuid"])
             return false if Ax39::completionRatio(item) >= 1
             return true
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
             return false if Time.new.wday == 5 # We don't show those on Fridays
-            return false if DoneToday::isDoneToday(item["uuid"])
+            return false if DoneForToday::isDoneToday(item["uuid"])
             return false if Ax39::completionRatio(item) >= 1
             return true
         end
@@ -88,7 +88,7 @@ class Ax39
     # Ax39::completionRatio(item)
     def self.completionRatio(item)
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return DoneToday::isDoneToday(item["uuid"]) ? 1 : 0
+            return DoneForToday::isDoneToday(item["uuid"]) ? 1 : 0
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
             return [ 

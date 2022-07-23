@@ -142,7 +142,7 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
-require_relative "DoneToday.rb"
+require_relative "DoneForToday.rb"
 require_relative "DatablobsXCache.rb"
 
 require_relative "EditionDesk.rb"

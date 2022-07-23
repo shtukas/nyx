@@ -20,11 +20,6 @@ class LxAction
 
         if command == ".." then
 
-            if item["mikuType"] == "TxProject" then
-                TxProjects::startAccessProject(item)
-                return
-            end
-
             # Stardard starting of the item
 
             LxAction::action("start", item)
@@ -99,7 +94,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxProject" then
-                TxProjects::startAccessProject(item)
+                TxProjects::accessProject(item)
                 return
             end
 
@@ -169,10 +164,9 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
-                TxProjects::elementuuids(item).each{|elementuuid|
-                    NxBallsService::close(elementuuid, true)
-                }
-                DoneToday::setDoneToday(item["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
+                    DoneForToday::setDoneToday(item["uuid"])
+                end
                 return
             end
 
@@ -207,7 +201,7 @@ class LxAction
 
             if item["mikuType"] == "NxFrame" then
                 NxBallsService::close(item["uuid"], true)
-                DoneToday::setDoneToday(item["uuid"])
+                DoneForToday::setDoneToday(item["uuid"])
                 return
             end
 
@@ -228,7 +222,9 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
-                DoneToday::setDoneToday(item["uuid"])
+                if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
+                    DoneForToday::setDoneToday(item["uuid"])
+                end
                 return
             end
 
@@ -280,10 +276,6 @@ class LxAction
         end
 
         if command == "start" then
-            if item["mikuType"] == "TxProject" then
-                TxProjects::startAccessProject(item)
-                return
-            end
             return if NxBallsService::isRunning(item["uuid"])
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
             return

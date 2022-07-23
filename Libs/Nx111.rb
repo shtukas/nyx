@@ -10,6 +10,7 @@ class Nx111
             "url",
             "file",
             "aion-point",
+            "aion-sphere",
             "unique-string",
             "Dx8Unit"
         ]
@@ -28,6 +29,18 @@ class Nx111
         {
             "uuid"      => SecureRandom.uuid,
             "type"      => "aion-point",
+            "rootnhash" => rootnhash
+        }
+    end
+
+    # Nx111::locationToAionSphereNx111OrNull(objectuuid, location)
+    def self.locationToAionSphereNx111OrNull(objectuuid, location)
+        raise "(error: 3a6f56c2-abae-4373-98bd-a242814a66bb) #{location}" if !File.exists?(location)
+        operator = AionSphereElizabeth.new(objectuuid)
+        rootnhash = AionCore::commitLocationReturnHash(operator, location)
+        {
+            "uuid"      => SecureRandom.uuid,
+            "type"      => "aion-sphere",
             "rootnhash" => rootnhash
         }
     end
@@ -72,6 +85,11 @@ class Nx111
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return Nx111::locationToAionPointNx111OrNull(objectuuid, location)
+        end
+        if type == "aion-sphere" then
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            return nil if location.nil?
+            return Nx111::locationToAionSphereNx111OrNull(objectuuid, location)
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
