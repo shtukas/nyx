@@ -10,7 +10,7 @@ class Commands
             "anniversaries | calendar | ondates | todos | projects",
             "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | push (<n>) | redate (<n>) | done (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
             "require internet",
-            "rstream | search | nyx | speed | pickup | nxballs | indices | maintenance",
+            "rstream | search | nyx | speed | pickup | nxballs | indices | maintenance | >>",
         ].join("\n")
     end
 
@@ -49,6 +49,15 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             LxAction::action(">nyx", item.clone)
+            return
+        end
+
+        if input == ">>" then
+            item = store.getDefault()
+            return if item.nil?
+            section2 = JSON.parse(XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", "[]"))
+            section2 = section2.select{|ix| ix["item"]["uuid"] != item["uuid"]}
+            XCache::set("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", JSON.generate(section2))
             return
         end
 

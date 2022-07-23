@@ -65,31 +65,29 @@ class Catalyst
         x1 + x2
     end
 
-    # Catalyst::applyImpliedOrder(items)
-    def self.applyImpliedOrder(items)
-        order = JSON.parse(XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", "[]"))
+    # Catalyst::applyImpliedOrder(packets)
+    def self.applyImpliedOrder(packets)
+        section2 = JSON.parse(XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", "[]"))
 
-        itemsuuids = items.map{|item| item["uuid"]}
-        order = order.select{|item| itemsuuids.include?(item["uuid"])}
-        orderuuids = order.map{|item| item["uuid"]}
-        items.each{|item|
-            if orderuuids.include?(item["uuid"]) then
+        itemsuuids = packets.map{|px| px["item"]["uuid"]}
+        section2 = section2.select{|px| itemsuuids.include?(px["item"]["uuid"])}
+        packets.each{|px1|
+            if section2.map{|px2| px2["item"]["uuid"]}.include?(px1["item"]["uuid"]) then
                 # replacement
-                order = order.map{|i|
-                    if i["uuid"] == item["uuid"] then
-                        item
+                section2 = section2.map{|px2|
+                    if px2["item"]["uuid"] == px1["item"]["uuid"] then
+                        px1
                     else
-                        i
+                        px2
                     end
                 }
             else
                 # put at the end
-                order = order + [item]
+                section2 = section2 + [px1]
             end
         }
-
-        XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", JSON.generate(order))
-        order
+        XCache::set("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", JSON.generate(section2))
+        section2
     end
 
     # Catalyst::program()
