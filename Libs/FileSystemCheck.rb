@@ -137,6 +137,18 @@ class FileSystemCheck
             end
             return
         end
+        if nx111["type"] == "aion-sphere" then
+            rootnhash = nx111["rootnhash"]
+            operator = AionSphereElizabeth.new(filepath)
+            status = AionFsck::structureCheckAionHash(operator, rootnhash)
+            if !status then
+                puts "filepath: #{filepath}".red
+                puts "nx111: #{nx111}".red
+                puts "filepath, could not validate aion-point".red
+                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+            end
+            return
+        end
         if nx111["type"] == "unique-string" then
             return
         end
