@@ -164,6 +164,9 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
+                if LucilleCore::askQuestionAnswerAsBoolean("done for today ?", true) then
+                    DoneForToday::setDoneToday(item["uuid"])
+                end
                 return
             end
 
@@ -198,7 +201,7 @@ class LxAction
 
             if item["mikuType"] == "NxFrame" then
                 NxBallsService::close(item["uuid"], true)
-                DoneToday::setDoneToday(item["uuid"])
+                DoneForToday::setDoneToday(item["uuid"])
                 return
             end
 
@@ -219,6 +222,9 @@ class LxAction
 
             if item["mikuType"] == "TxProject" then
                 NxBallsService::close(item["uuid"], true)
+                if LucilleCore::askQuestionAnswerAsBoolean("done for today ?", true) then
+                    DoneForToday::setDoneToday(item["uuid"])
+                end
                 return
             end
 

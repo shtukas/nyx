@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | project ",
             "anniversaries | calendar | ondates | todos | projects",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
+            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | indices | maintenance | >>",
         ].join("\n")
@@ -124,10 +124,10 @@ class Commands
             return
         end
 
-        if input == "done today" then
+        if input == "done for today" then
             item = store.getDefault()
             return if item.nil?
-            DoneToday::setDoneToday(item["uuid"])
+            DoneForToday::setDoneToday(item["uuid"])
             return
         end
 

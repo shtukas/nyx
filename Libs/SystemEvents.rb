@@ -38,7 +38,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "SetDoneToday" then
-            DoneToday::processEventInternally(event)
+            DoneForToday::processEventInternally(event)
             return
         end
 
