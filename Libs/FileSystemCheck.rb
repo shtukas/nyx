@@ -78,6 +78,13 @@ class FileSystemCheck
     def self.fsckNx111ErrorAtFirstFailure(filepath, nx111)
         return if nx111.nil?
 
+        objectuuid = Fx18Attributes::getOrNull2(filepath, "uuid")
+        if objectuuid.nil? then
+            puts "filepath: #{filepath}".red
+            puts "Malformed Fx18 file, I could not find a uuid".red
+            raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+        end
+
         if !Nx111::types().include?(nx111["type"]) then
             puts "filepath has an incorrect nx111 value type".red
             puts "filepath: #{filepath}".red
@@ -87,7 +94,7 @@ class FileSystemCheck
 
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
-            blob = Fx18FileDataForFsck::getBlobOrNull(filepath, nhash)
+            blob = FxDataElizabethForFsck.new(objectuuid).getBlobOrNull(nhash)
             if blob.nil? then
                 puts "filepath: #{filepath}".red
                 puts "nx111: #{nx111}".red
@@ -110,7 +117,7 @@ class FileSystemCheck
                 puts "primitive parts, dotted extension is malformed".red
                 raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
             end
-            operator = FxDataElizabethForFsck.new(filepath)
+            operator = FxDataElizabethForFsck.new(objectuuid)
             parts.each{|nhash|
                 blob = operator.getBlobOrNull(nhash)
                 if blob.nil? then
@@ -125,7 +132,7 @@ class FileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = FxDataElizabethForFsck.new(filepath)
+            operator = FxDataElizabethForFsck.new(objectuuid)
             status = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
                 puts "filepath: #{filepath}".red
@@ -157,7 +164,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckFx18FilepathErrorAtFirstFailure(filepath)
     def self.fsckFx18FilepathErrorAtFirstFailure(filepath)
-        puts "FileSystemCheck, Fx18, filepath: #{filepath}"        
+        puts "FileSystemCheck, Fx18, filepath: #{filepath}"
 
         uuid = Fx18Attributes::getOrNull2(filepath, "uuid")
         if uuid.nil? then

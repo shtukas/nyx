@@ -178,15 +178,6 @@ class FxData
     # FxData::getBlobOrNullForFsck(objectuuid, nhash)
     def self.getBlobOrNullForFsck(objectuuid, nhash)
 
-        # ------------------------------------------------------------------------------------------
-        # Data Migration (We expect the drive to be plugged)
-        blob = Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(objectuuid, nhash)
-        if blob then
-            puts "FxData::putBlobOnInfinity(#{objectuuid}, #{nhash})"
-            FxData::putBlobOnInfinity(objectuuid, blob)
-            return blob
-        end
-
         # Second, we look into the local store
         FxData::ensureFxDataLocalDatabase()
         blob = FxData::getBlobFromFileOrNull(FxData::localFxDatabaseFilepath(), objectuuid, nhash)

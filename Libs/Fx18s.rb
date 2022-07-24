@@ -30,6 +30,19 @@ class Fx18Utils
         filepath
     end
 
+    # Fx18Utils::ensureFile(objectuuid)
+    def self.ensureFile(objectuuid)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
+            db.close
+        end
+    end
+
     # Fx18Utils::fx18FilepathsFromFileSystem()
     def self.fx18FilepathsFromFileSystem()
         LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18s")
@@ -354,87 +367,6 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
     end
 end
 
-class Fx18LocalObjectsDataWithInfinityHelp
-
-    # Fx18LocalObjectsDataWithInfinityHelp::computeStargateCentralFilepath(objectuuid)
-    def self.computeStargateCentralFilepath(objectuuid)
-        "#{StargateCentral::pathToCentral()}/Fx18s/#{objectuuid}.fx18.sqlite3"
-    end
-
-    # Fx18LocalObjectsDataWithInfinityHelp::ensureFileForPut(objectuuid)
-    def self.ensureFileForPut(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
-            db.close
-        end
-    end
-
-    # Fx18LocalObjectsDataWithInfinityHelp::putBlob1(objectuuid, eventuuid, eventTime, key, blob)
-    def self.putBlob1(objectuuid, eventuuid, eventTime, key, blob)
-        Fx18LocalObjectsDataWithInfinityHelp::ensureFileForPut(objectuuid)
-        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "datablob", key, blob, nil, nil)
-    end
-
-    # Fx18LocalObjectsDataWithInfinityHelp::putBlob2(objectuuid, key, blob)
-    def self.putBlob2(objectuuid, key, blob)
-        Fx18LocalObjectsDataWithInfinityHelp::putBlob1(objectuuid, SecureRandom.uuid, Time.new.to_f, key, blob)
-    end
-
-    # Fx18LocalObjectsDataWithInfinityHelp::putBlob3(objectuuid, blob) # nhash
-    def self.putBlob3(objectuuid, blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18LocalObjectsDataWithInfinityHelp::putBlob2(objectuuid, nhash, blob)
-        nhash
-    end
-
-    # Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(objectuuid, nhash)
-    def self.getBlobOrNull(objectuuid, nhash)
-        filepath1 = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if File.exists?(filepath1) then
-            db = SQLite3::Database.new(filepath1)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            blob = nil
-            db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-                blob = row["_eventData3_"]
-            end
-            db.close
-            return blob if blob
-        end
-
-        # At this point here is what we gonna do: try to find the file on Stargate Central and get it down on local
-        StargateCentral::ensureInfinityDrive()
-
-        filepath2 = Fx18LocalObjectsDataWithInfinityHelp::computeStargateCentralFilepath(objectuuid)
-        if File.exists?(filepath2) then
-            db = SQLite3::Database.new(filepath2)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            blob = nil
-            db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-                blob = row["_eventData3_"]
-            end
-            db.close
-            if blob then
-                if File.exists?(filepath1) then
-                    puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}"
-                    Fx18Synchronisation::propagateFileData(filepath2, filepath1)
-                end
-                return blob
-            end
-        end
-
-        nil
-    end
-end
-
 class Fx18Attributes
 
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
@@ -564,7 +496,7 @@ class Fx18ElizabethStandard
     end
 
     def putBlob(blob)
-        Fx18LocalObjectsDataWithInfinityHelp::putBlob3(@objectuuid, blob)
+        #
     end
 
     def filepathToContentHash(filepath)
@@ -572,7 +504,7 @@ class Fx18ElizabethStandard
     end
 
     def getBlobOrNull(nhash)
-        Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(@objectuuid, nhash)
+        # 
     end
 
     def readBlobErrorIfNotFound(nhash)

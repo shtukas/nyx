@@ -53,7 +53,7 @@ class SystemEvents
                 event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
             end
             objectuuid = event["objectuuid"]
-            Fx18LocalObjectsDataWithInfinityHelp::ensureFileForPut(objectuuid)
+            Fx18Utils::ensureFile(objectuuid)
             eventi = event["Fx18FileEvent"]
             Fx18Utils::commitEventToObjectuuidNoDrop(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
