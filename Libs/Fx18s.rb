@@ -166,8 +166,8 @@ class Fx18Utils
         JSON.parse(str)
     end
 
-    # Fx18Utils::commitEventToObjectuuidNoDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.commitEventToObjectuuidNoDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    # Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.commitEventToObjectuuid(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
         if !File.exists?(filepath) then
             Fx18Utils::makeNewFile(objectuuid)
@@ -178,31 +178,6 @@ class Fx18Utils
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5]
         db.close
-
-        # We do not emit an event here, as this is also called from system event processing
-    end
-
-    # Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-        Fx18Utils::commitEventToObjectuuidNoDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-        Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    end
-
-    # Fx18Utils::issueStargateDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.issueStargateDrop(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-        SystemEvents::issueStargateDrop({
-            "mikuType"      => "Fx18 File Event",
-            "objectuuid"    => objectuuid,
-            "Fx18FileEvent" => {
-                "_eventuuid_"  => eventuuid,
-                "_eventTime_"  => eventTime,
-                "_eventData1_" => eventData1,
-                "_eventData2_" => eventData2,
-                "_eventData3_" => eventData3,
-                "_eventData4_" => eventData4,
-                "_eventData5_" => eventData5
-            }
-        })
     end
 end
 
@@ -372,7 +347,7 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -418,7 +393,7 @@ class Fx18Sets
     # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
-        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -437,7 +412,7 @@ class Fx18Sets
     # Fx18Sets::remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
     def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
-        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -495,7 +470,7 @@ class Fx18Data
     def self.putBlob(objectuuid, blob)
         Fx18Utils::ensureFile(objectuuid)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
+        Fx18Utils::commitEventToObjectuuid(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
         nhash
     end
 

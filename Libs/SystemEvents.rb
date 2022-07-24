@@ -55,64 +55,18 @@ class SystemEvents
             objectuuid = event["objectuuid"]
             Fx18Utils::ensureFile(objectuuid)
             eventi = event["Fx18FileEvent"]
-            Fx18Utils::commitEventToObjectuuidNoDrop(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Fx18Utils::commitEventToObjectuuid(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
     end
 
     # SystemEvents::issueStargateDrop(event)
     def self.issueStargateDrop(event)
-        if event["mikuType"] == "Fx18 File Event" then
-            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
-            end
-        end
 
-        instanceIds = ["Lucille20-pascal", "Lucille20-guardian", "Lucille18-pascal"] - [Config::get("instanceId")]
-
-        instanceIds.each{|instanceId|
-            filename = "#{CommonUtils::nx45()}.json"
-            filepath = "/Volumes/Keybase (#{ENV['USER']})/private/0x107/Stargate-Drops2/#{instanceId}/#{filename}"
-            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
-            SystemEvents::fsckDrop(filepath)
-        }
-    end
-
-    # SystemEvents::fsckDrop(filepath)
-    def self.fsckDrop(filepath)
-        # Date: July 21st, 2022
-        # This function exists to test the datablobs drops, I think they are incorrects
-        drop = JSON.parse(IO.read(filepath))
-        if drop["mikuType"] == "Fx18 File Event" then
-            if drop["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-                nhash1 = drop["Fx18FileEvent"]["_eventData2_"]
-                blob = CommonUtils::base64_decode(drop["Fx18FileEvent"]["_eventData3_"])
-                nhash2 = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-                if nhash1 != nhash2 then
-                    # problem
-                    puts "Huston, we have a problem!"
-                    puts "filepath: #{filepath}"
-                    puts "nhash1: #{nhash1}"
-                    puts "nhash2: #{nhash2}"
-                    puts "I am going to delete that file"
-                    LucilleCore::pressEnterToContinue()
-                end
-            end
-        end
     end
 
     # SystemEvents::pickupDrops()
     def self.pickupDrops()
-        LucilleCore::locationsAtFolder("/Volumes/Keybase (#{ENV['USER']})/private/0x107/Stargate-Drops2/#{Config::get("instanceId")}")
-            .each{|filepath|
-                filename = File.basename(filepath)
-                next if filename[0, 1] == "."
-                next if filename[-5, 5] != ".json"
-                puts "SystemEvents::pickupDrops(), file: #{filepath}"
-                SystemEvents::fsckDrop(filepath)
-                event = JSON.parse(IO.read(filepath))
-                SystemEvents::processEventInternally(event)
-                FileUtils.rm(filepath)
-            }
+
     end
 end
