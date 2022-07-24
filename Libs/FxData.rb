@@ -1,32 +1,22 @@
 # encoding: UTF-8
 
-=begin
-
-data files: create table _data_ (_objectuuid_ text, _nhash_ text, _blob_ blob)
-
-=end
-
 class FxData
 
     # -------------------------------------------------------------------
+    # Basic IO
 
-    # FxData::localFxDatabaseFilepath()
-    def self.localFxDatabaseFilepath()
-        "#{Config::pathToLocalDataBankStargate()}/FxData.sqlite3"
-    end
-
-    # FxData::ensureFxDataLocalDatabase()
-    def self.ensureFxDataLocalDatabase()
-        return if File.exists?(FxData::localFxDatabaseFilepath())
-        db = SQLite3::Database.new(FxData::localFxDatabaseFilepath())
+    # FxData::putBlobIntoFile(filepath, objectuuid, blob)
+    def self.putBlobIntoFile(filepath, objectuuid, blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "create table _data_ (_objectuuid_ text, _nhash_ text, _blob_ blob)"
+        db.execute "delete from _data_ where _objectuuid_=? and _nhash_=?", [objectuuid, nhash]
+        db.execute "insert into _data_ (_objectuuid_, _nhash_, _blob_) values (?, ?, ?)", [objectuuid, nhash, blob]
         db.close
+        nhash
     end
-
-    # -------------------------------------------------------------------
 
     # FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash)
     def self.getBlobFromFileOrNull(filepath, objectuuid, nhash)
@@ -46,27 +36,51 @@ class FxData
         blob
     end
 
-    # FxData::putBlobIntoFile(filepath, objectuuid, blob)
-    def self.putBlobIntoFile(filepath, objectuuid, blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _data_ where _objectuuid_=? and _nhash_=?", [objectuuid, nhash]
-        db.execute "insert into _data_ (_objectuuid_, _nhash_, _blob_) values (?, ?, ?)", [objectuuid, nhash, blob]
-        db.close
-        nhash
+    # -------------------------------------------------------------------
+    # Standard Interface
+
+    # FxData::putBlob(objectuuid, blob)
+    def self.putBlob(objectuuid, blob)
+        Fx18Data::putBlob(objectuuid, blob) # We put the blob on the object itself
+    end
+
+    # FxData::getBlobOrNull(objectuuid, nhash)
+    def self.getBlobOrNull(objectuuid, nhash)
+
+        # First, we look on the object itself
+        blob = Fx18Data::getBlobOrNull(objectuuid, nhash) 
+        if blob then
+            return blob
+        end
+
+        # Second we look at XCache
+        blob = XCacheDatablobs::getBlobOrNull(nhash)
+        if blob then
+            return blob
+        end
+
+        # If not, then we try the Infinity drive
+        StargateCentral::ensureInfinityDrive()
+
+        # We need to extract the names of the database where this object stores its data on Infinity
+        filenames = Fx18Sets::items(objectuuid, "fxdata-filenames")
+
+        # Mapping the names into paths
+        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxData500/#{filename}" }
+
+        filepaths.each{|filepath|
+            blob = FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash)
+            if blob then
+                XCacheDatablobs::putBlob(blob)
+                return blob
+            end
+        }
+
+        nil
     end
 
     # -------------------------------------------------------------------
-
-    # FxData::putBlobOnLocal(objectuuid, blob)
-    def self.putBlobOnLocal(objectuuid, blob)
-        FxData::ensureFxDataLocalDatabase()
-        nhash = FxData::putBlobIntoFile(FxData::localFxDatabaseFilepath(), objectuuid, blob)
-        nhash
-    end
+    # Special Circumstances
 
     # FxData::putBlobOnInfinity(objectuuid, blob)
     def self.putBlobOnInfinity(objectuuid, blob)
@@ -133,54 +147,11 @@ class FxData
         nhash
     end
 
-    # -------------------------------------------------------------------
-
-    # FxData::getBlobOrNull(objectuuid, nhash)
-    def self.getBlobOrNull(objectuuid, nhash)
-
-        # ------------------------------------------------------------------------------------------
-
-        First we look at XCache
-        blob = XCacheDatablobs::getBlobOrNull(nhash)
-        if blob then
-            FxData::putBlobOnInfinity(objectuuid, blob)
-            return blob
-        end
-
-        # Second, we look into the local store
-        FxData::ensureFxDataLocalDatabase()
-        blob = FxData::getBlobFromFileOrNull(FxData::localFxDatabaseFilepath(), objectuuid, nhash)
-        if blob then
-            XCacheDatablobs::putBlob(blob)
-            return blob
-        end
-
-        # If not, then we try the Infinity drive
-        StargateCentral::ensureInfinityDrive()
-
-        # We need to extract the names of the database where this object stores its data on Infinity
-        filenames = Fx18Sets::items(objectuuid, "fxdata-filenames")
-
-        # Mapping the names into paths
-        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxData500/#{filename}" }
-
-        filepaths.each{|filepath|
-            blob = FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash)
-            if blob then
-                XCacheDatablobs::putBlob(blob)
-                return blob
-            end
-        }
-
-        nil
-    end
-
     # FxData::getBlobOrNullForFsck(objectuuid, nhash)
     def self.getBlobOrNullForFsck(objectuuid, nhash)
 
-        # Second, we look into the local store
-        FxData::ensureFxDataLocalDatabase()
-        blob = FxData::getBlobFromFileOrNull(FxData::localFxDatabaseFilepath(), objectuuid, nhash)
+        # First, we look on the object itself
+        blob = Fx18Data::getBlobOrNull(objectuuid, nhash) 
         if blob then
             return blob
         end
@@ -203,7 +174,6 @@ class FxData
 
         nil
     end
-
 end
 
 class FxDataElizabeth
@@ -213,7 +183,7 @@ class FxDataElizabeth
     end
 
     def putBlob(blob)
-        FxData::putBlobOnLocal(@objectuuid, blob)
+        FxData::putBlob(@objectuuid, blob)
     end
 
     def filepathToContentHash(filepath)

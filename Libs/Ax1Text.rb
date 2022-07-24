@@ -23,7 +23,7 @@ class Ax1Text
         uuid = SecureRandom.uuid
         Fx18Utils::makeNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
-        nhash = FxData::putBlobOnLocal(uuid, text)
+        nhash = FxData::putBlob(uuid, text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         Fx18Attributes::setAttribute2(uuid, "uuid", uuid)
@@ -79,7 +79,7 @@ class Ax1Text
                 nhash = Fx18Attributes::getOrNull(uuid, "nhash")
                 text = FxData::getBlobOrNull(uuid, nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = FxData::putBlobOnLocal(uuid, text)
+                nhash = FxData::putBlob(uuid, text)
                 Fx18Attributes::setAttribute2(uuid, "nhash", nhash)
             end
             if operation == "destroy" then

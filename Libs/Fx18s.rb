@@ -489,42 +489,30 @@ class Fx18Sets
     end
 end
 
-class Fx18ElizabethStandard
+class Fx18Data
 
-    def initialize(objectuuid)
-        @objectuuid = objectuuid
+    # Fx18Data::putBlob(objectuuid, blob) # nhash
+    def self.putBlob(objectuuid, blob)
+        Fx18Utils::ensureFile(objectuuid)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        Fx18Utils::commitEventToObjectuuidEmitDrop(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
+        nhash
     end
 
-    def putBlob(blob)
-        #
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def getBlobOrNull(nhash)
-        # 
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = getBlobOrNull(nhash)
-        return blob if blob
-        puts "EnergyGridImmutableDataIslandElizabeth: (error: 18e9ac55-934b-4153-8cde-a93a6504d237) could not find blob, nhash: #{nhash}"
-        raise "(error: 744f2b80-2c30-497f-ae5e-b6fc26799cbd, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: 466a0cab-a836-4643-a66a-b9e38aae1c1f) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
+    # Fx18Data::getBlobOrNull(objectuuid, nhash)
+    def self.getBlobOrNull(objectuuid, nhash)
+        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
+        return nil if !File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+            blob = row["_eventData3_"]
         end
+        db.close
+        blob
     end
 end
 
