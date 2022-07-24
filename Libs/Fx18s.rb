@@ -1,5 +1,26 @@
 
+class Fx18v2
+
+    # Fx18v2::fx18Filepath()
+    def self.fx18Filepath()
+        "#{Config::pathToLocalDataBankStargate()}/Fx18.sqlite3"
+    end
+
+    # Fx18v2::commitEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.commitEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+        db = SQLite3::Database.new(Fx18v2::fx18Filepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5]
+        db.close
+    end
+
+end
+
 class Fx18Utils
+
+    # -----------------------------------------------------------------------
 
     # Fx18Utils::computeLocalFx18Filepath(objectuuid)
     def self.computeLocalFx18Filepath(objectuuid)
