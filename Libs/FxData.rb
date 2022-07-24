@@ -116,6 +116,8 @@ class FxData
 
         filename = "#{SecureRandom.uuid}.fxdata.sqlite3"
 
+        puts "declaring Infinity data file: #{filename} for objectuuid: #{objectuuid}"
+
         Fx18Sets::add2(objectuuid, "fxdata-filenames", filename, filename)
 
         filepath = "#{StargateCentral::pathToCentral()}/FxDatabases/#{filename}"
@@ -137,22 +139,19 @@ class FxData
     def self.getBlobOrNull(objectuuid, nhash)
 
         # ------------------------------------------------------------------------------------------
-        # Data Migration (We expect the drive to be plugged)
-        
 
-        # ------------------------------------------------------------------------------------------
-
-        # First we look at XCache
-        #blob = XCacheDatablobs::getBlobOrNull(nhash)
-        #if blob then
-        #    return blob
-        #end
+        First we look at XCache
+        blob = XCacheDatablobs::getBlobOrNull(nhash)
+        if blob then
+            FxData::putBlobOnInfinity(objectuuid, blob)
+            return blob
+        end
 
         # Second, we look into the local store
         FxData::ensureFxDataLocalDatabase()
         blob = FxData::getBlobFromFileOrNull(FxData::localFxDatabaseFilepath(), objectuuid, nhash)
         if blob then
-            #XCacheDatablobs::putBlob(blob)
+            XCacheDatablobs::putBlob(blob)
             return blob
         end
 
@@ -168,7 +167,45 @@ class FxData
         filepaths.each{|filepath|
             blob = FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash)
             if blob then
-                #XCacheDatablobs::putBlob(blob)
+                XCacheDatablobs::putBlob(blob)
+                return blob
+            end
+        }
+
+        nil
+    end
+
+    # FxData::getBlobOrNullForFsck(objectuuid, nhash)
+    def self.getBlobOrNullForFsck(objectuuid, nhash)
+
+        # ------------------------------------------------------------------------------------------
+        # Data Migration (We expect the drive to be plugged)
+        blob = Fx18LocalObjectsDataWithInfinityHelp::getBlobOrNull(objectuuid, nhash)
+        if blob then
+            puts "FxData::putBlobOnInfinity(#{objectuuid}, #{nhash})"
+            FxData::putBlobOnInfinity(objectuuid, blob)
+            return blob
+        end
+
+        # Second, we look into the local store
+        FxData::ensureFxDataLocalDatabase()
+        blob = FxData::getBlobFromFileOrNull(FxData::localFxDatabaseFilepath(), objectuuid, nhash)
+        if blob then
+            return blob
+        end
+
+        # Infinity drive
+        StargateCentral::ensureInfinityDrive()
+
+        # We need to extract the names of the database where this object stores its data on Infinity
+        filenames = Fx18Sets::items(objectuuid, "fxdata-filenames")
+
+        # Mapping the names into paths
+        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxDatabases/#{filename}" }
+
+        filepaths.each{|filepath|
+            blob = FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash)
+            if blob then
                 return blob
             end
         }
@@ -209,6 +246,45 @@ class FxDataElizabeth
             status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
             if !status then
                 puts "(error: da4e9dd0-bb5a-45bc-8b52-f56c081d0869) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+end
+
+class FxDataElizabethForFsck
+
+    def initialize(objectuuid)
+        @objectuuid = objectuuid
+    end
+
+    def putBlob(blob)
+        raise "(error b7ac0e1f-0a06-41a7-b7e9-9beced2da1e7)"
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        FxData::getBlobOrNullForFsck(@objectuuid, nhash)
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "EnergyGridImmutableDataIslandElizabeth: (error: 41d5a038-72c4-45ba-a911-70a206ff22e8) could not find blob, nhash: #{nhash}"
+        raise "(error: 2a4fb644-e23a-4718-87c0-8c4209c33339, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 21c1e398-9895-4b63-abda-266428e3ef93) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
             end
             return status
         rescue

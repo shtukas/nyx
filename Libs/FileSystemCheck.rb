@@ -64,8 +64,6 @@ class Fx18ElizabethFsck
     end
 end
 
-Fx18FileDataForFsck
-
 class FileSystemCheck
 
     # FileSystemCheck::exitIfMissingCanary()
@@ -112,7 +110,7 @@ class FileSystemCheck
                 puts "primitive parts, dotted extension is malformed".red
                 raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
             end
-            operator = Fx18ElizabethFsck.new(filepath)
+            operator = FxDataElizabethForFsck.new(filepath)
             parts.each{|nhash|
                 blob = operator.getBlobOrNull(nhash)
                 if blob.nil? then
@@ -127,7 +125,7 @@ class FileSystemCheck
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = Fx18ElizabethFsck.new(filepath)
+            operator = FxDataElizabethForFsck.new(filepath)
             status = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
                 puts "filepath: #{filepath}".red

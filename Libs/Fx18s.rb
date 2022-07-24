@@ -702,9 +702,9 @@ class Fx18Synchronisation
 
         LucilleCore::locationsAtFolder(infinityrepositoryfolderpath).each{|filepath1|
             objectuuid1 = File.basename(filepath1).gsub(".fx18.sqlite3", "")
-            objectuuid2 = Fx18Attributes::getOrNull2(filepath, "uuid")
+            objectuuid2 = Fx18Attributes::getOrNull2(filepath1, "uuid")
 
-            raise "(error: e6fe9b3e-cb37-4899-956c-3121c2597583)" if (objectuuid1 != objectuuid2)
+            raise "(error: e6fe9b3e-cb37-4899-956c-3121c2597583) filepath1: #{filepath1}" if (objectuuid1 != objectuuid2)
             next if Fx18DeletedFilesMemory::isDeleted(objectuuid1)
 
             next if filepath1[-13, 13] != ".fx18.sqlite3"
@@ -727,6 +727,7 @@ class Fx18Synchronisation
         localrepositoryfolderpath = "#{Config::pathToLocalDataBankStargate()}/Fx18s"
         infinityrepositoryfolderpath = "#{StargateCentral::pathToCentral()}/Fx18s"
         Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
+        Fx18Index1::rebuildIndex()
     end
 end
 
@@ -770,7 +771,7 @@ class Fx18DeletedFilesMemory
         db.results_as_hash = true
         flag = false
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _deleted_ where _objectuuid_?", [objectuuid]) do |row|
+        db.execute("select * from _deleted_ where _objectuuid_=?", [objectuuid]) do |row|
             flag = true
         end
         db.close
