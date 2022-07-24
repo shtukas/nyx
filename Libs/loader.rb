@@ -128,7 +128,6 @@ require_relative "Anniversaries.rb"
 require_relative "AionTransforms.rb"
 require_relative "Architect.rb"
 require_relative "Ax39.rb"
-require_relative "AionSpheres.rb"
 
 require_relative "Bank.rb"
 require_relative "Boxes.rb"
@@ -143,7 +142,7 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
-require_relative "DatablobsXCache.rb"
+require_relative "XCacheDatablobs.rb"
 
 require_relative "EditionDesk.rb"
 
@@ -157,6 +156,7 @@ require_relative "NxIceds.rb"
 
 require_relative "FileSystemCheck.rb"
 require_relative "Fx18s.rb"
+require_relative "FxData.rb"
 
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"

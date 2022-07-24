@@ -45,7 +45,7 @@ class UniqueStringsFunctions
         puts "" # To accomodate CommonUtils::putsOnPreviousLine
         # Edited when we got rid of Librarian::objects() ( aebe4846-be7b-4688-ab32-eedbf65ce75b )
 
-        # TODO: (look inside aion-points and aion-spheres)
+        # TODO: (look inside aion-points)
         [].each{|item|
             next if item["nx111"].nil?
             CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
