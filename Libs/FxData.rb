@@ -76,7 +76,7 @@ class FxData
         StargateCentral::ensureInfinityDrive()
 
         filenames = Fx18Sets::items(objectuuid, "fxdata-filenames")
-        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxDatabases/#{filename}" }
+        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxData500/#{filename}" }
 
         if filepaths.any?{|filepath| !FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash).nil? } then
             # The blob is already on Infinity against that objectuuid
@@ -96,7 +96,7 @@ class FxData
         # We could not find a file or they are all full.
         # Let's try and find another file we could start using
 
-        filepaths = LucilleCore::locationsAtFolder("#{StargateCentral::pathToCentral()}/FxDatabases")
+        filepaths = LucilleCore::locationsAtFolder("#{StargateCentral::pathToCentral()}/FxData500")
                         .select{|filepath| filepath[-15, 15] == ".fxdata.sqlite3" }
                         .select{|filepath| File.size?(filepath) < 1024*1024*500 }
 
@@ -120,7 +120,7 @@ class FxData
 
         Fx18Sets::add2(objectuuid, "fxdata-filenames", filename, filename)
 
-        filepath = "#{StargateCentral::pathToCentral()}/FxDatabases/#{filename}"
+        filepath = "#{StargateCentral::pathToCentral()}/FxData500/#{filename}"
 
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -162,7 +162,7 @@ class FxData
         filenames = Fx18Sets::items(objectuuid, "fxdata-filenames")
 
         # Mapping the names into paths
-        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxDatabases/#{filename}" }
+        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxData500/#{filename}" }
 
         filepaths.each{|filepath|
             blob = FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash)
@@ -192,7 +192,7 @@ class FxData
         filenames = Fx18Sets::items(objectuuid, "fxdata-filenames")
 
         # Mapping the names into paths
-        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxDatabases/#{filename}" }
+        filepaths = filenames.map{|filename| "#{StargateCentral::pathToCentral()}/FxData500/#{filename}" }
 
         filepaths.each{|filepath|
             blob = FxData::getBlobFromFileOrNull(filepath, objectuuid, nhash)
