@@ -21,9 +21,7 @@ class NxEvents
 
     # NxEvents::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxEvent")
-            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
-            .compact
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxEvent")
     end
 
     # NxEvents::destroy(uuid)

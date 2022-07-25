@@ -106,6 +106,21 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
         objectuuids
     end
 
+    # Fx18Index2PrimaryLookup::mikuTypeToItems(mikuType)
+    def self.mikuTypeToItems(mikuType)
+        Fx18Index2PrimaryLookup::buildIndexIfMissing()
+        db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        items = []
+        db.execute("select * from _index_ where _mikuType_=?", [mikuType]) do |row|
+            items << JSON.parse(row["_item_"])
+        end
+        db.close
+        items
+    end
+
     # Fx18Index2PrimaryLookup::mikuTypeCount(mikuType)
     def self.mikuTypeCount(mikuType)
         Fx18Index2PrimaryLookup::mikuType2objectuuids(mikuType).count

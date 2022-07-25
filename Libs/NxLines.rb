@@ -19,9 +19,7 @@ class NxLines
 
     # NxLines::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxLine")
-            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
-            .compact
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxLine")
     end
 
     # ----------------------------------------------------------------------

@@ -17,9 +17,7 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxPerson")
-            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
-            .compact
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxPerson")
     end
 
     # NxPersons::issue(name1)

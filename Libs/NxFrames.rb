@@ -17,9 +17,7 @@ class NxFrames
 
     # NxFrames::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxFrame")
-            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
-            .compact
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxFrame")
     end
 
     # NxFrames::destroy(uuid)

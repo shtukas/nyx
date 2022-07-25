@@ -97,9 +97,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxAnniversary").map{|objectuuid|
-            Fx18Index2PrimaryLookup::itemOrNull(objectuuid)
-        }
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()

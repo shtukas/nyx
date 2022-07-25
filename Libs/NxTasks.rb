@@ -17,9 +17,7 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxTask")
-            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
-            .compact
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxTask")
     end
 
     # NxTasks::items2(count)

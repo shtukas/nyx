@@ -21,9 +21,7 @@ class NxDataNodes
 
     # NxDataNodes::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxDataNode")
-            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
-            .compact
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxDataNode")
     end
 
     # NxDataNodes::destroy(uuid)

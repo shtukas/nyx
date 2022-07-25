@@ -17,9 +17,7 @@ class NxIceds
 
     # NxIceds::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxIced")
-            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
-            .compact
+        Fx18Index2PrimaryLookup::mikuTypeToItems("NxIced")
     end
 
     # NxIceds::destroy(uuid)
