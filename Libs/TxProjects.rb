@@ -141,8 +141,18 @@ class TxProjects
             }
     end
 
+    # TxProjects::projectDefaultVisibilityDepth()
+    def self.projectDefaultVisibilityDepth()
+        50
+    end
+
     # ----------------------------------------------------------------------
     # Operations
+
+    # TxProjects::interactivelySelectProjectElementOrNull(project, count)
+    def self.interactivelySelectProjectElementOrNull(project, count)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxProjects::elements(project, count), lambda{|item| LxFunction::function("toString", item) })
+    end
 
     # TxProjects::landing(item)
     def self.landing(item)
@@ -214,7 +224,7 @@ class TxProjects
 
             store = ItemStore.new()
 
-            elements = TxProjects::elements(project, 50)
+            elements = TxProjects::elements(project, TxProjects::projectDefaultVisibilityDepth())
 
             if elements.empty? then
                 if LucilleCore::askQuestionAnswerAsBoolean("Project '#{TxProjects::toString(project).green}' doesn't have elements. Keep running ? ") then
@@ -230,7 +240,7 @@ class TxProjects
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
             }
 
-            puts "commands: <n> | insert".yellow
+            puts "commands: <n> | insert | detach element | destroy element".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -255,6 +265,18 @@ class TxProjects
                     next if element.nil?
                     TxProjects::addElement_v2(project["uuid"], element["uuid"], 0) # TODO:
                 end
+            end
+
+            if command == "detach element" then
+                element = TxProjects::interactivelySelectProjectElementOrNull(project, TxProjects::projectDefaultVisibilityDepth())
+                next if element.nil?
+                TxProjects::removeElement(project, element["uuid"])
+            end
+
+            if command == "destroy element" then
+                element = TxProjects::interactivelySelectProjectElementOrNull(project, TxProjects::projectDefaultVisibilityDepth())
+                next if element.nil?
+                LxAction::action("destroy", element)
             end
         }
         NxBallsService::close(project["uuid"], true)
