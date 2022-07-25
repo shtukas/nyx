@@ -18,39 +18,6 @@ class LxAction
             exit
         end
 
-        if command == ".." then
-
-            # Stardard starting of the item
-
-            LxAction::action("start", item)
-
-            # Stardard access
-
-            LxAction::action("access", item)
-
-            # Dedicated post access (otherwise we carry on running)
-
-            if item["mikuType"] == "fitness1" then
-                NxBallsService::close(item["uuid"], true)
-            end
-
-            if item["mikuType"] == "TxDated" and item["description"].include?("(vienna)") then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
-                    TxDateds::destroy(item["uuid"])
-                    NxBallsService::close(item["uuid"], true)
-                end
-            end
-
-            if item["mikuType"] == "Wave" then
-                if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' done ? ", true) then
-                    Waves::performWaveNx46WaveDone(item)
-                    NxBallsService::close(item["uuid"], true)
-                end
-            end
-
-            return
-        end
-
         if command == ">nyx" then
             NxBallsService::close(item["uuid"], true)
             Transmutation::transmutation1(item, item["mikuType"], "NxDataNode")
@@ -273,6 +240,39 @@ class LxAction
                 Fx18Attributes::setAttribute2(item["uuid"], "datetime", datetime)
                 return
             end
+        end
+
+        if command == "run" then
+
+            # Stardard starting of the item
+
+            LxAction::action("start", item)
+
+            # Stardard access
+
+            LxAction::action("access", item)
+
+            # Dedicated post access (otherwise we carry on running)
+
+            if item["mikuType"] == "fitness1" then
+                NxBallsService::close(item["uuid"], true)
+            end
+
+            if item["mikuType"] == "TxDated" and item["description"].include?("(vienna)") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
+                    TxDateds::destroy(item["uuid"])
+                    NxBallsService::close(item["uuid"], true)
+                end
+            end
+
+            if item["mikuType"] == "Wave" then
+                if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' done ? ", true) then
+                    Waves::performWaveNx46WaveDone(item)
+                    NxBallsService::close(item["uuid"], true)
+                end
+            end
+
+            return
         end
 
         if command == "start" then

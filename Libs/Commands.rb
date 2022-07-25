@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | project ",
             "anniversaries | calendar | ondates | todos | projects",
-            "<datecode> | <n> | .. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
+            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | indices | maintenance | >>",
         ].join("\n")
@@ -18,7 +18,7 @@ class Commands
     def self.run(input, store) # [command or null, item or null]
 
         if Interpreting::match("..", input) then
-            LxAction::action("..", store.getDefault())
+            LxAction::action("run", store.getDefault())
             return
         end
 
@@ -26,7 +26,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("..", item)
+            LxAction::action("run", item)
             return
         end
 
@@ -292,6 +292,19 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             NxBallsService::carryOn(item["uuid"])
+            return
+        end
+
+        if Interpreting::match("run", input) then
+            LxAction::action("run", store.getDefault())
+            return
+        end
+
+        if Interpreting::match("run *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            LxAction::action("run", item)
             return
         end
 
