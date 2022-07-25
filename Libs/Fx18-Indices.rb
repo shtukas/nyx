@@ -10,27 +10,18 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
         filepath
     end
 
-    # Fx18Index2PrimaryLookup::buildIndexIfMissing()
-    def self.buildIndexIfMissing()
-        filepath = Fx18Index2PrimaryLookup::databaseFilepath()
-        return if File.exists?(filepath)
-        puts "building index2 database file"
-
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "create table _index_ (_mikuType_ text, _objectuuid_ text, _announce_ text, _unixtime_ float, _item_ text)"
-        db.close
-
-        Fx18::objectuuids().each{|objectuuid|
-            Fx18Index2PrimaryLookup::updateIndexForObject(objectuuid)
-        }
-    end
-
     # Fx18Index2PrimaryLookup::rebuildIndex()
     def self.rebuildIndex()
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
+        filepath = Fx18Index2PrimaryLookup::databaseFilepath()
+        if !File.exists?(filepath) then
+            puts "building index2 database file"
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute "create table _index_ (_mikuType_ text, _objectuuid_ text, _announce_ text, _unixtime_ float, _item_ text)"
+            db.close
+        end
 
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
@@ -48,7 +39,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::filepaths()
     def self.filepaths()
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -63,7 +53,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::mikuTypes()
     def self.mikuTypes()
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -78,7 +67,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::objectuuids()
     def self.objectuuids()
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -93,7 +81,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::mikuType2objectuuids(mikuType)
     def self.mikuType2objectuuids(mikuType)
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -108,7 +95,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::mikuTypeToItems(mikuType)
     def self.mikuTypeToItems(mikuType)
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -133,7 +119,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::nx20s()
     def self.nx20s()
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -152,7 +137,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::itemOrNull(objectuuid)
     def self.itemOrNull(objectuuid)
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -169,7 +153,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::updateIndexForObject(objectuuid)
     def self.updateIndexForObject(objectuuid)
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         puts "Fx18Index2PrimaryLookup::rebuildIndexData: objectuuid: #{objectuuid}"
         
         mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
@@ -192,7 +175,6 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
 
     # Fx18Index2PrimaryLookup::removeEntry(objectuuid)
     def self.removeEntry(objectuuid)
-        Fx18Index2PrimaryLookup::buildIndexIfMissing()
         puts "Fx18Index2PrimaryLookup::removeEntry(#{objectuuid})"
         db = SQLite3::Database.new(Fx18Index2PrimaryLookup::databaseFilepath())
         db.busy_timeout = 117
