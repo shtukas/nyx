@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-Fx18Utils::fsckRepository("#{StargateCentral::pathToCentral()}/Fx18s")
+FileSystemCheck::fsck()

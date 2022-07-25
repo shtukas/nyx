@@ -130,7 +130,7 @@ class FxData
 
         filename = "#{SecureRandom.uuid}.fxdata.sqlite3"
 
-        puts "declaring Infinity data file: #{filename} for objectuuid: #{objectuuid}"
+        puts "building new Infinity data file: #{filename}, for objectuuid: #{objectuuid}"
 
         Fx18Sets::add2(objectuuid, "fxdata-filenames", filename, filename)
 

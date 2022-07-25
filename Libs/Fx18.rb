@@ -131,18 +131,6 @@ class Fx18Utils
         raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
     end
 
-    # Fx18Utils::fsckRepository(repository)
-    def self.fsckRepository(repository)
-        puts "Code to be written"
-        exit
-        []
-            .each{|objectuuid|
-                FileSystemCheck::exitIfMissingCanary()
-                FileSystemCheck::fsckObject(objectuuid)
-            }
-        puts "fsck completed successfully".green
-    end
-
     # Fx18Utils::jsonParseIfNotNull(str)
     def self.jsonParseIfNotNull(str)
         return nil if str.nil?

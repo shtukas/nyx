@@ -409,4 +409,14 @@ class FileSystemCheck
             end
         end
     end
+
+    # FileSystemCheck::fsck()
+    def self.fsck()
+        Fx18Index2PrimaryLookup::objectuuids()
+            .each{|objectuuid|
+                FileSystemCheck::exitIfMissingCanary()
+                FileSystemCheck::fsckObject(objectuuid)
+            }
+        puts "fsck completed successfully".green
+    end
 end
