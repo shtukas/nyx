@@ -5,13 +5,22 @@ class Fx18
         "#{Config::pathToLocalDataBankStargate()}/Fx18.sqlite3"
     end
 
-    # Fx18::commitEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.commitEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    # Fx18::commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    def self.commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         db = SQLite3::Database.new(Fx18::fx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5]
+        db.close
+    end
+
+    # Fx18::destroy(eventuuid)
+    def self.destroy(eventuuid)
+        db = SQLite3::Database.new(Fx18::fx18Filepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.close
     end
 end
@@ -324,7 +333,7 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx18::commitEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18::commit(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -361,7 +370,7 @@ class Fx18Sets
     # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
-        Fx18::commitEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18::commit(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -380,7 +389,7 @@ class Fx18Sets
     # Fx18Sets::remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
     def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
-        Fx18::commitEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18::commit(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -435,7 +444,7 @@ class Fx18Data
     # Fx18Data::putBlob(objectuuid, blob) # nhash
     def self.putBlob(objectuuid, blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18::commitEvent(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
+        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
         nhash
     end
 

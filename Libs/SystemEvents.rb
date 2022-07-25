@@ -52,7 +52,7 @@ class SystemEvents
             end
             objectuuid = event["objectuuid"]
             eventi = event["Fx18FileEvent"]
-            Fx18::commitEvent(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Fx18::commit(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
     end
