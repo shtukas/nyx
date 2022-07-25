@@ -209,8 +209,13 @@ class TxProjects
         NxBallsService::issue(project["uuid"], TxProjects::toString(project), [project["uuid"]])
         loop {
             system("clear")
+
             puts "running: #{TxProjects::toString(project).green}"
+
+            store = ItemStore.new()
+
             elements = TxProjects::elements(project, 50)
+
             if elements.empty? then
                 if LucilleCore::askQuestionAnswerAsBoolean("Project '#{TxProjects::toString(project).green}' doesn't have elements. Keep running ? ") then
                     return
@@ -219,9 +224,38 @@ class TxProjects
                     return
                 end
             end
-            element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|item| LxFunction::function("toString", item) } )
-            break if element.nil?
-            Streaming::processItem(element)
+
+            elements.each{|element|
+                indx = store.register(element, false)
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
+            }
+
+            puts "commands: <n> | insert".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Streaming::processItem(entity)
+            end
+
+            if command == "insert" then
+                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
+                next if type.nil?
+                if type == "line" then
+                    element = NxLines::interactivelyIssueNewLineOrNull()
+                    next if element.nil?
+                    TxProjects::addElement_v2(project["uuid"], element["uuid"], 0) # TODO:
+                end
+                if type == "task" then
+                    element = NxTasks::interactivelyCreateNewOrNull()
+                    next if element.nil?
+                    TxProjects::addElement_v2(project["uuid"], element["uuid"], 0) # TODO:
+                end
+            end
         }
         NxBallsService::close(project["uuid"], true)
     end

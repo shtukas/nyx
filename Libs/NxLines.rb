@@ -38,6 +38,13 @@ class NxLines
         item
     end
 
+    # NxLines::interactivelyIssueNewLineOrNull()
+    def self.interactivelyIssueNewLineOrNull()
+        line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+        return nil if line == ""
+        NxLines::issue(line)
+    end
+
     # ----------------------------------------------------------------------
     # Data
 
