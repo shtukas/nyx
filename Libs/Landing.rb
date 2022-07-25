@@ -9,7 +9,7 @@ class Landing
 
         NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
-                entity = Fx18Utils::objectuuidToItemOrNull(entityuuid)
+                entity = Fx18Index2PrimaryLookup::itemOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
@@ -46,7 +46,7 @@ class Landing
             return if item.nil?
 
             if item.nil? then
-                Fx18Index1::removeEntry(uuid)
+                Fx18Index2PrimaryLookup::removeEntry(uuid)
             end
 
             system("clear")
@@ -73,7 +73,7 @@ class Landing
 
             counter = 0
             linkeduuids.each{|linkeduuid|
-                entity = Fx18Utils::objectuuidToItemOrNull(linkeduuid)
+                entity = Fx18Index2PrimaryLookup::itemOrNull(linkeduuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
@@ -173,7 +173,7 @@ class Landing
             return if item.nil?
 
             if item.nil? then
-                Fx18Index1::removeEntry(uuid)
+                Fx18Index2PrimaryLookup::removeEntry(uuid)
             end
 
             system("clear")
@@ -201,7 +201,7 @@ class Landing
 
             NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entityuuid|
-                    entity = Fx18Utils::objectuuidToItemOrNull(entityuuid)
+                    entity = Fx18Index2PrimaryLookup::itemOrNull(entityuuid)
                     next if entity.nil?
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"

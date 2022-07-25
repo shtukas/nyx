@@ -7,7 +7,7 @@ class Search
 
     # Search::interativeInterfaceSelectNx20OrNull()
     def self.interativeInterfaceSelectNx20OrNull()
-        CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Fx18Index1::nx20s(), lambda{|item| item["announce"].downcase })
+        CommonUtils::selectOneObjectUsingInteractiveInterfaceOrNull(Fx18Index2PrimaryLookup::nx20s(), lambda{|item| item["announce"].downcase })
     end
 
     # Search::interativeInterface()
@@ -28,7 +28,7 @@ class Search
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
             break if fragment == ""
-            selected = Fx18Index1::nx20s()
+            selected = Fx18Index2PrimaryLookup::nx20s()
                 .select{|nx20| !nx20["announce"].nil? }
                 .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
             if selected.empty? then
@@ -38,7 +38,7 @@ class Search
             end
             loop {
                 system('clear')
-                selected = Fx18Index1::nx20s()
+                selected = Fx18Index2PrimaryLookup::nx20s()
                     .select{|nx20| !nx20["announce"].nil? }
                     .select{|nx20| nx20["announce"].downcase.include?(fragment.downcase) }
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }

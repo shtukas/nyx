@@ -20,8 +20,8 @@ class NxTimelines
 
     # NxTimelines::items()
     def self.items()
-        Fx18Index1::mikuType2objectuuids("NxTimeline")
-            .map{|objectuuid| NxTimelines::objectuuidToItemOrNull(objectuuid)}
+        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxTimeline")
+            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
             .compact
     end
 

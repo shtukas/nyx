@@ -52,13 +52,13 @@ class Catalyst
 
         x2 = [
             Anniversaries::section2(),
-            #Waves::section2(true),
-            #TxDateds::section2(),
-            #NxLines::section2(),
-            #TxProjects::section2(),
-            #Waves::section2(false),
-            #NxTasks::section2(),
-            #Streaming::section2(),
+            Waves::section2(true),
+            TxDateds::section2(),
+            NxLines::section2(),
+            TxProjects::section2(),
+            Waves::section2(false),
+            NxTasks::section2(),
+            Streaming::section2(),
         ]
             .flatten
             .select{|x| DoNotShowUntil::isVisible(x["item"]["uuid"]) }

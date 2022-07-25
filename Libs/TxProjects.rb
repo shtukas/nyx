@@ -20,8 +20,8 @@ class TxProjects
 
     # TxProjects::items()
     def self.items()
-        Fx18Index1::mikuType2objectuuids("TxProject")
-            .map{|objectuuid| TxProjects::objectuuidToItemOrNull(objectuuid)}
+        Fx18Index2PrimaryLookup::mikuType2objectuuids("TxProject")
+            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
             .compact
     end
 
@@ -89,7 +89,7 @@ class TxProjects
     def self.elements(project, count)
         TxProjects::elementuuids(project)
             .take(count)
-            .map{|elementuuid| Fx18Utils::objectuuidToItemOrNull(elementuuid)}
+            .map{|elementuuid| Fx18Index2PrimaryLookup::itemOrNull(elementuuid)}
             .compact
     end
 
@@ -143,7 +143,7 @@ class TxProjects
             return if item.nil?
 
             if item.nil? then
-                Fx18Index1::removeEntry(uuid)
+                Fx18Index2PrimaryLookup::removeEntry(uuid)
             end
 
             system("clear")

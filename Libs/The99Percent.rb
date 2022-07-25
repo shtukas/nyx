@@ -34,7 +34,7 @@ class The99Percent
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
         ["TxDated", "TxProject", "NxTask", "NxIced"]
-            .map{|mikuType| Fx18Index1::countObjectsByMikuType(mikuType) }
+            .map{|mikuType| Fx18Index2PrimaryLookup::countObjectsByMikuType(mikuType) }
             .inject(0, :+)
     end
 

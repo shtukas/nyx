@@ -15,12 +15,12 @@ class SystemEvents
         # puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
         if event["mikuType"] == "(object has been updated)" then
-            Fx18Index1::updateIndexForObject(event["objectuuid"])
+            Fx18Index2PrimaryLookup::updateIndexForObject(event["objectuuid"])
         end
 
         if event["mikuType"] == "(object has been deleted)" then
             Fx18Utils::destroyLocalFx18NoEvent(event["objectuuid"])
-            Fx18Index1::removeEntry(event["objectuuid"])
+            Fx18Index2PrimaryLookup::removeEntry(event["objectuuid"])
             Fx18Deleted::registerDeleted(event["objectuuid"])
             return
         end

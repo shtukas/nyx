@@ -17,14 +17,14 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        Fx18Index1::mikuType2objectuuids("NxTask")
-            .map{|objectuuid| NxTasks::objectuuidToItemOrNull(objectuuid)}
+        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxTask")
+            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
             .compact
     end
 
     # NxTasks::items2(count)
     def self.items2(count)
-        Fx18Index1::mikuType2objectuuids("NxTask")
+        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxTask")
             .reduce([]){|uuids, uuid|
                 if uuids.size >= count then 
                     uuids
@@ -32,7 +32,7 @@ class NxTasks
                     uuids + [uuid]
                 end
             }
-            .map{|objectuuid| NxTasks::objectuuidToItemOrNull(objectuuid)}
+            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
             .compact
     end
 

@@ -286,7 +286,7 @@ class EditionDesk
             puts "This is a read only export (!)"
             itemuuids
                 .select{|itemuuid| 
-                    item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
+                    item = Fx18Index2PrimaryLookup::itemOrNull(itemuuid)
                     !item.nil? and Iam::implementsNx111(itemuuid)
                 }
                 .each{|itemuuid|

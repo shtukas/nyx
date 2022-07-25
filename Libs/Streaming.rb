@@ -163,7 +163,7 @@ class Streaming
     def self.section2()
         uuid = Streaming::uuid()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return [] if rt > 1 or Fx18Index1::mikuTypeCount("(rstream-to-target)") == 0
+        return [] if rt > 1 or Fx18Index2PrimaryLookup::mikuTypeCount("(rstream-to-target)") == 0
 
         item = {
             "uuid" => uuid,

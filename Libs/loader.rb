@@ -142,7 +142,6 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
-require_relative "XCacheDatablobs.rb"
 
 require_relative "EditionDesk.rb"
 
@@ -152,11 +151,11 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
 require_relative "Iam.rb"
-require_relative "NxIceds.rb"
 
 require_relative "FileSystemCheck.rb"
 require_relative "Fx18.rb"
 require_relative "FxData.rb"
+require_relative "Fx18-Indices.rb"
 
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
@@ -181,6 +180,7 @@ require_relative "NxLines.rb"
 require_relative "NxEvents.rb"
 require_relative "NxEntities.rb"
 require_relative "NxConcepts.rb"
+require_relative "NxIceds.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
@@ -200,6 +200,8 @@ require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"
 
 require_relative "Waves.rb"
+
+require_relative "XCacheDatablobs.rb"
 
 # ------------------------------------------------------------
 

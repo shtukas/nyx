@@ -20,8 +20,8 @@ class NxEntities
 
     # NxEntities::items()
     def self.items()
-        Fx18Index1::mikuType2objectuuids("NxEntity")
-            .map{|objectuuid| NxEntities::objectuuidToItemOrNull(objectuuid)}
+        Fx18Index2PrimaryLookup::mikuType2objectuuids("NxEntity")
+            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
             .compact
     end
 

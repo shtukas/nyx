@@ -172,7 +172,7 @@ class Commands
         end
 
         if Interpreting::match("indices", input) then
-            Fx18Index1::rebuildIndex()
+            Fx18Index2PrimaryLookup::rebuildIndex()
             return
         end
 
@@ -482,9 +482,12 @@ class Commands
                         }
                         .sort{|r1, r2| r1["runtime"] <=> r2["runtime"] }
                         .reverse
-                        .each{|result|
-                            puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
-                        }
+
+            puts ""
+            results
+                .each{|result|
+                    puts "- #{result["name"].ljust(padding)} : #{"%6.3f" % result["runtime"]}"
+                }
 
             LucilleCore::pressEnterToContinue()
             return

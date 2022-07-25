@@ -20,8 +20,8 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Fx18Index1::mikuType2objectuuids("Wave")
-            .map{|objectuuid| Waves::objectuuidToItemOrNull(objectuuid)}
+        Fx18Index2PrimaryLookup::mikuType2objectuuids("Wave")
+            .map{|objectuuid| Fx18Index2PrimaryLookup::itemOrNull(objectuuid)}
             .compact
     end
 
