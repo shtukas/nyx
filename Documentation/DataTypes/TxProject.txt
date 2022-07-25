@@ -6,4 +6,18 @@ TxProject:
     "description" : description
     "ax39"        : Ax39
 
-In Fx18, the uuids of the elements under that project are in set "project-items-3f154988".
+The uuids of the elements under that project are in two sets, the legacy set and the new set:
+    legacy: "project-items-3f154988", contains the uuids
+    new   : "project-elements-f589942d", contains objects of the form
+            {
+                "elementuuid" : String,
+                "ordinal"     : Float
+            }
+
+We use
+
+```
+XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{itemuuid}", true)
+```
+
+to to indicate that an item is listed as element of a project. Note that there is nothing that prevent an element to be in more than one project.

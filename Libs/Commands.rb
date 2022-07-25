@@ -40,7 +40,7 @@ class Commands
             end
             project = TxProjects::architectOneOrNull()
             return if project.nil?
-            TxProjects::addElement(project["uuid"], item["uuid"])
+            TxProjects::addElement_v1(project["uuid"], item["uuid"])
             NxBallsService::close(item["uuid"], true)
             return
         end

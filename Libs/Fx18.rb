@@ -186,7 +186,7 @@ end
 
 class Fx18Sets
 
-    # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
+    # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value; going to be JSON serialised)
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
         Fx18::commit(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))

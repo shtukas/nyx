@@ -67,20 +67,36 @@ class TxProjects
     # ----------------------------------------------------------------------
     # Elements
 
-    # TxProjects::addElement(projectuuid, itemuuid)
-    def self.addElement(projectuuid, itemuuid)
+    # TxProjects::addElement_v1(projectuuid, itemuuid)
+    def self.addElement_v1(projectuuid, itemuuid)
         Fx18Sets::add2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
         XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{itemuuid}", true)
+    end
+
+    # TxProjects::addElement_v2(projectuuid, elementuuid, ordinal)
+    def self.addElement_v2(projectuuid, elementuuid, ordinal)
+        packet = {
+            "elementuuid" => elementuuid,
+            "ordinal" => ordinal
+        }
+        Fx18Sets::add2(projectuuid, "project-elements-f589942d", elementuuid, packet)
+        XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
     end
 
     # TxProjects::removeElement(project, uuid)
     def self.removeElement(project, uuid)
         Fx18Sets::remove2(project["uuid"], "project-items-3f154988", uuid)
+        Fx18Sets::remove2(project["uuid"], "project-elements-f589942d", uuid)
     end
 
     # TxProjects::elementuuids(project)
     def self.elementuuids(project)
-        Fx18Sets::items(project["uuid"], "project-items-3f154988")
+        uuids1 = Fx18Sets::items(project["uuid"], "project-elements-f589942d")
+                    .sort{|p1, p2| p1["ordinal"] <=> p2["ordinal"]}
+                    .map{|packet| packet["elementuuid"]}
+        uuids2 = Fx18Sets::items(project["uuid"], "project-items-3f154988")
+        # We return the new elementuuids in ordinal order and then the old ones
+        uuids1+uuids2
     end
 
     # TxProjects::elements(project, count)
@@ -233,7 +249,7 @@ class TxProjects
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a project ? ") then
             project = TxProjects::architectOneOrNull()
             return if project.nil?
-            TxProjects::addElement(project["uuid"], item["uuid"])
+            TxProjects::addElement_v1(project["uuid"], item["uuid"])
         end
     end
 end
