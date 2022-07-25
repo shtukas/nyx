@@ -24,6 +24,15 @@ class Fx18
         db.close
     end
 
+    # Fx18::destroyObjectNoEvents(objectuuid)
+    def self.destroyObjectNoEvents(objectuuid)
+        db = SQLite3::Database.new(Fx18::fx18Filepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _objectuuid_=?", [objectuuid]
+        db.close
+    end
+
     # Fx18::destroyObject(objectuuid)
     def self.destroyObject(objectuuid)
         db = SQLite3::Database.new(Fx18::fx18Filepath())

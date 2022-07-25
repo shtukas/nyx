@@ -19,7 +19,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(object has been deleted)" then
-            Fx18Utils::destroyLocalFx18NoEvent(event["objectuuid"])
+            Fx18::destroyObjectNoEvents(event["objectuuid"])
             Fx18Index2PrimaryLookup::removeEntry(event["objectuuid"])
             Fx18Deleted::registerDeleted(event["objectuuid"])
             return
@@ -41,8 +41,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            Fx18Utils::destroyLocalFx18NoEvent(event["objectuuid"])
-            Fx18Utils::destroyLocalFx18NoEvent(event["objectuuid"])
+            Fx18::destroyObjectNoEvents(event["objectuuid"])
             return
         end
 
