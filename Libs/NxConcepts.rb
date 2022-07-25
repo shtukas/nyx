@@ -36,20 +36,15 @@ class NxConcepts
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
-
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-
         uuid = SecureRandom.uuid
-
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxConcept")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
-
         FileSystemCheck::fsckObject(uuid)
-
         uuid
     end
 
