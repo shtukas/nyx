@@ -4,7 +4,6 @@ class NxIceds
 
     # NxIceds::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxIced"
         {
             "uuid"        => objectuuid,

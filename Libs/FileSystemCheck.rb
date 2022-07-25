@@ -74,33 +74,33 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath, nx111)
-    def self.fsckNx111ErrorAtFirstFailure(filepath, nx111)
+    # FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
+    def self.fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
         return if nx111.nil?
 
-        objectuuid = Fx18Attributes::getOrNull2(filepath, "uuid")
+        objectuuid = Fx18Attributes::getOrNull(objectuuid, "uuid")
         if objectuuid.nil? then
-            puts "filepath: #{filepath}".red
+            puts "objectuuid: #{objectuuid}".red
             puts "Malformed Fx18 file, I could not find a uuid".red
-            raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+            raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
         end
 
         if !Nx111::types().include?(nx111["type"]) then
-            puts "filepath has an incorrect nx111 value type".red
-            puts "filepath: #{filepath}".red
+            puts "objectuuid has an incorrect nx111 value type".red
+            puts "objectuuid: #{objectuuid}".red
             puts "nx111: type: #{nx111["type"]}".red
-            raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+            raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
         end
 
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
             blob = FxDataElizabethForFsck.new(objectuuid).getBlobOrNull(nhash)
             if blob.nil? then
-                puts "filepath: #{filepath}".red
+                puts "objectuuid: #{objectuuid}".red
                 puts "nx111: #{nx111}".red
                 puts "nhash: #{nhash}".red
-                puts "Fx18FileDataForFsck::getBlobOrNull(filepath, nhash): could not find the text data".red
-                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+                puts "Fx18FileDataForFsck::getBlobOrNull(objectuuid, nhash): could not find the text data".red
+                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
             end
             return
         end
@@ -112,20 +112,20 @@ class FileSystemCheck
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             if dottedExtension[0, 1] != "." then
-                puts "filepath: #{filepath}".red
+                puts "objectuuid: #{objectuuid}".red
                 puts "nx111: #{nx111}".red
                 puts "primitive parts, dotted extension is malformed".red
-                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
             end
             operator = FxDataElizabethForFsck.new(objectuuid)
             parts.each{|nhash|
                 blob = operator.getBlobOrNull(nhash)
                 if blob.nil? then
-                    puts "filepath: #{filepath}".red
+                    puts "objectuuid: #{objectuuid}".red
                     puts "nx111: #{nx111}".red
                     puts "nhash: #{nhash}".red
                     puts "primitive parts, nhash not found: #{nhash}".red
-                    raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+                    raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
                 end
             }
             return
@@ -135,10 +135,10 @@ class FileSystemCheck
             operator = FxDataElizabethForFsck.new(objectuuid)
             status = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
-                puts "filepath: #{filepath}".red
+                puts "objectuuid: #{objectuuid}".red
                 puts "nx111: #{nx111}".red
-                puts "filepath, could not validate aion-point".red
-                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath: #{filepath}, nx111: #{nx111})"
+                puts "objectuuid, could not validate aion-point".red
+                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
             end
             return
         end
@@ -162,31 +162,24 @@ class FileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
     end
 
-    # FileSystemCheck::fsckFx18FilepathErrorAtFirstFailure(filepath)
-    def self.fsckFx18FilepathErrorAtFirstFailure(filepath)
-        puts "FileSystemCheck, Fx18, filepath: #{filepath}"
+    # FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
+    def self.fsckObjectErrorAtFirstFailure(objectuuid)
+        puts "FileSystemCheck, Fx18 @ objectuuid: #{objectuuid}"
 
-        uuid = Fx18Attributes::getOrNull2(filepath, "uuid")
-        if uuid.nil? then
-            puts "filepath: #{filepath}".red
-            puts "Malformed Fx18 file, I could not find a uuid".red
-            raise "FileSystemCheck::fsckFx18FilepathErrorAtFirstFailure(filepath: #{filepath})"
-        end
-
-        mikuType = Fx18Attributes::getOrNull2(filepath, "mikuType")
+        mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
         if mikuType.nil? then
-            puts "filepath: #{filepath}".red
+            puts "objectuuid: #{objectuuid}".red
             puts "Malformed Fx18 file, I could not find a mikuType".red
-            raise "FileSystemCheck::fsckFx18FilepathErrorAtFirstFailure(filepath: #{filepath})"
+            raise "FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid: #{objectuuid})"
         end
 
-        ensureAttribute = lambda {|filepath, mikuType, attname|
-            attvalue = Fx18Attributes::getOrNull2(filepath, attname)
+        ensureAttribute = lambda {|objectuuid, mikuType, attname|
+            attvalue = Fx18Attributes::getOrNull(objectuuid, attname)
             if attvalue.nil? then
-                puts "ensureAttribute(#{filepath}, #{mikuType}, #{attname})"
-                puts "filepath: #{filepath}".red
+                puts "ensureAttribute(#{objectuuid}, #{mikuType}, #{attname})"
+                puts "objectuuid: #{objectuuid}".red
                 puts "Malformed fx18 file (mikuType: #{mikuType}), I could not find attribute: #{attname}".red
-                raise "FileSystemCheck::fsckFx18FilepathErrorAtFirstFailure(filepath: #{filepath})"
+                raise "FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid: #{objectuuid})"
             end
         }
 
@@ -197,7 +190,7 @@ class FileSystemCheck
                 "unixtime",
                 "nhash",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -211,7 +204,7 @@ class FileSystemCheck
                 "repeatType",
                 "lastCelebrationDate",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -224,10 +217,10 @@ class FileSystemCheck
                 "description",
                 "nx111",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
 
-            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull2(filepath, "nx111"))
-            FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath, nx111)
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
 
@@ -239,7 +232,7 @@ class FileSystemCheck
                 "datetime",
                 "description",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -251,7 +244,7 @@ class FileSystemCheck
                 "datetime",
                 "description",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -264,9 +257,9 @@ class FileSystemCheck
                 "datetime",
                 "nx111",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull2(filepath, "nx111"))
-            FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath, nx111)
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
 
@@ -278,7 +271,7 @@ class FileSystemCheck
                 "datetime",
                 "description",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -291,9 +284,9 @@ class FileSystemCheck
                 "description",
                 "nx111",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull2(filepath, "nx111"))
-            FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath, nx111)
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
 
@@ -304,7 +297,7 @@ class FileSystemCheck
                 "unixtime",
                 "line",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -316,7 +309,7 @@ class FileSystemCheck
                 "datetime",
                 "name",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -328,9 +321,9 @@ class FileSystemCheck
                 "description",
                 "nx111",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull2(filepath, "nx111"))
-            FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath, nx111)
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
 
@@ -342,7 +335,7 @@ class FileSystemCheck
                 "datetime",
                 "description",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -355,9 +348,9 @@ class FileSystemCheck
                 "description",
                 "nx111",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull2(filepath, "nx111"))
-            FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath, nx111)
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
 
@@ -369,7 +362,7 @@ class FileSystemCheck
                 "description",
                 "ax39",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return
         end
 
@@ -383,49 +376,37 @@ class FileSystemCheck
                 "nx111",
                 "lastDoneDateTime",
             ]
-                .each{|attname| ensureAttribute.call(filepath, mikuType, attname) }
-            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull2(filepath, "nx111"))
-            FileSystemCheck::fsckNx111ErrorAtFirstFailure(filepath, nx111)
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            nx111 = Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
     end
 
-    # FileSystemCheck::fsckFx18Filepath(filepath)
-    def self.fsckFx18Filepath(filepath)
+    # FileSystemCheck::fsckObject(objectuuid)
+    def self.fsckObject(objectuuid)
+
         begin
-            FileSystemCheck::fsckFx18FilepathErrorAtFirstFailure(filepath)
+            FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
         rescue => e
 
             puts e.message.green
 
-            db = SQLite3::Database.new(filepath)
+            db = SQLite3::Database.new(Fx18::fx18Filepath())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
             record = nil
-            db.execute("select * from _fx18_", []) do |row|
+            db.execute("select * from _fx18_ where _objectuuid_=?", [objectuuid]) do |row|
                 next if row["_eventData1_"] == "datablob"
                 puts JSON.pretty_generate(row)
             end
             db.close
 
-            puts "filepath: #{filepath}"
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy this file ? ", false) then
-                FileUtils::rm(filepath)
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy this object ? ", false) then
+                puts "Code to be written"
+                exit
             end
         end
-    end
-
-    # FileSystemCheck::fsckLocalObjectuuid(objectuuid)
-    def self.fsckLocalObjectuuid(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if !File.exists?(filepath) then
-            puts "FileSystemCheck::fsckLocalObjectuuid"
-            puts "objectuuid: #{objectuuid}"
-            puts "error: I could not find the file"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        FileSystemCheck::fsckFx18Filepath(filepath)
     end
 end

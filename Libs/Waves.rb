@@ -6,7 +6,6 @@ class Waves
 
     # Waves::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "Wave"
         {
             "uuid"        => objectuuid,
@@ -152,7 +151,7 @@ class Waves
         Fx18Attributes::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
         Fx18Attributes::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 

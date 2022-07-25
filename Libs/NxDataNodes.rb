@@ -8,7 +8,6 @@ class NxDataNodes
 
     # NxDataNodes::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxDataNode"
         {
             "uuid"        => objectuuid,
@@ -50,7 +49,7 @@ class NxDataNodes
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 
@@ -68,7 +67,7 @@ class NxDataNodes
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 
@@ -86,7 +85,7 @@ class NxDataNodes
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 

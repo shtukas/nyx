@@ -8,7 +8,6 @@ class Ax1Text
 
     # Ax1Text::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "Ax1Text"
         {
             "uuid"        => objectuuid,
@@ -32,7 +31,7 @@ class Ax1Text
         Fx18Attributes::setAttribute2(uuid, "datetime", datetime)
         Fx18Attributes::setAttribute2(uuid, "nhash", nhash)
 
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
 
         item = Ax1Text::objectuuidToItemOrNull(uuid)
         if item.nil? then

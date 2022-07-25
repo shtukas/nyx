@@ -1,21 +1,19 @@
+class Fx18
 
-class Fx18v2
-
-    # Fx18v2::fx18Filepath()
+    # Fx18::fx18Filepath()
     def self.fx18Filepath()
         "#{Config::pathToLocalDataBankStargate()}/Fx18.sqlite3"
     end
 
-    # Fx18v2::commitEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    # Fx18::commitEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.commitEvent(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-        db = SQLite3::Database.new(Fx18v2::fx18Filepath())
+        db = SQLite3::Database.new(Fx18::fx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5]
         db.close
     end
-
 end
 
 class Fx18Utils
@@ -25,11 +23,6 @@ class Fx18Utils
     # Fx18Utils::computeLocalFx18Filepath(objectuuid)
     def self.computeLocalFx18Filepath(objectuuid)
         "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
-    end
-
-    # Fx18Utils::fileExists?(objectuuid)
-    def self.fileExists?(objectuuid)
-        File.exists?(Fx18Utils::computeLocalFx18Filepath(objectuuid))
     end
 
     # Fx18Utils::makeNewFile(objectuuid) # filepath
@@ -51,34 +44,8 @@ class Fx18Utils
         filepath
     end
 
-    # Fx18Utils::ensureFile(objectuuid)
-    def self.ensureFile(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
-            db.close
-        end
-    end
-
-    # Fx18Utils::fx18FilepathsFromFileSystem()
-    def self.fx18FilepathsFromFileSystem()
-        LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/Fx18s")
-            .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
-    end
-
-    # Fx18Utils::fx18FilepathsFromFileSystem2(foldepath)
-    def self.fx18FilepathsFromFileSystem2(folderpath)
-        LucilleCore::locationsAtFolder(folderpath)
-            .select{|filepath| filepath[-13, 13] == ".fx18.sqlite3" }
-    end
-
     # Fx18Utils::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
 
         mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
         return nil if mikuType.nil?
@@ -152,10 +119,12 @@ class Fx18Utils
 
     # Fx18Utils::fsckRepository(repository)
     def self.fsckRepository(repository)
-        Fx18Utils::fx18FilepathsFromFileSystem2(repository)
-            .each{|filepath|
+        puts "Code to be written"
+        exit
+        []
+            .each{|objectuuid|
                 FileSystemCheck::exitIfMissingCanary()
-                FileSystemCheck::fsckFx18Filepath(filepath)
+                FileSystemCheck::fsckObject(objectuuid)
             }
         puts "fsck completed successfully".green
     end
@@ -186,23 +155,9 @@ class Fx18Utils
         return nil if str.nil?
         JSON.parse(str)
     end
-
-    # Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-    def self.commitEventToObjectuuid(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if !File.exists?(filepath) then
-            Fx18Utils::makeNewFile(objectuuid)
-        end
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5]
-        db.close
-    end
 end
 
-class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
+class Fx18Index1 # (mikuType, objectuuid, announce, unixtime)
 
     # Index Management ---------------------------------------------------------------------
 
@@ -225,29 +180,29 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "create table _index_ (_filepath_ text primary key, _mikuType_ text, _objectuuid_ text, _announce_ text, _unixtime_ float)"
+        db.execute "create table _index_ (_mikuType_ text, _objectuuid_ text, _announce_ text, _unixtime_ float)"
         db.close
     end
 
-    # Fx18Index1::updateIndexForFilepath(filepath)
-    def self.updateIndexForFilepath(filepath)
-        puts "Fx18Index1::rebuildIndexData: filepath: #{filepath}"
+    # Fx18Index1::updateIndexForObject(objectuuid)
+    def self.updateIndexForObject(objectuuid)
+        puts "Fx18Index1::rebuildIndexData: objectuuid: #{objectuuid}"
         
-        mikuType = Fx18Attributes::getOrNull2(filepath, "mikuType")
-        objectuuid = Fx18Attributes::getOrNull2(filepath, "uuid")
+        mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
+        objectuuid = Fx18Attributes::getOrNull(objectuuid, "uuid")
         item = Fx18Utils::objectuuidToItemOrNull(objectuuid)
         return if item.nil?
         announce = "(#{mikuType}) #{LxFunction::function("generic-description", item)}"
         unixtime = item["datetime"] ? DateTime.parse(item["datetime"]).to_time.to_i : item["unixtime"]
 
-        CommonUtils::putsOnPreviousLine("Fx18Index1::rebuildIndexData: filepath: #{filepath} ☑️")
+        CommonUtils::putsOnPreviousLine("Fx18Index1::rebuildIndexData: objectuuid: #{objectuuid} ☑️")
 
         db = SQLite3::Database.new(Fx18Index1::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute "delete from _index_ where _filepath_=?", [filepath]
-        db.execute "insert into _index_ (_filepath_, _mikuType_, _objectuuid_, _announce_, _unixtime_) values (?, ?, ?, ?, ?)", [filepath, mikuType, objectuuid, announce, unixtime]
+        db.execute "delete from _index_ where _objectuuid_=?", [objectuuid]
+        db.execute "insert into _index_ (_mikuType_, _objectuuid_, _announce_, _unixtime_) values (?, ?, ?, ?)", [mikuType, objectuuid, announce, unixtime]
         db.close
     end
 
@@ -273,8 +228,9 @@ class Fx18Index1 # (filepath, mikuType, objectuuid, announce, unixtime)
         db.execute "delete from _index_"
         db.close
 
-        Fx18Utils::fx18FilepathsFromFileSystem().each{|filepath|
-            Fx18Index1::updateIndexForFilepath(filepath)
+        # TODO:
+        [].each{|objectuuid|
+            Fx18Index1::updateIndexForObject(objectuuid)
         }
     end
 
@@ -368,7 +324,7 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18::commitEvent(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -386,27 +342,18 @@ class Fx18Attributes
 
     # Fx18Attributes::getOrNull(objectuuid, attname)
     def self.getOrNull(objectuuid, attname)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        return nil if !File.exists?(filepath)
-        Fx18Attributes::getOrNull2(filepath, attname)
-    end
-
-    # Fx18Attributes::getOrNull2(filepath, attname)
-    def self.getOrNull2(filepath, attname)
-        return nil if !File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
+        db = SQLite3::Database.new(Fx18::fx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         attvalue = nil
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=? order by _eventTime_", ["attribute", attname]) do |row|
+        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? and _eventData2_=? order by _eventTime_", [objectuuid, "attribute", attname]) do |row|
             attvalue = row["_eventData3_"]
         end
         db.close
         attvalue
     end
-
 end
 
 class Fx18Sets
@@ -414,7 +361,7 @@ class Fx18Sets
     # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
-        Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18::commitEvent(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -433,7 +380,7 @@ class Fx18Sets
     # Fx18Sets::remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
     def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
-        Fx18Utils::commitEventToObjectuuid(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18::commitEvent(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         SystemEvents::processEventInternally({
             "mikuType" => "(object has been updated)",
             "objectuuid" => objectuuid
@@ -451,9 +398,7 @@ class Fx18Sets
 
     # Fx18Sets::items(objectuuid, setuuid)
     def self.items(objectuuid, setuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        return [] if !File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
+        db = SQLite3::Database.new(Fx18::fx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -466,7 +411,7 @@ class Fx18Sets
         items = []
 
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData3_=? order by _eventTime_", ["setops", setuuid]) do |row|
+        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? and _eventData3_=? order by _eventTime_", [objectuuid, "setops", setuuid]) do |row|
             operation = row["_eventData2_"]
             if operation == "add" then
                 itemuuid = row["_eventData4_"]
@@ -489,22 +434,19 @@ class Fx18Data
 
     # Fx18Data::putBlob(objectuuid, blob) # nhash
     def self.putBlob(objectuuid, blob)
-        Fx18Utils::ensureFile(objectuuid)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18Utils::commitEventToObjectuuid(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
+        Fx18::commitEvent(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
         nhash
     end
 
     # Fx18Data::getBlobOrNull(objectuuid, nhash)
     def self.getBlobOrNull(objectuuid, nhash)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        return nil if !File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
+        db = SQLite3::Database.new(Fx18::fx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         blob = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
+        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? and _eventData2_=?", [objectuuid, "datablob", nhash]) do |row|
             blob = row["_eventData3_"]
         end
         db.close
@@ -602,61 +544,22 @@ class Fx18Synchronisation
         }
     end
 
-    # Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
-    def self.syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
-        LucilleCore::locationsAtFolder(localrepositoryfolderpath).each{|filepath1|
-            next if filepath1[-13, 13] != ".fx18.sqlite3"
-            filename = File.basename(filepath1)
-            filepath2 = "#{infinityrepositoryfolderpath}/#{filename}"
-            if File.exists?(filepath2) then
-                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-            else
-                puts "FileUtils.cp(#{filepath1}, #{filepath2})"
-                FileUtils.cp(filepath1, filepath2) # Moving the local file to infinity
-            end
-        }
-
-        LucilleCore::locationsAtFolder(infinityrepositoryfolderpath).each{|filepath1|
-            objectuuid1 = File.basename(filepath1).gsub(".fx18.sqlite3", "")
-            objectuuid2 = Fx18Attributes::getOrNull2(filepath1, "uuid")
-
-            raise "(error: e6fe9b3e-cb37-4899-956c-3121c2597583) filepath1: #{filepath1}" if (objectuuid1 != objectuuid2)
-            next if Fx18DeletedFilesMemory::isDeleted(objectuuid1)
-
-            next if filepath1[-13, 13] != ".fx18.sqlite3"
-            filename = File.basename(filepath1)
-            filepath2 = "#{localrepositoryfolderpath}/#{filename}"
-            if File.exists?(filepath2) then
-                Fx18Synchronisation::propagateFileData(filepath1, filepath2)
-            else
-                if Config::get("instanceId") == "Lucille20-pascal" then
-                    puts "FileUtils.cp(#{filepath1}, #{filepath2})"
-                    FileUtils.cp(filepath1, filepath2) # Moving the infinity file to local
-                end
-            end
-        }
-    end
-
     # Fx18Synchronisation::sync()
     def self.sync()
-        StargateCentral::ensureInfinityDrive()
-        localrepositoryfolderpath = "#{Config::pathToLocalDataBankStargate()}/Fx18s"
-        infinityrepositoryfolderpath = "#{StargateCentral::pathToCentral()}/Fx18s"
-        Fx18Synchronisation::syncRepositories(localrepositoryfolderpath, infinityrepositoryfolderpath)
-        Fx18Index1::rebuildIndex()
+        # TODO:
     end
 end
 
-class Fx18DeletedFilesMemory
+class Fx18Deleted
 
-    # Fx18DeletedFilesMemory::databaseFilepath()
+    # Fx18Deleted::databaseFilepath()
     def self.databaseFilepath()
-        "#{Config::pathToLocalDataBankStargate()}/fx18-deleted.sqlite3"
+        "#{Config::pathToLocalDataBankStargate()}/Fx18-deleted.sqlite3"
     end
 
-    # Fx18DeletedFilesMemory::ensureDatabase()
+    # Fx18Deleted::ensureDatabase()
     def self.ensureDatabase()
-        filepath = Fx18DeletedFilesMemory::databaseFilepath()
+        filepath = Fx18Deleted::databaseFilepath()
         return if File.exists?(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -666,10 +569,10 @@ class Fx18DeletedFilesMemory
         db.close
     end
 
-    # Fx18DeletedFilesMemory::registerDeleted(objectuuid)
+    # Fx18Deleted::registerDeleted(objectuuid)
     def self.registerDeleted(objectuuid)
-        Fx18DeletedFilesMemory::ensureDatabase()
-        db = SQLite3::Database.new(Fx18DeletedFilesMemory::databaseFilepath())
+        Fx18Deleted::ensureDatabase()
+        db = SQLite3::Database.new(Fx18Deleted::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -678,10 +581,10 @@ class Fx18DeletedFilesMemory
         db.close
     end
 
-    # Fx18DeletedFilesMemory::isDeleted(objectuuid)
+    # Fx18Deleted::isDeleted(objectuuid)
     def self.isDeleted(objectuuid)
-        Fx18DeletedFilesMemory::ensureDatabase()
-        db = SQLite3::Database.new(Fx18DeletedFilesMemory::databaseFilepath())
+        Fx18Deleted::ensureDatabase()
+        db = SQLite3::Database.new(Fx18Deleted::databaseFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true

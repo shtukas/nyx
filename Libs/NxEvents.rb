@@ -8,7 +8,6 @@ class NxEvents
 
     # NxEvents::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxEvent"
         {
             "uuid"        => objectuuid,

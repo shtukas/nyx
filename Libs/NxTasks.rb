@@ -4,7 +4,6 @@ class NxTasks
 
     # NxTasks::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxTask"
         {
             "uuid"        => objectuuid,
@@ -30,11 +29,7 @@ class NxTasks
                 if uuids.size >= count then 
                     uuids
                 else
-                    if Fx18Utils::fileExists?(uuid) then
-                        uuids + [uuid]
-                    else
-                        uuids
-                    end
+                    uuids + [uuid]
                 end
             }
             .map{|objectuuid| NxTasks::objectuuidToItemOrNull(objectuuid)}
@@ -63,7 +58,7 @@ class NxTasks
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
 
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -104,7 +99,7 @@ class NxTasks
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 

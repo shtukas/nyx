@@ -83,7 +83,6 @@ class Anniversaries
 
     # Anniversaries::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxAnniversary"
         {
             "uuid"        => objectuuid,
@@ -139,7 +138,7 @@ class Anniversaries
         Fx18Attributes::setAttribute2(uuid, "repeatType",  repeatType)
         Fx18Attributes::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
 
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]

@@ -8,7 +8,6 @@ class NxTimelines
 
     # NxTimelines::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxTimeline"
         {
             "uuid"        => objectuuid,
@@ -46,7 +45,7 @@ class NxTimelines
         Fx18Attributes::setAttribute2(uuid, "unixtime",    unixtime)
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 

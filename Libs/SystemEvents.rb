@@ -15,15 +15,13 @@ class SystemEvents
         # puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
         if event["mikuType"] == "(object has been updated)" then
-            filepath = Fx18Utils::computeLocalFx18Filepath(event["objectuuid"])
-            return if !File.exists?(filepath) # object has been updated on one computer but has not yet been put on another
-            Fx18Index1::updateIndexForFilepath(filepath)
+            Fx18Index1::updateIndexForObject(event["objectuuid"])
         end
 
         if event["mikuType"] == "(object has been deleted)" then
             Fx18Utils::destroyLocalFx18NoEvent(event["objectuuid"])
             Fx18Index1::removeEntry(event["objectuuid"])
-            Fx18DeletedFilesMemory::registerDeleted(event["objectuuid"])
+            Fx18Deleted::registerDeleted(event["objectuuid"])
             return
         end
 
@@ -53,9 +51,8 @@ class SystemEvents
                 event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
             end
             objectuuid = event["objectuuid"]
-            Fx18Utils::ensureFile(objectuuid)
             eventi = event["Fx18FileEvent"]
-            Fx18Utils::commitEventToObjectuuid(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Fx18::commitEvent(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
     end

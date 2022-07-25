@@ -8,7 +8,6 @@ class NxEntities
 
     # NxEntities::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxEntity"
         {
             "uuid"        => objectuuid,
@@ -45,7 +44,7 @@ class NxEntities
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 

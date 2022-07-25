@@ -155,7 +155,7 @@ require_relative "Iam.rb"
 require_relative "NxIceds.rb"
 
 require_relative "FileSystemCheck.rb"
-require_relative "Fx18s.rb"
+require_relative "Fx18.rb"
 require_relative "FxData.rb"
 
 require_relative "LxAction.rb"

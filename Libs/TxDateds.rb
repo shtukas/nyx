@@ -4,7 +4,6 @@ class TxDateds
 
     # TxDateds::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if !Fx18Utils::fileExists?(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "TxDated"
         {
             "uuid"        => objectuuid,
@@ -48,7 +47,7 @@ class TxDateds
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 
@@ -67,7 +66,7 @@ class TxDateds
         Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckLocalObjectuuid(uuid)
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 
