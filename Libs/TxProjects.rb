@@ -97,13 +97,6 @@ class TxProjects
         XCache::getFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}")
     end
 
-    # TxProjects::getProjectPerElementUUIDOrNull(uuid)
-    def self.getProjectPerElementUUIDOrNull(uuid)
-        TxProjects::items()
-            .select{|project| TxProjects::elementuuids(project).include?(uuid) }
-            .first
-    end
-
     # ----------------------------------------------------------------------
     # Data
 
