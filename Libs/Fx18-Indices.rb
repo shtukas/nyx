@@ -143,7 +143,7 @@ class Fx18Index2PrimaryLookup # (mikuType, objectuuid, announce, unixtime, item)
         db.busy_handler { |count| true }
         db.results_as_hash = true
         item = nil
-        db.execute("select * from _index_ where _mikuType_=?", [mikuType]) do |row|
+        db.execute("select * from _index_ where _objectuuid_=?", [objectuuid]) do |row|
             item = JSON.parse(row["_item_"])
         end
         db.close
