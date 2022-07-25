@@ -15,7 +15,6 @@ class NyxNetworkSpecialCircumstances
         end
 
         uuid2 = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid2)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)

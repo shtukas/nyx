@@ -27,7 +27,7 @@ class TxProjects
 
     # TxProjects::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -46,7 +46,6 @@ class TxProjects
 
         uuid = SecureRandom.uuid
 
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "TxProject")
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
@@ -184,7 +183,7 @@ class TxProjects
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
+                    Fx18::destroyObject(item["uuid"])
                     break
                 end
             end

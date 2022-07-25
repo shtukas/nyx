@@ -27,7 +27,7 @@ class NxEntities
 
     # NxEntities::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -38,7 +38,6 @@ class NxEntities
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxEntity")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)

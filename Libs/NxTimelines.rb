@@ -27,7 +27,7 @@ class NxTimelines
 
     # NxTimelines::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -39,7 +39,6 @@ class NxTimelines
         return nil if description == ""
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxTimeline")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    unixtime)

@@ -20,7 +20,6 @@ class Ax1Text
     # Ax1Text::interactivelyIssueNew()
     def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         text = CommonUtils::editTextSynchronously("")
         nhash = FxData::putBlob(uuid, text)
         unixtime = Time.new.to_i
@@ -83,7 +82,7 @@ class Ax1Text
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
-                    Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+                    Fx18::destroyObject(uuid)
                     break
                 end
             end

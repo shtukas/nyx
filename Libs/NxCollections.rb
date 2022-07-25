@@ -27,7 +27,7 @@ class NxCollections
 
     # NxCollections::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -40,7 +40,6 @@ class NxCollections
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxCollection")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)

@@ -129,7 +129,6 @@ class Anniversaries
 
         uuid = SecureRandom.uuid
 
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxAnniversary")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -213,7 +212,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Fx18Utils::destroyLocalFx18EmitEvents(item["uuid"])
+                Fx18::destroyObject(item["uuid"])
                 break
             end
         }

@@ -24,7 +24,7 @@ class NxFrames
 
     # NxFrames::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # --------------------------------------------------
@@ -35,7 +35,6 @@ class NxFrames
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601

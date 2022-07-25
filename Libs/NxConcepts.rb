@@ -27,7 +27,7 @@ class NxConcepts
 
     # NxConcepts::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -44,7 +44,6 @@ class NxConcepts
 
         uuid = SecureRandom.uuid
 
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxConcept")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)

@@ -25,7 +25,6 @@ class NxPersons
     # NxPersons::issue(name1)
     def self.issue(name1)
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxPerson")
         Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)

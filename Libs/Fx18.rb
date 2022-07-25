@@ -15,13 +15,30 @@ class Fx18
         db.close
     end
 
-    # Fx18::destroy(eventuuid)
-    def self.destroy(eventuuid)
+    # Fx18::deleteEvent(eventuuid)
+    def self.deleteEvent(eventuuid)
         db = SQLite3::Database.new(Fx18::fx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.close
+    end
+
+    # Fx18::destroyObject(objectuuid)
+    def self.destroyObject(objectuuid)
+        db = SQLite3::Database.new(Fx18::fx18Filepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _objectuuid_=?", [objectuuid]
+        db.close
+        SystemEvents::issueStargateDrop({
+            "mikuType"   => "NxDeleted",
+            "objectuuid" => objectuuid,
+        })
+        SystemEvents::processEventInternally({
+            "mikuType"   => "(object has been deleted)",
+            "objectuuid" => objectuuid,
+        })
     end
 end
 
@@ -32,25 +49,6 @@ class Fx18Utils
     # Fx18Utils::computeLocalFx18Filepath(objectuuid)
     def self.computeLocalFx18Filepath(objectuuid)
         "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{objectuuid}.fx18.sqlite3"
-    end
-
-    # Fx18Utils::makeNewFile(objectuuid) # filepath
-    def self.makeNewFile(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        if File.exists?(filepath) then
-            puts "operation: Fx18Utils::makeNewFile"
-            puts "objectuuid: #{objectuuid}"
-            puts "filepath: #{filepath}"
-            raise "(error: 501f3d32-118f-4844-94e2-f93f96d50fcc) attempting to create a Fx18 file that already exists"
-            exit 1
-        end
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "create table _fx18_ (_eventuuid_ text primary key, _eventTime_ float, _eventData1_ blob, _eventData2_ blob, _eventData3_ blob, _eventData4_ blob, _eventData5_ blob);"
-        db.close
-        filepath
     end
 
     # Fx18Utils::objectuuidToItemOrNull(objectuuid)
@@ -136,27 +134,6 @@ class Fx18Utils
                 FileSystemCheck::fsckObject(objectuuid)
             }
         puts "fsck completed successfully".green
-    end
-
-    # Fx18Utils::destroyLocalFx18NoEvent(objectuuid)
-    def self.destroyLocalFx18NoEvent(objectuuid)
-        filepath = Fx18Utils::computeLocalFx18Filepath(objectuuid)
-        return if !File.exists?(filepath)
-        puts "delete Fx18 file: #{filepath}"
-        FileUtils.rm(filepath)
-    end
-
-    # Fx18Utils::destroyLocalFx18EmitEvents(objectuuid)
-    def self.destroyLocalFx18EmitEvents(objectuuid)
-        Fx18Utils::destroyLocalFx18NoEvent(objectuuid)
-        SystemEvents::issueStargateDrop({
-            "mikuType"   => "NxDeleted",
-            "objectuuid" => objectuuid,
-        })
-        SystemEvents::processEventInternally({
-            "mikuType"   => "(object has been deleted)",
-            "objectuuid" => objectuuid,
-        })
     end
 
     # Fx18Utils::jsonParseIfNotNull(str)

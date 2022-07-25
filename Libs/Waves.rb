@@ -27,7 +27,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # --------------------------------------------------
@@ -142,7 +142,6 @@ class Waves
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "Wave")

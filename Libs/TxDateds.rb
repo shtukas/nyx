@@ -24,7 +24,7 @@ class TxDateds
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # --------------------------------------------------
@@ -38,7 +38,6 @@ class TxDateds
         datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
         return nil if datetime.nil?
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
@@ -56,7 +55,6 @@ class TxDateds
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601

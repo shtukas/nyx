@@ -24,7 +24,7 @@ class NxIceds
 
     # NxIceds::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # --------------------------------------------------

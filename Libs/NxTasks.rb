@@ -38,7 +38,7 @@ class NxTasks
 
     # NxTasks::destroy(uuid)
     def self.destroy(uuid)
-        Fx18Utils::destroyLocalFx18EmitEvents(uuid)
+        Fx18::destroyObject(uuid)
     end
 
     # --------------------------------------------------
@@ -49,7 +49,6 @@ class NxTasks
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxTask")
@@ -71,7 +70,6 @@ class NxTasks
     def self.issueFromInboxLocation(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        Fx18Utils::makeNewFile(uuid)
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
         Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxTask")
@@ -87,7 +85,6 @@ class NxTasks
     def self.issueViennaURL(url)
         uuid        = SecureRandom.uuid
         description = "(vienna) #{url}"
-        Fx18Utils::makeNewFile(uuid)
         nx111 = {
             "uuid" => SecureRandom.uuid,
             "type" => "url",
