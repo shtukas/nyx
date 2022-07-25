@@ -375,9 +375,28 @@ class Fx18Synchronisation
         }
     end
 
+    # Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(filepath)
+    def self.transferDatablobsFromFx18FileToFxData(filepath)
+        Fx18Synchronisation::getEventuuids(filepath).each{|eventuuid|
+            record1 = Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
+            next if record1["_eventData1_"] != "datablob"
+            objectuuid = record1["_objectuuid_"]
+            nhash = record1["_eventData2_"]
+            puts "Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(): objectuuid: #{objectuuid}, nhash: #{nhash}"
+            blob = record1["_eventData3_"]
+            FxData::putBlobOnInfinity(objectuuid, blob)
+            Fx18::deleteEvent(eventuuid)
+        }
+    end
+
     # Fx18Synchronisation::sync()
     def self.sync()
-        # TODO:
+        local = Fx18::fx18Filepath()
+        remote = "#{StargateCentral::pathToCentral()}/Fx18.sqlite3"
+        Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(local)
+        Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(remote)
+        Fx18Synchronisation::propagateFileData(local, remote)
+        Fx18Synchronisation::propagateFileData(remote, local)
     end
 end
 
