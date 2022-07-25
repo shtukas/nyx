@@ -181,7 +181,6 @@ class Catalyst
 
         section2 = Catalyst::section2()
         if !section2.empty? then
-            XCache::set("c4270054-4a57-402e-9fda-6b90223fca9a", section2.map{|p| p["metric"] }.max)
             puts ""
             vspaceleft = vspaceleft - 1
             section2

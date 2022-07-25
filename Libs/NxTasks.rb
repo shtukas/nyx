@@ -54,9 +54,7 @@ class NxTasks
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-
         FileSystemCheck::fsckObject(uuid)
-        
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -75,7 +73,7 @@ class NxTasks
         Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setAttribute2(uuid, "description", description)
         Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-
+        FileSystemCheck::fsckObject(uuid)
         uuid
     end
 
