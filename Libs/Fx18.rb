@@ -289,6 +289,20 @@ class Fx18Synchronisation
         uuids
     end
 
+    # Fx18Synchronisation::getEventuuidsForDatablobsTransfert(filepath)
+    def self.getEventuuidsForDatablobsTransfert(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select _eventuuid_ from _fx18_ where _eventData1_=?", ["datablob"]) do |row|
+            uuids << row["_eventuuid_"]
+        end
+        db.close
+        uuids
+    end
+
     # Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
     def self.getRecordOrNull(filepath, eventuuid)
         db = SQLite3::Database.new(filepath)
@@ -324,9 +338,9 @@ class Fx18Synchronisation
         # Get the events ids from file2
         eventuuids2 = Fx18Synchronisation::getEventuuids(filepath2)
 
-        # For each event in eventuuids1 if the event is in file1 but not in file2, then add the entire record in file2
-        eventuuids1.each{|eventuuid|
-            next if eventuuids2.include?(eventuuid) # already in the target file
+        (eventuuids1 - eventuuids2).each{|eventuuid|
+            puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, eventuuid: #{eventuuid}"
+
             record1 = Fx18Synchronisation::getRecordOrNull(filepath1, eventuuid)
             if record1.nil? then
                 puts "filepath1: #{filepath1}"
@@ -334,8 +348,10 @@ class Fx18Synchronisation
                 puts "eventuuid: #{eventuuid}"
                 raise "(error: e0f0d25c-48da-44b2-8304-832c3aa14421)"
             end
-            puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, eventuuid: #{eventuuid}"
+
             Fx18Synchronisation::putRecord(filepath2, record1)
+
+            # Checks
             record2 = Fx18Synchronisation::getRecordOrNull(filepath2, eventuuid)
             if record2.nil? then
                 puts "filepath1: #{filepath1}"
@@ -365,7 +381,7 @@ class Fx18Synchronisation
 
     # Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(filepath)
     def self.transferDatablobsFromFx18FileToFxData(filepath)
-        Fx18Synchronisation::getEventuuids(filepath).each{|eventuuid|
+        Fx18Synchronisation::getEventuuidsForDatablobsTransfert(filepath).each{|eventuuid|
             record1 = Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
             next if record1["_eventData1_"] != "datablob"
             objectuuid = record1["_objectuuid_"]
@@ -381,9 +397,17 @@ class Fx18Synchronisation
     def self.sync()
         local = Fx18::fx18Filepath()
         remote = "#{StargateCentral::pathToCentral()}/Fx18.sqlite3"
+        
+        puts "Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(local)"
         Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(local)
+
+        puts "Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(remote)"
         Fx18Synchronisation::transferDatablobsFromFx18FileToFxData(remote)
+
+        puts "Fx18Synchronisation::propagateFileData(local, remote)"
         Fx18Synchronisation::propagateFileData(local, remote)
+
+        puts "Fx18Synchronisation::propagateFileData(remote, local)"
         Fx18Synchronisation::propagateFileData(remote, local)
     end
 end
