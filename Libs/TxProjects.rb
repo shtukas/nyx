@@ -87,7 +87,14 @@ class TxProjects
     def self.elements(project, count)
         TxProjects::elementuuids(project)
             .take(count)
-            .map{|elementuuid| Fx18Index2PrimaryLookup::itemOrNull(elementuuid)}
+            .map{|elementuuid|
+                item = Fx18Index2PrimaryLookup::itemOrNull(elementuuid)
+                if item.nil? then
+                    # We take this opportunity to do some cleaning
+                    TxProjects::removeElement(project, elementuuid)
+                end
+                item
+            }
             .compact
     end
 
