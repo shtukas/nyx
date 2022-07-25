@@ -172,6 +172,13 @@ class FxData
             end
         }
 
+        # Last resort: XCache
+        blob = XCacheDatablobs::getBlobOrNull(nhash)
+        if blob then
+            FxData::putBlobOnInfinity(objectuuid, blob)
+            return blob
+        end
+
         nil
     end
 end
