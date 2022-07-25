@@ -404,8 +404,8 @@ class FileSystemCheck
             db.close
 
             if LucilleCore::askQuestionAnswerAsBoolean("destroy this object ? ", false) then
-                puts "Code to be written"
-                exit
+                Fx18::destroyObject(objectuuid)
+                Fx18Index2PrimaryLookup::removeEntry(objectuuid)
             end
         end
     end
