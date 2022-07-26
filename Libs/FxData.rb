@@ -47,19 +47,19 @@ class FxData
     # FxData::getBlobOrNull(objectuuid, nhash)
     def self.getBlobOrNull(objectuuid, nhash)
 
-        # First, we look on the object itself
-        blob = Fx18Data::getBlobOrNull(objectuuid, nhash) 
-        if blob then
-            return blob
-        end
-
-        # Second we look at XCache
+        # First we look at XCache
         blob = XCacheDatablobs::getBlobOrNull(nhash)
         if blob then
             return blob
         end
 
-        # If not, then we try the Infinity drive
+        # Second, we look on the object itself
+        blob = Fx18Data::getBlobOrNull(objectuuid, nhash) 
+        if blob then
+            return blob
+        end
+
+        # Third we try the Infinity drive
         StargateCentral::ensureInfinityDrive()
 
         # We need to extract the names of the database where this object stores its data on Infinity
