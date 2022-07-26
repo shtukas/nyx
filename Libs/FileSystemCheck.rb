@@ -46,7 +46,7 @@ class Fx18ElizabethFsck
     def readBlobErrorIfNotFound(nhash)
         blob = getBlobOrNull(nhash)
         return blob if blob
-        puts "EnergyGridImmutableDataIslandElizabeth: (error: 25d380b3-cb73-42b3-9505-b9e8e4f6c5fa) could not find blob, nhash: #{nhash}"
+        puts "(error: 25d380b3-cb73-42b3-9505-b9e8e4f6c5fa) could not find blob, nhash: #{nhash}"
         raise "(error: 3c1fadc8-510f-4c8f-9af3-572165fb57ac, nhash: #{nhash})" if blob.nil?
     end
 
