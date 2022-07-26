@@ -14,9 +14,8 @@ class The99Percent
             "count"    => count,
             "datetime" => Time.new.utc.iso8601
         }
-        puts "Issuing a new reference:".green
         puts JSON.pretty_generate(reference).green
-        LucilleCore::pressEnterToContinue()
+        return !LucilleCore::askQuestionAnswerAsBoolean("Issue this new reference ? ")
         XCache::set("002c358b-e6ee-41bd-9bee-105396a6349a", JSON.generate(reference))
         reference
     end
@@ -33,7 +32,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        ["TxDated", "TxProject", "NxTask", "NxIced"]
+        ["TxDated", "TxProject", "NxTask", "NxIced", "NxLine"]
             .map{|mikuType| Fx18Index2PrimaryLookup::countObjectsByMikuType(mikuType) }
             .inject(0, :+)
     end
