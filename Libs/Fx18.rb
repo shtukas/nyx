@@ -39,10 +39,6 @@ class Fx18
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5]
         db.close
-        SystemEvents::processEventInternally({
-            "mikuType"   => "(object has been updated)",
-            "objectuuid" => objectuuid,
-        })
     end
 
     # Fx18::deleteEvent(eventuuid)
@@ -172,10 +168,14 @@ class Fx18Attributes
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         Fx18::commit(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        SystemEvents::processEventInternally({
+            "mikuType"   => "(object has been updated)",
+            "objectuuid" => objectuuid,
+        })
     end
 
-    # Fx18Attributes::setAttribute2(objectuuid, attname, attvalue)
-    def self.setAttribute2(objectuuid, attname, attvalue)
+    # Fx18Attributes::set2(objectuuid, attname, attvalue)
+    def self.set2(objectuuid, attname, attvalue)
         Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
@@ -201,6 +201,10 @@ class Fx18Sets
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
         Fx18::commit(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        SystemEvents::processEventInternally({
+            "mikuType"   => "(object has been updated)",
+            "objectuuid" => objectuuid,
+        })
     end
 
     # Fx18Sets::add2(objectuuid, setuuid, itemuuid, value)
@@ -212,6 +216,10 @@ class Fx18Sets
     def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
         Fx18::commit(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        SystemEvents::processEventInternally({
+            "mikuType"   => "(object has been updated)",
+            "objectuuid" => objectuuid,
+        })
     end
 
     # Fx18Sets::remove2(objectuuid, setuuid, itemuuid)
@@ -291,10 +299,6 @@ class Fx18Synchronisation
         db.execute "delete from _fx18_ where _eventuuid_=?", [record["_eventuuid_"]]
         db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?, ?)", [record["_objectuuid_"], record["_eventuuid_"], record["_eventTime_"], record["_eventData1_"], record["_eventData2_"], record["_eventData3_"], record["_eventData4_"], record["_eventData5_"]]
         db.close
-        SystemEvents::processEventInternally({
-            "mikuType"   => "(object has been updated)",
-            "objectuuid" => record["_objectuuid_"],
-        })
     end
 
     # Fx18Synchronisation::propagateFileData(filepath1, filepath2)

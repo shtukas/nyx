@@ -23,11 +23,11 @@ class NxPersons
     # NxPersons::issue(name1)
     def self.issue(name1)
         uuid = SecureRandom.uuid
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxPerson")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setAttribute2(uuid, "name",        name1)
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxPerson")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set2(uuid, "name",        name1)
         FileSystemCheck::fsckObject(uuid)
         uuid
     end

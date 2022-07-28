@@ -127,13 +127,13 @@ class Anniversaries
 
         uuid = SecureRandom.uuid
 
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxAnniversary")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "startdate",   startdate)
-        Fx18Attributes::setAttribute2(uuid, "repeatType",  repeatType)
-        Fx18Attributes::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxAnniversary")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "startdate",   startdate)
+        Fx18Attributes::set2(uuid, "repeatType",  repeatType)
+        Fx18Attributes::set2(uuid, "lastCelebrationDate", lastCelebrationDate)
 
         FileSystemCheck::fsckObject(uuid)
     end
@@ -151,7 +151,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        Fx18Attributes::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        Fx18Attributes::set2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -200,13 +200,13 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                Fx18Attributes::setAttribute2(item["uuid"], "description", description)
+                Fx18Attributes::set2(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                Fx18Attributes::setAttribute2(item["uuid"], "startdate",   startdate)
+                Fx18Attributes::set2(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then

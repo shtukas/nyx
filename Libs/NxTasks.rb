@@ -39,12 +39,12 @@ class NxTasks
         return nil if description == ""
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -58,12 +58,12 @@ class NxTasks
         description = File.basename(location)
         uuid = SecureRandom.uuid
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         uuid
     end
@@ -77,12 +77,12 @@ class NxTasks
             "type" => "url",
             "url"  => url
         }
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         uuid
     end

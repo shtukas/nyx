@@ -141,13 +141,13 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "Wave")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
-        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
-        Fx18Attributes::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "Wave")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "nx46",        JSON.generate(nx46))
+        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObject(uuid)
         uuid
     end
@@ -190,7 +190,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        Fx18Attributes::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        Fx18Attributes::set2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"

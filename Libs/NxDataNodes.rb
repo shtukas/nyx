@@ -40,12 +40,12 @@ class NxDataNodes
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxDataNode")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxDataNode")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    datetime)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         uuid
     end
@@ -57,12 +57,12 @@ class NxDataNodes
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxDataNode")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxDataNode")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    datetime)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         uuid
     end
@@ -74,12 +74,12 @@ class NxDataNodes
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxDataNode")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    datetime)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxDataNode")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    datetime)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         uuid
     end

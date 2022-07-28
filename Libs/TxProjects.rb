@@ -44,11 +44,11 @@ class TxProjects
 
         uuid = SecureRandom.uuid
 
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "TxProject")
-        Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
-        Fx18Attributes::setAttribute2(uuid, "ax39",        JSON.generate(ax39))
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "TxProject")
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "ax39",        JSON.generate(ax39))
         FileSystemCheck::fsckObject(uuid)
         TxProjects::objectuuidToItemOrNull(objectuuid)
     end
@@ -187,11 +187,11 @@ class TxProjects
                 if item["mikuType"] == "NxPerson" then
                     name1 = CommonUtils::editTextSynchronously(item["name"]).strip
                     next if name1 == ""
-                    Fx18Attributes::setAttribute2(item["uuid"], "name", name1)
+                    Fx18Attributes::set2(item["uuid"], "name", name1)
                 else
                     description = CommonUtils::editTextSynchronously(item["description"]).strip
                     next if description == ""
-                    Fx18Attributes::setAttribute2(item["uuid"], "description", description)
+                    Fx18Attributes::set2(item["uuid"], "description", description)
                 end
                 next
             end

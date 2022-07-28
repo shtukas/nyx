@@ -24,11 +24,11 @@ class Ax1Text
         nhash = ExData::putBlob(uuid, text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::setAttribute2(uuid, "uuid", uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType", "Ax1Text")
-        Fx18Attributes::setAttribute2(uuid, "unixtime", unixtime)
-        Fx18Attributes::setAttribute2(uuid, "datetime", datetime)
-        Fx18Attributes::setAttribute2(uuid, "nhash", nhash)
+        Fx18Attributes::set2(uuid, "uuid", uuid)
+        Fx18Attributes::set2(uuid, "mikuType", "Ax1Text")
+        Fx18Attributes::set2(uuid, "unixtime", unixtime)
+        Fx18Attributes::set2(uuid, "datetime", datetime)
+        Fx18Attributes::set2(uuid, "nhash", nhash)
         FileSystemCheck::fsckObject(uuid)
         item = Ax1Text::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -76,7 +76,7 @@ class Ax1Text
                 text = ExData::getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
                 nhash = ExData::putBlob(uuid, text)
-                Fx18Attributes::setAttribute2(uuid, "nhash", nhash)
+                Fx18Attributes::set2(uuid, "nhash", nhash)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then

@@ -21,14 +21,12 @@ class FileSystemCheck
             puts "Malformed Fx18 file, I could not find a uuid".red
             raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
         end
-
         if !Nx111::types().include?(nx111["type"]) then
             puts "objectuuid has an incorrect nx111 value type".red
             puts "objectuuid: #{objectuuid}".red
             puts "nx111: type: #{nx111["type"]}".red
             raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
         end
-
         if nx111["type"] == "text" then
             nhash = nx111["nhash"]
             blob = ExDataElizabethForFsck.new(objectuuid).getBlobOrNull(nhash)

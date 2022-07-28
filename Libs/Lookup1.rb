@@ -14,27 +14,7 @@ class Lookup1
         db.execute("create table _lookup1_ (_itemuuid_ text primary key, _unixtime_ float, _mikuType_ text, _item_ text, _announce_ text)", [])
         db.close
 
-        Fx18::objectuuids().each{|objectuuid|
-            puts "building lookup1: objectuuid: #{objectuuid}"
-
-            unixtime = Fx18Attributes::getOrNull(objectuuid, "unixtime")
-            raise "(error: a9e52d99-1bd5-4b65-9ee6-a3c1b2c9d0cb)" if unixtime.nil?
-
-            mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
-            raise "(error: cd46d88b-ddb7-412f-bbb5-acccf968ba3e)" if mikuType.nil?
-
-            item     = Fx18::itemOrNull(objectuuid)
-            raise "(error: d644d601-288e-426c-9467-3a364a32d06b)" if item.nil?
-
-            announce = LxFunction::function("generic-description", item)
-
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("insert into _lookup1_ (_itemuuid_, _unixtime_, _mikuType_, _item_, _announce_) values (?, ?, ?, ?, ?)", [objectuuid, unixtime, mikuType, JSON.generate(item), announce])
-            db.close
-        }
+        filepath
     end
 
     # Lookup1::itemsuuids()
@@ -149,5 +129,33 @@ class Lookup1
             db.execute("delete from _lookup1_ where _itemuuid_=?", [objectuuid])
             db.close
         end
+    end
+
+    # Lookup1::maintainLookup()
+    def self.maintainLookup()
+        (Fx18::objectuuids() - Lookup1::itemsuuids())
+            .first(500)
+            .each{|objectuuid|
+                puts "building lookup1: objectuuid: #{objectuuid}"
+
+                unixtime = Fx18Attributes::getOrNull(objectuuid, "unixtime")
+                raise "(error: a9e52d99-1bd5-4b65-9ee6-a3c1b2c9d0cb)" if unixtime.nil?
+
+                mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
+                raise "(error: cd46d88b-ddb7-412f-bbb5-acccf968ba3e)" if mikuType.nil?
+
+                item     = Fx18::itemOrNull(objectuuid)
+                raise "(error: d644d601-288e-426c-9467-3a364a32d06b)" if item.nil?
+
+                announce = LxFunction::function("generic-description", item)
+
+                db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db.execute("delete from _lookup1_ where _itemuuid_=?", [objectuuid])
+                db.execute("insert into _lookup1_ (_itemuuid_, _unixtime_, _mikuType_, _item_, _announce_) values (?, ?, ?, ?, ?)", [objectuuid, unixtime, mikuType, JSON.generate(item), announce])
+                db.close
+            }
     end
 end

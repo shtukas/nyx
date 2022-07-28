@@ -36,11 +36,11 @@ class NxEntities
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18Attributes::setAttribute2(uuid, "uuid",        uuid)
-        Fx18Attributes::setAttribute2(uuid, "mikuType",    "NxEntity")
-        Fx18Attributes::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setAttribute2(uuid, "description", description)
+        Fx18Attributes::set2(uuid, "uuid",        uuid)
+        Fx18Attributes::set2(uuid, "mikuType",    "NxEntity")
+        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set2(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
         uuid
     end
