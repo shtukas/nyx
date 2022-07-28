@@ -5,7 +5,7 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
+        item = Fx18::itemOrNull(itemuuid)
         return if item.nil?
         if !["NxTask", "NxIced"].include?(item["mikuType"]) then
             puts "I am authorised to >nyx only NxTasks and NxIceds in this function"
@@ -163,7 +163,7 @@ class Streaming
     def self.section2()
         uuid = Streaming::uuid()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
-        return [] if rt > 1 or Fx18Index2PrimaryLookup::mikuTypeCount("(rstream-to-target)") == 0
+        return [] if rt > 1
 
         item = {
             "uuid" => uuid,

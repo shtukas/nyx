@@ -21,7 +21,7 @@ class Ax1Text
     def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
         text = CommonUtils::editTextSynchronously("")
-        nhash = FxData::putBlob(uuid, text)
+        nhash = ExData::putBlob(uuid, text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         Fx18Attributes::setAttribute2(uuid, "uuid", uuid)
@@ -43,7 +43,7 @@ class Ax1Text
     # Ax1Text::getFirstLineOrNull(item)
     def self.getFirstLineOrNull(item)
         nhash = item["nhash"]
-        text = FxData::getBlobOrNull(item["uuid"], nhash)
+        text = ExData::getBlobOrNull(nhash)
         return nil if text.nil?
         return nil if text == ""
         text.lines.first
@@ -63,7 +63,7 @@ class Ax1Text
     def self.landing(uuid)
         loop {
             system("clear")
-            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+            item = Fx18::itemOrNull(uuid)
             puts Ax1Text::toString(item)
             operations = [
                 "access/edit",
@@ -73,9 +73,9 @@ class Ax1Text
             break if operation.nil?
             if operation == "access/edit" then
                 nhash = Fx18Attributes::getOrNull(uuid, "nhash")
-                text = FxData::getBlobOrNull(uuid, nhash)
+                text = ExData::getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = FxData::putBlob(uuid, text)
+                nhash = ExData::putBlob(uuid, text)
                 Fx18Attributes::setAttribute2(uuid, "nhash", nhash)
             end
             if operation == "destroy" then

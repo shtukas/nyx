@@ -17,7 +17,7 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("NxPerson")
+        Lookup1::mikuTypeToItems("NxPerson")
     end
 
     # NxPersons::issue(name1)

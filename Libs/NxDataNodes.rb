@@ -15,13 +15,13 @@ class NxDataNodes
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
-            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
+            "nx111"       => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
         }
     end
 
     # NxDataNodes::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("NxDataNode")
+        Lookup1::mikuTypeToItems("NxDataNode")
     end
 
     # NxDataNodes::destroy(uuid)

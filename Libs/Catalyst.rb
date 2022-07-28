@@ -122,7 +122,7 @@ class Catalyst
         vspaceleft = CommonUtils::screenHeight()-3
 
         if Machines::isLucille20() then
-            reference = The99Percent::getReference()
+            reference = The99Percent::getReferenceOrNull()
             current   = The99Percent::getCurrentCount()
             ratio     = current.to_f/reference["count"]
             line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
@@ -130,8 +130,7 @@ class Catalyst
             puts line
             vspaceleft = vspaceleft - 2
             if ratio < 0.99 then
-                The99Percent::issueNewReference()
-                return
+                The99Percent::issueNewReferenceOrNull()
             end
         end
 

@@ -10,7 +10,7 @@ class Commands
             "anniversaries | calendar | ondates | todos | projects",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
             "require internet",
-            "rstream | search | nyx | speed | pickup | nxballs | indices | maintenance | >>",
+            "rstream | search | nyx | speed | pickup | nxballs | maintenance | >>",
         ].join("\n")
     end
 
@@ -168,11 +168,6 @@ class Commands
 
         if Interpreting::match("internet on", input) then
             InternetStatus::setInternetOn()
-            return
-        end
-
-        if Interpreting::match("indices", input) then
-            Fx18Index2PrimaryLookup::rebuildIndex()
             return
         end
 

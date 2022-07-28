@@ -20,7 +20,7 @@ class NxConcepts
 
     # NxConcepts::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("NxConcept")
+        Lookup1::mikuTypeToItems("NxConcept")
     end
 
     # NxConcepts::destroy(uuid)

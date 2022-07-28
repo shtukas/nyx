@@ -19,7 +19,7 @@ class NxLines
 
     # NxLines::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("NxLine")
+        Lookup1::mikuTypeToItems("NxLine")
     end
 
     # ----------------------------------------------------------------------

@@ -12,15 +12,15 @@ class Waves
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
             "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
-            "nx46"        => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx46")),
-            "nx111"       => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
+            "nx46"        => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx46")),
+            "nx111"       => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
             "lastDoneDateTime" => Fx18Attributes::getOrNull(objectuuid, "lastDoneDateTime"),
         }
     end
 
     # Waves::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("Wave")
+        Lookup1::mikuTypeToItems("Wave")
     end
 
     # Waves::destroy(uuid)

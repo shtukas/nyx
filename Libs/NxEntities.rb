@@ -20,7 +20,7 @@ class NxEntities
 
     # NxEntities::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("NxEntity")
+        Lookup1::mikuTypeToItems("NxEntity")
     end
 
     # NxEntities::destroy(uuid)

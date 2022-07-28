@@ -107,7 +107,7 @@ class EditionDesk
             end
             location = "#{location}.txt"
             nhash = nx111["nhash"]
-            text = FxData::getBlobOrNull(itemuuid, nhash)
+            text = ExData::getBlobOrNull(nhash)
             File.open(location, "w"){|f| f.puts(text) }
             return location
         end
@@ -125,7 +125,7 @@ class EditionDesk
             nhash = nx111["nhash"]
             parts = nx111["parts"]
             
-            operator = FxDataElizabeth.new(itemuuid)
+            operator = ExDataElizabeth.new(itemuuid)
             filepath = flag ? location : "#{location}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
@@ -138,7 +138,7 @@ class EditionDesk
         end
         if nx111["type"] == "aion-point" then
             rootnhash = nx111["rootnhash"]
-            operator = FxDataElizabeth.new(itemuuid)
+            operator = ExDataElizabeth.new(itemuuid)
             flag, exportLocation = EditionDesk::findOrConstructItemNx111PairEditionLocation(parentLocation, itemuuid, nx111) # can come with an extension
             rootnhash = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash, File.basename(exportLocation))
             # At this point, the top name of the roothash may not necessarily equal the export location basename if the aion root was a file with a dotted extension
@@ -225,7 +225,7 @@ class EditionDesk
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = FxData::putBlob(itemuuid, text) # TODO: we should probably compute the nhash without actually commiting the blob to the file
+            nhash = ExData::putBlob(itemuuid, text) # TODO: we should probably compute the nhash without actually commiting the blob to the file
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             Fx18Attributes::setAttribute2(itemuuid, "nx111", JSON.generate(nx111))
@@ -250,9 +250,9 @@ class EditionDesk
             return
         end
         if nx111["type"] == "aion-point" then
-            operator = FxDataElizabeth.new(itemuuid)
+            operator = ExDataElizabeth.new(itemuuid)
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-            item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
+            item = Fx18::itemOrNull(itemuuid)
             rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(LxFunction::function("generic-description", item)))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
@@ -286,7 +286,7 @@ class EditionDesk
             puts "This is a read only export (!)"
             itemuuids
                 .select{|itemuuid| 
-                    item = Fx18Index2PrimaryLookup::itemOrNull(itemuuid)
+                    item = Fx18::itemOrNull(itemuuid)
                     !item.nil? and Iam::implementsNx111(itemuuid)
                 }
                 .each{|itemuuid|

@@ -10,7 +10,7 @@ We have two types of events
 
 {
     "mikuType"   => "(object has been updated)",
-    "objectuuid" => objectuuid
+    "objectuuid" => objectuuid,
 }
 
 {

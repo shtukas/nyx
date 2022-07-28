@@ -14,13 +14,13 @@ class TxProjects
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
             "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
-            "ax39"        => Fx18Utils::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "ax39")),
+            "ax39"        => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "ax39")),
         }
     end
 
     # TxProjects::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("TxProject")
+        Lookup1::mikuTypeToItems("TxProject")
     end
 
     # TxProjects::destroy(uuid)
@@ -104,7 +104,7 @@ class TxProjects
         TxProjects::elementuuids(project)
             .take(count)
             .map{|elementuuid|
-                item = Fx18Index2PrimaryLookup::itemOrNull(elementuuid)
+                item = Fx18::itemOrNull(elementuuid)
                 if item.nil? then
                     # We take this opportunity to do some cleaning
                     TxProjects::removeElement(project, elementuuid)
@@ -162,13 +162,9 @@ class TxProjects
 
             uuid = item["uuid"]
 
-            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+            item = Fx18::itemOrNull(uuid)
 
             return if item.nil?
-
-            if item.nil? then
-                Fx18Index2PrimaryLookup::removeEntry(uuid)
-            end
 
             system("clear")
 

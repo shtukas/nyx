@@ -53,7 +53,7 @@ class Nyx
             if operation == "make new data entity" then
                 itemuuid = Architect::interactivelyMakeNewOrNull()
                 next if itemuuid.nil?
-                item = Fx18Utils::objectuuidToItemOrNull(itemuuid)
+                item = Fx18::itemOrNull(itemuuid)
                 next if item.nil?
                 LxAction::action("landing", item)
             end

@@ -144,6 +144,7 @@ require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
 
 require_relative "EditionDesk.rb"
+require_relative "ExData.rb"
 
 require_relative "Galaxy.rb"
 
@@ -154,8 +155,6 @@ require_relative "Iam.rb"
 
 require_relative "FileSystemCheck.rb"
 require_relative "Fx18.rb"
-require_relative "FxData.rb"
-require_relative "Fx18-Indices.rb"
 
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
@@ -163,6 +162,7 @@ require_relative "Landing.rb"
 require_relative "LinkedNavigation.rb"
 
 require_relative "Machines.rb"
+require_relative "Lookup1.rb"
 
 require_relative "NxDataNodes.rb"
 require_relative "Nx102Flavors.rb"
@@ -181,6 +181,7 @@ require_relative "NxEvents.rb"
 require_relative "NxEntities.rb"
 require_relative "NxConcepts.rb"
 require_relative "NxIceds.rb"
+require_relative "Nx20s.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"

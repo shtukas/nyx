@@ -20,7 +20,7 @@ class NxTimelines
 
     # NxTimelines::items()
     def self.items()
-        Fx18Index2PrimaryLookup::mikuTypeToItems("NxTimeline")
+        Lookup1::mikuTypeToItems("NxTimeline")
     end
 
     # NxTimelines::destroy(uuid)

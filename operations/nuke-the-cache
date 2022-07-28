@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-Fx18Index2PrimaryLookup::rebuildIndex()
+Fx18::resetCachePrefix()

@@ -9,7 +9,7 @@ class Landing
 
         NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
-                entity = Fx18Index2PrimaryLookup::itemOrNull(entityuuid)
+                entity = Fx18::itemOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
@@ -41,13 +41,9 @@ class Landing
 
             uuid = item["uuid"]
 
-            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+            item = Fx18::itemOrNull(uuid)
 
             return if item.nil?
-
-            if item.nil? then
-                Fx18Index2PrimaryLookup::removeEntry(uuid)
-            end
 
             system("clear")
 
@@ -73,7 +69,7 @@ class Landing
 
             counter = 0
             linkeduuids.each{|linkeduuid|
-                entity = Fx18Index2PrimaryLookup::itemOrNull(linkeduuid)
+                entity = Fx18::itemOrNull(linkeduuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
@@ -168,13 +164,9 @@ class Landing
 
             uuid = item["uuid"]
 
-            item = Fx18Utils::objectuuidToItemOrNull(uuid)
+            item = Fx18::itemOrNull(uuid)
 
             return if item.nil?
-
-            if item.nil? then
-                Fx18Index2PrimaryLookup::removeEntry(uuid)
-            end
 
             system("clear")
 
@@ -201,7 +193,7 @@ class Landing
 
             NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entityuuid|
-                    entity = Fx18Index2PrimaryLookup::itemOrNull(entityuuid)
+                    entity = Fx18::itemOrNull(entityuuid)
                     next if entity.nil?
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
