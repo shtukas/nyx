@@ -33,7 +33,11 @@ class Commands
         if Interpreting::match(">project", input) then
             item = store.getDefault()
             return if item.nil?
-            if !["NxTask", "NxLine"].include?(item["mikuType"]) then
+            if item["mikuType"] == "TxDated" then
+                return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask")
+                Transmutation::transmutation1(item, "TxDated", "NxTask")
+            end
+            if !["NxTask", "NxLine", "TxDated"].include?(item["mikuType"]) then
                 puts "The operation >project only works on NxTasks and NxLines"
                 LucilleCore::pressEnterToContinue()
                 return
