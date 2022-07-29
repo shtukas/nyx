@@ -58,11 +58,20 @@ class SystemEvents
 
     # SystemEvents::issueStargateDrop(event)
     def self.issueStargateDrop(event)
-
+        Machines::foldernamesForStargateDrop().each{|foldername|
+            filepath = "/Volumes/Keybase (#{ENV["USER"]})/private/0x110/Stargate-Drops/#{foldername}/#{CommonUtils::timeStringL22()}.event.json"
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
+        }
     end
 
     # SystemEvents::pickupDrops()
     def self.pickupDrops()
-
+        folderpath = "/Volumes/Keybase (#{ENV["USER"]})/private/0x110/Stargate-Drops/#{Config::get("instanceId")}"
+        LucilleCore::locationsAtFolder(folderpath)
+            .each{|filepath|
+                event = JSON.parse(IO.read(filepath))
+                SystemEvents::processEventInternally(event)
+                FileUtils.rm(filepath)
+            }
     end
 end
