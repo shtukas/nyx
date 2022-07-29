@@ -53,7 +53,7 @@ class Fx18
     # Fx18::deleteObjectNoEvents(objectuuid)
     def self.deleteObjectNoEvents(objectuuid)
         # Insert the object deletion event
-        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", eventData3, eventData4, eventData5)
+        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", nil, nil, nil)
     end
 
     # Fx18::deleteObject(objectuuid)

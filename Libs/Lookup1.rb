@@ -31,18 +31,29 @@ class Lookup1
 
             if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "mikuType" then
                 objectuuid = row["_objectuuid_"]
-                mikuType = row["_eventData3_"]
+                puts "lookup1: set objectuuid: #{objectuuid}"
                 ensureLine.call(lookup1, objectuuid)
-                puts "lookup1: set (objectuuid, mikuType): #{objectuuid}, #{mikuType}"
+                mikuType = row["_eventData3_"]
+                puts "lookup1: set mikuType: #{mikuType}"
                 lookup1.execute("update _lookup1_ set _mikuType_=? where _itemuuid_=?", [mikuType, objectuuid])
             end
 
             if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "unixtime" then
                 objectuuid = row["_objectuuid_"]
-                unixtime = row["_unixtime_"]
+                puts "lookup1: set objectuuid: #{objectuuid}"
                 ensureLine.call(lookup1, objectuuid)
-                puts "lookup1: set (objectuuid, unixtime): #{objectuuid}, #{unixtime}"
+                unixtime = row["_eventData3_"]
+                puts "lookup1: set unixtime: #{unixtime}"
                 lookup1.execute("update _lookup1_ set _unixtime_=? where _itemuuid_=?", [unixtime, objectuuid])
+            end
+
+            if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "description" then
+                objectuuid = row["_objectuuid_"]
+                puts "lookup1: set objectuuid: #{objectuuid}"
+                ensureLine.call(lookup1, objectuuid)
+                description = row["_eventData3_"]
+                puts "lookup1: set description: #{description}"
+                lookup1.execute("update _lookup1_ set _description_=? where _itemuuid_=?", [description, objectuuid])
             end
 
         end
@@ -190,18 +201,9 @@ class Lookup1
         db.results_as_hash = true
         nx20s = []
         updates = []
-        db.execute("select _itemuuid_, _unixtime_, _description_ from _lookup1_", []) do |row|
-            description = nil
-            if row["_description_"] then
-                description = row["_description_"]
-            else
-                item = Fx18::itemOrNull(row["_itemuuid_"])
-                next if item.nil?
-                description = LxFunction::function("generic-description", item)
-                updates << item
-            end
+        db.execute("select _itemuuid_, _unixtime_, _description_ from _lookup1_ where _description_ is not null", []) do |row|
             nx20s << {
-                "announce"   => description,
+                "announce"   => row["_description_"],
                 "unixtime"   => row["_unixtime_"],
                 "objectuuid" => row["_itemuuid_"]
             }
