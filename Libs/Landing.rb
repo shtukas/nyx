@@ -149,7 +149,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18::destroyObject(item["uuid"])
+                    Fx18::deleteObject(item["uuid"])
                     break
                 end
             end
@@ -270,7 +270,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18::destroyObject(item["uuid"])
+                    Fx18::deleteObject(item["uuid"])
                     break
                 end
             end

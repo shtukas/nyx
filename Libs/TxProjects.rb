@@ -25,7 +25,7 @@ class TxProjects
 
     # TxProjects::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::destroyObject(uuid)
+        Fx18::deleteObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -203,7 +203,7 @@ class TxProjects
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18::destroyObject(item["uuid"])
+                    Fx18::deleteObject(item["uuid"])
                     break
                 end
             end

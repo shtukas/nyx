@@ -80,7 +80,7 @@ class Ax1Text
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
-                    Fx18::destroyObject(uuid)
+                    Fx18::deleteObject(uuid)
                     break
                 end
             end

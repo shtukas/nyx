@@ -20,7 +20,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(object has been deleted)" then
-            Fx18::destroyObjectNoEvents(event["objectuuid"])
+            Fx18::deleteObjectNoEvents(event["objectuuid"])
             Lookup1::processEventInternally(event)
             return
         end
@@ -41,7 +41,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            Fx18::destroyObjectNoEvents(event["objectuuid"])
+            Fx18::deleteObjectNoEvents(event["objectuuid"])
             return
         end
 

@@ -25,7 +25,7 @@ class NxTimelines
 
     # NxTimelines::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::destroyObject(uuid)
+        Fx18::deleteObject(uuid)
     end
 
     # ----------------------------------------------------------------------

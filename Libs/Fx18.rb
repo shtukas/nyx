@@ -50,14 +50,23 @@ class Fx18
         db.close
     end
 
-    # Fx18::destroyObjectNoEvents(objectuuid)
-    def self.destroyObjectNoEvents(objectuuid)
-        raise "(error: 714492d5-db84-4e80-9ee5-ed55fbfc2ae3) code to be written: event to be added to the log"
+    # Fx18::deleteObjectNoEvents(objectuuid)
+    def self.deleteObjectNoEvents(objectuuid)
+
+        # Delete all occurences of the objectuuid in the log
+        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _fx18_ where _objectuuid_=?", [objectuuid]
+        db.close
+
+        # Insert the object deletion event
+        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-deletion", eventData2, eventData3, eventData4, eventData5)
     end
 
-    # Fx18::destroyObject(objectuuid)
-    def self.destroyObject(objectuuid)
-        Fx18::destroyObjectNoEvents(objectuuid)
+    # Fx18::deleteObject(objectuuid)
+    def self.deleteObject(objectuuid)
+        Fx18::deleteObjectNoEvents(objectuuid)
         SystemEvents::issueStargateDrop({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,

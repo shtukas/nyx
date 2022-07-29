@@ -210,7 +210,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Fx18::destroyObject(item["uuid"])
+                Fx18::deleteObject(item["uuid"])
                 break
             end
         }

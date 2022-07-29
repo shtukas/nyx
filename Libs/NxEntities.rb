@@ -25,7 +25,7 @@ class NxEntities
 
     # NxEntities::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::destroyObject(uuid)
+        Fx18::deleteObject(uuid)
     end
 
     # ----------------------------------------------------------------------

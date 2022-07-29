@@ -339,7 +339,7 @@ class FileSystemCheck
             db.close
 
             if LucilleCore::askQuestionAnswerAsBoolean("destroy this object ? ", false) then
-                Fx18::destroyObject(objectuuid)
+                Fx18::deleteObject(objectuuid)
             end
         end
     end
