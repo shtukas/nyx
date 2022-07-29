@@ -349,6 +349,7 @@ class FileSystemCheck
         Fx18::objectuuids()
             .each{|objectuuid|
                 FileSystemCheck::exitIfMissingCanary()
+                next if !Fx18::objectIsAlive(objectuuid)
                 FileSystemCheck::fsckObject(objectuuid)
             }
         puts "fsck completed successfully".green

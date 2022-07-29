@@ -52,16 +52,8 @@ class Fx18
 
     # Fx18::deleteObjectNoEvents(objectuuid)
     def self.deleteObjectNoEvents(objectuuid)
-
-        # Delete all occurences of the objectuuid in the log
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _fx18_ where _objectuuid_=?", [objectuuid]
-        db.close
-
         # Insert the object deletion event
-        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-deletion", eventData2, eventData3, eventData4, eventData5)
+        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", eventData3, eventData4, eventData5)
     end
 
     # Fx18::deleteObject(objectuuid)
@@ -75,6 +67,20 @@ class Fx18
             "mikuType"   => "(object has been deleted)",
             "objectuuid" => objectuuid,
         })
+    end
+
+    # Fx18::objectIsAlive(objectuuid)
+    def self.objectIsAlive(objectuuid)
+        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = true
+        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? order by _eventTime_", [objectuuid, "object-is-alive"]) do |row|
+            answer = (row["_eventData2_"] == "true")
+        end
+        db.close
+        answer
     end
 
     # Fx18::objectuuids()

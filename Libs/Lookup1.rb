@@ -221,8 +221,13 @@ class Lookup1
 
     # Lookup1::maintainLookup()
     def self.maintainLookup()
+        counter = 0
         (Fx18::objectuuids() - Lookup1::itemsuuids())
-            .first(500)
-            .each{|objectuuid| Lookup1::processObjectuuid(objectuuid) }
+            .each{|objectuuid|
+                break if counter >= 500
+                next if !Fx18::objectIsAlive(objectuuid)
+                Lookup1::processObjectuuid(objectuuid)
+                counter = counter + 1
+            }
     end
 end
