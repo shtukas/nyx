@@ -337,6 +337,9 @@ class Fx18Synchronisation
 
             Fx18Synchronisation::putRecord(filepath2, record1)
 
+            # clear that line in the Lookup, but without deleting it
+            Lookup1::removeObjectuuid(record1["_objectuuid_"])
+
             if Fx18::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "false" then
                 # If filepath1 is local then the item should have already been deleted from the Lookup
                 # If filepath1 is remote then we are performing a true deletion.
