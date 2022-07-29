@@ -145,62 +145,6 @@ class LxAction
             end
         end
 
-        if command == "done-no-confirmation-prompt" then
-
-            # If the item was running, then we stop it
-            if NxBallsService::isRunning(item["uuid"]) then
-                 NxBallsService::close(item["uuid"], true)
-            end
-
-            if item["mikuType"] == "(rstream-to-target)" then
-                return
-            end
-
-            if item["mikuType"] == "NxAnniversary" then
-                Anniversaries::done(item["uuid"])
-                return
-            end
-
-            if item["mikuType"] == "NxBall.v2" then
-                NxBallsService::close(item["uuid"], true)
-                return
-            end
-
-            if item["mikuType"] == "NxFrame" then
-                NxBallsService::close(item["uuid"], true)
-                DoneForToday::setDoneToday(item["uuid"])
-                return
-            end
-
-            if item["mikuType"] == "NxTask" then
-                Fx18::deleteObject(item["uuid"])
-                return
-            end
-
-            if item["mikuType"] == "NxLine" then
-                Fx18::deleteObject(item["uuid"])
-                return
-            end
-
-            if item["mikuType"] == "TxDated" then
-                TxDateds::destroy(item["uuid"])
-                return
-            end
-
-            if item["mikuType"] == "TxProject" then
-                NxBallsService::close(item["uuid"], true)
-                if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
-                    DoneForToday::setDoneToday(item["uuid"])
-                end
-                return
-            end
-
-            if item["mikuType"] == "Wave" then
-                Waves::performWaveNx46WaveDone(item)
-                return
-            end
-        end
-
         if command == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
                 Fx18::deleteObject(item["uuid"])
