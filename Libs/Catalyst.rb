@@ -93,6 +93,8 @@ class Catalyst
 
             Lookup1::maintainLookup()
 
+            SystemEvents::pickupDrops()
+
             #puts "(NxTasks-Inbox)"
             LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Desktop/NxTasks-Inbox").each{|location|
                 item = NxTasks::issueFromInboxLocation(location)

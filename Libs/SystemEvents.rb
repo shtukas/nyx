@@ -70,6 +70,7 @@ class SystemEvents
         LucilleCore::locationsAtFolder(folderpath)
             .each{|filepath|
                 event = JSON.parse(IO.read(filepath))
+                puts "SystemEvents::pickupDrops(): #{JSON.pretty_generate(event)}"
                 SystemEvents::processEventInternally(event)
                 FileUtils.rm(filepath)
             }
