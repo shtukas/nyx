@@ -337,6 +337,18 @@ class Fx18Synchronisation
 
             Fx18Synchronisation::putRecord(filepath2, record1)
 
+            if Fx18::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "false" then
+                # If filepath1 is local then the item should have already been deleted from the Lookup
+                # If filepath1 is remote then we are performing a true deletion.
+                Lookup1::removeObjectuuid(record1["_objectuuid_"])
+            end
+
+            if Fx18::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "true" then
+                # At the time those lines are written, we don't even have a way to resuscitate
+                # an object, but if we do, it goes here
+                Lookup1::processObjectuuid(record1["_objectuuid_"])
+            end
+
             # Checks
             record2 = Fx18Synchronisation::getRecordOrNull(filepath2, eventuuid)
             if record2.nil? then

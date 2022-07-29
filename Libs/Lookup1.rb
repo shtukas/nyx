@@ -84,6 +84,16 @@ class Lookup1
         Lookup1::commit(objectuuid, unixtime, mikuType, item, description)
     end
 
+    # Lookup1::removeObjectuuid(objectuuid)
+    def self.removeObjectuuid(objectuuid)
+        db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("delete from _lookup1_ where _itemuuid_=?", [objectuuid])
+        db.close
+    end
+
     # Lookup1::addItemsAndDescriptionsToLookup(items)
     def self.addItemsAndDescriptionsToLookup(items)
         db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
