@@ -114,7 +114,7 @@ class LxAction
             end
 
             if item["mikuType"] == "NxLine" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ", true) then
                     Fx18::deleteObject(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                 end
