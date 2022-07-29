@@ -325,7 +325,6 @@ class Fx18Synchronisation
         eventuuids2 = Fx18Synchronisation::getEventuuids(filepath2)
 
         (eventuuids1 - eventuuids2).each{|eventuuid|
-            puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, eventuuid: #{eventuuid}"
 
             record1 = Fx18Synchronisation::getRecordOrNull(filepath1, eventuuid)
             if record1.nil? then
@@ -334,6 +333,8 @@ class Fx18Synchronisation
                 puts "eventuuid: #{eventuuid}"
                 raise "(error: e0f0d25c-48da-44b2-8304-832c3aa14421)"
             end
+
+           puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, objectuuid: #{record1["_objectuuid_"]}, eventuuid: #{eventuuid}"
 
             Fx18Synchronisation::putRecord(filepath2, record1)
 
