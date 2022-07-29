@@ -3,17 +3,52 @@ class Lookup1
 
     # Lookup1::getDatabaseFilepath()
     def self.getDatabaseFilepath()
-        filepath = XCache::filepath("#{Fx18::cachePrefix()}:4f8266b4-dc37-4699-a592-68eee2c3ac69")
+        filepath = XCache::filepath("#{Fx18::cachePrefix()}:4f8266b4-dc37-4699-a592-68eee4c3ac79")
         return filepath if File.exists?(filepath)
 
         puts "preparing lookup1 database: #{filepath}"
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("create table _lookup1_ (_itemuuid_ text primary key, _unixtime_ float, _mikuType_ text, _item_ text, _description_ text)", [])
-        db.close
+        lookup1 = SQLite3::Database.new(filepath)
+        lookup1.busy_timeout = 117
+        lookup1.busy_handler { |count| true }
+        lookup1.results_as_hash = true
+        lookup1.execute("create table _lookup1_ (_itemuuid_ text primary key, _unixtime_ float, _mikuType_ text, _item_ text, _description_ text)", [])
+        
+        fx18 = SQLite3::Database.new(Fx18::localBlockFilepath())
+        fx18.busy_timeout = 117
+        fx18.busy_handler { |count| true }
+        fx18.results_as_hash = true
+        fx18.execute("select * from _fx18_ order by _eventTime_", []) do |row|
 
+            ensureLine = lambda{|lookup1, objectuuid|
+                hasLine = false
+                lookup1.execute("select * from _lookup1_ where _itemuuid_=?", [objectuuid]) do |row|
+                    hasLine = true
+                end
+                if !hasLine then
+                    lookup1.execute("insert into _lookup1_ (_itemuuid_) values (?)", [objectuuid])
+                end
+            }
+
+            if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "mikuType" then
+                objectuuid = row["_objectuuid_"]
+                mikuType = row["_eventData3_"]
+                ensureLine.call(lookup1, objectuuid)
+                puts "lookup1: set (objectuuid, mikuType): #{objectuuid}, #{mikuType}"
+                lookup1.execute("update _lookup1_ set _mikuType_=? where _itemuuid_=?", [mikuType, objectuuid])
+            end
+
+            if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "unixtime" then
+                objectuuid = row["_objectuuid_"]
+                unixtime = row["_unixtime_"]
+                ensureLine.call(lookup1, objectuuid)
+                puts "lookup1: set (objectuuid, unixtime): #{objectuuid}, #{unixtime}"
+                lookup1.execute("update _lookup1_ set _unixtime_=? where _itemuuid_=?", [unixtime, objectuuid])
+            end
+
+        end
+        fx18.close
+
+        lookup1.close
         filepath
     end
 
@@ -49,6 +84,22 @@ class Lookup1
         Lookup1::commit(objectuuid, unixtime, mikuType, item, description)
     end
 
+    # Lookup1::addItemsAndDescriptionsToLookup(items)
+    def self.addItemsAndDescriptionsToLookup(items)
+        db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        items
+            .each{|item|
+                puts "updating item #{item["uuid"]} while Lookup1"
+                db.execute("update _lookup1_ set _item_=? where _itemuuid_=?", [JSON.generate(item), item["uuid"]])
+                description = LxFunction::function("generic-description", item)
+                db.execute("update _lookup1_ set _description_=? where _itemuuid_=?", [description, item["uuid"]])
+            }
+        db.close
+    end
+
     # Lookup1::itemsuuids()
     def self.itemsuuids()
         db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
@@ -70,11 +121,19 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         items = []
-        db.execute("select _item_ from _lookup1_ where _mikuType_=?", [mikuType]) do |row|
-            items << JSON.parse(row["_item_"])
+        updates = []
+        db.execute("select * from _lookup1_ where _mikuType_=?", [mikuType]) do |row|
+            if row["_item_"] then
+                item = JSON.parse(row["_item_"])
+            else
+                item = Fx18::itemOrNull(row["_itemuuid_"])
+                updates << item
+            end
+            items << item
         end
         db.close
-        items
+        Lookup1::addItemsAndDescriptionsToLookup(updates.compact)
+        items.compact
     end
 
     # Lookup1::mikuTypeToItems2(mikuType, count)
@@ -84,11 +143,19 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         items = []
+        updates = []
         db.execute("select _item_ from _lookup1_ where _mikuType_=? order by _unixtime_ limit ?", [mikuType, count]) do |row|
-            items << JSON.parse(row["_item_"])
+            if row["_item_"] then
+                item = JSON.parse(row["_item_"])
+            else
+                item = Fx18::itemOrNull(row["_itemuuid_"])
+                updates << item
+            end
+            items << item
         end
         db.close
-        items
+        Lookup1::addItemsAndDescriptionsToLookup(updates.compact)
+        items.compact
     end
 
     # Lookup1::mikuTypeCount(mikuType)
@@ -112,14 +179,25 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         nx20s = []
+        updates = []
         db.execute("select _itemuuid_, _unixtime_, _description_ from _lookup1_", []) do |row|
+            description = nil
+            if row["_description_"] then
+                description = row["_description_"]
+            else
+                item = Fx18::itemOrNull(row["_itemuuid_"])
+                next if item.nil?
+                description = LxFunction::function("generic-description", item)
+                updates << item
+            end
             nx20s << {
-                "announce"   => row["_description_"],
+                "announce"   => description,
                 "unixtime"   => row["_unixtime_"],
                 "objectuuid" => row["_itemuuid_"]
             }
         end
         db.close
+        Lookup1::addItemsAndDescriptionsToLookup(updates)
         nx20s
     end
 
