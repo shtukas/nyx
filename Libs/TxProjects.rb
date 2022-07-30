@@ -104,12 +104,15 @@ class TxProjects
         TxProjects::elementuuids(project)
             .take(count)
             .map{|elementuuid|
-                item = Fx18::itemOrNull(elementuuid)
-                if item.nil? then
-                    # We take this opportunity to do some cleaning
-                    TxProjects::removeElement(project, elementuuid)
+                if Fx18::objectIsAlive(elementuuid) then
+                    item = Fx18::itemOrNull(elementuuid)
+                    if item.nil? then
+                        TxProjects::removeElement(project, elementuuid)
+                    end
+                    item
+                else
+                    nil
                 end
-                item
             }
             .compact
     end
@@ -223,23 +226,18 @@ class TxProjects
 
             puts "running: #{TxProjects::toString(project).green}"
 
+            puts ""
+
             store = ItemStore.new()
 
             elements = TxProjects::elements(project, TxProjects::projectDefaultVisibilityDepth())
-
-            if elements.empty? then
-                if LucilleCore::askQuestionAnswerAsBoolean("Project '#{TxProjects::toString(project).green}' doesn't have elements. Keep running ? ") then
-                    return
-                else
-                    NxBallsService::close(project["uuid"], true)
-                    return
-                end
-            end
 
             elements.each{|element|
                 indx = store.register(element, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
             }
+
+            puts ""
 
             puts "commands: <n> | insert | detach element | destroy element".yellow
 

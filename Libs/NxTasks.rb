@@ -93,8 +93,8 @@ class NxTasks
     # NxTasks::toString(item)
     def self.toString(item)
         builder = lambda{
-            nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-            "(task) #{item["description"]}#{nx111String}"
+            nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : " (line)"
+            "(task)#{nx111String} #{item["description"]}"
         }
         builder.call()
     end
