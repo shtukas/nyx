@@ -91,9 +91,11 @@ class Catalyst
                 break
             end
 
-            Lookup1::maintainLookup()
+            system("/Users/guardian/Galaxy/DataBank/Stargate/bitbucket/sync")
 
             SystemEvents::pickupDrops()
+
+            Lookup1::maintainLookup()
 
             #puts "(NxTasks-Inbox)"
             LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Desktop/NxTasks-Inbox").each{|location|
