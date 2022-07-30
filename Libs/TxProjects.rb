@@ -224,21 +224,25 @@ class TxProjects
         loop {
             system("clear")
 
-            puts "running: #{TxProjects::toString(project).green}"
-
-            puts ""
+            puts "running: #{TxProjects::toString(project).green} #{NxBallsService::activityStringOrEmptyString("", project["uuid"], "")}"
 
             store = ItemStore.new()
 
+            puts ""
             elements = TxProjects::elements(project, TxProjects::projectDefaultVisibilityDepth())
-
             elements.each{|element|
                 indx = store.register(element, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
             }
 
-            puts ""
+            if !Ax39::itemShouldShow(project) then
+                puts ""
+                if !LucilleCore::askQuestionAnswerAsBoolean("You are time overflowing, do you want to continue ? ") then
+                    break
+                end
+            end
 
+            puts ""
             puts "commands: <n> | insert | detach element | destroy element".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")

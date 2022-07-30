@@ -28,7 +28,11 @@ class Streaming
                 puts LxFunction::function("toString", item).green
             end
             firstLoop = false
-            command = LucilleCore::askQuestionAnswerAsString("    done, detach (running), (keep and) next (default), landing (and back), insert, >project, >nyx, nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >project, >nyx, nyx: ")
+            if command == "access" then
+                LxAction::action("access", item)
+                next
+            end
             if command == "done" then
                 LxAction::action("stop", item)
                 Fx18::deleteObject(item["uuid"])
