@@ -68,6 +68,7 @@ class SystemEvents
     def self.pickupDrops()
         folderpath = "/Users/#{ENV["USER"]}/Galaxy/DataBank/Stargate/bitbucket/stargate1/#{Config::get("instanceId")}"
         LucilleCore::locationsAtFolder(folderpath)
+            .select{|filepath| File.basename(filepath)[-11, 11] == ".event.json"}
             .each{|filepath|
                 event = JSON.parse(IO.read(filepath))
                 puts "SystemEvents::pickupDrops(): #{JSON.pretty_generate(event)}"
