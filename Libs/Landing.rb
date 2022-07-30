@@ -28,26 +28,24 @@ class Landing
 
     # Landing::link(item)
     def self.link(item)
-        newitemuuid = Architect::architectOneOrNull()
-        return if newitemuuid.nil?
-        NxLink::issue(item["uuid"], newitemuuid)
+        newitem = Nyx::architectOneOrNull()
+        return if newitem.nil?
+        NxLink::issue(item["uuid"], newitem["uuid"])
     end
 
-    # Landing::networkAggregationNodeLanding(item)
-    def self.networkAggregationNodeLanding(item)
+    # Landing::networkAggregationNodeLanding(item, isSearchAndSelect) # nil or item (if command: result)
+    def self.networkAggregationNodeLanding(item, isSearchAndSelect)
         loop {
 
-            return if item.nil?
+            return nil if item.nil?
 
             uuid = item["uuid"]
 
             item = Fx18::itemOrNull(uuid)
 
-            return if item.nil?
+            return nil if item.nil?
 
             system("clear")
-
-            Boxes::printBoxes(true)
 
             uuid = item["uuid"]
 
@@ -80,7 +78,7 @@ class Landing
                 puts "(... more linked ...)"
             end
 
-            puts "commands: iam | <n> | description | datetime | note | json | link | unlink | boxing | navigation | upload | destroy".yellow
+            puts "commands: iam | <n> | description | datetime | note | json | link | unlink | network-migration | navigation | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -89,7 +87,10 @@ class Landing
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                LxAction::action("landing", entity)
+                result = Landing::landing(entity, isSearchAndSelect)
+                if isSearchAndSelect and result then
+                    return result
+                end
             end
 
             if Interpreting::match("description", command) then
@@ -139,12 +140,16 @@ class Landing
                 Landing::removeConnected(item)
             end
 
-            if Interpreting::match("boxing", command) then
-                Boxes::boxing(item)
+            if Interpreting::match("network-migration", command) then
+                NxLink::networkMigration(item)
             end
 
             if Interpreting::match("upload", command) then
                 Upload::interactivelyUploadToItem(item)
+            end
+
+            if Interpreting::match("return", command) then
+                return item
             end
 
             if Interpreting::match("destroy", command) then
@@ -154,23 +159,23 @@ class Landing
                 end
             end
         }
+
+        nil
     end
 
-    # Landing::implementsNx111Landing(item)
-    def self.implementsNx111Landing(item)
+    # Landing::implementsNx111Landing(item, isSearchAndSelect) # nil or item (if command: result)
+    def self.implementsNx111Landing(item, isSearchAndSelect)
         loop {
 
-            return if item.nil?
+            return nil if item.nil?
 
             uuid = item["uuid"]
 
             item = Fx18::itemOrNull(uuid)
 
-            return if item.nil?
+            return nil if item.nil?
 
             system("clear")
-
-            Boxes::printBoxes(true)
 
             uuid = item["uuid"]
 
@@ -199,7 +204,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | boxing | upload | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -208,7 +213,10 @@ class Landing
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                LxAction::action("landing", entity)
+                result = Landing::landing(entity, isSearchAndSelect)
+                if isSearchAndSelect and result then
+                    return result
+                end
             end
 
             if Interpreting::match("access", command) then
@@ -260,12 +268,16 @@ class Landing
                 Landing::removeConnected(item)
             end
 
-            if Interpreting::match("boxing", command) then
-                Boxes::boxing(item)
+            if Interpreting::match("network-migration", command) then
+                NxLink::networkMigration(item)
             end
 
             if Interpreting::match("upload", command) then
                 Upload::interactivelyUploadToItem(item)
+            end
+
+            if Interpreting::match("return", command) then
+                return item
             end
 
             if Interpreting::match("destroy", command) then
@@ -275,27 +287,26 @@ class Landing
                 end
             end
         }
+
+        nil
     end
 
-    # Landing::landing(item)
-    def self.landing(item)
+    # Landing::landing(item, isSearchAndSelect)
+    def self.landing(item, isSearchAndSelect)
         if Iam::implementsNx111(item) then
-            Landing::implementsNx111Landing(item)
-            return
+            return Landing::implementsNx111Landing(item, isSearchAndSelect)
         end
         if Iam::isNetworkAggregation(item) then
-            Landing::networkAggregationNodeLanding(item)
-            return
+            return Landing::networkAggregationNodeLanding(item, isSearchAndSelect)
         end
         if item["mikuType"] == "TxProject" then
-            TxProjects::landing(item)
-            return
+            return TxProjects::landing(item)
         end
         if item["mikuType"] == "NxLine" then
             puts JSON.pretty_generate(item)
             puts "We do not have a landing for NxLines"
             LucilleCore::pressEnterToContinue()
-            return
+            return nil
         end
         raise "(error: 1e84c68b-b602-41af-b2e9-00e66fa687ac) item: #{item}"
     end

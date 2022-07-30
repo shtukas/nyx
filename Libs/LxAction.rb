@@ -174,7 +174,7 @@ class LxAction
                 return
             end
 
-            Landing::landing(item)
+            Landing::landing(item, isSearchAndSelect = false)
             return
         end
 

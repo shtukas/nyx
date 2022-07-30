@@ -103,79 +103,6 @@ class Fx18
         JSON.parse(str)
     end
 
-    # Fx18::itemOrNull(objectuuid)
-    def self.itemOrNull(objectuuid)
-
-        mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
-        return nil if mikuType.nil?
-
-        if mikuType == "Ax1Text" then
-            return Ax1Text::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxAnniversary" then
-            return Anniversaries::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxCollection" then
-            return NxCollections::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxConcept" then
-            return NxConcepts::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxDataNode" then
-            return NxDataNodes::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxEntity" then
-            return NxEntities::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxEvent" then
-            return NxEvents::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxFrame" then
-            return NxFrames::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxIced" then
-            return NxIceds::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxLine" then
-            return NxLines::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxPerson" then
-            return NxPersons::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxTask" then
-            return NxTasks::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "NxTimeline" then
-            return NxTimelines::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "TxDated" then
-            return TxDateds::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "TxProject" then
-            return TxProjects::objectuuidToItemOrNull(objectuuid)
-        end
-
-        if mikuType == "Wave" then
-            return Waves::objectuuidToItemOrNull(objectuuid)
-        end
-
-        raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
-    end
-
     # Fx18::playLogFromScratchForLiveItems()
     def self.playLogFromScratchForLiveItems()
         items = {}
@@ -185,7 +112,6 @@ class Fx18
         db.results_as_hash = true
         objectuuids = []
         db.execute("select * from _fx18_ order by _eventTime_", []) do |row|
-            FileSystemCheck::exitIfMissingCanary()
             objectuuid = row["_objectuuid_"]
             if items[objectuuid].nil? then
                 puts "Fx18::playLogFromScratchForLiveItems(): #{objectuuid}"
@@ -209,6 +135,37 @@ class Fx18
         end
         db.close
         items.values.select{|item| item["isAlive"].nil? or item["isAlive"] }
+    end
+
+    # Fx18::itemOrNull(objectuuid)
+    def self.itemOrNull(objectuuid)
+        item = {}
+        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objectuuids = []
+        db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
+            if row["_eventData1_"] == "attribute" then
+                attrname  = row["_eventData2_"]
+                attrvalue = row["_eventData3_"]
+                if attrname == "nx111" then
+                    attrvalue = JSON.parse(attrvalue)
+                end
+                if attrname == "ax39" then
+                    attrvalue = JSON.parse(attrvalue)
+                end
+                item[attrname] = attrvalue
+            end
+            if row["_eventData1_"] == "object-is-alive" then
+                isAlive = (row["_eventData2_"] == "true")
+                item["isAlive"] = isAlive
+            end
+        end
+        db.close
+        return nil if (!item["isAlive"].nil? and !item["isAlive"])
+        return nil if item["uuid"].nil?
+        item
     end
 end
 

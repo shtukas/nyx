@@ -351,7 +351,7 @@ class Commands
         end
 
         if Interpreting::match("search", input) then
-            Search::classicInterface()
+            Search::run(isSearchAndSelect = false)
             return
         end
 

@@ -127,7 +127,7 @@ class Lookup1
                 raise "1"
             end
             nx20s << {
-                "announce"   => "{#{row["_mikuType_"]}} #{row["_description_"]}",
+                "announce"   => "(#{row["_mikuType_"]}) #{row["_description_"]}",
                 "unixtime"   => row["_unixtime_"],
                 "objectuuid" => row["_itemuuid_"]
             }

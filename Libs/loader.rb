@@ -126,11 +126,9 @@ require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Librarie
 require_relative "Ax1Text.rb"
 require_relative "Anniversaries.rb"
 require_relative "AionTransforms.rb"
-require_relative "Architect.rb"
 require_relative "Ax39.rb"
 
 require_relative "Bank.rb"
-require_relative "Boxes.rb"
 
 require_relative "Catalyst.rb"
 require_relative "CommonUtils.rb"

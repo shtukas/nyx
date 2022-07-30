@@ -90,7 +90,7 @@ class TxDateds
             items = TxDateds::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxDateds::toString(item) })
             break if item.nil?
-            Landing::implementsNx111Landing(item)
+            Landing::implementsNx111Landing(item, isSearchAndSelect = false)
         }
     end
 
