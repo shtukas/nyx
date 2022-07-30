@@ -80,6 +80,7 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         items = []
+        db.execute("delete from _lookup1_ where _item_ is null", [])
         db.execute("select * from _lookup1_ where _mikuType_=?", [mikuType]) do |row|
             items << JSON.parse(row["_item_"])
         end
@@ -94,6 +95,7 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         items = []
+        db.execute("delete from _lookup1_ where _item_ is null", [])
         db.execute("select _item_ from _lookup1_ where _mikuType_=? order by _unixtime_ limit ?", [mikuType, count]) do |row|
             items << JSON.parse(row["_item_"])
         end
