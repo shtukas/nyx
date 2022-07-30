@@ -15,7 +15,7 @@ class Lookup1
         lookup1.close
 
         Fx18::playLogFromScratchForLiveItems().each{|item|
-            objectuuid = item["objectuuid"]
+            objectuuid = item["uuid"]
             unixtime = item["unixtime"]
             mikuType = item["mikuType"]
             description = LxFunction::function("generic-description", item)
@@ -122,9 +122,12 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         nx20s = []
-        db.execute("select _itemuuid_, _unixtime_, _description_ from _lookup1_ where _description_ is not null", []) do |row|
+        db.execute("select * from _lookup1_", []) do |row|
+            if row["_itemuuid_"].nil? then
+                raise "1"
+            end
             nx20s << {
-                "announce"   => row["_description_"],
+                "announce"   => "{#{row["_mikuType_"]}} #{row["_description_"]}",
                 "unixtime"   => row["_unixtime_"],
                 "objectuuid" => row["_itemuuid_"]
             }

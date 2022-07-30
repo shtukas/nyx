@@ -238,7 +238,8 @@ class TxProjects
             if !Ax39::itemShouldShow(project) then
                 puts ""
                 if LucilleCore::askQuestionAnswerAsBoolean("You are time overflowing, do you want to stop ? ", true) then
-                    break
+                    NxBallsService::close(project["uuid"], true)
+                    return
                 end
             end
 
@@ -282,7 +283,6 @@ class TxProjects
                 LxAction::action("destroy", element)
             end
         }
-        NxBallsService::close(project["uuid"], true)
     end
 
     # TxProjects::dive()
