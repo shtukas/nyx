@@ -132,6 +132,12 @@ class TxProjects
         "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
     end
 
+    # TxProjects::section1()
+    def self.section1()
+        TxProjects::items()
+            .select{|project| !Ax39::itemShouldShow(project) }
+    end
+
     # TxProjects::section2()
     def self.section2()
         TxProjects::items()

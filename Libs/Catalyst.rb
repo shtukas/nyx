@@ -34,6 +34,11 @@ class Catalyst
         text
     end
 
+    # Catalyst::section1()
+    def self.section1()
+        NxFrames::items() + TxProjects::section1()
+    end
+
     # Catalyst::section2()
     def self.section2()
         x1 = [
@@ -165,14 +170,14 @@ class Catalyst
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
         end
 
-        frames = NxFrames::items()
-        if !frames.empty? then
+        items = Catalyst::section1()
+        if !items.empty? then
             puts ""
             vspaceleft = vspaceleft - 1
-            frames
+            items
                 .each{|item|
                     store.register(item, false)
-                    line = "#{store.prefixString()} #{NxFrames::toString(item)}".yellow
+                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
