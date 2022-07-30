@@ -34,7 +34,7 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             if item["mikuType"] == "TxDated" then
-                return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask ")
+                return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask ", true)
                 Transmutation::transmutation1(item, "TxDated", "NxTask")
                 # This transmutation already put the newly created NxTask into a project
                 # So we can return

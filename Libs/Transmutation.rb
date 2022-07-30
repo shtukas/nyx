@@ -56,6 +56,12 @@ class Transmutation
             return
         end
 
+        if source == "NxFrame" and target == "NxTask" then
+            Fx18Attributes::set2(item["uuid"], "mikuType", "NxTask")
+            TxProjects::interactivelyProposeToAttachTaskToProject(item)
+            return
+        end
+
         if source == "NxLine" and target == "NxTask" then
             description = LucilleCore::askQuestionAnswerAsString("description: ")
             nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])

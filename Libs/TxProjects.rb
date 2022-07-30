@@ -177,7 +177,7 @@ class TxProjects
 
             linkeduuids  = NxLink::linkedUUIDs(uuid)
 
-            puts "commands: description | json | destroy".yellow
+            puts "commands: description | Ax39 | json | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -194,6 +194,11 @@ class TxProjects
                     Fx18Attributes::set2(item["uuid"], "description", description)
                 end
                 next
+            end
+
+            if Interpreting::match("Ax39", command) then
+                ax39 = Ax39::interactivelyCreateNewAx()
+                Fx18Attributes::set2(uuid, "ax39", JSON.generate(ax39))
             end
 
             if Interpreting::match("json", command) then
