@@ -91,7 +91,7 @@ class Catalyst
                 break
             end
 
-            system("/Users/guardian/Galaxy/DataBank/Stargate/bitbucket/sync")
+            system("/Users/#{ENV["USER"]}/Galaxy/DataBank/Stargate/bitbucket/sync")
 
             SystemEvents::pickupDrops()
 
