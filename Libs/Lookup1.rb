@@ -12,54 +12,16 @@ class Lookup1
         lookup1.busy_handler { |count| true }
         lookup1.results_as_hash = true
         lookup1.execute("create table _lookup1_ (_itemuuid_ text primary key, _unixtime_ float, _mikuType_ text, _item_ text, _description_ text)", [])
-        
-        fx18 = SQLite3::Database.new(Fx18::localBlockFilepath())
-        fx18.busy_timeout = 117
-        fx18.busy_handler { |count| true }
-        fx18.results_as_hash = true
-        fx18.execute("select * from _fx18_ order by _eventTime_", []) do |row|
-
-            ensureLine = lambda{|lookup1, objectuuid|
-                hasLine = false
-                lookup1.execute("select * from _lookup1_ where _itemuuid_=?", [objectuuid]) do |row|
-                    hasLine = true
-                end
-                if !hasLine then
-                    lookup1.execute("insert into _lookup1_ (_itemuuid_) values (?)", [objectuuid])
-                end
-            }
-
-            if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "mikuType" then
-                objectuuid = row["_objectuuid_"]
-                puts "lookup1: set objectuuid: #{objectuuid}"
-                ensureLine.call(lookup1, objectuuid)
-                mikuType = row["_eventData3_"]
-                puts "lookup1: set mikuType: #{mikuType}"
-                lookup1.execute("update _lookup1_ set _mikuType_=? where _itemuuid_=?", [mikuType, objectuuid])
-            end
-
-            if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "unixtime" then
-                objectuuid = row["_objectuuid_"]
-                puts "lookup1: set objectuuid: #{objectuuid}"
-                ensureLine.call(lookup1, objectuuid)
-                unixtime = row["_eventData3_"]
-                puts "lookup1: set unixtime: #{unixtime}"
-                lookup1.execute("update _lookup1_ set _unixtime_=? where _itemuuid_=?", [unixtime, objectuuid])
-            end
-
-            if row["_eventData1_"] == "attribute" and row["_eventData2_"] == "description" then
-                objectuuid = row["_objectuuid_"]
-                puts "lookup1: set objectuuid: #{objectuuid}"
-                ensureLine.call(lookup1, objectuuid)
-                description = row["_eventData3_"]
-                puts "lookup1: set description: #{description}"
-                lookup1.execute("update _lookup1_ set _description_=? where _itemuuid_=?", [description, objectuuid])
-            end
-
-        end
-        fx18.close
-
         lookup1.close
+
+        Fx18::playLogFromScratchForLiveItems().each{|item|
+            objectuuid = item["objectuuid"]
+            unixtime = item["unixtime"]
+            mikuType = item["mikuType"]
+            description = LxFunction::function("generic-description", item)
+            Lookup1::commit(objectuuid, unixtime, mikuType, item, description)
+        }
+
         filepath
     end
 
@@ -74,23 +36,15 @@ class Lookup1
         db.close
     end
 
-    # Lookup1::getElementsOrNull(objectuuid)
-    def self.getElementsOrNull(objectuuid)
+    # Lookup1::recoverAndInject(objectuuid)
+    def self.recoverAndInject(objectuuid)
         unixtime = Fx18Attributes::getOrNull(objectuuid, "unixtime")
-        return nil if unixtime.nil?
+        return if unixtime.nil?
         mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
-        return nil if mikuType.nil?
+        return if mikuType.nil?
         item     = Fx18::itemOrNull(objectuuid)
-        return nil if item.nil?
+        return if item.nil?
         description = LxFunction::function("generic-description", item)
-        [objectuuid, unixtime, mikuType, item, description]
-    end
-
-    # Lookup1::processObjectuuid(objectuuid)
-    def self.processObjectuuid(objectuuid)
-        elements = Lookup1::getElementsOrNull(objectuuid)
-        return if elements.nil?
-        objectuuid, unixtime, mikuType, item, description = elements
         puts "update lookup1: objectuuid: #{objectuuid}"
         Lookup1::commit(objectuuid, unixtime, mikuType, item, description)
     end
@@ -102,22 +56,6 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute("delete from _lookup1_ where _itemuuid_=?", [objectuuid])
-        db.close
-    end
-
-    # Lookup1::addItemsAndDescriptionsToLookup(items)
-    def self.addItemsAndDescriptionsToLookup(items)
-        db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        items
-            .each{|item|
-                puts "updating item #{item["uuid"]} while Lookup1"
-                db.execute("update _lookup1_ set _item_=? where _itemuuid_=?", [JSON.generate(item), item["uuid"]])
-                description = LxFunction::function("generic-description", item)
-                db.execute("update _lookup1_ set _description_=? where _itemuuid_=?", [description, item["uuid"]])
-            }
         db.close
     end
 
@@ -142,18 +80,10 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         items = []
-        updates = []
         db.execute("select * from _lookup1_ where _mikuType_=?", [mikuType]) do |row|
-            if row["_item_"] then
-                item = JSON.parse(row["_item_"])
-            else
-                item = Fx18::itemOrNull(row["_itemuuid_"])
-                updates << item
-            end
-            items << item
+            items << JSON.parse(row["_item_"])
         end
         db.close
-        Lookup1::addItemsAndDescriptionsToLookup(updates.compact)
         items.compact
     end
 
@@ -164,18 +94,10 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         items = []
-        updates = []
         db.execute("select _item_ from _lookup1_ where _mikuType_=? order by _unixtime_ limit ?", [mikuType, count]) do |row|
-            if row["_item_"] then
-                item = JSON.parse(row["_item_"])
-            else
-                item = Fx18::itemOrNull(row["_itemuuid_"])
-                updates << item
-            end
-            items << item
+            items << JSON.parse(row["_item_"])
         end
         db.close
-        Lookup1::addItemsAndDescriptionsToLookup(updates.compact)
         items.compact
     end
 
@@ -200,7 +122,6 @@ class Lookup1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         nx20s = []
-        updates = []
         db.execute("select _itemuuid_, _unixtime_, _description_ from _lookup1_ where _description_ is not null", []) do |row|
             nx20s << {
                 "announce"   => row["_description_"],
@@ -209,7 +130,6 @@ class Lookup1
             }
         end
         db.close
-        Lookup1::addItemsAndDescriptionsToLookup(updates)
         nx20s
     end
 
@@ -217,7 +137,7 @@ class Lookup1
     def self.processEventInternally(event)
         if event["mikuType"] == "(object has been updated)" then
             objectuuid = event["objectuuid"]
-            Lookup1::processObjectuuid(objectuuid)
+            Lookup1::recoverAndInject(objectuuid)
         end
 
         if event["mikuType"] == "(object has been deleted)" then
@@ -229,17 +149,5 @@ class Lookup1
             db.execute("delete from _lookup1_ where _itemuuid_=?", [objectuuid])
             db.close
         end
-    end
-
-    # Lookup1::maintainLookup()
-    def self.maintainLookup()
-        counter = 0
-        (Fx18::objectuuids() - Lookup1::itemsuuids())
-            .each{|objectuuid|
-                break if counter >= 500
-                next if !Fx18::objectIsAlive(objectuuid)
-                Lookup1::processObjectuuid(objectuuid)
-                counter = counter + 1
-            }
     end
 end

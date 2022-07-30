@@ -175,6 +175,41 @@ class Fx18
 
         raise "(error: 6e7b52de-cdc5-4a57-b215-aee766d11467) mikuType: #{mikuType}"
     end
+
+    # Fx18::playLogFromScratchForLiveItems()
+    def self.playLogFromScratchForLiveItems()
+        items = {}
+        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objectuuids = []
+        db.execute("select * from _fx18_ order by _eventTime_", []) do |row|
+            FileSystemCheck::exitIfMissingCanary()
+            objectuuid = row["_objectuuid_"]
+            if items[objectuuid].nil? then
+                puts "Fx18::playLogFromScratchForLiveItems(): #{objectuuid}"
+                items[objectuuid] = {}
+            end
+            if row["_eventData1_"] == "attribute" then
+                attrname  = row["_eventData2_"]
+                attrvalue = row["_eventData3_"]
+                if attrname == "nx111" then
+                    attrvalue = JSON.parse(attrvalue)
+                end
+                if attrname == "ax39" then
+                    attrvalue = JSON.parse(attrvalue)
+                end
+                items[objectuuid][attrname] = attrvalue
+            end
+            if row["_eventData1_"] == "object-is-alive" then
+                isAlive = (row["_eventData2_"] == "true")
+                items[objectuuid]["isAlive"] = isAlive
+            end
+        end
+        db.close
+        items.values.select{|item| item["isAlive"].nil? or item["isAlive"] }
+    end
 end
 
 class Fx18Attributes
@@ -350,7 +385,7 @@ class Fx18Synchronisation
             if Fx18::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "true" then
                 # At the time those lines are written, we don't even have a way to resuscitate
                 # an object, but if we do, it goes here
-                Lookup1::processObjectuuid(record1["_objectuuid_"])
+                Lookup1::recoverAndInject(record1["_objectuuid_"])
             end
 
             # Checks

@@ -82,7 +82,7 @@ class Ax39
             return false if Ax39::completionRatio(item) >= 1
             return true
         end
-        raise "(error: f2261ec2-25e1-4b60-b548-cee05162151e)"
+        raise "(error: f2261ec2-25e1-4b60-b548-cee05162151e) #{JSON.pretty_generate(item)}"
     end
 
     # Ax39::completionRatio(item)

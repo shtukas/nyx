@@ -237,7 +237,7 @@ class TxProjects
 
             if !Ax39::itemShouldShow(project) then
                 puts ""
-                if !LucilleCore::askQuestionAnswerAsBoolean("You are time overflowing, do you want to continue ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("You are time overflowing, do you want to stop ? ", true) then
                     break
                 end
             end
