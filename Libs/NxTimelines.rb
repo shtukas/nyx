@@ -35,6 +35,7 @@ class NxTimelines
     def self.interactivelyIssueNewItemOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
+        uuid = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         Fx18Attributes::set2(uuid, "uuid",        uuid)
