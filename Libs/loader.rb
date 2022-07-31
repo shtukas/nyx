@@ -163,7 +163,6 @@ require_relative "Machines.rb"
 require_relative "Lookup1.rb"
 
 require_relative "NxDataNodes.rb"
-require_relative "Nx102Flavors.rb"
 require_relative "Nx111.rb"
 require_relative "NxTimelines.rb"
 require_relative "Nyx.rb"
