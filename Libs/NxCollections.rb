@@ -44,7 +44,11 @@ class NxCollections
         Fx18Attributes::set2(uuid, "datetime",    datetime)
         Fx18Attributes::set2(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        item = NxCollections::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 01666ee3-d5b4-4fd1-9615-981ac7949ae9) How did that happen ? 🤨"
+        end
+        item
     end
 
     # ----------------------------------------------------------------------

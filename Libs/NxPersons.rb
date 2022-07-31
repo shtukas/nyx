@@ -29,7 +29,11 @@ class NxPersons
         Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set2(uuid, "name",        name1)
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        item = NxPersons::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"
+        end
+        item
     end
 
     # NxPersons::interactivelyIssueNewOrNull()

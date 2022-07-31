@@ -354,4 +354,17 @@ class FileSystemCheck
             }
         puts "fsck completed successfully".green
     end
+
+    # FileSystemCheck::fsckMikuType(mikuType)
+    def self.fsckMikuType(mikuType)
+        Fx18::objectuuids()
+            .each{|objectuuid|
+                FileSystemCheck::exitIfMissingCanary()
+                next if !Fx18::objectIsAlive(objectuuid)
+                next if Fx18Attributes::getOrNull(objectuuid, "mikuType") != mikuType
+                FileSystemCheck::fsckObject(objectuuid)
+            }
+        puts "fsck completed successfully".green
+    end
+
 end

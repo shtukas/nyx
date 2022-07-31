@@ -44,7 +44,11 @@ class NxTimelines
         Fx18Attributes::set2(uuid, "datetime",    datetime)
         Fx18Attributes::set2(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        item = NxTimelines::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: a6cc9094-7100-4aa3-8ebc-1fec0669733e) How did that happen ? 🤨"
+        end
+        item
     end
 
     # ----------------------------------------------------------------------

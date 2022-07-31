@@ -33,6 +33,15 @@ class Fx18
 
     # Fx18::commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+        if objectuuid.nil? then
+            raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
+        end
+        if eventuuid.nil? then
+            raise "(error: 1025633f-b0aa-42ed-9751-b5f87af23450)"
+        end
+        if eventTime.nil? then
+            raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
+        end
         db = SQLite3::Database.new(Fx18::localBlockFilepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }

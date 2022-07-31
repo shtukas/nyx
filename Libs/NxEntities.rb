@@ -42,7 +42,11 @@ class NxEntities
         Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set2(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        item = NxEntities::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 291521ea-221b-4a81-9b6e-9ef0925d2ca5) How did that happen ? 🤨"
+        end
+        item
     end
 
     # ----------------------------------------------------------------------

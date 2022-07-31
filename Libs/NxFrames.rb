@@ -43,7 +43,11 @@ class NxFrames
         Fx18Attributes::set2(uuid, "description", description)
         Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        item = NxFrames::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"
+        end
+        item
     end
 
     # --------------------------------------------------

@@ -136,6 +136,12 @@ class Anniversaries
         Fx18Attributes::set2(uuid, "lastCelebrationDate", lastCelebrationDate)
 
         FileSystemCheck::fsckObject(uuid)
+
+        item = Anniversaries::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
+        end
+        item
     end
 
     # Anniversaries::nextDateOrdinal(anniversary) # [ date: String, ordinal: Int ]

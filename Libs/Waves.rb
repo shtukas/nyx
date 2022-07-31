@@ -149,7 +149,11 @@ class Waves
         Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
         Fx18Attributes::set2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        item = Waves::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"
+        end
+        item
     end
 
     # -------------------------------------------------------------------------
