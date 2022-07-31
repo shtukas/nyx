@@ -96,9 +96,21 @@ class Catalyst
                 break
             end
 
+            if !File.exists?("/Users/pascal/Galaxy/DataBank/Stargate/bitbucket/stargate1/Lucille18-pascal") then
+                puts "Got it! [1]"
+            end
+
             system("/Users/#{ENV["USER"]}/Galaxy/DataBank/Stargate/bitbucket/sync")
 
+            if !File.exists?("/Users/pascal/Galaxy/DataBank/Stargate/bitbucket/stargate1/Lucille18-pascal") then
+                puts "Got it! [2]"
+            end
+
             SystemEvents::pickupDrops()
+
+            if !File.exists?("/Users/pascal/Galaxy/DataBank/Stargate/bitbucket/stargate1/Lucille18-pascal") then
+                puts "Got it! [3]"
+            end
 
             #puts "(NxTasks-Inbox)"
             LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Desktop/NxTasks-Inbox").each{|location|
