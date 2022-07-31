@@ -234,12 +234,14 @@ class TxProjects
 
             store = ItemStore.new()
 
-            puts ""
             elements = TxProjects::elements(project, TxProjects::projectDefaultVisibilityDepth())
-            elements.each{|element|
-                indx = store.register(element, false)
-                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
-            }
+            if elements.size > 0 then
+                puts ""
+                elements.each{|element|
+                    indx = store.register(element, false)
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
+                }
+            end
 
             if !Ax39::itemShouldShow(project) then
                 puts ""
