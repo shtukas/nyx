@@ -13,6 +13,7 @@ class TxProjects
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
             "ax39"        => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "ax39")),
         }

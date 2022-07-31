@@ -88,6 +88,7 @@ class Anniversaries
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
             "startdate"   => Fx18Attributes::getOrNull(objectuuid, "startdate"),
             "repeatType"  => Fx18Attributes::getOrNull(objectuuid, "repeatType"),
@@ -130,6 +131,7 @@ class Anniversaries
         Fx18Attributes::set2(uuid, "uuid",        uuid)
         Fx18Attributes::set2(uuid, "mikuType",    "NxAnniversary")
         Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set2(uuid, "description", description)
         Fx18Attributes::set2(uuid, "startdate",   startdate)
         Fx18Attributes::set2(uuid, "repeatType",  repeatType)

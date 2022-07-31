@@ -7,4 +7,5 @@ attributes:
     "uuid"        : String
     "mikuType"    : "Ax1Text"
     "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
     "nhash"       : nhash of the blob of text

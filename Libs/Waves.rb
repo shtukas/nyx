@@ -11,6 +11,7 @@ class Waves
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
             "nx46"        => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx46")),
             "nx111"       => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
@@ -144,6 +145,7 @@ class Waves
         Fx18Attributes::set2(uuid, "uuid",        uuid)
         Fx18Attributes::set2(uuid, "mikuType",    "Wave")
         Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set2(uuid, "description", description)
         Fx18Attributes::set2(uuid, "nx46",        JSON.generate(nx46))
         Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))

@@ -13,6 +13,7 @@ class NxLines
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "line"        => Fx18Attributes::getOrNull(objectuuid, "line"),
         }
     end
@@ -31,6 +32,7 @@ class NxLines
         Fx18Attributes::set2(uuid, "uuid",        uuid)
         Fx18Attributes::set2(uuid, "mikuType",    "NxLine")
         Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set2(uuid, "line",        line)
         FileSystemCheck::fsckObject(uuid)
         item = NxLines::objectuuidToItemOrNull(uuid)

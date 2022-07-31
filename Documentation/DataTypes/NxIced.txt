@@ -2,5 +2,6 @@ NxIced:
     "uuid"        : String
     "mikuType"    : "NxIced"
     "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
     "nx111"       : Nx111

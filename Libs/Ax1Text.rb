@@ -13,6 +13,7 @@ class Ax1Text
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "nhash"       => Fx18Attributes::getOrNull(objectuuid, "nhash"),
         }
     end
