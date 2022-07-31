@@ -11,7 +11,8 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/EditionDesk"
+        StargateCentral::ensureInfinityDrive()
+        "#{StargateCentral::pathToCentral()}/EditionDesk"
     end
 
     # EditionDesk::getMaxIndex(parentLocation)
@@ -308,11 +309,11 @@ class EditionDesk
     # ----------------------------------------------------
     # Operations
 
-    # EditionDesk::batchPickUpAndGarbageCollection_v1()
+    # EditionDesk::pickUpAndGarbageCollection()
     # This function dates from the time the edition desk was in DataBank and we were using 
     # Tx202 to manage it. On 26th June 2022 we moved the edition desk to be the Desktop 
     # and we no longer need to use automatic management
-    def self.batchPickUpAndGarbageCollection_v1()
+    def self.pickUpAndGarbageCollection()
         LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk()).each{|location|
 
             issueTx202ForLocation = lambda{|location|
@@ -365,15 +366,6 @@ class EditionDesk
             # And we make a new one with updated unixtime and updated trace
             # Issuing a new one is a cheap way to update the unixtime
             issueTx202ForLocation.call(location)
-        }
-    end
-
-    # EditionDesk::batchPickUp_v2()
-    def self.batchPickUp_v2()
-        LucilleCore::locationsAtFolder(EditionDesk::pathToEditionDesk()).each{|location|
-            next if EditionDesk::locationToItemNx111PairOrNull(location).nil?
-            puts "Edition desk updating location: #{File.basename(location)}"
-            EditionDesk::locationToAttemptedNx111Update(location)
         }
     end
 end
