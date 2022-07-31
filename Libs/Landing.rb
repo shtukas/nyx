@@ -63,18 +63,15 @@ class Landing
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
 
-            linkeduuids  = NxLink::linkedUUIDs(uuid)
-
-            counter = 0
-            linkeduuids.each{|linkeduuid|
-                entity = Fx18::itemOrNull(linkeduuid)
-                next if entity.nil?
-                indx = store.register(entity, false)
-                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
-                counter = counter + 1
-                break if counter >= 200
-            }
-            if linkeduuids.size > 200 then
+            linkeds  = NxLink::linkedEntities(uuid)
+            linkeds
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                .first(200)
+                .each{|entity|
+                    indx = store.register(entity, false)
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+                }
+            if linkeds.size > 200 then
                 puts "(... more linked ...)"
             end
 
@@ -196,7 +193,8 @@ class Landing
                 puts "nx111: (not found)".yellow
             end
 
-            NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+            NxLink::linkedUUIDs(item["uuid"])
+                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entityuuid|
                     entity = Fx18::itemOrNull(entityuuid)
                     next if entity.nil?
