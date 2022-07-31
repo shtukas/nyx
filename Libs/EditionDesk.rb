@@ -226,7 +226,7 @@ class EditionDesk
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = ExData::putBlob(itemuuid, text) # TODO: we should probably compute the nhash without actually commiting the blob to the file
+            nhash = ExData::putBlobInLocalDatablobsFolder(text) # TODO: we should probably compute the nhash without actually commiting the blob to the file
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
             Fx18Attributes::set2(itemuuid, "nx111", JSON.generate(nx111))

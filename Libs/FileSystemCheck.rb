@@ -327,7 +327,7 @@ class FileSystemCheck
 
             puts e.message.green
 
-            db = SQLite3::Database.new(Fx18::localBlockFilepath())
+            db = SQLite3::Database.new(Fx18::localFx18Filepath())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true

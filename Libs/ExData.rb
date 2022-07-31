@@ -1,11 +1,21 @@
 
 class ExData
 
-    # ExData::putBlob(objectuuid, blob)
-    def self.putBlob(objectuuid, blob)
+    # ExData::putBlobInFx18(objectuuid, blob)
+    def self.putBlobInFx18(objectuuid, blob)
+        raise "(error: 6b61018f-449b-40bc-9382-f7c7c7453190) we are not doing this anymore"
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
         XCacheDatablobs::putBlob(blob)
+        nhash
+    end
+
+    # ExData::putBlobInLocalDatablobsFolder(blob)
+    def self.putBlobInLocalDatablobsFolder(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        filename = "#{nhash}.data"
+        filepath = "#{Config::pathToLocalDataBankStargate()}/Datablobs/#{filename}"
+        File.open(filepath, "w"){|f| f.write(blob)}
         nhash
     end
 
@@ -22,9 +32,10 @@ class ExData
         nhash
     end
 
-    # ExData::getBlobFromLocalBlockOrNull(nhash)
-    def self.getBlobFromLocalBlockOrNull(nhash)
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+    # ExData::getBlobFromLocalFx18OrNull(nhash)
+    def self.getBlobFromLocalFx18OrNull(nhash)
+        raise "(error: fa8bbfeb-7916-4ca7-b65b-d8f5160877bd) we are not doing this anymore"
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -34,7 +45,19 @@ class ExData
         end
         db.close
         if (blob and nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}") then # better safe than sorry
-            raise "(error: 77418e01-9411-4096-8212-1068745bba08) the extracted blob #{nhash} from file '#{filepath}' using ExData::getBlobFromLocalBlockOrNull(#{nhash}) did not validate."
+            raise "(error: 77418e01-9411-4096-8212-1068745bba08) the extracted blob #{nhash} from file '#{filepath}' using ExData::getBlobFromLocalFx18OrNull(#{nhash}) did not validate."
+        end
+        blob
+    end
+
+    # ExData::getBlobFromLocalDatablobsFolder(nhash)
+    def self.getBlobFromLocalDatablobsFolder(nhash)
+        filename = "#{nhash}.data"
+        filepath = "#{StargateCentral::pathToCentral()}/Datablobs/#{filename}"
+        return nil if !File.exists?(filepath)
+        blob = IO.read(filepath)
+        if (nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}") then # better safe than sorry
+            raise "(error: da338a8b-f946-4a94-9f93-de9e2bf875f7) the extracted blob #{nhash} from file '#{filepath}' using ExData::getBlobFromLocalDatablobsFolder(#{nhash}) did not validate."
         end
         blob
     end
@@ -61,8 +84,8 @@ class ExData
             return blob
         end
 
-        # Second we look inside the local block
-        blob = ExData::getBlobFromLocalBlockOrNull(nhash)
+        # Second we look inside the local datablobs folder
+        blob = ExData::getBlobFromLocalDatablobsFolder(nhash)
         if blob then
             XCacheDatablobs::putBlob(blob)
             return blob
@@ -82,7 +105,7 @@ class ExData
     def self.getBlobOrNullForFsck(nhash)
 
         # First we look inside the local block
-        blob = ExData::getBlobFromLocalBlockOrNull(nhash)
+        blob = ExData::getBlobFromLocalDatablobsFolder(nhash)
         if blob then
             XCacheDatablobs::putBlob(blob)
             return blob
@@ -98,6 +121,7 @@ class ExData
         blob = XCacheDatablobs::getBlobOrNull(nhash)
         if blob then
             puts "(warning: 9fa7067a-c774-4c3c-9660-a4d77ed412cd) I have just repaired Infinity using XCache during fsck 🤔"
+            sleep 0.2
             ExData::putBlobOnInfinity(blob)
             return blob
         end
@@ -114,7 +138,7 @@ class ExDataElizabeth
     end
 
     def putBlob(blob)
-        ExData::putBlob(@objectuuid, blob)
+        ExData::putBlobInLocalDatablobsFolder(blob)
     end
 
     def filepathToContentHash(filepath)

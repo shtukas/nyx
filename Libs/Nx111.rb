@@ -38,7 +38,7 @@ class Nx111
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = ExData::putBlob(objectuuid, text)
+            nhash = ExData::putBlobInLocalDatablobsFolder(text)
             return {
                 "uuid"  => SecureRandom.uuid,
                 "type"  => "text",

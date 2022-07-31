@@ -22,7 +22,7 @@ class Ax1Text
     def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
         text = CommonUtils::editTextSynchronously("")
-        nhash = ExData::putBlob(uuid, text)
+        nhash = ExData::putBlobInLocalDatablobsFolder(text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         Fx18Attributes::set2(uuid, "uuid", uuid)
@@ -76,7 +76,7 @@ class Ax1Text
                 nhash = Fx18Attributes::getOrNull(uuid, "nhash")
                 text = ExData::getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = ExData::putBlob(uuid, text)
+                nhash = ExData::putBlobInLocalDatablobsFolder(text)
                 Fx18Attributes::set2(uuid, "nhash", nhash)
             end
             if operation == "destroy" then

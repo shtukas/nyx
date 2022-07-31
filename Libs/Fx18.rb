@@ -16,18 +16,18 @@ class Fx18
         prefix
     end
 
-    # Fx18::localBlockFilepath()
-    def self.localBlockFilepath()
+    # Fx18::localFx18Filepath()
+    def self.localFx18Filepath()
         "#{Config::pathToLocalDataBankStargate()}/Fx18.sqlite3"
     end
 
     # Fx18::localBlockMTime()
     def self.localBlockMTime()
-        File.mtime(Fx18::localBlockFilepath()).utc.iso8601
+        File.mtime(Fx18::localFx18Filepath()).utc.iso8601
     end
 
-    # Fx18::remoteBlockFilepath()
-    def self.remoteBlockFilepath()
+    # Fx18::remoteFx18Filepath()
+    def self.remoteFx18Filepath()
         "#{StargateCentral::pathToCentral()}/Fx18.sqlite3"
     end
 
@@ -42,7 +42,7 @@ class Fx18
         if eventTime.nil? then
             raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
         end
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
@@ -52,7 +52,7 @@ class Fx18
 
     # Fx18::deleteEvent(eventuuid)
     def self.deleteEvent(eventuuid)
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
@@ -80,7 +80,7 @@ class Fx18
 
     # Fx18::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -94,7 +94,7 @@ class Fx18
 
     # Fx18::objectuuids()
     def self.objectuuids()
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -115,7 +115,7 @@ class Fx18
     # Fx18::playLogFromScratchForLiveItems()
     def self.playLogFromScratchForLiveItems()
         items = {}
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -149,7 +149,7 @@ class Fx18
     # Fx18::itemOrNull(objectuuid)
     def self.itemOrNull(objectuuid)
         item = {}
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -197,7 +197,7 @@ class Fx18Attributes
 
     # Fx18Attributes::getOrNull(objectuuid, attname)
     def self.getOrNull(objectuuid, attname)
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -245,7 +245,7 @@ class Fx18Sets
 
     # Fx18Sets::items(objectuuid, setuuid)
     def self.items(objectuuid, setuuid)
-        db = SQLite3::Database.new(Fx18::localBlockFilepath())
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -287,6 +287,20 @@ class Fx18Synchronisation
         db.results_as_hash = true
         uuids = []
         db.execute("select _eventuuid_ from _fx18_", []) do |row|
+            uuids << row["_eventuuid_"]
+        end
+        db.close
+        uuids
+    end
+
+    # Fx18Synchronisation::getDatablobEventuuids(filepath)
+    def self.getDatablobEventuuids(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        uuids = []
+        db.execute("select _eventuuid_ from _fx18_ where _eventData1_=?", ["datablob"]) do |row|
             uuids << row["_eventuuid_"]
         end
         db.close
@@ -385,8 +399,25 @@ class Fx18Synchronisation
 
     # Fx18Synchronisation::sync()
     def self.sync()
-        # For the moment, we keep he datablobs in the Fx18 file
-        Fx18Synchronisation::propagateFileData(Fx18::localBlockFilepath(), Fx18::remoteBlockFilepath())
-        Fx18Synchronisation::propagateFileData(Fx18::remoteBlockFilepath(), Fx18::localBlockFilepath())
+
+        [Fx18::localFx18Filepath(), Fx18::remoteFx18Filepath()].each{|filepath|
+            Fx18Synchronisation::getDatablobEventuuids(filepath).each{|eventuuid|
+                record = Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
+                puts "(#{filepath}) Extracting datablob: #{record["_eventData2_"]}"
+                ExData::putBlobOnInfinity(record["_eventData3_"])
+                Fx18::deleteEvent(eventuuid)
+            }
+        }
+
+        LucilleCore::locationsAtFolder("#{Config::pathToLocalDataBankStargate()}/Datablobs").each{|filepath|
+            next if filepath[-5, 5] != ".data"
+            puts "Fx18Synchronisation::sync(): transferring blob: #{filepath}"
+            blob = IO.read(filepath)
+            ExData::putBlobOnInfinity(blob)
+            FileUtils.rm(filepath)
+        }
+
+        Fx18Synchronisation::propagateFileData(Fx18::localFx18Filepath(), Fx18::remoteFx18Filepath())
+        Fx18Synchronisation::propagateFileData(Fx18::remoteFx18Filepath(), Fx18::localFx18Filepath())
     end
 end
