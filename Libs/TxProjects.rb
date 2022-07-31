@@ -317,4 +317,31 @@ class TxProjects
             TxProjects::addElement_v1(project["uuid"], item["uuid"])
         end
     end
+
+    # TxProjects::entityToProject(entity)
+    def self.entityToProject(entity)
+        if entity["mikuType"] == "TxDated" then
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask ", true)
+            Transmutation::transmutation1(entity, "TxDated", "NxTask")
+            # This transmutation already put the newly created NxTask into a project
+            # So we can return
+            return
+        end
+        if entity["mikuType"] == "NxFrame" then
+            return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the NxFrame into a NxTask ", true)
+            Transmutation::transmutation1(entity, "NxFrame", "NxTask")
+            # This transmutation already put the newly created NxTask into a project
+            # So we can return
+            return
+        end
+        if !["NxTask", "NxLine"].include?(entity["mikuType"]) then
+            puts "The operation >project only works on NxTasks and NxLines"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        project = TxProjects::architectOneOrNull()
+        return if project.nil?
+        TxProjects::addElement_v1(project["uuid"], entity["uuid"])
+        NxBallsService::close(entity["uuid"], true)
+    end
 end

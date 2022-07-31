@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | project ",
             "anniversaries | calendar | ondates | todos | projects",
-            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | >nyx",
+            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | (n) >project | >nyx",
             "require internet",
             "rstream | search | nyx | speed | pickup | nxballs | maintenance | >>",
         ].join("\n")
@@ -30,25 +30,19 @@ class Commands
             return
         end
 
+
         if Interpreting::match(">project", input) then
             item = store.getDefault()
             return if item.nil?
-            if item["mikuType"] == "TxDated" then
-                return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask ", true)
-                Transmutation::transmutation1(item, "TxDated", "NxTask")
-                # This transmutation already put the newly created NxTask into a project
-                # So we can return
-                return
-            end
-            if !["NxTask", "NxLine"].include?(item["mikuType"]) then
-                puts "The operation >project only works on NxTasks and NxLines"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            project = TxProjects::architectOneOrNull()
-            return if project.nil?
-            TxProjects::addElement_v1(project["uuid"], item["uuid"])
-            NxBallsService::close(item["uuid"], true)
+            TxProjects::entityToProject(item)
+            return
+        end
+
+        if Interpreting::match("* >project", input) then
+            ordinal, _ = Interpreting::tokenizer(input)
+            entity = store.get(ordinal.to_i)
+            return if entity.nil?
+            TxProjects::entityToProject(entity)
             return
         end
 
