@@ -237,10 +237,12 @@ class TxProjects
             elements = TxProjects::elements(project, TxProjects::projectDefaultVisibilityDepth())
             if elements.size > 0 then
                 puts ""
-                elements.each{|element|
-                    indx = store.register(element, false)
-                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
-                }
+                elements
+                    .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
+                    .each{|element|
+                        indx = store.register(element, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
+                    }
             end
 
             if !Ax39::itemShouldShow(project) then
@@ -252,7 +254,7 @@ class TxProjects
             end
 
             puts ""
-            puts "commands: <n> | insert | detach element | destroy element".yellow
+            puts "commands: <n> | done (project) | insert | detach element | destroy element".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -262,6 +264,11 @@ class TxProjects
                 entity = store.get(indx)
                 next if entity.nil?
                 Streaming::processItem(entity)
+            end
+
+            if command == "done" then
+                DoneForToday::setDoneToday(project["uuid"])
+                break
             end
 
             if command == "insert" then
