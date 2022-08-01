@@ -7,8 +7,8 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | today | ondate | todo | task | project",
-            "calendar add <index> <hour> | calendar add line | calendar remove <index>",
-            "anniversaries | calendar | ondates | todos | projects",
+            "calendar set <index> <hour> | calendar set line | calendar remove <index>",
+            "anniversaries | ondates | todos | projects",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | (n) >project | >nyx",
             "require internet",
             "rstream | search | nyx | speed | nxballs | maintenance | >>",
@@ -95,7 +95,7 @@ class Commands
             return
         end
 
-        if Interpreting::match("calendar add * *", input) then
+        if Interpreting::match("calendar set * *", input) then
             _, _, itemOrdinal, hour = Interpreting::tokenizer(input)
             item = store.get(itemOrdinal.to_i)
             return if item.nil?
@@ -107,7 +107,7 @@ class Commands
             return
         end
 
-        if Interpreting::match("calendar add line", input) then
+        if Interpreting::match("calendar set line", input) then
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
