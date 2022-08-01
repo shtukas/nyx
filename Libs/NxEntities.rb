@@ -36,12 +36,13 @@ class NxEntities
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxEntity")
-        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxEntity")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = NxEntities::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 291521ea-221b-4a81-9b6e-9ef0925d2ca5) How did that happen ? 🤨"

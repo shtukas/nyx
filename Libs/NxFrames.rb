@@ -36,13 +36,14 @@ class NxFrames
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxFrame")
-        Fx18Attributes::set2(uuid, "unixtime",    unixtime)
-        Fx18Attributes::set2(uuid, "datetime",    datetime)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxFrame")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    unixtime)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = NxFrames::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"

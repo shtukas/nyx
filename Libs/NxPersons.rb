@@ -23,12 +23,13 @@ class NxPersons
     # NxPersons::issue(name1)
     def self.issue(name1)
         uuid = SecureRandom.uuid
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxPerson")
-        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set2(uuid, "name",        name1)
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxPerson")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set_objectMaking(uuid, "name",        name1)
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = NxPersons::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"

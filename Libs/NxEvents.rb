@@ -40,12 +40,14 @@ class NxEvents
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = CommonUtils::interactiveDateTimeBuilder()
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxEvent")
-        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set2(uuid, "datetime",    datetime)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxEvent")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
+        FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = NxEvents::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: c4d9e89d-d4f2-4a44-8c66-311431977b4c) How did that happen ? 🤨"

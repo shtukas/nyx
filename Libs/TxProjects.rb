@@ -45,12 +45,13 @@ class TxProjects
 
         uuid = SecureRandom.uuid
 
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "TxProject")
-        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "ax39",        JSON.generate(ax39))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxProject")
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39))
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = TxProjects::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 196d5021-a7d2-4d23-8e70-851d81c9f994) How did that happen ? 🤨"
@@ -201,18 +202,18 @@ class TxProjects
                 if item["mikuType"] == "NxPerson" then
                     name1 = CommonUtils::editTextSynchronously(item["name"]).strip
                     next if name1 == ""
-                    Fx18Attributes::set2(item["uuid"], "name", name1)
+                    Fx18Attributes::set_objectUpdate(item["uuid"], "name", name1)
                 else
                     description = CommonUtils::editTextSynchronously(item["description"]).strip
                     next if description == ""
-                    Fx18Attributes::set2(item["uuid"], "description", description)
+                    Fx18Attributes::set_objectUpdate(item["uuid"], "description", description)
                 end
                 next
             end
 
             if Interpreting::match("Ax39", command) then
                 ax39 = Ax39::interactivelyCreateNewAx()
-                Fx18Attributes::set2(uuid, "ax39", JSON.generate(ax39))
+                Fx18Attributes::set_objectUpdate(uuid, "ax39", JSON.generate(ax39))
             end
 
             if Interpreting::match("json", command) then

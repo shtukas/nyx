@@ -14,13 +14,18 @@ class Calendar
         XCacheSets::values("851563eb-74ea-477d-8b39-e8d28f43f5e6:#{CommonUtils::today()}")
     end
 
-    # Calendar::register(hour, objectuuid)
-    def self.register(hour, objectuuid)
+    # Calendar::remove(objectuuid)
+    def self.remove(objectuuid)
         Calendar::dataset().each{|entry|
             if entry["objectuuid"] == objectuuid then
                 XCacheSets::destroy("851563eb-74ea-477d-8b39-e8d28f43f5e6:#{CommonUtils::today()}", entry["uuid"])
             end
         }
+    end
+
+    # Calendar::register(hour, objectuuid)
+    def self.register(hour, objectuuid)
+        Calendar::remove(objectuuid)
         value = {
             "uuid"       => SecureRandom.uuid,
             "mikuType"   => "NxCalendarItem1",

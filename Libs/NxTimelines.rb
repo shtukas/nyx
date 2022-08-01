@@ -38,12 +38,13 @@ class NxTimelines
         uuid = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxTimeline")
-        Fx18Attributes::set2(uuid, "unixtime",    unixtime)
-        Fx18Attributes::set2(uuid, "datetime",    datetime)
-        Fx18Attributes::set2(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxTimeline")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    unixtime)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = NxTimelines::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: a6cc9094-7100-4aa3-8ebc-1fec0669733e) How did that happen ? 🤨"

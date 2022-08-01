@@ -39,13 +39,14 @@ class NxTasks
         return nil if description == ""
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -58,14 +59,19 @@ class NxTasks
         description = File.basename(location)
         uuid = SecureRandom.uuid
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        Lookup1::reconstructEntry(uuid)
+        item = NxTasks::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 421cc48c-707a-4811-9bd9-7b1e56b689fa) How did that happen ? 🤨"
+        end
+        item
     end
 
     # NxTasks::issueViennaURL(url)
@@ -77,14 +83,19 @@ class NxTasks
             "type" => "url",
             "url"  => url
         }
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
-        uuid
+        Lookup1::reconstructEntry(uuid)
+        item = NxTasks::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: f78008bf-12d4-4483-b4bb-96e3472d46a2) How did that happen ? 🤨"
+        end
+        item
     end
 
     # --------------------------------------------------

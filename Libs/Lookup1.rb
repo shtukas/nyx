@@ -36,8 +36,8 @@ class Lookup1
         db.close
     end
 
-    # Lookup1::recoverAndInject(objectuuid)
-    def self.recoverAndInject(objectuuid)
+    # Lookup1::reconstructEntry(objectuuid)
+    def self.reconstructEntry(objectuuid)
         unixtime = Fx18Attributes::getOrNull(objectuuid, "unixtime")
         return if unixtime.nil?
         mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
@@ -142,7 +142,7 @@ class Lookup1
     def self.processEventInternally(event)
         if event["mikuType"] == "(object has been updated)" then
             objectuuid = event["objectuuid"]
-            Lookup1::recoverAndInject(objectuuid)
+            Lookup1::reconstructEntry(objectuuid)
         end
 
         if event["mikuType"] == "(object has been deleted)" then

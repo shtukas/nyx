@@ -7,7 +7,7 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | today | ondate | todo | task | project",
-            "calendar add <index> <hour> | calendar add line",
+            "calendar add <index> <hour> | calendar add line | calendar remove <index>",
             "anniversaries | calendar | ondates | todos | projects",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | (n) >project | >nyx",
             "require internet",
@@ -91,7 +91,7 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             return if item["mikuType"] != "TxProject"
-            Fx18Attributes::set2(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
+            Fx18Attributes::set_objectUpdate(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
             return
         end
 
@@ -114,6 +114,13 @@ class Commands
             hour = LucilleCore::askQuestionAnswerAsString("hour: ")
             return if hour == ""
             Calendar::register(hour, item["uuid"])
+            return
+        end
+
+        if Interpreting::match("calendar remove *", input) then
+            _, _, itemOrdinal = Interpreting::tokenizer(input)
+            item = store.get(itemOrdinal.to_i)
+            Calendar::remove(item["uuid"])
             return
         end
 

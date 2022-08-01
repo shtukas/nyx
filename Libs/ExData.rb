@@ -53,7 +53,7 @@ class ExData
     # ExData::getBlobFromLocalDatablobsFolder(nhash)
     def self.getBlobFromLocalDatablobsFolder(nhash)
         filename = "#{nhash}.data"
-        filepath = "#{StargateCentral::pathToCentral()}/Datablobs/#{filename}"
+        filepath = "#{Config::pathToLocalDataBankStargate()}/Datablobs/#{filename}"
         return nil if !File.exists?(filepath)
         blob = IO.read(filepath)
         if (nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}") then # better safe than sorry

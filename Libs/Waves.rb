@@ -143,15 +143,16 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "Wave")
-        Fx18Attributes::set2(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set2(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx46",        JSON.generate(nx46))
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
-        Fx18Attributes::set2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "Wave")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx46",        JSON.generate(nx46))
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = Waves::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"
@@ -197,7 +198,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        Fx18Attributes::set2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        Fx18Attributes::set_objectUpdate(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"

@@ -25,12 +25,13 @@ class Ax1Text
         nhash = ExData::putBlobInLocalDatablobsFolder(text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::set2(uuid, "uuid", uuid)
-        Fx18Attributes::set2(uuid, "mikuType", "Ax1Text")
-        Fx18Attributes::set2(uuid, "unixtime", unixtime)
-        Fx18Attributes::set2(uuid, "datetime", datetime)
-        Fx18Attributes::set2(uuid, "nhash", nhash)
+        Fx18Attributes::set_objectMaking(uuid, "uuid", uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType", "Ax1Text")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime", unixtime)
+        Fx18Attributes::set_objectMaking(uuid, "datetime", datetime)
+        Fx18Attributes::set_objectMaking(uuid, "nhash", nhash)
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = Ax1Text::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"
@@ -77,7 +78,7 @@ class Ax1Text
                 text = ExData::getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
                 nhash = ExData::putBlobInLocalDatablobsFolder(text)
-                Fx18Attributes::set2(uuid, "nhash", nhash)
+                Fx18Attributes::set_objectUpdate(uuid, "nhash", nhash)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then

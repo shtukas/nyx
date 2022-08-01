@@ -187,15 +187,20 @@ class Fx18Attributes
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         Fx18::commit(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+    end
+
+    # Fx18Attributes::set_objectMaking(objectuuid, attname, attvalue)
+    def self.set_objectMaking(objectuuid, attname, attvalue)
+        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
+    end
+
+    # Fx18Attributes::set_objectUpdate(objectuuid, attname, attvalue)
+    def self.set_objectUpdate(objectuuid, attname, attvalue)
+        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
         SystemEvents::processEventInternally({
             "mikuType"   => "(object has been updated)",
             "objectuuid" => objectuuid,
         })
-    end
-
-    # Fx18Attributes::set2(objectuuid, attname, attvalue)
-    def self.set2(objectuuid, attname, attvalue)
-        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
     # Fx18Attributes::getOrNull(objectuuid, attname)
@@ -368,7 +373,7 @@ class Fx18Synchronisation
             if Fx18::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "true" then
                 # At the time those lines are written, we don't even have a way to resuscitate
                 # an object, but if we do, it goes here
-                Lookup1::recoverAndInject(record1["_objectuuid_"])
+                Lookup1::reconstructEntry(record1["_objectuuid_"])
             end
 
             # Checks

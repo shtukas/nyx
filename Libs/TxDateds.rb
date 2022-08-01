@@ -38,13 +38,14 @@ class TxDateds
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "TxDated")
-        Fx18Attributes::set2(uuid, "unixtime",    unixtime)
-        Fx18Attributes::set2(uuid, "datetime",    datetime)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxDated")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    unixtime)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = TxDateds::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
@@ -60,13 +61,14 @@ class TxDateds
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::set2(uuid, "uuid",        uuid)
-        Fx18Attributes::set2(uuid, "mikuType",    "TxDated")
-        Fx18Attributes::set2(uuid, "unixtime",    unixtime)
-        Fx18Attributes::set2(uuid, "datetime",    datetime)
-        Fx18Attributes::set2(uuid, "description", description)
-        Fx18Attributes::set2(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxDated")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    unixtime)
+        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
+        Lookup1::reconstructEntry(uuid)
         item = TxDateds::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 69486f48-3748-4c73-b604-a7edad98871d) How did that happen ? 🤨"

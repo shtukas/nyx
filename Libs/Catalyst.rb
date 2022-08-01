@@ -193,7 +193,7 @@ class Catalyst
             vspaceleft = vspaceleft - 1
             Calendar::section().each{|entry|
                 item = entry["item"]
-                store.register(item, false)
+                store.register(item, true)
                 line = "#{store.prefixString()} (cale) #{entry["hour"]}:00 #{LxFunction::function("toString", item)}"
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
