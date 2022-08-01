@@ -157,7 +157,7 @@ class Catalyst
             running
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
                 .each{|nxball|
-                    store.register(nxball, false)
+                    store.register(nxball, true)
                     line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                     puts line.green
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
@@ -195,6 +195,9 @@ class Catalyst
                 item = entry["item"]
                 store.register(item, false)
                 line = "#{store.prefixString()} (cale) #{entry["hour"]}:00 #{LxFunction::function("toString", item)}"
+                if NxBallsService::isActive(item["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
