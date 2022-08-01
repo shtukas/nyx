@@ -16,11 +16,30 @@ class Calendar
 
     # Calendar::register(hour, objectuuid)
     def self.register(hour, objectuuid)
+        Calendar::dataset().each{|entry|
+            if entry["objectuuid"] == objectuuid then
+                XCacheSets::destroy("851563eb-74ea-477d-8b39-e8d28f43f5e6:#{CommonUtils::today()}", entry["uuid"])
+            end
+        }
         value = {
-            "uuid" => SecureRandom.uuid,
-            "hour" => hour,
+            "uuid"       => SecureRandom.uuid,
+            "mikuType"   => "NxCalendarItem1",
+            "hour"       => hour,
             "objectuuid" => objectuuid
         }
-        XCacheSets::set("851563eb-74ea-477d-8b39-e8d28f43f5e6:#{CommonUtils::today()}", valueuuid: String, value)
+        XCacheSets::set("851563eb-74ea-477d-8b39-e8d28f43f5e6:#{CommonUtils::today()}", value["uuid"], value)
+    end
+
+    # Calendar::section()
+    def self.section()
+        Calendar::dataset()
+            .map{|entry|
+                entry["item"] = Fx18::itemOrNull(entry["objectuuid"])
+                entry
+            }
+            .select{|entry|
+                !entry["item"].nil?
+            }
+            .sort{|e1, e2| e1["hour"] <=> e2["hour"] }
     end
 end

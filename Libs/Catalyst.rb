@@ -187,6 +187,19 @@ class Catalyst
                 }
         end
 
+        section = Calendar::section()
+        if section.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            Calendar::section().each{|entry|
+                item = entry["item"]
+                store.register(item, false)
+                line = "#{store.prefixString()} (cale) #{entry["hour"]}:00 #{LxFunction::function("toString", item)}"
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+        end
+
         section2 = Catalyst::section2()
         if !section2.empty? then
             puts ""
@@ -194,6 +207,10 @@ class Catalyst
             section2
                 .each{|p|
                     item = p["item"]
+
+                    # Let us not display the ones that already appeared in the calendar
+                    next if section.map{|entry| entry["objectuuid"] }.include?(item["uuid"])
+                    
                     toString = p["toString"]
                     store.register(item, true)
                     line = "#{store.prefixString()} #{"%.3f" % p["metric"]} #{toString}"

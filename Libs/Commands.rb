@@ -6,7 +6,8 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | project ",
+            "wave | anniversary | frame | today | ondate | todo | task | project",
+            "calendar add <index> <hour> | calendar add line",
             "anniversaries | calendar | ondates | todos | projects",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | (n) >project | >nyx",
             "require internet",
@@ -91,6 +92,28 @@ class Commands
             return if item.nil?
             return if item["mikuType"] != "TxProject"
             Fx18Attributes::set2(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
+            return
+        end
+
+        if Interpreting::match("calendar add * *", input) then
+            _, _, itemOrdinal, hour = Interpreting::tokenizer(input)
+            item = store.get(itemOrdinal.to_i)
+            return if item.nil?
+            if item["mikuType"] == "NxCalendarItem1" then
+                # We want the target
+                item = item["item"]
+            end
+            Calendar::register(hour, item["uuid"])
+            return
+        end
+
+        if Interpreting::match("calendar add line", input) then
+            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+            return if line == ""
+            item = NxLines::issue(line)
+            hour = LucilleCore::askQuestionAnswerAsString("hour: ")
+            return if hour == ""
+            Calendar::register(hour, item["uuid"])
             return
         end
 
@@ -180,6 +203,14 @@ class Commands
             return
         end
 
+        if input == "line" then
+            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+            return if line == ""
+            item = NxLines::issue(line)
+            TxProjects::interactivelyProposeToAttachTaskToProject(item)
+            return
+        end
+
         if Interpreting::match("nyx", input) then
             Nyx::program()
             return
@@ -200,14 +231,6 @@ class Commands
 
         if Interpreting::match("ondates", input) then
             TxDateds::dive()
-            return
-        end
-
-        if input == "line" then
-            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
-            return if line == ""
-            item = NxLines::issue(line)
-            TxProjects::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 

@@ -124,6 +124,7 @@ class Waves
             end
             return cursor
         end
+        raise "(error: afe44910-57c2-4be5-8e1f-2c2fb80ae61a) nx46: #{JSON.pretty_generate(nx46)}"
     end
 
     # Waves::nx46ToString(item)

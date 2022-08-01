@@ -135,6 +135,9 @@ class Fx18
                 if attrname == "ax39" then
                     attrvalue = JSON.parse(attrvalue)
                 end
+                if attrname == "nx46" then
+                    attrvalue = JSON.parse(attrvalue)
+                end
                 items[objectuuid][attrname] = attrvalue
             end
             if row["_eventData1_"] == "object-is-alive" then
