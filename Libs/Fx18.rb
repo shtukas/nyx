@@ -50,9 +50,9 @@ class Fx18
         db.close
     end
 
-    # Fx18::deleteEvent(eventuuid)
-    def self.deleteEvent(eventuuid)
-        db = SQLite3::Database.new(Fx18::localFx18Filepath())
+    # Fx18::deleteEvent(filepath, eventuuid)
+    def self.deleteEvent(filepath, eventuuid)
+        db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
@@ -300,7 +300,7 @@ class Fx18Synchronisation
         db.busy_handler { |count| true }
         db.results_as_hash = true
         uuids = []
-        db.execute("select _eventuuid_ from _fx18_ where _eventData1_=?", ["datablob"]) do |row|
+        db.execute("select _eventuuid_ from _fx18_ where _eventData1_=? order by _eventData2_", ["datablob"]) do |row|
             uuids << row["_eventuuid_"]
         end
         db.close
@@ -405,7 +405,7 @@ class Fx18Synchronisation
                 record = Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
                 puts "(#{filepath}) Extracting datablob: #{record["_eventData2_"]}"
                 ExData::putBlobOnInfinity(record["_eventData3_"])
-                Fx18::deleteEvent(eventuuid)
+                Fx18::deleteEvent(filepath, eventuuid)
             }
         }
 
