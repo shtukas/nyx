@@ -57,6 +57,9 @@ class LxFunction
             if item["mikuType"] == "TxThread" then
                 return item["description"]
             end
+            if item["mikuType"] == "TxProject" then
+                return item["description"]
+            end
             if item["mikuType"] == "NxTask" then
                 return item["description"]
             end
