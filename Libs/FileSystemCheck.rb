@@ -274,6 +274,17 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "TopLevel" then
+            [
+                "uuid",
+                "mikuType",
+                "unixtime",
+                "nhash",
+            ]
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            return
+        end
+
         if mikuType == "TxDated" then
             [
                 "uuid",
