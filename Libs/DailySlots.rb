@@ -68,7 +68,6 @@ class DailySlots
             .sort{|e1, e2| e1["hour"] <=> e2["hour"] }
             .select{|entry| DoNotShowUntil::isVisible(entry["item"]["uuid"]) }
             .select{|entry| InternetStatus::itemShouldShow(entry["item"]["uuid"]) }
-
     end
 
     # DailySlots::internalEventProcessing(event)
