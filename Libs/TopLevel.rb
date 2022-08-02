@@ -48,7 +48,7 @@ class TopLevel
         text = ExData::getBlobOrNull(nhash)
         return nil if text.nil?
         return nil if text == ""
-        text.lines.first
+        text.lines.first.strip
     end
 
     # TopLevel::toString(item)
@@ -56,6 +56,16 @@ class TopLevel
         firstline = TopLevel::getFirstLineOrNull(item)
         return "(toplevel) (no text)" if firstline.nil?
         "(toplevel) #{firstline}"
+    end
+
+    # TopLevel::items()
+    def self.items()
+        Lookup1::mikuTypeToItems("TopLevel")
+    end
+
+    # TopLevel::section1()
+    def self.section1()
+        TopLevel::items()
     end
 
     # ----------------------------------------------------------------------

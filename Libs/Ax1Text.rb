@@ -48,7 +48,7 @@ class Ax1Text
         text = ExData::getBlobOrNull(nhash)
         return nil if text.nil?
         return nil if text == ""
-        text.lines.first
+        text.lines.first.strip
     end
 
     # Ax1Text::toString(item)

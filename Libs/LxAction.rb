@@ -60,6 +60,16 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TopLevel" then
+                uuid = item["uuid"]
+                nhash = Fx18Attributes::getOrNull(uuid, "nhash")
+                text = ExData::getBlobOrNull(nhash)
+                text = CommonUtils::editTextSynchronously(text)
+                nhash = ExData::putBlobInLocalDatablobsFolder(text)
+                Fx18Attributes::set_objectUpdate(uuid, "nhash", nhash)
+                return
+            end
+
             if item["mikuType"] == "TxProject" then
                 TxProjects::runAndAccessElements(item)
                 return

@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | project",
+            "wave | anniversary | frame | today | ondate | todo | task | project | toplevel",
             "calendar set <index> <hour> | calendar add line | calendar remove <index>",
             "anniversaries | ondates | todos | projects",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | (n) >project | >nyx",
@@ -424,6 +424,11 @@ class Commands
         if input == "top" then
             system("open '#{Catalyst::topFilepath()}'")
             return
+        end
+
+        if input == "toplevel" then
+            item = TopLevel::interactivelyIssueNew()
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("transmute", input) then
