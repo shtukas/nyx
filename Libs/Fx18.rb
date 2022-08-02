@@ -121,6 +121,9 @@ class Fx18
         db.results_as_hash = true
         objectuuids = []
         db.execute("select * from _fx18_ order by _eventTime_", []) do |row|
+            # ---------------------------------------------------------------------------
+            # If you make a change here you might want to report it to the other one
+            # (group: ff4e41a5-fa0b-459f-9ba7-5a92fb56cf1e)
             objectuuid = row["_objectuuid_"]
             if items[objectuuid].nil? then
                 puts "Fx18::playLogFromScratchForLiveItems(): #{objectuuid}"
@@ -144,6 +147,7 @@ class Fx18
                 isAlive = (row["_eventData2_"] == "true")
                 items[objectuuid]["isAlive"] = isAlive
             end
+            # ---------------------------------------------------------------------------
         end
         db.close
         items.values.select{|item| item["isAlive"].nil? or item["isAlive"] }
@@ -158,6 +162,9 @@ class Fx18
         db.results_as_hash = true
         objectuuids = []
         db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
+            # ---------------------------------------------------------------------------
+            # If you make a change here you might want to report it to the other one
+            # (group: ff4e41a5-fa0b-459f-9ba7-5a92fb56cf1e)
             if row["_eventData1_"] == "attribute" then
                 attrname  = row["_eventData2_"]
                 attrvalue = row["_eventData3_"]
@@ -167,12 +174,16 @@ class Fx18
                 if attrname == "ax39" then
                     attrvalue = JSON.parse(attrvalue)
                 end
+                if attrname == "nx46" then
+                    attrvalue = JSON.parse(attrvalue)
+                end
                 item[attrname] = attrvalue
             end
             if row["_eventData1_"] == "object-is-alive" then
                 isAlive = (row["_eventData2_"] == "true")
                 item["isAlive"] = isAlive
             end
+            # ---------------------------------------------------------------------------
         end
         db.close
         return nil if (!item["isAlive"].nil? and !item["isAlive"])
