@@ -36,7 +36,7 @@ class Catalyst
 
     # Catalyst::section1()
     def self.section1()
-        NxFrames::items() + TxProjects::section1() + TopLevel::section1()
+        NxFrames::items() + TxThreads::section1() + TopLevel::section1()
     end
 
     # Catalyst::section2()
@@ -60,7 +60,7 @@ class Catalyst
             Waves::section2(true),
             TxDateds::section2(),
             NxLines::section2(),
-            TxProjects::section2(),
+            TxThreads::section2(),
             Waves::section2(false),
             NxTasks::section2(),
             Streaming::section2(),

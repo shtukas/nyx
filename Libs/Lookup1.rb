@@ -3,7 +3,7 @@ class Lookup1
 
     # Lookup1::getDatabaseFilepath()
     def self.getDatabaseFilepath()
-        filepath = XCache::filepath("#{Fx18::cachePrefix()}:4f8266b4-dc37-4699-a592-68eee4c3ac79")
+        filepath = XCache::filepath("#{Fx18::cachePrefix()}:4f8266b4-dc37-4699-a592-68eee4c3ac78")
         return filepath if File.exists?(filepath)
 
         puts "preparing lookup1 database: #{filepath}"

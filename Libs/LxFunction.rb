@@ -54,7 +54,7 @@ class LxFunction
             if item["mikuType"] == "NxPerson" then
                 return item["name"]
             end
-            if item["mikuType"] == "TxProject" then
+            if item["mikuType"] == "TxThread" then
                 return item["description"]
             end
             if item["mikuType"] == "NxTask" then
@@ -121,8 +121,8 @@ class LxFunction
             if item["mikuType"] == "TopLevel" then
                 return TopLevel::toString(item)
             end
-            if item["mikuType"] == "TxProject" then
-                return TxProjects::toString(item)
+            if item["mikuType"] == "TxThread" then
+                return TxThreads::toString(item)
             end
             if item["mikuType"] == "NxTask" then
                 return NxTasks::toString(item)

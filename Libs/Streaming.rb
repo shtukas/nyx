@@ -28,7 +28,7 @@ class Streaming
                 puts LxFunction::function("toString", item).green
             end
             firstLoop = false
-            command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >project, >nyx, nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >thread, >nyx, nyx: ")
             if command == "access" then
                 LxAction::action("access", item)
                 next
@@ -58,10 +58,10 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">project" then
-                project = TxProjects::architectOneOrNull()
-                return if project.nil?
-                TxProjects::addElement_v1(project["uuid"], item["uuid"])
+            if command == ">thread" then
+                thread = TxThreads::architectOneOrNull()
+                return if thread.nil?
+                TxThreads::addElement_v1(thread["uuid"], item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -80,7 +80,7 @@ class Streaming
     def self.processItem(item)
         puts LxFunction::function("toString", item).green
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >project, >nyx, nyx, next (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >thread, >nyx, nyx, next (default), exit (rstream): ")
             if command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
@@ -96,10 +96,10 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">project" then
-                project = TxProjects::architectOneOrNull()
-                return if project.nil?
-                TxProjects::addElement_v1(project["uuid"], item["uuid"])
+            if command == ">thread" then
+                thread = TxThreads::architectOneOrNull()
+                return if thread.nil?
+                TxThreads::addElement_v1(thread["uuid"], item["uuid"])
                 return nil
             end
             if command == ">nyx" then
@@ -142,7 +142,7 @@ class Streaming
         return if items.empty?
         loop {
             item = items.shift
-            next if TxProjects::uuidIsProjectElement(item["uuid"])
+            next if TxThreads::uuidIsProjectElement(item["uuid"])
             command = Streaming::processItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
@@ -157,7 +157,7 @@ class Streaming
         items = NxIceds::items().shuffle
         loop {
             item = items.shift
-            next if TxProjects::uuidIsProjectElement(item["uuid"])
+            next if TxThreads::uuidIsProjectElement(item["uuid"])
             command = Streaming::runItem(item)
         }
         NxBallsService::close(uuid, true)

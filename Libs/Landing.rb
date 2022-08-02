@@ -297,8 +297,8 @@ class Landing
         if Iam::isNetworkAggregation(item) then
             return Landing::networkAggregationNodeLanding(item, isSearchAndSelect)
         end
-        if item["mikuType"] == "TxProject" then
-            return TxProjects::landing(item)
+        if item["mikuType"] == "TxThread" then
+            return TxThreads::landing(item)
         end
         if item["mikuType"] == "NxLine" then
             puts JSON.pretty_generate(item)

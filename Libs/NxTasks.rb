@@ -119,7 +119,7 @@ class NxTasks
     def self.section2()
         NxTasks::items2(10)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| !TxProjects::uuidIsProjectElement(item["uuid"]) }
+            .select{|item| !TxThreads::uuidIsProjectElement(item["uuid"]) }
             .map{|item|
                 {
                     "item" => item,

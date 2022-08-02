@@ -300,7 +300,7 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "TxProject" then
+        if mikuType == "TxThread" then
             [
                 "uuid",
                 "mikuType",

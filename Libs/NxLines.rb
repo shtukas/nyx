@@ -59,7 +59,7 @@ class NxLines
     # NxLines::section2()
     def self.section2()
         NxLines::items()
-            .select{|item| !TxProjects::uuidIsProjectElement(item["uuid"]) }
+            .select{|item| !TxThreads::uuidIsProjectElement(item["uuid"]) }
             .map{|item|
                 {
                     "item" => item,

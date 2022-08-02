@@ -70,8 +70,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxProject" then
-                TxProjects::runAndAccessElements(item)
+            if item["mikuType"] == "TxThread" then
+                TxThreads::runAndAccessElements(item)
                 return
             end
 
@@ -142,7 +142,7 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxProject" then
+            if item["mikuType"] == "TxThread" then
                 NxBallsService::close(item["uuid"], true)
                 if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
                     DoneForToday::setDoneToday(item["uuid"])

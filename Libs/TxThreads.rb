@@ -1,14 +1,14 @@
 
 # encoding: UTF-8
 
-class TxProjects
+class TxThreads
 
     # ----------------------------------------------------------------------
     # IO
 
-    # TxProjects::objectuuidToItemOrNull(objectuuid)
+    # TxThreads::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "TxProject"
+        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "TxThread"
         {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
@@ -19,12 +19,12 @@ class TxProjects
         }
     end
 
-    # TxProjects::items()
+    # TxThreads::items()
     def self.items()
-        Lookup1::mikuTypeToItems("TxProject")
+        Lookup1::mikuTypeToItems("TxThread")
     end
 
-    # TxProjects::destroy(uuid)
+    # TxThreads::destroy(uuid)
     def self.destroy(uuid)
         Fx18::deleteObject(uuid)
     end
@@ -32,7 +32,7 @@ class TxProjects
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # TxProjects::interactivelyIssueNewItemOrNull() # item
+    # TxThreads::interactivelyIssueNewItemOrNull() # item
     def self.interactivelyIssueNewItemOrNull()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -46,74 +46,74 @@ class TxProjects
         uuid = SecureRandom.uuid
 
         Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxProject")
+        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxThread")
         Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set_objectMaking(uuid, "description", description)
         Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        item = TxProjects::objectuuidToItemOrNull(uuid)
+        item = TxThreads::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 196d5021-a7d2-4d23-8e70-851d81c9f994) How did that happen ? 🤨"
         end
         item
     end
 
-    # TxProjects::architectOneOrNull() # item or null
+    # TxThreads::architectOneOrNull() # item or null
     def self.architectOneOrNull()
-        items = TxProjects::items()
+        items = TxThreads::items()
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", items, lambda{|item| LxFunction::function("toString", item) })
+        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("thread", items, lambda{|item| LxFunction::function("toString", item) })
         return item if item
-        if LucilleCore::askQuestionAnswerAsBoolean("Issue new project ? ") then
-            return TxProjects::interactivelyIssueNewItemOrNull()
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new thread ? ") then
+            return TxThreads::interactivelyIssueNewItemOrNull()
         end
     end
 
     # ----------------------------------------------------------------------
     # Elements
 
-    # TxProjects::addElement_v1(projectuuid, itemuuid)
-    def self.addElement_v1(projectuuid, itemuuid)
-        Fx18Sets::add2(projectuuid, "project-items-3f154988", itemuuid, itemuuid)
+    # TxThreads::addElement_v1(threaduuid, itemuuid)
+    def self.addElement_v1(threaduuid, itemuuid)
+        Fx18Sets::add2(threaduuid, "project-items-3f154988", itemuuid, itemuuid)
         XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{itemuuid}", true)
     end
 
-    # TxProjects::addElement_v2(projectuuid, elementuuid, ordinal)
-    def self.addElement_v2(projectuuid, elementuuid, ordinal)
+    # TxThreads::addElement_v2(threaduuid, elementuuid, ordinal)
+    def self.addElement_v2(threaduuid, elementuuid, ordinal)
         packet = {
             "elementuuid" => elementuuid,
             "ordinal" => ordinal
         }
-        Fx18Sets::add2(projectuuid, "project-elements-f589942d", elementuuid, packet)
+        Fx18Sets::add2(threaduuid, "project-elements-f589942d", elementuuid, packet)
         XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
     end
 
-    # TxProjects::removeElement(project, uuid)
-    def self.removeElement(project, uuid)
-        Fx18Sets::remove2(project["uuid"], "project-items-3f154988", uuid)
-        Fx18Sets::remove2(project["uuid"], "project-elements-f589942d", uuid)
+    # TxThreads::removeElement(thread, uuid)
+    def self.removeElement(thread, uuid)
+        Fx18Sets::remove2(thread["uuid"], "project-items-3f154988", uuid)
+        Fx18Sets::remove2(thread["uuid"], "project-elements-f589942d", uuid)
     end
 
-    # TxProjects::elementuuids(project)
-    def self.elementuuids(project)
-        uuids1 = Fx18Sets::items(project["uuid"], "project-elements-f589942d")
+    # TxThreads::elementuuids(thread)
+    def self.elementuuids(thread)
+        uuids1 = Fx18Sets::items(thread["uuid"], "project-elements-f589942d")
                     .sort{|p1, p2| p1["ordinal"] <=> p2["ordinal"]}
                     .map{|packet| packet["elementuuid"]}
-        uuids2 = Fx18Sets::items(project["uuid"], "project-items-3f154988")
+        uuids2 = Fx18Sets::items(thread["uuid"], "project-items-3f154988")
         # We return the new elementuuids in ordinal order and then the old ones
         uuids1+uuids2
     end
 
-    # TxProjects::elements(project, count)
-    def self.elements(project, count)
-        TxProjects::elementuuids(project)
+    # TxThreads::elements(thread, count)
+    def self.elements(thread, count)
+        TxThreads::elementuuids(thread)
             .take(count)
             .map{|elementuuid|
                 if Fx18::objectIsAlive(elementuuid) then
                     item = Fx18::itemOrNull(elementuuid)
                     if item.nil? then
-                        TxProjects::removeElement(project, elementuuid)
+                        TxThreads::removeElement(thread, elementuuid)
                     end
                     item
                 else
@@ -123,53 +123,53 @@ class TxProjects
             .compact
     end
 
-    # TxProjects::uuidIsProjectElement(elementuuid)
+    # TxThreads::uuidIsProjectElement(elementuuid)
     def self.uuidIsProjectElement(elementuuid)
-        #TxProjects::items().any?{|project| TxProjects::elementuuids(project).include?(elementuuid) }
+        #TxThreads::items().any?{|thread| TxThreads::elementuuids(thread).include?(elementuuid) }
         XCache::getFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}")
     end
 
     # ----------------------------------------------------------------------
     # Data
 
-    # TxProjects::toString(item)
+    # TxThreads::toString(item)
     def self.toString(item)
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        "(project) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
+        "(thread) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
     end
 
-    # TxProjects::section1()
+    # TxThreads::section1()
     def self.section1()
-        TxProjects::items()
-            .select{|project| !Ax39::itemShouldShow(project) }
+        TxThreads::items()
+            .select{|thread| !Ax39::itemShouldShow(thread) }
     end
 
-    # TxProjects::section2()
+    # TxThreads::section2()
     def self.section2()
-        TxProjects::items()
+        TxThreads::items()
             .map{|item|
                 {
                     "item" => item,
-                    "toString" => TxProjects::toString(item),
+                    "toString" => TxThreads::toString(item),
                     "metric"   => (Ax39::itemShouldShow(item) ? 0.8 : 0.1) + Catalyst::idToSmallShift(item["uuid"])
                 }
             }
     end
 
-    # TxProjects::projectDefaultVisibilityDepth()
-    def self.projectDefaultVisibilityDepth()
+    # TxThreads::threadDefaultVisibilityDepth()
+    def self.threadDefaultVisibilityDepth()
         50
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # TxProjects::interactivelySelectProjectElementOrNull(project, count)
-    def self.interactivelySelectProjectElementOrNull(project, count)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxProjects::elements(project, count), lambda{|item| LxFunction::function("toString", item) })
+    # TxThreads::interactivelySelectProjectElementOrNull(thread, count)
+    def self.interactivelySelectProjectElementOrNull(thread, count)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxThreads::elements(thread, count), lambda{|item| LxFunction::function("toString", item) })
     end
 
-    # TxProjects::landing(item)
+    # TxThreads::landing(item)
     def self.landing(item)
         loop {
 
@@ -183,7 +183,7 @@ class TxProjects
 
             system("clear")
 
-            puts TxProjects::toString(item).green
+            puts TxThreads::toString(item).green
 
             store = ItemStore.new()
 
@@ -230,17 +230,17 @@ class TxProjects
         }
     end
 
-    # TxProjects::runAndAccessElements(project)
-    def self.runAndAccessElements(project)
-        NxBallsService::issue(project["uuid"], TxProjects::toString(project), [project["uuid"]])
+    # TxThreads::runAndAccessElements(thread)
+    def self.runAndAccessElements(thread)
+        NxBallsService::issue(thread["uuid"], TxThreads::toString(thread), [thread["uuid"]])
         loop {
             system("clear")
 
-            puts "running: #{TxProjects::toString(project).green} #{NxBallsService::activityStringOrEmptyString("", project["uuid"], "")}"
+            puts "running: #{TxThreads::toString(thread).green} #{NxBallsService::activityStringOrEmptyString("", thread["uuid"], "")}"
 
             store = ItemStore.new()
 
-            elements = TxProjects::elements(project, TxProjects::projectDefaultVisibilityDepth())
+            elements = TxThreads::elements(thread, TxThreads::threadDefaultVisibilityDepth())
             if elements.size > 0 then
                 puts ""
                 elements
@@ -251,16 +251,16 @@ class TxProjects
                     }
             end
 
-            if !Ax39::itemShouldShow(project) then
+            if !Ax39::itemShouldShow(thread) then
                 puts ""
                 if LucilleCore::askQuestionAnswerAsBoolean("You are time overflowing, do you want to stop ? ", true) then
-                    NxBallsService::close(project["uuid"], true)
+                    NxBallsService::close(thread["uuid"], true)
                     return
                 end
             end
 
             puts ""
-            puts "commands: <n> | done (project) | insert | detach element | destroy element".yellow
+            puts "commands: <n> | done (thread) | insert | detach element | destroy element".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -273,7 +273,7 @@ class TxProjects
             end
 
             if command == "done" then
-                DoneForToday::setDoneToday(project["uuid"])
+                DoneForToday::setDoneToday(thread["uuid"])
                 break
             end
 
@@ -283,80 +283,80 @@ class TxProjects
                 if type == "line" then
                     element = NxLines::interactivelyIssueNewLineOrNull()
                     next if element.nil?
-                    TxProjects::addElement_v2(project["uuid"], element["uuid"], 0) # TODO:
+                    TxThreads::addElement_v2(thread["uuid"], element["uuid"], 0) # TODO:
                 end
                 if type == "task" then
                     element = NxTasks::interactivelyCreateNewOrNull()
                     next if element.nil?
-                    TxProjects::addElement_v2(project["uuid"], element["uuid"], 0) # TODO:
+                    TxThreads::addElement_v2(thread["uuid"], element["uuid"], 0) # TODO:
                 end
             end
 
             if command == "detach element" then
-                element = TxProjects::interactivelySelectProjectElementOrNull(project, TxProjects::projectDefaultVisibilityDepth())
+                element = TxThreads::interactivelySelectProjectElementOrNull(thread, TxThreads::threadDefaultVisibilityDepth())
                 next if element.nil?
-                TxProjects::removeElement(project, element["uuid"])
+                TxThreads::removeElement(thread, element["uuid"])
             end
 
             if command == "destroy element" then
-                element = TxProjects::interactivelySelectProjectElementOrNull(project, TxProjects::projectDefaultVisibilityDepth())
+                element = TxThreads::interactivelySelectProjectElementOrNull(thread, TxThreads::threadDefaultVisibilityDepth())
                 next if element.nil?
                 LxAction::action("destroy", element)
             end
         }
     end
 
-    # TxProjects::dive()
+    # TxThreads::dive()
     def self.dive()
         loop {
-            projects = TxProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
-            project = LucilleCore::selectEntityFromListOfEntitiesOrNull("project", projects, lambda{|item| TxProjects::toString(item) })
-            break if project.nil?
-            puts TxProjects::toString(project).green
+            threads = TxThreads::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            thread = LucilleCore::selectEntityFromListOfEntitiesOrNull("thread", threads, lambda{|item| TxThreads::toString(item) })
+            break if thread.nil?
+            puts TxThreads::toString(thread).green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["landing", "access elements"])
             next if action.nil?
             if action == "landing" then
-                TxProjects::landing(project)
+                TxThreads::landing(thread)
             end
             if action == "access elements" then
-                TxProjects::runAndAccessElements(project)
+                TxThreads::runAndAccessElements(thread)
             end
         }
     end
 
-    # TxProjects::interactivelyProposeToAttachTaskToProject(item)
+    # TxThreads::interactivelyProposeToAttachTaskToProject(item)
     def self.interactivelyProposeToAttachTaskToProject(item)
-        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a project ? ") then
-            project = TxProjects::architectOneOrNull()
-            return if project.nil?
-            TxProjects::addElement_v1(project["uuid"], item["uuid"])
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a thread ? ") then
+            thread = TxThreads::architectOneOrNull()
+            return if thread.nil?
+            TxThreads::addElement_v1(thread["uuid"], item["uuid"])
         end
     end
 
-    # TxProjects::entityToProject(entity)
+    # TxThreads::entityToProject(entity)
     def self.entityToProject(entity)
         if entity["mikuType"] == "TxDated" then
             return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask ", true)
             Transmutation::transmutation1(entity, "TxDated", "NxTask")
-            # This transmutation already put the newly created NxTask into a project
+            # This transmutation already put the newly created NxTask into a thread
             # So we can return
             return
         end
         if entity["mikuType"] == "NxFrame" then
             return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the NxFrame into a NxTask ", true)
             Transmutation::transmutation1(entity, "NxFrame", "NxTask")
-            # This transmutation already put the newly created NxTask into a project
+            # This transmutation already put the newly created NxTask into a thread
             # So we can return
             return
         end
         if !["NxTask", "NxLine"].include?(entity["mikuType"]) then
-            puts "The operation >project only works on NxTasks and NxLines"
+            puts "The operation >thread only works on NxTasks and NxLines"
             LucilleCore::pressEnterToContinue()
             return
         end
-        project = TxProjects::architectOneOrNull()
-        return if project.nil?
-        TxProjects::addElement_v1(project["uuid"], entity["uuid"])
+        thread = TxThreads::architectOneOrNull()
+        return if thread.nil?
+        TxThreads::addElement_v1(thread["uuid"], entity["uuid"])
         NxBallsService::close(entity["uuid"], true)
     end
 end

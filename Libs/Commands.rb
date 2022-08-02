@@ -6,10 +6,10 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | project | toplevel",
+            "wave | anniversary | frame | today | ondate | todo | task | thread | toplevel",
             "calendar set <index> <hour> | calendar add line | calendar remove <index>",
-            "anniversaries | ondates | todos | projects",
-            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >project | (n) >project | >nyx",
+            "anniversaries | ondates | todos | threads",
+            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >thread | (n) >thread | >nyx",
             "require internet",
             "rstream | search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
@@ -32,18 +32,18 @@ class Commands
         end
 
 
-        if Interpreting::match(">project", input) then
+        if Interpreting::match(">thread", input) then
             item = store.getDefault()
             return if item.nil?
-            TxProjects::entityToProject(item)
+            TxThreads::entityToProject(item)
             return
         end
 
-        if Interpreting::match("* >project", input) then
+        if Interpreting::match("* >thread", input) then
             ordinal, _ = Interpreting::tokenizer(input)
             entity = store.get(ordinal.to_i)
             return if entity.nil?
-            TxProjects::entityToProject(entity)
+            TxThreads::entityToProject(entity)
             return
         end
 
@@ -90,7 +90,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            return if item["mikuType"] != "TxProject"
+            return if item["mikuType"] != "TxThread"
             Fx18Attributes::set_objectUpdate(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
             return
         end
@@ -214,7 +214,7 @@ class Commands
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
-            TxProjects::interactivelyProposeToAttachTaskToProject(item)
+            TxThreads::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 
@@ -276,13 +276,13 @@ class Commands
             return
         end
 
-        if input == "project" then
-            TxProjects::interactivelyIssueNewItemOrNull()
+        if input == "thread" then
+            TxThreads::interactivelyIssueNewItemOrNull()
             return
         end
 
-        if Interpreting::match("projects", input) then
-            TxProjects::dive()
+        if Interpreting::match("threads", input) then
+            TxThreads::dive()
             return
         end
 
@@ -403,7 +403,7 @@ class Commands
         if Interpreting::match("task", input) then
             item = NxTasks::interactivelyCreateNewOrNull()
             return if item.nil?
-            TxProjects::interactivelyProposeToAttachTaskToProject(item)
+            TxThreads::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 
@@ -479,8 +479,8 @@ class Commands
                     "lambda" => lambda { TxDateds::section2() }
                 },
                 {
-                    "name" => "TxProjects::section2()",
-                    "lambda" => lambda { TxProjects::section2() }
+                    "name" => "TxThreads::section2()",
+                    "lambda" => lambda { TxThreads::section2() }
                 },
                 {
                     "name" => "Streaming::section2()",
