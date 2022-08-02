@@ -58,3 +58,14 @@ We have two types of events
         "_eventData5_" => eventData5
     }
 }
+
+{
+    "mikuType"   => "Daily Slots: Unregister",
+    "objectuuid" => objectuuid,
+}
+
+{
+    "mikuType"   => "Daily Slots: Register",
+    "hour"       => hour,
+    "objectuuid" => objectuuid,
+}

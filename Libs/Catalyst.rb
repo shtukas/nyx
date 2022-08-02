@@ -187,11 +187,11 @@ class Catalyst
                 }
         end
 
-        section = Calendar::section()
+        section = DailySlots::section()
         if section.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
-            Calendar::section().each{|entry|
+            DailySlots::section().each{|entry|
                 item = entry["item"]
                 store.register(item, true)
                 line = "#{store.prefixString()} (cale) #{entry["hour"]} #{LxFunction::function("toString", item)}"

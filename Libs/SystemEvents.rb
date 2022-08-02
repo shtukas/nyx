@@ -54,6 +54,14 @@ class SystemEvents
             Fx18::commit(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
+
+        if event["mikuType"] == "Daily Slots: Unregister" then
+            DailySlots::internalEventProcessing(event)
+        end
+
+        if event["mikuType"] == "Daily Slots: Register" then
+            DailySlots::internalEventProcessing(event)
+        end
     end
 
     # SystemEvents::issueStargateDrop(event)

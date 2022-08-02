@@ -103,7 +103,7 @@ class Commands
                 # We want the target
                 item = item["item"]
             end
-            Calendar::register(hour, item["uuid"])
+            DailySlots::register(hour, item["uuid"])
             return
         end
 
@@ -113,14 +113,14 @@ class Commands
             item = NxLines::issue(line)
             hour = LucilleCore::askQuestionAnswerAsString("hour: ")
             return if hour == ""
-            Calendar::register(hour, item["uuid"])
+            DailySlots::register(hour, item["uuid"])
             return
         end
 
         if Interpreting::match("calendar remove *", input) then
             _, _, itemOrdinal = Interpreting::tokenizer(input)
             item = store.get(itemOrdinal.to_i)
-            Calendar::remove(item["uuid"])
+            DailySlots::remove(item["uuid"])
             return
         end
 

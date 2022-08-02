@@ -134,13 +134,13 @@ require_relative "Catalyst.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Commands.rb"
-require_relative "Calendar.rb"
 
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
+require_relative "DailySlots.rb"
 
 require_relative "EditionDesk.rb"
 require_relative "ExData.rb"
