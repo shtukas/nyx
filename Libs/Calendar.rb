@@ -40,6 +40,9 @@ class Calendar
         Calendar::dataset()
             .map{|entry|
                 entry["item"] = Fx18::itemOrNull(entry["objectuuid"])
+                if entry["hour"].size == 2 then
+                    entry["hour"] = "#{entry["hour"]}:00"
+                end
                 entry
             }
             .select{|entry|
