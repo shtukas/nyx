@@ -8,8 +8,8 @@ class Machines
         ENV["COMPUTERLUCILLENAME"] == "Lucille20"
     end
 
-    # Machines::foldernamesForStargateDrop()
-    def self.foldernamesForStargateDrop()
+    # Machines::theOtherInstanceIds()
+    def self.theOtherInstanceIds()
         ["Lucille18-pascal", "Lucille20-pascal", "Lucille20-guardian"] - [Config::get("instanceId")]
     end
 end

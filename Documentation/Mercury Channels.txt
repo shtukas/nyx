@@ -1,0 +1,3 @@
+
+channel: d054a16c-3d68-43b2-b49d-412ea5f5d0af
+purpose: buffer out for stargate drop on comm line

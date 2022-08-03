@@ -21,6 +21,7 @@ We have two types of events
 ### Global events
 
 {
+    "targetInstance" : TargetInstanceName
     "mikuType" => "NxBankEvent",
     "setuuid"  => setuuid,
     "unixtime" => unixtime,
@@ -29,23 +30,27 @@ We have two types of events
 }
 
 {
+    "targetInstance" : TargetInstanceName
     "mikuType"       => "NxDoNotShowUntil",
     "targetuuid"     => uuid,
     "targetunixtime" => unixtime
 }
 
 {
+    "targetInstance" : TargetInstanceName
     "mikuType"   => "SetDoneToday"
     "targetuuid" => uuid
     "targetdate" => CommonUtils::today()
 }
 
 {
+    "targetInstance" : TargetInstanceName
     "mikuType"   => "NxDeleted"
     "objectuuid" => objectuuid
 }
 
 {
+    "targetInstance" : TargetInstanceName
     "mikuType"      => "Fx18 File Event",
     "objectuuid"    => objectuuid,
     "Fx18FileEvent" => {
@@ -60,11 +65,13 @@ We have two types of events
 }
 
 {
+    "targetInstance" : TargetInstanceName
     "mikuType"   => "Daily Slots: Unregister",
     "objectuuid" => objectuuid,
 }
 
 {
+    "targetInstance" : TargetInstanceName
     "mikuType"   => "Daily Slots: Register",
     "hour"       => hour,
     "objectuuid" => objectuuid,

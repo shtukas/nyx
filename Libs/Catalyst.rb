@@ -96,15 +96,31 @@ class Catalyst
                 break
             end
 
-            system("/Users/#{ENV["USER"]}/Galaxy/DataBank/Stargate/bitbucket/sync")
-
-            SystemEvents::pickupDrops()
-
-            #puts "(NxTasks-Inbox)"
             LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Desktop/NxTasks-Inbox").each{|location|
                 item = NxTasks::issueFromInboxLocation(location)
                 puts JSON.pretty_generate(item)
                 LucilleCore::removeFileSystemLocation(location)
+            }
+
+            if File.exists?(Config::starlightCommLine()) then
+                LucilleCore::locationsAtFolder(Config::starlightCommLine())
+                    .each{|filepath|
+                        next if File.basename(filepath)[-11, 11] != ".event.json"
+                        e = JSON.parse(IO.read(filepath))
+                        next if e["targetInstance"] != Config::get("instanceId")
+                        puts "event from starlight: #{JSON.pretty_generate(event)}"
+                        SystemEvents::processEventInternally(event)
+                        FileUtils.rm(filepath)
+                    }
+            end
+
+            loop {
+                break if !File.exists?(Config::starlightCommLine())
+                e = Mercury2::readFirstOrNull("d054a16c-3d68-43b2-b49d-412ea5f5d0af")
+                break if e.nil?
+                filepath = "#{Config::starlightCommLine()}/#{CommonUtils::timeStringL22()}.event.json"
+                File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
+                Mercury2::dequeue("d054a16c-3d68-43b2-b49d-412ea5f5d0af")
             }
 
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
@@ -117,8 +133,6 @@ class Catalyst
                 XCache::setFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}", true)
                 next
             end
-
-            SystemEvents::pickupDrops()
 
             Catalyst::printListing()
         }

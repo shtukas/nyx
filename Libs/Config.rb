@@ -18,4 +18,9 @@ class Config
     def self.userHomeDirectory()
         ENV['HOME']
     end
+
+    # Config::starlightCommLine()
+    def self.starlightCommLine()
+        "/Volumes/starlight/Galaxy/Stargate-Comms-Line"
+    end
 end

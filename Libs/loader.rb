@@ -117,8 +117,9 @@ AionFsck::structureCheckAionHash(operator, nhash)
 require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/Mercury2.rb"
 =begin
     Mercury2::put(channel, value)
-    Mercury2::readOrNull(channel)
+    Mercury2::readFirstOrNull(channel)
     Mercury2::dequeue(channel)
+    Mercury2::empty?(channel)
 =end
 
 # ------------------------------------------------------------

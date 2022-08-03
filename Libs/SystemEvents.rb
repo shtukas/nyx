@@ -1,12 +1,6 @@
 
 # encoding: UTF-8
 
-=begin
-    Mercury2::put(channel, value)
-    Mercury2::readOrNull(channel)
-    Mercury2::dequeue(channel)
-=end
-
 class SystemEvents
 
     # SystemEvents::processEventInternally(event)
@@ -66,22 +60,10 @@ class SystemEvents
 
     # SystemEvents::issueStargateDrop(event)
     def self.issueStargateDrop(event)
-        Machines::foldernamesForStargateDrop().each{|foldername|
-            filepath = "/Users/#{ENV["USER"]}/Galaxy/DataBank/Stargate/bitbucket/stargate1/#{foldername}/#{CommonUtils::timeStringL22()}.event.json"
-            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
+        Machines::theOtherInstanceIds().each{|instanceName|
+            e = event.clone
+            e["targetInstance"] = instanceName
+            Mercury2::put("d054a16c-3d68-43b2-b49d-412ea5f5d0af", e)
         }
-    end
-
-    # SystemEvents::pickupDrops()
-    def self.pickupDrops()
-        folderpath = "/Users/#{ENV["USER"]}/Galaxy/DataBank/Stargate/bitbucket/stargate1/#{Config::get("instanceId")}"
-        LucilleCore::locationsAtFolder(folderpath)
-            .select{|filepath| File.basename(filepath)[-11, 11] == ".event.json"}
-            .each{|filepath|
-                event = JSON.parse(IO.read(filepath))
-                puts "SystemEvents::pickupDrops(): #{JSON.pretty_generate(event)}"
-                SystemEvents::processEventInternally(event)
-                FileUtils.rm(filepath)
-            }
     end
 end
