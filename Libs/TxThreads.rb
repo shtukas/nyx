@@ -106,8 +106,8 @@ class TxThreads
         uuids1+uuids2
     end
 
-    # TxThreads::elements(thread, count)
-    def self.elements(thread, count)
+    # TxThreads::elementsWithLimits(thread, count)
+    def self.elementsWithLimits(thread, count)
         TxThreads::elementuuids(thread)
             .take(count)
             .map{|elementuuid|
@@ -122,6 +122,29 @@ class TxThreads
                 end
             }
             .compact
+    end
+
+    # TxThreads::extendedPacketsInOrder(thread, count)
+    def self.extendedPacketsInOrder(thread, count)
+        packets1 = Fx18Sets::items(thread["uuid"], "project-elements-f589942d")
+                    .map{|packet|
+                        elementuuid = packet["elementuuid"]
+                        packet["element"] = Fx18::itemOrNull(elementuuid)
+                        packet
+                    }
+                    .select{|packet| !packet["element"].nil? }
+        packets2 = Fx18Sets::items(thread["uuid"], "project-items-3f154988")
+                    .first([0, count - packets1.size].max)
+                    .map{|elementuuid|
+                        {
+                            "elementuuid" => elementuuid,
+                            "element"     => Fx18::itemOrNull(elementuuid),
+                            "ordinal"     => 0
+                        }
+                    }
+                    .select{|packet| !packet["element"].nil? }
+        (packets1+packets2)
+            .sort{|p1, p2| p1["ordinal"] <=> p2["ordinal"] }
     end
 
     # TxThreads::uuidIsProjectElement(elementuuid)
@@ -157,21 +180,16 @@ class TxThreads
             }
     end
 
-    # TxThreads::threadDefaultVisibilityDepth()
-    def self.threadDefaultVisibilityDepth()
-        50
-    end
-
     # ----------------------------------------------------------------------
     # Operations
 
     # TxThreads::interactivelySelectProjectElementOrNull(thread, count)
     def self.interactivelySelectProjectElementOrNull(thread, count)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxThreads::elements(thread, count), lambda{|item| LxFunction::function("toString", item) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxThreads::elementsWithLimits(thread, count), lambda{|item| LxFunction::function("toString", item) })
     end
 
-    # TxThreads::landing(item)
-    def self.landing(item)
+    # TxThreads::landingOnThread(item)
+    def self.landingOnThread(item)
         loop {
 
             return if item.nil?
@@ -235,8 +253,8 @@ class TxThreads
         }
     end
 
-    # TxThreads::runAndAccessElements(thread)
-    def self.runAndAccessElements(thread)
+    # TxThreads::runAndLandingOnElements(thread)
+    def self.runAndLandingOnElements(thread)
         NxBallsService::issue(thread["uuid"], TxThreads::toString(thread), [thread["uuid"]])
         loop {
             system("clear")
@@ -245,14 +263,15 @@ class TxThreads
 
             store = ItemStore.new()
 
-            elements = TxThreads::elements(thread, TxThreads::threadDefaultVisibilityDepth())
-            if elements.size > 0 then
+            packets = TxThreads::extendedPacketsInOrder(thread, 50)
+            if packets.size > 0 then
                 puts ""
-                elements
-                    .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
-                    .each{|element|
+                packets
+                    .each{|packet|
+                        element = packet["element"]
+                        ordinal = packet["ordinal"]
                         indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
+                        puts "[#{indx.to_s.ljust(3)}] (#{ordinal}) #{LxFunction::function("toString", element)}"
                     }
             end
 
@@ -262,7 +281,7 @@ class TxThreads
             end
 
             puts ""
-            puts "commands: <n> | insert | done (thread) | detach <n> | done <n>".yellow
+            puts "commands: <n> | insert | done (thread) | done <n> | detach <n> | transfer <n>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -296,7 +315,7 @@ class TxThreads
             end
 
             if  command.start_with?("done") and command != "done" then
-                indx = command[4, 99].to_i
+                indx = command[4, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
                 LxAction::action("done", entity)
@@ -304,9 +323,20 @@ class TxThreads
             end
 
             if  command.start_with?("detach") and command != "detach" then
-                indx = command[6, 99].to_i
+                indx = command[6, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
+                TxThreads::removeElement(thread, entity["uuid"])
+                next
+            end
+
+            if  command.start_with?("transfer") and command != "transfer" then
+                indx = command[8, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                thread2 = TxThreads::architectOneOrNull()
+                return if thread2.nil?
+                TxThreads::addElement_v1(thread2["uuid"], entity["uuid"])
                 TxThreads::removeElement(thread, entity["uuid"])
                 next
             end
@@ -323,10 +353,10 @@ class TxThreads
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["landing", "access elements"])
             next if action.nil?
             if action == "landing" then
-                TxThreads::landing(thread)
+                TxThreads::landingOnThread(thread)
             end
             if action == "access elements" then
-                TxThreads::runAndAccessElements(thread)
+                TxThreads::runAndLandingOnElements(thread)
             end
         }
     end

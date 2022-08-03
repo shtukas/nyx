@@ -298,7 +298,7 @@ class Landing
             return Landing::networkAggregationNodeLanding(item, isSearchAndSelect)
         end
         if item["mikuType"] == "TxThread" then
-            return TxThreads::landing(item)
+            return TxThreads::landingOnThread(item)
         end
         if item["mikuType"] == "TxTimeControl" then
             return TxTimeControls::landing(item)
