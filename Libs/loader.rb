@@ -195,6 +195,7 @@ require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
 require_relative "TxThreads.rb"
 require_relative "TopLevel.rb"
+require_relative "TxTimeControls.rb"
 
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"

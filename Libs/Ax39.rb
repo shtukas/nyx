@@ -51,6 +51,9 @@ class Ax39
 
     # Ax39::toString(item)
     def self.toString(item)
+        if item["ax39"].nil? then
+            return "(no Ax39)"
+        end
         if item["ax39"]["type"] == "daily-singleton-run" then
             return "(daily fire and forget)"
         end
@@ -67,6 +70,10 @@ class Ax39
     # Ax39::itemShouldShow(item)
     def self.itemShouldShow(item)
         return false if !DoNotShowUntil::isVisible(item["uuid"])
+        if item["ax39"].nil? then
+            return false if DoneForToday::isDoneToday(item["uuid"])
+            return true
+        end
         if item["ax39"]["type"] == "daily-singleton-run" then
             return false if DoneForToday::isDoneToday(item["uuid"])
             return true
