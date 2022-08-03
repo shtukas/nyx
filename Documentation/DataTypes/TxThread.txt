@@ -5,7 +5,7 @@ TxThread:
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
-    "ax39"        : Ax39
+    "ax39"        : nil or Ax39
 
 The uuids of the elements under that thread are in two sets, the legacy set and the new set:
     legacy: "project-items-3f154988", contains the uuids

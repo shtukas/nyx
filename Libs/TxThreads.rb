@@ -41,7 +41,7 @@ class TxThreads
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
 
-        ax39 = Ax39::interactivelyCreateNewAx()
+        ax39 = Ax39::interactivelyCreateNewAxOrNull()
 
         uuid = SecureRandom.uuid
 
@@ -50,7 +50,7 @@ class TxThreads
         Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_f)
         Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set_objectMaking(uuid, "description", description)
-        Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39))
+        Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         item = TxThreads::objectuuidToItemOrNull(uuid)
@@ -193,7 +193,7 @@ class TxThreads
 
             linkeduuids  = NxLink::linkedUUIDs(uuid)
 
-            puts "commands: description | Ax39 | json | destroy".yellow
+            puts "commands: description | Ax39 | remove Ax39 | json | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -215,6 +215,10 @@ class TxThreads
             if Interpreting::match("Ax39", command) then
                 ax39 = Ax39::interactivelyCreateNewAx()
                 Fx18Attributes::set_objectUpdate(uuid, "ax39", JSON.generate(ax39))
+            end
+
+            if Interpreting::match("remove Ax39", command) then
+                Fx18Attributes::set_objectUpdate(uuid, "ax39", JSON.generate(nil))
             end
 
             if Interpreting::match("json", command) then
