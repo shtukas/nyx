@@ -40,7 +40,7 @@ class Bank
           "date"     => date,
           "weight"   => weight
         }
-        SystemEvents::issueStargateDrop(event)
+        SystemEvents::issueMultiInstanceDrop(event)
     end
 
     # Bank::processEventInternally(event)

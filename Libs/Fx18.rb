@@ -68,7 +68,7 @@ class Fx18
     # Fx18::deleteObject(objectuuid)
     def self.deleteObject(objectuuid)
         Fx18::deleteObjectNoEvents(objectuuid)
-        SystemEvents::issueStargateDrop({
+        SystemEvents::issueMultiInstanceDrop({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
         })

@@ -24,7 +24,7 @@ class DailySlots
     # DailySlots::remove(objectuuid)
     def self.remove(objectuuid)
         DailySlots::removeNoEvent(objectuuid)
-        SystemEvents::processEventInternally({
+        SystemEvents::issueMultiInstanceDrop({
             "mikuType"   => "Daily Slots: Unregister",
             "objectuuid" => objectuuid,
         })
@@ -45,7 +45,7 @@ class DailySlots
     # DailySlots::register(hour, objectuuid)
     def self.register(hour, objectuuid)
         DailySlots::registerNoEvent(hour, objectuuid)
-        SystemEvents::processEventInternally({
+        SystemEvents::issueMultiInstanceDrop({
             "mikuType"   => "Daily Slots: Register",
             "hour"       => hour,
             "objectuuid" => objectuuid,
