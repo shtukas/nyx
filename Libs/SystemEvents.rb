@@ -58,9 +58,9 @@ class SystemEvents
         end
     end
 
-    # SystemEvents::issueStargateDrop(event)
-    def self.issueStargateDrop(event)
-        puts "SystemEvents::issueStargateDrop(#{JSON.pretty_generate(event)})"
+    # SystemEvents::issueMultiInstanceDrop(event)
+    def self.issueMultiInstanceDrop(event)
+        puts "SystemEvents::issueMultiInstanceDrop(#{JSON.pretty_generate(event)})"
         Machines::theOtherInstanceIds().each{|instanceName|
             e = event.clone
             e["targetInstance"] = instanceName

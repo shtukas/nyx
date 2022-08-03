@@ -5,7 +5,7 @@ class DoneForToday
     # DoneForToday::setDoneToday(uuid)
     def self.setDoneToday(uuid)
         XCache::setFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{uuid}", true)
-        SystemEvents::issueStargateDrop({
+        SystemEvents::issueMultiInstanceDrop({
           "mikuType"   => "SetDoneToday",
           "targetuuid" => uuid,
           "targetdate" => CommonUtils::today(),
