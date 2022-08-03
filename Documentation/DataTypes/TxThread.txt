@@ -7,13 +7,8 @@ TxThread:
     "description" : description
     "ax39"        : nil or Ax39
 
-The uuids of the elements under that thread are in two sets, the legacy set and the new set:
-    legacy: "project-items-3f154988", contains the uuids
-    new   : "project-elements-f589942d", contains objects of the form
-            {
-                "elementuuid" : String,
-                "ordinal"     : Float
-            }
+The uuids of the elements under that thread are in the set "project-items-3f154988"
+For each elementuuid, a possible ordinal is stored at attribute: "element-ordinal:#{elementuuid}"
 
 We use
 

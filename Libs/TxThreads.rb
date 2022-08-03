@@ -74,76 +74,35 @@ class TxThreads
     # ----------------------------------------------------------------------
     # Elements
 
-    # TxThreads::addElement_v1(threaduuid, itemuuid)
-    def self.addElement_v1(threaduuid, itemuuid)
-        Fx18Sets::add2(threaduuid, "project-items-3f154988", itemuuid, itemuuid)
-        XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{itemuuid}", true)
-    end
-
-    # TxThreads::addElement_v2(threaduuid, elementuuid, ordinal)
-    def self.addElement_v2(threaduuid, elementuuid, ordinal)
-        packet = {
-            "elementuuid" => elementuuid,
-            "ordinal" => ordinal
-        }
-        Fx18Sets::add2(threaduuid, "project-elements-f589942d", elementuuid, packet)
+    # TxThreads::addElement(threaduuid, elementuuid, ordinal)
+    def self.addElement(threaduuid, elementuuid, ordinal)
+        Fx18Sets::add2(threaduuid, "project-items-3f154988", elementuuid, elementuuid)
+        Fx18Attributes::set_objectUpdate(threaduuid, "element-ordinal:#{elementuuid}", ordinal)
         XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
     end
 
     # TxThreads::removeElement(thread, uuid)
     def self.removeElement(thread, uuid)
         Fx18Sets::remove2(thread["uuid"], "project-items-3f154988", uuid)
-        Fx18Sets::remove2(thread["uuid"], "project-elements-f589942d", uuid)
     end
 
     # TxThreads::elementuuids(thread)
     def self.elementuuids(thread)
-        uuids1 = Fx18Sets::items(thread["uuid"], "project-elements-f589942d")
-                    .sort{|p1, p2| p1["ordinal"] <=> p2["ordinal"]}
-                    .map{|packet| packet["elementuuid"]}
-        uuids2 = Fx18Sets::items(thread["uuid"], "project-items-3f154988")
-        # We return the new elementuuids in ordinal order and then the old ones
-        uuids1+uuids2
-    end
-
-    # TxThreads::elementsWithLimits(thread, count)
-    def self.elementsWithLimits(thread, count)
-        TxThreads::elementuuids(thread)
-            .take(count)
-            .map{|elementuuid|
-                if Fx18::objectIsAlive(elementuuid) then
-                    item = Fx18::itemOrNull(elementuuid)
-                    if item.nil? then
-                        TxThreads::removeElement(thread, elementuuid)
-                    end
-                    item
-                else
-                    nil
-                end
-            }
-            .compact
+        Fx18Sets::items(thread["uuid"], "project-items-3f154988")
     end
 
     # TxThreads::extendedPacketsInOrder(thread, count)
     def self.extendedPacketsInOrder(thread, count)
-        packets1 = Fx18Sets::items(thread["uuid"], "project-elements-f589942d")
-                    .map{|packet|
-                        elementuuid = packet["elementuuid"]
-                        packet["element"] = Fx18::itemOrNull(elementuuid)
-                        packet
-                    }
-                    .select{|packet| !packet["element"].nil? }
-        packets2 = Fx18Sets::items(thread["uuid"], "project-items-3f154988")
-                    .first([0, count - packets1.size].max)
-                    .map{|elementuuid|
-                        {
-                            "elementuuid" => elementuuid,
-                            "element"     => Fx18::itemOrNull(elementuuid),
-                            "ordinal"     => 0
-                        }
-                    }
-                    .select{|packet| !packet["element"].nil? }
-        (packets1+packets2)
+        Fx18Sets::items(thread["uuid"], "project-items-3f154988")
+            .first([0, count - packets1.size].max)
+            .map{|elementuuid|
+                {
+                    "elementuuid" => elementuuid,
+                    "element"     => Fx18::itemOrNull(elementuuid),
+                    "ordinal"     => TxThreads::getElementOrdinalOrNull(thread, elementuuid)
+                }
+            }
+            .select{|packet| !packet["element"].nil? }
             .sort{|p1, p2| p1["ordinal"] <=> p2["ordinal"] }
     end
 
@@ -151,6 +110,26 @@ class TxThreads
     def self.uuidIsProjectElement(elementuuid)
         #TxThreads::items().any?{|thread| TxThreads::elementuuids(thread).include?(elementuuid) }
         XCache::getFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}")
+    end
+
+    # ----------------------------------------------------------------------
+    # Element Ordinal
+
+    # TxThreads::getElementOrdinalOrNull(thread, elementuuid)
+    def self.getElementOrdinalOrNull(thread, elementuuid)
+        ordinal = Fx18Attributes::getOrNull(thread["uuid"], "element-ordinal:#{elementuuid}")
+        return 0 if ordinal.nil?
+        ordinal.to_f
+    end
+
+    # TxThreads::setElementOrdinalOrNull(thread, elementuuid, ordinal)
+    def self.setElementOrdinalOrNull(thread, elementuuid, ordinal)
+        Fx18Attributes::set_objectUpdate(thread["uuid"], "element-ordinal:#{elementuuid}", ordinal)
+    end
+
+    # TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
+    def self.interactivelyDecideOrdinalForNewElementOrNull(thread)
+        0
     end
 
     # ----------------------------------------------------------------------
@@ -182,11 +161,6 @@ class TxThreads
 
     # ----------------------------------------------------------------------
     # Operations
-
-    # TxThreads::interactivelySelectProjectElementOrNull(thread, count)
-    def self.interactivelySelectProjectElementOrNull(thread, count)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("element", TxThreads::elementsWithLimits(thread, count), lambda{|item| LxFunction::function("toString", item) })
-    end
 
     # TxThreads::landingOnThread(item)
     def self.landingOnThread(item)
@@ -336,7 +310,11 @@ class TxThreads
                 next if entity.nil?
                 thread2 = TxThreads::architectOneOrNull()
                 return if thread2.nil?
-                TxThreads::addElement_v1(thread2["uuid"], entity["uuid"])
+                TxThreads::addElement(thread2["uuid"], entity["uuid"])
+                ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread2)
+                if ordinal then
+                    TxThreads::setElementOrdinalOrNull(thread2, entity["uuid"], ordinal)
+                end
                 TxThreads::removeElement(thread, entity["uuid"])
                 next
             end
@@ -366,7 +344,11 @@ class TxThreads
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a thread ? ") then
             thread = TxThreads::architectOneOrNull()
             return if thread.nil?
-            TxThreads::addElement_v1(thread["uuid"], item["uuid"])
+            TxThreads::addElement(thread["uuid"], item["uuid"])
+            ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
+            if ordinal then
+                TxThreads::setElementOrdinalOrNull(thread, item["uuid"], ordinal)
+            end
         end
     end
 
@@ -393,7 +375,11 @@ class TxThreads
         end
         thread = TxThreads::architectOneOrNull()
         return if thread.nil?
-        TxThreads::addElement_v1(thread["uuid"], entity["uuid"])
+        TxThreads::addElement(thread["uuid"], entity["uuid"])
+        ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
+        if ordinal then
+            TxThreads::setElementOrdinalOrNull(thread, entity["uuid"], ordinal)
+        end
         NxBallsService::close(entity["uuid"], true)
     end
 end
