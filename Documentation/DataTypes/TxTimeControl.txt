@@ -1,0 +1,7 @@
+TxTimeControl:
+    "uuid"        : String
+    "mikuType"    : "TxTimeControl"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso8601
+    "description" : String
+    "ax39"        : Ax39

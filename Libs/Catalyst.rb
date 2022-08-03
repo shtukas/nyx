@@ -36,7 +36,7 @@ class Catalyst
 
     # Catalyst::section1()
     def self.section1()
-        NxFrames::items() + TxThreads::section1() + TopLevel::section1()
+        NxFrames::items() + TxThreads::section1() + TopLevel::section1() + TxTimeControls::section1()
     end
 
     # Catalyst::section2()

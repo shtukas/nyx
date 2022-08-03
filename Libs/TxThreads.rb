@@ -47,6 +47,7 @@ class TxThreads
 
         Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxThread")
+        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_f)
         Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set_objectMaking(uuid, "description", description)
         Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39))
@@ -253,14 +254,11 @@ class TxThreads
 
             if !Ax39::itemShouldShow(thread) then
                 puts ""
-                if LucilleCore::askQuestionAnswerAsBoolean("You are time overflowing, do you want to stop ? ", true) then
-                    NxBallsService::close(thread["uuid"], true)
-                    return
-                end
+                puts "You are time overflowing"
             end
 
             puts ""
-            puts "commands: <n> | done (thread) | insert | detach element | destroy element".yellow
+            puts "commands: <n> | insert | done (thread) | detach <n> | done <n>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -274,6 +272,7 @@ class TxThreads
 
             if command == "done" then
                 DoneForToday::setDoneToday(thread["uuid"])
+                NxBallsService::close(thread["uuid"], true)
                 break
             end
 
@@ -292,16 +291,20 @@ class TxThreads
                 end
             end
 
-            if command == "detach element" then
-                element = TxThreads::interactivelySelectProjectElementOrNull(thread, TxThreads::threadDefaultVisibilityDepth())
-                next if element.nil?
-                TxThreads::removeElement(thread, element["uuid"])
+            if  command.start_with?("done") and command != "done" then
+                indx = command[4, 99].to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                LxAction::action("done", entity)
+                next
             end
 
-            if command == "destroy element" then
-                element = TxThreads::interactivelySelectProjectElementOrNull(thread, TxThreads::threadDefaultVisibilityDepth())
-                next if element.nil?
-                LxAction::action("destroy", element)
+            if  command.start_with?("detach") and command != "detach" then
+                indx = command[6, 99].to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                TxThreads::removeElement(thread, entity["uuid"])
+                next
             end
         }
     end

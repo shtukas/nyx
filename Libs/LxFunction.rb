@@ -54,9 +54,6 @@ class LxFunction
             if item["mikuType"] == "NxPerson" then
                 return item["name"]
             end
-            if item["mikuType"] == "TxThread" then
-                return item["description"]
-            end
             if item["mikuType"] == "NxTask" then
                 return item["description"]
             end
@@ -68,6 +65,12 @@ class LxFunction
                 return (firstline ? firstline : "(no generic-description)")
             end
             if item["mikuType"] == "TxDated" then
+                return item["description"]
+            end
+            if item["mikuType"] == "TxThread" then
+                return item["description"]
+            end
+            if item["mikuType"] == "TxTimeControl" then
                 return item["description"]
             end
             if item["mikuType"] == "Wave" then
@@ -118,17 +121,20 @@ class LxFunction
             if item["mikuType"] == "NxPerson" then
                 return NxPersons::toString(item)
             end
+            if item["mikuType"] == "NxTask" then
+                return NxTasks::toString(item)
+            end
+            if item["mikuType"] == "NxTimeline" then
+                return NxTimelines::toString(item)
+            end
             if item["mikuType"] == "TopLevel" then
                 return TopLevel::toString(item)
             end
             if item["mikuType"] == "TxThread" then
                 return TxThreads::toString(item)
             end
-            if item["mikuType"] == "NxTask" then
-                return NxTasks::toString(item)
-            end
-            if item["mikuType"] == "NxTimeline" then
-                return NxTimelines::toString(item)
+            if item["mikuType"] == "TxTimeControl" then
+                return TxTimeControls::toString(item)
             end
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
