@@ -2,7 +2,7 @@ class StargateCentral
 
     # StargateCentral::pathToCentral()
     def self.pathToCentral()
-        "/Volumes/Infinity/Data/Pascal/Stargate-Central"
+        "/Volumes/Infinity/Data/Pascal/Galaxy/Stargate-Central"
     end
 
     # StargateCentral::isVisible()
