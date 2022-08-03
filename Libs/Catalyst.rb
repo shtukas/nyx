@@ -108,8 +108,8 @@ class Catalyst
                         next if File.basename(filepath)[-11, 11] != ".event.json"
                         e = JSON.parse(IO.read(filepath))
                         next if e["targetInstance"] != Config::get("instanceId")
-                        puts "event from starlight: #{JSON.pretty_generate(event)}"
-                        SystemEvents::processEventInternally(event)
+                        puts "event from starlight: #{JSON.pretty_generate(e)}"
+                        SystemEvents::processEventInternally(e)
                         FileUtils.rm(filepath)
                     }
             end
