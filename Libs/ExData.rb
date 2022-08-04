@@ -128,7 +128,6 @@ class ExData
 
         nil
     end
-
 end
 
 class ExDataElizabeth

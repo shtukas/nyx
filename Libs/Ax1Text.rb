@@ -9,13 +9,18 @@ class Ax1Text
     # Ax1Text::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
         return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "Ax1Text"
-        {
+        item = {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "nhash"       => Fx18Attributes::getOrNull(objectuuid, "nhash"),
         }
+        # Sometimes, when we do lookup1 Lookup1::reconstructEntry during a commline update
+        # and Fx18::itemOrNull(objectuuid) returns something
+        # that thing may not have nhash considering that the events come as "uuid", "mikuType", "unixtime", "datetime", "nhash"
+        return nil if item["nhash"].nil?
+        item
     end
 
     # Ax1Text::interactivelyIssueNew()
