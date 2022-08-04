@@ -45,6 +45,7 @@ class NxTimelines
         Fx18Attributes::set_objectMaking(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxTimelines::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: a6cc9094-7100-4aa3-8ebc-1fec0669733e) How did that happen ? 🤨"

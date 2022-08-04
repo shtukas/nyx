@@ -36,6 +36,7 @@ class NxLines
         Fx18Attributes::set_objectMaking(uuid, "line",        line)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxLines::objectuuidToItemOrNull(uuid)
         raise "(error: 1853d31a-bb37-46d6-b4c2-7afcf88e0c56) How did that happen?" if item.nil?
         item

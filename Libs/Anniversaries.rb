@@ -127,7 +127,6 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-
         Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxAnniversary")
         Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
@@ -136,11 +135,9 @@ class Anniversaries
         Fx18Attributes::set_objectMaking(uuid, "startdate",   startdate)
         Fx18Attributes::set_objectMaking(uuid, "repeatType",  repeatType)
         Fx18Attributes::set_objectMaking(uuid, "lastCelebrationDate", lastCelebrationDate)
-
         FileSystemCheck::fsckObject(uuid)
-
         Lookup1::reconstructEntry(uuid)
-
+        Fx18::broadcastObjectEvents(uuid)
         item = Anniversaries::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"

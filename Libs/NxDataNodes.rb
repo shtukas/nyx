@@ -48,6 +48,7 @@ class NxDataNodes
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 1121ff68-dccb-4ee2-92ca-f8c17be9559c) How did that happen ? 🤨"
@@ -70,6 +71,7 @@ class NxDataNodes
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: b75d5950-4d8f-4fc4-bf5a-1b0e0ddd436c) How did that happen ? 🤨"
@@ -92,6 +94,7 @@ class NxDataNodes
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: ac3d8924-352d-48bb-8ee0-3383fa8242a5) How did that happen ? 🤨"

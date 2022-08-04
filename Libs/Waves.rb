@@ -153,6 +153,7 @@ class Waves
         Fx18Attributes::set_objectMaking(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = Waves::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"

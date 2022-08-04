@@ -43,9 +43,8 @@ class SystemEvents
             if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
                 event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
             end
-            objectuuid = event["objectuuid"]
             eventi = event["Fx18FileEvent"]
-            Fx18::commit(objectuuid, eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Fx18::commit(eventi["_objectuuid_"], eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             return
         end
 
@@ -60,6 +59,11 @@ class SystemEvents
 
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
+        if event["mikuType"] == "Fx18 File Event" then
+            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
+            end
+        end
         puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
         Machines::theOtherInstanceIds().each{|instanceName|
             e = event.clone

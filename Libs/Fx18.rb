@@ -190,6 +190,23 @@ class Fx18
         return nil if item["uuid"].nil?
         item
     end
+
+    # Fx18::broadcastObjectEvents(objectuuid)
+    def self.broadcastObjectEvents(objectuuid)
+        item = {}
+        db = SQLite3::Database.new(Fx18::localFx18Filepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objectuuids = []
+        db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
+            SystemEvents::broadcast({
+                "mikuType"      => "Fx18 File Event",
+                "Fx18FileEvent" => row
+            })
+        end
+        db.close
+    end
 end
 
 class Fx18Attributes

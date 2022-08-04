@@ -47,6 +47,7 @@ class NxTasks
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -67,6 +68,7 @@ class NxTasks
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 421cc48c-707a-4811-9bd9-7b1e56b689fa) How did that happen ? 🤨"
@@ -91,6 +93,7 @@ class NxTasks
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: f78008bf-12d4-4483-b4bb-96e3472d46a2) How did that happen ? 🤨"

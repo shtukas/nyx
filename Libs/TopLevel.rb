@@ -32,6 +32,7 @@ class TopLevel
         Fx18Attributes::set_objectMaking(uuid, "nhash", nhash)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = TopLevel::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"

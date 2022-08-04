@@ -32,6 +32,7 @@ class Ax1Text
         Fx18Attributes::set_objectMaking(uuid, "nhash", nhash)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = Ax1Text::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"

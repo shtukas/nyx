@@ -21,7 +21,7 @@ We have two types of events
 ### Global events
 
 {
-    "targetInstance" : TargetInstanceName
+    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType" => "NxBankEvent",
     "setuuid"  => setuuid,
     "unixtime" => unixtime,
@@ -30,30 +30,30 @@ We have two types of events
 }
 
 {
-    "targetInstance" : TargetInstanceName
+    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"       => "NxDoNotShowUntil",
     "targetuuid"     => uuid,
     "targetunixtime" => unixtime
 }
 
 {
-    "targetInstance" : TargetInstanceName
+    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "SetDoneToday"
     "targetuuid" => uuid
     "targetdate" => CommonUtils::today()
 }
 
 {
-    "targetInstance" : TargetInstanceName
+    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "NxDeleted"
     "objectuuid" => objectuuid
 }
 
 {
-    "targetInstance" : TargetInstanceName
+    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"      => "Fx18 File Event",
-    "objectuuid"    => objectuuid,
     "Fx18FileEvent" => {
+        "_objectuuid_" => objectuuid
         "_eventuuid_"  => eventuuid
         "_eventTime_"  => eventTime
         "_eventData1_" => eventData1
@@ -65,13 +65,13 @@ We have two types of events
 }
 
 {
-    "targetInstance" : TargetInstanceName
+    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "Daily Slots: Unregister",
     "objectuuid" => objectuuid,
 }
 
 {
-    "targetInstance" : TargetInstanceName
+    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "Daily Slots: Register",
     "hour"       => hour,
     "objectuuid" => objectuuid,

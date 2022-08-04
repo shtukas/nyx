@@ -30,6 +30,7 @@ class NxPersons
         Fx18Attributes::set_objectMaking(uuid, "name",        name1)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxPersons::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"

@@ -53,6 +53,7 @@ class TxThreads
         Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = TxThreads::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 196d5021-a7d2-4d23-8e70-851d81c9f994) How did that happen ? 🤨"

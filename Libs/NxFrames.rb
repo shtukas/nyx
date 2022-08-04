@@ -44,6 +44,7 @@ class NxFrames
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxFrames::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"

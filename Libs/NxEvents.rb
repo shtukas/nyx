@@ -48,6 +48,7 @@ class NxEvents
         Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
+        Fx18::broadcastObjectEvents(uuid)
         item = NxEvents::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: c4d9e89d-d4f2-4a44-8c66-311431977b4c) How did that happen ? 🤨"
