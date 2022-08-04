@@ -300,9 +300,6 @@ class Landing
         if item["mikuType"] == "TxThread" then
             return TxThreads::landing(item)
         end
-        if item["mikuType"] == "TxTimeControl" then
-            return TxTimeControls::landing(item)
-        end
         if item["mikuType"] == "NxLine" then
             puts JSON.pretty_generate(item)
             puts "We do not have a landing for NxLines"
