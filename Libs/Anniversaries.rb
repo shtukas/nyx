@@ -176,13 +176,6 @@ class Anniversaries
     def self.section2()
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
-            .map{|item|
-                {
-                    "item"     => item,
-                    "toString" => Anniversaries::toString(item),
-                    "metric"   => 0.9 + Catalyst::idToSmallShift(item["uuid"])
-                }
-            }
     end
 
     # Anniversaries::dailyBriefing()

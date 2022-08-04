@@ -120,12 +120,5 @@ class NxTasks
         NxTasks::items2(10)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| !TxThreads::uuidIsProjectElement(item["uuid"]) }
-            .map{|item|
-                {
-                    "item" => item,
-                    "toString" => NxTasks::toStringForSearch(item),
-                    "metric"   => 0.6 + Catalyst::idToSmallShift(item["uuid"])
-                }
-            }
     end
 end

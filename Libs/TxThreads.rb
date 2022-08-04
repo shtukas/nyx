@@ -148,13 +148,6 @@ class TxThreads
     # TxThreads::section2()
     def self.section2()
         TxThreads::items()
-            .map{|item|
-                {
-                    "item" => item,
-                    "toString" => TxThreads::toString(item),
-                    "metric"   => (Ax39::itemShouldShow(item) ? 0.8 : 0.1) + Catalyst::idToSmallShift(item["uuid"])
-                }
-            }
     end
 
     # TxThreads::threadDefaultVisibilityDepth()

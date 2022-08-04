@@ -41,24 +41,11 @@ class Catalyst
 
     # Catalyst::section2()
     def self.section2()
-        x1 = [
+        [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .map{|item|
-                {
-                    "item" => item,
-                    "toString" => LxFunction.function("toString", item),
-                    "metric"   => 0.9 + Catalyst::idToSmallShift("fitness")
-                }
-            }
-
-        x2 = [
             Anniversaries::section2(),
-            Waves::section2(true),
             TxDateds::section2(),
+            Waves::section2(true),
             NxLines::section2(),
             TxThreads::section2(),
             Waves::section2(false),
@@ -66,12 +53,8 @@ class Catalyst
             Streaming::section2(),
         ]
             .flatten
-            .select{|x| DoNotShowUntil::isVisible(x["item"]["uuid"]) }
-            .select{|x| InternetStatus::itemShouldShow(x["item"]["uuid"]) }
-
-        (x1 + x2)
-            .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
-            .reverse
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
     # Catalyst::program()

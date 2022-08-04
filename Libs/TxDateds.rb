@@ -112,12 +112,5 @@ class TxDateds
         TxDateds::items()
             .select{|item| item["datetime"][0, 10] <= CommonUtils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
-            .map{|item|
-                {
-                    "item" => item,
-                    "toString" => TxDateds::toString(item),
-                    "metric"   => 0.8 + Catalyst::idToSmallShift(item["uuid"])
-                }
-            }
     end
 end
