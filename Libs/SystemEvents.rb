@@ -45,6 +45,7 @@ class SystemEvents
             end
             eventi = event["Fx18FileEvent"]
             Fx18::commit(eventi["_objectuuid_"], eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Lookup1::reconstructEntry(eventi["_objectuuid_"])
             return
         end
 
