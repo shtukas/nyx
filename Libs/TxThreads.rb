@@ -95,7 +95,7 @@ class TxThreads
     # TxThreads::extendedPacketsInOrder(thread, count)
     def self.extendedPacketsInOrder(thread, count)
         Fx18Sets::items(thread["uuid"], "project-items-3f154988")
-            .first([0, count - packets1.size].max)
+            .first(count)
             .map{|elementuuid|
                 {
                     "elementuuid" => elementuuid,
@@ -130,7 +130,20 @@ class TxThreads
 
     # TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
     def self.interactivelyDecideOrdinalForNewElementOrNull(thread)
-        0
+        packets = TxThreads::extendedPacketsInOrder(thread, 50)
+        if packets.size > 0 then
+            puts ""
+            packets
+                .each{|packet|
+                    element = packet["element"]
+                    ordinal = packet["ordinal"]
+                    puts "(#{ordinal}) #{LxFunction::function("toString", element)}"
+                }
+        end
+        puts ""
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ")
+        return nil if ordinal == ""
+        ordinal.to_f
     end
 
     # ----------------------------------------------------------------------
