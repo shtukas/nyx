@@ -286,11 +286,6 @@ class Commands
             return
         end
 
-        if input == "timecontrol" then
-            TxTimeControls::interactivelyIssueNewItemOrNull()
-            return
-        end
-
         if Interpreting::match("resume", input) then
             item = store.getDefault()
             return if item.nil?

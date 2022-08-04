@@ -36,29 +36,16 @@ class Catalyst
 
     # Catalyst::section1()
     def self.section1()
-        NxFrames::items() + TxThreads::section1() + TopLevel::section1() + TxTimeControls::section1()
+        NxFrames::items() + TxThreads::section1() + TopLevel::section1()
     end
 
     # Catalyst::section2()
     def self.section2()
-        x1 = [
+        [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
-        ]
-            .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            .map{|item|
-                {
-                    "item" => item,
-                    "toString" => LxFunction.function("toString", item),
-                    "metric"   => 0.9 + Catalyst::idToSmallShift("fitness")
-                }
-            }
-
-        x2 = [
             Anniversaries::section2(),
-            Waves::section2(true),
             TxDateds::section2(),
+            Waves::section2(true),
             NxLines::section2(),
             TxThreads::section2(),
             Waves::section2(false),
@@ -66,12 +53,8 @@ class Catalyst
             Streaming::section2(),
         ]
             .flatten
-            .select{|x| DoNotShowUntil::isVisible(x["item"]["uuid"]) }
-            .select{|x| InternetStatus::itemShouldShow(x["item"]["uuid"]) }
-
-        (x1 + x2)
-            .sort{|i1, i2| i1["metric"] <=> i2["metric"] }
-            .reverse
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
     end
 
     # Catalyst::program()
@@ -184,11 +167,11 @@ class Catalyst
             vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
         end
 
-        items = Catalyst::section1()
-        if !items.empty? then
+        section1 = Catalyst::section1()
+        if !section1.empty? then
             puts ""
             vspaceleft = vspaceleft - 1
-            items
+            section1
                 .each{|item|
                     store.register(item, false)
                     line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
@@ -222,15 +205,11 @@ class Catalyst
             puts ""
             vspaceleft = vspaceleft - 1
             section2
-                .each{|p|
-                    item = p["item"]
-
+                .each{|item|
                     # Let us not display the ones that already appeared in the calendar
                     next if section.map{|entry| entry["objectuuid"] }.include?(item["uuid"])
-                    
-                    toString = p["toString"]
                     store.register(item, true)
-                    line = "#{store.prefixString()} #{"%.3f" % p["metric"]} #{toString}"
+                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

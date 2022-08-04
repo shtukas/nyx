@@ -75,11 +75,6 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxTimeControl" then
-                TxTimeControls::landing(item)
-                return
-            end
-
             if Iam::implementsNx111(item) then
                 if item["nx111"].nil? then
                     LucilleCore::pressEnterToContinue()
@@ -148,15 +143,6 @@ class LxAction
             end
 
             if item["mikuType"] == "TxThread" then
-                NxBallsService::close(item["uuid"], true)
-                if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
-                    DoneForToday::setDoneToday(item["uuid"])
-                    DailySlots::remove(item["uuid"])
-                end
-                return
-            end
-
-            if item["mikuType"] == "TxTimeControl" then
                 NxBallsService::close(item["uuid"], true)
                 if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
                     DoneForToday::setDoneToday(item["uuid"])

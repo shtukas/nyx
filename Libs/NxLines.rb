@@ -60,12 +60,5 @@ class NxLines
     def self.section2()
         NxLines::items()
             .select{|item| !TxThreads::uuidIsProjectElement(item["uuid"]) }
-            .map{|item|
-                {
-                    "item" => item,
-                    "toString" => NxLines::toString(item),
-                    "metric"   => 0.8 + Catalyst::idToSmallShift(item["uuid"])
-                }
-            }
     end
 end

@@ -32,7 +32,7 @@ class DoNotShowUntil
           "targetuuid"     => uuid,
           "targetunixtime" => unixtime
         }
-        SystemEvents::issueMultiInstanceDrop(event)
+        SystemEvents::broadcast(event)
     end
 
     # DoNotShowUntil::processEventInternally(event)

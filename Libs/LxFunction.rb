@@ -70,9 +70,6 @@ class LxFunction
             if item["mikuType"] == "TxThread" then
                 return item["description"]
             end
-            if item["mikuType"] == "TxTimeControl" then
-                return item["description"]
-            end
             if item["mikuType"] == "Wave" then
                 return item["description"]
             end
@@ -132,9 +129,6 @@ class LxFunction
             end
             if item["mikuType"] == "TxThread" then
                 return TxThreads::toString(item)
-            end
-            if item["mikuType"] == "TxTimeControl" then
-                return TxTimeControls::toString(item)
             end
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
