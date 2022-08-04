@@ -304,11 +304,8 @@ class TxThreads
                 next if entity.nil?
                 thread2 = TxThreads::architectOneOrNull()
                 return if thread2.nil?
-                TxThreads::addElement(thread2["uuid"], entity["uuid"])
                 ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread2)
-                if ordinal then
-                    TxThreads::setElementOrdinalOrNull(thread2, entity["uuid"], ordinal)
-                end
+                TxThreads::addElement(thread2["uuid"], entity["uuid"], ordinal || 0)
                 TxThreads::removeElement(thread, entity["uuid"])
                 next
             end
@@ -338,11 +335,8 @@ class TxThreads
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a thread ? ") then
             thread = TxThreads::architectOneOrNull()
             return if thread.nil?
-            TxThreads::addElement(thread["uuid"], item["uuid"])
             ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
-            if ordinal then
-                TxThreads::setElementOrdinalOrNull(thread, item["uuid"], ordinal)
-            end
+            TxThreads::addElement(thread["uuid"], item["uuid"], ordinal || 0)
         end
     end
 
@@ -369,11 +363,8 @@ class TxThreads
         end
         thread = TxThreads::architectOneOrNull()
         return if thread.nil?
-        TxThreads::addElement(thread["uuid"], entity["uuid"])
         ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
-        if ordinal then
-            TxThreads::setElementOrdinalOrNull(thread, entity["uuid"], ordinal)
-        end
+        TxThreads::addElement(thread["uuid"], entity["uuid"], ordinal || 0)
         NxBallsService::close(entity["uuid"], true)
     end
 end
