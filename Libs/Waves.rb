@@ -184,13 +184,6 @@ class Waves
     def self.section2(priority)
         Waves::items()
             .select{|item| priority ? Waves::isPriority(item) : !Waves::isPriority(item) }
-            .map{|item|
-                {
-                    "item" => item,
-                    "toString" => Waves::toString(item),
-                    "metric"   => (Waves::isPriority(item) ? 0.85 : 0.70) + Catalyst::idToSmallShift(item["uuid"])
-                }
-            }
     end
 
     # -------------------------------------------------------------------------

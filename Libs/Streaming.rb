@@ -168,17 +168,10 @@ class Streaming
         uuid = Streaming::uuid()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return [] if rt > 1
-
-        item = {
+        [{
             "uuid" => uuid,
             "mikuType" => "(rstream-to-target)",
             "announce" => "(rstream, hour, rt: #{rt.round(1)}, #{BankExtended::lastWeekHoursDone(uuid).map{|n| n.round(2) }.join(", ")})"
-        }
-
-        [{
-            "item" => item,
-            "toString" => item["announce"],
-            "metric"   => 0.6 + Catalyst::idToSmallShift(item["uuid"])
         }]
     end
 end
