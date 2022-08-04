@@ -21,6 +21,6 @@ class Config
 
     # Config::starlightCommLine()
     def self.starlightCommLine()
-        "/Volumes/starlight/Data/Pascal/Galaxy/Stargate-Comms-Line"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/commsline"
     end
 end
