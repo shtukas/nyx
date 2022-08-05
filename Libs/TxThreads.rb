@@ -16,6 +16,7 @@ class TxThreads
             "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
             "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
             "ax39"        => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "ax39")),
+            "isPriority"  => Fx18Attributes::getOrNull(objectuuid, "isPriority")
         }
     end
 
@@ -51,6 +52,7 @@ class TxThreads
         Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::set_objectMaking(uuid, "description", description)
         Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
+
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18::broadcastObjectEvents(uuid)
@@ -161,9 +163,10 @@ class TxThreads
             .select{|thread| !Ax39::itemShouldShow(thread) }
     end
 
-    # TxThreads::section2()
-    def self.section2()
+    # TxThreads::section2(priority)
+    def self.section2(priority)
         TxThreads::items()
+            .select{|item| priority ? item["isPriority"] == "true" : item["isPriority"] != "true" }
     end
 
     # ----------------------------------------------------------------------
@@ -192,7 +195,7 @@ class TxThreads
 
             linkeduuids  = NxLink::linkedUUIDs(uuid)
 
-            puts "commands: description | Ax39 | remove Ax39 | json | destroy".yellow
+            puts "commands: description | Ax39 | remove Ax39 | set isPriority | json | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -218,6 +221,10 @@ class TxThreads
 
             if Interpreting::match("remove Ax39", command) then
                 Fx18Attributes::set_objectUpdate(uuid, "ax39", JSON.generate(nil))
+            end
+
+            if Interpreting::match("set isPriority", command) then
+                Fx18Attributes::set_objectUpdate(item["uuid"], "isPriority", "true")
             end
 
             if Interpreting::match("json", command) then
