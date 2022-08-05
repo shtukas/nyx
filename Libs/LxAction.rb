@@ -173,11 +173,10 @@ class LxAction
 
         if command == "landing" then
 
-            # TODO:
-            #if item["mikuType"] == "Ax1Text" then
-            #    Ax1Text::landing(item)
-            #    return
-            #end
+            if item["mikuType"] == "Ax1Text" then
+                Ax1Text::landing(item)
+                return
+            end
  
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::landing(item)

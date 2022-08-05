@@ -67,11 +67,11 @@ class Ax1Text
     # ----------------------------------------------------------------------
     # Operations
 
-    # Ax1Text::landing(uuid)
-    def self.landing(uuid)
+    # Ax1Text::landing(item)
+    def self.landing(item)
         loop {
             system("clear")
-            item = Fx18::itemOrNull(uuid)
+            uuid = item["uuid"]
             puts Ax1Text::toString(item)
             operations = [
                 "access/edit",

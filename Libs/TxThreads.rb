@@ -192,6 +192,7 @@ class TxThreads
 
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
+            puts "isPriority: #{item["isPriority"]}".yellow
 
             linkeduuids  = NxLink::linkedUUIDs(uuid)
 

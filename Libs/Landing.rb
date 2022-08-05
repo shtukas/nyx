@@ -297,6 +297,10 @@ class Landing
         if Iam::isNetworkAggregation(item) then
             return Landing::networkAggregationNodeLanding(item, isSearchAndSelect)
         end
+        if item["mikuType"] == "Ax1Text" then
+            Ax1Text::landing(item)
+            return nil
+        end
         if item["mikuType"] == "TxThread" then
             return TxThreads::landingOnThread(item)
         end
