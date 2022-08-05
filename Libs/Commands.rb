@@ -421,11 +421,6 @@ class Commands
             return
         end
 
-        if input == "top" then
-            system("open '#{Catalyst::topFilepath()}'")
-            return
-        end
-
         if input == "toplevel" then
             item = TopLevel::interactivelyIssueNew()
             puts JSON.pretty_generate(item)

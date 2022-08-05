@@ -20,20 +20,6 @@ class Catalyst
         LxAction::action(command, objectOpt)
     end
 
-    # Catalyst::topFilepath()
-    def self.topFilepath()
-        "/Users/#{ENV['USER']}/Desktop/top.txt"
-    end
-
-    # Catalyst::getTopOrNull()
-    def self.getTopOrNull()
-        content = IO.read(Catalyst::topFilepath()).strip
-        return nil if content == ""
-        text = content.lines.first(10).select{|line| line.strip.size > 0 }.join.strip
-        return nil if text == ""
-        text
-    end
-
     # Catalyst::section1()
     def self.section1()
         NxFrames::items() + TxThreads::section1() + TopLevel::section1()
@@ -160,12 +146,6 @@ class Catalyst
                     puts line.green
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
-        end
-
-        if top = Catalyst::getTopOrNull() then
-            puts ""
-            puts top.green
-            vspaceleft = vspaceleft - (CommonUtils::verticalSize(top) + 1)
         end
 
         section1 = Catalyst::section1()
