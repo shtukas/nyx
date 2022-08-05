@@ -39,6 +39,22 @@ require 'drb/drb'
 
 # ------------------------------------------------------------
 
+
+checkLocation = lambda{|location|
+    if !File.exists?(location) then
+        puts "I cannot see location: #{location.green}"
+        exit
+    end
+} 
+
+checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
+checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks-Inbox")
+checkLocation.call("#{ENV['HOME']}/Desktop/Top.txt")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
+checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
+
+# ------------------------------------------------------------
+
 require_relative "Config.rb"
 
 require "#{Config::userHomeDirectory()}/Galaxy/LucilleOS/Libraries/Ruby-Libraries/LucilleCore.rb"
@@ -189,6 +205,7 @@ require_relative "Search.rb"
 require_relative "Streaming.rb"
 require_relative "StargateCentral.rb"
 require_relative "SystemEvents.rb"
+require_relative "Stargate.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"

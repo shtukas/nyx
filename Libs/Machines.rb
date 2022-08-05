@@ -10,6 +10,6 @@ class Machines
 
     # Machines::theOtherInstanceIds()
     def self.theOtherInstanceIds()
-        ["Lucille18-pascal", "Lucille20-pascal", "Lucille20-guardian"] - [Config::get("instanceId")]
+        Config::get("allInstanceIds") - [Config::get("instanceId")]
     end
 end
