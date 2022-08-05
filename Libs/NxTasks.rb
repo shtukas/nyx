@@ -55,27 +55,6 @@ class NxTasks
         item
     end
 
-    # NxTasks::issueFromInboxLocation(location)
-    def self.issueFromInboxLocation(location)
-        description = File.basename(location)
-        uuid = SecureRandom.uuid
-        nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
-        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set_objectMaking(uuid, "description", description)
-        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckObject(uuid)
-        Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
-        item = NxTasks::objectuuidToItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 421cc48c-707a-4811-9bd9-7b1e56b689fa) How did that happen ? 🤨"
-        end
-        item
-    end
-
     # NxTasks::issueViennaURL(url)
     def self.issueViennaURL(url)
         uuid        = SecureRandom.uuid

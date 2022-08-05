@@ -66,12 +66,6 @@ class Catalyst
                 break
             end
 
-            LucilleCore::locationsAtFolder("#{Config::userHomeDirectory()}/Desktop/NxTasks-Inbox").each{|location|
-                item = NxTasks::issueFromInboxLocation(location)
-                puts JSON.pretty_generate(item)
-                LucilleCore::removeFileSystemLocation(location)
-            }
-
             if File.exists?(Config::starlightCommLine()) then
                 LucilleCore::locationsAtFolder(Config::starlightCommLine())
                     .each{|filepath|
