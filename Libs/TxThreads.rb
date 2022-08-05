@@ -294,12 +294,14 @@ class TxThreads
                 if type == "line" then
                     element = NxLines::interactivelyIssueNewLineOrNull()
                     next if element.nil?
-                    TxThreads::addElement_v2(thread["uuid"], element["uuid"], 0) # TODO:
+                    ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
+                    TxThreads::addElement(thread["uuid"], element["uuid"], ordinal || 0)
                 end
                 if type == "task" then
                     element = NxTasks::interactivelyCreateNewOrNull()
                     next if element.nil?
-                    TxThreads::addElement_v2(thread["uuid"], element["uuid"], 0) # TODO:
+                    ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
+                    TxThreads::addElement(thread["uuid"], element["uuid"], ordinal || 0)
                 end
             end
 
