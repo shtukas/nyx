@@ -55,6 +55,7 @@ class Ax1Text
     # Ax1Text::getFirstLineOrNull(item)
     def self.getFirstLineOrNull(item)
         text = item["text"]
+        return nil if text.nil?
         return nil if text == ""
         text.lines.first.strip
     end

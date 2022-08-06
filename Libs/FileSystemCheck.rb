@@ -284,7 +284,7 @@ class FileSystemCheck
                 "uuid",
                 "mikuType",
                 "unixtime",
-                "nhash",
+                "text",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             return

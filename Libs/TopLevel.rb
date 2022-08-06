@@ -14,22 +14,26 @@ class TopLevel
             "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
             "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "nhash"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nhash"),
+            "text"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "text"),
         }
+    end
+
+    # TopLevel::items()
+    def self.items()
+        Lookup1::mikuTypeToItems("TopLevel")
     end
 
     # TopLevel::interactivelyIssueNew()
     def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
         text = CommonUtils::editTextSynchronously("")
-        nhash = ExData::putBlobInLocalDatablobsFolder(text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid", uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType", "TopLevel")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime", unixtime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime", datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nhash", nhash)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "text", text)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18::broadcastObjectEvents(uuid)
@@ -45,8 +49,7 @@ class TopLevel
 
     # TopLevel::getFirstLineOrNull(item)
     def self.getFirstLineOrNull(item)
-        nhash = item["nhash"]
-        text = ExData::getBlobOrNull(nhash)
+        text = item["text"]
         return nil if text.nil?
         return nil if text == ""
         text.lines.first.strip
@@ -85,11 +88,9 @@ class TopLevel
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit" then
-                nhash = Fx18Attributes::getJsonDecodeOrNull(uuid, "nhash")
-                text = ExData::getBlobOrNull(nhash)
+                text = item["text"]
                 text = CommonUtils::editTextSynchronously(text)
-                nhash = ExData::putBlobInLocalDatablobsFolder(text)
-                Fx18Attributes::setJsonEncodeUpdate(uuid, "nhash", nhash)
+                Fx18Attributes::setJsonEncodeUpdate(uuid, "text", text)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then
