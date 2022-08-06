@@ -179,8 +179,8 @@ class EditionDesk
             end
             return location
         end
-        if nx111["type"] == "starship" then
-            shipId = nx111["shipId"]
+        if nx111["type"] == "DxPure" then
+            sha1 = nx111["sha1"]
             puts "(error: ff77532d-d116-40a9-a5c7-3b4dacbcee64) Export of Starships has not been implemented yet"
             exit
         end
@@ -274,7 +274,7 @@ class EditionDesk
             puts "This should not happen because nothing was exported."
             raise "(error: 44dd0a3e-9c18-4936-a0fa-cf3b5ef6d19f)"
         end
-        if nx111["type"] == "starship" then
+        if nx111["type"] == "DxPure" then
             puts "(error: 86fecadb-64be-426f-9586-9966366ff183) not implemented yet"
             exit
         end

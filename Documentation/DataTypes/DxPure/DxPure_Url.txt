@@ -1,6 +1,7 @@
-DxPureImmutableDataUrl:
-    "uuid"         : String
-    "mikuType"     : "DxPureImmutableDataUrl"
+
+DxPure_Url:
+    "randomValue"  : String
+    "mikuType"     : "DxPure_Url"
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "owner"        : String

@@ -94,8 +94,8 @@ class FileSystemCheck
             end
             return
         end
-        if nx111["type"] == "starship" then
-            shipId = nx111["shipId"]
+        if nx111["type"] == "DxPure" then
+            sha1 = nx111["sha1"]
             puts "fsck of starships has not been implemented yet (there should not be much to do as being immutable, they should have been fscked at creation and then left alone, we should only check for presence of the file)"
             return
         end

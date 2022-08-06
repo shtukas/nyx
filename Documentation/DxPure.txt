@@ -1,0 +1,24 @@
+
+## (Dx) Pure Immutable Data Files
+
+For the moment are Nx111 companion files. 
+
+{
+    "uuid"  : String
+    "type"  : "DxPure"
+    "sha1"  : sha1 in the full filename of the pure immutable content-addressed data island, of the form <sha1>.sqlite3
+}
+
+### Database
+
+create table _dx_ (_key_ text primary key, _value_ blob);
+
+### Filenames
+
+The Nx111 contains the sha1, the filename is then `<sha1>.sqlite3`, located at (depth 2)
+
+```
+path/to/PureImmutableDataIslands/<fragment2>/<sha1>.sqlite3
+```
+
+

@@ -3,13 +3,13 @@
 
 class Starships
 
-    # Starships::accessShip(shipId)
-    def self.accessShip(shipId)
+    # Starships::accessShip(sha1)
+    def self.accessShip(sha1)
         # TODO:
     end
 
     # Starships::interactivelyMakeNewShipOrNull()
-    def self.interactivelyMakeNewShipOrNull() # null or shipId
+    def self.interactivelyMakeNewShipOrNull() # null or sha1
 
     end
 end

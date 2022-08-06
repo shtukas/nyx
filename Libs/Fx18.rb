@@ -190,7 +190,7 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx18::commit(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
+        Fx18::commit(objectuuid, eventuuid, eventTime, "attribute", attname, JSON.generate(attvalue), nil, nil)
     end
 
     # Fx18Attributes::setJsonEncodeObjectMaking(objectuuid, attname, attvalue)
@@ -200,7 +200,7 @@ class Fx18Attributes
 
     # Fx18Attributes::setJsonEncodeUpdate(objectuuid, attname, attvalue)
     def self.setJsonEncodeUpdate(objectuuid, attname, attvalue)
-        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, JSON.generate(attvalue))
+        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
         SystemEvents::processEventInternally({
             "mikuType"   => "(object has been updated)",
             "objectuuid" => objectuuid,
