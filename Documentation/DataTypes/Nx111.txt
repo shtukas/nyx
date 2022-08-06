@@ -37,3 +37,10 @@ Nx111
     "nhash"           : nhash
     "parts"           : Array[nhash]
 }
+
+{
+    "uuid"   : String
+    "type"   : "starship"
+    "fileId" : String # The file name is <fileId>.starship.sqlite3
+                      # use balanced hex strings for fileId as we will be using the first chars for paths
+}
