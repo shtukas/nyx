@@ -106,12 +106,6 @@ class Fx18
         objectuuids
     end
 
-    # Fx18::jsonParseIfNotNull(str)
-    def self.jsonParseIfNotNull(str)
-        return nil if str.nil?
-        JSON.parse(str)
-    end
-
     # Fx18::playLogFromScratchForLiveItems()
     def self.playLogFromScratchForLiveItems()
         items = {}
@@ -131,16 +125,7 @@ class Fx18
             end
             if row["_eventData1_"] == "attribute" then
                 attrname  = row["_eventData2_"]
-                attrvalue = row["_eventData3_"]
-                if attrname == "nx111" then
-                    attrvalue = JSON.parse(attrvalue)
-                end
-                if attrname == "ax39" then
-                    attrvalue = JSON.parse(attrvalue)
-                end
-                if attrname == "nx46" then
-                    attrvalue = JSON.parse(attrvalue)
-                end
+                attrvalue = JSON.parse(row["_eventData3_"])
                 items[objectuuid][attrname] = attrvalue
             end
             if row["_eventData1_"] == "object-is-alive" then
@@ -167,16 +152,7 @@ class Fx18
             # (group: ff4e41a5-fa0b-459f-9ba7-5a92fb56cf1e)
             if row["_eventData1_"] == "attribute" then
                 attrname  = row["_eventData2_"]
-                attrvalue = row["_eventData3_"]
-                if attrname == "nx111" then
-                    attrvalue = JSON.parse(attrvalue)
-                end
-                if attrname == "ax39" then
-                    attrvalue = JSON.parse(attrvalue)
-                end
-                if attrname == "nx46" then
-                    attrvalue = JSON.parse(attrvalue)
-                end
+                attrvalue = JSON.parse(row["_eventData3_"])
                 item[attrname] = attrvalue
             end
             if row["_eventData1_"] == "object-is-alive" then
@@ -217,22 +193,22 @@ class Fx18Attributes
         Fx18::commit(objectuuid, eventuuid, eventTime, "attribute", attname, attvalue, nil, nil)
     end
 
-    # Fx18Attributes::set_objectMaking(objectuuid, attname, attvalue)
-    def self.set_objectMaking(objectuuid, attname, attvalue)
+    # Fx18Attributes::setJsonEncodeObjectMaking(objectuuid, attname, attvalue)
+    def self.setJsonEncodeObjectMaking(objectuuid, attname, attvalue)
         Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
-    # Fx18Attributes::set_objectUpdate(objectuuid, attname, attvalue)
-    def self.set_objectUpdate(objectuuid, attname, attvalue)
-        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
+    # Fx18Attributes::setJsonEncodeUpdate(objectuuid, attname, attvalue)
+    def self.setJsonEncodeUpdate(objectuuid, attname, attvalue)
+        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, JSON.generate(attvalue))
         SystemEvents::processEventInternally({
             "mikuType"   => "(object has been updated)",
             "objectuuid" => objectuuid,
         })
     end
 
-    # Fx18Attributes::getOrNull(objectuuid, attname)
-    def self.getOrNull(objectuuid, attname)
+    # Fx18Attributes::getJsonDecodeOrNull(objectuuid, attname)
+    def self.getJsonDecodeOrNull(objectuuid, attname)
         db = SQLite3::Database.new(Fx18::localFx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -240,7 +216,7 @@ class Fx18Attributes
         attvalue = nil
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
         db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? and _eventData2_=? order by _eventTime_", [objectuuid, "attribute", attname]) do |row|
-            attvalue = row["_eventData3_"]
+            attvalue = JSON.parse(row["_eventData3_"])
         end
         db.close
         attvalue
@@ -385,7 +361,7 @@ class Fx18Synchronisation
                 raise "(error: e0f0d25c-48da-44b2-8304-832c3aa14421)"
             end
 
-           puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, objectuuid: #{record1["_objectuuid_"]}, eventuuid: #{eventuuid}"
+            puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, objectuuid: #{record1["_objectuuid_"]}, eventuuid: #{eventuuid}"
 
             Fx18Synchronisation::putRecord(filepath2, record1)
 

@@ -79,7 +79,7 @@ class EditionDesk
         begin
             # If the item has been deleted while the something was exported on the desk,
             # this lookup is going to fail.
-            nx111 = Fx18Attributes::getOrNull(itemuuid, "nx111")
+            nx111 = Fx18Attributes::getJsonDecodeOrNull(itemuuid, "nx111")
         rescue
             return nil
         end
@@ -234,7 +234,7 @@ class EditionDesk
             nhash = ExData::putBlobInLocalDatablobsFolder(text) # TODO: we should probably compute the nhash without actually commiting the blob to the file
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
-            Fx18Attributes::set_objectUpdate(itemuuid, "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", JSON.generate(nx111))
             return
         end
         if nx111["type"] == "url" then
@@ -252,7 +252,7 @@ class EditionDesk
             nx111["dottedExtension"] = dottedExtension
             nx111["nhash"] = nhash
             nx111["parts"] = parts
-            Fx18Attributes::set_objectUpdate(itemuuid, "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", JSON.generate(nx111))
             return
         end
         if nx111["type"] == "aion-point" then
@@ -262,7 +262,7 @@ class EditionDesk
             rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(LxFunction::function("generic-description", item)))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
-            Fx18Attributes::set_objectUpdate(itemuuid, "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", JSON.generate(nx111))
             return
         end
         if nx111["type"] == "unique-string" then
@@ -300,7 +300,7 @@ class EditionDesk
                     !item.nil? and Iam::implementsNx111(itemuuid)
                 }
                 .each{|itemuuid|
-                    nx111 = Fx18Attributes::getOrNull(itemuuid, "nx111")
+                    nx111 = Fx18Attributes::getJsonDecodeOrNull(itemuuid, "nx111")
                     next if nx111.nil?
                     nx111 = JSON.parse(nx111)
                     next if nx111["type"] == "url"

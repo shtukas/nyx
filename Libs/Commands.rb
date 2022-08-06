@@ -91,7 +91,7 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             return if item["mikuType"] != "TxThread"
-            Fx18Attributes::set_objectUpdate(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
+            Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
             return
         end
 

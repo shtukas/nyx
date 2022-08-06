@@ -8,13 +8,13 @@ class TopLevel
 
     # TopLevel::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "TopLevel"
+        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "TopLevel"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
-            "nhash"       => Fx18Attributes::getOrNull(objectuuid, "nhash"),
+            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
+            "nhash"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nhash"),
         }
     end
 
@@ -25,11 +25,11 @@ class TopLevel
         nhash = ExData::putBlobInLocalDatablobsFolder(text)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::set_objectMaking(uuid, "uuid", uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType", "TopLevel")
-        Fx18Attributes::set_objectMaking(uuid, "unixtime", unixtime)
-        Fx18Attributes::set_objectMaking(uuid, "datetime", datetime)
-        Fx18Attributes::set_objectMaking(uuid, "nhash", nhash)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid", uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType", "TopLevel")
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime", unixtime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime", datetime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nhash", nhash)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18::broadcastObjectEvents(uuid)
@@ -85,11 +85,11 @@ class TopLevel
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
             if operation == "access/edit" then
-                nhash = Fx18Attributes::getOrNull(uuid, "nhash")
+                nhash = Fx18Attributes::getJsonDecodeOrNull(uuid, "nhash")
                 text = ExData::getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
                 nhash = ExData::putBlobInLocalDatablobsFolder(text)
-                Fx18Attributes::set_objectUpdate(uuid, "nhash", nhash)
+                Fx18Attributes::setJsonEncodeUpdate(uuid, "nhash", nhash)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then

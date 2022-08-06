@@ -8,13 +8,13 @@ class NxTimelines
 
     # NxTimelines::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxTimeline"
+        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxTimeline"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
+            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
+            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
         }
     end
 
@@ -38,11 +38,11 @@ class NxTimelines
         uuid = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxTimeline")
-        Fx18Attributes::set_objectMaking(uuid, "unixtime",    unixtime)
-        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::set_objectMaking(uuid, "description", description)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxTimeline")
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18::broadcastObjectEvents(uuid)

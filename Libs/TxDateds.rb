@@ -4,14 +4,14 @@ class TxDateds
 
     # TxDateds::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "TxDated"
+        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "TxDated"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
-            "nx111"       => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
+            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
+            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
+            "nx111"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111"),
         }
     end
 
@@ -38,12 +38,12 @@ class TxDateds
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
-        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxDated")
-        Fx18Attributes::set_objectMaking(uuid, "unixtime",    unixtime)
-        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::set_objectMaking(uuid, "description", description)
-        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxDated")
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18::broadcastObjectEvents(uuid)
@@ -62,12 +62,12 @@ class TxDateds
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxDated")
-        Fx18Attributes::set_objectMaking(uuid, "unixtime",    unixtime)
-        Fx18Attributes::set_objectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::set_objectMaking(uuid, "description", description)
-        Fx18Attributes::set_objectMaking(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxDated")
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18::broadcastObjectEvents(uuid)

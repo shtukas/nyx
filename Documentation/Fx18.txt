@@ -15,7 +15,7 @@ create table _fx18_ (
 |-------------------------------------------------------------------------------|
 | _eventData1_      | _eventData2_ | _eventData3_ | _eventData4_ | _eventData5_ |
 |-------------------------------------------------------------------------------|
-| "attribute"       | <name>       | <value>      |              |              |
+| "attribute"       | <name>       | <value>      |              |              | ($3)
 | "setops"          | "add"        | <setuuid>    | <itemuuid>   | <value>      | ($2)
 | "setops"          | "remove"     | <setuuid>    | <itemuuid>   |              |
 | "datablob"        | <key>        | <blob>       |              |              |
@@ -24,7 +24,9 @@ create table _fx18_ (
 
 ($1) The object uuid that has been deleted, or resuscitated, is carried by the _objectuuid_ column. `status` takes the two values: "true" and "false".
 
-($2) Given the value of a set `value`, we encode it as JSON.generate(value).
+($2) We JSON encode the value of a set.
+
+($3) We JSON encode the value of an attribute.
 
 So a Fx18 file is essentially just a log of events. Some are attributes being set, some are 
 sets operations and the third type is content addressed datablobs being stored.

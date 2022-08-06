@@ -8,15 +8,15 @@ class TxThreads
 
     # TxThreads::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "TxThread"
+        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "TxThread"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
-            "ax39"        => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "ax39")),
-            "isPriority"  => Fx18Attributes::getOrNull(objectuuid, "isPriority")
+            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
+            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
+            "ax39"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "ax39"),
+            "isPriority"  => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "isPriority")
         }
     end
 
@@ -46,12 +46,12 @@ class TxThreads
 
         uuid = SecureRandom.uuid
 
-        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "TxThread")
-        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_f)
-        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set_objectMaking(uuid, "description", description)
-        Fx18Attributes::set_objectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxThread")
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_f)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
 
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
@@ -80,7 +80,7 @@ class TxThreads
     # TxThreads::addElement(threaduuid, elementuuid, ordinal)
     def self.addElement(threaduuid, elementuuid, ordinal)
         Fx18Sets::add2(threaduuid, "project-items-3f154988", elementuuid, elementuuid)
-        Fx18Attributes::set_objectUpdate(threaduuid, "element-ordinal:#{elementuuid}", ordinal)
+        Fx18Attributes::setJsonEncodeUpdate(threaduuid, "element-ordinal:#{elementuuid}", ordinal)
         XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
     end
 
@@ -120,14 +120,14 @@ class TxThreads
 
     # TxThreads::getElementOrdinalOrNull(thread, elementuuid)
     def self.getElementOrdinalOrNull(thread, elementuuid)
-        ordinal = Fx18Attributes::getOrNull(thread["uuid"], "element-ordinal:#{elementuuid}")
+        ordinal = Fx18Attributes::getJsonDecodeOrNull(thread["uuid"], "element-ordinal:#{elementuuid}")
         return 0 if ordinal.nil?
         ordinal.to_f
     end
 
     # TxThreads::setElementOrdinalOrNull(thread, elementuuid, ordinal)
     def self.setElementOrdinalOrNull(thread, elementuuid, ordinal)
-        Fx18Attributes::set_objectUpdate(thread["uuid"], "element-ordinal:#{elementuuid}", ordinal)
+        Fx18Attributes::setJsonEncodeUpdate(thread["uuid"], "element-ordinal:#{elementuuid}", ordinal)
     end
 
     # TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
@@ -206,26 +206,26 @@ class TxThreads
                 if item["mikuType"] == "NxPerson" then
                     name1 = CommonUtils::editTextSynchronously(item["name"]).strip
                     next if name1 == ""
-                    Fx18Attributes::set_objectUpdate(item["uuid"], "name", name1)
+                    Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "name", name1)
                 else
                     description = CommonUtils::editTextSynchronously(item["description"]).strip
                     next if description == ""
-                    Fx18Attributes::set_objectUpdate(item["uuid"], "description", description)
+                    Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "description", description)
                 end
                 next
             end
 
             if Interpreting::match("Ax39", command) then
                 ax39 = Ax39::interactivelyCreateNewAx()
-                Fx18Attributes::set_objectUpdate(uuid, "ax39", JSON.generate(ax39))
+                Fx18Attributes::setJsonEncodeUpdate(uuid, "ax39", JSON.generate(ax39))
             end
 
             if Interpreting::match("remove Ax39", command) then
-                Fx18Attributes::set_objectUpdate(uuid, "ax39", JSON.generate(nil))
+                Fx18Attributes::setJsonEncodeUpdate(uuid, "ax39", JSON.generate(nil))
             end
 
             if Interpreting::match("set isPriority", command) then
-                Fx18Attributes::set_objectUpdate(item["uuid"], "isPriority", "true")
+                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "isPriority", "true")
             end
 
             if Interpreting::match("json", command) then

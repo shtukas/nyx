@@ -62,11 +62,11 @@ class LxAction
 
             if item["mikuType"] == "TopLevel" then
                 uuid = item["uuid"]
-                nhash = Fx18Attributes::getOrNull(uuid, "nhash")
+                nhash = Fx18Attributes::getJsonDecodeOrNull(uuid, "nhash")
                 text = ExData::getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
                 nhash = ExData::putBlobInLocalDatablobsFolder(text)
-                Fx18Attributes::set_objectUpdate(uuid, "nhash", nhash)
+                Fx18Attributes::setJsonEncodeUpdate(uuid, "nhash", nhash)
                 return
             end
 
@@ -195,7 +195,7 @@ class LxAction
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-                Fx18Attributes::set_objectUpdate(item["uuid"], "datetime", datetime)
+                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "datetime", datetime)
                 return
             end
         end

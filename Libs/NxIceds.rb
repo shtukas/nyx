@@ -4,14 +4,14 @@ class NxIceds
 
     # NxIceds::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxIced"
+        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxIced"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
-            "nx111"       => Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111")),
+            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
+            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
+            "nx111"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111"),
         }
     end
 

@@ -83,16 +83,16 @@ class Anniversaries
 
     # Anniversaries::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getOrNull(objectuuid, "mikuType") != "NxAnniversary"
+        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxAnniversary"
         {
             "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getOrNull(objectuuid, "description"),
-            "startdate"   => Fx18Attributes::getOrNull(objectuuid, "startdate"),
-            "repeatType"  => Fx18Attributes::getOrNull(objectuuid, "repeatType"),
-            "lastCelebrationDate" => Fx18Attributes::getOrNull(objectuuid, "lastCelebrationDate")
+            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
+            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
+            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
+            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
+            "startdate"   => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "startdate"),
+            "repeatType"  => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "repeatType"),
+            "lastCelebrationDate" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "lastCelebrationDate")
         }
     end
 
@@ -127,14 +127,14 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        Fx18Attributes::set_objectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::set_objectMaking(uuid, "mikuType",    "NxAnniversary")
-        Fx18Attributes::set_objectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::set_objectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::set_objectMaking(uuid, "description", description)
-        Fx18Attributes::set_objectMaking(uuid, "startdate",   startdate)
-        Fx18Attributes::set_objectMaking(uuid, "repeatType",  repeatType)
-        Fx18Attributes::set_objectMaking(uuid, "lastCelebrationDate", lastCelebrationDate)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxAnniversary")
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "startdate",   startdate)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "repeatType",  repeatType)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18::broadcastObjectEvents(uuid)
@@ -158,7 +158,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        Fx18Attributes::set_objectUpdate(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        Fx18Attributes::setJsonEncodeUpdate(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -200,13 +200,13 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                Fx18Attributes::set_objectUpdate(item["uuid"], "description", description)
+                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                Fx18Attributes::set_objectUpdate(item["uuid"], "startdate",   startdate)
+                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then

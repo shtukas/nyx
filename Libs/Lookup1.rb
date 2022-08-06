@@ -38,9 +38,9 @@ class Lookup1
 
     # Lookup1::reconstructEntry(objectuuid)
     def self.reconstructEntry(objectuuid)
-        unixtime = Fx18Attributes::getOrNull(objectuuid, "unixtime")
+        unixtime = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime")
         return if unixtime.nil?
-        mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
+        mikuType = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType")
         return if mikuType.nil?
         item     = Fx18::itemOrNull(objectuuid)
         return if item.nil?

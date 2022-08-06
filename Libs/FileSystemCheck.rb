@@ -15,7 +15,7 @@ class FileSystemCheck
     def self.fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
         return if nx111.nil?
 
-        objectuuid = Fx18Attributes::getOrNull(objectuuid, "uuid")
+        objectuuid = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "uuid")
         if objectuuid.nil? then
             puts "objectuuid: #{objectuuid}".red
             puts "Malformed Fx18 file, I could not find a uuid".red
@@ -106,7 +106,7 @@ class FileSystemCheck
     def self.fsckObjectErrorAtFirstFailure(objectuuid)
         puts "FileSystemCheck, Fx18 @ objectuuid: #{objectuuid}"
 
-        mikuType = Fx18Attributes::getOrNull(objectuuid, "mikuType")
+        mikuType = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType")
         if mikuType.nil? then
             puts "objectuuid: #{objectuuid}".red
             puts "Malformed Fx18 file, I could not find a mikuType".red
@@ -114,7 +114,7 @@ class FileSystemCheck
         end
 
         ensureAttribute = lambda {|objectuuid, mikuType, attname|
-            attvalue = Fx18Attributes::getOrNull(objectuuid, attname)
+            attvalue = Fx18Attributes::getJsonDecodeOrNull(objectuuid, attname)
             if attvalue.nil? then
                 puts "ensureAttribute(#{objectuuid}, #{mikuType}, #{attname})"
                 puts "objectuuid: #{objectuuid}".red
@@ -159,7 +159,7 @@ class FileSystemCheck
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
 
-            nx111 = Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
             FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
@@ -198,7 +198,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
             FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
@@ -225,7 +225,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
             FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
@@ -262,7 +262,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
             FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
@@ -300,7 +300,7 @@ class FileSystemCheck
                 "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
             FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
@@ -328,7 +328,7 @@ class FileSystemCheck
                 "lastDoneDateTime",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18::jsonParseIfNotNull(Fx18Attributes::getOrNull(objectuuid, "nx111"))
+            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
             FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid, nx111)
             return
         end
@@ -377,7 +377,7 @@ class FileSystemCheck
             .each{|objectuuid|
                 FileSystemCheck::exitIfMissingCanary()
                 next if !Fx18::objectIsAlive(objectuuid)
-                next if Fx18Attributes::getOrNull(objectuuid, "mikuType") != mikuType
+                next if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != mikuType
                 FileSystemCheck::fsckObject(objectuuid)
             }
         puts "fsck completed successfully".green
