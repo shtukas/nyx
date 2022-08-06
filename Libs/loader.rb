@@ -204,6 +204,7 @@ require_relative "Streaming.rb"
 require_relative "StargateCentral.rb"
 require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"
+require_relative "Starships.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"
