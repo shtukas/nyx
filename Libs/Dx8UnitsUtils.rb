@@ -4,7 +4,7 @@
 class Dx8UnitsUtils
     # Dx8UnitsUtils::infinityRepository()
     def self.infinityRepository()
-        "/Volumes/Infinity/Data/Pascal/Stargate-Central/Dx8Units"
+        "#{StargateCentral::pathToCentral()}/Dx8Units"
     end
 
     # Dx8UnitsUtils::acquireUnit(dx8UnitId)
