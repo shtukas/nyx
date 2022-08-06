@@ -11,7 +11,8 @@ class Nx111
             "file",
             "aion-point",
             "unique-string",
-            "Dx8Unit"
+            "Dx8Unit",
+            "starship"
         ]
     end
 
@@ -80,6 +81,15 @@ class Nx111
                 "uuid" => SecureRandom.uuid,
                 "type" => "unique-string",
                 "uniquestring" => uniquestring
+            }
+        end
+        if type == "starship" then
+            shipId = Starships::interactivelyMakeNewShipOrNull()
+            return nil if shipId.nil?
+            return {
+                "uuid"   => SecureRandom.uuid,
+                "type"   => "starship",
+                "shipId" => shipId
             }
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"

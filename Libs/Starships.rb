@@ -9,7 +9,7 @@ class Starships
     end
 
     # Starships::interactivelyMakeNewShipOrNull()
-    def self.interactivelyMakeNewShipOrNull() # shipId
+    def self.interactivelyMakeNewShipOrNull() # null or shipId
 
     end
 end

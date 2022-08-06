@@ -179,6 +179,11 @@ class EditionDesk
             end
             return location
         end
+        if nx111["type"] == "starship" then
+            shipId = nx111["shipId"]
+            puts "(error: ff77532d-d116-40a9-a5c7-3b4dacbcee64) Export of Starships has not been implemented yet"
+            exit
+        end
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{itemuuid}"
     end
 
@@ -268,6 +273,10 @@ class EditionDesk
         if nx111["type"] == "Dx8Unit" then
             puts "This should not happen because nothing was exported."
             raise "(error: 44dd0a3e-9c18-4936-a0fa-cf3b5ef6d19f)"
+        end
+        if nx111["type"] == "starship" then
+            puts "(error: 86fecadb-64be-426f-9586-9966366ff183) not implemented yet"
+            exit
         end
         raise "(error: 69fcf4bf-347a-4e5f-91f8-3a97d6077c98): nx111: #{nx111}"
     end
