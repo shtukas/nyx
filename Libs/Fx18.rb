@@ -25,6 +25,7 @@ class Fx18
             FileUtils.mkdir(folderpath)
         end
         if !File.exists?(filepath) then
+            puts "Initiate database #{filepath}"
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -44,6 +45,7 @@ class Fx18
             FileUtils.mkdir(folderpath)
         end
         if !File.exists?(filepath) then
+            puts "Initiate database #{filepath}"
             db = SQLite3::Database.new(filepath)
             db.busy_timeout = 117
             db.busy_handler { |count| true }
@@ -117,7 +119,7 @@ class Fx18
 
     # Fx18::objectuuids()
     def self.objectuuids()
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
+        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Stargate/Fx18.sqlite3")
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -288,7 +290,7 @@ class Fx18Attributes
         db.results_as_hash = true
         attvalue = nil
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? and _eventData2_=? order by _eventTime_", [objectuuid, "attribute", attname]) do |row|
+        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=? order by _eventTime_", ["attribute", attname]) do |row|
             attvalue = JSON.parse(row["_eventData3_"])
         end
         db.close
@@ -487,6 +489,7 @@ class Fx18Synchronisation
         }
 
         Fx18::localFilepathsEnumerator().each{|filepath1|
+            puts "filepath1: #{filepath1}"
             objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
             if objectuuid.nil? then
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
@@ -494,9 +497,11 @@ class Fx18Synchronisation
             end
             filepath2 = Fx18::remoteFx18Filepath(objectuuid)
             Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+            sleep 0.01
         }
 
         Fx18::stargateCentralFilepathsEnumerator().each{|filepath1|
+            puts "filepath1: #{filepath1}"
             objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
             if objectuuid.nil? then
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
@@ -504,6 +509,7 @@ class Fx18Synchronisation
             end
             filepath2 = Fx18::localFx18Filepath(objectuuid)
             Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+            sleep 0.01
         }
     end
 end
