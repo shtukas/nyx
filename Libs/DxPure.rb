@@ -54,17 +54,31 @@ class DxPure
     # ------------------------------------------------------------
     # Basic IO (2)
 
-    # DxPure::sha1ToFilepath(sha1)
-    def self.sha1ToFilepath(sha1)
-        "/Users/pascal/Galaxy/DataBank/Stargate/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
+    # DxPure::sha1ToLocalFilepath(sha1)
+    def self.sha1ToLocalFilepath(sha1)
+        filepath = "#{Config::pathToLocalDataBankStargate()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
+        end
+        filepath
     end
+
+    # DxPure::sha1ToStargateInfinityFilepath(sha1)
+    def self.sha1ToStargateInfinityFilepath(sha1)
+        filepath = "#{StargateCentral::pathToCentral()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
+        end
+        filepath
+    end
+
 
     # ------------------------------------------------------------
     # Basic Utils
 
     # DxPure::getMikuTypeOrNull(sha1)
     def self.getMikuTypeOrNull(sha1)
-        filepath = DxPure::sha1ToFilepath(sha1)
+        filepath = DxPure::sha1ToLocalFilepath(sha1)
         return nil if !File.exists?(filepath)
         DxPure::getMikuType(filepath)
     end
@@ -92,7 +106,7 @@ class DxPure
 
     # DxPure::toString(sha1)
     def self.toString(sha1)
-        filepath = DxPure::sha1ToFilepath(sha1)
+        filepath = DxPure::sha1ToLocalFilepath(sha1)
         if !File.exists?(filepath) then
             return "(error: I cannot see the file #{filepath} for DxPure::toString(#{sha1}))"
         end
@@ -108,7 +122,7 @@ class DxPure
 
     # DxPure::access(sha1)
     def self.access(sha1)
-        filepath = DxPure::sha1ToFilepath(sha1)
+        filepath = DxPure::sha1ToLocalFilepath(sha1)
         if !File.exists?(filepath) then
             puts "I cannot see the file #{filepath}. Operation access aborted."
             LucilleCore::pressEnterToContinue()
@@ -142,10 +156,26 @@ class DxPure
             ensureAttributeExists.call(filepath, "datetime")
             ensureAttributeExists.call(filepath, "owner")
             ensureAttributeExists.call(filepath, "url")
-            ensureAttributeExists.call(filepath, "savedInVault")
             return
         end
         raise "(error: fa74feac-37c6-4525-93ba-933f52d54321) DxPure fsck: unsupported mikuType: #{mikuType}"
     end
 
+    # ------------------------------------------------------------
+    # Vault Management
+
+    # DxPure::localFilepathsEnumerator()
+    def self.localFilepathsEnumerator()
+        Enumerator.new do |filepaths|
+            Find.find("#{Config::pathToLocalDataBankStargate()}/DxPure") do |path|
+                next if path[-8, 8] != ".sqlite3"
+                filepaths << path
+            end
+        end
+    end
+
+    # DxPure::trueIfFileHasBeenVaulted(filepath)
+    def self.trueIfFileHasBeenVaulted(filepath)
+
+    end
 end

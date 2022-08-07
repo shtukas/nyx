@@ -15,7 +15,6 @@ class DxPureUrl
         datetime     = Time.new.utc.iso8601
         # owner
         # url
-        savedInVault = "false"
 
         filepath1 = "/tmp/#{SecureRandom.hex}.sqlite3"
         DxPure::makeNewPureFile(filepath1)
@@ -26,16 +25,12 @@ class DxPureUrl
         DxPure::insertIntoPure(filepath1, "datetime", datetime)
         DxPure::insertIntoPure(filepath1, "owner", owner)
         DxPure::insertIntoPure(filepath1, "url", url)
-        DxPure::insertIntoPure(filepath1, "savedInVault", savedInVault)
 
         DxPure::fsckFileRaiseError(filepath1)
 
         sha1 = Digest::SHA1.file(filepath1).hexdigest
 
-        filepath2 = DxPure::sha1ToFilepath(sha1)
-        if !File.exists?(File.dirname(filepath2)) then
-            FileUtils.mkdir(File.dirname(filepath2))
-        end
+        filepath2 = DxPure::sha1ToLocalFilepath(sha1)
 
         FileUtils.mv(filepath1, filepath2)
 

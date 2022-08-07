@@ -320,20 +320,6 @@ class Fx18Synchronisation
         uuids
     end
 
-    # Fx18Synchronisation::getDatablobEventuuids(filepath)
-    def self.getDatablobEventuuids(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        uuids = []
-        db.execute("select _eventuuid_ from _fx18_ where _eventData1_=? order by _eventData2_", ["datablob"]) do |row|
-            uuids << row["_eventuuid_"]
-        end
-        db.close
-        uuids
-    end
-
     # Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
     def self.getRecordOrNull(filepath, eventuuid)
         db = SQLite3::Database.new(filepath)
@@ -427,21 +413,19 @@ class Fx18Synchronisation
     # Fx18Synchronisation::sync()
     def self.sync()
 
-        [Fx18::localFx18Filepath(), Fx18::remoteFx18Filepath()].each{|filepath|
-            Fx18Synchronisation::getDatablobEventuuids(filepath).each{|eventuuid|
-                record = Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
-                puts "(#{filepath}) Extracting datablob: #{record["_eventData2_"]}"
-                ExData::putBlobOnInfinity(record["_eventData3_"])
-                Fx18::deleteEvent(filepath, eventuuid)
-            }
-        }
-
         LucilleCore::locationsAtFolder("#{Config::pathToLocalDataBankStargate()}/Datablobs").each{|filepath|
             next if filepath[-5, 5] != ".data"
             puts "Fx18Synchronisation::sync(): transferring blob: #{filepath}"
             blob = IO.read(filepath)
             ExData::putBlobOnInfinity(blob)
             FileUtils.rm(filepath)
+        }
+
+        DxPure::localFilepathsEnumerator().each{|dxLocalFilepath|
+            sha1 = File.basename(dxLocalFilepath).gsub(".sqlite3", "")
+            dxVaultFilepath = DxPure::sha1ToStargateInfinityFilepath(sha1)
+            next if File.exists?(dxVaultFilepath)
+            FileUtils.mv(dxLocalFilepath, dxVaultFilepath)
         }
 
         Fx18Synchronisation::propagateFileData(Fx18::localFx18Filepath(), Fx18::remoteFx18Filepath())
