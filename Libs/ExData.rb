@@ -102,8 +102,7 @@ class ExData
         # Last resort: XCache
         blob = XCacheDatablobs::getBlobOrNull(nhash)
         if blob then
-            puts "(warning: 9fa7067a-c774-4c3c-9660-a4d77ed412cd) I have just repaired Infinity using XCache during fsck 🤔"
-            sleep 0.2
+            puts "(warning: 9fa7067a-c774-4c3c-9660-a4d77ed412cd) I have just repaired Infinity (for nhash: #{nhash}) using XCache during fsck 🤔"
             ExData::putBlobOnInfinity(blob)
             return blob
         end
