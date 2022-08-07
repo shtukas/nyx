@@ -17,7 +17,7 @@ class Ax1Text
             "text"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "text"),
         }
         # Sometimes, when we do lookup1 Lookup1::reconstructEntry during a commline update
-        # and Fx18s::itemOrNull(objectuuid) returns something
+        # and Fx18s::itemAliveOrNull(objectuuid) returns something
         # that thing may not have text considering that the events come in order of "uuid", "mikuType", "unixtime", "datetime", "text"
         return nil if item["text"].nil?
         item

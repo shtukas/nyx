@@ -24,7 +24,7 @@ class NxLink
     def self.linkedEntities(uuid)
         NxLink::linkedUUIDs(uuid)
             .select{|uuid| Fx18s::objectIsAlive(uuid) }
-            .map{|objectuuid| Fx18s::itemOrNull(objectuuid) }
+            .map{|objectuuid| Fx18s::itemAliveOrNull(objectuuid) }
             .compact
     end
 

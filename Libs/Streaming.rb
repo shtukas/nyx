@@ -5,7 +5,7 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        item = Fx18s::itemOrNull(itemuuid)
+        item = Fx18s::itemAliveOrNull(itemuuid)
         return if item.nil?
         if !["NxTask", "NxIced"].include?(item["mikuType"]) then
             puts "I am authorised to >nyx only NxTasks and NxIceds in this function"

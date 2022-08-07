@@ -44,7 +44,7 @@ class NxTasks
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111) # possibly null
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)

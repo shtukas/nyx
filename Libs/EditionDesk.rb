@@ -263,7 +263,7 @@ class EditionDesk
         if nx111["type"] == "aion-point" then
             operator = ExDataElizabeth.new(itemuuid)
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-            item = Fx18s::itemOrNull(itemuuid)
+            item = Fx18s::itemAliveOrNull(itemuuid)
             rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(LxFunction::function("generic-description", item)))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
@@ -301,7 +301,7 @@ class EditionDesk
             puts "This is a read only export (!)"
             itemuuids
                 .select{|itemuuid| 
-                    item = Fx18s::itemOrNull(itemuuid)
+                    item = Fx18s::itemAliveOrNull(itemuuid)
                     !item.nil? and Iam::implementsNx111(itemuuid)
                 }
                 .each{|itemuuid|

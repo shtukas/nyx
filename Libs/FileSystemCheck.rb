@@ -259,7 +259,6 @@ class FileSystemCheck
                 "mikuType",
                 "unixtime",
                 "description",
-                "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
@@ -343,7 +342,7 @@ class FileSystemCheck
 
             puts e.message.green
 
-            db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
+            db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true

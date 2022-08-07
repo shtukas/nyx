@@ -1,8 +1,8 @@
 
 class Fx18s
 
-    # Fx18s::initiateFx18File(filepath)
-    def self.initiateFx18File(filepath)
+    # Fx18s::makeNewFx18File(filepath)
+    def self.makeNewFx18File(filepath)
         puts "Initiate database #{filepath}"
         folderpath = File.dirname(filepath)
         if !File.exists?(folderpath) then
@@ -16,8 +16,15 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid)
-    def self.computeLocalFx18FilepathAndErrorIfNotExists(objectuuid)
+    # Fx18s::makeNewFx18FileForObjectuuid(uuid)
+    def self.makeNewFx18FileForObjectuuid(uuid)
+        sha1 = Digest::SHA1.hexdigest(objectuuid)
+        filepath = "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        Fx18s::makeNewFx18File(filepath)
+    end
+
+    # Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid)
+    def self.getExistingFx18FilepathForObjectuuid(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
         filepath = "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
         if !File.exists?(filepath) then
@@ -26,8 +33,8 @@ class Fx18s
         filepath
     end
 
-    # Fx18s::computeRemoteFx18FilepathAndErrorIfNotExists(objectuuid)
-    def self.computeRemoteFx18FilepathAndErrorIfNotExists(objectuuid)
+    # Fx18s::getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
+    def self.getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
         filepath = "#{StargateCentral::pathToCentral()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
         if !File.exists?(filepath) then
@@ -47,7 +54,7 @@ class Fx18s
         if eventTime.nil? then
             raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
         end
-        db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
+        db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
@@ -76,37 +83,22 @@ class Fx18s
 
     # Fx18s::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
+        db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = true
-        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? order by _eventTime_", [objectuuid, "object-is-alive"]) do |row|
+        db.execute("select * from _fx18_ where _eventData1_=? order by _eventTime_", ["object-is-alive"]) do |row|
             answer = (row["_eventData2_"] == "true")
         end
         db.close
         answer
     end
 
-    # Fx18s::objectuuids()
-    def self.objectuuids()
-        Enumerator.new do |objectuuids|
-            Fx18s::localFx18sFilepathsEnumerator().each{|filepath|
-                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
-                if objectuuid.nil? then
-                    puts "(error: 03a7834f-5882-4519-9a29-3a40092e6eae) I could not determine uuid for file: #{filepath}"
-                    puts "Exit."
-                    exit
-                end
-                objectuuids << objectuuid
-            }
-        end
-    end
-
-    # Fx18s::itemOrNullIncludingDeleted(objectuuid)
-    def self.itemOrNullIncludingDeleted(objectuuid)
+    # Fx18s::itemIncludingDeletedOrNull(objectuuid)
+    def self.itemIncludingDeletedOrNull(objectuuid)
         item = {}
-        db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
+        db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -145,9 +137,9 @@ class Fx18s
         item
     end
 
-    # Fx18s::itemOrNull(objectuuid)
-    def self.itemOrNull(objectuuid)
-        item = Fx18s::itemOrNullIncludingDeleted(objectuuid)
+    # Fx18s::itemAliveOrNull(objectuuid)
+    def self.itemAliveOrNull(objectuuid)
+        item = Fx18s::itemIncludingDeletedOrNull(objectuuid)
         return nil if item.nil?
         return nil if (!item["isAlive"].nil? and !item["isAlive"]) # Object is logically deleted
         item
@@ -156,7 +148,7 @@ class Fx18s
     # Fx18s::broadcastObjectEvents(objectuuid)
     def self.broadcastObjectEvents(objectuuid)
         item = {}
-        db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
+        db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -189,6 +181,21 @@ class Fx18s
             end
         end
     end
+
+    # Fx18s::objectuuidsUsingLocalFx18FileEnumerationIncludeDeleted()
+    def self.objectuuidsUsingLocalFx18FileEnumerationIncludeDeleted()
+        Enumerator.new do |objectuuids|
+            Fx18s::localFx18sFilepathsEnumerator().each{|filepath|
+                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
+                if objectuuid.nil? then
+                    puts "(error: 03a7834f-5882-4519-9a29-3a40092e6eae) I could not determine uuid for file: #{filepath}"
+                    puts "Exit."
+                    exit
+                end
+                objectuuids << objectuuid
+            }
+        end
+    end
 end
 
 class Fx18Attributes
@@ -215,7 +222,7 @@ class Fx18Attributes
 
     # Fx18Attributes::getJsonDecodeOrNull(objectuuid, attname)
     def self.getJsonDecodeOrNull(objectuuid, attname)
-        db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
+        db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -278,7 +285,7 @@ class Fx18Sets
 
     # Fx18Sets::items(objectuuid, setuuid)
     def self.items(objectuuid, setuuid)
-        db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
+        db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -441,7 +448,7 @@ class Fx18sSynchronisation
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
                 raise "(error: 77a8fbbc-105f-4119-920b-3d73c66c6185)"
             end
-            filepath2 = Fx18s::computeRemoteFx18FilepathAndErrorIfNotExists(objectuuid)
+            filepath2 = Fx18s::getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
             Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
             sleep 0.01
         }
@@ -453,7 +460,7 @@ class Fx18sSynchronisation
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
                 raise "(error: 85d69faf-0db7-4ee5-a463-eaa0ad90eb83)"
             end
-            filepath2 = Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid)
+            filepath2 = Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid)
             Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
             sleep 0.01
         }

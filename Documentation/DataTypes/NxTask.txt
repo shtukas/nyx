@@ -4,4 +4,4 @@ NxTask:
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
-    "nx111"       : Nx111
+    "nx111"       : null or Nx111
