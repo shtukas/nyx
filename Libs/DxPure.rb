@@ -23,4 +23,14 @@ class DxPure
         db.execute("insert into _dx_ (_key_, _value_) values (?, ?)", [key, value])
         db.close
     end
+
+    # DxPure::toString(sha1)
+    def self.toString(sha1)
+        
+    end
+
+    # DxPure::access(sha1)
+    def self.access(sha1)
+        
+    end
 end

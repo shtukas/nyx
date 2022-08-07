@@ -48,6 +48,11 @@ DxPure_Url:
         sha1
     end
 
+    # DxPure_Url::toString(filepath)
+    def self.toString(filepath)
+        
+    end
+
     # DxPure_Url::access(filepath)
     def self.access(filepath)
         
