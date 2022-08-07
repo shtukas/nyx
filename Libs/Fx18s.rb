@@ -1,12 +1,12 @@
 
-class Fx18
+class Fx18s
 
-    # Fx18::resetCachePrefix()
+    # Fx18s::resetCachePrefix()
     def self.resetCachePrefix()
         XCache::destroy("spectrum:de0991c3-7148-4c61-a976-ba92b1536789")
     end
 
-    # Fx18::cachePrefix()
+    # Fx18s::cachePrefix()
     def self.cachePrefix()
         prefix = XCache::getOrNull("spectrum:de0991c3-7148-4c61-a976-ba92b1536789")
         if prefix.nil? then
@@ -16,7 +16,7 @@ class Fx18
         prefix
     end
 
-    # Fx18::localFx18Filepath(objectuuid)
+    # Fx18s::localFx18Filepath(objectuuid)
     def self.localFx18Filepath(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
         filepath = "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
@@ -36,7 +36,7 @@ class Fx18
         filepath
     end
 
-    # Fx18::remoteFx18Filepath(objectuuid)
+    # Fx18s::remoteFx18Filepath(objectuuid)
     def self.remoteFx18Filepath(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
         filepath = "#{StargateCentral::pathToCentral()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
@@ -56,7 +56,7 @@ class Fx18
         filepath
     end
 
-    # Fx18::commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
+    # Fx18s::commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
         if objectuuid.nil? then
             raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
@@ -67,7 +67,7 @@ class Fx18
         if eventTime.nil? then
             raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
         end
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
+        db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
@@ -75,24 +75,15 @@ class Fx18
         db.close
     end
 
-    # Fx18::deleteEvent(filepath, eventuuid)
-    def self.deleteEvent(filepath, eventuuid)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.close
-    end
-
-    # Fx18::deleteObjectNoEvents(objectuuid)
+    # Fx18s::deleteObjectNoEvents(objectuuid)
     def self.deleteObjectNoEvents(objectuuid)
         # Insert the object deletion event
-        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", nil, nil, nil)
+        Fx18s::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", nil, nil, nil)
     end
 
-    # Fx18::deleteObject(objectuuid)
+    # Fx18s::deleteObject(objectuuid)
     def self.deleteObject(objectuuid)
-        Fx18::deleteObjectNoEvents(objectuuid)
+        Fx18s::deleteObjectNoEvents(objectuuid)
         SystemEvents::broadcast({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
@@ -103,9 +94,9 @@ class Fx18
         })
     end
 
-    # Fx18::objectIsAlive(objectuuid)
+    # Fx18s::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
+        db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -117,37 +108,33 @@ class Fx18
         answer
     end
 
-    # Fx18::objectuuids()
+    # Fx18s::objectuuids()
     def self.objectuuids()
-        db = SQLite3::Database.new("/Users/pascal/Galaxy/DataBank/Stargate/Fx18.sqlite3")
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        objectuuids = []
-        db.execute("select distinct(_objectuuid_) as _objectuuid_ from _fx18_", []) do |row|
-            objectuuids << row["_objectuuid_"]
+        Enumerator.new do |objectuuids|
+            Fx18s::localFx18sFilepathsEnumerator().each{|filepath|
+                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
+                if objectuuid.nil? then
+                    puts "(error: 03a7834f-5882-4519-9a29-3a40092e6eae) I could not determine uuid for file: #{filepath}"
+                    puts "Exit."
+                    exit
+                end
+                objectuuids << objectuuid
+            }
         end
-        db.close
-        objectuuids
     end
 
-    # Fx18::playLogFromScratchForLiveItems()
-    def self.playLogFromScratchForLiveItems()
-        items = {}
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(something))
+    # Fx18s::itemOrNull(objectuuid)
+    def self.itemOrNull(objectuuid)
+        item = {}
+        db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         objectuuids = []
-        db.execute("select * from _fx18_ order by _eventTime_", []) do |row|
+        db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
             # ---------------------------------------------------------------------------
             # If you make a change here you might want to report it to the other one
             # (group: ff4e41a5-fa0b-459f-9ba7-5a92fb56cf1e)
-            objectuuid = row["_objectuuid_"]
-            if items[objectuuid].nil? then
-                puts "Fx18::playLogFromScratchForLiveItems(): #{objectuuid}"
-                items[objectuuid] = {}
-            end
             if row["_eventData1_"] == "attribute" then
                 attrname  = row["_eventData2_"]
 
@@ -166,33 +153,6 @@ class Fx18
                             end
                 # ---------------------------------------------------------
 
-                items[objectuuid][attrname] = attrvalue
-            end
-            if row["_eventData1_"] == "object-is-alive" then
-                isAlive = (row["_eventData2_"] == "true")
-                items[objectuuid]["isAlive"] = isAlive
-            end
-            # ---------------------------------------------------------------------------
-        end
-        db.close
-        items.values.select{|item| item["isAlive"].nil? or item["isAlive"] }
-    end
-
-    # Fx18::itemOrNull(objectuuid)
-    def self.itemOrNull(objectuuid)
-        item = {}
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        objectuuids = []
-        db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
-            # ---------------------------------------------------------------------------
-            # If you make a change here you might want to report it to the other one
-            # (group: ff4e41a5-fa0b-459f-9ba7-5a92fb56cf1e)
-            if row["_eventData1_"] == "attribute" then
-                attrname  = row["_eventData2_"]
-                attrvalue = JSON.parse(row["_eventData3_"])
                 item[attrname] = attrvalue
             end
             if row["_eventData1_"] == "object-is-alive" then
@@ -207,10 +167,10 @@ class Fx18
         item
     end
 
-    # Fx18::broadcastObjectEvents(objectuuid)
+    # Fx18s::broadcastObjectEvents(objectuuid)
     def self.broadcastObjectEvents(objectuuid)
         item = {}
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
+        db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -224,8 +184,8 @@ class Fx18
         db.close
     end
 
-    # Fx18::localFilepathsEnumerator()
-    def self.localFilepathsEnumerator()
+    # Fx18s::localFx18sFilepathsEnumerator()
+    def self.localFx18sFilepathsEnumerator()
         Enumerator.new do |filepaths|
             Find.find("#{Config::pathToLocalDataBankStargate()}/Fx18s") do |path|
                 next if path[-8, 8] != ".sqlite3"
@@ -234,8 +194,8 @@ class Fx18
         end
     end
 
-    # Fx18::stargateCentralFilepathsEnumerator()
-    def self.stargateCentralFilepathsEnumerator()
+    # Fx18s::stargateCentralFx18sFilepathsEnumerator()
+    def self.stargateCentralFx18sFilepathsEnumerator()
         Enumerator.new do |filepaths|
             Find.find("#{StargateCentral::pathToCentral()}/Fx18s") do |path|
                 next if path[-8, 8] != ".sqlite3"
@@ -250,7 +210,7 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx18::commit(objectuuid, eventuuid, eventTime, "attribute", attname, JSON.generate(attvalue), nil, nil)
+        Fx18s::commit(objectuuid, eventuuid, eventTime, "attribute", attname, JSON.generate(attvalue), nil, nil)
     end
 
     # Fx18Attributes::setJsonEncodeObjectMaking(objectuuid, attname, attvalue)
@@ -269,7 +229,7 @@ class Fx18Attributes
 
     # Fx18Attributes::getJsonDecodeOrNull(objectuuid, attname)
     def self.getJsonDecodeOrNull(objectuuid, attname)
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
+        db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -303,7 +263,7 @@ class Fx18Sets
     # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value; going to be JSON serialised)
     def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
         puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
-        Fx18::commit(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
+        Fx18s::commit(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
         SystemEvents::processEventInternally({
             "mikuType"   => "(object has been updated)",
             "objectuuid" => objectuuid,
@@ -318,7 +278,7 @@ class Fx18Sets
     # Fx18Sets::remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
     def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
         puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
-        Fx18::commit(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
+        Fx18s::commit(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
         SystemEvents::processEventInternally({
             "mikuType"   => "(object has been updated)",
             "objectuuid" => objectuuid,
@@ -332,7 +292,7 @@ class Fx18Sets
 
     # Fx18Sets::items(objectuuid, setuuid)
     def self.items(objectuuid, setuuid)
-        db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
+        db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -364,9 +324,9 @@ class Fx18Sets
     end
 end
 
-class Fx18Synchronisation
+class Fx18sSynchronisation
 
-    # Fx18Synchronisation::getEventuuids(filepath)
+    # Fx18sSynchronisation::getEventuuids(filepath)
     def self.getEventuuids(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -380,7 +340,7 @@ class Fx18Synchronisation
         uuids
     end
 
-    # Fx18Synchronisation::getRecordOrNull(filepath, eventuuid)
+    # Fx18sSynchronisation::getRecordOrNull(filepath, eventuuid)
     def self.getRecordOrNull(filepath, eventuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -394,7 +354,7 @@ class Fx18Synchronisation
         record
     end
 
-    # Fx18Synchronisation::putRecord(filepath, record)
+    # Fx18sSynchronisation::putRecord(filepath, record)
     def self.putRecord(filepath, record)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -404,17 +364,17 @@ class Fx18Synchronisation
         db.close
     end
 
-    # Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+    # Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
     def self.propagateFileData(filepath1, filepath2)
         raise "(error: d5e6f2d3-9eab-484a-bde8-d7e6d479b04f)" if !File.exists?(filepath1)
         raise "(error: 5d24c60a-db47-4643-a618-bb2057daafd2)" if !File.exists?(filepath2)
 
-        eventuuids1 = Fx18Synchronisation::getEventuuids(filepath1)
-        eventuuids2 = Fx18Synchronisation::getEventuuids(filepath2)
+        eventuuids1 = Fx18sSynchronisation::getEventuuids(filepath1)
+        eventuuids2 = Fx18sSynchronisation::getEventuuids(filepath2)
 
         (eventuuids1 - eventuuids2).each{|eventuuid|
 
-            record1 = Fx18Synchronisation::getRecordOrNull(filepath1, eventuuid)
+            record1 = Fx18sSynchronisation::getRecordOrNull(filepath1, eventuuid)
             if record1.nil? then
                 puts "filepath1: #{filepath1}"
                 puts "filepath2: #{filepath2}"
@@ -422,27 +382,27 @@ class Fx18Synchronisation
                 raise "(error: e0f0d25c-48da-44b2-8304-832c3aa14421)"
             end
 
-            puts "Fx18Synchronisation::propagateFileData, filepath1: #{filepath1}, objectuuid: #{record1["_objectuuid_"]}, eventuuid: #{eventuuid}"
+            puts "Fx18sSynchronisation::propagateFileData, filepath1: #{filepath1}, objectuuid: #{record1["_objectuuid_"]}, eventuuid: #{eventuuid}"
 
-            Fx18Synchronisation::putRecord(filepath2, record1)
+            Fx18sSynchronisation::putRecord(filepath2, record1)
 
             # clear that line in the Lookup, but without deleting it
             Lookup1::removeObjectuuid(record1["_objectuuid_"])
 
-            if Fx18::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "false" then
+            if Fx18s::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "false" then
                 # If filepath1 is local then the item should have already been deleted from the Lookup
                 # If filepath1 is remote then we are performing a true deletion.
                 Lookup1::removeObjectuuid(record1["_objectuuid_"])
             end
 
-            if Fx18::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "true" then
+            if Fx18s::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "true" then
                 # At the time those lines are written, we don't even have a way to resuscitate
                 # an object, but if we do, it goes here
                 Lookup1::reconstructEntry(record1["_objectuuid_"])
             end
 
             # Checks
-            record2 = Fx18Synchronisation::getRecordOrNull(filepath2, eventuuid)
+            record2 = Fx18sSynchronisation::getRecordOrNull(filepath2, eventuuid)
             if record2.nil? then
                 puts "filepath1: #{filepath1}"
                 puts "filepath2: #{filepath2}"
@@ -470,12 +430,12 @@ class Fx18Synchronisation
         }
     end
 
-    # Fx18Synchronisation::sync()
+    # Fx18sSynchronisation::sync()
     def self.sync()
 
         LucilleCore::locationsAtFolder("#{Config::pathToLocalDataBankStargate()}/Datablobs").each{|filepath|
             next if filepath[-5, 5] != ".data"
-            puts "Fx18Synchronisation::sync(): transferring blob: #{filepath}"
+            puts "Fx18sSynchronisation::sync(): transferring blob: #{filepath}"
             blob = IO.read(filepath)
             ExData::putBlobOnInfinity(blob)
             FileUtils.rm(filepath)
@@ -488,27 +448,27 @@ class Fx18Synchronisation
             FileUtils.mv(dxLocalFilepath, dxVaultFilepath)
         }
 
-        Fx18::localFilepathsEnumerator().each{|filepath1|
+        Fx18s::localFx18sFilepathsEnumerator().each{|filepath1|
             puts "filepath1: #{filepath1}"
             objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
             if objectuuid.nil? then
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
                 raise "(error: 77a8fbbc-105f-4119-920b-3d73c66c6185)"
             end
-            filepath2 = Fx18::remoteFx18Filepath(objectuuid)
-            Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+            filepath2 = Fx18s::remoteFx18Filepath(objectuuid)
+            Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
             sleep 0.01
         }
 
-        Fx18::stargateCentralFilepathsEnumerator().each{|filepath1|
+        Fx18s::stargateCentralFx18sFilepathsEnumerator().each{|filepath1|
             puts "filepath1: #{filepath1}"
             objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
             if objectuuid.nil? then
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
                 raise "(error: 85d69faf-0db7-4ee5-a463-eaa0ad90eb83)"
             end
-            filepath2 = Fx18::localFx18Filepath(objectuuid)
-            Fx18Synchronisation::propagateFileData(filepath1, filepath2)
+            filepath2 = Fx18s::localFx18Filepath(objectuuid)
+            Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
             sleep 0.01
         }
     end

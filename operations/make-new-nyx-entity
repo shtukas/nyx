@@ -6,7 +6,7 @@ require_relative "../Libs/loader.rb"
 
 item = Nyx::interactivelyMakeNewOrNull()
 exit if item.nil?
-item = Fx18::itemOrNull(item["uuid"])
+item = Fx18s::itemOrNull(item["uuid"])
 if item.nil? then
     raise "(error: d628570c-db78-45d0-83de-0535cf44533b) this should not have hapenned 🤔"
 end

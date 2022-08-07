@@ -27,7 +27,7 @@ class TxThreads
 
     # TxThreads::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -55,7 +55,7 @@ class TxThreads
 
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = TxThreads::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 196d5021-a7d2-4d23-8e70-851d81c9f994) How did that happen ? 🤨"
@@ -101,7 +101,7 @@ class TxThreads
             .map{|elementuuid|
                 {
                     "elementuuid" => elementuuid,
-                    "element"     => Fx18::itemOrNull(elementuuid),
+                    "element"     => Fx18s::itemOrNull(elementuuid),
                     "ordinal"     => TxThreads::getElementOrdinalOrNull(thread, elementuuid)
                 }
             }
@@ -180,7 +180,7 @@ class TxThreads
 
             uuid = item["uuid"]
 
-            item = Fx18::itemOrNull(uuid)
+            item = Fx18s::itemOrNull(uuid)
 
             return if item.nil?
 
@@ -235,7 +235,7 @@ class TxThreads
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18::deleteObject(item["uuid"])
+                    Fx18s::deleteObject(item["uuid"])
                     break
                 end
             end

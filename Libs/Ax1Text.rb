@@ -17,7 +17,7 @@ class Ax1Text
             "text"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "text"),
         }
         # Sometimes, when we do lookup1 Lookup1::reconstructEntry during a commline update
-        # and Fx18::itemOrNull(objectuuid) returns something
+        # and Fx18s::itemOrNull(objectuuid) returns something
         # that thing may not have text considering that the events come in order of "uuid", "mikuType", "unixtime", "datetime", "text"
         return nil if item["text"].nil?
         item
@@ -41,7 +41,7 @@ class Ax1Text
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "text", text)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = Ax1Text::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"
@@ -89,7 +89,7 @@ class Ax1Text
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
-                    Fx18::deleteObject(uuid)
+                    Fx18s::deleteObject(uuid)
                     break
                 end
             end

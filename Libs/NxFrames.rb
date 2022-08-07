@@ -22,7 +22,7 @@ class NxFrames
 
     # NxFrames::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -44,7 +44,7 @@ class NxFrames
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxFrames::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"

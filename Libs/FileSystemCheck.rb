@@ -343,7 +343,7 @@ class FileSystemCheck
 
             puts e.message.green
 
-            db = SQLite3::Database.new(Fx18::localFx18Filepath(objectuuid))
+            db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -355,17 +355,23 @@ class FileSystemCheck
             db.close
 
             if LucilleCore::askQuestionAnswerAsBoolean("destroy this object ? ", false) then
-                Fx18::deleteObject(objectuuid)
+                Fx18s::deleteObject(objectuuid)
             end
         end
     end
 
     # FileSystemCheck::fsck()
     def self.fsck()
-        Fx18::objectuuids()
-            .each{|objectuuid|
+        Fx18s::localFx18sFilepathsEnumerator()
+            .each{|filepath|
                 FileSystemCheck::exitIfMissingCanary()
-                next if !Fx18::objectIsAlive(objectuuid)
+                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
+                if objectuuid.nil? then
+                    puts "(error: 441c244f-446c-4933-bf20-cf68c14509d5) I could not determine uuid for file: #{filepath}"
+                    puts "Exit."
+                    exit
+                end
+                next if !Fx18s::objectIsAlive(objectuuid)
                 FileSystemCheck::fsckObject(objectuuid)
             }
         puts "fsck completed successfully".green
@@ -373,14 +379,19 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckMikuType(mikuType)
     def self.fsckMikuType(mikuType)
-        Fx18::objectuuids()
+        Fx18s::localFx18sFilepathsEnumerator()
             .each{|objectuuid|
                 FileSystemCheck::exitIfMissingCanary()
-                next if !Fx18::objectIsAlive(objectuuid)
+                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
+                if objectuuid.nil? then
+                    puts "(error: 6586a7a1-6985-4e94-902e-589ec03762e3) I could not determine uuid for file: #{filepath}"
+                    puts "Exit."
+                    exit
+                end
+                next if !Fx18s::objectIsAlive(objectuuid)
                 next if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != mikuType
                 FileSystemCheck::fsckObject(objectuuid)
             }
         puts "fsck completed successfully".green
     end
-
 end

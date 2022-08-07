@@ -172,7 +172,7 @@ require_relative "InternetStatus.rb"
 require_relative "Iam.rb"
 
 require_relative "FileSystemCheck.rb"
-require_relative "Fx18.rb"
+require_relative "Fx18s.rb"
 
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"

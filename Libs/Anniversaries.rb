@@ -137,7 +137,7 @@ class Anniversaries
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = Anniversaries::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
@@ -210,7 +210,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Fx18::deleteObject(item["uuid"])
+                Fx18s::deleteObject(item["uuid"])
                 break
             end
         }

@@ -36,7 +36,7 @@ class TopLevel
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "text", text)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = TopLevel::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"
@@ -79,7 +79,7 @@ class TopLevel
     def self.landing(uuid)
         loop {
             system("clear")
-            item = Fx18::itemOrNull(uuid)
+            item = Fx18s::itemOrNull(uuid)
             puts TopLevel::toString(item)
             operations = [
                 "access/edit",
@@ -94,7 +94,7 @@ class TopLevel
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then
-                    Fx18::deleteObject(uuid)
+                    Fx18s::deleteObject(uuid)
                     break
                 end
             end

@@ -5,7 +5,7 @@ class ExData
     def self.putBlobInFx18(objectuuid, blob)
         raise "(error: 6b61018f-449b-40bc-9382-f7c7c7453190) we are not doing this anymore"
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
+        Fx18s::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
         XCacheDatablobs::putBlob(blob)
         nhash
     end
@@ -46,6 +46,7 @@ class ExData
 
     # ExData::getBlobFromInfinity(nhash)
     def self.getBlobFromInfinity(nhash)
+        return nil
         StargateCentral::ensureInfinityDrive()
         filename = "#{nhash}.data"
         filepath = "#{StargateCentral::pathToCentral()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{filename}"
@@ -103,7 +104,7 @@ class ExData
         blob = XCacheDatablobs::getBlobOrNull(nhash)
         if blob then
             puts "(warning: 9fa7067a-c774-4c3c-9660-a4d77ed412cd) I have just repaired Infinity (for nhash: #{nhash}) using XCache during fsck 🤔"
-            ExData::putBlobOnInfinity(blob)
+            #ExData::putBlobOnInfinity(blob)
             return blob
         end
 

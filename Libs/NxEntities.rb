@@ -25,7 +25,7 @@ class NxEntities
 
     # NxEntities::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -43,7 +43,7 @@ class NxEntities
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxEntities::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 291521ea-221b-4a81-9b6e-9ef0925d2ca5) How did that happen ? 🤨"

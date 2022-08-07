@@ -25,7 +25,7 @@ class NxTimelines
 
     # NxTimelines::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObject(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -45,7 +45,7 @@ class NxTimelines
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxTimelines::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: a6cc9094-7100-4aa3-8ebc-1fec0669733e) How did that happen ? 🤨"
