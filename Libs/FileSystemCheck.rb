@@ -343,7 +343,7 @@ class FileSystemCheck
 
             puts e.message.green
 
-            db = SQLite3::Database.new(Fx18s::localFx18Filepath(objectuuid))
+            db = SQLite3::Database.new(Fx18s::computeLocalFx18FilepathAndErrorIfNotExists(objectuuid))
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
