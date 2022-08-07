@@ -125,7 +125,22 @@ class Fx18
             end
             if row["_eventData1_"] == "attribute" then
                 attrname  = row["_eventData2_"]
-                attrvalue = JSON.parse(row["_eventData3_"])
+
+                # ---------------------------------------------------------
+                # TODO: back to simplified version at some point
+                attrvalue = 
+                            begin
+                                JSON.parse(row["_eventData3_"])
+                            rescue 
+                                puts "special circumstances, continue if _eventData3_ is non JSON encoded value"
+                                puts JSON.pretty_generate(row)
+                                LucilleCore::pressEnterToContinue()
+                                db.execute "delete from _fx18_ where _eventuuid_=?", [row["_eventuuid_"]]
+                                db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?, ?)", [row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], "attribute", "attrname", JSON.generate(row["_eventData3_"]), nil, nil]
+                                row["_eventData3_"]
+                            end
+                # ---------------------------------------------------------
+
                 items[objectuuid][attrname] = attrvalue
             end
             if row["_eventData1_"] == "object-is-alive" then
