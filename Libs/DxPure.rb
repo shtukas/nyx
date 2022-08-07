@@ -100,6 +100,7 @@ class DxPure
         if mikuType == "DxPureUrl" then
             return DxPureUrl::toString(filepath)
         end
+        raise "(error: 00809174-4b82-4138-8810-20be99eb1219) DxPure toString: unsupported mikuType: #{mikuType}"
     end
 
     # ------------------------------------------------------------
@@ -118,5 +119,33 @@ class DxPure
             DxPureUrl::access(filepath)
             return 
         end
+        raise "(error: 9a06ba98-9ec5-4dd5-94c8-1a87dd566506) DxPure access: unsupported mikuType: #{mikuType}"
     end
+
+    # ------------------------------------------------------------
+    # Fsck
+
+    # DxPure::fsckFileRaiseError(filepath)
+    def self.fsckFileRaiseError(filepath)
+        mikuType = DxPure::getMikuType(filepath)
+
+        ensureAttributeExists = lambda {|filepath, attrname|
+            if DxPure::readValueOrNull(filepath, attrname).nil? then
+                raise "(error: 5d636d7d-0a9c-4ef9-8abc-0992c99dafde) filepath: #{filepath}, attrname: #{attrname}"
+            end
+        }
+
+        if mikuType == "DxPureUrl" then
+            ensureAttributeExists.call(filepath, "randomValue")
+            ensureAttributeExists.call(filepath, "mikuType")
+            ensureAttributeExists.call(filepath, "unixtime")
+            ensureAttributeExists.call(filepath, "datetime")
+            ensureAttributeExists.call(filepath, "owner")
+            ensureAttributeExists.call(filepath, "url")
+            ensureAttributeExists.call(filepath, "savedInVault")
+            return
+        end
+        raise "(error: fa74feac-37c6-4525-93ba-933f52d54321) DxPure fsck: unsupported mikuType: #{mikuType}"
+    end
+
 end

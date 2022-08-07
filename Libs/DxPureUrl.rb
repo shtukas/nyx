@@ -28,6 +28,8 @@ class DxPureUrl
         DxPure::insertIntoPure(filepath1, "url", url)
         DxPure::insertIntoPure(filepath1, "savedInVault", savedInVault)
 
+        DxPure::fsckFileRaiseError(filepath1)
+
         sha1 = Digest::SHA1.file(filepath1).hexdigest
 
         filepath2 = DxPure::sha1ToFilepath(sha1)
