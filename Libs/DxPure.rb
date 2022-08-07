@@ -176,6 +176,5 @@ class DxPure
 
     # DxPure::trueIfFileHasBeenVaulted(filepath)
     def self.trueIfFileHasBeenVaulted(filepath)
-
     end
 end

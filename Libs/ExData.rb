@@ -32,24 +32,6 @@ class ExData
         nhash
     end
 
-    # ExData::getBlobFromLocalFx18OrNull(nhash)
-    def self.getBlobFromLocalFx18OrNull(nhash)
-        raise "(error: fa8bbfeb-7916-4ca7-b65b-d8f5160877bd) we are not doing this anymore"
-        db = SQLite3::Database.new(Fx18::localFx18Filepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-            blob = row["_eventData3_"]
-        end
-        db.close
-        if (blob and nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}") then # better safe than sorry
-            raise "(error: 77418e01-9411-4096-8212-1068745bba08) the extracted blob #{nhash} from file '#{filepath}' using ExData::getBlobFromLocalFx18OrNull(#{nhash}) did not validate."
-        end
-        blob
-    end
-
     # ExData::getBlobFromLocalDatablobsFolder(nhash)
     def self.getBlobFromLocalDatablobsFolder(nhash)
         filename = "#{nhash}.data"
