@@ -63,5 +63,6 @@ class DxPureUrl
         url = DxPure::readValueOrNull(filepath, "url")
         puts "url: #{url}"
         CommonUtils::openUrlUsingSafari(url)
+        LucilleCore::pressEnterToContinue()
     end
 end
