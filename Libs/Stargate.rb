@@ -3,8 +3,4 @@
 
 class Stargate
 
-    # Stargate::maintenance()
-    def self.maintenance()
-        # TODO:
-    end
 end
