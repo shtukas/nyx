@@ -3,17 +3,6 @@
 
 class DxPure_Url
 
-=begin
-DxPure_Url:
-    "randomValue"  : String
-    "mikuType"     : "DxPure_Url"
-    "unixtime"     : Float
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "owner"        : String
-    "url"          : String
-    "savedInVault" : Boolean
-=end
-
     # DxPure_Url::make(owner, url) # sha1, sha1 in the full filename of the pure immutable content-addressed data island, of the form <sha1>.sqlite3
     def self.make(owner, url)
 

@@ -270,7 +270,7 @@ class TxThreads
             end
 
             puts ""
-            puts "commands: <n> | insert | done (thread) | done <n> | detach <n> | transfer <n>".yellow
+            puts "commands: <n> | insert | done (thread) | done <n> | set ordinal <n> | detach <n> | transfer <n>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -310,6 +310,15 @@ class TxThreads
                 entity = store.get(indx)
                 next if entity.nil?
                 LxAction::action("done", entity)
+                next
+            end
+
+           if  command.start_with?("set ordinal") and command != "set ordinal" then
+                indx = command[11, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                TxThreads::setElementOrdinalOrNull(thread, entity["uuid"], ordinal)
                 next
             end
 
