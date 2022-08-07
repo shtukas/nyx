@@ -101,7 +101,7 @@ class TxThreads
             .map{|elementuuid|
                 {
                     "elementuuid" => elementuuid,
-                    "element"     => Fx18s::itemAliveOrNull(elementuuid),
+                    "element"     => Fx18s::getItemAliveOrNull(elementuuid),
                     "ordinal"     => TxThreads::getElementOrdinalOrNull(thread, elementuuid)
                 }
             }
@@ -180,7 +180,7 @@ class TxThreads
 
             uuid = item["uuid"]
 
-            item = Fx18s::itemAliveOrNull(uuid)
+            item = Fx18s::getItemAliveOrNull(uuid)
 
             return if item.nil?
 

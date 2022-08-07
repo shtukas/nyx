@@ -56,7 +56,7 @@ class DailySlots
     def self.section()
         DailySlots::dataset()
             .map{|entry|
-                entry["item"] = Fx18s::itemAliveOrNull(entry["objectuuid"])
+                entry["item"] = Fx18s::getItemAliveOrNull(entry["objectuuid"])
                 if entry["hour"].size == 2 then
                     entry["hour"] = "#{entry["hour"]}:00"
                 end

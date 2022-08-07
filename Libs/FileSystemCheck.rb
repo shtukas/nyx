@@ -370,7 +370,6 @@ class FileSystemCheck
                     puts "Exit."
                     exit
                 end
-                next if !Fx18s::objectIsAlive(objectuuid)
                 FileSystemCheck::fsckObject(objectuuid)
             }
         puts "fsck completed successfully".green
@@ -387,7 +386,6 @@ class FileSystemCheck
                     puts "Exit."
                     exit
                 end
-                next if !Fx18s::objectIsAlive(objectuuid)
                 next if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != mikuType
                 FileSystemCheck::fsckObject(objectuuid)
             }

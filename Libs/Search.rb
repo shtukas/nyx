@@ -26,7 +26,7 @@ class Search
                 nx20 = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", selected, lambda{|item| item["announce"] })
                 break if nx20.nil?
                 system('clear')
-                item = Fx18s::itemAliveOrNull(nx20["objectuuid"])
+                item = Fx18s::getItemAliveOrNull(nx20["objectuuid"])
                 result = Landing::landing(item, isSearchAndSelect)
                 if isSearchAndSelect and result then
                     return result

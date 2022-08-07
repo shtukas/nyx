@@ -95,8 +95,8 @@ class Fx18s
         answer
     end
 
-    # Fx18s::itemIncludingDeletedOrNull(objectuuid)
-    def self.itemIncludingDeletedOrNull(objectuuid)
+    # Fx18s::getItemIncludingLogicallyDeletedOrNull(objectuuid)
+    def self.getItemIncludingLogicallyDeletedOrNull(objectuuid)
         item = {}
         db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
         db.busy_timeout = 117
@@ -137,9 +137,9 @@ class Fx18s
         item
     end
 
-    # Fx18s::itemAliveOrNull(objectuuid)
-    def self.itemAliveOrNull(objectuuid)
-        item = Fx18s::itemIncludingDeletedOrNull(objectuuid)
+    # Fx18s::getItemAliveOrNull(objectuuid)
+    def self.getItemAliveOrNull(objectuuid)
+        item = Fx18s::getItemIncludingLogicallyDeletedOrNull(objectuuid)
         return nil if item.nil?
         return nil if (!item["isAlive"].nil? and !item["isAlive"]) # Object is logically deleted
         item
@@ -182,8 +182,8 @@ class Fx18s
         end
     end
 
-    # Fx18s::objectuuidsUsingLocalFx18FileEnumerationIncludeDeleted()
-    def self.objectuuidsUsingLocalFx18FileEnumerationIncludeDeleted()
+    # Fx18s::objectuuidsUsingLocalFx18FileEnumerationIncludeLogicallyDeleted()
+    def self.objectuuidsUsingLocalFx18FileEnumerationIncludeLogicallyDeleted()
         Enumerator.new do |objectuuids|
             Fx18s::localFx18sFilepathsEnumerator().each{|filepath|
                 objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")

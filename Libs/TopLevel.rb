@@ -79,7 +79,7 @@ class TopLevel
     def self.landing(uuid)
         loop {
             system("clear")
-            item = Fx18s::itemAliveOrNull(uuid)
+            item = Fx18s::getItemAliveOrNull(uuid)
             puts TopLevel::toString(item)
             operations = [
                 "access/edit",
