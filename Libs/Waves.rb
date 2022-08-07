@@ -149,7 +149,7 @@ class Waves
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx46",        JSON.generate(nx46))
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObject(uuid)
         Lookup1::reconstructEntry(uuid)

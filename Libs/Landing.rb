@@ -238,7 +238,7 @@ class Landing
             if Interpreting::match("nx111", command) then
                 nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
                 next if nx111.nil?
-                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", JSON.generate(nx111))
+                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", nx111)
             end
 
             if Interpreting::match("iam", command) then
