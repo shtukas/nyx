@@ -181,14 +181,14 @@ class EditionDesk
         end
         if nx111["type"] == "DxPure" then
             sha1 = nx111["sha1"]
-            puts "(error: ff77532d-d116-40a9-a5c7-3b4dacbcee64) Export of Starships has not been implemented yet"
+            puts "(error: ff77532d-d116-40a9-a5c7-3b4dacbcee64) Export of DxPure files has not been implemented yet"
             exit
         end
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{itemuuid}"
     end
 
-    # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
-    def self.accessItemNx111Pair(parentLocation, item, nx111)
+    # EditionDesk::accessItemNx111Pair(item, nx111)
+    def self.accessItemNx111Pair(item, nx111)
         return if nx111.nil?
 
         if nx111["type"] == "url" then
@@ -198,7 +198,12 @@ class EditionDesk
             return
         end
 
-        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item["uuid"], nx111)
+        if nx111["type"] == "DxPure" then
+            DxPure::access(nx111["sha1"])
+            return
+        end
+
+        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(EditionDesk::pathToEditionDesk(), item["uuid"], nx111)
         if location.nil? then
             puts "I could not accessItemNx111Pair for"
             puts "itemuuid: #{itemuuid}"

@@ -84,11 +84,11 @@ class Nx111
             }
         end
         if type == "DxPure" then
-            sha1 = Starships::interactivelyMakeNewShipOrNull()
+            sha1 = DxPure::interactivelyIssueNewOrNull(objectuuid)
             return nil if sha1.nil?
             return {
-                "uuid"   => SecureRandom.uuid,
-                "type"   => "DxPure",
+                "uuid" => SecureRandom.uuid,
+                "type" => "DxPure",
                 "sha1" => sha1
             }
         end
