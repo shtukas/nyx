@@ -156,7 +156,7 @@ class Lookup1
             Lookup1::reconstructEntry(objectuuid)
         end
 
-        if event["mikuType"] == "(object has been deleted)" then
+        if event["mikuType"] == "(object has been logically deleted)" then
             objectuuid = event["objectuuid"]
             db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
             db.busy_timeout = 117

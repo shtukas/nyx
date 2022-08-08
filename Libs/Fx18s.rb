@@ -68,15 +68,15 @@ class Fx18s
         Fx18s::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", nil, nil, nil)
     end
 
-    # Fx18s::deleteObject(objectuuid)
-    def self.deleteObject(objectuuid)
+    # Fx18s::deleteObjectLogically(objectuuid)
+    def self.deleteObjectLogically(objectuuid)
         Fx18s::deleteObjectNoEvents(objectuuid)
         SystemEvents::broadcast({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
         })
         SystemEvents::processEventInternally({
-            "mikuType"   => "(object has been deleted)",
+            "mikuType"   => "(object has been logically deleted)",
             "objectuuid" => objectuuid,
         })
     end

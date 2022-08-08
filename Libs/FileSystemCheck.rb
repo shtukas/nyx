@@ -351,7 +351,7 @@ class FileSystemCheck
             db.close
 
             if LucilleCore::askQuestionAnswerAsBoolean("destroy this object ? ", false) then
-                Fx18s::deleteObject(objectuuid)
+                Fx18s::deleteObjectLogically(objectuuid)
             end
 
             return false
@@ -373,6 +373,8 @@ class FileSystemCheck
                     puts "Exit."
                     exit
                 end
+
+                next if !Fx18s::objectIsAlive(objectuuid)
 
                 status = FileSystemCheck::fsckObject(objectuuid)
                 next if !status

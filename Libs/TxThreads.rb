@@ -27,7 +27,7 @@ class TxThreads
 
     # TxThreads::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -235,7 +235,7 @@ class TxThreads
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18s::deleteObject(item["uuid"])
+                    Fx18s::deleteObjectLogically(item["uuid"])
                     break
                 end
             end

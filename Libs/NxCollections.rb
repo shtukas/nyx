@@ -25,7 +25,7 @@ class NxCollections
 
     # NxCollections::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------

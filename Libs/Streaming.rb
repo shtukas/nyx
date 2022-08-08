@@ -35,7 +35,7 @@ class Streaming
             end
             if command == "done" then
                 LxAction::action("stop", item)
-                Fx18s::deleteObject(item["uuid"])
+                Fx18s::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "detach" then
@@ -90,7 +90,7 @@ class Streaming
                 next
             end
             if command == "done" then
-                Fx18s::deleteObject(item["uuid"])
+                Fx18s::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "insert" then

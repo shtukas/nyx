@@ -13,7 +13,7 @@ class SystemEvents
             return
         end
 
-        if event["mikuType"] == "(object has been deleted)" then
+        if event["mikuType"] == "(object has been logically deleted)" then
             Fx18s::deleteObjectNoEvents(event["objectuuid"])
             Lookup1::processEventInternally(event)
             return

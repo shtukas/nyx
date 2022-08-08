@@ -94,7 +94,7 @@ class TopLevel
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then
-                    Fx18s::deleteObject(uuid)
+                    Fx18s::deleteObjectLogically(uuid)
                     break
                 end
             end
