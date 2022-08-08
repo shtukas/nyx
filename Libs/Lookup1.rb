@@ -25,7 +25,7 @@ class Lookup1
             end
 
             item = Fx18s::getItemAliveOrNull(objectuuid)
-            next if item.nil? # Happens when file exists but object has been logically.
+            next if item.nil? # Happens when file exists but object has been logically deleted
 
             objectuuid  = item["uuid"]
             unixtime    = item["unixtime"]

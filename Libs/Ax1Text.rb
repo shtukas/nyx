@@ -34,6 +34,7 @@ class Ax1Text
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid", uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType", "Ax1Text")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime", unixtime)

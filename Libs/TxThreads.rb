@@ -45,7 +45,7 @@ class TxThreads
         ax39 = Ax39::interactivelyCreateNewAxOrNull()
 
         uuid = SecureRandom.uuid
-
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxThread")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_f)
