@@ -3,7 +3,7 @@ class Fx18s
 
     # Fx18s::makeNewFx18File(filepath)
     def self.makeNewFx18File(filepath)
-        puts "Initiate database #{filepath}"
+        puts "Initiate Fx18: #{filepath}"
         folderpath = File.dirname(filepath)
         if !File.exists?(folderpath) then
             FileUtils.mkdir(folderpath)
