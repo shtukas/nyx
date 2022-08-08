@@ -25,8 +25,8 @@ class Fx18s
         "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
     end
 
-    # Fx18s::objectuuidToRemoteFx18Filepath(objectuuid)
-    def self.objectuuidToRemoteFx18Filepath(objectuuid)
+    # Fx18s::objectuuidToEnergyGridFx18Filepath(objectuuid)
+    def self.objectuuidToEnergyGridFx18Filepath(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
         "#{StargateCentral::pathToCentral()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
     end
@@ -40,14 +40,8 @@ class Fx18s
         Fx18s::makeNewFx18File(filepath)
     end
 
-    # Fx18s::makeNewRemoteFx18FileForObjectuuid(objectuuid)
-    def self.makeNewRemoteFx18FileForObjectuuid(objectuuid)
-        filepath = Fx18s::objectuuidToRemoteFx18Filepath(objectuuid)
-        Fx18s::makeNewFx18File(filepath)
-    end    
-
     # ------------------------------------------------------
-    # Get existing files with error if not present
+    # Get existing local files with error if not present, or ensure remote (sync)
 
     # Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid)
     def self.getExistingFx18FilepathForObjectuuid(objectuuid)
@@ -58,11 +52,11 @@ class Fx18s
         filepath
     end
 
-    # Fx18s::getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
-    def self.getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
-        filepath = Fx18s::objectuuidToRemoteFx18Filepath(objectuuid)
+    # Fx18s::ensureEnergyGridFx18FilepathForObjectuuid(objectuuid)
+    def self.ensureEnergyGridFx18FilepathForObjectuuid(objectuuid)
+        filepath = Fx18s::objectuuidToEnergyGridFx18Filepath(objectuuid)
         if !File.exists?(filepath) then
-            raise "(error: cc021cbe-4bc9-4e42-a5c7-e98b696cc5d4) filepath: #{filepath}"
+            Fx18s::makeNewFx18File(filepath)
         end
         filepath
     end
@@ -198,8 +192,8 @@ class Fx18s
         end
     end
 
-    # Fx18s::stargateCentralFx18sFilepathsEnumerator()
-    def self.stargateCentralFx18sFilepathsEnumerator()
+    # Fx18s::energyGrid1Fx18sFilepathsEnumerator()
+    def self.energyGrid1Fx18sFilepathsEnumerator()
         Enumerator.new do |filepaths|
             Find.find("#{StargateCentral::pathToCentral()}/Fx18s") do |path|
                 next if path[-8, 8] != ".sqlite3"
@@ -391,6 +385,8 @@ class Fx18sSynchronisation
         eventuuids1 = Fx18sSynchronisation::getEventuuids(filepath1)
         eventuuids2 = Fx18sSynchronisation::getEventuuids(filepath2)
 
+        updatedObjectuuids = []
+
         (eventuuids1 - eventuuids2).each{|eventuuid|
 
             record1 = Fx18sSynchronisation::getRecordOrNull(filepath1, eventuuid)
@@ -401,23 +397,28 @@ class Fx18sSynchronisation
                 raise "(error: e0f0d25c-48da-44b2-8304-832c3aa14421)"
             end
 
+            objectuuid = record1["_objectuuid_"]
+
             puts "Fx18sSynchronisation::propagateFileData, filepath1: #{filepath1}, objectuuid: #{record1["_objectuuid_"]}, eventuuid: #{eventuuid}"
 
             Fx18sSynchronisation::putRecord(filepath2, record1)
 
-            # clear that line in the Lookup, but without deleting it
-            Lookup1::removeObjectuuid(record1["_objectuuid_"])
-
-            if Fx18s::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "false" then
+            if record1["_eventData1_"] == "object-is-alive" and record1["_eventData2_"] == "false" then
                 # If filepath1 is local then the item should have already been deleted from the Lookup
                 # If filepath1 is remote then we are performing a true deletion.
                 Lookup1::removeObjectuuid(record1["_objectuuid_"])
+                updatedObjectuuids = updatedObjectuuids - [objectuuid]
             end
 
-            if Fx18s::objectIsAlive(record1["_eventData1_"]) == "object-is-alive" and record1["_eventData2_"] == "true" then
+            if record1["_eventData1_"] == "object-is-alive" and record1["_eventData2_"] == "true" then
                 # At the time those lines are written, we don't even have a way to resuscitate
                 # an object, but if we do, it goes here
                 Lookup1::reconstructEntry(record1["_objectuuid_"])
+                updatedObjectuuids << objectuuid
+            end
+
+            if record1["_eventData1_"] != "object-is-alive" then
+                updatedObjectuuids << objectuuid
             end
 
             # Checks
@@ -447,6 +448,13 @@ class Fx18sSynchronisation
                 end
             }
         }
+
+        if filepath1.include?("EnergyGrid1") then
+            updatedObjectuuids.uniq.each{|objectuuid|
+                puts "Lookup1: updating #{objectuuid}"
+                Lookup1::reconstructEntry(objectuuid)
+            }
+        end
     end
 
     # Fx18sSynchronisation::sync()
@@ -462,9 +470,9 @@ class Fx18sSynchronisation
 
         DxPure::localFilepathsEnumerator().each{|dxLocalFilepath|
             sha1 = File.basename(dxLocalFilepath).gsub(".sqlite3", "")
-            dxVaultFilepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
-            next if File.exists?(dxVaultFilepath)
-            FileUtils.mv(dxLocalFilepath, dxVaultFilepath)
+            eGridFilepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
+            next if File.exists?(eGridFilepath)
+            FileUtils.mv(dxLocalFilepath, eGridFilepath)
         }
 
         Fx18s::localFx18sFilepathsEnumerator().each{|filepath1|
@@ -474,12 +482,12 @@ class Fx18sSynchronisation
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
                 raise "(error: 77a8fbbc-105f-4119-920b-3d73c66c6185)"
             end
-            filepath2 = Fx18s::getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
+            filepath2 = Fx18s::ensureEnergyGridFx18FilepathForObjectuuid(objectuuid)
             Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
             sleep 0.01
         }
 
-        Fx18s::stargateCentralFx18sFilepathsEnumerator().each{|filepath1|
+        Fx18s::energyGrid1Fx18sFilepathsEnumerator().each{|filepath1|
             puts "filepath1: #{filepath1}"
             objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
             if objectuuid.nil? then
