@@ -16,17 +16,42 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::makeNewFx18FileForObjectuuid(uuid)
-    def self.makeNewFx18FileForObjectuuid(uuid)
+    # ------------------------------------------------------
+    # Pure functions computing the filepaths
+
+    # Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
+    def self.objectuuidToLocalFx18Filepath(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
-        filepath = "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
+    end
+
+    # Fx18s::objectuuidToRemoteFx18Filepath(objectuuid)
+    def self.objectuuidToRemoteFx18Filepath(objectuuid)
+        sha1 = Digest::SHA1.hexdigest(objectuuid)
+        "#{StargateCentral::pathToCentral()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
+    end
+
+    # ------------------------------------------------------
+    # Making files given objectuuids
+
+    # Fx18s::makeNewLocalFx18FileForObjectuuid(objectuuid)
+    def self.makeNewLocalFx18FileForObjectuuid(objectuuid)
+        filepath = Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
         Fx18s::makeNewFx18File(filepath)
     end
 
+    # Fx18s::makeNewRemoteFx18FileForObjectuuid(objectuuid)
+    def self.makeNewRemoteFx18FileForObjectuuid(objectuuid)
+        filepath = Fx18s::objectuuidToRemoteFx18Filepath(objectuuid)
+        Fx18s::makeNewFx18File(filepath)
+    end    
+
+    # ------------------------------------------------------
+    # Get existing files with error if not present
+
     # Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid)
     def self.getExistingFx18FilepathForObjectuuid(objectuuid)
-        sha1 = Digest::SHA1.hexdigest(objectuuid)
-        filepath = "#{Config::pathToLocalDataBankStargate()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        filepath = Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
         if !File.exists?(filepath) then
             raise "(error: 7a6f4737-5030-4653-bf59-09f6d301b471) filepath: #{filepath}"
         end
@@ -35,13 +60,14 @@ class Fx18s
 
     # Fx18s::getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
     def self.getExistingRemoteFx18FilepathForObjectuuid(objectuuid)
-        sha1 = Digest::SHA1.hexdigest(objectuuid)
-        filepath = "#{StargateCentral::pathToCentral()}/Fx18s/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        filepath = Fx18s::objectuuidToRemoteFx18Filepath(objectuuid)
         if !File.exists?(filepath) then
             raise "(error: cc021cbe-4bc9-4e42-a5c7-e98b696cc5d4) filepath: #{filepath}"
         end
         filepath
     end
+
+    # ------------------------------------------------------
 
     # Fx18s::commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)
     def self.commit(objectuuid, eventuuid, eventTime, eventData1, eventData2, eventData3, eventData4, eventData5)

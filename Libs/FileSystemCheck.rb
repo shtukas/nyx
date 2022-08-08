@@ -221,7 +221,6 @@ class FileSystemCheck
                 "unixtime",
                 "datetime",
                 "description",
-                "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
@@ -363,10 +362,13 @@ class FileSystemCheck
         Fx18s::localFx18sFilepathsEnumerator()
             .each{|filepath|
 
+                FileSystemCheck::exitIfMissingCanary()
+
                 key1 = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{File.mtime(filepath)}"
                 next if XCache::getFlag(key1)
 
-                FileSystemCheck::exitIfMissingCanary()
+                puts "FileSystemCheck, Fx18 @ filepath: #{filepath}"
+
                 objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
                 if objectuuid.nil? then
                     puts "(error: 441c244f-446c-4933-bf20-cf68c14509d5) I could not determine uuid for file: #{filepath}"
