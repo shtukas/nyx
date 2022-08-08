@@ -63,8 +63,8 @@ class DxPure
         filepath
     end
 
-    # DxPure::sha1ToStargateInfinityFilepath(sha1)
-    def self.sha1ToStargateInfinityFilepath(sha1)
+    # DxPure::sha1ToEnergyGrid1Filepath(sha1)
+    def self.sha1ToEnergyGrid1Filepath(sha1)
         filepath = "#{StargateCentral::pathToCentral()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkdir(File.dirname(filepath))

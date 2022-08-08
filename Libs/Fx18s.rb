@@ -456,13 +456,13 @@ class Fx18sSynchronisation
             next if filepath[-5, 5] != ".data"
             puts "Fx18sSynchronisation::sync(): transferring blob: #{filepath}"
             blob = IO.read(filepath)
-            ExData::putBlobOnInfinity(blob)
+            ExData::putBlobOnEnergyGrid1(blob)
             FileUtils.rm(filepath)
         }
 
         DxPure::localFilepathsEnumerator().each{|dxLocalFilepath|
             sha1 = File.basename(dxLocalFilepath).gsub(".sqlite3", "")
-            dxVaultFilepath = DxPure::sha1ToStargateInfinityFilepath(sha1)
+            dxVaultFilepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
             next if File.exists?(dxVaultFilepath)
             FileUtils.mv(dxLocalFilepath, dxVaultFilepath)
         }

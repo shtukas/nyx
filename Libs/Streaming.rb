@@ -152,19 +152,6 @@ class Streaming
         NxBallsService::close(uuid, true)
     end
 
-    # Streaming::icedStreamingToInfinity()
-    def self.icedStreamingToInfinity()
-        uuid = Streaming::uuid()
-        NxBallsService::issue(uuid, "(rstream-to-infinity)", [uuid])
-        items = NxIceds::items().shuffle
-        loop {
-            item = items.shift
-            next if TxThreads::uuidIsProjectElement(item["uuid"])
-            command = Streaming::runItem(item)
-        }
-        NxBallsService::close(uuid, true)
-    end
-
     # Streaming::section2()
     def self.section2()
         uuid = Streaming::uuid()

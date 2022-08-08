@@ -11,7 +11,7 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        StargateCentral::ensureInfinityDrive()
+        StargateCentral::ensureEnergyGrid1()
         "#{StargateCentral::pathToCentral()}/EditionDesk"
     end
 
@@ -167,7 +167,7 @@ class EditionDesk
                 return
             end
             puts "location: #{location}"
-            StargateCentral::ensureInfinityDrive()
+            StargateCentral::ensureEnergyGrid1()
             if LucilleCore::locationsAtFolder(location).size == 1 and LucilleCore::locationsAtFolder(location).first[-5, 5] == ".webm" then
                 location2 = LucilleCore::locationsAtFolder(location).first
                 if File.basename(location2).include?("'") then
