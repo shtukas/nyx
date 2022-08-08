@@ -348,8 +348,7 @@ class FileSystemCheck
             db.results_as_hash = true
             record = nil
             db.execute("select * from _fx18_ where _objectuuid_=?", [objectuuid]) do |row|
-                next if row["_eventData1_"] == "datablob"
-                puts JSON.pretty_generate(row)
+                puts JSON.generate(row)
             end
             db.close
 
@@ -363,14 +362,20 @@ class FileSystemCheck
     def self.fsck()
         Fx18s::localFx18sFilepathsEnumerator()
             .each{|filepath|
+
+                key1 = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{File.mtime(filepath)}"
+                next if XCache::getFlag(key1)
+
                 FileSystemCheck::exitIfMissingCanary()
-                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
+                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
                 if objectuuid.nil? then
                     puts "(error: 441c244f-446c-4933-bf20-cf68c14509d5) I could not determine uuid for file: #{filepath}"
                     puts "Exit."
                     exit
                 end
                 FileSystemCheck::fsckObject(objectuuid)
+
+                XCache::setFlag(key1, true)
             }
         puts "fsck completed successfully".green
     end

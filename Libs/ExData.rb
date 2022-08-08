@@ -46,7 +46,6 @@ class ExData
 
     # ExData::getBlobFromInfinity(nhash)
     def self.getBlobFromInfinity(nhash)
-        return nil
         StargateCentral::ensureInfinityDrive()
         filename = "#{nhash}.data"
         filepath = "#{StargateCentral::pathToCentral()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{filename}"
@@ -104,7 +103,7 @@ class ExData
         blob = XCacheDatablobs::getBlobOrNull(nhash)
         if blob then
             puts "(warning: 9fa7067a-c774-4c3c-9660-a4d77ed412cd) I have just repaired Infinity (for nhash: #{nhash}) using XCache during fsck 🤔"
-            #ExData::putBlobOnInfinity(blob)
+            ExData::putBlobOnInfinity(blob)
             return blob
         end
 
