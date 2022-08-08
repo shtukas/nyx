@@ -295,7 +295,6 @@ class FileSystemCheck
                 "unixtime",
                 "datetime",
                 "description",
-                "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
