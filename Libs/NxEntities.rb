@@ -41,7 +41,7 @@ class NxEntities
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxEntities::objectuuidToItemOrNull(uuid)

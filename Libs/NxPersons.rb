@@ -28,7 +28,7 @@ class NxPersons
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "name",        name1)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxPersons::objectuuidToItemOrNull(uuid)

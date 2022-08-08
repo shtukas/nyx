@@ -42,7 +42,7 @@ class NxFrames
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxFrames::objectuuidToItemOrNull(uuid)

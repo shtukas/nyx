@@ -53,7 +53,7 @@ class TxThreads
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
 
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = TxThreads::objectuuidToItemOrNull(uuid)

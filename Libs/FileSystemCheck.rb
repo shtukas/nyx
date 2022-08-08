@@ -102,7 +102,7 @@ class FileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
     end
 
-    # FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
+    # FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid)
     def self.fsckObjectErrorAtFirstFailure(objectuuid)
         puts "FileSystemCheck, Fx18 @ objectuuid: #{objectuuid}"
 
@@ -110,7 +110,7 @@ class FileSystemCheck
         if mikuType.nil? then
             puts "objectuuid: #{objectuuid}".red
             puts "Malformed Fx18 file, I could not find a mikuType".red
-            raise "FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid: #{objectuuid})"
+            raise "FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid: #{objectuuid})"
         end
 
         ensureAttribute = lambda {|objectuuid, mikuType, attname|
@@ -119,7 +119,7 @@ class FileSystemCheck
                 puts "ensureAttribute(#{objectuuid}, #{mikuType}, #{attname})"
                 puts "objectuuid: #{objectuuid}".red
                 puts "Malformed fx18 file (mikuType: #{mikuType}), I could not find attribute: #{attname}".red
-                raise "FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid: #{objectuuid})"
+                raise "FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid: #{objectuuid})"
             end
         }
 
@@ -329,34 +329,6 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckObject(objectuuid) # true if all ok!
-    def self.fsckObject(objectuuid)
-
-        begin
-            FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
-            return true
-        rescue => e
-
-            puts e.message.green
-
-            db = SQLite3::Database.new(Fx18s::getExistingFx18FilepathForObjectuuid(objectuuid))
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            record = nil
-            db.execute("select * from _fx18_ where _objectuuid_=?", [objectuuid]) do |row|
-                puts JSON.generate(row)
-            end
-            db.close
-
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy this object ? ", false) then
-                Fx18s::deleteObjectLogically(objectuuid)
-            end
-
-            return false
-        end
-    end
-
     # FileSystemCheck::fsck()
     def self.fsck()
         Fx18s::localFx18sFilepathsEnumerator()
@@ -376,10 +348,12 @@ class FileSystemCheck
                     exit
                 end
 
-                next if !Fx18s::objectIsAlive(objectuuid)
+                if !Fx18s::objectIsAlive(objectuuid) then
+                    XCache::setFlag(key1, true)
+                    next
+                end
 
-                status = FileSystemCheck::fsckObject(objectuuid)
-                next if !status
+                FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid)
 
                 XCache::setFlag(key1, true)
             }
@@ -398,7 +372,7 @@ class FileSystemCheck
                     exit
                 end
                 next if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != mikuType
-                FileSystemCheck::fsckObject(objectuuid)
+                FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
             }
         puts "fsck completed successfully".green
     end

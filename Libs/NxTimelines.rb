@@ -43,7 +43,7 @@ class NxTimelines
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxTimelines::objectuuidToItemOrNull(uuid)

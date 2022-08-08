@@ -34,7 +34,7 @@ class TopLevel
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime", unixtime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime", datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "text", text)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = TopLevel::objectuuidToItemOrNull(uuid)

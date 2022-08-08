@@ -151,7 +151,7 @@ class Waves
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx46",        JSON.generate(nx46))
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = Waves::objectuuidToItemOrNull(uuid)

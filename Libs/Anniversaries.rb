@@ -135,7 +135,7 @@ class Anniversaries
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "startdate",   startdate)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "repeatType",  repeatType)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastCelebrationDate", lastCelebrationDate)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = Anniversaries::objectuuidToItemOrNull(uuid)
