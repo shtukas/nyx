@@ -321,7 +321,6 @@ class FileSystemCheck
                 "unixtime",
                 "description",
                 "nx46",
-                "nx111",
                 "lastDoneDateTime",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
