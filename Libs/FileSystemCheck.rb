@@ -195,7 +195,6 @@ class FileSystemCheck
                 "mikuType",
                 "unixtime",
                 "datetime",
-                "nx111",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
             nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
@@ -333,11 +332,12 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckObject(objectuuid)
+    # FileSystemCheck::fsckObject(objectuuid) # true if all ok!
     def self.fsckObject(objectuuid)
 
         begin
             FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
+            return true
         rescue => e
 
             puts e.message.green
@@ -355,6 +355,8 @@ class FileSystemCheck
             if LucilleCore::askQuestionAnswerAsBoolean("destroy this object ? ", false) then
                 Fx18s::deleteObject(objectuuid)
             end
+
+            return false
         end
     end
 
@@ -373,7 +375,9 @@ class FileSystemCheck
                     puts "Exit."
                     exit
                 end
-                FileSystemCheck::fsckObject(objectuuid)
+
+                status = FileSystemCheck::fsckObject(objectuuid)
+                next if !status
 
                 XCache::setFlag(key1, true)
             }
