@@ -4,10 +4,10 @@
 
 require_relative "../Libs/loader.rb"
 
-uuid = ARGV[0]
+objectuuid = ARGV[0]
 item = Fx18s::getItemAliveOrNull(objectuuid)
 if item.nil? then
-    puts "Could not find a alive item for uuid: #{uuid}"
+    puts "Could not find a alive item for uuid: #{objectuuid}"
     exit
 end
 puts JSON.pretty_generate(item)
