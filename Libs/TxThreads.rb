@@ -15,8 +15,7 @@ class TxThreads
             "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
             "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
             "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
-            "ax39"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "ax39"),
-            "isPriority"  => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "isPriority")
+            "ax39"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "ax39")
         }
     end
 
@@ -126,13 +125,14 @@ class TxThreads
     def self.section1()
         TxThreads::items()
             .select{|thread| !Ax39::itemShouldShow(thread) }
+            .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"]}
     end
 
     # TxThreads::section2(priority)
     def self.section2(priority)
         TxThreads::items()
             .select{|thread| Ax39::itemShouldShow(thread) }
-            .select{|item| priority ? item["isPriority"] == "true" : item["isPriority"] != "true" }
+            .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
     end
 
     # ----------------------------------------------------------------------
@@ -158,11 +158,10 @@ class TxThreads
 
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
-            puts "isPriority: #{item["isPriority"]}".yellow
 
             linkeduuids  = NxLink::linkedUUIDs(uuid)
 
-            puts "commands: description | Ax39 | remove Ax39 | set isPriority | json | destroy".yellow
+            puts "commands: description | Ax39 | remove Ax39 | json | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -188,10 +187,6 @@ class TxThreads
 
             if Interpreting::match("remove Ax39", command) then
                 Fx18Attributes::setJsonEncodeUpdate(uuid, "ax39", JSON.generate(nil))
-            end
-
-            if Interpreting::match("set isPriority", command) then
-                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "isPriority", "true")
             end
 
             if Interpreting::match("json", command) then
