@@ -1,0 +1,13 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+uuid = ARGV[0]
+item = Fx18s::getItemAliveOrNull(objectuuid)
+if item.nil? then
+    puts "Could not find a alive item for uuid: #{uuid}"
+    exit
+end
+puts JSON.pretty_generate(item)
