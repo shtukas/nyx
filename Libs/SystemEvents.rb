@@ -45,6 +45,8 @@ class SystemEvents
                 event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
             end
             eventi = event["Fx18FileEvent"]
+            objectuuid = eventi["_objectuuid_"]
+            return if !File.exists?(Fx18s::objectuuidToLocalFx18Filepath(objectuuid))
             Fx18s::commit(eventi["_objectuuid_"], eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             Lookup1::reconstructEntry(eventi["_objectuuid_"])
             return
