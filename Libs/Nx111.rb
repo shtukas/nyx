@@ -12,7 +12,7 @@ class Nx111
             "aion-point",
             "unique-string",
             "Dx8Unit",
-            "starship"
+            "DxPure"
         ]
     end
 
@@ -83,13 +83,13 @@ class Nx111
                 "uniquestring" => uniquestring
             }
         end
-        if type == "starship" then
-            shipId = Starships::interactivelyMakeNewShipOrNull()
-            return nil if shipId.nil?
+        if type == "DxPure" then
+            sha1 = DxPure::interactivelyIssueNewOrNull(objectuuid)
+            return nil if sha1.nil?
             return {
-                "uuid"   => SecureRandom.uuid,
-                "type"   => "starship",
-                "shipId" => shipId
+                "uuid" => SecureRandom.uuid,
+                "type" => "DxPure",
+                "sha1" => sha1
             }
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"

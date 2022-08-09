@@ -11,7 +11,7 @@ class Commands
             "anniversaries | ondates | todos | threads | timecontrol",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >thread | (n) >thread | >nyx",
             "require internet",
-            "rstream | search | nyx | speed | nxballs | maintenance | >>",
+            "search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
     end
 
@@ -339,11 +339,6 @@ class Commands
             return if unixtime.nil?
             NxBallsService::close(item["uuid"], true)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            return
-        end
-
-        if Interpreting::match("rstream", input) then
-            Streaming::rstreamToInfinity()
             return
         end
 

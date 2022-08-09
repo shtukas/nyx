@@ -26,7 +26,7 @@ class NxDataNodes
 
     # NxDataNodes::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -40,15 +40,16 @@ class NxDataNodes
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckObject(uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 1121ff68-dccb-4ee2-92ca-f8c17be9559c) How did that happen ? 🤨"
@@ -63,15 +64,16 @@ class NxDataNodes
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckObject(uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: b75d5950-4d8f-4fc4-bf5a-1b0e0ddd436c) How did that happen ? 🤨"
@@ -86,15 +88,16 @@ class NxDataNodes
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckObject(uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: ac3d8924-352d-48bb-8ee0-3383fa8242a5) How did that happen ? 🤨"

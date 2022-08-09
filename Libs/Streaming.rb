@@ -5,7 +5,7 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        item = Fx18::itemOrNull(itemuuid)
+        item = Fx18s::getItemAliveOrNull(itemuuid)
         return if item.nil?
         if !["NxTask", "NxIced"].include?(item["mikuType"]) then
             puts "I am authorised to >nyx only NxTasks and NxIceds in this function"
@@ -35,7 +35,7 @@ class Streaming
             end
             if command == "done" then
                 LxAction::action("stop", item)
-                Fx18::deleteObject(item["uuid"])
+                Fx18s::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "detach" then
@@ -90,7 +90,7 @@ class Streaming
                 next
             end
             if command == "done" then
-                Fx18::deleteObject(item["uuid"])
+                Fx18s::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "insert" then
@@ -148,19 +148,6 @@ class Streaming
             command = Streaming::processItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
-        }
-        NxBallsService::close(uuid, true)
-    end
-
-    # Streaming::icedStreamingToInfinity()
-    def self.icedStreamingToInfinity()
-        uuid = Streaming::uuid()
-        NxBallsService::issue(uuid, "(rstream-to-infinity)", [uuid])
-        items = NxIceds::items().shuffle
-        loop {
-            item = items.shift
-            next if TxThreads::uuidIsProjectElement(item["uuid"])
-            command = Streaming::runItem(item)
         }
         NxBallsService::close(uuid, true)
     end

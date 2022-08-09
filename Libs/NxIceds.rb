@@ -22,7 +22,7 @@ class NxIceds
 
     # NxIceds::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------

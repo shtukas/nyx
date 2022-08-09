@@ -25,7 +25,7 @@ class NxConcepts
 
     # NxConcepts::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -38,14 +38,15 @@ class NxConcepts
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         uuid = SecureRandom.uuid
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxConcept")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxConcepts::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 01666ee3-d5b4-4fd1-9615-981ac7949ae9) How did that happen ? 🤨"

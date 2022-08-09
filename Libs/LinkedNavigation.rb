@@ -39,7 +39,7 @@ class LinkedNavigation
     # LinkedNavigation::navigate(item)
     def self.navigate(item)
         uuids = NxLink::linkedUUIDs(item["uuid"])
-                    # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] } # TODO:
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
         LinkedNavigation::navigateMiscEntities(uuids)
     end
 
@@ -58,10 +58,10 @@ class LinkedNavigation
             if option == "display all" then
                 loop {
                     system("clear")
-                    lb  = lambda{|itemuuid| LxFunction::function("toString", Fx18::itemOrNull(itemuuid)) }
+                    lb  = lambda{|itemuuid| LxFunction::function("toString", Fx18s::getItemAliveOrNull(itemuuid)) }
                     linkeditemuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", uuids, lb)
                     break if linkeditemuuid.nil?
-                    item = Fx18::itemOrNull(linkeditemuuid)
+                    item = Fx18s::getItemAliveOrNull(linkeditemuuid)
                     break if item.nil?
                     Landing::landing(item, isSearchAndSelect = false)
                 }

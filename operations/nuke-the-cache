@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-Fx18::resetCachePrefix()
+Stargate::resetCachePrefix()

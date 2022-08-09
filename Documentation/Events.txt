@@ -14,7 +14,7 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "(object has been deleted)",
+    "mikuType"   => "(object has been logically deleted)",
     "objectuuid" => objectuuid,
 }
 

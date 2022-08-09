@@ -127,6 +127,7 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxAnniversary")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
@@ -135,9 +136,9 @@ class Anniversaries
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "startdate",   startdate)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "repeatType",  repeatType)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastCelebrationDate", lastCelebrationDate)
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = Anniversaries::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
@@ -210,7 +211,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Fx18::deleteObject(item["uuid"])
+                Fx18s::deleteObjectLogically(item["uuid"])
                 break
             end
         }

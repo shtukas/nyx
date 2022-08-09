@@ -5,7 +5,7 @@ class ExData
     def self.putBlobInFx18(objectuuid, blob)
         raise "(error: 6b61018f-449b-40bc-9382-f7c7c7453190) we are not doing this anymore"
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
+        Fx18s::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
         XCacheDatablobs::putBlob(blob)
         nhash
     end
@@ -19,9 +19,9 @@ class ExData
         nhash
     end
 
-    # ExData::putBlobOnInfinity(blob)
-    def self.putBlobOnInfinity(blob)
-        StargateCentral::ensureInfinityDrive()
+    # ExData::putBlobOnEnergyGrid1(blob)
+    def self.putBlobOnEnergyGrid1(blob)
+        StargateCentral::ensureEnergyGrid1()
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         filename = "#{nhash}.data"
         filepath = "#{StargateCentral::pathToCentral()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{filename}"
@@ -30,24 +30,6 @@ class ExData
         end
         File.open(filepath, "w"){|f| f.write(blob)}
         nhash
-    end
-
-    # ExData::getBlobFromLocalFx18OrNull(nhash)
-    def self.getBlobFromLocalFx18OrNull(nhash)
-        raise "(error: fa8bbfeb-7916-4ca7-b65b-d8f5160877bd) we are not doing this anymore"
-        db = SQLite3::Database.new(Fx18::localFx18Filepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        db.execute("select * from _fx18_ where _eventData1_=? and _eventData2_=?", ["datablob", nhash]) do |row|
-            blob = row["_eventData3_"]
-        end
-        db.close
-        if (blob and nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}") then # better safe than sorry
-            raise "(error: 77418e01-9411-4096-8212-1068745bba08) the extracted blob #{nhash} from file '#{filepath}' using ExData::getBlobFromLocalFx18OrNull(#{nhash}) did not validate."
-        end
-        blob
     end
 
     # ExData::getBlobFromLocalDatablobsFolder(nhash)
@@ -62,15 +44,15 @@ class ExData
         blob
     end
 
-    # ExData::getBlobFromInfinity(nhash)
-    def self.getBlobFromInfinity(nhash)
-        StargateCentral::ensureInfinityDrive()
+    # ExData::getBlobFromEnergyGrid1(nhash)
+    def self.getBlobFromEnergyGrid1(nhash)
+        StargateCentral::ensureEnergyGrid1()
         filename = "#{nhash}.data"
         filepath = "#{StargateCentral::pathToCentral()}/DatablobsDepth2/#{nhash[7, 2]}/#{nhash[9, 2]}/#{filename}"
         return nil if !File.exists?(filepath)
         blob = IO.read(filepath)
         if (nhash != "SHA256-#{Digest::SHA256.hexdigest(blob)}") then # better safe than sorry
-            raise "(error: 253a0fad-a9f2-47de-a0f3-1af171ad9827) the extracted blob #{nhash} from file '#{filepath}' using ExData::getBlobFromInfinity(#{nhash}) did not validate."
+            raise "(error: 253a0fad-a9f2-47de-a0f3-1af171ad9827) the extracted blob #{nhash} from file '#{filepath}' using ExData::getBlobFromEnergyGrid1(#{nhash}) did not validate."
         end
         blob
     end
@@ -91,8 +73,8 @@ class ExData
             return blob
         end
 
-        # Third we try the Infinity drive
-        blob = ExData::getBlobFromInfinity(nhash)
+        # Third we try the EnergyGrid1 drive
+        blob = ExData::getBlobFromEnergyGrid1(nhash)
         if blob then
             XCacheDatablobs::putBlob(blob)
             return blob
@@ -111,8 +93,8 @@ class ExData
             return blob
         end
 
-        # Second we try the Infinity drive
-        blob = ExData::getBlobFromInfinity(nhash)
+        # Second we try the EnergyGrid1 drive
+        blob = ExData::getBlobFromEnergyGrid1(nhash)
         if blob then
             return blob
         end
@@ -120,9 +102,8 @@ class ExData
         # Last resort: XCache
         blob = XCacheDatablobs::getBlobOrNull(nhash)
         if blob then
-            puts "(warning: 9fa7067a-c774-4c3c-9660-a4d77ed412cd) I have just repaired Infinity using XCache during fsck 🤔"
-            sleep 0.2
-            ExData::putBlobOnInfinity(blob)
+            puts "(warning: 9fa7067a-c774-4c3c-9660-a4d77ed412cd) I have just repaired EnergyGrid1 (for nhash: #{nhash}) using XCache during fsck 🤔"
+            ExData::putBlobOnEnergyGrid1(blob)
             return blob
         end
 

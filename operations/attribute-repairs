@@ -1,0 +1,103 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18.sqlite3"
+eventuuids1 = Fx18Synchronisation::getEventuuids(filepath1)
+eventuuids1.each{|eventuuid|
+    record = Fx18Synchronisation::getRecordOrNull(filepath1, eventuuid)
+    next if record["_eventData1_"] != "attribute"
+    attrname = record["_eventData2_"]
+    if attrname == "mikuType" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "uuid" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "unixtime" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "description" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "nx111" then
+        next
+    end
+    if attrname == "datetime" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "lastDoneDateTime" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "line" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "lastCelebrationDate" then
+        next
+    end
+    if attrname == "nx46" then
+        next
+    end
+    if attrname == "nhash" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname.start_with?("element-ordinal") then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "name" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "ax39" then
+        next
+    end
+    if attrname == "repeatType" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "startdate" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+    if attrname == "isPriority" then
+        record["_eventData3_"] = JSON.generate(record["_eventData3_"])
+        puts JSON.pretty_generate(record)
+        Fx18Synchronisation::putRecord(filepath1, record)
+        next
+    end
+}

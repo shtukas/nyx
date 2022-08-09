@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-Fx18Synchronisation::sync()
+Fx18sSynchronisation::sync()

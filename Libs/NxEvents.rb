@@ -26,7 +26,7 @@ class NxEvents
 
     # NxEvents::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -40,15 +40,16 @@ class NxEvents
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = CommonUtils::interactiveDateTimeBuilder()
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxEvent")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckObject(uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = NxEvents::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: c4d9e89d-d4f2-4a44-8c66-311431977b4c) How did that happen ? 🤨"

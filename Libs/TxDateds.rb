@@ -22,7 +22,7 @@ class TxDateds
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -38,15 +38,16 @@ class TxDateds
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxDated")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckObject(uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = TxDateds::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
@@ -62,15 +63,16 @@ class TxDateds
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxDated")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       JSON.generate(nx111))
-        FileSystemCheck::fsckObject(uuid)
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = TxDateds::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 69486f48-3748-4c73-b604-a7edad98871d) How did that happen ? 🤨"
