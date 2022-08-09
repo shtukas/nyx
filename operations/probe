@@ -11,3 +11,6 @@ if item.nil? then
     exit
 end
 puts JSON.pretty_generate(item)
+
+presentInSection2 = Catalyst::section2().any?{|element| element["uuid"] == item["uuid"] }
+puts "presentInSection2: #{presentInSection2}"
