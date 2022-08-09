@@ -13,8 +13,8 @@ class SystemEvents
             return
         end
 
-        if event["mikuType"] == "(object has been deleted)" then
-            Fx18::deleteObjectNoEvents(event["objectuuid"])
+        if event["mikuType"] == "(object has been logically deleted)" then
+            Fx18s::deleteObjectNoEvents(event["objectuuid"])
             Lookup1::processEventInternally(event)
             return
         end
@@ -35,7 +35,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            Fx18::deleteObjectNoEvents(event["objectuuid"])
+            Fx18s::deleteObjectNoEvents(event["objectuuid"])
             return
         end
 
@@ -44,7 +44,7 @@ class SystemEvents
                 event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
             end
             eventi = event["Fx18FileEvent"]
-            Fx18::commit(eventi["_objectuuid_"], eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Fx18s::commit(eventi["_objectuuid_"], eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
             Lookup1::reconstructEntry(eventi["_objectuuid_"])
             return
         end

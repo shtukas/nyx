@@ -67,7 +67,7 @@ class Transmutation
             nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "mikuType", "TxDated")
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "description", description)
-            Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", nx111)
             return
         end
 
@@ -77,7 +77,7 @@ class Transmutation
 
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "mikuType", "NxTask")
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "description", description)
-            Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", nx111)
             return
         end
 

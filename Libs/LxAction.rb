@@ -55,7 +55,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx18::deleteObject(item["uuid"])
+                    Fx18s::deleteObjectLogically(item["uuid"])
                 end
                 return
             end
@@ -80,7 +80,7 @@ class LxAction
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                EditionDesk::accessItemNx111Pair(EditionDesk::pathToEditionDesk(), item, item["nx111"])
+                EditionDesk::accessItemNx111Pair(item, item["nx111"])
                 return
             end
 
@@ -117,7 +117,7 @@ class LxAction
 
             if item["mikuType"] == "NxTask" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx18::deleteObject(item["uuid"])
+                    Fx18s::deleteObjectLogically(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                     DailySlots::remove(item["uuid"])
                 end
@@ -126,7 +126,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ", true) then
-                    Fx18::deleteObject(item["uuid"])
+                    Fx18s::deleteObjectLogically(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                     DailySlots::remove(item["uuid"])
                 end
@@ -162,7 +162,7 @@ class LxAction
 
         if command == "destroy" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
-                Fx18::deleteObject(item["uuid"])
+                Fx18s::deleteObjectLogically(item["uuid"])
             end
             return
         end

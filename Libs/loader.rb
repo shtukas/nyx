@@ -49,6 +49,8 @@ checkLocation = lambda{|location|
 
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPure")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx18s")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 
 # ------------------------------------------------------------
@@ -156,6 +158,8 @@ require_relative "DoNotShowUntil.rb"
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
 require_relative "DailySlots.rb"
+require_relative "DxPureUrl.rb"
+require_relative "DxPure.rb"
 
 require_relative "EditionDesk.rb"
 require_relative "ExData.rb"
@@ -168,7 +172,7 @@ require_relative "InternetStatus.rb"
 require_relative "Iam.rb"
 
 require_relative "FileSystemCheck.rb"
-require_relative "Fx18.rb"
+require_relative "Fx18s.rb"
 
 require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
@@ -204,7 +208,6 @@ require_relative "Streaming.rb"
 require_relative "StargateCentral.rb"
 require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"
-require_relative "Starships.rb"
 
 require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"

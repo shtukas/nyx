@@ -3,7 +3,7 @@ class Lookup1
 
     # Lookup1::getDatabaseFilepath()
     def self.getDatabaseFilepath()
-        filepath = XCache::filepath("#{Fx18::cachePrefix()}:4f8266b4-dc37-4699-a592-68eee4c3ac78")
+        filepath = XCache::filepath("#{Stargate::cachePrefix()}:4f8266b4-dc37-4699-a592-68eee4c3ac78")
         return filepath if File.exists?(filepath)
 
         puts "preparing lookup1 database: #{filepath}"
@@ -14,11 +14,24 @@ class Lookup1
         lookup1.execute("create table _lookup1_ (_itemuuid_ text primary key, _unixtime_ float, _mikuType_ text, _item_ text, _description_ text)", [])
         lookup1.close
 
-        Fx18::playLogFromScratchForLiveItems().each{|item|
-            objectuuid = item["uuid"]
-            unixtime = item["unixtime"]
-            mikuType = item["mikuType"]
+        Fx18s::localFx18sFilepathsEnumerator().each{|filepath|
+            puts "Lookup1 rebuild: filepath: #{filepath}"
+            objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
+            if objectuuid.nil? then
+                puts "(error: fd114e57-2588-4d80-8bfb-e647833e459e) I could not determine uuid for file: #{filepath}"
+                puts "Exit."
+                Stargate::resetCachePrefix()
+                exit
+            end
+
+            item = Fx18s::getItemAliveOrNull(objectuuid)
+            next if item.nil? # Happens when file exists but object has been logically deleted
+
+            objectuuid  = item["uuid"]
+            unixtime    = item["unixtime"]
+            mikuType    = item["mikuType"]
             description = LxFunction::function("generic-description", item)
+
             Lookup1::commit(objectuuid, unixtime, mikuType, item, description)
         }
 
@@ -39,10 +52,8 @@ class Lookup1
     # Lookup1::reconstructEntry(objectuuid)
     def self.reconstructEntry(objectuuid)
         unixtime = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime")
-        return if unixtime.nil?
         mikuType = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType")
-        return if mikuType.nil?
-        item     = Fx18::itemOrNull(objectuuid)
+        item     = Fx18s::getItemAliveOrNull(objectuuid)
         return if item.nil?
         description = LxFunction::function("generic-description", item)
         puts "update lookup1: objectuuid: #{objectuuid}"
@@ -145,7 +156,7 @@ class Lookup1
             Lookup1::reconstructEntry(objectuuid)
         end
 
-        if event["mikuType"] == "(object has been deleted)" then
+        if event["mikuType"] == "(object has been logically deleted)" then
             objectuuid = event["objectuuid"]
             db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
             db.busy_timeout = 117

@@ -27,7 +27,7 @@ class TxThreads
 
     # TxThreads::destroy(uuid)
     def self.destroy(uuid)
-        Fx18::deleteObject(uuid)
+        Fx18s::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -45,7 +45,7 @@ class TxThreads
         ax39 = Ax39::interactivelyCreateNewAxOrNull()
 
         uuid = SecureRandom.uuid
-
+        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxThread")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_f)
@@ -53,9 +53,9 @@ class TxThreads
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
 
-        FileSystemCheck::fsckObject(uuid)
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
-        Fx18::broadcastObjectEvents(uuid)
+        Fx18s::broadcastObjectEvents(uuid)
         item = TxThreads::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 196d5021-a7d2-4d23-8e70-851d81c9f994) How did that happen ? 🤨"
@@ -101,7 +101,7 @@ class TxThreads
             .map{|elementuuid|
                 {
                     "elementuuid" => elementuuid,
-                    "element"     => Fx18::itemOrNull(elementuuid),
+                    "element"     => Fx18s::getItemAliveOrNull(elementuuid),
                     "ordinal"     => TxThreads::getElementOrdinalOrNull(thread, elementuuid)
                 }
             }
@@ -180,7 +180,7 @@ class TxThreads
 
             uuid = item["uuid"]
 
-            item = Fx18::itemOrNull(uuid)
+            item = Fx18s::getItemAliveOrNull(uuid)
 
             return if item.nil?
 
@@ -235,7 +235,7 @@ class TxThreads
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18::deleteObject(item["uuid"])
+                    Fx18s::deleteObjectLogically(item["uuid"])
                     break
                 end
             end
@@ -270,7 +270,7 @@ class TxThreads
             end
 
             puts ""
-            puts "commands: <n> | insert | done (thread) | done <n> | detach <n> | transfer <n>".yellow
+            puts "commands: <n> | insert | done (thread) | done <n> | set ordinal <n> | detach <n> | transfer <n>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -310,6 +310,15 @@ class TxThreads
                 entity = store.get(indx)
                 next if entity.nil?
                 LxAction::action("done", entity)
+                next
+            end
+
+           if  command.start_with?("set ordinal") and command != "set ordinal" then
+                indx = command[11, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                TxThreads::setElementOrdinalOrNull(thread, entity["uuid"], ordinal)
                 next
             end
 

@@ -9,7 +9,7 @@ class Landing
 
         NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
-                entity = Fx18::itemOrNull(entityuuid)
+                entity = Fx18s::getItemAliveOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
@@ -41,7 +41,7 @@ class Landing
 
             uuid = item["uuid"]
 
-            item = Fx18::itemOrNull(uuid)
+            item = Fx18s::getItemAliveOrNull(uuid)
 
             return nil if item.nil?
 
@@ -151,7 +151,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18::deleteObject(item["uuid"])
+                    Fx18s::deleteObjectLogically(item["uuid"])
                     break
                 end
             end
@@ -168,7 +168,7 @@ class Landing
 
             uuid = item["uuid"]
 
-            item = Fx18::itemOrNull(uuid)
+            item = Fx18s::getItemAliveOrNull(uuid)
 
             return nil if item.nil?
 
@@ -196,7 +196,7 @@ class Landing
             NxLink::linkedUUIDs(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entityuuid|
-                    entity = Fx18::itemOrNull(entityuuid)
+                    entity = Fx18s::getItemAliveOrNull(entityuuid)
                     next if entity.nil?
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
@@ -238,7 +238,7 @@ class Landing
             if Interpreting::match("nx111", command) then
                 nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
                 next if nx111.nil?
-                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", JSON.generate(nx111))
+                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "nx111", nx111)
             end
 
             if Interpreting::match("iam", command) then
@@ -280,7 +280,7 @@ class Landing
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18::deleteObject(item["uuid"])
+                    Fx18s::deleteObjectLogically(item["uuid"])
                     break
                 end
             end

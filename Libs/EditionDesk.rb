@@ -11,7 +11,7 @@ class EditionDesk
 
     # EditionDesk::pathToEditionDesk()
     def self.pathToEditionDesk()
-        StargateCentral::ensureInfinityDrive()
+        StargateCentral::ensureEnergyGrid1()
         "#{StargateCentral::pathToCentral()}/EditionDesk"
     end
 
@@ -167,7 +167,7 @@ class EditionDesk
                 return
             end
             puts "location: #{location}"
-            StargateCentral::ensureInfinityDrive()
+            StargateCentral::ensureEnergyGrid1()
             if LucilleCore::locationsAtFolder(location).size == 1 and LucilleCore::locationsAtFolder(location).first[-5, 5] == ".webm" then
                 location2 = LucilleCore::locationsAtFolder(location).first
                 if File.basename(location2).include?("'") then
@@ -179,16 +179,16 @@ class EditionDesk
             end
             return location
         end
-        if nx111["type"] == "starship" then
-            shipId = nx111["shipId"]
-            puts "(error: ff77532d-d116-40a9-a5c7-3b4dacbcee64) Export of Starships has not been implemented yet"
+        if nx111["type"] == "DxPure" then
+            sha1 = nx111["sha1"]
+            puts "(error: ff77532d-d116-40a9-a5c7-3b4dacbcee64) Export of DxPure files has not been implemented yet"
             exit
         end
         raise "(error: a32e7164-1c42-4ad9-b4d7-52dc935b53e1): #{itemuuid}"
     end
 
-    # EditionDesk::accessItemNx111Pair(parentLocation, item, nx111)
-    def self.accessItemNx111Pair(parentLocation, item, nx111)
+    # EditionDesk::accessItemNx111Pair(item, nx111)
+    def self.accessItemNx111Pair(item, nx111)
         return if nx111.nil?
 
         if nx111["type"] == "url" then
@@ -198,7 +198,12 @@ class EditionDesk
             return
         end
 
-        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(parentLocation, item["uuid"], nx111)
+        if nx111["type"] == "DxPure" then
+            DxPure::access(nx111["sha1"])
+            return
+        end
+
+        location = EditionDesk::getLocationOfExistingExportOrPerformExportOfItemNx111PairOrNull(EditionDesk::pathToEditionDesk(), item["uuid"], nx111)
         if location.nil? then
             puts "I could not accessItemNx111Pair for"
             puts "itemuuid: #{itemuuid}"
@@ -234,7 +239,7 @@ class EditionDesk
             nhash = ExData::putBlobInLocalDatablobsFolder(text) # TODO: we should probably compute the nhash without actually commiting the blob to the file
             return if nx111["nhash"] == nhash
             nx111["nhash"] = nhash
-            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", nx111)
             return
         end
         if nx111["type"] == "url" then
@@ -252,17 +257,17 @@ class EditionDesk
             nx111["dottedExtension"] = dottedExtension
             nx111["nhash"] = nhash
             nx111["parts"] = parts
-            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", nx111)
             return
         end
         if nx111["type"] == "aion-point" then
             operator = ExDataElizabeth.new(itemuuid)
             rootnhash1 = AionCore::commitLocationReturnHash(operator, location)
-            item = Fx18::itemOrNull(itemuuid)
+            item = Fx18s::getItemAliveOrNull(itemuuid)
             rootnhash2 = AionTransforms::rewriteThisAionRootWithNewTopName(operator, rootnhash1, CommonUtils::sanitiseStringForFilenaming(LxFunction::function("generic-description", item)))
             return if nx111["rootnhash"] == rootnhash2
             nx111["rootnhash"] = rootnhash2
-            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", JSON.generate(nx111))
+            Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", nx111)
             return
         end
         if nx111["type"] == "unique-string" then
@@ -274,7 +279,7 @@ class EditionDesk
             puts "This should not happen because nothing was exported."
             raise "(error: 44dd0a3e-9c18-4936-a0fa-cf3b5ef6d19f)"
         end
-        if nx111["type"] == "starship" then
+        if nx111["type"] == "DxPure" then
             puts "(error: 86fecadb-64be-426f-9586-9966366ff183) not implemented yet"
             exit
         end
@@ -296,7 +301,7 @@ class EditionDesk
             puts "This is a read only export (!)"
             itemuuids
                 .select{|itemuuid| 
-                    item = Fx18::itemOrNull(itemuuid)
+                    item = Fx18s::getItemAliveOrNull(itemuuid)
                     !item.nil? and Iam::implementsNx111(itemuuid)
                 }
                 .each{|itemuuid|
