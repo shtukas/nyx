@@ -165,5 +165,15 @@ class Lookup1
             db.execute("delete from _lookup1_ where _itemuuid_=?", [objectuuid])
             db.close
         end
+
+        if event["mikuType"] == "NxDeleted" then
+            objectuuid = event["objectuuid"]
+            db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("delete from _lookup1_ where _itemuuid_=?", [objectuuid])
+            db.close
+        end
     end
 end
