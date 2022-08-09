@@ -61,8 +61,7 @@ class Streaming
             if command == ">thread" then
                 thread = TxThreads::architectOneOrNull()
                 return if thread.nil?
-                ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
-                TxThreads::addElement(thread["uuid"], item["uuid"], ordinal || 0)
+                TxThreads::addElement(thread["uuid"], item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -100,8 +99,7 @@ class Streaming
             if command == ">thread" then
                 thread = TxThreads::architectOneOrNull()
                 return if thread.nil?
-                ordinal = TxThreads::interactivelyDecideOrdinalForNewElementOrNull(thread)
-                TxThreads::addElement(thread["uuid"], item["uuid"], ordinal || 0)
+                TxThreads::addElement(thread["uuid"], item["uuid"])
                 return nil
             end
             if command == ">nyx" then

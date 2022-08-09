@@ -9,7 +9,6 @@ TxThread:
     "isPriority"  : nil or "true" or "false"
 
 The uuids of the elements under that thread are in the set "project-items-3f154988"
-For each elementuuid, a possible ordinal is stored at attribute: "element-ordinal:#{elementuuid}"
 
 We use
 
