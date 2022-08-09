@@ -166,6 +166,7 @@ class TxThreads
     # TxThreads::section2(priority)
     def self.section2(priority)
         TxThreads::items()
+            .select{|thread| Ax39::itemShouldShow(thread) }
             .select{|item| priority ? item["isPriority"] == "true" : item["isPriority"] != "true" }
     end
 
