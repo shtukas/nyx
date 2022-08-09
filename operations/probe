@@ -4,13 +4,16 @@
 
 require_relative "../Libs/loader.rb"
 
-objectuuid = ARGV[0]
-item = Fx18s::getItemAliveOrNull(objectuuid)
+uuid = ARGV[0]
+item = Fx18s::getItemAliveOrNull(uuid)
 if item.nil? then
-    puts "Could not find a alive item for uuid: #{objectuuid}"
+    puts "Could not find a alive item for uuid: #{uuid}"
     exit
 end
 puts JSON.pretty_generate(item)
 
 presentInSection2 = Catalyst::section2().any?{|element| element["uuid"] == item["uuid"] }
 puts "presentInSection2: #{presentInSection2}"
+
+puts "DoNotShowUntil::isVisible(uuid): #{DoNotShowUntil::isVisible(uuid)}"
+puts "InternetStatus::itemShouldShow(uuid): #{InternetStatus::itemShouldShow(uuid)}"
