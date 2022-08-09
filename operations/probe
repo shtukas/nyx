@@ -18,6 +18,14 @@ puts "presentInSection2: #{presentInSection2}"
 puts "DoNotShowUntil::isVisible(uuid): #{DoNotShowUntil::isVisible(uuid)}"
 puts "InternetStatus::itemShouldShow(uuid): #{InternetStatus::itemShouldShow(uuid)}"
 
+filepath = Fx18s::objectuuidToLocalFx18Filepath(uuid)
+puts "filepath: #{filepath}"
+
+puts "File.exists?(filepath): #{File.exists?(filepath)}"
+
+puts "eventuuids:"
+puts Fx18sSynchronisation::getEventuuids(filepath)
+
 if item["mikuType"] == "NxLine" then
     puts "NxLine: TxThreads::uuidIsProjectElement(uuid) #{TxThreads::uuidIsProjectElement(uuid)}"
 end
