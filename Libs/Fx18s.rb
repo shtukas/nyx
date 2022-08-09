@@ -481,7 +481,7 @@ class Fx18sSynchronisation
             sha1 = File.basename(dxLocalFilepath).gsub(".sqlite3", "")
             eGridFilepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
             next if File.exists?(eGridFilepath)
-            FileUtils.mv(dxLocalFilepath, eGridFilepath)
+            FileUtils.cp(dxLocalFilepath, eGridFilepath)
         }
 
         Fx18s::localFx18sFilepathsEnumerator().each{|filepath1|
@@ -491,9 +491,17 @@ class Fx18sSynchronisation
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
                 raise "(error: 77a8fbbc-105f-4119-920b-3d73c66c6185)"
             end
-            filepath2 = Fx18s::ensureEnergyGridFx18FilepathForObjectuuid(objectuuid)
-            Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
-            sleep 0.01
+            filepath2 = Fx18s::objectuuidToEnergyGridFx18Filepath(objectuuid)
+            if File.exists?(filepath2) then
+                Fx18sSynchronisation::propagateFileData(filepath1, filepath2) # uplink
+            else
+                puts "Copying #{filepath1} to #{filepath2}"
+                folderpath2 = File.dirname(filepath2)
+                if !File.exists?(folderpath2) then
+                    FileUtils.mkdir(folderpath2)
+                end
+                FileUtils.cp(filepath1, filepath2)
+            end
         }
 
         Fx18s::energyGrid1Fx18sFilepathsEnumerator().each{|filepath1|
@@ -501,11 +509,19 @@ class Fx18sSynchronisation
             objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
             if objectuuid.nil? then
                 puts "I could not extract the uuid from Fx18 file #{filepath1}"
-                raise "(error: 85d69faf-0db7-4ee5-a463-eaa0ad90eb83)"
+                raise "(error: 85d69faf-0db7-4ee5-a463-eaa0ad90eb83) How did that happen ? 🤔"
             end
-            filepath2 = Fx18s::ensureLocalFx18FilepathForObjectuuid(objectuuid)
-            Fx18sSynchronisation::propagateFileData(filepath1, filepath2)
-            sleep 0.01
+            filepath2 = Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
+            if File.exists?(filepath2) then
+                Fx18sSynchronisation::propagateFileData(filepath1, filepath2) # downlink
+            else
+                puts "Copying #{filepath1} to #{filepath2}"
+                folderpath2 = File.dirname(filepath2)
+                if !File.exists?(folderpath2) then
+                    FileUtils.mkdir(folderpath2)
+                end
+                FileUtils.cp(filepath1, filepath2)
+            end
         }
     end
 end
