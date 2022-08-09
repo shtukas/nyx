@@ -4,9 +4,7 @@
 
 require_relative "../Libs/loader.rb"
 
-exit
-
-filepath1 = "/Volumes/Infinity/Data/Pascal/Galaxy/Stargate-Central/Fx18.sqlite3"
+filepath1 = "/Users/pascal/Galaxy/DataBank/Stargate/Fx18.sqlite3"
 eventuuids1 = Fx18Synchronisation::getEventuuids(filepath1)
 eventuuids1.each{|eventuuid|
     record = Fx18Synchronisation::getRecordOrNull(filepath1, eventuuid)
