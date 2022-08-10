@@ -47,8 +47,11 @@ checkLocation = lambda{|location|
     end
 } 
 
+checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/config.json")
+checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/commsline")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Datablobs")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPure")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx18s")
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
