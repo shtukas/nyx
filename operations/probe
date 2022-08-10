@@ -5,6 +5,16 @@
 require_relative "../Libs/loader.rb"
 
 uuid = ARGV[0]
+
+filepath = Fx18s::objectuuidToLocalFx18Filepath(uuid)
+puts "filepath: #{filepath}"
+if filepath.nil? then
+    puts "filepath: #{filepath} [does not exists]"
+    exit
+else
+    puts "filepath: #{filepath} ✅"
+end
+
 item = Fx18s::getItemAliveOrNull(uuid)
 if item.nil? then
     puts "Could not find a alive item for uuid: #{uuid}"
@@ -17,9 +27,6 @@ puts "presentInSection2: #{presentInSection2}"
 
 puts "DoNotShowUntil::isVisible(uuid): #{DoNotShowUntil::isVisible(uuid)}"
 puts "InternetStatus::itemShouldShow(uuid): #{InternetStatus::itemShouldShow(uuid)}"
-
-filepath = Fx18s::objectuuidToLocalFx18Filepath(uuid)
-puts "filepath: #{filepath}"
 
 puts "File.exists?(filepath): #{File.exists?(filepath)}"
 

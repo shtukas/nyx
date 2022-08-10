@@ -102,7 +102,7 @@ class FileSystemCheck
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
     end
 
-    # FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid)
+    # FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
     def self.fsckObjectErrorAtFirstFailure(objectuuid)
         puts "FileSystemCheck, Fx18 @ objectuuid: #{objectuuid}"
 
@@ -110,7 +110,7 @@ class FileSystemCheck
         if mikuType.nil? then
             puts "objectuuid: #{objectuuid}".red
             puts "Malformed Fx18 file, I could not find a mikuType".red
-            raise "FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid: #{objectuuid})"
+            raise "FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid: #{objectuuid})"
         end
 
         ensureAttribute = lambda {|objectuuid, mikuType, attname|
@@ -119,7 +119,7 @@ class FileSystemCheck
                 puts "ensureAttribute(#{objectuuid}, #{mikuType}, #{attname})"
                 puts "objectuuid: #{objectuuid}".red
                 puts "Malformed fx18 file (mikuType: #{mikuType}), I could not find attribute: #{attname}".red
-                raise "FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid: #{objectuuid})"
+                raise "FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid: #{objectuuid})"
             end
         }
 
@@ -353,7 +353,7 @@ class FileSystemCheck
                     next
                 end
 
-                FileSystemCheck::fsckObjectErrorAtFirstFailureErrorAtFirstFailure(objectuuid)
+                FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
 
                 XCache::setFlag(key1, true)
             }
