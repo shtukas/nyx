@@ -50,7 +50,7 @@ class TxThreads
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_f)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "ax39",        JSON.generate(ax39)) if ax39
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "ax39",        ax39) if ax39
 
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
