@@ -94,6 +94,8 @@ class Fx18s
     # Fx18s::deleteObjectNoEvents(objectuuid)
     def self.deleteObjectNoEvents(objectuuid)
         # Insert the object deletion event
+        # We need to check that the object's file exists as this function is called from SystemEvents
+        return if !File.exists?(Fx18s::objectuuidToLocalFx18Filepath(objectuuid))
         Fx18s::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", nil, nil, nil)
     end
 
