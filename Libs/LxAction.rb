@@ -231,7 +231,8 @@ class LxAction
 
         if command == "start" then
             return if NxBallsService::isRunning(item["uuid"])
-            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
+            accounts = [item["uuid"], TxThreads::elementuuidToThreaduuidOrNull(item["uuid"])].compact
+            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end
 

@@ -142,7 +142,7 @@ class Streaming
         return if items.empty?
         loop {
             item = items.shift
-            next if TxThreads::uuidIsProjectElement(item["uuid"])
+            next if TxThreads::elementuuidToThreaduuidOrNull(item["uuid"])
             command = Streaming::processItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1

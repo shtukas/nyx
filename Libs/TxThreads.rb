@@ -79,7 +79,7 @@ class TxThreads
     # TxThreads::addElement(threaduuid, elementuuid)
     def self.addElement(threaduuid, elementuuid)
         Fx18Sets::add2(threaduuid, "project-items-3f154988", elementuuid, elementuuid)
-        XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
+        XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", threaduuid)
     end
 
     # TxThreads::removeElement(thread, uuid)
@@ -105,13 +105,12 @@ class TxThreads
             }
             .compact
             .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
-
     end
 
-    # TxThreads::uuidIsProjectElement(elementuuid)
-    def self.uuidIsProjectElement(elementuuid)
+    # TxThreads::elementuuidToThreaduuidOrNull(elementuuid)
+    def self.elementuuidToThreaduuidOrNull(elementuuid)
         #TxThreads::items().any?{|thread| TxThreads::elementuuids(thread).include?(elementuuid) }
-        XCache::getFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}")
+        XCache::getOrNull("element-to-thread-lookup-0931d05f70f:#{elementuuid}")
     end
 
     # ----------------------------------------------------------------------
@@ -138,8 +137,8 @@ class TxThreads
         return [] if threads.empty?
         thread1 = threads.shift
         [
-            thread1,
             TxThreads::elements(thread1, 6),
+            thread1,
             threads
         ].flatten
     end
