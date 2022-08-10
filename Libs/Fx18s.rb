@@ -128,8 +128,11 @@ class Fx18s
 
     # Fx18s::getItemIncludingLogicallyDeletedOrNull(objectuuid)
     def self.getItemIncludingLogicallyDeletedOrNull(objectuuid)
+        filepath = Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
+        return nil if !File.exists?(filepath)
+
         item = {}
-        db = SQLite3::Database.new(Fx18s::getExistingLocalFx18FilepathForObjectuuid(objectuuid))
+        db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true

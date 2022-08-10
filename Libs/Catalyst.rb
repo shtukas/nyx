@@ -57,21 +57,21 @@ class Catalyst
             }
         end
 
-        Thread.new {
+        # ---------------------------------------------------
+        # When an element is added to a thread, that information is written in the thread and
+        # will eventually reach the thread on other instances, but the element may still show up 
+        # as threadless on those other instances, because the cache wasn't set there.
 
-            # When an element is added to a thread, that information is written in the thread and
-            # will eventually reach the thread on other instances, but the element may still show up 
-            # as threadless on those other instances, because the cache wasn't set there.
+        # We will also be enabling xcache communication, but in the meantime, and even if, this will do
 
-            # We will also be enabling xcache communication, but in the meantime, and even if, this will do
-
-            TxThreads::items()
-                .each{|thread| 
-                    TxThreads::elementuuids(thread).each{|elementuuid|
-                        XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
-                    }
+        TxThreads::items()
+            .each{|thread| 
+                TxThreads::elementuuids(thread).each{|elementuuid|
+                    XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
                 }
-        }
+            }
+
+        # ---------------------------------------------------
 
         loop {
 
