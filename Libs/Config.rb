@@ -24,3 +24,12 @@ class Config
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/multi-instance-shared/commsline"
     end
 end
+
+class SharedConfig
+
+    # SharedConfig::get(key)
+    def self.get(key)
+        config = JSON.parse(IO.read("#{Config::pathToLocalDataBankStargate()}/multi-instance-shared/shared-config.json"))
+        config[key]
+    end
+end
