@@ -202,11 +202,7 @@ class LxAction
 
         if command == "run" then
 
-            # Stardard starting of the item
-
             LxAction::action("start", item)
-
-            # Stardard access
 
             LxAction::action("access", item)
 
