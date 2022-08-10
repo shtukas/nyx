@@ -56,7 +56,7 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Datablobs")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPure")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx18s")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared/config.json")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared/shared-config.json")
 
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/bank.sqlite3"
 if !File.exists?(filepath) then
