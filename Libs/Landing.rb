@@ -302,7 +302,7 @@ class Landing
             return nil
         end
         if item["mikuType"] == "TxThread" then
-            return TxThreads::landingOnThread(item)
+            return TxThreads::landingOnThreadMetadata(item)
         end
         if item["mikuType"] == "NxLine" then
             puts JSON.pretty_generate(item)

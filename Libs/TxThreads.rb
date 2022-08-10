@@ -138,8 +138,8 @@ class TxThreads
     # ----------------------------------------------------------------------
     # Operations
 
-    # TxThreads::landingOnThread(item)
-    def self.landingOnThread(item)
+    # TxThreads::landingOnThreadMetadata(item)
+    def self.landingOnThreadMetadata(item)
         loop {
 
             return if item.nil?
@@ -203,8 +203,8 @@ class TxThreads
         }
     end
 
-    # TxThreads::runAndLandingOnElements(thread)
-    def self.runAndLandingOnElements(thread)
+    # TxThreads::landingOnThreadElements(thread)
+    def self.landingOnThreadElements(thread)
         NxBallsService::issue(thread["uuid"], TxThreads::toString(thread), [thread["uuid"]])
         loop {
             system("clear")
@@ -302,10 +302,10 @@ class TxThreads
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["landing", "access elements"])
             next if action.nil?
             if action == "landing" then
-                TxThreads::landingOnThread(thread)
+                TxThreads::landingOnThreadMetadata(thread)
             end
             if action == "access elements" then
-                TxThreads::runAndLandingOnElements(thread)
+                TxThreads::landingOnThreadElements(thread)
             end
         }
     end

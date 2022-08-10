@@ -71,7 +71,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxThread" then
-                TxThreads::runAndLandingOnElements(item)
+                TxThreads::landingOnThreadElements(item)
                 return
             end
 
