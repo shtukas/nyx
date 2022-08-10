@@ -21,6 +21,6 @@ class Config
 
     # Config::starlightCommLine()
     def self.starlightCommLine()
-        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/commsline"
+        "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/multi-instance-shared/commsline"
     end
 end
