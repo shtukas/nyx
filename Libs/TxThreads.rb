@@ -128,8 +128,8 @@ class TxThreads
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"]}
     end
 
-    # TxThreads::section2(priority)
-    def self.section2(priority)
+    # TxThreads::section2()
+    def self.section2()
         TxThreads::items()
             .select{|thread| Ax39::itemShouldShow(thread) }
             .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
