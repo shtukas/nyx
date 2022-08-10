@@ -92,18 +92,20 @@ class TxThreads
         Fx18Sets::items(thread["uuid"], "project-items-3f154988")
     end
 
-    # TxThreads::extendedPacketsInOrder(thread, count)
-    def self.extendedPacketsInOrder(thread, count)
+    # TxThreads::elements(thread, count)
+    def self.elements(thread, count)
         Fx18Sets::items(thread["uuid"], "project-items-3f154988")
             .first(count)
-            .map{|elementuuid|
-                {
-                    "elementuuid" => elementuuid,
-                    "element"     => Fx18s::getItemAliveOrNull(elementuuid),
-                }
+            .map{|elementuuid|  
+                element = Fx18s::getItemAliveOrNull(elementuuid)
+                if element.nil? then
+                    TxThreads::removeElement(thread, elementuuid)
+                end
+                element
             }
-            .select{|packet| !packet["element"].nil? }
-            .sort{|p1, p2| p1["element"]["unixtime"] <=> p2["element"]["unixtime"] }
+            .compact
+            .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
+
     end
 
     # TxThreads::uuidIsProjectElement(elementuuid)
@@ -130,9 +132,16 @@ class TxThreads
 
     # TxThreads::section2()
     def self.section2()
-        TxThreads::items()
+        threads = TxThreads::items()
             .select{|thread| Ax39::itemShouldShow(thread) }
             .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
+        return [] if threads.empty?
+        thread1 = threads.shift
+        [
+            thread1,
+            TxThreads::elements(thread1, 6),
+            threads
+        ].flatten
     end
 
     # ----------------------------------------------------------------------
@@ -213,12 +222,11 @@ class TxThreads
 
             store = ItemStore.new()
 
-            packets = TxThreads::extendedPacketsInOrder(thread, 50)
+            packets = TxThreads::elements(thread, 50)
             if packets.size > 0 then
                 puts ""
                 packets
-                    .each{|packet|
-                        element = packet["element"]
+                    .each{|element|
                         indx = store.register(element, false)
                         puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
                     }
