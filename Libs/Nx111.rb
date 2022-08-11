@@ -108,6 +108,22 @@ class Nx111
     def self.access(item, nx111)
         return if nx111.nil?
 
+        if nx111["type"] == "url" then
+            url = nx111["url"]
+            puts "url: #{url}"
+            CommonUtils::openUrlUsingSafari(url)
+            return
+        end
+
+        if nx111["type"] == "text" then
+            text = nx111["text"]
+            puts "-----------------------------------------"
+            puts "text:" 
+            puts text
+            puts "-----------------------------------------"
+            LucilleCore::pressEnterToContinue()
+        end
+
         if nx111["type"] == "aion-point" then
 
             rootnhash = nx111["rootnhash"]
@@ -192,7 +208,53 @@ class Nx111
             return
         end
 
-        puts "Code to be written (8cfc7215-743a-418f-9f92-9e40c22f27ab)"
+        if nx111["type"] == "file" then
+            dottedExtension = nx111["dottedExtension"]
+            nhash = nx111["nhash"]
+            parts = nx111["parts"]
+            operator = ExDataElizabeth.new(itemuuid)
+            filepath = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
+            File.open(filepath, "w"){|f|
+                parts.each{|nhash|
+                    blob = operator.getBlobOrNull(nhash)
+                    raise "(error: a614a728-fb28-455f-9430-43aab78ea35f)" if blob.nil?
+                    f.write(blob)
+                }
+            }
+            system("open '#{filepath}'")
+            return
+        end
+
+        if nx111["type"] == "Dx8Unit" then
+            unitId = nx111["unitId"]
+            location = Dx8UnitsUtils::acquireUnit(unitId)
+            if location.nil? then
+                puts "I could not acquire the Dx8Unit. Aborting operation."
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            puts "location: #{location}"
+            StargateCentral::ensureEnergyGrid1()
+            if LucilleCore::locationsAtFolder(location).size == 1 and LucilleCore::locationsAtFolder(location).first[-5, 5] == ".webm" then
+                location2 = LucilleCore::locationsAtFolder(location).first
+                if File.basename(location2).include?("'") then
+                    location3 = "#{File.dirname(location2)}/#{File.basename(location2).gsub("'", "-")}"
+                    FileUtils.mv(location2, location3)
+                    location2 = location3
+                end
+                location = location2
+            end
+            system("open '#{location}'")
+            return
+        end
+
+        if nx111["type"] == "unique-string" then
+            uniquestring = nx111["uniquestring"]
+            UniqueStringsFunctions::findAndAccessUniqueString(uniquestring)
+            return
+        end
+
+        puts "Code to be written (33685044-382e-4e98-bf8c-6fb4cf31ce1c)"
         exit
     end
 end
