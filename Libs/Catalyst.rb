@@ -49,7 +49,7 @@ class Catalyst
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
  
-        if Machines::isLucille20() then 
+        if Config::get("instanceId") == "Lucille20-pascal" then 
             Thread.new {
                 loop {
                     sleep 3600
@@ -124,7 +124,7 @@ class Catalyst
 
         vspaceleft = CommonUtils::screenHeight()-3
 
-        if Machines::isLucille20() then
+        if Config::get("instanceId") == "Lucille20-pascal" then
             reference = The99Percent::getReferenceOrNull()
             current   = The99Percent::getCurrentCount()
             ratio     = current.to_f/reference["count"]
