@@ -79,7 +79,7 @@ class TxThreads
     # TxThreads::addElement(threaduuid, elementuuid)
     def self.addElement(threaduuid, elementuuid)
         Fx18Sets::add2(threaduuid, "project-items-3f154988", elementuuid, elementuuid)
-        XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
+        XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", threaduuid)
     end
 
     # TxThreads::removeElement(thread, uuid)
@@ -92,24 +92,25 @@ class TxThreads
         Fx18Sets::items(thread["uuid"], "project-items-3f154988")
     end
 
-    # TxThreads::extendedPacketsInOrder(thread, count)
-    def self.extendedPacketsInOrder(thread, count)
+    # TxThreads::elements(thread, count)
+    def self.elements(thread, count)
         Fx18Sets::items(thread["uuid"], "project-items-3f154988")
             .first(count)
-            .map{|elementuuid|
-                {
-                    "elementuuid" => elementuuid,
-                    "element"     => Fx18s::getItemAliveOrNull(elementuuid),
-                }
+            .map{|elementuuid|  
+                element = Fx18s::getItemAliveOrNull(elementuuid)
+                if element.nil? then
+                    TxThreads::removeElement(thread, elementuuid)
+                end
+                element
             }
-            .select{|packet| !packet["element"].nil? }
-            .sort{|p1, p2| p1["element"]["unixtime"] <=> p2["element"]["unixtime"] }
+            .compact
+            .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
     end
 
-    # TxThreads::uuidIsProjectElement(elementuuid)
-    def self.uuidIsProjectElement(elementuuid)
+    # TxThreads::elementuuidToThreaduuidOrNull(elementuuid)
+    def self.elementuuidToThreaduuidOrNull(elementuuid)
         #TxThreads::items().any?{|thread| TxThreads::elementuuids(thread).include?(elementuuid) }
-        XCache::getFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}")
+        XCache::getOrNull("element-to-thread-lookup-0931d05f70f:#{elementuuid}")
     end
 
     # ----------------------------------------------------------------------
@@ -128,18 +129,25 @@ class TxThreads
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"]}
     end
 
-    # TxThreads::section2(priority)
-    def self.section2(priority)
-        TxThreads::items()
+    # TxThreads::section2()
+    def self.section2()
+        threads = TxThreads::items()
             .select{|thread| Ax39::itemShouldShow(thread) }
             .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
+        return [] if threads.empty?
+        thread1 = threads.shift
+        [
+            TxThreads::elements(thread1, 6),
+            thread1,
+            threads
+        ].flatten
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # TxThreads::landingOnThread(item)
-    def self.landingOnThread(item)
+    # TxThreads::landingOnThreadMetadata(item)
+    def self.landingOnThreadMetadata(item)
         loop {
 
             return if item.nil?
@@ -203,8 +211,8 @@ class TxThreads
         }
     end
 
-    # TxThreads::runAndLandingOnElements(thread)
-    def self.runAndLandingOnElements(thread)
+    # TxThreads::landingOnThreadElements(thread)
+    def self.landingOnThreadElements(thread)
         NxBallsService::issue(thread["uuid"], TxThreads::toString(thread), [thread["uuid"]])
         loop {
             system("clear")
@@ -213,12 +221,11 @@ class TxThreads
 
             store = ItemStore.new()
 
-            packets = TxThreads::extendedPacketsInOrder(thread, 50)
+            packets = TxThreads::elements(thread, 50)
             if packets.size > 0 then
                 puts ""
                 packets
-                    .each{|packet|
-                        element = packet["element"]
+                    .each{|element|
                         indx = store.register(element, false)
                         puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
                     }
@@ -302,10 +309,10 @@ class TxThreads
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["landing", "access elements"])
             next if action.nil?
             if action == "landing" then
-                TxThreads::landingOnThread(thread)
+                TxThreads::landingOnThreadMetadata(thread)
             end
             if action == "access elements" then
-                TxThreads::runAndLandingOnElements(thread)
+                TxThreads::landingOnThreadElements(thread)
             end
         }
     end

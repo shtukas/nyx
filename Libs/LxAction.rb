@@ -71,7 +71,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxThread" then
-                TxThreads::runAndLandingOnElements(item)
+                TxThreads::landingOnThreadElements(item)
                 return
             end
 
@@ -202,11 +202,7 @@ class LxAction
 
         if command == "run" then
 
-            # Stardard starting of the item
-
             LxAction::action("start", item)
-
-            # Stardard access
 
             LxAction::action("access", item)
 
@@ -235,7 +231,8 @@ class LxAction
 
         if command == "start" then
             return if NxBallsService::isRunning(item["uuid"])
-            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), [item["uuid"]])
+            accounts = [item["uuid"], TxThreads::elementuuidToThreaduuidOrNull(item["uuid"])].compact
+            NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end
 

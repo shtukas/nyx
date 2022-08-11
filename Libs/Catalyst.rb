@@ -33,9 +33,8 @@ class Catalyst
             Anniversaries::section2(),
             TxDateds::section2(),
             Waves::section2(true),
-            TxThreads::section2(true),
             NxLines::section2(),
-            TxThreads::section2(false),
+            TxThreads::section2(),
             Waves::section2(false),
             NxTasks::section2(),
             Streaming::section2(),
@@ -69,7 +68,7 @@ class Catalyst
         TxThreads::items()
             .each{|thread| 
                 TxThreads::elementuuids(thread).each{|elementuuid|
-                    XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{elementuuid}", true)
+                    XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", thread["uuid"])
                 }
             }
 

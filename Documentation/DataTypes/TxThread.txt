@@ -12,7 +12,7 @@ The uuids of the elements under that thread are in the set "project-items-3f1549
 We use
 
 ```
-XCache::setFlag("7fe799a9-5b7a-46a9-a70c-b5931d05f70f:#{itemuuid}", true)
+XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", threaduuid)
 ```
 
 to to indicate that an item is listed as element of a thread. Note that there is nothing that prevent an element to be in more than one thread.

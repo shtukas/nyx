@@ -61,7 +61,7 @@ class NxLines
     # NxLines::section2()
     def self.section2()
         NxLines::items()
-            .select{|item| !TxThreads::uuidIsProjectElement(item["uuid"]) }
+            .select{|item| !TxThreads::elementuuidToThreaduuidOrNull(item["uuid"]) }
             .sort{|l1, l2| l1["unixtime"] <=> l2["unixtime"] }
     end
 end
