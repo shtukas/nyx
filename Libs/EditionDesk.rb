@@ -84,7 +84,6 @@ class EditionDesk
             return nil
         end
         return nil if nx111.nil?
-        nx111 = JSON.parse(nx111)
 
         # The below happens when the nx111 has been manually updated (created a new one) 
         # after the previous edition desk export. In which case we ignore the one 
