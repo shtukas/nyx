@@ -65,12 +65,12 @@ class Catalyst
 
         # We will also be enabling xcache communication, but in the meantime, and even if, this will do
 
-        TxThreads::items()
-            .each{|thread| 
-                TxThreads::elementuuids(thread).each{|elementuuid|
-                    XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", thread["uuid"])
-                }
-            }
+        #TxThreads::items()
+        #    .each{|thread| 
+        #        TxThreads::elementuuids(thread).each{|elementuuid|
+        #            XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", thread["uuid"])
+        #        }
+        #    }
 
         # ---------------------------------------------------
 

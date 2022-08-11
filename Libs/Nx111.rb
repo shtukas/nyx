@@ -139,6 +139,8 @@ class Nx111
                 raise "(0a5ff16e-7e3c-49fd-9735-13b4a6a9eb21)"
             end
 
+            owner = item["uuid"]
+
             DxPure::insertIntoPure(filepath1, "randomValue", randomValue)
             DxPure::insertIntoPure(filepath1, "mikuType", mikuType)
             DxPure::insertIntoPure(filepath1, "unixtime", unixtime)
@@ -163,7 +165,7 @@ class Nx111
             puts "new:"
             puts JSON.pretty_generate(nx111_v2)
 
-            puts "Next action: putting the new Nx111 into item: #{JSON.pretty_generate(item)}"
+            puts "Next action: putting the new Nx111 #{JSON.pretty_generate(nx111_v2)} into item: #{JSON.pretty_generate(item)}"
             LucilleCore::pressEnterToContinue()
 
             Fx18Attributes::setJsonEncodeObjectMaking(item["uuid"], "nx111", nx111_v2)

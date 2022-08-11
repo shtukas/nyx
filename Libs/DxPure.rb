@@ -55,7 +55,9 @@ class DxPureElizabethFsck1_Migration
     end
 
     def putBlob(blob)
-        raise "(error: bf5977a3-8ec7-48ea-95fe-67c59645e11f)"
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        DxPure::insertIntoPure(@filepath, nhash, blob)
+        nhash
     end
 
     def filepathToContentHash(filepath)
