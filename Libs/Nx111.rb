@@ -108,19 +108,52 @@ class Nx111
     def self.access(item, nx111)
         return if nx111.nil?
 
-        EditionDesk::accessItemNx111Pair(item, nx111)
-        return
+        if nx111["type"] == "aion-point" then
 
-        if nx111["type"] == "url" then
-            url = nx111["url"]
-            puts "You are accesssing a Nx111 type url (#{url})"
-            puts "We are currently in the process to migrate them to Nx111 DxPure (Urls)"
+            rootnhash = nx111["rootnhash"]
+            puts "You are accesssing a Nx111 type aion-point (#{JSON.pretty_generate(nx111)})"
+            puts "We are currently in the process to migrate them to Nx111 DxPureAionPoint"
             LucilleCore::pressEnterToContinue()
 
-            puts "origin:"
-            puts JSON.pretty_generate(nx111)
+            randomValue  = SecureRandom.hex
+            mikuType     = "DxPureAionPoint"
+            unixtime     = Time.new.to_i
+            datetime     = Time.new.utc.iso8601
+            # owner
+            # location
 
-            sha1 = DxPureUrl::issue(item["uuid"], url)
+            filepath1 = "/tmp/#{SecureRandom.hex}.sqlite3"
+            DxPure::makeNewPureFile(filepath1)
+
+            puts "fsck, migration"
+            operator = DxPureElizabethFsck1_Migration.new(filepath1)
+            status = AionFsck::structureCheckAionHash(operator, rootnhash) # This will move the data into the DxPure
+            if !status then
+                raise "(3c5521bc-a224-4c57-9c0b-1e0e9b176383)"
+            end
+
+            puts "fsck, structure"
+            operator = DxPureElizabeth.new(filepath1)
+            status = AionFsck::structureCheckAionHash(operator, rootnhash)
+            if !status then
+                raise "(0a5ff16e-7e3c-49fd-9735-13b4a6a9eb21)"
+            end
+
+            DxPure::insertIntoPure(filepath1, "randomValue", randomValue)
+            DxPure::insertIntoPure(filepath1, "mikuType", mikuType)
+            DxPure::insertIntoPure(filepath1, "unixtime", unixtime)
+            DxPure::insertIntoPure(filepath1, "datetime", datetime)
+            DxPure::insertIntoPure(filepath1, "owner", owner)
+            DxPure::insertIntoPure(filepath1, "rootnhash", rootnhash)
+
+            DxPure::fsckFileRaiseError(filepath1)
+
+            sha1 = Digest::SHA1.file(filepath1).hexdigest
+
+            filepath2 = DxPure::sha1ToLocalFilepath(sha1)
+
+            FileUtils.mv(filepath1, filepath2)
+
             nx111_v2 = {
                 "uuid" => SecureRandom.uuid,
                 "type" => "DxPure",
@@ -139,13 +172,13 @@ class Nx111
             # Now we just need to actually access the new DxPure
 
             item = Fx18s::getItemAliveOrNull(item["uuid"])
-            nx111 = item["nx111"]
 
             puts "Done. Here is the new situation:"
             puts "item: #{JSON.pretty_generate(item)}"
             puts "We are going to run with that"
             LucilleCore::pressEnterToContinue()
 
+            nx111 = item["nx111"]
             Nx111::access(item, nx111)
 
             return

@@ -1,8 +1,8 @@
 
-DxPureUrl:
+DxPureAionPoint:
     "randomValue"  : String
-    "mikuType"     : "DxPureUrl"
+    "mikuType"     : "DxPureAionPoint"
     "unixtime"     : Float
     "datetime"     : DateTime Iso 8601 UTC Zulu
     "owner"        : String
-    "url"          : String
+    "rootnhash"    : nhash
