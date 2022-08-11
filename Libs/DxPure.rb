@@ -275,6 +275,7 @@ class DxPure
             FileUtils.mkdir(parentLocation)
             AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
             puts "Item exported at #{parentLocation}"
+            LucilleCore::pressEnterToContinue()
             return 
         end
         raise "(error: 9a06ba98-9ec5-4dd5-94c8-1a87dd566506) DxPure access: unsupported mikuType: #{mikuType}"
