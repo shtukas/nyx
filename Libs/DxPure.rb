@@ -271,7 +271,7 @@ class DxPure
             filepath = DxPure::sha1ToLocalFilepath(sha1)
             operator = DxPureElizabeth.new(filepath)
             rootnhash = DxPure::readValueOrNull(filepath, "rootnhash")
-            parentLocation = "#{ENV['HOME']}/Desktop/#{SecureRandom.hex(4)}"
+            parentLocation = "#{ENV['HOME']}/Desktop/DxPure-Export-#{SecureRandom.hex(4)}"
             FileUtils.mkdir(parentLocation)
             AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
             puts "Item exported at #{parentLocation}"

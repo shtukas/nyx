@@ -68,7 +68,7 @@ class SystemEvents
                 event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
             end
         end
-        puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
+        #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
         Machines::theOtherInstanceIds().each{|instanceName|
             e = event.clone
             e["targetInstance"] = instanceName
