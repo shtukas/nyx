@@ -183,8 +183,10 @@ require_relative "DoNotShowUntil.rb"
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
 require_relative "DailySlots.rb"
-require_relative "DxPureUrl.rb"
+
 require_relative "DxPure.rb"
+require_relative "DxPureUrl.rb"
+require_relative "DxPureText.rb"
 
 require_relative "EditionDesk.rb"
 require_relative "ExData.rb"
