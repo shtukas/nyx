@@ -22,7 +22,8 @@ class Catalyst
 
     # Catalyst::section1()
     def self.section1()
-        NxFrames::items() + TxThreads::section1() + TopLevel::section1()
+        items = NxFrames::items() + TxThreads::section1() + TopLevel::section1()
+        items.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # Catalyst::section2()
