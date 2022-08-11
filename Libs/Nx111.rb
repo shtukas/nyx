@@ -129,6 +129,7 @@ class Nx111
             puts text
             puts "-----------------------------------------"
             LucilleCore::pressEnterToContinue()
+            return
         end
 
         if nx111["type"] == "aion-point" then
