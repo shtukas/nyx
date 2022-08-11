@@ -39,11 +39,10 @@ class Nx111
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nhash = ExData::putBlobInLocalDatablobsFolder(text)
             return {
-                "uuid"  => SecureRandom.uuid,
-                "type"  => "text",
-                "nhash" => nhash
+                "uuid" => SecureRandom.uuid,
+                "type" => "text",
+                "text" => text
             }
         end
         if type == "url" then
@@ -108,6 +107,9 @@ class Nx111
     # Nx111::access(item, nx111)
     def self.access(item, nx111)
         return if nx111.nil?
+
+        EditionDesk::accessItemNx111Pair(item, nx111)
+        return
 
         if nx111["type"] == "url" then
             url = nx111["url"]

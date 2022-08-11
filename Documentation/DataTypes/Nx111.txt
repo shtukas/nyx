@@ -3,13 +3,13 @@ Nx111
 {
     "uuid"  : String
     "type"  : "text"
-    "nhash" : nhash # nhash of the blob of text
+    "text"  : text
 }
 
 {
-    "uuid"  : String
-    "type"  : "url"
-    "nhash" : URL
+    "uuid" : String
+    "type" : "url"
+    "url"  : URL
 }
 
 {

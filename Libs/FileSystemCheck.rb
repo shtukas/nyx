@@ -28,13 +28,11 @@ class FileSystemCheck
             raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
         end
         if nx111["type"] == "text" then
-            nhash = nx111["nhash"]
-            blob = ExDataElizabethForFsck.new(objectuuid).getBlobOrNull(nhash)
-            if blob.nil? then
+            text = nx111["text"]
+            if text.nil? then
                 puts "objectuuid: #{objectuuid}".red
                 puts "nx111: #{nx111}".red
-                puts "nhash: #{nhash}".red
-                puts "Fx18FileDataForFsck::getBlobOrNull(objectuuid, nhash): could not find the text data".red
+                puts "Fx18FileDataForFsck::getBlobOrNull(objectuuid, nhash): could not find the text".red
                 raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
             end
             return

@@ -107,8 +107,7 @@ class EditionDesk
                 return location
             end
             location = "#{location}.txt"
-            nhash = nx111["nhash"]
-            text = ExData::getBlobOrNull(nhash)
+            text = nx111["text"]
             File.open(location, "w"){|f| f.puts(text) }
             return location
         end
@@ -192,8 +191,10 @@ class EditionDesk
         return if nx111.nil?
 
         if nx111["type"] == "url" then
-            puts "This should not have happened because we are migrating them to DxPureUrls in Nx111::access"
-            raise "(error: 70b3acac-e21e-419a-bbbc-7d85a8437734)"
+            url = nx111["url"]
+            puts "url: #{url}"
+            CommonUtils::openUrlUsingSafari(url)
+            return
         end
 
         if nx111["type"] == "DxPure" then
@@ -234,9 +235,8 @@ class EditionDesk
 
         if nx111["type"] == "text" then
             text = IO.read(location)
-            nhash = ExData::putBlobInLocalDatablobsFolder(text) # TODO: we should probably compute the nhash without actually commiting the blob to the file
-            return if nx111["nhash"] == nhash
-            nx111["nhash"] = nhash
+            return if nx111["text"] == text
+            nx111["text"] = text
             Fx18Attributes::setJsonEncodeUpdate(itemuuid, "nx111", nx111)
             return
         end
