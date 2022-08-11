@@ -500,7 +500,9 @@ class Fx18sSynchronisation
             if File.exists?(filepath2) then
                 Fx18sSynchronisation::propagateFileData(filepath1, filepath2) # uplink
             else
-                puts "Copying #{filepath1} to #{filepath2}"
+                puts "Copying:"
+                puts "    #{filepath1}"
+                puts "    #{filepath2}"
                 folderpath2 = File.dirname(filepath2)
                 if !File.exists?(folderpath2) then
                     FileUtils.mkdir(folderpath2)
@@ -520,7 +522,9 @@ class Fx18sSynchronisation
             if File.exists?(filepath2) then
                 Fx18sSynchronisation::propagateFileData(filepath1, filepath2) # downlink
             else
-                puts "Copying #{filepath1} to #{filepath2}"
+                puts "Copying:"
+                puts "    #{filepath1}"
+                puts "    #{filepath2}"
                 folderpath2 = File.dirname(filepath2)
                 if !File.exists?(folderpath2) then
                     FileUtils.mkdir(folderpath2)
