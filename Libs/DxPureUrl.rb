@@ -6,8 +6,8 @@ class DxPureUrl
     # ------------------------------------------------------------------
     # Making
 
-    # DxPureUrl::make(owner, url) # sha1, sha1 in the full filename of the pure immutable content-addressed data island, of the form <sha1>.sqlite3
-    def self.make(owner, url)
+    # DxPureUrl::issue(owner, url) # sha1, sha1 in the full filename of the pure immutable content-addressed data island, of the form <sha1>.sqlite3
+    def self.issue(owner, url)
 
         randomValue  = SecureRandom.hex
         mikuType     = "DxPureUrl"
@@ -41,7 +41,7 @@ class DxPureUrl
     def self.interactivelyIssueNewOrNull(owner)
         url = LucilleCore::askQuestionAnswerAsString("url (empty to abort) : ")
         return nil if url == ""
-        DxPureUrl::make(owner, url)
+        DxPureUrl::issue(owner, url)
     end
 
     # ------------------------------------------------------------------

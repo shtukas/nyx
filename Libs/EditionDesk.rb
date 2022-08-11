@@ -192,10 +192,8 @@ class EditionDesk
         return if nx111.nil?
 
         if nx111["type"] == "url" then
-            url = nx111["url"]
-            puts "url: #{url}"
-            CommonUtils::openUrlUsingSafari(url)
-            return
+            puts "This should not have happened because we are migrating them to DxPureUrls in Nx111::access"
+            raise "(error: 70b3acac-e21e-419a-bbbc-7d85a8437734)"
         end
 
         if nx111["type"] == "DxPure" then

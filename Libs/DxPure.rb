@@ -158,11 +158,12 @@ class DxPure
             ensureAttributeExists.call(filepath, "url")
             return
         end
+
         raise "(error: fa74feac-37c6-4525-93ba-933f52d54321) DxPure fsck: unsupported mikuType: #{mikuType}"
     end
 
     # ------------------------------------------------------------
-    # Vault Management
+    # Collection Management
 
     # DxPure::localFilepathsEnumerator()
     def self.localFilepathsEnumerator()

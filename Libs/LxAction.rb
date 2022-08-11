@@ -80,7 +80,7 @@ class LxAction
                     LucilleCore::pressEnterToContinue()
                     return
                 end
-                EditionDesk::accessItemNx111Pair(item, item["nx111"])
+                Nx111::access(item, item["nx111"])
                 return
             end
 

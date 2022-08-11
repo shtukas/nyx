@@ -104,4 +104,51 @@ class Nx111
     def self.toStringShort(nx111)
         "#{nx111["type"]}"
     end
+
+    # Nx111::access(item, nx111)
+    def self.access(item, nx111)
+        return if nx111.nil?
+
+        if nx111["type"] == "url" then
+            url = nx111["url"]
+            puts "You are accesssing a Nx111 type url (#{url})"
+            puts "We are currently in the process to migrate them to Nx111 DxPure (Urls)"
+            LucilleCore::pressEnterToContinue()
+
+            puts "origin:"
+            puts JSON.pretty_generate(nx111)
+
+            sha1 = DxPureUrl::issue(item["uuid"], url)
+            nx111_v2 = {
+                "uuid" => SecureRandom.uuid,
+                "type" => "DxPure",
+                "sha1" => sha1
+            }
+
+            puts "new:"
+            puts JSON.pretty_generate(nx111_v2)
+
+            puts "Next action: putting the new Nx111 into item: #{JSON.pretty_generate(item)}"
+            LucilleCore::pressEnterToContinue()
+
+            Fx18Attributes::setJsonEncodeObjectMaking(item["uuid"], "nx111", nx111_v2)
+
+            # Done
+            # Now we just need to actually access the new DxPure
+
+            item = Fx18s::getItemAliveOrNull(item["uuid"])
+            nx111 = item["nx111"]
+
+            puts "Done. Here is the new situation:"
+            puts "item: #{JSON.pretty_generate(item)}"
+            puts "We are going to run with that"
+            LucilleCore::pressEnterToContinue()
+
+            Nx111::access(item, nx111)
+
+            return
+        end
+
+        EditionDesk::accessItemNx111Pair(item, nx111)
+    end
 end

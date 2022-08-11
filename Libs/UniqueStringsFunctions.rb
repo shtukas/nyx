@@ -54,7 +54,7 @@ class UniqueStringsFunctions
                 rootnhash = nx111["rootnhash"]
                 operator = ExDataElizabeth.new(item["uuid"])
                 if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
-                    EditionDesk::accessItemNx111Pair(item, nx111)
+                    Nx111::access(item, nx111)
                     return
                 end
             end
