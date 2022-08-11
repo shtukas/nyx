@@ -186,6 +186,12 @@ class Nx111
             return
         end
 
+        if nx111["type"] == "DxPure" then
+            sha1 = nx111["sha1"]
+            DxPure::access(sha1)
+            return
+        end
+
         EditionDesk::accessItemNx111Pair(item, nx111)
     end
 end

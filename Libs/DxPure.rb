@@ -268,8 +268,13 @@ class DxPure
         end
         mikuType = DxPure::getMikuType(filepath)
         if mikuType == "DxPureAionPoint" then
-            puts "(82bdb0e4-7747-445c-bd2b-dbe97affdbab) DxPure::access, DxPureAionPoint, not implemented yet"
-            exit
+            filepath = DxPure::sha1ToLocalFilepath(sha1)
+            operator = DxPureElizabeth.new(filepath)
+            rootnhash = DxPure::readValueOrNull(filepath, "rootnhash")
+            parentLocation = "#{ENV['HOME']}/Desktop/#{SecureRandom.hex(4)}"
+            FileUtils.mkdir(parentLocation)
+            AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
+            puts "Item exported at #{parentLocation}"
             return 
         end
         raise "(error: 9a06ba98-9ec5-4dd5-94c8-1a87dd566506) DxPure access: unsupported mikuType: #{mikuType}"
