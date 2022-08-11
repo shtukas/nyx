@@ -12,7 +12,8 @@ class LinkedNavigation
             }
         else
             uuids = items.map{|item| item["uuid"] }
-            EditionDesk::exportAndAccessMiscItemsReadOnly(uuids)
+            puts "Code to be written (8cfc7215-743a-418f-9f92-9e40c22f27ab)"
+            exit
         end
     end
 
@@ -68,7 +69,8 @@ class LinkedNavigation
             end
 
             if option == "edition desk export all" then
-                EditionDesk::exportAndAccessMiscItemsReadOnly(uuids)
+                puts "Code to be written (8cfc7215-743a-418f-9f92-9e40c22f27ab)"
+                exit
             end
 
             if option == "zoom on a time period" then

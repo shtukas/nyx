@@ -192,6 +192,7 @@ class Nx111
             return
         end
 
-        EditionDesk::accessItemNx111Pair(item, nx111)
+        puts "Code to be written (8cfc7215-743a-418f-9f92-9e40c22f27ab)"
+        exit
     end
 end

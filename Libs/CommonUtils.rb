@@ -485,8 +485,7 @@ class CommonUtils
     def self.uniqueStringLocationUsingPartialGalaxySearchOrNull(uniquestring)
         roots = [
             "#{Config::userHomeDirectory()}/Desktop",
-            "#{Config::userHomeDirectory()}/Galaxy/Documents",
-            EditionDesk::pathToEditionDesk()
+            "#{Config::userHomeDirectory()}/Galaxy/Documents"
         ]
         roots.each{|root|
             Find.find(root) do |path|

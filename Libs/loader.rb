@@ -185,7 +185,6 @@ require_relative "DoneForToday.rb"
 require_relative "DailySlots.rb"
 require_relative "DxPure.rb"
 
-require_relative "EditionDesk.rb"
 require_relative "ExData.rb"
 
 require_relative "Galaxy.rb"
