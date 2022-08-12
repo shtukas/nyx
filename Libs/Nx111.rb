@@ -124,8 +124,8 @@ class Nx111
 
         if nx111["type"] == "text" then
             text = nx111["text"]
-            puts "-----------------------------------------"
             puts "text:" 
+            puts "-----------------------------------------"
             puts text
             puts "-----------------------------------------"
             LucilleCore::pressEnterToContinue()
