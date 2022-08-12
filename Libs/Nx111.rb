@@ -78,7 +78,12 @@ class Nx111
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return DxPure::issueDxPureAionPoint(objectuuid, location)
+            sha1 = DxPure::issueDxPureAionPoint(objectuuid, location)
+            return {
+                "uuid" => SecureRandom.uuid,
+                "type" => "DxPure",
+                "sha1" => sha1
+            }
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (use 'Nx01-#{SecureRandom.hex(6)}' if need one): ")
