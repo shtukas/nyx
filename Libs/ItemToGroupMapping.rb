@@ -8,13 +8,23 @@ class ItemToGroupMapping
         "#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3"
     end
 
-    # ItemToGroupMapping::issue(groupuuid, itemuuid)
-    def self.issue(groupuuid, itemuuid)
+    # ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
+    def self.issueNoEvent(groupuuid, itemuuid)
         db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, itemuuid, groupuuid, "true"]
         db.close
+    end
+
+    # ItemToGroupMapping::issue(groupuuid, itemuuid)
+    def self.issue(groupuuid, itemuuid)
+        ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
+        SystemEvents::broadcast({
+          "mikuType"  => "ItemToGroupMapping",
+          "groupuuid" => groupuuid,
+          "itemuuid"  => itemuuid
+        })
     end
 
     # ItemToGroupMapping::detach(groupuuid, itemuuid)
@@ -65,5 +75,30 @@ class ItemToGroupMapping
         end
         answer
     end
-end
 
+    # ItemToGroupMapping::eventuuids()
+    def self.eventuuids()
+        db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select _eventuuid_ from _mapping_", []) do |row|
+            answer << row['_eventuuid_']
+        end
+        answer
+    end
+
+    # ItemToGroupMapping::records()
+    def self.records()
+        db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        answer = []
+        db.execute("select _eventuuid_ from _mapping_", []) do |row|
+            answer << row.clone
+        end
+        answer
+    end
+end

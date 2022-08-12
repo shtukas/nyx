@@ -76,3 +76,24 @@ We have two types of events
     "hour"       => hour,
     "objectuuid" => objectuuid,
 }
+
+{
+    "targetInstance" : TargetInstanceName # added by the broadcaster
+    "mikuType"       : "ItemToGroupMapping"
+    "groupuuid"      : String
+    "itemuuid"       : String
+}
+
+{
+    "mikuType"   => "ItemToGroupMapping-eventuuids",
+    "eventuuids" => Array[String]
+}
+
+{
+    "mikuType"  => "ItemToGroupMapping-request"
+}
+
+{
+    "mikuType" => "ItemToGroupMapping-records",
+    "records"  => ItemToGroupMapping::records()
+}

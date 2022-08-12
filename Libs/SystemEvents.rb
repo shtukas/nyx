@@ -59,6 +59,30 @@ class SystemEvents
         if event["mikuType"] == "Daily Slots: Register" then
             DailySlots::internalEventProcessing(event)
         end
+
+        if event["mikuType"] == "ItemToGroupMapping" then
+            groupuuid = event["groupuuid"]
+            itemuuid  = event["itemuuid"]
+            ItemToGroupMapping::issueNoEvent(groupuuid, itemuuid)
+        end
+
+        if event["mikuType"] == "ItemToGroupMapping-eventuuids" then
+            remoteeventuuids = event["eventuuids"]
+            localeventuuids = ItemToGroupMapping::eventuuids()
+            difference = remoteeventuuids - localeventuuids
+            if difference.size > 0 then
+                SystemEvents::broadcast({
+                  "mikuType"  => "ItemToGroupMapping-request"
+                })
+            end
+        end
+
+        if event["mikuType"] == "ItemToGroupMapping-request" then
+            SystemEvents::broadcast({
+              "mikuType"  => "ItemToGroupMapping-records",
+              "records" => ItemToGroupMapping::records()
+            })
+        end
     end
 
     # SystemEvents::broadcast(event)

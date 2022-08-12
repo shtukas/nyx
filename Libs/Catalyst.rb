@@ -58,21 +58,10 @@ class Catalyst
             }
         end
 
-        # ---------------------------------------------------
-        # When an element is added to a thread, that information is written in the thread and
-        # will eventually reach the thread on other instances, but the element may still show up 
-        # as threadless on those other instances, because the cache wasn't set there.
-
-        # We will also be enabling xcache communication, but in the meantime, and even if, this will do
-
-        #NxGroups::items()
-        #    .each{|thread| 
-        #        NxGroups::elementuuids(thread).each{|elementuuid|
-        #            XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", thread["uuid"])
-        #        }
-        #    }
-
-        # ---------------------------------------------------
+        SystemEvents::broadcast({
+          "mikuType"  => "ItemToGroupMapping-eventuuids",
+          "eventuuids" => ItemToGroupMapping::eventuuids()
+        })
 
         loop {
 
