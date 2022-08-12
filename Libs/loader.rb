@@ -235,7 +235,7 @@ require_relative "Stargate.rb"
 require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
-require_relative "TxThreads.rb"
+require_relative "NxGroups.rb"
 require_relative "TopLevel.rb"
 
 require_relative "UniqueStringsFunctions.rb"

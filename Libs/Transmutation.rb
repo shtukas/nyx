@@ -58,7 +58,7 @@ class Transmutation
 
         if source == "NxFrame" and target == "NxTask" then
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "mikuType", "NxTask")
-            TxThreads::interactivelyProposeToAttachTaskToProject(item)
+            NxGroups::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 
@@ -100,7 +100,7 @@ class Transmutation
 
         if source == "TxDated" and target == "NxTask" then
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "mikuType", "NxTask")
-            TxThreads::interactivelyProposeToAttachTaskToProject(item)
+            NxGroups::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 

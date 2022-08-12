@@ -103,6 +103,6 @@ class NxTasks
     def self.section2()
         NxTasks::items2(10)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| !TxThreads::elementuuidToThreaduuidOrNull(item["uuid"]) }
+            .select{|item| !NxGroups::elementuuidToThreaduuidOrNull(item["uuid"]) }
     end
 end

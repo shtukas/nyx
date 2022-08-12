@@ -22,7 +22,7 @@ class Catalyst
 
     # Catalyst::section1()
     def self.section1()
-        items = NxFrames::items() + TxThreads::section1() + TopLevel::section1()
+        items = NxFrames::items()  + TopLevel::section1()
         items.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
@@ -34,7 +34,7 @@ class Catalyst
             TxDateds::section2(),
             Waves::section2(true),
             NxLines::section2(),
-            TxThreads::section2(),
+            NxGroups::section2(),
             Waves::section2(false),
             NxTasks::section2(),
             Streaming::section2(),
@@ -65,9 +65,9 @@ class Catalyst
 
         # We will also be enabling xcache communication, but in the meantime, and even if, this will do
 
-        #TxThreads::items()
+        #NxGroups::items()
         #    .each{|thread| 
-        #        TxThreads::elementuuids(thread).each{|elementuuid|
+        #        NxGroups::elementuuids(thread).each{|elementuuid|
         #            XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", thread["uuid"])
         #        }
         #    }
@@ -151,29 +151,56 @@ class Catalyst
             running
                 .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
                 .each{|nxball|
-                    store.register(nxball, true)
+                    store.register(nxball, false)
                     line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                     puts line.green
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
         end
 
-        section1 = Catalyst::section1()
-        if !section1.empty? then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            section1
-                .each{|item|
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
+        puts ""
+        vspaceleft = vspaceleft - 1
+        NxGroups::items()
+            .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
+            .each{|item|
+                store.register(item, false)
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                if NxBallsService::isActive(item["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+
+        puts ""
+        vspaceleft = vspaceleft - 1
+        TopLevel::items()
+            .sort{|i1, i2|  i1["unixtime"] <=> i2["unixtime"]}
+            .each{|item|
+                store.register(item, false)
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                if NxBallsService::isActive(item["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+
+        puts ""
+        vspaceleft = vspaceleft - 1
+        NxFrames::items()
+            .each{|item|
+                store.register(item, false)
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                if NxBallsService::isActive(item["uuid"]) then
+                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
 
         section = DailySlots::section()
         if section.size > 0 then

@@ -68,12 +68,6 @@ class TopLevel
         Lookup1::mikuTypeToItems("TopLevel")
     end
 
-    # TopLevel::section1()
-    def self.section1()
-        TopLevel::items()
-            .sort{|i1, i2|  i1["unixtime"] <=> i2["unixtime"]}
-    end
-
     # ----------------------------------------------------------------------
     # Operations
 

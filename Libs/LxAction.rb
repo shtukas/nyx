@@ -70,8 +70,8 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxThread" then
-                TxThreads::landingOnThreadElements(item)
+            if item["mikuType"] == "NxGroup" then
+                NxGroups::elementsLanding(item)
                 return
             end
 
@@ -142,7 +142,7 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxThread" then
+            if item["mikuType"] == "NxGroup" then
                 NxBallsService::close(item["uuid"], true)
                 if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
                     DoneForToday::setDoneToday(item["uuid"])
@@ -243,7 +243,7 @@ class LxAction
 
         if command == "start" then
             return if NxBallsService::isRunning(item["uuid"])
-            accounts = [item["uuid"], TxThreads::elementuuidToThreaduuidOrNull(item["uuid"])].compact
+            accounts = [item["uuid"], NxGroups::elementuuidToThreaduuidOrNull(item["uuid"])].compact
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end

@@ -299,7 +299,7 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "TxThread" then
+        if mikuType == "NxGroup" then
             [
                 "uuid",
                 "mikuType",

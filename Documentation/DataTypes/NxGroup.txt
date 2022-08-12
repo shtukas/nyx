@@ -1,7 +1,7 @@
 
-TxThread:
+NxGroup:
     "uuid"        : uuid
-    "mikuType"    : "TxThread"
+    "mikuType"    : "NxGroup"
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description

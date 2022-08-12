@@ -59,9 +59,9 @@ class Streaming
                 next
             end
             if command == ">thread" then
-                thread = TxThreads::architectOneOrNull()
+                thread = NxGroups::architectOneOrNull()
                 return if thread.nil?
-                TxThreads::addElement(thread["uuid"], item["uuid"])
+                NxGroups::addElement(thread["uuid"], item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -97,9 +97,9 @@ class Streaming
                 next
             end
             if command == ">thread" then
-                thread = TxThreads::architectOneOrNull()
+                thread = NxGroups::architectOneOrNull()
                 return if thread.nil?
-                TxThreads::addElement(thread["uuid"], item["uuid"])
+                NxGroups::addElement(thread["uuid"], item["uuid"])
                 return nil
             end
             if command == ">nyx" then
@@ -142,7 +142,7 @@ class Streaming
         return if items.empty?
         loop {
             item = items.shift
-            next if TxThreads::elementuuidToThreaduuidOrNull(item["uuid"])
+            next if NxGroups::elementuuidToThreaduuidOrNull(item["uuid"])
             command = Streaming::processItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1

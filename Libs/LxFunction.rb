@@ -67,7 +67,7 @@ class LxFunction
             if item["mikuType"] == "TxDated" then
                 return item["description"]
             end
-            if item["mikuType"] == "TxThread" then
+            if item["mikuType"] == "NxGroup" then
                 return item["description"]
             end
             if item["mikuType"] == "Wave" then
@@ -127,8 +127,8 @@ class LxFunction
             if item["mikuType"] == "TopLevel" then
                 return TopLevel::toString(item)
             end
-            if item["mikuType"] == "TxThread" then
-                return TxThreads::toString(item)
+            if item["mikuType"] == "NxGroup" then
+                return NxGroups::toString(item)
             end
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)

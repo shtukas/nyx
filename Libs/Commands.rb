@@ -35,7 +35,7 @@ class Commands
         if Interpreting::match(">thread", input) then
             item = store.getDefault()
             return if item.nil?
-            TxThreads::entityToProject(item)
+            NxGroups::entityToProject(item)
             return
         end
 
@@ -43,7 +43,7 @@ class Commands
             ordinal, _ = Interpreting::tokenizer(input)
             entity = store.get(ordinal.to_i)
             return if entity.nil?
-            TxThreads::entityToProject(entity)
+            NxGroups::entityToProject(entity)
             return
         end
 
@@ -90,7 +90,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            return if item["mikuType"] != "TxThread"
+            return if item["mikuType"] != "NxGroup"
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
             return
         end
@@ -214,7 +214,7 @@ class Commands
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
-            TxThreads::interactivelyProposeToAttachTaskToProject(item)
+            NxGroups::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 
@@ -277,12 +277,12 @@ class Commands
         end
 
         if input == "thread" then
-            TxThreads::interactivelyIssueNewItemOrNull()
+            NxGroups::interactivelyIssueNewItemOrNull()
             return
         end
 
         if Interpreting::match("threads", input) then
-            TxThreads::dive()
+            NxGroups::dive()
             return
         end
 
@@ -398,7 +398,7 @@ class Commands
         if Interpreting::match("task", input) then
             item = NxTasks::interactivelyCreateNewOrNull()
             return if item.nil?
-            TxThreads::interactivelyProposeToAttachTaskToProject(item)
+            NxGroups::interactivelyProposeToAttachTaskToProject(item)
             return
         end
 
@@ -469,8 +469,8 @@ class Commands
                     "lambda" => lambda { TxDateds::section2() }
                 },
                 {
-                    "name" => "TxThreads::section2()",
-                    "lambda" => lambda { TxThreads::section2() }
+                    "name" => "NxGroups::section2()",
+                    "lambda" => lambda { NxGroups::section2() }
                 },
                 {
                     "name" => "Streaming::section2()",

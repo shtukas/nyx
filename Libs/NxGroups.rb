@@ -1,14 +1,14 @@
 
 # encoding: UTF-8
 
-class TxThreads
+class NxGroups
 
     # ----------------------------------------------------------------------
     # IO
 
-    # TxThreads::objectuuidToItemOrNull(objectuuid)
+    # NxGroups::objectuuidToItemOrNull(objectuuid)
     def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "TxThread"
+        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxGroup"
         {
             "uuid"        => objectuuid,
             "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
@@ -19,12 +19,12 @@ class TxThreads
         }
     end
 
-    # TxThreads::items()
+    # NxGroups::items()
     def self.items()
-        Lookup1::mikuTypeToItems("TxThread")
+        Lookup1::mikuTypeToItems("NxGroup")
     end
 
-    # TxThreads::destroy(uuid)
+    # NxGroups::destroy(uuid)
     def self.destroy(uuid)
         Fx18s::deleteObjectLogically(uuid)
     end
@@ -32,7 +32,7 @@ class TxThreads
     # ----------------------------------------------------------------------
     # Objects Makers
 
-    # TxThreads::interactivelyIssueNewItemOrNull() # item
+    # NxGroups::interactivelyIssueNewItemOrNull() # item
     def self.interactivelyIssueNewItemOrNull()
 
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
@@ -46,7 +46,7 @@ class TxThreads
         uuid = SecureRandom.uuid
         Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "TxThread")
+        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxGroup")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_f)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
@@ -55,51 +55,51 @@ class TxThreads
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
-        item = TxThreads::objectuuidToItemOrNull(uuid)
+        item = NxGroups::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 196d5021-a7d2-4d23-8e70-851d81c9f994) How did that happen ? 🤨"
         end
         item
     end
 
-    # TxThreads::architectOneOrNull() # item or null
+    # NxGroups::architectOneOrNull() # item or null
     def self.architectOneOrNull()
-        items = TxThreads::items()
+        items = NxGroups::items()
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         item = LucilleCore::selectEntityFromListOfEntitiesOrNull("thread", items, lambda{|item| LxFunction::function("toString", item) })
         return item if item
         if LucilleCore::askQuestionAnswerAsBoolean("Issue new thread ? ") then
-            return TxThreads::interactivelyIssueNewItemOrNull()
+            return NxGroups::interactivelyIssueNewItemOrNull()
         end
     end
 
     # ----------------------------------------------------------------------
     # Elements
 
-    # TxThreads::addElement(threaduuid, elementuuid)
+    # NxGroups::addElement(threaduuid, elementuuid)
     def self.addElement(threaduuid, elementuuid)
         Fx18Sets::add2(threaduuid, "project-items-3f154988", elementuuid, elementuuid)
         XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", threaduuid)
     end
 
-    # TxThreads::removeElement(thread, uuid)
+    # NxGroups::removeElement(thread, uuid)
     def self.removeElement(thread, uuid)
         Fx18Sets::remove2(thread["uuid"], "project-items-3f154988", uuid)
     end
 
-    # TxThreads::elementuuids(thread)
+    # NxGroups::elementuuids(thread)
     def self.elementuuids(thread)
         Fx18Sets::items(thread["uuid"], "project-items-3f154988")
     end
 
-    # TxThreads::elements(thread, count)
+    # NxGroups::elements(thread, count)
     def self.elements(thread, count)
         Fx18Sets::items(thread["uuid"], "project-items-3f154988")
             .first(count)
             .map{|elementuuid|  
                 element = Fx18s::getItemAliveOrNull(elementuuid)
                 if element.nil? then
-                    TxThreads::removeElement(thread, elementuuid)
+                    NxGroups::removeElement(thread, elementuuid)
                 end
                 element
             }
@@ -107,37 +107,37 @@ class TxThreads
             .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
     end
 
-    # TxThreads::elementuuidToThreaduuidOrNull(elementuuid)
+    # NxGroups::elementuuidToThreaduuidOrNull(elementuuid)
     def self.elementuuidToThreaduuidOrNull(elementuuid)
-        #TxThreads::items().any?{|thread| TxThreads::elementuuids(thread).include?(elementuuid) }
+        #NxGroups::items().any?{|thread| NxGroups::elementuuids(thread).include?(elementuuid) }
         XCache::getOrNull("element-to-thread-lookup-0931d05f70f:#{elementuuid}")
     end
 
     # ----------------------------------------------------------------------
     # Data
 
-    # TxThreads::toString(item)
+    # NxGroups::toString(item)
     def self.toString(item)
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        "(thread) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
+        "(group) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
     end
 
-    # TxThreads::section1()
+    # NxGroups::section1()
     def self.section1()
-        TxThreads::items()
+        NxGroups::items()
             .select{|thread| !Ax39::itemShouldShow(thread) }
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"]}
     end
 
-    # TxThreads::section2()
+    # NxGroups::section2()
     def self.section2()
-        threads = TxThreads::items()
+        threads = NxGroups::items()
             .select{|thread| Ax39::itemShouldShow(thread) }
             .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
         return [] if threads.empty?
         thread1 = threads.shift
         [
-            TxThreads::elements(thread1, 6),
+            NxGroups::elements(thread1, 6),
             thread1,
             threads
         ].flatten
@@ -146,8 +146,8 @@ class TxThreads
     # ----------------------------------------------------------------------
     # Operations
 
-    # TxThreads::landingOnThreadMetadata(item)
-    def self.landingOnThreadMetadata(item)
+    # NxGroups::metadataLanding(item)
+    def self.metadataLanding(item)
         loop {
 
             return if item.nil?
@@ -160,7 +160,7 @@ class TxThreads
 
             system("clear")
 
-            puts TxThreads::toString(item).green
+            puts NxGroups::toString(item).green
 
             store = ItemStore.new()
 
@@ -211,17 +211,17 @@ class TxThreads
         }
     end
 
-    # TxThreads::landingOnThreadElements(thread)
-    def self.landingOnThreadElements(thread)
-        NxBallsService::issue(thread["uuid"], TxThreads::toString(thread), [thread["uuid"]])
+    # NxGroups::elementsLanding(group)
+    def self.elementsLanding(group)
+        NxBallsService::issue(group["uuid"], NxGroups::toString(group), [group["uuid"]])
         loop {
             system("clear")
 
-            puts "running: #{TxThreads::toString(thread).green} #{NxBallsService::activityStringOrEmptyString("", thread["uuid"], "")}"
+            puts "running: #{NxGroups::toString(group).green} #{NxBallsService::activityStringOrEmptyString("", group["uuid"], "")}"
 
             store = ItemStore.new()
 
-            packets = TxThreads::elements(thread, 50)
+            packets = NxGroups::elements(group, 50)
             if packets.size > 0 then
                 puts ""
                 packets
@@ -231,13 +231,13 @@ class TxThreads
                     }
             end
 
-            if !Ax39::itemShouldShow(thread) then
+            if Ax39::completionRatio(group) > 1 then
                 puts ""
                 puts "You are time overflowing"
             end
 
             puts ""
-            puts "commands: <n> | insert | done (thread) | done <n> | detach <n> | transfer <n>".yellow
+            puts "commands: <n> | insert | done (group) | done <n> | detach <n> | transfer <n>".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -250,8 +250,8 @@ class TxThreads
             end
 
             if command == "done" then
-                DoneForToday::setDoneToday(thread["uuid"])
-                NxBallsService::close(thread["uuid"], true)
+                DoneForToday::setDoneToday(group["uuid"])
+                NxBallsService::close(group["uuid"], true)
                 break
             end
 
@@ -261,12 +261,12 @@ class TxThreads
                 if type == "line" then
                     element = NxLines::interactivelyIssueNewLineOrNull()
                     next if element.nil?
-                    TxThreads::addElement(thread["uuid"], element["uuid"])
+                    NxGroups::addElement(group["uuid"], element["uuid"])
                 end
                 if type == "task" then
                     element = NxTasks::interactivelyCreateNewOrNull()
                     next if element.nil?
-                    TxThreads::addElement(thread["uuid"], element["uuid"])
+                    NxGroups::addElement(group["uuid"], element["uuid"])
                 end
             end
 
@@ -282,7 +282,7 @@ class TxThreads
                 indx = command[6, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                TxThreads::removeElement(thread, entity["uuid"])
+                NxGroups::removeElement(group, entity["uuid"])
                 next
             end
 
@@ -290,43 +290,43 @@ class TxThreads
                 indx = command[8, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                thread2 = TxThreads::architectOneOrNull()
-                return if thread2.nil?
-                TxThreads::addElement(thread2["uuid"], entity["uuid"])
-                TxThreads::removeElement(thread, entity["uuid"])
+                group2 = NxGroups::architectOneOrNull()
+                return if group2.nil?
+                NxGroups::addElement(group2["uuid"], entity["uuid"])
+                NxGroups::removeElement(group, entity["uuid"])
                 next
             end
         }
     end
 
-    # TxThreads::dive()
+    # NxGroups::dive()
     def self.dive()
         loop {
-            threads = TxThreads::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
-            thread = LucilleCore::selectEntityFromListOfEntitiesOrNull("thread", threads, lambda{|item| TxThreads::toString(item) })
+            threads = NxGroups::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            thread = LucilleCore::selectEntityFromListOfEntitiesOrNull("thread", threads, lambda{|item| NxGroups::toString(item) })
             break if thread.nil?
-            puts TxThreads::toString(thread).green
+            puts NxGroups::toString(thread).green
             action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["landing", "access elements"])
             next if action.nil?
             if action == "landing" then
-                TxThreads::landingOnThreadMetadata(thread)
+                NxGroups::metadataLanding(thread)
             end
             if action == "access elements" then
-                TxThreads::landingOnThreadElements(thread)
+                NxGroups::elementsLanding(thread)
             end
         }
     end
 
-    # TxThreads::interactivelyProposeToAttachTaskToProject(item)
+    # NxGroups::interactivelyProposeToAttachTaskToProject(item)
     def self.interactivelyProposeToAttachTaskToProject(item)
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a thread ? ") then
-            thread = TxThreads::architectOneOrNull()
+            thread = NxGroups::architectOneOrNull()
             return if thread.nil?
-            TxThreads::addElement(thread["uuid"], item["uuid"])
+            NxGroups::addElement(thread["uuid"], item["uuid"])
         end
     end
 
-    # TxThreads::entityToProject(entity)
+    # NxGroups::entityToProject(entity)
     def self.entityToProject(entity)
         if entity["mikuType"] == "TxDated" then
             return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask ", true)
@@ -347,9 +347,9 @@ class TxThreads
             LucilleCore::pressEnterToContinue()
             return
         end
-        thread = TxThreads::architectOneOrNull()
+        thread = NxGroups::architectOneOrNull()
         return if thread.nil?
-        TxThreads::addElement(thread["uuid"], entity["uuid"])
+        NxGroups::addElement(thread["uuid"], entity["uuid"])
         NxBallsService::close(entity["uuid"], true)
     end
 end

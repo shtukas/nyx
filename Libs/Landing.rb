@@ -301,8 +301,8 @@ class Landing
             Ax1Text::landing(item)
             return nil
         end
-        if item["mikuType"] == "TxThread" then
-            return TxThreads::landingOnThreadMetadata(item)
+        if item["mikuType"] == "NxGroup" then
+            return NxGroups::metadataLanding(item)
         end
         if item["mikuType"] == "NxLine" then
             puts JSON.pretty_generate(item)
