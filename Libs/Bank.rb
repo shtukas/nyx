@@ -9,6 +9,22 @@ class Bank
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/bank.sqlite3"
     end
 
+    # Bank::insertRecord(row)
+    def self.insertRecord(row)
+        $bank_database_semaphore.synchronize {
+            db = SQLite3::Database.new(Bank::pathToBank())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "delete from _bank_ where _eventuuid_=?", [row["_eventuuid_"]] # (1)
+            db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_setuuid_"], row["_unixtime_"], row["_date_"], row["_weight_"]]
+            db.close
+        }
+
+        # (1) In principle this is not needed because the eventuuids are unique, but
+        # I once copied a bank file from one computer to the other before the events
+        # propagated and we were trying to insert eventuuids that already existed.
+    end
+
     # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
     def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
         $bank_database_semaphore.synchronize {
@@ -94,6 +110,20 @@ class Bank
         end
         db.close
         eventuuids
+    end
+
+    # Bank::records()
+    def self.records()
+        db = SQLite3::Database.new(Bank::pathToBank())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        records = []
+        db.execute("select * from _bank_", []) do |row|
+            eventuuids << row.clone
+        end
+        db.close
+        records
     end
 
 end

@@ -8,3 +8,8 @@ SystemEvents::broadcast({
     "mikuType"  => "ItemToGroupMapping-records",
     "records" => ItemToGroupMapping::records()
 })
+
+SystemEvents::broadcast({
+    "mikuType"  => "Bank-records",
+    "records" => Bank::records()
+})

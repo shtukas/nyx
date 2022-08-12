@@ -63,6 +63,12 @@ class SystemEvents
                 ItemToGroupMapping::insertRow(row)
             }
         end
+
+        if event["mikuType"] == "Bank-records" then
+            event["records"].each{|row|
+                Bank::insertRecord(row)
+            }
+        end
     end
 
     # SystemEvents::broadcast(event)

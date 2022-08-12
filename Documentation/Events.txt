@@ -85,10 +85,11 @@ We have two types of events
 }
 
 {
-    "mikuType"  => "ItemToGroupMapping-request"
+    "mikuType" => "ItemToGroupMapping-records",
+    "records"  => ItemToGroupMapping::records()
 }
 
 {
-    "mikuType" => "ItemToGroupMapping-records",
-    "records"  => ItemToGroupMapping::records()
+    "mikuType"  => "Bank-records",
+    "records"   => Bank::records()
 }
