@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+SystemEvents::broadcast({
+    "mikuType"  => "ItemToGroupMapping-records",
+    "records" => ItemToGroupMapping::records()
+})

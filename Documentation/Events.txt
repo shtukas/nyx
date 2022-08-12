@@ -85,11 +85,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "ItemToGroupMapping-eventuuids",
-    "eventuuids" => Array[String]
-}
-
-{
     "mikuType"  => "ItemToGroupMapping-request"
 }
 

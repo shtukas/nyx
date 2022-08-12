@@ -58,11 +58,6 @@ class Catalyst
             }
         end
 
-        #SystemEvents::broadcast({
-        #  "mikuType"  => "ItemToGroupMapping-eventuuids",
-        #  "eventuuids" => ItemToGroupMapping::eventuuids()
-        #})
-
         # ---------------------------------------------------------------
         # Data correction
         db = SQLite3::Database.new(Bank::pathToBank())
