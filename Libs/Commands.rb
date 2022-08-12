@@ -9,7 +9,7 @@ class Commands
             "wave | anniversary | frame | today | ondate | todo | task | thread | toplevel",
             "calendar set <index> <hour> | calendar add line | calendar remove <index>",
             "anniversaries | ondates | todos | threads | timecontrol",
-            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >thread | (n) >thread | >nyx",
+            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >group | (n) >group | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
@@ -32,14 +32,14 @@ class Commands
         end
 
 
-        if Interpreting::match(">thread", input) then
+        if Interpreting::match(">group", input) then
             item = store.getDefault()
             return if item.nil?
             NxGroups::entityToProject(item)
             return
         end
 
-        if Interpreting::match("* >thread", input) then
+        if Interpreting::match("* >group", input) then
             ordinal, _ = Interpreting::tokenizer(input)
             entity = store.get(ordinal.to_i)
             return if entity.nil?

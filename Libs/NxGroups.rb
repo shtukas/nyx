@@ -343,7 +343,7 @@ class NxGroups
             return
         end
         if !["NxTask", "NxLine"].include?(entity["mikuType"]) then
-            puts "The operation >thread only works on NxTasks and NxLines"
+            puts "The operation >group only works on NxTasks and NxLines"
             LucilleCore::pressEnterToContinue()
             return
         end

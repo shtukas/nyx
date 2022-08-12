@@ -28,7 +28,7 @@ class Streaming
                 puts LxFunction::function("toString", item).green
             end
             firstLoop = false
-            command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >thread, >nyx, nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >group, >nyx, nyx: ")
             if command == "access" then
                 LxAction::action("access", item)
                 next
@@ -58,7 +58,7 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">thread" then
+            if command == ">group" then
                 thread = NxGroups::architectOneOrNull()
                 return if thread.nil?
                 NxGroups::addElement(thread["uuid"], item["uuid"])
@@ -80,7 +80,7 @@ class Streaming
     def self.processItem(item)
         puts LxFunction::function("toString", item).green
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >thread, >nyx, nyx, next (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >group, >nyx, nyx, next (default), exit (rstream): ")
             if command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
@@ -96,7 +96,7 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">thread" then
+            if command == ">group" then
                 thread = NxGroups::architectOneOrNull()
                 return if thread.nil?
                 NxGroups::addElement(thread["uuid"], item["uuid"])
