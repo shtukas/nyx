@@ -114,7 +114,9 @@ class Fx18s
 
     # Fx18s::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        db = SQLite3::Database.new(Fx18s::getExistingLocalFx18FilepathForObjectuuid(objectuuid))
+        filepath = Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
+        return false if !File.exists?(filepath)
+        db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
