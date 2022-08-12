@@ -226,6 +226,18 @@ class LxAction
                 end
             end
 
+            if item["mikuType"] == "NxTask" then
+                if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done ? ") then
+                    NxBallsService::close(item["uuid"], true)
+                    NxTasks::destroy(item["uuid"])
+                    return
+                end
+                if !LucilleCore::askQuestionAnswerAsBoolean("Continue ? ") then
+                    NxBallsService::close(item["uuid"], true)
+                    return
+                end
+            end
+
             return
         end
 
