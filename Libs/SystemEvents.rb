@@ -59,10 +59,12 @@ class SystemEvents
         end
 
         if event["mikuType"] == "ItemToGroupMapping-records" then
+            eventuuids = ItemToGroupMapping::eventuuids()
             db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             event["records"].each{|row|
+                next if eventuuids.include?(row["_eventuuid_"])
                 db.execute "delete from _mapping_ where _eventuuid_=?", [row["_eventuuid_"]]
                 db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_itemuuid_"], row["_groupuuid_"], row["_status_"]]
             }
@@ -70,10 +72,12 @@ class SystemEvents
         end
 
         if event["mikuType"] == "Bank-records" then
+            eventuuids = Bank::eventuuids()
             db = SQLite3::Database.new(Bank::pathToBank())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             event["records"].each{|row|
+                next if eventuuids.include?(row["_eventuuid_"])
                 db.execute "delete from _bank_ where _eventuuid_=?", [row["_eventuuid_"]] # (1)
                 db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_setuuid_"], row["_unixtime_"], row["_date_"], row["_weight_"]]
             }
