@@ -75,6 +75,12 @@ class SystemEvents
               "records" => ItemToGroupMapping::records()
             })
         end
+
+        if event["mikuType"] == "ItemToGroupMapping-records" then
+            event["records"].each{|row|
+                ItemToGroupMapping::insertRow(row)
+            }
+        end
     end
 
     # SystemEvents::broadcast(event)

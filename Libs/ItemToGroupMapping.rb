@@ -8,6 +8,16 @@ class ItemToGroupMapping
         "#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3"
     end
 
+    # ItemToGroupMapping::insertRow(row)
+    def self.insertRow(row)
+        db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _mapping_ where _eventuuid_=?", [row["_eventuuid_"]]
+        db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_itemuuid_"], row["_groupuuid_"], row["_status_"]]
+        db.close
+    end
+
     # ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
     def self.issueNoEvent(groupuuid, itemuuid)
         db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
