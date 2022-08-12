@@ -83,6 +83,7 @@ class Catalyst
             if File.exists?(Config::starlightCommLine()) then
                 LucilleCore::locationsAtFolder(Config::starlightCommLine())
                     .each{|filepath|
+                        next if !File.exists?(filepath)
                         next if File.basename(filepath)[-11, 11] != ".event.json"
                         e = JSON.parse(IO.read(filepath))
                         next if e["targetInstance"] != Config::get("instanceId")
