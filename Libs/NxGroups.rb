@@ -119,11 +119,14 @@ class NxGroups
             .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
         return [] if threads.empty?
         thread1 = threads.shift
-        [
-            NxGroups::elements(thread1, 6),
-            thread1,
-            threads
-        ].flatten
+
+        #[
+        #    NxGroups::elements(thread1, 6),
+        #    thread1,
+        #    threads
+        #].flatten
+
+        NxGroups::elements(thread1, 6)
     end
 
     # ----------------------------------------------------------------------
