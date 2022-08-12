@@ -58,10 +58,10 @@ class Catalyst
             }
         end
 
-        SystemEvents::broadcast({
-          "mikuType"  => "ItemToGroupMapping-eventuuids",
-          "eventuuids" => ItemToGroupMapping::eventuuids()
-        })
+        #SystemEvents::broadcast({
+        #  "mikuType"  => "ItemToGroupMapping-eventuuids",
+        #  "eventuuids" => ItemToGroupMapping::eventuuids()
+        #})
 
         # ---------------------------------------------------------------
         # Data correction
