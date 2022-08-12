@@ -149,8 +149,8 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        NxGroups::items()
-            .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
+        TopLevel::items()
+            .sort{|i1, i2|  i1["unixtime"] <=> i2["unixtime"]}
             .each{|item|
                 store.register(item, false)
                 line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
@@ -164,11 +164,10 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        TopLevel::items()
-            .sort{|i1, i2|  i1["unixtime"] <=> i2["unixtime"]}
+        NxGroups::section1()
             .each{|item|
                 store.register(item, false)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
+                line = "#{store.prefixString()} #{NxGroups::toStringAdjusted(item)}".yellow
                 break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
@@ -191,40 +190,22 @@ class Catalyst
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        section = DailySlots::section()
-        if section.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            DailySlots::section().each{|entry|
-                item = entry["item"]
+        puts ""
+        vspaceleft = vspaceleft - 1
+        Catalyst::section2()
+            .each{|item|
                 store.register(item, true)
-                line = "#{store.prefixString()} (cale) #{entry["hour"]} #{LxFunction::function("toString", item)}"
+                toString1 = LxFunction::function("toString", item)
+                toString2 = XCache::getOrNull("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{item["uuid"]}")
+                toString = toString2 ? toString2 : toString1
+                line = "#{store.prefixString()} #{toString}"
+                break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
                 puts line
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
-        end
-
-        section2 = Catalyst::section2()
-        if !section2.empty? then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            section2
-                .each{|item|
-                    # Let us not display the ones that already appeared in the calendar
-                    next if section.map{|entry| entry["objectuuid"] }.include?(item["uuid"])
-                    store.register(item, true)
-                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
-                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
 
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")

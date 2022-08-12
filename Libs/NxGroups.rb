@@ -101,15 +101,24 @@ class NxGroups
 
     # NxGroups::toString(item)
     def self.toString(item)
+        doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        "(group) #{item["description"]} #{Ax39::toString(item)}#{dnsustr}"
+        ax39str2 = Ax39::toString(item)
+        "(group) #{item["description"]} #{Ax39::toString(item)}#{doneForTodayStr}#{dnsustr}"
+    end
+
+    # NxGroups::toStringAdjusted(item)
+    def self.toStringAdjusted(item)
+        doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
+        dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
+        ax39str2 = Ax39::toString2(item)
+        "(group) #{item["description"].ljust(50)} #{ax39str2[0].ljust(30)}#{ax39str2[1].to_s.ljust(10)}#{doneForTodayStr.ljust(20)}#{dnsustr.ljust(20)}"
     end
 
     # NxGroups::section1()
     def self.section1()
         NxGroups::items()
-            .select{|thread| !Ax39::itemShouldShow(thread) }
-            .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"]}
+            .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
     end
 
     # NxGroups::section2()
@@ -119,14 +128,11 @@ class NxGroups
             .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
         return [] if threads.empty?
         thread1 = threads.shift
-
-        #[
-        #    NxGroups::elements(thread1, 6),
-        #    thread1,
-        #    threads
-        #].flatten
-
-        NxGroups::elements(thread1, 6)
+        elements = NxGroups::elements(thread1, 6)
+        elements.each{|element|
+            XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toString(thread1)}]".yellow + " #{LxFunction::function("toString", element)}")
+        }
+        elements
     end
 
     # ----------------------------------------------------------------------

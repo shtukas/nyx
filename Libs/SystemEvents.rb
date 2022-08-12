@@ -52,14 +52,6 @@ class SystemEvents
             return
         end
 
-        if event["mikuType"] == "Daily Slots: Unregister" then
-            DailySlots::internalEventProcessing(event)
-        end
-
-        if event["mikuType"] == "Daily Slots: Register" then
-            DailySlots::internalEventProcessing(event)
-        end
-
         if event["mikuType"] == "ItemToGroupMapping" then
             groupuuid = event["groupuuid"]
             itemuuid  = event["itemuuid"]

@@ -192,7 +192,6 @@ require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
-require_relative "DailySlots.rb"
 require_relative "DxPure.rb"
 
 require_relative "ExData.rb"

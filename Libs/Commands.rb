@@ -7,7 +7,6 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | today | ondate | todo | task | thread | toplevel",
-            "calendar set <index> <hour> | calendar add line | calendar remove <index>",
             "anniversaries | ondates | todos | threads | timecontrol",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >group | (n) >group | >nyx",
             "require internet",
@@ -92,35 +91,6 @@ class Commands
             return if item.nil?
             return if item["mikuType"] != "NxGroup"
             Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
-            return
-        end
-
-        if Interpreting::match("calendar set * *", input) then
-            _, _, itemOrdinal, hour = Interpreting::tokenizer(input)
-            item = store.get(itemOrdinal.to_i)
-            return if item.nil?
-            if item["mikuType"] == "NxCalendarItem1" then
-                # We want the target
-                item = item["item"]
-            end
-            DailySlots::register(hour, item["uuid"])
-            return
-        end
-
-        if Interpreting::match("calendar add line", input) then
-            line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
-            return if line == ""
-            item = NxLines::issue(line)
-            hour = LucilleCore::askQuestionAnswerAsString("hour: ")
-            return if hour == ""
-            DailySlots::register(hour, item["uuid"])
-            return
-        end
-
-        if Interpreting::match("calendar remove *", input) then
-            _, _, itemOrdinal = Interpreting::tokenizer(input)
-            item = store.get(itemOrdinal.to_i)
-            DailySlots::remove(item["uuid"])
             return
         end
 

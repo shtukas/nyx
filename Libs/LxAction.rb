@@ -119,7 +119,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                     Fx18s::deleteObjectLogically(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
-                    DailySlots::remove(item["uuid"])
                 end
                 return
             end
@@ -128,7 +127,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ", true) then
                     Fx18s::deleteObjectLogically(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
-                    DailySlots::remove(item["uuid"])
                 end
                 return
             end
@@ -137,7 +135,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
-                    DailySlots::remove(item["uuid"])
                 end
                 return
             end
@@ -146,7 +143,6 @@ class LxAction
                 NxBallsService::close(item["uuid"], true)
                 if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
                     DoneForToday::setDoneToday(item["uuid"])
-                    DailySlots::remove(item["uuid"])
                 end
                 return
             end
@@ -154,7 +150,6 @@ class LxAction
             if item["mikuType"] == "Wave" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm wave done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
-                    DailySlots::remove(item["uuid"])
                 end
                 return
             end
