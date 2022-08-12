@@ -93,15 +93,6 @@ class Catalyst
                     }
             end
 
-            loop {
-                break if !File.exists?(Config::starlightCommLine())
-                e = Mercury2::readFirstOrNull("d054a16c-3d68-43b2-b49d-412ea5f5d0af")
-                break if e.nil?
-                filepath = "#{Config::starlightCommLine()}/#{CommonUtils::timeStringL22()}.event.json"
-                File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
-                Mercury2::dequeue("d054a16c-3d68-43b2-b49d-412ea5f5d0af")
-            }
-
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
                 system("clear")
                 puts "frames:"

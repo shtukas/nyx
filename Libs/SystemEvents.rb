@@ -94,7 +94,8 @@ class SystemEvents
         Machines::theOtherInstanceIds().each{|instanceName|
             e = event.clone
             e["targetInstance"] = instanceName
-            Mercury2::put("d054a16c-3d68-43b2-b49d-412ea5f5d0af", e)
+            filepath = "#{Config::starlightCommLine()}/#{CommonUtils::timeStringL22()}.event.json"
+            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
         }
     end
 end
