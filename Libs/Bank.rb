@@ -120,7 +120,7 @@ class Bank
         db.results_as_hash = true
         records = []
         db.execute("select * from _bank_", []) do |row|
-            eventuuids << row.clone
+            records << row.clone
         end
         db.close
         records
