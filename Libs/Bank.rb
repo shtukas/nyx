@@ -68,6 +68,7 @@ class Bank
             db.execute("select * from _bank_ where _setuuid_=? and _date_=?", [setuuid, date]) do |row|
                 value = value + row['_weight_']
             end
+            db.close
         }
 
         XCache::set("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}", value)
@@ -79,6 +80,21 @@ class Bank
     def self.combinedValueOnThoseDays(setuuid, dates)
         dates.map{|date| Bank::valueAtDate(setuuid, date) }.inject(0, :+)
     end
+
+    # Bank::eventuuids()
+    def self.eventuuids()
+        db = SQLite3::Database.new(Bank::pathToBank())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        eventuuids = []
+        db.execute("select * from _bank_", []) do |row|
+            eventuuids << row['_eventuuid_']
+        end
+        db.close
+        eventuuids
+    end
+
 end
 
 class BankExtended

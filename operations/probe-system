@@ -1,0 +1,26 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+# probe system
+
+puts ""
+puts "Fx18s:"
+
+# Let's count the number of Fx18 files
+puts "Found #{Fx18s::localFx18sFilepathsEnumerator().to_a.size} Fx18 files"
+
+filepaths = Fx18s::localFx18sFilepathsEnumerator().to_a
+filenames = filepaths.map{|filepath| File.basename(filepath) }
+trace = Digest::SHA1.hexdigest(filenames.sort.join(":"))
+puts "File collection trace: #{trace}"
+
+puts ""
+puts "Bank:"
+eventuuids = Bank::eventuuids()
+puts "Found #{eventuuids.size} event"
+puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join())}"
+
+
