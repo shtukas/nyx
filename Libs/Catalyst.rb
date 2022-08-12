@@ -63,6 +63,15 @@ class Catalyst
           "eventuuids" => ItemToGroupMapping::eventuuids()
         })
 
+        # ---------------------------------------------------------------
+        # Data correction
+        db = SQLite3::Database.new(Bank::pathToBank())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.execute "delete from _bank_ where _eventuuid_ is null", []
+        db.close
+        # ---------------------------------------------------------------
+
         loop {
 
             #puts "(code trace)"

@@ -22,5 +22,3 @@ puts "Bank:"
 eventuuids = Bank::eventuuids()
 puts "Found #{eventuuids.size} event"
 puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join())}"
-
-

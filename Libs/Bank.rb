@@ -34,18 +34,19 @@ class Bank
         XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
 
         SystemEvents::broadcast({
-          "mikuType" => "NxBankEvent",
-          "setuuid"  => setuuid,
-          "unixtime" => unixtime,
-          "date"     => date,
-          "weight"   => weight
+          "mikuType"  => "NxBankEvent",
+          "eventuuid" => eventuuid,
+          "setuuid"   => setuuid,
+          "unixtime"  => unixtime,
+          "date"      => date,
+          "weight"    => weight
         })
     end
 
     # Bank::processEventInternally(event)
     def self.processEventInternally(event)
         return if event["mikuType"] != "NxBankEvent"
-        eventuuid = event["uuid"]
+        eventuuid = event["eventuuid"]
         setuuid   = event["setuuid"]
         unixtime  = event["unixtime"]
         date      = event["date"]
