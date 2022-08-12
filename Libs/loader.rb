@@ -58,6 +58,16 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPure")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx18s")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared/shared-config.json")
 
+filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3"
+if !File.exists?(filepath) then
+    db = SQLite3::Database.new(filepath)
+    db.busy_timeout = 117
+    db.busy_handler { |count| true }
+    db.results_as_hash = true
+    db.execute("create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _itemuuid_ text, _groupuuid_ text, _status_ text)", [])
+    db.close
+end
+
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/bank.sqlite3"
 if !File.exists?(filepath) then
     db = SQLite3::Database.new(filepath)
@@ -193,6 +203,7 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
 require_relative "Iam.rb"
+require_relative "ItemToGroupMapping.rb"
 
 require_relative "FileSystemCheck.rb"
 require_relative "Fx18s.rb"

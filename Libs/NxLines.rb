@@ -61,7 +61,7 @@ class NxLines
     # NxLines::section2()
     def self.section2()
         NxLines::items()
-            .select{|item| !NxGroups::elementuuidToThreaduuidOrNull(item["uuid"]) }
+            .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
             .sort{|l1, l2| l1["unixtime"] <=> l2["unixtime"] }
     end
 end

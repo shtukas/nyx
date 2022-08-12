@@ -6,13 +6,3 @@ NxGroup:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
     "ax39"        : nil or Ax39
-
-The uuids of the elements under that thread are in the set "project-items-3f154988"
-
-We use
-
-```
-XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", threaduuid)
-```
-
-to to indicate that an item is listed as element of a thread. Note that there is nothing that prevent an element to be in more than one thread.

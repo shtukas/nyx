@@ -76,41 +76,24 @@ class NxGroups
     # ----------------------------------------------------------------------
     # Elements
 
-    # NxGroups::addElement(threaduuid, elementuuid)
-    def self.addElement(threaduuid, elementuuid)
-        Fx18Sets::add2(threaduuid, "project-items-3f154988", elementuuid, elementuuid)
-        XCache::set("element-to-thread-lookup-0931d05f70f:#{elementuuid}", threaduuid)
-    end
-
-    # NxGroups::removeElement(thread, uuid)
-    def self.removeElement(thread, uuid)
-        Fx18Sets::remove2(thread["uuid"], "project-items-3f154988", uuid)
-    end
-
     # NxGroups::elementuuids(thread)
     def self.elementuuids(thread)
-        Fx18Sets::items(thread["uuid"], "project-items-3f154988")
+        ItemToGroupMapping::groupuuidToItemuuids(thread["uuid"])
     end
 
     # NxGroups::elements(thread, count)
     def self.elements(thread, count)
-        Fx18Sets::items(thread["uuid"], "project-items-3f154988")
+        NxGroups::elementuuids(thread)
             .first(count)
             .map{|elementuuid|  
                 element = Fx18s::getItemAliveOrNull(elementuuid)
                 if element.nil? then
-                    NxGroups::removeElement(thread, elementuuid)
+                    ItemToGroupMapping::detach(thread, elementuuid)
                 end
                 element
             }
             .compact
             .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
-    end
-
-    # NxGroups::elementuuidToThreaduuidOrNull(elementuuid)
-    def self.elementuuidToThreaduuidOrNull(elementuuid)
-        #NxGroups::items().any?{|thread| NxGroups::elementuuids(thread).include?(elementuuid) }
-        XCache::getOrNull("element-to-thread-lookup-0931d05f70f:#{elementuuid}")
     end
 
     # ----------------------------------------------------------------------
@@ -261,12 +244,12 @@ class NxGroups
                 if type == "line" then
                     element = NxLines::interactivelyIssueNewLineOrNull()
                     next if element.nil?
-                    NxGroups::addElement(group["uuid"], element["uuid"])
+                    ItemToGroupMapping::issue(group["uuid"], element["uuid"])
                 end
                 if type == "task" then
                     element = NxTasks::interactivelyCreateNewOrNull()
                     next if element.nil?
-                    NxGroups::addElement(group["uuid"], element["uuid"])
+                    ItemToGroupMapping::issue(group["uuid"], element["uuid"])
                 end
             end
 
@@ -282,7 +265,7 @@ class NxGroups
                 indx = command[6, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                NxGroups::removeElement(group, entity["uuid"])
+                ItemToGroupMapping::detach(group, entity["uuid"])
                 next
             end
 
@@ -292,8 +275,8 @@ class NxGroups
                 next if entity.nil?
                 group2 = NxGroups::architectOneOrNull()
                 return if group2.nil?
-                NxGroups::addElement(group2["uuid"], entity["uuid"])
-                NxGroups::removeElement(group, entity["uuid"])
+                ItemToGroupMapping::issue(group2["uuid"], entity["uuid"])
+                ItemToGroupMapping::detach(group, entity["uuid"])
                 next
             end
         }
@@ -322,7 +305,7 @@ class NxGroups
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a thread ? ") then
             thread = NxGroups::architectOneOrNull()
             return if thread.nil?
-            NxGroups::addElement(thread["uuid"], item["uuid"])
+            ItemToGroupMapping::issue(thread["uuid"], item["uuid"])
         end
     end
 
@@ -349,7 +332,7 @@ class NxGroups
         end
         thread = NxGroups::architectOneOrNull()
         return if thread.nil?
-        NxGroups::addElement(thread["uuid"], entity["uuid"])
+        ItemToGroupMapping::issue(thread["uuid"], entity["uuid"])
         NxBallsService::close(entity["uuid"], true)
     end
 end

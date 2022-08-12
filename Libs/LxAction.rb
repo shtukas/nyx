@@ -243,7 +243,7 @@ class LxAction
 
         if command == "start" then
             return if NxBallsService::isRunning(item["uuid"])
-            accounts = [item["uuid"], NxGroups::elementuuidToThreaduuidOrNull(item["uuid"])].compact
+            accounts = [item["uuid"]] + ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"])
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end

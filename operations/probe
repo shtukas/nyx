@@ -34,5 +34,5 @@ puts "eventuuids:"
 puts Fx18sSynchronisation::getEventuuids(filepath)
 
 if item["mikuType"] == "NxLine" then
-    puts "NxLine: NxGroups::elementuuidToThreaduuidOrNull(uuid) #{NxGroups::elementuuidToThreaduuidOrNull(uuid)}"
+    puts "NxLine: NxGroups::elementuuidToThreaduuids(uuid) #{NxGroups::elementuuidToThreaduuids(uuid)}"
 end

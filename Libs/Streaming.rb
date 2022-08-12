@@ -61,7 +61,7 @@ class Streaming
             if command == ">group" then
                 thread = NxGroups::architectOneOrNull()
                 return if thread.nil?
-                NxGroups::addElement(thread["uuid"], item["uuid"])
+                ItemToGroupMapping::issue(thread["uuid"], item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -99,7 +99,7 @@ class Streaming
             if command == ">group" then
                 thread = NxGroups::architectOneOrNull()
                 return if thread.nil?
-                NxGroups::addElement(thread["uuid"], item["uuid"])
+                ItemToGroupMapping::issue(thread["uuid"], item["uuid"])
                 return nil
             end
             if command == ">nyx" then
@@ -142,7 +142,7 @@ class Streaming
         return if items.empty?
         loop {
             item = items.shift
-            next if NxGroups::elementuuidToThreaduuidOrNull(item["uuid"])
+            next if !ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty?
             command = Streaming::processItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
