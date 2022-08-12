@@ -21,9 +21,10 @@ puts ""
 puts "Bank:"
 eventuuids = Bank::eventuuids()
 puts "Found #{eventuuids.size} events"
-puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join())}"
+puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join(":"))}"
 
 puts ""
 puts "ItemToGroupMapping:"
 eventuuids = ItemToGroupMapping::eventuuids()
 puts "Found #{eventuuids.size} events"
+puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join(":"))}"
