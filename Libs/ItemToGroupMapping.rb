@@ -106,7 +106,7 @@ class ItemToGroupMapping
         db.busy_handler { |count| true }
         db.results_as_hash = true
         answer = []
-        db.execute("select _eventuuid_ from _mapping_", []) do |row|
+        db.execute("select * from _mapping_", []) do |row|
             answer << row.clone
         end
         answer
