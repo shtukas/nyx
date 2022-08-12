@@ -112,7 +112,8 @@ class NxGroups
         doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
         ax39str2 = Ax39::toString2(item)
-        "(group) #{item["description"].ljust(50)} #{ax39str2[0].ljust(30)}#{ax39str2[1].to_s.ljust(10)}#{doneForTodayStr.ljust(20)}#{dnsustr.ljust(20)}"
+        ax39str2_2 = ax39str2[1] ? "#{"%6.2f" % ax39str2[1]} %" : ""
+        "(group) #{item["description"].ljust(50)} #{ax39str2[0].ljust(30)}#{ax39str2_2.rjust(10)}#{doneForTodayStr.rjust(18)}#{dnsustr.ljust(20)}"
     end
 
     # NxGroups::section1()

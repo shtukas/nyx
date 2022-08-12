@@ -77,11 +77,11 @@ class Ax39
         end
 
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return ["(today : #{(Bank::valueAtDate(item["uuid"], CommonUtils::today()).to_f/3600).round(2)} of #{item["ax39"]["hours"]} hours)", "#{(100*Ax39::completionRatio(item)).round(2)} %"]
+            return ["(today : #{(Bank::valueAtDate(item["uuid"], CommonUtils::today()).to_f/3600).round(2)} of #{item["ax39"]["hours"]} hours)", 100*Ax39::completionRatio(item)]
         end
 
         if item["ax39"]["type"] == "weekly-time-commitment" then
-            return ["(weekly: #{(Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/3600).round(2)} of #{item["ax39"]["hours"]} hours)", "#{(100*Ax39::completionRatio(item)).round(2)} %"]
+            return ["(weekly: #{(Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/3600).round(2)} of #{item["ax39"]["hours"]} hours)", 100*Ax39::completionRatio(item)]
         end
     end
 
