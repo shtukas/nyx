@@ -1,5 +1,9 @@
 
-The first use of the Fx18 files has been the encoding of network links
+network-links.sqlite3
 
-Fx18Sets::add2(item["uuid"], "network-link", linkeduuid, linkeduuid)
+```
+create table _links_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text);
+```
+
+_operation_ is either "link" or "unlink"
 

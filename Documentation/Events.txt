@@ -93,3 +93,15 @@ We have two types of events
     "mikuType"  => "Bank-records",
     "records"   => Bank::records()
 }
+
+{
+    "mikuType"  => "NetworkLinks",
+    "sourceuuid" => sourceuuid,
+    "operation"  => operation,
+    "targetuuid" => targetuuid
+}
+
+{
+    "mikuType" => "NetworkLinks-records",
+    "records"  => NetworkLinks::records()
+}

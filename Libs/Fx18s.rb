@@ -253,6 +253,29 @@ class Fx18s
             }
         end
     end
+
+    # Fx18s::processEventInternally(event)
+    def self.processEventInternally(event)
+        if event["mikuType"] == "Fx18 File Event" then
+            # "datablob" is no longer used in modern versions of Fx18
+            #if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+            #    event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
+            #end
+            eventi = event["Fx18FileEvent"]
+            objectuuid = eventi["_objectuuid_"]
+            return if !File.exists?(Fx18s::objectuuidToLocalFx18Filepath(objectuuid))
+            Fx18s::commit(eventi["_objectuuid_"], eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
+            Lookup1::reconstructEntry(eventi["_objectuuid_"])
+            return
+        end
+        if event["mikuType"] == "Fx18s-allFiles-allRows" then
+            event["records"].each{|row|
+                Fx18s::ensureLocalFx18FilepathForObjectuuid(row["_objectuuid_"])
+                Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData1_"], row["_eventData2_"], row["_eventData3_"], row["_eventData4_"], row["_eventData5_"])
+            }
+            Stargate::resetCachePrefix()
+        end
+    end
 end
 
 class Fx18Attributes

@@ -53,14 +53,22 @@ class Bank
 
     # Bank::processEventInternally(event)
     def self.processEventInternally(event)
-        return if event["mikuType"] != "NxBankEvent"
-        eventuuid = event["eventuuid"]
-        setuuid   = event["setuuid"]
-        unixtime  = event["unixtime"]
-        date      = event["date"]
-        weight    = event["weight"]
-        Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
-        XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
+        if event["mikuType"] == "NxBankEvent" then
+            eventuuid = event["eventuuid"]
+            setuuid   = event["setuuid"]
+            unixtime  = event["unixtime"]
+            date      = event["date"]
+            weight    = event["weight"]
+            Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+            XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
+        end
+        if event["mikuType"] == "Bank-records" then
+            eventuuids = Bank::eventuuids()
+            event["records"].each{|row|
+                next if eventuuids.include?(row["_eventuuid_"])
+                Bank::insertRecord(row)
+            }
+        end
     end
 
     # Bank::valueAtDate(setuuid, date)
@@ -117,7 +125,6 @@ class Bank
         db.close
         records
     end
-
 end
 
 class BankExtended

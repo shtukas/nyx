@@ -18,3 +18,8 @@ SystemEvents::broadcast({
     "mikuType" => "Fx18s-allFiles-allRows",
     "records"  => Fx18s::getAllRowsFromAllFiles()
 })
+
+SystemEvents::broadcast({
+    "mikuType" => "NetworkLinks-records",
+    "records"  => NetworkLinks::records()
+})

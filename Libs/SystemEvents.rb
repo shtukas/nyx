@@ -10,87 +10,52 @@ class SystemEvents
 
         if event["mikuType"] == "(object has been updated)" then
             Lookup1::processEventInternally(event)
-            return
         end
 
         if event["mikuType"] == "(object has been logically deleted)" then
             Fx18s::deleteObjectNoEvents(event["objectuuid"])
             Lookup1::processEventInternally(event)
-            return
         end
 
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEventInternally(event)
-            return
+        end
+
+        if event["mikuType"] == "Bank-records" then
+            Bank::processEventInternally(event)
         end
 
         if event["mikuType"] == "NxDoNotShowUntil" then
             DoNotShowUntil::processEventInternally(event)
-            return
         end
 
         if event["mikuType"] == "SetDoneToday" then
             DoneForToday::processEventInternally(event)
-            return
         end
 
         if event["mikuType"] == "NxDeleted" then
             Fx18s::deleteObjectNoEvents(event["objectuuid"])
             Lookup1::processEventInternally(event)
-            return
-        end
-
-        if event["mikuType"] == "Fx18 File Event" then
-            # "datablob" is no longer used in modern versions of Fx18
-            #if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-            #    event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
-            #end
-            eventi = event["Fx18FileEvent"]
-            objectuuid = eventi["_objectuuid_"]
-            return if !File.exists?(Fx18s::objectuuidToLocalFx18Filepath(objectuuid))
-            Fx18s::commit(eventi["_objectuuid_"], eventi["_eventuuid_"], eventi["_eventTime_"], eventi["_eventData1_"], eventi["_eventData2_"], eventi["_eventData3_"], eventi["_eventData4_"], eventi["_eventData5_"])
-            Lookup1::reconstructEntry(eventi["_objectuuid_"])
-            return
-        end
-
-        if event["mikuType"] == "ItemToGroupMapping" then
-            groupuuid = event["groupuuid"]
-            itemuuid  = event["itemuuid"]
-            ItemToGroupMapping::issueNoEvent(groupuuid, itemuuid)
-        end
-
-        if event["mikuType"] == "ItemToGroupMapping-records" then
-            eventuuids = ItemToGroupMapping::eventuuids()
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            event["records"].each{|row|
-                next if eventuuids.include?(row["_eventuuid_"])
-                db.execute "delete from _mapping_ where _eventuuid_=?", [row["_eventuuid_"]]
-                db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_itemuuid_"], row["_groupuuid_"], row["_status_"]]
-            }
-            db.close
-        end
-
-        if event["mikuType"] == "Bank-records" then
-            eventuuids = Bank::eventuuids()
-            db = SQLite3::Database.new(Bank::pathToBank())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            event["records"].each{|row|
-                next if eventuuids.include?(row["_eventuuid_"])
-                db.execute "delete from _bank_ where _eventuuid_=?", [row["_eventuuid_"]] # (1)
-                db.execute "insert into _bank_ (_eventuuid_, _setuuid_, _unixtime_, _date_, _weight_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_setuuid_"], row["_unixtime_"], row["_date_"], row["_weight_"]]
-            }
-            db.close
         end
 
         if event["mikuType"] == "Fx18s-allFiles-allRows" then
-            event["records"].each{|row|
-                Fx18s::ensureLocalFx18FilepathForObjectuuid(row["_objectuuid_"])
-                Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData1_"], row["_eventData2_"], row["_eventData3_"], row["_eventData4_"], row["_eventData5_"])
-            }
-            Stargate::resetCachePrefix()
+            Fx18s::processEventInternally(event)
+        end
+
+        if event["mikuType"] == "Fx18 File Event" then
+            Fx18s::processEventInternally(event)
+        end
+
+        if event["mikuType"] == "ItemToGroupMapping" then
+            ItemToGroupMapping::processEventInternally(event)
+        end
+
+        if event["mikuType"] == "ItemToGroupMapping-records" then
+            ItemToGroupMapping::processEventInternally(event)
+        end
+
+        if event["mikuType"] == "NetworkLinks-records" then
+            NetworkLinks::processEventInternally(event)
         end
     end
 

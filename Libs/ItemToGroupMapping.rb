@@ -111,4 +111,21 @@ class ItemToGroupMapping
         end
         answer
     end
+
+    # ItemToGroupMapping::processEventInternally(event)
+    def self.processEventInternally(event)
+        if event["mikuType"] == "ItemToGroupMapping" then
+            groupuuid = event["groupuuid"]
+            itemuuid  = event["itemuuid"]
+            ItemToGroupMapping::issueNoEvent(groupuuid, itemuuid)
+        end
+
+        if event["mikuType"] == "ItemToGroupMapping-records" then
+            eventuuids = ItemToGroupMapping::eventuuids()
+            event["records"].each{|row|
+                next if eventuuids.include?(row["_eventuuid_"])
+                ItemToGroupMapping::insertRow(row)
+            }
+        end
+    end
 end

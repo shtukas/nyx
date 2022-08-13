@@ -48,9 +48,7 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
-
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
-
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Datablobs")
@@ -85,6 +83,16 @@ if !File.exists?(filepath) then
     db.busy_handler { |count| true }
     db.results_as_hash = true
     db.execute("create table _mapping_ (_uuid_ text primary key, _unixtime_ float)", [])
+    db.close
+end
+
+filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-links.sqlite3"
+if !File.exists?(filepath) then
+    db = SQLite3::Database.new(filepath)
+    db.busy_timeout = 117
+    db.busy_handler { |count| true }
+    db.results_as_hash = true
+    db.execute("create table _links_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text)", [])
     db.close
 end
 
@@ -231,6 +239,7 @@ require_relative "NxEntities.rb"
 require_relative "NxConcepts.rb"
 require_relative "NxIceds.rb"
 require_relative "Nx20s.rb"
+require_relative "NetworkLinks.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
