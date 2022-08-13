@@ -35,8 +35,8 @@ class DoNotShowUntil
         SystemEvents::broadcast(event)
     end
 
-    # DoNotShowUntil::processEventInternally(event)
-    def self.processEventInternally(event)
+    # DoNotShowUntil::processEvent(event)
+    def self.processEvent(event)
         return if event["mikuType"] != "NxDoNotShowUntil"
         uuid     = event["targetuuid"]
         unixtime = event["targetunixtime"]

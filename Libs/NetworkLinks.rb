@@ -100,8 +100,8 @@ class NetworkLinks
         answer
     end
 
-    # NetworkLinks::processEventInternally(event)
-    def self.processEventInternally(event)
+    # NetworkLinks::processEvent(event)
+    def self.processEvent(event)
         if event["mikuType"] == "NetworkLinks-records" then
             eventuuids = NetworkLinks::eventuuids()
             event["records"].each{|row|

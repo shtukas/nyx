@@ -60,20 +60,6 @@ class Lookup1
         db.close
     end
 
-    # Lookup1::itemsuuids()
-    def self.itemsuuids()
-        db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        itemuuids = []
-        db.execute("select _itemuuid_ from _lookup1_", []) do |row|
-            itemuuids << row["_itemuuid_"]
-        end
-        db.close
-        itemuuids
-    end
-
     # Lookup1::mikuTypeToItems(mikuType)
     def self.mikuTypeToItems(mikuType)
         db = SQLite3::Database.new(Lookup1::getDatabaseFilepath())
@@ -139,8 +125,8 @@ class Lookup1
         nx20s
     end
 
-    # Lookup1::processEventInternally(event)
-    def self.processEventInternally(event)
+    # Lookup1::processEvent(event)
+    def self.processEvent(event)
         if event["mikuType"] == "(object has been updated)" then
             objectuuid = event["objectuuid"]
             Lookup1::reconstructEntry(objectuuid)

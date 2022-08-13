@@ -82,14 +82,14 @@ class Fx18s
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
         })
-        SystemEvents::processEventInternally({
+        SystemEvents::processEvent({
             "mikuType"   => "(object has been logically deleted)",
             "objectuuid" => objectuuid,
         })
     end
 
-    # Fx18s::processEventInternally(event)
-    def self.processEventInternally(event)
+    # Fx18s::processEvent(event)
+    def self.processEvent(event)
         if event["mikuType"] == "Fx18-records" then
             knowneventsuuids = Fx18s::eventuuids()
             event["records"].each{|row|
@@ -181,7 +181,7 @@ class Fx18Attributes
     # Fx18Attributes::setJsonEncodeUpdate(objectuuid, attname, attvalue)
     def self.setJsonEncodeUpdate(objectuuid, attname, attvalue)
         Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
-        SystemEvents::processEventInternally({
+        SystemEvents::processEvent({
             "mikuType"   => "(object has been updated)",
             "objectuuid" => objectuuid,
         })

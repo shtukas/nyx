@@ -3,55 +3,55 @@
 
 class SystemEvents
 
-    # SystemEvents::processEventInternally(event)
-    def self.processEventInternally(event)
+    # SystemEvents::processEvent(event)
+    def self.processEvent(event)
 
         # puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
         if event["mikuType"] == "(object has been updated)" then
-            Lookup1::processEventInternally(event)
+            Lookup1::processEvent(event)
         end
 
         if event["mikuType"] == "(object has been logically deleted)" then
             Fx18s::deleteObjectLogicallyNoEvents(event["objectuuid"])
-            Lookup1::processEventInternally(event)
+            Lookup1::processEvent(event)
         end
 
         if event["mikuType"] == "NxBankEvent" then
-            Bank::processEventInternally(event)
+            Bank::processEvent(event)
         end
 
         if event["mikuType"] == "Bank-records" then
-            Bank::processEventInternally(event)
+            Bank::processEvent(event)
         end
 
         if event["mikuType"] == "NxDoNotShowUntil" then
-            DoNotShowUntil::processEventInternally(event)
+            DoNotShowUntil::processEvent(event)
         end
 
         if event["mikuType"] == "SetDoneToday" then
-            DoneForToday::processEventInternally(event)
+            DoneForToday::processEvent(event)
         end
 
         if event["mikuType"] == "NxDeleted" then
             Fx18s::deleteObjectLogicallyNoEvents(event["objectuuid"])
-            Lookup1::processEventInternally(event)
+            Lookup1::processEvent(event)
         end
 
         if event["mikuType"] == "Fx18-records" then
-            Fx18s::processEventInternally(event)
+            Fx18s::processEvent(event)
         end
 
         if event["mikuType"] == "ItemToGroupMapping" then
-            ItemToGroupMapping::processEventInternally(event)
+            ItemToGroupMapping::processEvent(event)
         end
 
         if event["mikuType"] == "ItemToGroupMapping-records" then
-            ItemToGroupMapping::processEventInternally(event)
+            ItemToGroupMapping::processEvent(event)
         end
 
         if event["mikuType"] == "NetworkLinks-records" then
-            NetworkLinks::processEventInternally(event)
+            NetworkLinks::processEvent(event)
         end
     end
 

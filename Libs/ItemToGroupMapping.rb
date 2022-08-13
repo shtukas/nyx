@@ -112,8 +112,8 @@ class ItemToGroupMapping
         answer
     end
 
-    # ItemToGroupMapping::processEventInternally(event)
-    def self.processEventInternally(event)
+    # ItemToGroupMapping::processEvent(event)
+    def self.processEvent(event)
         if event["mikuType"] == "ItemToGroupMapping" then
             groupuuid = event["groupuuid"]
             itemuuid  = event["itemuuid"]

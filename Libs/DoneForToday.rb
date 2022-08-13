@@ -17,8 +17,8 @@ class DoneForToday
         XCache::getFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{CommonUtils::today()}:#{uuid}")
     end
 
-    # DoneForToday::processEventInternally(event)
-    def self.processEventInternally(event)
+    # DoneForToday::processEvent(event)
+    def self.processEvent(event)
         if event["mikuType"] == "SetDoneToday" then
             XCache::setFlag("5076cc18-5d74-44f6-a6f9-f6f656b7aac4:#{event["targetdate"]}:#{event["targetuuid"]}", true)
             return

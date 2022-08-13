@@ -51,8 +51,8 @@ class Bank
         })
     end
 
-    # Bank::processEventInternally(event)
-    def self.processEventInternally(event)
+    # Bank::processEvent(event)
+    def self.processEvent(event)
         if event["mikuType"] == "NxBankEvent" then
             eventuuid = event["eventuuid"]
             setuuid   = event["setuuid"]
