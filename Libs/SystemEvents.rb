@@ -38,11 +38,7 @@ class SystemEvents
             Lookup1::processEventInternally(event)
         end
 
-        if event["mikuType"] == "Fx18s-allFiles-allRows" then
-            Fx18s::processEventInternally(event)
-        end
-
-        if event["mikuType"] == "Fx18 File Event" then
+        if event["mikuType"] == "Fx18-records" then
             Fx18s::processEventInternally(event)
         end
 

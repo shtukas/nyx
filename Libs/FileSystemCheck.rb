@@ -329,7 +329,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsck()
     def self.fsck()
-        Fx18s::localFx18sFilepathsEnumerator()
+        []
             .each{|filepath|
 
                 FileSystemCheck::exitIfMissingCanary()
@@ -360,7 +360,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckMikuType(mikuType)
     def self.fsckMikuType(mikuType)
-        Fx18s::localFx18sFilepathsEnumerator()
+        []
             .each{|objectuuid|
                 FileSystemCheck::exitIfMissingCanary()
                 objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")

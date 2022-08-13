@@ -5,18 +5,15 @@ create table _fx18_ (
     _objectuuid_ text,
     _eventuuid_ text primary key,
     _eventTime_ float,
-    _eventData1_ blob,
     _eventData2_ blob,
     _eventData3_ blob,
-    _eventData4_ blob,
-    _eventData5_ blob
 );
 
-|-------------------------------------------------------------------------------|
-| _eventData1_      | _eventData2_ | _eventData3_ | _eventData4_ | _eventData5_ |
-|-------------------------------------------------------------------------------|
-| "attribute"       | <name>       | <value>      |              |              | ($3)
-|-------------------------------------------------------------------------------|
+|-----------------------------|
+| _eventData2_ | _eventData3_ |
+|-----------------------------|
+| <name>       | <value>      | ($3)
+|-----------------------------|
 
 ($3) We JSON encode the value of an attribute.
 

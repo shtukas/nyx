@@ -51,21 +51,6 @@ We have two types of events
 
 {
     "targetInstance" : TargetInstanceName # added by the broadcaster
-    "mikuType"      => "Fx18 File Event",
-    "Fx18FileEvent" => {
-        "_objectuuid_" => objectuuid
-        "_eventuuid_"  => eventuuid
-        "_eventTime_"  => eventTime
-        "_eventData1_" => eventData1
-        "_eventData2_" => eventData2
-        "_eventData3_" => eventData3  # base64 encoded for drop
-        "_eventData4_" => eventData4 
-        "_eventData5_" => eventData5
-    }
-}
-
-{
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "Daily Slots: Unregister",
     "objectuuid" => objectuuid,
 }

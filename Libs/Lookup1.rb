@@ -14,7 +14,7 @@ class Lookup1
         lookup1.execute("create table _lookup1_ (_itemuuid_ text primary key, _unixtime_ float, _mikuType_ text, _item_ text, _description_ text)", [])
         lookup1.close
 
-        Fx18s::localFx18sFilepathsEnumerator().each{|filepath|
+        [].each{|filepath|
             puts "Lookup1 rebuild: filepath: #{filepath}"
             objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
             if objectuuid.nil? then

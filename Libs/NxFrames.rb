@@ -36,7 +36,6 @@ class NxFrames
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18s::makeNewLocalFx18FileForObjectuuid(uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxFrame")
         Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
