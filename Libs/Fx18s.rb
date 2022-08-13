@@ -1,4 +1,3 @@
-
 class Fx18s
 
     # Fx18s::makeNewFx18File(filepath)
@@ -91,17 +90,14 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::deleteObjectNoEvents(objectuuid)
-    def self.deleteObjectNoEvents(objectuuid)
-        # Insert the object deletion event
-        # We need to check that the object's file exists as this function is called from SystemEvents
-        return if !File.exists?(Fx18s::objectuuidToLocalFx18Filepath(objectuuid))
-        Fx18s::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "object-is-alive", "false", nil, nil, nil)
+    # Fx18s::deleteObjectLogicallyNoEvents(objectuuid)
+    def self.deleteObjectLogicallyNoEvents(objectuuid)
+        Fx18Attributes::setJsonEncodeUpdate(objectuuid, "isAlive", false)
     end
 
     # Fx18s::deleteObjectLogically(objectuuid)
     def self.deleteObjectLogically(objectuuid)
-        Fx18s::deleteObjectNoEvents(objectuuid)
+        Fx18s::deleteObjectLogicallyNoEvents(objectuuid)
         SystemEvents::broadcast({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
@@ -114,25 +110,15 @@ class Fx18s
 
     # Fx18s::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        filepath = Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
-        return false if !File.exists?(filepath)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = true
-        db.execute("select * from _fx18_ where _eventData1_=? order by _eventTime_", ["object-is-alive"]) do |row|
-            answer = (row["_eventData2_"] == "true")
-        end
-        db.close
-        answer
+        value = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "isAlive")
+        return true if value.nil?
+        value
     end
 
-    # Fx18s::getItemIncludingLogicallyDeletedOrNull(objectuuid)
-    def self.getItemIncludingLogicallyDeletedOrNull(objectuuid)
+    # Fx18s::getItemOrNull(objectuuid)
+    def self.getItemOrNull(objectuuid)
         filepath = Fx18s::objectuuidToLocalFx18Filepath(objectuuid)
         return nil if !File.exists?(filepath)
-
         item = {}
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -140,42 +126,17 @@ class Fx18s
         db.results_as_hash = true
         objectuuids = []
         db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
-            # ---------------------------------------------------------------------------
-            # If you make a change here you might want to report it to the other one
-            # (group: ff4e41a5-fa0b-459f-9ba7-5a92fb56cf1e)
-            if row["_eventData1_"] == "attribute" then
-                attrname  = row["_eventData2_"]
-
-                # ---------------------------------------------------------
-                # TODO: back to simplified version at some point
-                attrvalue = 
-                            begin
-                                JSON.parse(row["_eventData3_"])
-                            rescue 
-                                puts "special circumstances, continue if _eventData3_ is non JSON encoded value"
-                                puts JSON.pretty_generate(row)
-                                LucilleCore::pressEnterToContinue()
-                                db.execute "delete from _fx18_ where _eventuuid_=?", [row["_eventuuid_"]]
-                                db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData1_, _eventData2_, _eventData3_, _eventData4_, _eventData5_) values (?, ?, ?, ?, ?, ?, ?, ?)", [row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], "attribute", "attrname", JSON.generate(row["_eventData3_"]), nil, nil]
-                                row["_eventData3_"]
-                            end
-                # ---------------------------------------------------------
-
-                item[attrname] = attrvalue
-            end
-            if row["_eventData1_"] == "object-is-alive" then
-                isAlive = (row["_eventData2_"] == "true")
-                item["isAlive"] = isAlive
-            end
-            # ---------------------------------------------------------------------------
+            attrname = row["_eventData2_"]
+            attvalue = JSON.parse(row["_eventData3_"])
+            item[attrname] = attvalue
         end
         db.close
         item
     end
 
-    # Fx18s::getItemAliveOrNull(objectuuid)
-    def self.getItemAliveOrNull(objectuuid)
-        item = Fx18s::getItemIncludingLogicallyDeletedOrNull(objectuuid)
+    # Fx18s::getAliveItemOrNull(objectuuid)
+    def self.getAliveItemOrNull(objectuuid)
+        item = Fx18s::getItemOrNull(objectuuid)
         return nil if item.nil?
         return nil if (!item["isAlive"].nil? and !item["isAlive"]) # Object is logically deleted
         item
@@ -257,10 +218,6 @@ class Fx18s
     # Fx18s::processEventInternally(event)
     def self.processEventInternally(event)
         if event["mikuType"] == "Fx18 File Event" then
-            # "datablob" is no longer used in modern versions of Fx18
-            #if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-            #    event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
-            #end
             eventi = event["Fx18FileEvent"]
             objectuuid = eventi["_objectuuid_"]
             return if !File.exists?(Fx18s::objectuuidToLocalFx18Filepath(objectuuid))
@@ -331,72 +288,6 @@ class Fx18Attributes
     end
 end
 
-class Fx18Sets
-
-    # Fx18Sets::add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value; going to be JSON serialised)
-    def self.add1(objectuuid, eventuuid, eventTime, setuuid, itemuuid, value)
-        puts "Fx18Sets::add1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid}, #{value})"
-        Fx18s::commit(objectuuid, eventuuid, eventTime, "setops", "add", setuuid, itemuuid, JSON.generate(value))
-        SystemEvents::processEventInternally({
-            "mikuType"   => "(object has been updated)",
-            "objectuuid" => objectuuid,
-        })
-    end
-
-    # Fx18Sets::add2(objectuuid, setuuid, itemuuid, value)
-    def self.add2(objectuuid, setuuid, itemuuid, value)
-        Fx18Sets::add1(objectuuid, SecureRandom.uuid, Time.new.to_f, setuuid, itemuuid, value)
-    end
-
-    # Fx18Sets::remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
-    def self.remove1(objectuuid, eventuuid, eventTime, setuuid, itemuuid)
-        puts "Fx18Sets::remove1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{setuuid}, #{itemuuid})"
-        Fx18s::commit(objectuuid, eventuuid, eventTime, "setops", "remove", setuuid, itemuuid, nil)
-        SystemEvents::processEventInternally({
-            "mikuType"   => "(object has been updated)",
-            "objectuuid" => objectuuid,
-        })
-    end
-
-    # Fx18Sets::remove2(objectuuid, setuuid, itemuuid)
-    def self.remove2(objectuuid, setuuid, itemuuid)
-        Fx18Sets::remove1(objectuuid, SecureRandom.uuid, Time.new.to_f, setuuid, itemuuid)
-    end
-
-    # Fx18Sets::items(objectuuid, setuuid)
-    def self.items(objectuuid, setuuid)
-        db = SQLite3::Database.new(Fx18s::getExistingLocalFx18FilepathForObjectuuid(objectuuid))
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-
-        # -----------------------------|
-        # item = {"itemuuid", "value"} |
-        # items = Array[item]          |
-        # -----------------------------|
-
-        items = []
-
-        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData1_=? and _eventData3_=? order by _eventTime_", [objectuuid, "setops", setuuid]) do |row|
-            operation = row["_eventData2_"]
-            if operation == "add" then
-                itemuuid = row["_eventData4_"]
-                value = JSON.parse(row["_eventData5_"])
-                items = items.reject{|item| item["itemuuid"] == itemuuid } # remove any existing item with that itemuuid
-                items << {"itemuuid" => itemuuid, "value" => value}        # performing the add operation
-            end
-            if operation == "remove" then
-                itemuuid = row["_eventData4_"]
-                items = items.reject{|item| item["itemuuid"] == itemuuid } # remove the item with that itemuuid
-            end
-        end
-        db.close
-        
-        items.map{|item| item["value"]}
-    end
-end
-
 class Fx18sSynchronisation
 
     # Fx18sSynchronisation::getEventuuids(filepath)
@@ -445,8 +336,6 @@ class Fx18sSynchronisation
         eventuuids1 = Fx18sSynchronisation::getEventuuids(filepath1)
         eventuuids2 = Fx18sSynchronisation::getEventuuids(filepath2)
 
-        updatedObjectuuids = []
-
         (eventuuids1 - eventuuids2).each{|eventuuid|
 
             record1 = Fx18sSynchronisation::getRecordOrNull(filepath1, eventuuid)
@@ -462,24 +351,6 @@ class Fx18sSynchronisation
             puts "Fx18sSynchronisation::propagateFileData, filepath1: #{filepath1}, objectuuid: #{record1["_objectuuid_"]}, eventuuid: #{eventuuid}"
 
             Fx18sSynchronisation::putRecord(filepath2, record1)
-
-            if record1["_eventData1_"] == "object-is-alive" and record1["_eventData2_"] == "false" then
-                # If filepath1 is local then the item should have already been deleted from the Lookup
-                # If filepath1 is remote then we are performing a true deletion.
-                Lookup1::removeObjectuuid(record1["_objectuuid_"])
-                updatedObjectuuids = updatedObjectuuids - [objectuuid]
-            end
-
-            if record1["_eventData1_"] == "object-is-alive" and record1["_eventData2_"] == "true" then
-                # At the time those lines are written, we don't even have a way to resuscitate
-                # an object, but if we do, it goes here
-                Lookup1::reconstructEntry(record1["_objectuuid_"])
-                updatedObjectuuids << objectuuid
-            end
-
-            if record1["_eventData1_"] != "object-is-alive" then
-                updatedObjectuuids << objectuuid
-            end
 
             # Checks
             record2 = Fx18sSynchronisation::getRecordOrNull(filepath2, eventuuid)
@@ -508,13 +379,6 @@ class Fx18sSynchronisation
                 end
             }
         }
-
-        if filepath1.include?("EnergyGrid1") then
-            updatedObjectuuids.uniq.each{|objectuuid|
-                puts "Lookup1: updating #{objectuuid}"
-                Lookup1::reconstructEntry(objectuuid)
-            }
-        end
     end
 
     # Fx18sSynchronisation::sync()

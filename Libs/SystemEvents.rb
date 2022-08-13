@@ -13,7 +13,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(object has been logically deleted)" then
-            Fx18s::deleteObjectNoEvents(event["objectuuid"])
+            Fx18s::deleteObjectLogicallyNoEvents(event["objectuuid"])
             Lookup1::processEventInternally(event)
         end
 
@@ -34,7 +34,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            Fx18s::deleteObjectNoEvents(event["objectuuid"])
+            Fx18s::deleteObjectLogicallyNoEvents(event["objectuuid"])
             Lookup1::processEventInternally(event)
         end
 
@@ -61,12 +61,6 @@ class SystemEvents
 
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
-        # "datablob" is no longer used in modern versions of Fx18
-        #if event["mikuType"] == "Fx18 File Event" then
-        #    if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-        #        event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
-        #    end
-        #end
         #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
         Machines::theOtherInstanceIds().each{|instanceName|
             e = event.clone

@@ -24,7 +24,7 @@ class Lookup1
                 exit
             end
 
-            item = Fx18s::getItemAliveOrNull(objectuuid)
+            item = Fx18s::getAliveItemOrNull(objectuuid)
             next if item.nil? # Happens when file exists but object has been logically deleted
 
             objectuuid  = item["uuid"]
@@ -53,7 +53,7 @@ class Lookup1
     def self.reconstructEntry(objectuuid)
         unixtime = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime")
         mikuType = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType")
-        item     = Fx18s::getItemAliveOrNull(objectuuid)
+        item     = Fx18s::getAliveItemOrNull(objectuuid)
         return if item.nil?
         description = LxFunction::function("generic-description", item)
         puts "update lookup1: objectuuid: #{objectuuid}"

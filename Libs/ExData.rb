@@ -1,15 +1,6 @@
 
 class ExData
 
-    # ExData::putBlobInFx18(objectuuid, blob)
-    def self.putBlobInFx18(objectuuid, blob)
-        raise "(error: 6b61018f-449b-40bc-9382-f7c7c7453190) we are not doing this anymore"
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        Fx18s::commit(objectuuid, SecureRandom.uuid, Time.new.to_f, "datablob", nhash, blob, nil, nil)
-        XCacheDatablobs::putBlob(blob)
-        nhash
-    end
-
     # ExData::putBlobInLocalDatablobsFolder(blob)
     def self.putBlobInLocalDatablobsFolder(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"

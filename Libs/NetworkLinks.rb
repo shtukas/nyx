@@ -115,7 +115,7 @@ class NetworkLinks
     def self.linkedEntities(uuid)
         NetworkLinks::linkeduuids(uuid)
             .select{|uuid| Fx18s::objectIsAlive(uuid) }
-            .map{|objectuuid| Fx18s::getItemAliveOrNull(objectuuid) }
+            .map{|objectuuid| Fx18s::getAliveItemOrNull(objectuuid) }
             .compact
     end
 

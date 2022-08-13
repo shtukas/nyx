@@ -86,7 +86,7 @@ class NxGroups
         NxGroups::elementuuids(thread)
             .first(count)
             .map{|elementuuid|  
-                element = Fx18s::getItemAliveOrNull(elementuuid)
+                element = Fx18s::getAliveItemOrNull(elementuuid)
                 if element.nil? then
                     ItemToGroupMapping::detach(thread, elementuuid)
                 end
@@ -147,7 +147,7 @@ class NxGroups
 
             uuid = item["uuid"]
 
-            item = Fx18s::getItemAliveOrNull(uuid)
+            item = Fx18s::getAliveItemOrNull(uuid)
 
             return if item.nil?
 

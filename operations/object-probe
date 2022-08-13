@@ -15,7 +15,7 @@ else
     puts "filepath: #{filepath} ✅"
 end
 
-item = Fx18s::getItemAliveOrNull(uuid)
+item = Fx18s::getAliveItemOrNull(uuid)
 if item.nil? then
     puts "Could not find a alive item for uuid: #{uuid}"
     exit

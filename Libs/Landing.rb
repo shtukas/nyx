@@ -9,7 +9,7 @@ class Landing
 
         NetworkLinks::linkeduuids(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
-                entity = Fx18s::getItemAliveOrNull(entityuuid)
+                entity = Fx18s::getAliveItemOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
@@ -41,7 +41,7 @@ class Landing
 
             uuid = item["uuid"]
 
-            item = Fx18s::getItemAliveOrNull(uuid)
+            item = Fx18s::getAliveItemOrNull(uuid)
 
             return nil if item.nil?
 
@@ -168,7 +168,7 @@ class Landing
 
             uuid = item["uuid"]
 
-            item = Fx18s::getItemAliveOrNull(uuid)
+            item = Fx18s::getAliveItemOrNull(uuid)
 
             return nil if item.nil?
 
@@ -196,7 +196,7 @@ class Landing
             NetworkLinks::linkeduuids(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entityuuid|
-                    entity = Fx18s::getItemAliveOrNull(entityuuid)
+                    entity = Fx18s::getAliveItemOrNull(entityuuid)
                     next if entity.nil?
                     indx = store.register(entity, false)
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
