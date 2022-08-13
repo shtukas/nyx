@@ -40,7 +40,12 @@ class Fx18s
         objectuuids = []
         db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
             attrname = row["_eventData2_"]
-            attvalue = JSON.parse(row["_eventData3_"])
+            attvalue = 
+                begin
+                    JSON.parse(row["_eventData3_"])
+                rescue 
+                    row["_eventData3_"] # We have some non json encoded legacy data at that attribute
+                end
             item[attrname] = attvalue
         end
         db.close
