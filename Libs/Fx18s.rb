@@ -86,7 +86,9 @@ class Fx18s
     # Fx18s::processEventInternally(event)
     def self.processEventInternally(event)
         if event["mikuType"] == "Fx18-records" then
+            knowneventsuuids = Fx18s::eventuuids()
             event["records"].each{|row|
+                next if knowneventsuuids.include?(row["_eventuuid_"])
                 Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData2_"], row["_eventData3_"])
             }
             Stargate::resetCachePrefix()
