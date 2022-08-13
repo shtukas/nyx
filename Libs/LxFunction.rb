@@ -48,6 +48,12 @@ class LxFunction
             if item["mikuType"] == "NxIced" then
                 return item["description"]
             end
+            if item["mikuType"] == "NxGroup" then
+                return item["description"]
+            end
+            if item["mikuType"] == "TxThread" then
+                return item["description"]
+            end
             if item["mikuType"] == "NxLine" then
                 return item["line"]
             end
@@ -67,9 +73,7 @@ class LxFunction
             if item["mikuType"] == "TxDated" then
                 return item["description"]
             end
-            if item["mikuType"] == "NxGroup" then
-                return item["description"]
-            end
+
             if item["mikuType"] == "Wave" then
                 return item["description"]
             end
