@@ -20,7 +20,7 @@ class NxTimelines
 
     # NxTimelines::items()
     def self.items()
-        Lookup1::mikuTypeToItems("NxTimeline")
+        AlphaStructure::mikuTypeToItems("NxTimeline")
     end
 
     # NxTimelines::destroy(uuid)
@@ -38,13 +38,12 @@ class NxTimelines
         uuid = SecureRandom.uuid
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxTimeline")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    unixtime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxTimeline")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    unixtime)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxTimelines::objectuuidToItemOrNull(uuid)
         if item.nil? then

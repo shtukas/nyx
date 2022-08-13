@@ -16,7 +16,7 @@ class Ax1Text
             "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
             "text"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "text"),
         }
-        # Sometimes, when we do lookup1 Lookup1::reconstructEntry during a commline update
+        # Sometimes, during a commline update
         # and Fx18s::getAliveItemOrNull(objectuuid) returns something
         # that thing may not have text considering that the events come in order of "uuid", "mikuType", "unixtime", "datetime", "text"
         return nil if item["text"].nil?
@@ -25,7 +25,7 @@ class Ax1Text
 
     # Ax1Text::items()
     def self.items()
-        Lookup1::mikuTypeToItems("Ax1Text")
+        AlphaStructure::mikuTypeToItems("Ax1Text")
     end
 
     # Ax1Text::interactivelyIssueNew()
@@ -34,13 +34,12 @@ class Ax1Text
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid", uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType", "Ax1Text")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime", unixtime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime", datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "text", text)
+        Fx18Attributes::setJsonEncode(uuid, "uuid", uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType", "Ax1Text")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime", unixtime)
+        Fx18Attributes::setJsonEncode(uuid, "datetime", datetime)
+        Fx18Attributes::setJsonEncode(uuid, "text", text)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = Ax1Text::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -85,7 +84,7 @@ class Ax1Text
             if operation == "access/edit" then
                 text = item["text"]
                 text = CommonUtils::editTextSynchronously(text)
-                Fx18Attributes::setJsonEncodeUpdate(uuid, "text", text)
+                Fx18Attributes::setJsonEncode(uuid, "text", text)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then

@@ -17,7 +17,7 @@ class NxIceds
 
     # NxIceds::items()
     def self.items()
-        Lookup1::mikuTypeToItems("NxIced")
+        AlphaStructure::mikuTypeToItems("NxIced")
     end
 
     # NxIceds::destroy(uuid)

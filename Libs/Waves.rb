@@ -21,7 +21,7 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Lookup1::mikuTypeToItems("Wave")
+        AlphaStructure::mikuTypeToItems("Wave")
     end
 
     # Waves::destroy(uuid)
@@ -143,16 +143,15 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "Wave")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx46",        JSON.generate(nx46))
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "Wave")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "nx46",        JSON.generate(nx46))
+        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncode(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = Waves::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -192,7 +191,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        Fx18Attributes::setJsonEncode(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"

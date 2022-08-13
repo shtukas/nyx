@@ -20,7 +20,7 @@ class NxCollections
 
     # NxCollections::items()
     def self.items()
-        Lookup1::mikuTypeToItems("NxCollection")
+        AlphaStructure::mikuTypeToItems("NxCollection")
     end
 
     # NxCollections::destroy(uuid)
@@ -38,13 +38,12 @@ class NxCollections
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         uuid = SecureRandom.uuid
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxCollection")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxCollection")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxCollections::objectuuidToItemOrNull(uuid)
         if item.nil? then

@@ -6,11 +6,11 @@ class LxFunction
 
         return if command.nil?
 
-        if item.nil? then
+        if item.nil?  then
             raise "(error: d366d408-93a1-4e91-af92-c115e88c501f) null item sent to LxFuntion with command: #{command}"
         end
 
-        if item["mikuType"].nil? then
+        if item["mikuType"].nil? and command != "generic-description-for-AlphaStructure-or-Null" then
             puts "Objects sent to LxFunction if not null should have a mikuType attribute."
             puts "Got:"
             puts "command: #{command}"
@@ -77,6 +77,85 @@ class LxFunction
             if item["mikuType"] == "Wave" then
                 return item["description"]
             end
+        end
+
+        if command == "generic-description-for-AlphaStructure-or-Null" then
+            return nil if item["mikuType"].nil?
+            if item["mikuType"] == "NxAnniversary" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "Ax1Text" then
+                firstline = Ax1Text::getFirstLineOrNull(item)
+                return (firstline ? firstline : "(no generic-description)")
+            end
+            if item["mikuType"] == "NxDataNode" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxCollection" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxConcept" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxEntity" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxEvent" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxFrame" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxIced" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxGroup" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "TxThread" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxLine" then
+                return nil if item["line"].nil?
+                return item["line"]
+            end
+            if item["mikuType"] == "NxPerson" then
+                return nil if item["name"].nil?
+                return item["name"]
+            end
+            if item["mikuType"] == "NxTask" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "NxTimeline" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+            if item["mikuType"] == "TopLevel" then
+                firstline = TopLevel::getFirstLineOrNull(item)
+                return (firstline ? firstline : "(no generic-description)")
+            end
+            if item["mikuType"] == "TxDated" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+
+            if item["mikuType"] == "Wave" then
+                return nil if item["description"].nil?
+                return item["description"]
+            end
+
+            return nil
         end
 
         if command == "toString" then

@@ -20,7 +20,7 @@ class TopLevel
 
     # TopLevel::items()
     def self.items()
-        Lookup1::mikuTypeToItems("TopLevel")
+        AlphaStructure::mikuTypeToItems("TopLevel")
     end
 
     # TopLevel::interactivelyIssueNew()
@@ -29,13 +29,12 @@ class TopLevel
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid", uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType", "TopLevel")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime", unixtime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime", datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "text", text)
+        Fx18Attributes::setJsonEncode(uuid, "uuid", uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType", "TopLevel")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime", unixtime)
+        Fx18Attributes::setJsonEncode(uuid, "datetime", datetime)
+        Fx18Attributes::setJsonEncode(uuid, "text", text)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = TopLevel::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -64,7 +63,7 @@ class TopLevel
 
     # TopLevel::items()
     def self.items()
-        Lookup1::mikuTypeToItems("TopLevel")
+        AlphaStructure::mikuTypeToItems("TopLevel")
     end
 
     # ----------------------------------------------------------------------
@@ -85,7 +84,7 @@ class TopLevel
             if operation == "access/edit" then
                 text = item["text"]
                 text = CommonUtils::editTextSynchronously(text)
-                Fx18Attributes::setJsonEncodeUpdate(uuid, "text", text)
+                Fx18Attributes::setJsonEncode(uuid, "text", text)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then

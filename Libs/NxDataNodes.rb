@@ -21,7 +21,7 @@ class NxDataNodes
 
     # NxDataNodes::items()
     def self.items()
-        Lookup1::mikuTypeToItems("NxDataNode")
+        AlphaStructure::mikuTypeToItems("NxDataNode")
     end
 
     # NxDataNodes::destroy(uuid)
@@ -40,14 +40,13 @@ class NxDataNodes
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxDataNode")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxDataNode")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -63,14 +62,13 @@ class NxDataNodes
         nx111 = Nx111::locationToAionPointNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxDataNode")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxDataNode")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -86,14 +84,13 @@ class NxDataNodes
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601w
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxDataNode")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    datetime)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxDataNode")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxDataNodes::objectuuidToItemOrNull(uuid)
         if item.nil? then

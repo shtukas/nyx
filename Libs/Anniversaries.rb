@@ -98,7 +98,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        Lookup1::mikuTypeToItems("NxAnniversary")
+        AlphaStructure::mikuTypeToItems("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -127,16 +127,15 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxAnniversary")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "startdate",   startdate)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "repeatType",  repeatType)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "lastCelebrationDate", lastCelebrationDate)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxAnniversary")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "startdate",   startdate)
+        Fx18Attributes::setJsonEncode(uuid, "repeatType",  repeatType)
+        Fx18Attributes::setJsonEncode(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = Anniversaries::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -158,7 +157,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        Fx18Attributes::setJsonEncodeUpdate(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        Fx18Attributes::setJsonEncode(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -200,13 +199,13 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "description", description)
+                Fx18Attributes::setJsonEncode(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                Fx18Attributes::setJsonEncodeUpdate(item["uuid"], "startdate",   startdate)
+                Fx18Attributes::setJsonEncode(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then

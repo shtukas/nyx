@@ -17,19 +17,18 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        Lookup1::mikuTypeToItems("NxPerson")
+        AlphaStructure::mikuTypeToItems("NxPerson")
     end
 
     # NxPersons::issue(name1)
     def self.issue(name1)
         uuid = SecureRandom.uuidw
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxPerson")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "name",        name1)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxPerson")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncode(uuid, "name",        name1)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxPersons::objectuuidToItemOrNull(uuid)
         if item.nil? then

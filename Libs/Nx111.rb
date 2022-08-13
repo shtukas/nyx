@@ -197,7 +197,7 @@ class Nx111
             puts "Next action: putting the new Nx111 #{JSON.pretty_generate(nx111_v2)} into item: #{JSON.pretty_generate(item)}"
             LucilleCore::pressEnterToContinue()
 
-            Fx18Attributes::setJsonEncodeObjectMaking(item["uuid"], "nx111", nx111_v2)
+            Fx18Attributes::setJsonEncode(item["uuid"], "nx111", nx111_v2)
 
             # Done
             # Now we just need to actually access the new DxPure

@@ -196,6 +196,7 @@ require_relative "Ax1Text.rb"
 require_relative "Anniversaries.rb"
 require_relative "AionTransforms.rb"
 require_relative "Ax39.rb"
+require_relative "AlphaStructure.rb"
 
 require_relative "Bank.rb"
 
@@ -230,7 +231,6 @@ require_relative "Landing.rb"
 require_relative "LinkedNavigation.rb"
 
 require_relative "Machines.rb"
-require_relative "Lookup1.rb"
 
 require_relative "NxDataNodes.rb"
 require_relative "Nx111.rb"
@@ -274,9 +274,9 @@ require_relative "XCacheDatablobs.rb"
 
 # ------------------------------------------------------------
 
-$librarian_database_semaphore = Mutex.new
 $bank_database_semaphore = Mutex.new
 $dnsu_database_semaphore = Mutex.new
-$listing_database_semaphore = Mutex.new
+
+AlphaStructure::ensure()
 
 # ------------------------------------------------------------

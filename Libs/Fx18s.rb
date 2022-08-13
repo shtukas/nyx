@@ -30,6 +30,20 @@ class Fx18s
         db.close
     end
 
+    # Fx18s::getRowOrNull(eventuuid)
+    def self.getRowOrNull(eventuuid)
+        db = SQLite3::Database.new(Fx18s::fx18Filepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        rows = nil
+        db.execute("select * from _fx18_ where _eventuuid_=?", [eventuuid]) do |row|
+            row << row.clone
+        end
+        db.close
+        row
+    end
+
     # Fx18s::getItemOrNull(objectuuid)
     def self.getItemOrNull(objectuuid)
         item = {}
@@ -72,7 +86,7 @@ class Fx18s
 
     # Fx18s::deleteObjectLogicallyNoEvents(objectuuid)
     def self.deleteObjectLogicallyNoEvents(objectuuid)
-        Fx18Attributes::setJsonEncodeUpdate(objectuuid, "isAlive", false)
+        Fx18Attributes::setJsonEncode(objectuuid, "isAlive", false)
     end
 
     # Fx18s::deleteObjectLogically(objectuuid)
@@ -95,8 +109,10 @@ class Fx18s
             event["records"].each{|row|
                 next if knowneventsuuids.include?(row["_eventuuid_"])
                 Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData2_"], row["_eventData3_"])
+                row = Fx18s::getRowOrNull(row["_eventuuid_"])
+                AlphaStructure::upgrade(row, false)
             }
-            Stargate::resetCachePrefix()
+            AlphaStructure::sendAlphaStructureToDisk()
         end
     end
 
@@ -171,20 +187,13 @@ class Fx18Attributes
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         Fx18s::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
+        row = Fx18s::getRowOrNull(eventuuid)
+        AlphaStructure::upgrade(row, true)
     end
 
-    # Fx18Attributes::setJsonEncodeObjectMaking(objectuuid, attname, attvalue)
-    def self.setJsonEncodeObjectMaking(objectuuid, attname, attvalue)
+    # Fx18Attributes::setJsonEncode(objectuuid, attname, attvalue)
+    def self.setJsonEncod(objectuuid, attname, attvalue)
         Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
-    end
-
-    # Fx18Attributes::setJsonEncodeUpdate(objectuuid, attname, attvalue)
-    def self.setJsonEncodeUpdate(objectuuid, attname, attvalue)
-        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
-        SystemEvents::processEvent({
-            "mikuType"   => "(object has been updated)",
-            "objectuuid" => objectuuid,
-        })
     end
 
     # Fx18Attributes::getJsonDecodeOrNull(objectuuid, attname)

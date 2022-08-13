@@ -17,12 +17,12 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        Lookup1::mikuTypeToItems("NxTask")
+        AlphaStructure::mikuTypeToItems("NxTask")
     end
 
     # NxTasks::items2(count)
     def self.items2(count)
-        Lookup1::mikuTypeToItems2("NxTask", count)
+        AlphaStructure::mikuTypeToItems2("NxTask", count)
     end
 
     # NxTasks::destroy(uuid)
@@ -39,14 +39,13 @@ class NxTasks
         return nil if description == ""
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111) # possibly null
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111) # possibly null
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
@@ -64,14 +63,13 @@ class NxTasks
             "type" => "url",
             "url"  => url
         }
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "description", description)
-        Fx18Attributes::setJsonEncodeObjectMaking(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Lookup1::reconstructEntry(uuid)
         Fx18s::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
