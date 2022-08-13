@@ -20,12 +20,6 @@ class Catalyst
         LxAction::action(command, objectOpt)
     end
 
-    # Catalyst::section1()
-    def self.section1()
-        items = NxFrames::items()  + TopLevel::section1()
-        items.sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-    end
-
     # Catalyst::section2()
     def self.section2()
         [

@@ -117,19 +117,33 @@ class NxGroups
     # NxGroups::section1()
     def self.section1()
         NxGroups::items()
-            .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
+            .map{|group|
+                {
+                    "group" => group,
+                    "ratio" => Ax39::completionRatio(group)
+                }
+            }
+            .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
+            .map{|px| px["group"] }
     end
 
     # NxGroups::section2()
     def self.section2()
-        threads = NxGroups::items()
-            .select{|thread| Ax39::itemShouldShow(thread) }
-            .sort{|t1, t2| Ax39::completionRatio(t1) <=> Ax39::completionRatio(t2)}
-        return [] if threads.empty?
-        thread1 = threads.shift
-        elements = NxGroups::elements(thread1, 6)
+        groups = NxGroups::items()
+            .select{|group| Ax39::itemShouldShow(group) }
+            .map{|group|
+                {
+                    "group" => group,
+                    "ratio" => Ax39::completionRatio(group)
+                }
+            }
+            .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
+            .map{|px| px["group"] }
+        return [] if groups.empty?
+        group1 = groups.shift
+        elements = NxGroups::elements(group1, 6)
         elements.each{|element|
-            XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toString(thread1)}]".yellow + " #{LxFunction::function("toString", element)}")
+            XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toString(group1)}]".yellow + " #{LxFunction::function("toString", element)}")
         }
         elements
     end

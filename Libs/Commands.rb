@@ -427,24 +427,16 @@ class Commands
                     "lambda" => lambda { Anniversaries::section2() }
                 },
                 {
-                    "name" => "Waves::section2(true)",
-                    "lambda" => lambda { Waves::section2(true) }
-                },
-                {
-                    "name" => "Waves::section2(false)",
-                    "lambda" => lambda { Waves::section2(false) }
-                },
-                {
-                    "name" => "TxDateds::section2()",
-                    "lambda" => lambda { TxDateds::section2() }
+                    "name" => "NxGroups::section1()",
+                    "lambda" => lambda { NxGroups::section1() }
                 },
                 {
                     "name" => "NxGroups::section2()",
                     "lambda" => lambda { NxGroups::section2() }
                 },
                 {
-                    "name" => "Streaming::section2()",
-                    "lambda" => lambda { Streaming::section2() }
+                    "name" => "NxFrames::items()",
+                    "lambda" => lambda { NxFrames::items() }
                 },
                 {
                     "name" => "NxLines::section2()",
@@ -455,8 +447,28 @@ class Commands
                     "lambda" => lambda { NxTasks::section2() }
                 },
                 {
+                    "name" => "Streaming::section2()",
+                    "lambda" => lambda { Streaming::section2() }
+                },
+                {
+                    "name" => "TopLevel::items()",
+                    "lambda" => lambda { TopLevel::items() }
+                },
+                {
+                    "name" => "TxDateds::section2()",
+                    "lambda" => lambda { TxDateds::section2() }
+                },
+                {
                     "name" => "The99Percent::getCurrentCount()",
                     "lambda" => lambda { The99Percent::getCurrentCount() }
+                },
+                {
+                    "name" => "Waves::section2(true)",
+                    "lambda" => lambda { Waves::section2(true) }
+                },
+                {
+                    "name" => "Waves::section2(false)",
+                    "lambda" => lambda { Waves::section2(false) }
                 },
             ]
 

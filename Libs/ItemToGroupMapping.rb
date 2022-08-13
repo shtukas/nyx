@@ -63,6 +63,7 @@ class ItemToGroupMapping
             db.execute("select * from _mapping_ where _groupuuid_=?", [groupuuid]) do |row|
                 answer << row['_itemuuid_']
             end
+            db.close
         }
         answer
     end
@@ -79,6 +80,7 @@ class ItemToGroupMapping
                 answer = true # This implementation is fundamentally incorrect because to be correct we would need to take account of the _status_, but for the time being items won't be removed from groups
                 # TODO: fix it
             end
+            db.close
         }
         answer
     end
@@ -94,6 +96,7 @@ class ItemToGroupMapping
             db.execute("select * from _mapping_ where _itemuuid_=?", [itemuuid]) do |row|
                 answer << row['_groupuuid_']
             end
+            db.close
         }
         answer
     end
@@ -109,6 +112,7 @@ class ItemToGroupMapping
             db.execute("select _eventuuid_ from _mapping_", []) do |row|
                 answer << row['_eventuuid_']
             end
+            db.close
         }
         answer
     end
@@ -124,6 +128,7 @@ class ItemToGroupMapping
             db.execute("select * from _mapping_", []) do |row|
                 answer << row.clone
             end
+            db.close
         }
         answer
     end
