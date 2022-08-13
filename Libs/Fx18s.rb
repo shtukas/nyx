@@ -30,31 +30,6 @@ class Fx18s
         db.close
     end
 
-    # Fx18s::deleteObjectLogicallyNoEvents(objectuuid)
-    def self.deleteObjectLogicallyNoEvents(objectuuid)
-        Fx18Attributes::setJsonEncodeUpdate(objectuuid, "isAlive", false)
-    end
-
-    # Fx18s::deleteObjectLogically(objectuuid)
-    def self.deleteObjectLogically(objectuuid)
-        Fx18s::deleteObjectLogicallyNoEvents(objectuuid)
-        SystemEvents::broadcast({
-            "mikuType"   => "NxDeleted",
-            "objectuuid" => objectuuid,
-        })
-        SystemEvents::processEventInternally({
-            "mikuType"   => "(object has been logically deleted)",
-            "objectuuid" => objectuuid,
-        })
-    end
-
-    # Fx18s::objectIsAlive(objectuuid)
-    def self.objectIsAlive(objectuuid)
-        value = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "isAlive")
-        return true if value.nil?
-        value
-    end
-
     # Fx18s::getItemOrNull(objectuuid)
     def self.getItemOrNull(objectuuid)
         item = {}
@@ -75,6 +50,13 @@ class Fx18s
         item
     end
 
+    # Fx18s::objectIsAlive(objectuuid)
+    def self.objectIsAlive(objectuuid)
+        value = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "isAlive")
+        return true if value.nil?
+        value
+    end
+
     # Fx18s::getAliveItemOrNull(objectuuid)
     def self.getAliveItemOrNull(objectuuid)
         item = Fx18s::getItemOrNull(objectuuid)
@@ -83,9 +65,36 @@ class Fx18s
         item
     end
 
-    # Fx18s::broadcastObjectEvents(objectuuid)
-    def self.broadcastObjectEvents(objectuuid)
-        item = {}
+    # Fx18s::deleteObjectLogicallyNoEvents(objectuuid)
+    def self.deleteObjectLogicallyNoEvents(objectuuid)
+        Fx18Attributes::setJsonEncodeUpdate(objectuuid, "isAlive", false)
+    end
+
+    # Fx18s::deleteObjectLogically(objectuuid)
+    def self.deleteObjectLogically(objectuuid)
+        Fx18s::deleteObjectLogicallyNoEvents(objectuuid)
+        SystemEvents::broadcast({
+            "mikuType"   => "NxDeleted",
+            "objectuuid" => objectuuid,
+        })
+        SystemEvents::processEventInternally({
+            "mikuType"   => "(object has been logically deleted)",
+            "objectuuid" => objectuuid,
+        })
+    end
+
+    # Fx18s::processEventInternally(event)
+    def self.processEventInternally(event)
+        if event["mikuType"] == "Fx18-records" then
+            event["records"].each{|row|
+                Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData2_"], row["_eventData3_"])
+            }
+            Stargate::resetCachePrefix()
+        end
+    end
+
+    # Fx18s::objectrows(objectuuid)
+    def self.objectrows(objectuuid)
         db = SQLite3::Database.new(Fx18s::fx18Filepath())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -95,9 +104,14 @@ class Fx18s
             rows << row.clone
         end
         db.close
+        rows
+    end
+
+    # Fx18s::broadcastObjectEvents(objectuuid)
+    def self.broadcastObjectEvents(objectuuid)
         SystemEvents::broadcast({
             "mikuType" => "Fx18-records",
-            "records"  => rows
+            "records"  => Fx18s::objectrows(objectuuid)
         })
     end
 
@@ -115,6 +129,20 @@ class Fx18s
         eventuuids
     end
 
+    # Fx18s::objectuuids()
+    def self.objectuuids()
+        db = SQLite3::Database.new(Fx18s::fx18Filepath())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        objectuuids = []
+        db.execute("select distinct(_objectuuid_) as _objectuuid_ from _fx18_", []) do |row|
+            objectuuids << row["_objectuuid_"]
+        end
+        db.close
+        objectuuids
+    end
+
     # Fx18s::getAllRows()
     def self.getAllRows()
         db = SQLite3::Database.new(Fx18s::fx18Filepath())
@@ -127,16 +155,6 @@ class Fx18s
         end
         db.close
         rows
-    end
-
-    # Fx18s::processEventInternally(event)
-    def self.processEventInternally(event)
-        if event["mikuType"] == "Fx18-records" then
-            event["records"].each{|row|
-                Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData2_"], row["_eventData3_"])
-            }
-            Stargate::resetCachePrefix()
-        end
     end
 end
 

@@ -329,48 +329,24 @@ class FileSystemCheck
 
     # FileSystemCheck::fsck()
     def self.fsck()
-        []
-            .each{|filepath|
+        Fx18s::objectuuids()
+            .each{|objectuuid|
 
                 FileSystemCheck::exitIfMissingCanary()
 
-                key1 = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{File.mtime(filepath)}"
+                key1 = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{JSON.generate(Fx18s::objectrows(objectuuid))}"
                 next if XCache::getFlag(key1)
-
-                puts "FileSystemCheck, Fx18 @ filepath: #{filepath}"
-
-                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
-                if objectuuid.nil? then
-                    puts "(error: 441c244f-446c-4933-bf20-cf68c14509d5) I could not determine uuid for file: #{filepath}"
-                    puts "Exit."
-                    exit
-                end
 
                 if !Fx18s::objectIsAlive(objectuuid) then
                     XCache::setFlag(key1, true)
                     next
                 end
 
+                puts "FileSystemCheck, Fx18 @ objectuuid: #{objectuuid}"
+
                 FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
 
                 XCache::setFlag(key1, true)
-            }
-        puts "fsck completed successfully".green
-    end
-
-    # FileSystemCheck::fsckMikuType(mikuType)
-    def self.fsckMikuType(mikuType)
-        []
-            .each{|objectuuid|
-                FileSystemCheck::exitIfMissingCanary()
-                objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath1, "uuid")
-                if objectuuid.nil? then
-                    puts "(error: 6586a7a1-6985-4e94-902e-589ec03762e3) I could not determine uuid for file: #{filepath}"
-                    puts "Exit."
-                    exit
-                end
-                next if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != mikuType
-                FileSystemCheck::fsckObjectErrorAtFirstFailure(objectuuid)
             }
         puts "fsck completed successfully".green
     end
