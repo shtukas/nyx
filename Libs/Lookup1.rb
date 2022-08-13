@@ -14,24 +14,14 @@ class Lookup1
         lookup1.execute("create table _lookup1_ (_itemuuid_ text primary key, _unixtime_ float, _mikuType_ text, _item_ text, _description_ text)", [])
         lookup1.close
 
-        [].each{|filepath|
-            puts "Lookup1 rebuild: filepath: #{filepath}"
-            objectuuid = Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, "uuid")
-            if objectuuid.nil? then
-                puts "(error: fd114e57-2588-4d80-8bfb-e647833e459e) I could not determine uuid for file: #{filepath}"
-                puts "Exit."
-                Stargate::resetCachePrefix()
-                exit
-            end
-
+        Fx18s::objectuuids().each{|objectuuid|
+            puts "Lookup1 rebuild: objectuuid: #{objectuuid}"
             item = Fx18s::getAliveItemOrNull(objectuuid)
             next if item.nil? # Happens when file exists but object has been logically deleted
-
             objectuuid  = item["uuid"]
             unixtime    = item["unixtime"]
             mikuType    = item["mikuType"]
             description = LxFunction::function("generic-description", item)
-
             Lookup1::commit(objectuuid, unixtime, mikuType, item, description)
         }
 
