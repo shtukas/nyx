@@ -160,7 +160,7 @@ class NxGroups
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
 
-            linkeduuids  = NxLink::linkedUUIDs(uuid)
+            linkeduuids  = NetworkLinks::linkeduuids(uuid)
 
             puts "commands: description | Ax39 | remove Ax39 | json | destroy".yellow
 

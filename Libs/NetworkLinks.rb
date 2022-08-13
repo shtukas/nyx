@@ -44,6 +44,18 @@ class NetworkLinks
         })
     end
 
+    # NetworkLinks::link(uuid1, uuid2)
+    def self.link(uuid1, uuid2)
+        NetworkLinks::issue(uuid1, "link", uuid2)
+        NetworkLinks::issue(uuid2, "link", uuid1)
+    end
+
+    # NetworkLinks::unlink(uuid1, uuid2)
+    def self.unlink(uuid1, uuid2)
+        NetworkLinks::issue(uuid1, "unlink", uuid2)
+        NetworkLinks::issue(uuid2, "unlink", uuid1)
+    end
+
     # NetworkLinks::linkeduuids(itemuuid)
     def self.linkeduuids(itemuuid)
         db = SQLite3::Database.new(NetworkLinks::databaseFile())
@@ -97,5 +109,50 @@ class NetworkLinks
                 NetworkLinks::insertRow(row)
             }
         end
+    end
+
+    # NetworkLinks::linkedEntities(uuid)
+    def self.linkedEntities(uuid)
+        NetworkLinks::linkeduuids(uuid)
+            .select{|uuid| Fx18s::objectIsAlive(uuid) }
+            .map{|objectuuid| Fx18s::getItemAliveOrNull(objectuuid) }
+            .compact
+    end
+
+    # NetworkLinks::interactivelySelectLinkedEntityOrNull(uuid)
+    def self.interactivelySelectLinkedEntityOrNull(uuid)
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", NetworkLinks::linkedEntities(uuid), lambda{ |item| LxFunction::function("toString", item) })
+    end
+
+    # NetworkLinks::interactivelySelectLinkedEntities(uuid)
+    def self.interactivelySelectLinkedEntities(uuid)
+        selected, unselected = LucilleCore::selectZeroOrMore("entity", [], NetworkLinks::linkedEntities(uuid), lambda{ |item| LxFunction::function("toString", item) })
+        selected
+    end
+
+    # NetworkLinks::networkMigration(item)
+    def self.networkMigration(item)
+        uuid = item["uuid"]
+        entities = NetworkLinks::interactivelySelectLinkedEntities(uuid)
+        return if entities.empty?
+        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["from linked", "from entire network"])
+        return if mode.nil?
+        if mode == "from linked" then
+            target = NetworkLinks::interactivelySelectLinkedEntityOrNull(uuid)
+        end
+        if mode == "from entire network" then
+            target = Nyx::selectExistingNetworkNodeOrNull()
+        end
+        return if target.nil?
+        if target["uuid"] == item["uuid"] then
+            puts "The target that you have chosen is equal to the current item"
+            LucilleCore::pressEnterToContinue()
+        end
+        entities.each{|entity|
+            NetworkLinks::link(target["uuid"], entity["uuid"])
+        }
+        entities.each{|entity|
+            NetworkLinks::unlink(item["uuid"], entity["uuid"])
+        }
     end
 end

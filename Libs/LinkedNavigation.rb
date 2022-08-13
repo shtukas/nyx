@@ -39,7 +39,7 @@ class LinkedNavigation
 
     # LinkedNavigation::navigate(item)
     def self.navigate(item)
-        uuids = NxLink::linkedUUIDs(item["uuid"])
+        uuids = NetworkLinks::linkeduuids(item["uuid"])
                     .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
         LinkedNavigation::navigateMiscEntities(uuids)
     end

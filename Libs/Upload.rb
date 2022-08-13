@@ -19,7 +19,7 @@ class Upload
             if overrideDatetime then
                 Fx18Attributes::setJsonEncodeUpdate(child["uuid"], "datetime", overrideDatetime)
             end
-            NxLink::issue(item["uuid"], child["uuid"])
+            NetworkLinks::link(item["uuid"], child["uuid"])
         }
     end
 
@@ -43,7 +43,7 @@ class Upload
             if overrideDatetime then
                 Fx18Attributes::setJsonEncodeUpdate(child["uuid"], "datetime", overrideDatetime)
             end
-            NxLink::issue(item["uuid"], child["uuid"])
+            NetworkLinks::link(item["uuid"], child["uuid"])
         }
     end
 
@@ -64,7 +64,7 @@ class Upload
             if overrideDatetime then
                 Fx18Attributes::setJsonEncodeUpdate(child["uuid"], "datetime", overrideDatetime)
             end
-            NxLink::issue(item["uuid"], child["uuid"])
+            NetworkLinks::link(item["uuid"], child["uuid"])
         end
         if action == "aion-points" then
             Upload::linkuploadAllLocationsOfAFolderAsLinkedAionPoint(item, overrideDatetime)

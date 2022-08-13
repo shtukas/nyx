@@ -7,7 +7,7 @@ class Landing
     def self.removeConnected(item)
         store = ItemStore.new()
 
-        NxLink::linkedUUIDs(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        NetworkLinks::linkeduuids(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
                 entity = Fx18s::getItemAliveOrNull(entityuuid)
                 next if entity.nil?
@@ -22,7 +22,7 @@ class Landing
         if (indx = Interpreting::readAsIntegerOrNull(i)) then
             entity = store.get(indx)
             return if entity.nil?
-            NxLink::unlink(item["uuid"], entity["uuid"])
+            NetworkLinks::unlink(item["uuid"], entity["uuid"])
         end
     end
 
@@ -30,7 +30,7 @@ class Landing
     def self.link(item)
         newitem = Nyx::architectOneOrNull()
         return if newitem.nil?
-        NxLink::issue(item["uuid"], newitem["uuid"])
+        NetworkLinks::link(item["uuid"], newitem["uuid"])
     end
 
     # Landing::networkAggregationNodeLanding(item, isSearchAndSelect) # nil or item (if command: result)
@@ -63,7 +63,7 @@ class Landing
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
 
-            linkeds  = NxLink::linkedEntities(uuid)
+            linkeds  = NetworkLinks::linkedEntities(uuid)
             linkeds
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .first(200)
@@ -116,7 +116,7 @@ class Landing
             if Interpreting::match("note", command) then
                 i2 = Ax1Text::interactivelyIssueNew()
                 puts JSON.pretty_generate(i2)
-                NxLink::issue(item["uuid"], i2["uuid"])
+                NetworkLinks::link(item["uuid"], i2["uuid"])
                 next
             end
 
@@ -138,7 +138,7 @@ class Landing
             end
 
             if Interpreting::match("network-migration", command) then
-                NxLink::networkMigration(item)
+                NetworkLinks::networkMigration(item)
             end
 
             if Interpreting::match("upload", command) then
@@ -193,7 +193,7 @@ class Landing
                 puts "nx111: (not found)".yellow
             end
 
-            NxLink::linkedUUIDs(item["uuid"])
+            NetworkLinks::linkeduuids(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entityuuid|
                     entity = Fx18s::getItemAliveOrNull(entityuuid)
@@ -249,7 +249,7 @@ class Landing
             if Interpreting::match("note", command) then
                 i2 = Ax1Text::interactivelyIssueNew()
                 puts JSON.pretty_generate(i2)
-                NxLink::issue(item["uuid"], i2["uuid"])
+                NetworkLinks::link(item["uuid"], i2["uuid"])
                 next
             end
 
@@ -267,7 +267,7 @@ class Landing
             end
 
             if Interpreting::match("network-migration", command) then
-                NxLink::networkMigration(item)
+                NetworkLinks::networkMigration(item)
             end
 
             if Interpreting::match("upload", command) then
