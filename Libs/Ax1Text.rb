@@ -17,7 +17,7 @@ class Ax1Text
             "text"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "text"),
         }
         # Sometimes, during a commline update
-        # and Fx18s::getAliveItemOrNull(objectuuid) returns something
+        # and Fx256::getAliveProtoItemOrNull(objectuuid) returns something
         # that thing may not have text considering that the events come in order of "uuid", "mikuType", "unixtime", "datetime", "text"
         return nil if item["text"].nil?
         item
@@ -25,7 +25,7 @@ class Ax1Text
 
     # Ax1Text::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("Ax1Text")
+        Fx256WithCache::mikuTypeToItems("Ax1Text")
     end
 
     # Ax1Text::interactivelyIssueNew()
@@ -40,7 +40,7 @@ class Ax1Text
         Fx18Attributes::setJsonEncode(uuid, "datetime", datetime)
         Fx18Attributes::setJsonEncode(uuid, "text", text)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = Ax1Text::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"
@@ -88,7 +88,7 @@ class Ax1Text
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
-                    Fx18s::deleteObjectLogically(uuid)
+                    Fx256::deleteObjectLogically(uuid)
                     break
                 end
             end

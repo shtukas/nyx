@@ -21,12 +21,12 @@ class Waves
 
     # Waves::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("Wave")
+        Fx256WithCache::mikuTypeToItems("Wave")
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -152,7 +152,7 @@ class Waves
         Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         Fx18Attributes::setJsonEncode(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = Waves::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"

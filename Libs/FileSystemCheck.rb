@@ -329,15 +329,15 @@ class FileSystemCheck
 
     # FileSystemCheck::fsck()
     def self.fsck()
-        Fx18s::objectuuids()
+        Fx256::objectuuids()
             .each{|objectuuid|
 
                 FileSystemCheck::exitIfMissingCanary()
 
-                key1 = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{JSON.generate(Fx18s::objectrows(objectuuid))}"
+                key1 = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{JSON.generate(Fx256::objectrows(objectuuid))}"
                 next if XCache::getFlag(key1)
 
-                if !Fx18s::objectIsAlive(objectuuid) then
+                if !Fx256::objectIsAlive(objectuuid) then
                     XCache::setFlag(key1, true)
                     next
                 end

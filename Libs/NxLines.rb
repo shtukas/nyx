@@ -20,7 +20,7 @@ class NxLines
 
     # NxLines::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxLine")
+        Fx256WithCache::mikuTypeToItems("NxLine")
     end
 
     # ----------------------------------------------------------------------
@@ -35,7 +35,7 @@ class NxLines
         Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncode(uuid, "line",        line)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxLines::objectuuidToItemOrNull(uuid)
         raise "(error: 1853d31a-bb37-46d6-b4c2-7afcf88e0c56) How did that happen?" if item.nil?
         item

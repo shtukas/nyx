@@ -20,7 +20,7 @@ class TopLevel
 
     # TopLevel::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("TopLevel")
+        Fx256WithCache::mikuTypeToItems("TopLevel")
     end
 
     # TopLevel::interactivelyIssueNew()
@@ -35,7 +35,7 @@ class TopLevel
         Fx18Attributes::setJsonEncode(uuid, "datetime", datetime)
         Fx18Attributes::setJsonEncode(uuid, "text", text)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = TopLevel::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"
@@ -63,7 +63,7 @@ class TopLevel
 
     # TopLevel::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("TopLevel")
+        Fx256WithCache::mikuTypeToItems("TopLevel")
     end
 
     # ----------------------------------------------------------------------
@@ -73,7 +73,7 @@ class TopLevel
     def self.landing(uuid)
         loop {
             system("clear")
-            item = Fx18s::getAliveItemOrNull(uuid)
+            item = Fx256::getAliveProtoItemOrNull(uuid)
             puts TopLevel::toString(item)
             operations = [
                 "access/edit",
@@ -88,7 +88,7 @@ class TopLevel
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then
-                    Fx18s::deleteObjectLogically(uuid)
+                    Fx256::deleteObjectLogically(uuid)
                     break
                 end
             end

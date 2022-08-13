@@ -17,12 +17,12 @@ class NxIceds
 
     # NxIceds::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxIced")
+        Fx256WithCache::mikuTypeToItems("NxIced")
     end
 
     # NxIceds::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------

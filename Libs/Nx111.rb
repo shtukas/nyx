@@ -202,7 +202,7 @@ class Nx111
             # Done
             # Now we just need to actually access the new DxPure
 
-            item = Fx18s::getAliveItemOrNull(item["uuid"])
+            item = Fx256::getAliveProtoItemOrNull(item["uuid"])
 
             puts "Done. Here is the new situation:"
             puts "item: #{JSON.pretty_generate(item)}"

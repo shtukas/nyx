@@ -21,12 +21,12 @@ class NxGroups
 
     # NxGroups::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxGroup")
+        Fx256WithCache::mikuTypeToItems("NxGroup")
     end
 
     # NxGroups::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -52,7 +52,7 @@ class NxGroups
         Fx18Attributes::setJsonEncode(uuid, "ax39",        ax39) if ax39
 
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxGroups::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 196d5021-a7d2-4d23-8e70-851d81c9f994) How did that happen ? 🤨"
@@ -84,7 +84,7 @@ class NxGroups
         NxGroups::elementuuids(thread)
             .first(count)
             .map{|elementuuid|  
-                element = Fx18s::getAliveItemOrNull(elementuuid)
+                element = Fx256::getAliveProtoItemOrNull(elementuuid)
                 if element.nil? then
                     ItemToGroupMapping::detach(thread["uuid"], elementuuid)
                 end
@@ -145,7 +145,7 @@ class NxGroups
 
             uuid = item["uuid"]
 
-            item = Fx18s::getAliveItemOrNull(uuid)
+            item = Fx256::getAliveProtoItemOrNull(uuid)
 
             return if item.nil?
 
@@ -195,7 +195,7 @@ class NxGroups
 
             if Interpreting::match("destroy", command) then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    Fx18s::deleteObjectLogically(item["uuid"])
+                    Fx256::deleteObjectLogically(item["uuid"])
                     break
                 end
             end

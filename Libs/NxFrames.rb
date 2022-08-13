@@ -17,12 +17,12 @@ class NxFrames
 
     # NxFrames::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxFrame")
+        Fx256WithCache::mikuTypeToItems("NxFrame")
     end
 
     # NxFrames::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -43,7 +43,7 @@ class NxFrames
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxFrames::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"

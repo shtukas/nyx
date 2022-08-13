@@ -50,6 +50,7 @@ checkLocation = lambda{|location|
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Datablobs")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPure")
@@ -92,16 +93,6 @@ if !File.exists?(filepath) then
     db.busy_handler { |count| true }
     db.results_as_hash = true
     db.execute("create table _links_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text)", [])
-    db.close
-end
-
-filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx18.sqlite3"
-if !File.exists?(filepath) then
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute("create table _fx18_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventData2_ blob, _eventData3_ blob)", [])
     db.close
 end
 
@@ -196,7 +187,6 @@ require_relative "Ax1Text.rb"
 require_relative "Anniversaries.rb"
 require_relative "AionTransforms.rb"
 require_relative "Ax39.rb"
-require_relative "AlphaStructure.rb"
 
 require_relative "Bank.rb"
 
@@ -276,7 +266,5 @@ require_relative "XCacheDatablobs.rb"
 
 $bank_database_semaphore = Mutex.new
 $dnsu_database_semaphore = Mutex.new
-
-AlphaStructure::ensure()
 
 # ------------------------------------------------------------

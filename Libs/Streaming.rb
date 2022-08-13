@@ -5,7 +5,7 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        item = Fx18s::getAliveItemOrNull(itemuuid)
+        item = Fx256::getAliveProtoItemOrNull(itemuuid)
         return if item.nil?
         if !["NxTask", "NxIced"].include?(item["mikuType"]) then
             puts "I am authorised to >nyx only NxTasks and NxIceds in this function"
@@ -35,7 +35,7 @@ class Streaming
             end
             if command == "done" then
                 LxAction::action("stop", item)
-                Fx18s::deleteObjectLogically(item["uuid"])
+                Fx256::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "detach" then
@@ -89,7 +89,7 @@ class Streaming
                 next
             end
             if command == "done" then
-                Fx18s::deleteObjectLogically(item["uuid"])
+                Fx256::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "insert" then

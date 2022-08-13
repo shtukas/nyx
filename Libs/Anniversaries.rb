@@ -98,7 +98,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        AlphaStructure::mikuTypeToItems("NxAnniversary")
+        Fx256WithCache::mikuTypeToItems("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -136,7 +136,7 @@ class Anniversaries
         Fx18Attributes::setJsonEncode(uuid, "repeatType",  repeatType)
         Fx18Attributes::setJsonEncode(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = Anniversaries::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
@@ -209,7 +209,7 @@ class Anniversaries
             end
 
             if Interpreting::match("destroy", command) then
-                Fx18s::deleteObjectLogically(item["uuid"])
+                Fx256::deleteObjectLogically(item["uuid"])
                 break
             end
         }

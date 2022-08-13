@@ -20,12 +20,12 @@ class NxEntities
 
     # NxEntities::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxEntity")
+        Fx256WithCache::mikuTypeToItems("NxEntity")
     end
 
     # NxEntities::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -42,7 +42,7 @@ class NxEntities
         Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxEntities::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 291521ea-221b-4a81-9b6e-9ef0925d2ca5) How did that happen ? 🤨"

@@ -21,12 +21,12 @@ class NxEvents
 
     # NxEvents::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxEvent")
+        Fx256WithCache::mikuTypeToItems("NxEvent")
     end
 
     # NxEvents::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -47,7 +47,7 @@ class NxEvents
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxEvents::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: c4d9e89d-d4f2-4a44-8c66-311431977b4c) How did that happen ? 🤨"

@@ -16,7 +16,7 @@ SystemEvents::broadcast({
 
 SystemEvents::broadcast({
     "mikuType" => "Fx18-records",
-    "records"  => Fx18s::getAllRows()
+    "records"  => Fx256::rows()
 })
 
 SystemEvents::broadcast({

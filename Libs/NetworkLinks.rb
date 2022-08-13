@@ -114,8 +114,8 @@ class NetworkLinks
     # NetworkLinks::linkedEntities(uuid)
     def self.linkedEntities(uuid)
         NetworkLinks::linkeduuids(uuid)
-            .select{|uuid| Fx18s::objectIsAlive(uuid) }
-            .map{|objectuuid| Fx18s::getAliveItemOrNull(objectuuid) }
+            .select{|uuid| Fx256::objectIsAlive(uuid) }
+            .map{|objectuuid| Fx256::getAliveProtoItemOrNull(objectuuid) }
             .compact
     end
 

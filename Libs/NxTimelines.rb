@@ -20,12 +20,12 @@ class NxTimelines
 
     # NxTimelines::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxTimeline")
+        Fx256WithCache::mikuTypeToItems("NxTimeline")
     end
 
     # NxTimelines::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ class NxTimelines
         Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxTimelines::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: a6cc9094-7100-4aa3-8ebc-1fec0669733e) How did that happen ? 🤨"

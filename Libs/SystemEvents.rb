@@ -9,8 +9,7 @@ class SystemEvents
         # puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
         if event["mikuType"] == "(object has been logically deleted)" then
-            Fx18s::deleteObjectLogicallyNoEvents(event["objectuuid"])
-            AlphaStructure::processEvent(event)
+            Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
         end
 
         if event["mikuType"] == "NxBankEvent" then
@@ -30,12 +29,11 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            Fx18s::deleteObjectLogicallyNoEvents(event["objectuuid"])
-            AlphaStructure::processEvent(event)
+            Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
         end
 
         if event["mikuType"] == "Fx18-records" then
-            Fx18s::processEvent(event)
+            Fx256::processEvent(event)
         end
 
         if event["mikuType"] == "ItemToGroupMapping" then

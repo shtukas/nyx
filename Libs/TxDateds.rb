@@ -17,12 +17,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("TxDated")
+        Fx256WithCache::mikuTypeToItems("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -45,7 +45,7 @@ class TxDateds
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = TxDateds::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
@@ -68,7 +68,7 @@ class TxDateds
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = TxDateds::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 69486f48-3748-4c73-b604-a7edad98871d) How did that happen ? 🤨"

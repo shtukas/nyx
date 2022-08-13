@@ -17,7 +17,7 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxPerson")
+        Fx256WithCache::mikuTypeToItems("NxPerson")
     end
 
     # NxPersons::issue(name1)
@@ -29,7 +29,7 @@ class NxPersons
         Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncode(uuid, "name",        name1)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxPersons::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"

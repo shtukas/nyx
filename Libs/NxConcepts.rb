@@ -20,12 +20,12 @@ class NxConcepts
 
     # NxConcepts::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxConcept")
+        Fx256WithCache::mikuTypeToItems("NxConcept")
     end
 
     # NxConcepts::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -44,7 +44,7 @@ class NxConcepts
         Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxConcepts::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: 01666ee3-d5b4-4fd1-9615-981ac7949ae9) How did that happen ? 🤨"

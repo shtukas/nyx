@@ -17,17 +17,17 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        AlphaStructure::mikuTypeToItems("NxTask")
+        Fx256WithCache::mikuTypeToItems("NxTask")
     end
 
     # NxTasks::items2(count)
     def self.items2(count)
-        AlphaStructure::mikuTypeToItems2("NxTask", count)
+        Fx256WithCache::mikuTypeToItems2("NxTask", count)
     end
 
     # NxTasks::destroy(uuid)
     def self.destroy(uuid)
-        Fx18s::deleteObjectLogically(uuid)
+        Fx256::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -46,7 +46,7 @@ class NxTasks
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111) # possibly null
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -70,7 +70,7 @@ class NxTasks
         Fx18Attributes::setJsonEncode(uuid, "description", description)
         Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
-        Fx18s::broadcastObjectEvents(uuid)
+        Fx256::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
         if item.nil? then
             raise "(error: f78008bf-12d4-4483-b4bb-96e3472d46a2) How did that happen ? 🤨"
