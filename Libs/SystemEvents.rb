@@ -90,6 +90,7 @@ class SystemEvents
                 Fx18s::ensureLocalFx18FilepathForObjectuuid(row["_objectuuid_"])
                 Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData1_"], row["_eventData2_"], row["_eventData3_"], row["_eventData4_"], row["_eventData5_"])
             }
+            Stargate::resetCachePrefix()
         end
     end
 
