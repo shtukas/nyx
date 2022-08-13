@@ -41,9 +41,10 @@ class SystemEvents
         end
 
         if event["mikuType"] == "Fx18 File Event" then
-            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
-            end
+            # "datablob" is no longer used in modern versions of Fx18
+            #if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+            #    event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_decode(event["Fx18FileEvent"]["_eventData3_"])
+            #end
             eventi = event["Fx18FileEvent"]
             objectuuid = eventi["_objectuuid_"]
             return if !File.exists?(Fx18s::objectuuidToLocalFx18Filepath(objectuuid))
@@ -83,15 +84,23 @@ class SystemEvents
             }
             db.close
         end
+
+        if event["mikuType"] == "Fx18s-allFiles-allRows" then
+            event["records"].each{|row|
+                Fx18s::ensureLocalFx18FilepathForObjectuuid(row["_objectuuid_"])
+                Fx18s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData1_"], row["_eventData2_"], row["_eventData3_"], row["_eventData4_"], row["_eventData5_"])
+            }
+        end
     end
 
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
-        if event["mikuType"] == "Fx18 File Event" then
-            if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
-                event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
-            end
-        end
+        # "datablob" is no longer used in modern versions of Fx18
+        #if event["mikuType"] == "Fx18 File Event" then
+        #    if event["Fx18FileEvent"]["_eventData1_"] == "datablob" then
+        #        event["Fx18FileEvent"]["_eventData3_"] = CommonUtils::base64_encode(event["Fx18FileEvent"]["_eventData3_"])
+        #    end
+        #end
         #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
         Machines::theOtherInstanceIds().each{|instanceName|
             e = event.clone

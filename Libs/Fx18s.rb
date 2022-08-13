@@ -189,13 +189,34 @@ class Fx18s
         db.busy_handler { |count| true }
         db.results_as_hash = true
         objectuuids = []
-        db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
+        db.execute("select * from _fx18_ order by _eventTime_", []) do |row|
             SystemEvents::broadcast({
                 "mikuType"      => "Fx18 File Event",
                 "Fx18FileEvent" => row
             })
         end
         db.close
+    end
+
+    # Fx18s::getFileRows(filepath)
+    def self.getFileRows(filepath)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        rows = []
+        db.execute("select * from _fx18_ order by _eventTime_", []) do |row|
+            rows << row.clone
+        end
+        db.close
+        rows
+    end
+
+    # Fx18s::getAllRowsFromAllFiles()
+    def self.getAllRowsFromAllFiles()
+        Fx18s::localFx18sFilepathsEnumerator()
+            .map{|filepath| Fx18s::getFileRows(filepath)}
+            .flatten
     end
 
     # Fx18s::localFx18sFilepathsEnumerator()

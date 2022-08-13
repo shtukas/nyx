@@ -5,11 +5,16 @@
 require_relative "../Libs/loader.rb"
 
 SystemEvents::broadcast({
-    "mikuType"  => "ItemToGroupMapping-records",
-    "records" => ItemToGroupMapping::records()
+    "mikuType" => "ItemToGroupMapping-records",
+    "records"  => ItemToGroupMapping::records()
 })
 
 SystemEvents::broadcast({
-    "mikuType"  => "Bank-records",
-    "records" => Bank::records()
+    "mikuType" => "Bank-records",
+    "records"  => Bank::records()
+})
+
+SystemEvents::broadcast({
+    "mikuType" => "Fx18s-allFiles-allRows",
+    "records"  => Fx18s::getAllRowsFromAllFiles()
 })
