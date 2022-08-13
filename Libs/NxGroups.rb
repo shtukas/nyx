@@ -87,7 +87,7 @@ class NxGroups
             .map{|elementuuid|  
                 element = Fx18s::getAliveItemOrNull(elementuuid)
                 if element.nil? then
-                    ItemToGroupMapping::detach(thread, elementuuid)
+                    ItemToGroupMapping::detach(thread["uuid"], elementuuid)
                 end
                 element
             }
@@ -274,7 +274,7 @@ class NxGroups
                 indx = command[6, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                ItemToGroupMapping::detach(group, entity["uuid"])
+                ItemToGroupMapping::detach(group["uuid"], entity["uuid"])
                 next
             end
 
@@ -285,7 +285,7 @@ class NxGroups
                 group2 = NxGroups::architectOneOrNull()
                 return if group2.nil?
                 ItemToGroupMapping::issue(group2["uuid"], entity["uuid"])
-                ItemToGroupMapping::detach(group, entity["uuid"])
+                ItemToGroupMapping::detach(group["uuid"], entity["uuid"])
                 next
             end
         }
