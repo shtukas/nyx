@@ -225,7 +225,7 @@ class Nx111
             dottedExtension = nx111["dottedExtension"]
             nhash = nx111["nhash"]
             parts = nx111["parts"]
-            operator = ExDataElizabeth.new(itemuuid)
+            operator = ExDataElizabeth.new(item["uuid"])
             filepath = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
             File.open(filepath, "w"){|f|
                 parts.each{|nhash|
