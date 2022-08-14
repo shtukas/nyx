@@ -56,7 +56,7 @@ class Catalyst
 
         Thread.new {
             loop {
-                sleep 60
+                sleep 600
                 SystemEvents::processCommLine(false)
             }
         }
@@ -68,6 +68,8 @@ class Catalyst
                 puts "Code change detected"
                 break
             end
+
+            SystemEvents::processCommLine(true)
 
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
                 system("clear")
