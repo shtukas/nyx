@@ -38,8 +38,8 @@ class Fx256
         filepath
     end
 
-    # Fx256::commit(objectuuid, eventuuid, eventTime, eventData2, eventData3)
-    def self.commit(objectuuid, eventuuid, eventTime, eventData2, eventData3)
+    # Fx256::commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) # row or null
+    def self.commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) 
         if objectuuid.nil? then
             raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
         end
@@ -55,14 +55,19 @@ class Fx256
         if eventData3.nil? then
             raise "(error: db06a417-68d1-471d-888f-9e497b268750)"
         end
+
         db = SQLite3::Database.new(Fx256::filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData2, eventData3]
+        row = nil
+        db.execute("select * from _fx18_ where _eventuuid_=?", [eventuuid]) do |row|
+            row = row.clone
+        end
         db.close
-
         Fx256X::flashCacheBranchAtObjectuuid(objectuuid)
+        row
     end 
 
     # Fx256::commitRow(row)
@@ -238,7 +243,11 @@ class Fx18Attributes
     # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        Fx256::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
+        row = Fx256::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
+        SystemEvents::broadcast({
+            "mikuType" => "Fx18-records",
+            "records"  => [row]
+        })
     end
 
     # Fx18Attributes::setJsonEncoded(objectuuid, attname, attvalue)
