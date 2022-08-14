@@ -233,7 +233,6 @@ class Fx256
             
             knowneventsuuids = Fx256::eventuuids()
             event["records"].each{|row|
-                next if row.nil? # (Sunday 14th August) hapenned once, this can be removed later
                 next if knowneventsuuids.include?(row["_eventuuid_"])
                 Fx256::commitRow(row)
             }
@@ -247,10 +246,12 @@ class Fx18Attributes
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         row = Fx256::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
-        SystemEvents::broadcast({
-            "mikuType" => "Fx18-records",
-            "records"  => [row]
-        })
+        if row then
+            SystemEvents::broadcast({
+                "mikuType" => "Fx18-records",
+                "records"  => [row]
+            })
+        end
     end
 
     # Fx18Attributes::setJsonEncoded(objectuuid, attname, attvalue)
