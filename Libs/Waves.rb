@@ -197,4 +197,17 @@ class Waves
         puts "not shown until: #{Time.at(unixtime).to_s}"
         DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
     end
+
+    # Waves::dive()
+    def self.dive()
+        loop {
+            waves = Waves::items()
+            wave = LucilleCore::selectEntityFromListOfEntitiesOrNull("wave", waves, lambda{|item| Waves::toString(item) })
+            break if wave.nil?
+            if LucilleCore::askQuestionAnswerAsBoolean("'#{wave["description"].green}' done ? ", true) then
+                Waves::performWaveNx46WaveDone(wave)
+                NxBallsService::close(wave["uuid"], true)
+            end
+        }
+    end
 end

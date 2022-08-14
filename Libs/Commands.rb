@@ -7,7 +7,7 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | today | ondate | todo | task | thread | toplevel",
-            "anniversaries | ondates | todos | threads | timecontrol",
+            "anniversaries | ondates | todos | threads | waves",
             "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >group | (n) >group | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
@@ -406,8 +406,13 @@ class Commands
             return
         end
 
-        if input.start_with?("wave") then
+        if input == "wave" then
             Waves::issueNewWaveInteractivelyOrNull()
+            return
+        end
+
+        if input == "waves" then
+            Waves::dive()
             return
         end
 
