@@ -43,6 +43,8 @@ class Catalyst
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
+        SystemEvents::processCommLine(true)
+
         if Config::get("instanceId") == "Lucille20-pascal" then 
             Thread.new {
                 loop {
