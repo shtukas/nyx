@@ -258,6 +258,14 @@ class DxPure
     # ------------------------------------------------------------
     # Operations
 
+    # DxPure::acquireFilepathOrNull(sha1)
+    def self.acquireFilepathOrNull(sha1)
+        localFilepath = DxPure::sha1ToLocalFilepath(sha1)
+        if File.exists?(localFilepath) then
+
+        end
+    end
+
     # DxPure::access(sha1)
     def self.access(sha1)
         filepath = DxPure::sha1ToLocalFilepath(sha1)

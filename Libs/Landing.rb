@@ -65,7 +65,7 @@ class Landing
 
             linkeds  = NetworkLinks::linkedEntities(uuid)
 
-            puts "Linked entities: #{linkeds.size} items"
+            puts "Linked entities: #{linkeds.size} items".yellow
 
             if linkeds.size <= 200 then
                 linkeds
