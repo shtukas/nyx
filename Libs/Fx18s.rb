@@ -230,7 +230,6 @@ class Fx256
     # Fx256::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "Fx18-records" then
-            
             knowneventsuuids = Fx256::eventuuids()
             event["records"].each{|row|
                 next if knowneventsuuids.include?(row["_eventuuid_"])
