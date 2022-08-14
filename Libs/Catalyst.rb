@@ -42,24 +42,22 @@ class Catalyst
     def self.program()
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
- 
+
         if Config::get("instanceId") == "Lucille20-pascal" then 
             Thread.new {
                 loop {
-                    sleep 3600
+                    sleep 600
                     system("#{File.dirname(__FILE__)}/operations/vienna-import")
                 }
             }
         end
 
-        # ---------------------------------------------------------------
-        # Data correction
-        db = SQLite3::Database.new(Bank::pathToBank())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _bank_ where _eventuuid_ is null", []
-        db.close
-        # ---------------------------------------------------------------
+        Thread.new {
+            loop {
+                sleep 60
+                SystemEvents::processCommLine(false)
+            }
+        }
 
         loop {
 
@@ -67,19 +65,6 @@ class Catalyst
             if CommonUtils::generalCodeTrace() != initialCodeTrace then
                 puts "Code change detected"
                 break
-            end
-
-            if File.exists?(Config::starlightCommLine()) then
-                LucilleCore::locationsAtFolder(Config::starlightCommLine())
-                    .each{|filepath|
-                        next if !File.exists?(filepath)
-                        next if File.basename(filepath)[-11, 11] != ".event.json"
-                        e = JSON.parse(IO.read(filepath))
-                        next if e["targetInstance"] != Config::get("instanceId")
-                        puts "event from commline: #{JSON.pretty_generate(e)}"
-                        SystemEvents::processEvent(e)
-                        FileUtils.rm(filepath)
-                    }
             end
 
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
