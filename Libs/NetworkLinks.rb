@@ -20,9 +20,11 @@ class NetworkLinks
 
     # NetworkLinks::issueNoEvents(sourceuuid, operation, targetuuid)
     def self.issueNoEvents(sourceuuid, operation, targetuuid)
+        raise "(error: 1afe537d-edae-4f87-9615-042b9c43cd05)" if sourceuuid.nil?
         if !["link", "unlink"].include?(operation) then
             raise "(error: 535c3cf7-f93b-43b2-8530-eb892910ceda) operation: #{operation}"
         end
+        raise "(error: 9ee4dae9-1fee-4ba7-9016-80e56e58aa08)" if targetuuid.nil?
         db = SQLite3::Database.new(NetworkLinks::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -65,10 +67,10 @@ class NetworkLinks
         linkeduuids = []
         db.execute("select * from _links_ where _sourceuuid_=? order by _eventTime_", [itemuuid]) do |row|
             if row["_operation_"] == "link" then
-                linkeduuids = (linkeduuids + [row["targetuuid"]]).uniq
+                linkeduuids = (linkeduuids + [row["_targetuuid_"]]).uniq
             end
             if row["_operation_"] == "unlink" then
-                linkeduuids = linkeduuids - [row["targetuuid"]]
+                linkeduuids = linkeduuids - [row["_targetuuid_"]]
             end
         end
         linkeduuids
@@ -114,7 +116,7 @@ class NetworkLinks
     # NetworkLinks::linkedEntities(uuid)
     def self.linkedEntities(uuid)
         NetworkLinks::linkeduuids(uuid)
-            .select{|uuid| Fx256::objectIsAlive(uuid) }
+            .select{|linkeduuid| Fx256::objectIsAlive(linkeduuid) }
             .map{|objectuuid| Fx256::getAliveProtoItemOrNull(objectuuid) }
             .compact
     end
