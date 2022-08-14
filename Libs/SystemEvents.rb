@@ -6,7 +6,7 @@ class SystemEvents
     # SystemEvents::processEvent(event)
     def self.processEvent(event)
 
-        puts "SystemEvent(#{JSON.pretty_generate(event)})"
+        #puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
         if event["mikuType"] == "(object has been logically deleted)" then
             Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
