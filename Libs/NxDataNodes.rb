@@ -83,7 +83,7 @@ class NxDataNodes
         uuid = SecureRandom.uuid
         nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
         unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601w
+        datetime   = Time.new.utc.iso8601
         Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxDataNode")
         Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
