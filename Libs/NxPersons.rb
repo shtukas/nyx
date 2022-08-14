@@ -22,7 +22,7 @@ class NxPersons
 
     # NxPersons::issue(name1)
     def self.issue(name1)
-        uuid = SecureRandom.uuidw
+        uuid = SecureRandom.uuid
         Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxPerson")
         Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
