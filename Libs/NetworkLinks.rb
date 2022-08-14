@@ -63,7 +63,7 @@ class NetworkLinks
         db.busy_handler { |count| true }
         db.results_as_hash = true
         linkeduuids = []
-        db.execute("select * from _links_ where _sourceuuid_=? order by _eventTime_", [sourceuuid]) do |row|
+        db.execute("select * from _links_ where _sourceuuid_=? order by _eventTime_", [itemuuid]) do |row|
             if row["_operation_"] == "link" then
                 linkeduuids = (linkeduuids + [row["targetuuid"]]).uniq
             end
