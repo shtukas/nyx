@@ -64,8 +64,8 @@ class Landing
             puts "datetime: #{item["datetime"]}".yellow
 
             linkeds  = NetworkLinks::linkedEntities(uuid)
-            
-            puts "Linked entities: #{linked.size} items"
+
+            puts "Linked entities: #{linkeds.size} items"
 
             if linkeds.size <= 200 then
                 linkeds
