@@ -5,4 +5,3 @@
 require_relative "../Libs/loader.rb"
 
 Fx18sSynchronisation::sync()
-Stargate::resetCachePrefix()
