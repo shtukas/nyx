@@ -268,5 +268,6 @@ require_relative "XCacheDatablobs.rb"
 $bank_database_semaphore = Mutex.new
 $dnsu_database_semaphore = Mutex.new
 $item_to_group_mapping_database_semaphore = Mutex.new
+$commline_semaphore = Mutex.new
 
 # ------------------------------------------------------------

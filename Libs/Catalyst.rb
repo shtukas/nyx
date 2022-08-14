@@ -57,7 +57,9 @@ class Catalyst
         Thread.new {
             loop {
                 sleep 600
-                SystemEvents::processCommLine(false)
+                $commline_semaphore.synchronize {
+                    SystemEvents::processCommLine(false)
+                }
             }
         }
 
@@ -69,7 +71,9 @@ class Catalyst
                 break
             end
 
-            SystemEvents::processCommLine(true)
+            $commline_semaphore.synchronize {
+                SystemEvents::processCommLine(true)
+            }
 
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
                 system("clear")
