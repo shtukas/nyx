@@ -36,12 +36,12 @@ class NxFrames
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxFrame")
-        Fx18Attributes::setJsonEncode(uuid, "unixtime",    unixtime)
-        Fx18Attributes::setJsonEncode(uuid, "datetime",    datetime)
-        Fx18Attributes::setJsonEncode(uuid, "description", description)
-        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxFrame")
+        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    unixtime)
+        Fx18Attributes::setJsonEncoded(uuid, "datetime",    datetime)
+        Fx18Attributes::setJsonEncoded(uuid, "description", description)
+        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = NxFrames::objectuuidToItemOrNull(uuid)

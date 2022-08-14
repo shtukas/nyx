@@ -39,12 +39,12 @@ class NxTasks
         return nil if description == ""
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncode(uuid, "description", description)
-        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111) # possibly null
+        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncoded(uuid, "description", description)
+        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
@@ -63,12 +63,12 @@ class NxTasks
             "type" => "url",
             "url"  => url
         }
-        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncode(uuid, "description", description)
-        Fx18Attributes::setJsonEncode(uuid, "nx111",       nx111)
+        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncoded(uuid, "description", description)
+        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)

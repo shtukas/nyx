@@ -66,7 +66,7 @@ class LxAction
                 text = ExData::getBlobOrNull(nhash)
                 text = CommonUtils::editTextSynchronously(text)
                 nhash = ExData::putBlobInLocalDatablobsFolder(text)
-                Fx18Attributes::setJsonEncode(uuid, "nhash", nhash)
+                Fx18Attributes::setJsonEncoded(uuid, "nhash", nhash)
                 return
             end
 
@@ -190,7 +190,7 @@ class LxAction
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-                Fx18Attributes::setJsonEncode(item["uuid"], "datetime", datetime)
+                Fx18Attributes::setJsonEncoded(item["uuid"], "datetime", datetime)
                 return
             end
         end

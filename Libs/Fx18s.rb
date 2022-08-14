@@ -205,7 +205,7 @@ class Fx256
 
     # Fx256::deleteObjectLogicallyNoEvents(objectuuid)
     def self.deleteObjectLogicallyNoEvents(objectuuid)
-        Fx18Attributes::setJsonEncode(objectuuid, "isAlive", false)
+        Fx18Attributes::setJsonEncoded(objectuuid, "isAlive", false)
     end
 
     # Fx256::deleteObjectLogically(objectuuid)
@@ -241,8 +241,8 @@ class Fx18Attributes
         Fx256::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
     end
 
-    # Fx18Attributes::setJsonEncode(objectuuid, attname, attvalue)
-    def self.setJsonEncod(objectuuid, attname, attvalue)
+    # Fx18Attributes::setJsonEncoded(objectuuid, attname, attvalue)
+    def self.setJsonEncoded(objectuuid, attname, attvalue)
         Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 

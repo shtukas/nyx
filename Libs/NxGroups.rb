@@ -44,12 +44,12 @@ class NxGroups
         ax39 = Ax39::interactivelyCreateNewAxOrNull()
 
         uuid = SecureRandom.uuid
-        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxGroup")
-        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_f)
-        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncode(uuid, "description", description)
-        Fx18Attributes::setJsonEncode(uuid, "ax39",        ax39) if ax39
+        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxGroup")
+        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_f)
+        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncoded(uuid, "description", description)
+        Fx18Attributes::setJsonEncoded(uuid, "ax39",        ax39) if ax39
 
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
@@ -184,22 +184,22 @@ class NxGroups
                 if item["mikuType"] == "NxPerson" then
                     name1 = CommonUtils::editTextSynchronously(item["name"]).strip
                     next if name1 == ""
-                    Fx18Attributes::setJsonEncode(item["uuid"], "name", name1)
+                    Fx18Attributes::setJsonEncoded(item["uuid"], "name", name1)
                 else
                     description = CommonUtils::editTextSynchronously(item["description"]).strip
                     next if description == ""
-                    Fx18Attributes::setJsonEncode(item["uuid"], "description", description)
+                    Fx18Attributes::setJsonEncoded(item["uuid"], "description", description)
                 end
                 next
             end
 
             if Interpreting::match("Ax39", command) then
                 ax39 = Ax39::interactivelyCreateNewAx()
-                Fx18Attributes::setJsonEncode(uuid, "ax39", JSON.generate(ax39))
+                Fx18Attributes::setJsonEncoded(uuid, "ax39", JSON.generate(ax39))
             end
 
             if Interpreting::match("remove Ax39", command) then
-                Fx18Attributes::setJsonEncode(uuid, "ax39", JSON.generate(nil))
+                Fx18Attributes::setJsonEncoded(uuid, "ax39", JSON.generate(nil))
             end
 
             if Interpreting::match("json", command) then

@@ -36,11 +36,11 @@ class NxEntities
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        Fx18Attributes::setJsonEncode(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncode(uuid, "mikuType",    "NxEntity")
-        Fx18Attributes::setJsonEncode(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncode(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncode(uuid, "description", description)
+        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxEntity")
+        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncoded(uuid, "description", description)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = NxEntities::objectuuidToItemOrNull(uuid)

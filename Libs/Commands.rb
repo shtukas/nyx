@@ -90,7 +90,7 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             return if item["mikuType"] != "NxGroup"
-            Fx18Attributes::setJsonEncode(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
+            Fx18Attributes::setJsonEncoded(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
             return
         end
 

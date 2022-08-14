@@ -13,7 +13,7 @@ class Streaming
             return
         end
         LxAction::action("stop", item["uuid"])
-        Fx18Attributes::setJsonEncode(item["uuid"], "mikuType", "NxDataNode")
+        Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
         LxAction::action("landing", item)
     end
 
