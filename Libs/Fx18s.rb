@@ -386,7 +386,7 @@ class Fx256AtLevel2WithCache
                     }
                     .compact
 
-        Fx256X::fileput(cache, JSON.pretty_generate(nx20))
+        Fx256X::fileput(cache, JSON.pretty_generate(nx20s))
         nx20s
     end
 
