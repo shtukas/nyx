@@ -230,7 +230,6 @@ class Fx256
     # Fx256::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "Fx18-records" then
-            
             knowneventsuuids = Fx256::eventuuids()
             event["records"].each{|row|
                 next if knowneventsuuids.include?(row["_eventuuid_"])
@@ -629,7 +628,7 @@ class Fx18sSynchronisation
             sha1 = File.basename(dxLocalFilepath).gsub(".sqlite3", "")
             eGridFilepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
             next if File.exists?(eGridFilepath)
-            puts "Fx18sSynchronisation::sync(): DxPure: #{filepath}"
+            puts "Fx18sSynchronisation::sync(): DxPure: #{dxLocalFilepath}"
             FileUtils.cp(dxLocalFilepath, eGridFilepath)
         }
     end
