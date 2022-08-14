@@ -59,6 +59,7 @@ class Fx256
         db = SQLite3::Database.new(Fx256::filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
+        db.results_as_hash = true
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData2, eventData3]
         returnedrow = nil
