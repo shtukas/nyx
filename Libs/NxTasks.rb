@@ -78,6 +78,29 @@ class NxTasks
         item
     end
 
+    # NxTasks::issueUsingLocation(location)
+    def self.issueUsingLocation(location)
+        if !File.exists?(location) then
+            raise "(error: 52b8592f-a61a-45ef-a886-ed2ab4cec5ed)"
+        end
+        description = File.basename(location)
+        uuid = SecureRandom.uuid
+        nx111 = Nx111::locationToAionPointNx111(uuid, location)
+        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncoded(uuid, "description", description)
+        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
+        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        Fx256::broadcastObjectEvents(uuid)
+        item = NxTasks::objectuuidToItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 7938316c-cb54-4d60-a480-f161f19718ef) How did that happen ? 🤨"
+        end
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
@@ -100,5 +123,10 @@ class NxTasks
         NxTasks::items2(10)
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
+    end
+
+    # NxTasks::topUnixtime()
+    def self.topUnixtime()
+        ([Time.new.to_f] + NxTasks::items().map{|item| item["unixtime"] }).min - 1
     end
 end

@@ -75,6 +75,26 @@ class Catalyst
                 SystemEvents::processCommLine(true)
             }
 
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Top")
+                .each{|location|
+                    next if File.basename(location).start_with?(".")
+                    item = NxTasks::issueUsingLocation(location)
+                    puts "Picked up from NxTasks-Top: #{JSON.pretty_generate(item)}"
+                    # Now we need to adjust the unixtime to put it on top
+                    topunixtime = NxTasks::topUnixtime()
+                    puts "Setting top unixtime: #{topunixtime}"
+                    Fx18Attributes::setJsonEncoded(item["uuid"], "unixtime", topunixtime)
+                    LucilleCore::removeFileSystemLocation(location)
+                }
+
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Bottom")
+                .each{|location|
+                    next if File.basename(location).start_with?(".")
+                    item = NxTasks::issueUsingLocation(location)
+                    puts "Picked up from NxTasks-Bottom: #{JSON.pretty_generate(item)}"
+                    LucilleCore::removeFileSystemLocation(location)
+                }
+
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
                 system("clear")
                 puts "frames:"

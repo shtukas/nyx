@@ -48,6 +48,8 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
+checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks-Top")
+checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks-Bottom")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256")
