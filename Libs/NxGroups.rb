@@ -339,8 +339,9 @@ class NxGroups
         end
     end
 
-    # NxGroups::entityToProject(entity)
-    def self.entityToProject(entity)
+    # NxGroups::addEntityToGroup(entity)
+    def self.addEntityToGroup(entity)
+        puts "NxGroups::addEntityToGroup(#{entity})"
         if entity["mikuType"] == "TxDated" then
             return if !LucilleCore::askQuestionAnswerAsBoolean("Going to convert the TxDated into a NxTask ", true)
             Transmutation::transmutation1(entity, "TxDated", "NxTask")

@@ -16,6 +16,10 @@ class SystemEvents
             Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
         end
 
+        if event["mikuType"] == "(change in ItemToGroupMapping for elements)" then
+            ItemToGroupMapping::processEvent(event)
+        end
+
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEvent(event)
         end
