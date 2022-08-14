@@ -61,13 +61,13 @@ class Fx256
         db.busy_handler { |count| true }
         db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData2, eventData3]
-        row = nil
+        returnedrow = nil
         db.execute("select * from _fx18_ where _eventuuid_=?", [eventuuid]) do |row|
-            row = row.clone
+            returnedrow = row.clone
         end
         db.close
         Fx256X::flashCacheBranchAtObjectuuid(objectuuid)
-        row
+        returnedrow
     end 
 
     # Fx256::commitRow(row)
@@ -229,8 +229,10 @@ class Fx256
     # Fx256::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "Fx18-records" then
+            
             knowneventsuuids = Fx256::eventuuids()
             event["records"].each{|row|
+                next if row.nil? # (Sunday 14th August) hapenned once, this can be removed later
                 next if knowneventsuuids.include?(row["_eventuuid_"])
                 Fx256::commitRow(row)
             }
