@@ -21,8 +21,8 @@ class Bank
         }
     end
 
-    # Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
-    def self.putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+    # Bank::putNoEvents(eventuuid, setuuid, unixtime, date, weight) # Used by regular activity. Emits events for the other computer,
+    def self.putNoEvents(eventuuid, setuuid, unixtime, date, weight)
         $bank_database_semaphore.synchronize {
             db = SQLite3::Database.new(Bank::pathToBank())
             db.busy_timeout = 117
@@ -38,7 +38,7 @@ class Bank
         eventuuid = SecureRandom.uuid
         unixtime  = Time.new.to_f
         date      = CommonUtils::today()
-        Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+        Bank::putNoEvents(eventuuid, setuuid, unixtime, date, weight)
         XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
 
         SystemEvents::broadcast({
@@ -68,7 +68,7 @@ class Bank
             unixtime  = event["unixtime"]
             date      = event["date"]
             weight    = event["weight"]
-            Bank::putNoEvent(eventuuid, setuuid, unixtime, date, weight)
+            Bank::putNoEvents(eventuuid, setuuid, unixtime, date, weight)
             XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
         end
         if event["mikuType"] == "Bank-records" then

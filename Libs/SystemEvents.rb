@@ -80,4 +80,10 @@ class SystemEvents
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
         }
     end
+
+    # SystemEvents::processAndBroadcast(event)
+    def self.processAndBroadcast(event)
+        SystemEvents::processEvent(event)
+        SystemEvents::broadcast(event)
+    end
 end

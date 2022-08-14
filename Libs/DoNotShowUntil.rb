@@ -9,8 +9,8 @@ class DoNotShowUntil
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/DoNotShowUntil.sqlite3"
     end
 
-    # DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
-    def self.setUnixtimeNoEvent(uuid, unixtime)
+    # DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
+    def self.setUnixtimeNoEvents(uuid, unixtime)
         $dnsu_database_semaphore.synchronize { 
             db = SQLite3::Database.new(DoNotShowUntil::pathToMapping())
             db.busy_timeout = 117
@@ -24,7 +24,7 @@ class DoNotShowUntil
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
 
-        DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
+        DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
 
         event = {
           "uuid"           => SecureRandom.uuid,
@@ -40,7 +40,7 @@ class DoNotShowUntil
         return if event["mikuType"] != "NxDoNotShowUntil"
         uuid     = event["targetuuid"]
         unixtime = event["targetunixtime"]
-        DoNotShowUntil::setUnixtimeNoEvent(uuid, unixtime)
+        DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
     end
 
     # DoNotShowUntil::getUnixtimeOrNull(uuid)

@@ -6,8 +6,6 @@ We have two types of events
 
 2. Global events, published to the other machine(s)
 
-### Internal only events
-
 {
     "mikuType"   => "(object has been updated)",
     "objectuuid" => objectuuid,
@@ -18,7 +16,10 @@ We have two types of events
     "objectuuid" => objectuuid,
 }
 
-### Global events
+{
+    "mikuType" => "(change in ItemToGroupMapping for elements)",
+    "objectuuids"  => Array[String],
+}
 
 {
     "targetInstance" : TargetInstanceName # added by the broadcaster
