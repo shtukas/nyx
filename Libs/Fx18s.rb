@@ -629,6 +629,7 @@ class Fx18sSynchronisation
             sha1 = File.basename(dxLocalFilepath).gsub(".sqlite3", "")
             eGridFilepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
             next if File.exists?(eGridFilepath)
+            puts "Fx18sSynchronisation::sync(): DxPure: #{filepath}"
             FileUtils.cp(dxLocalFilepath, eGridFilepath)
         }
     end
