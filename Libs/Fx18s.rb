@@ -380,6 +380,7 @@ class Fx256AtLevel2WithCache
     # Fx256AtLevel2WithCache::flushCache(name1, name2)
     def self.flushCache(name1, name2)
         folderpath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/#{name2}"
+        return if !File.exists?(folderpath)
         LucilleCore::locationsAtFolder(folderpath)
             .select{|filepath| File.basename(filepath).start_with?("cache-") }
             .each{|filepath| FileUtils.rm(filepath) }
@@ -472,6 +473,7 @@ class Fx256AtLevel1WithCache
     # Fx256AtLevel1WithCache::flushCache(name1)
     def self.flushCache(name1)
         folderpath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}"
+        return if !File.exists?(folderpath)
         LucilleCore::locationsAtFolder(folderpath)
             .select{|filepath| File.basename(filepath).start_with?("cache-") }
             .each{|filepath| FileUtils.rm(filepath) }
