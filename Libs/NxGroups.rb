@@ -102,16 +102,24 @@ class NxGroups
         doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
         ax39str2 = Ax39::toString(item)
-        "(group) #{item["description"]} #{Ax39::toString(item)}#{doneForTodayStr}#{dnsustr}"
+        "(group) #{item["description"]} #{ax39str2}#{doneForTodayStr}#{dnsustr}"
     end
 
-    # NxGroups::toStringAdjusted(item)
-    def self.toStringAdjusted(item)
+    # NxGroups::toStringForSection1(item)
+    def self.toStringForSection1(item)
         doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        ax39str2 = Ax39::toString2(item)
+        ax39str2 = Ax39forSections::toStringElements(item)
         ax39str2_2 = ax39str2[1] ? "#{"%6.2f" % ax39str2[1]} %" : ""
         "(group) #{item["description"].ljust(50)} #{ax39str2[0].ljust(30)}#{ax39str2_2.rjust(10)}#{doneForTodayStr.rjust(18)}#{dnsustr.ljust(20)}"
+    end
+
+    # NxGroups::toStringForSection2(item)
+    def self.toStringForSection2(item)
+        doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
+        dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
+        ax39str = Ax39forSections::toString(item)
+        "(group) #{item["description"]} #{ax39str}#{doneForTodayStr}#{dnsustr}"
     end
 
     # NxGroups::section1()
@@ -120,7 +128,7 @@ class NxGroups
             .map{|group|
                 {
                     "group" => group,
-                    "ratio" => Ax39::completionRatio(group)
+                    "ratio" => Ax39forSections::completionRatio(group)
                 }
             }
             .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
@@ -130,11 +138,11 @@ class NxGroups
     # NxGroups::section2()
     def self.section2()
         groups = NxGroups::items()
-            .select{|group| Ax39::itemShouldShow(group) }
+            .select{|group| Ax39forSections::itemShouldShow(group) }
             .map{|group|
                 {
                     "group" => group,
-                    "ratio" => Ax39::completionRatio(group)
+                    "ratio" => Ax39forSections::completionRatio(group)
                 }
             }
             .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
@@ -143,7 +151,7 @@ class NxGroups
         group1 = groups.shift
         elements = NxGroups::elements(group1, 6)
         elements.each{|element|
-            XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toString(group1)}]".yellow + " #{LxFunction::function("toString", element)}")
+            XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toStringForSection2(group1)}]".yellow + " #{LxFunction::function("toString", element)}")
         }
         elements
     end

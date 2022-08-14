@@ -8,6 +8,10 @@ class SystemEvents
 
         #puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
+        if event["mikuType"] == "(bank account has been updated)" then
+            Ax39forSections::processEvent(event)
+        end
+
         if event["mikuType"] == "(object has been logically deleted)" then
             Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
         end

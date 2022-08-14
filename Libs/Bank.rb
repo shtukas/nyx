@@ -49,6 +49,15 @@ class Bank
           "date"      => date,
           "weight"    => weight
         })
+
+        SystemEvents::processEvent({
+            "mikuType" => "(bank account has been updated)",
+            "setuuid"  => setuuid,
+        })
+        SystemEvents::broadcast({
+            "mikuType" => "(bank account has been updated)",
+            "setuuid"  => setuuid,
+        })
     end
 
     # Bank::processEvent(event)
