@@ -85,6 +85,7 @@ class Catalyst
                     puts "Setting top unixtime: #{topunixtime}"
                     Fx18Attributes::setJsonEncoded(item["uuid"], "unixtime", topunixtime)
                     LucilleCore::removeFileSystemLocation(location)
+                    XCache::destroy("Top-Tasks-For-Section2-7be0c69eaed3")
                 }
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Bottom")

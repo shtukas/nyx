@@ -113,11 +113,26 @@ class NxTasks
         "(task) #{item["description"]}"
     end
 
+    # NxTasks::topItemsForSection2()
+    def self.topItemsForSection2()
+        key = "Top-Tasks-For-Section2-7be0c69eaed3"
+        items = Ax39forSections::getOrNullWithExpiry(key)
+        return items if items
+
+        items = NxTasks::items()
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                    .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
+                    .first(50)
+
+        Ax39forSections::setWithExpiry(key, items, 86400)
+
+        items
+    end
+
     # NxTasks::section2()
     def self.section2()
-        NxTasks::items()
+        NxTasks::topItemsForSection2()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
             .first(6)
     end
 
