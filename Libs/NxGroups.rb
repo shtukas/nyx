@@ -76,7 +76,7 @@ class NxGroups
 
     # NxGroups::elementuuids(thread)
     def self.elementuuids(thread)
-        ItemToGroupMapping::groupuuidToItemuuids(thread["uuid"])
+        ItemToGroupMapping::groupuuidToItemuuids(thread["uuid"]).uniq
     end
 
     # NxGroups::elements(thread, count)
