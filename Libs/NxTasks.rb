@@ -20,11 +20,6 @@ class NxTasks
         Fx256WithCache::mikuTypeToItems("NxTask")
     end
 
-    # NxTasks::items2(count)
-    def self.items2(count)
-        Fx256WithCache::mikuTypeToItems2("NxTask", count)
-    end
-
     # NxTasks::destroy(uuid)
     def self.destroy(uuid)
         Fx256::deleteObjectLogically(uuid)
@@ -120,9 +115,10 @@ class NxTasks
 
     # NxTasks::section2()
     def self.section2()
-        NxTasks::items2(10)
+        NxTasks::items()
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
+            .first(6)
     end
 
     # NxTasks::topUnixtime()

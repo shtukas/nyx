@@ -344,23 +344,6 @@ class Fx256AtLevel2WithCache
         items
     end
 
-    # Fx256AtLevel2WithCache::mikuTypeToItems2(mikuType, count, name1, name2)
-    def self.mikuTypeToItems2(mikuType, count, name1, name2)
-        puts "Fx256AtLevel2WithCache::mikuTypeToItems2(#{mikuType}, #{count}, #{name1}, #{name2})"
-        cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/#{name2}/cache-mikuTypeToItems2-#{mikuType}.json"
-        if File.exists?(cache) then
-            return JSON.parse(IO.read(cache))
-        end
-
-        items = Fx256AtLevel2WithCache::mikuTypeToObjectuuids(mikuType, name1, name2)
-                    .first(count)
-                    .map{|objectuuid| Fx256::getAliveProtoItemOrNull(objectuuid) }
-                    .compact
-
-        Fx256X::fileput(cache, JSON.pretty_generate(items))
-        items
-    end
-
     # Fx256AtLevel2WithCache::nx20s(name1, name2)
     def self.nx20s(name1, name2)
         puts "Fx256AtLevel2WithCache::nx20s(#{name1}, #{name2})"
@@ -451,22 +434,6 @@ class Fx256AtLevel1WithCache
         items
     end
 
-    # Fx256AtLevel1WithCache::mikuTypeToItems2(mikuType, count, name1)
-    def self.mikuTypeToItems2(mikuType, count, name1)
-        cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/cache-mikuTypeToItems2-#{mikuType}.json"
-        if File.exists?(cache) then
-            return JSON.parse(IO.read(cache))
-        end
-
-        items = Fx256::level2Foldernames()
-                    .map{|name2| Fx256AtLevel2WithCache::mikuTypeToItems2(mikuType, (count/16)+1, name1, name2)}
-                    .flatten
-                    .first(count)
-
-        Fx256X::fileput(cache, JSON.pretty_generate(items))
-        items
-    end
-
     # Fx256AtLevel1WithCache::nx20s(name1)
     def self.nx20s(name1)
         cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/cache-nx20s.json"
@@ -539,22 +506,6 @@ class Fx256WithCache
         items = Fx256::level1Foldernames()
                     .map{|name1| Fx256AtLevel1WithCache::mikuTypeToItems(mikuType, name1) }
                     .flatten
-
-        Fx256X::fileput(cache, JSON.pretty_generate(items))
-        items
-    end
-
-    # Fx256WithCache::mikuTypeToItems2(mikuType, count)
-    def self.mikuTypeToItems2(mikuType, count)
-        cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/cache-mikuTypeToItems2-#{mikuType}.json"
-        if File.exists?(cache) then
-            return JSON.parse(IO.read(cache))
-        end
-
-        items = Fx256::level1Foldernames()
-                    .map{|name1| Fx256AtLevel1WithCache::mikuTypeToItems2(mikuType, (count/16)+1, name1) }
-                    .flatten
-                    .first(count)
 
         Fx256X::fileput(cache, JSON.pretty_generate(items))
         items
