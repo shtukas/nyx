@@ -114,41 +114,23 @@ end
 
 class Ax39forSections
 
-    # Ax39forSections::setWithExpiry(uuid, value, timespanInSecond)
-    def self.setWithExpiry(uuid, value, timespanInSecond)
-        packet = {
-            "value" => value,
-            "expiryunixtime" => Time.new.to_i + timespanInSecond
-        }
-        XCache::set(uuid, JSON.generate(packet))
-    end
-
-    # Ax39forSections::getOrNullWithExpiry(uuid)
-    def self.getOrNullWithExpiry(uuid)
-        packet = XCache::getOrNull(uuid)
-        return nil if packet.nil?
-        packet = JSON.parse(packet)
-        return nil if Time.new.to_i > packet["expiryunixtime"]
-        packet["value"]
-    end
-
     # Ax39forSections::completionRatio(item)
     def self.completionRatio(item)
         cachekey = "abdc09cb-49ec-4a0e-96e1-92abba113bfd:#{item["uuid"]}"
-        ratio = Ax39forSections::getOrNullWithExpiry(cachekey)
+        ratio = XCacheValuesWithExpiry::getOrNull(cachekey)
         return ratio if ratio
         ratio = Ax39::completionRatio(item)
-        Ax39forSections::setWithExpiry(cachekey, ratio, 3600)
+        XCacheValuesWithExpiry::set(cachekey, ratio, 3600)
         ratio
     end
 
     # Ax39forSections::itemShouldShow(item)
     def self.itemShouldShow(item)
         cachekey = "2383339b-6beb-4249-bac9-2db0924eb347:#{item["uuid"]}"
-        itemShouldShow = Ax39forSections::getOrNullWithExpiry(cachekey)
+        itemShouldShow = XCacheValuesWithExpiry::getOrNull(cachekey)
         return itemShouldShow if !itemShouldShow.nil?
         itemShouldShow = Ax39::itemShouldShow(item)
-        Ax39forSections::setWithExpiry(cachekey, itemShouldShow, 3600)
+        XCacheValuesWithExpiry::set(cachekey, itemShouldShow, 3600)
         itemShouldShow
     end
 

@@ -116,7 +116,7 @@ class NxTasks
     # NxTasks::topItemsForSection2()
     def self.topItemsForSection2()
         key = "Top-Tasks-For-Section2-7be0c69eaed3"
-        items = Ax39forSections::getOrNullWithExpiry(key)
+        items = XCacheValuesWithExpiry::getOrNull(key)
         return items if items
 
         items = NxTasks::items()
@@ -124,7 +124,7 @@ class NxTasks
                     .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
                     .first(50)
 
-        Ax39forSections::setWithExpiry(key, items, 86400)
+        XCacheValuesWithExpiry::set(key, items, 86400)
 
         items
     end

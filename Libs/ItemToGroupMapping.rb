@@ -112,10 +112,10 @@ class ItemToGroupMapping
     # ItemToGroupMapping::itemuuidToGroupuuidsCached(itemuuid)
     def self.itemuuidToGroupuuidsCached(itemuuid)
         key = "0512f14d-c322-4155-ba05-ea6f53943ec7:#{itemuuid}"
-        linkeduuids = Ax39forSections::getOrNullWithExpiry(key)
+        linkeduuids = XCacheValuesWithExpiry::getOrNull(key)
         return linkeduuids if linkeduuids
         linkeduuids = ItemToGroupMapping::itemuuidToGroupuuids(itemuuid)
-        Ax39forSections::setWithExpiry(key, linkeduuids, 3600)
+        XCacheValuesWithExpiry::set(key, linkeduuids, 3600)
         linkeduuids
     end
 

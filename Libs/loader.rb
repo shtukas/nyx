@@ -264,6 +264,7 @@ require_relative "Upload.rb"
 require_relative "Waves.rb"
 
 require_relative "XCacheDatablobs.rb"
+require_relative "XCacheValuesWithExpiry.rb"
 
 # ------------------------------------------------------------
 
