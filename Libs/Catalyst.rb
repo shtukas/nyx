@@ -23,15 +23,15 @@ class Catalyst
     # Catalyst::section2()
     def self.section2()
         [
-            #JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
-            #Anniversaries::section2(),
-            #TxDateds::section2(),
-            #Waves::section2(true),
-            #NxLines::section2(),
-            #NxGroups::section2(),
-            #Waves::section2(false),
+            JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
+            Anniversaries::section2(),
+            TxDateds::section2(),
+            Waves::section2(true),
+            NxLines::section2(),
+            NxGroups::section2(),
+            Waves::section2(false),
             NxTasks::section2(),
-            #Streaming::section2(),
+            Streaming::section2(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
