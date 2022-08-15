@@ -150,10 +150,15 @@ class NxGroups
         return [] if groups.empty?
         group1 = groups.shift
         elements = NxGroups::elements(group1, 6)
-        elements.each{|element|
-            XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toStringForSection2(group1)}]".yellow + " #{LxFunction::function("toString", element)}")
-        }
-        elements
+        if elements.size > 0 then
+            elements.each{|element|
+                XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toStringForSection2(group1)}]".yellow + " #{LxFunction::function("toString", element)}")
+            }
+            elements
+        else
+            group1
+        end
+
     end
 
     # ----------------------------------------------------------------------
