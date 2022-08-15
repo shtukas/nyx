@@ -64,15 +64,19 @@ class Landing
             puts "datetime: #{item["datetime"]}".yellow
 
             linkeds  = NetworkLinks::linkedEntities(uuid)
-            linkeds
-                .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                .first(200)
-                .each{|entity|
-                    indx = store.register(entity, false)
-                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
-                }
-            if linkeds.size > 200 then
-                puts "(... more linked ...)"
+
+            puts "Linked entities: #{linkeds.size} items".yellow
+
+            if linkeds.size <= 200 then
+                linkeds
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .first(200)
+                    .each{|entity|
+                        indx = store.register(entity, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+                    }
+            else
+                puts "(... many items, use `navigation` ...)"
             end
 
             puts "commands: iam | <n> | description | datetime | note | json | link | unlink | network-migration | navigation | upload | return (within search) | destroy".yellow

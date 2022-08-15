@@ -75,6 +75,27 @@ class Catalyst
                 SystemEvents::processCommLine(true)
             }
 
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Top")
+                .each{|location|
+                    next if File.basename(location).start_with?(".")
+                    item = NxTasks::issueUsingLocation(location)
+                    puts "Picked up from NxTasks-Top: #{JSON.pretty_generate(item)}"
+                    # Now we need to adjust the unixtime to put it on top
+                    topunixtime = NxTasks::topUnixtime()
+                    puts "Setting top unixtime: #{topunixtime}"
+                    Fx18Attributes::setJsonEncoded(item["uuid"], "unixtime", topunixtime)
+                    LucilleCore::removeFileSystemLocation(location)
+                    XCache::destroy("Top-Tasks-For-Section2-7be0c69eaed3")
+                }
+
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Bottom")
+                .each{|location|
+                    next if File.basename(location).start_with?(".")
+                    item = NxTasks::issueUsingLocation(location)
+                    puts "Picked up from NxTasks-Bottom: #{JSON.pretty_generate(item)}"
+                    LucilleCore::removeFileSystemLocation(location)
+                }
+
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
                 system("clear")
                 puts "frames:"
@@ -150,7 +171,7 @@ class Catalyst
         NxGroups::section1()
             .each{|item|
                 store.register(item, false)
-                line = "#{store.prefixString()} #{NxGroups::toStringAdjusted(item)}".yellow
+                line = "#{store.prefixString()} #{NxGroups::toStringForSection1(item)}".yellow
                 break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

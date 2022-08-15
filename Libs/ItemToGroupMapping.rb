@@ -18,10 +18,14 @@ class ItemToGroupMapping
             db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_itemuuid_"], row["_groupuuid_"], row["_status_"]]
             db.close
         }
+        SystemEvents::processAndBroadcast({
+            "mikuType" => "(change in ItemToGroupMapping for elements)",
+            "objectuuids"  => [row["_itemuuid_"], row["_groupuuid_"]],
+        })
     end
 
     # ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
-    def self.issueNoEvent(groupuuid, itemuuid)
+    def self.issueNoEvents(groupuuid, itemuuid)
         $item_to_group_mapping_database_semaphore.synchronize {
             db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
             db.busy_timeout = 117
@@ -38,6 +42,10 @@ class ItemToGroupMapping
           "mikuType"  => "ItemToGroupMapping",
           "groupuuid" => groupuuid,
           "itemuuid"  => itemuuid
+        })
+        SystemEvents::processAndBroadcast({
+            "mikuType" => "(change in ItemToGroupMapping for elements)",
+            "objectuuids"  => [groupuuid, itemuuid],
         })
     end
 
@@ -101,6 +109,16 @@ class ItemToGroupMapping
         answer
     end
 
+    # ItemToGroupMapping::itemuuidToGroupuuidsCached(itemuuid)
+    def self.itemuuidToGroupuuidsCached(itemuuid)
+        key = "0512f14d-c322-4155-ba05-ea6f53943ec7:#{itemuuid}"
+        linkeduuids = XCacheValuesWithExpiry::getOrNull(key)
+        return linkeduuids if linkeduuids
+        linkeduuids = ItemToGroupMapping::itemuuidToGroupuuids(itemuuid)
+        XCacheValuesWithExpiry::set(key, linkeduuids, 3600)
+        linkeduuids
+    end
+
     # ItemToGroupMapping::eventuuids()
     def self.eventuuids()
         answer = []
@@ -138,14 +156,18 @@ class ItemToGroupMapping
         if event["mikuType"] == "ItemToGroupMapping" then
             groupuuid = event["groupuuid"]
             itemuuid  = event["itemuuid"]
-            ItemToGroupMapping::issueNoEvent(groupuuid, itemuuid)
+            ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
         end
-
         if event["mikuType"] == "ItemToGroupMapping-records" then
             eventuuids = ItemToGroupMapping::eventuuids()
             event["records"].each{|row|
                 next if eventuuids.include?(row["_eventuuid_"])
                 ItemToGroupMapping::insertRow(row)
+            }
+        end
+        if event["mikuType"] == "(change in ItemToGroupMapping for elements)" then
+            event["objectuuids"].each{|objectuuid|
+                XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec7:#{objectuuid}") # Decache ItemToGroupMapping::itemuuidToGroupuuidsCached
             }
         end
     end

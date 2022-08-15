@@ -258,11 +258,33 @@ class DxPure
     # ------------------------------------------------------------
     # Operations
 
+    # DxPure::acquireFilepathOrNull(sha1)
+    def self.acquireFilepathOrNull(sha1)
+        localFilepath = DxPure::sha1ToLocalFilepath(sha1)
+        if File.exists?(localFilepath) then
+            return localFilepath
+        end
+        acquisition = StargateCentral::acquireCentral()
+        if !acquisition then
+            return nil
+        end
+        eGrid1Filepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
+        if File.exists?(eGrid1Filepath) then
+            puts "file copy:"
+            puts "    #{eGrid1Filepath}"
+            puts "    #{localFilepath}"
+            FileUtils.cp(eGrid1Filepath, localFilepath)
+            return localFilepath
+        end
+        return nil
+    end
+
     # DxPure::access(sha1)
     def self.access(sha1)
-        filepath = DxPure::sha1ToLocalFilepath(sha1)
-        if !File.exists?(filepath) then
-            puts "I cannot see the file #{filepath}. Operation access aborted."
+        filepath = DxPure::acquireFilepathOrNull(sha1)
+        if !filepath then
+            puts "I could not access the DxPure file for sha1 #{sha1}"
+            puts "DxPure::access aborted"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -276,7 +298,7 @@ class DxPure
             AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
             puts "Item exported at #{parentLocation}"
             LucilleCore::pressEnterToContinue()
-            return 
+            return
         end
         raise "(error: 9a06ba98-9ec5-4dd5-94c8-1a87dd566506) DxPure access: unsupported mikuType: #{mikuType}"
     end

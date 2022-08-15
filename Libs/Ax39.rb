@@ -67,24 +67,6 @@ class Ax39
         end
     end
 
-    # Ax39::toString2(item)
-    def self.toString2(item)
-        if item["ax39"].nil? then
-            return ["(no Ax39)", nil]
-        end
-        if item["ax39"]["type"] == "daily-singleton-run" then
-            return ["(daily fire and forget)", nil]
-        end
-
-        if item["ax39"]["type"] == "daily-time-commitment" then
-            return ["(today : #{(Bank::valueAtDate(item["uuid"], CommonUtils::today()).to_f/3600).round(2)} of #{item["ax39"]["hours"]} hours)", 100*Ax39::completionRatio(item)]
-        end
-
-        if item["ax39"]["type"] == "weekly-time-commitment" then
-            return ["(weekly: #{(Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/3600).round(2)} of #{item["ax39"]["hours"]} hours)", 100*Ax39::completionRatio(item)]
-        end
-    end
-
     # Ax39::itemShouldShow(item)
     def self.itemShouldShow(item)
         return false if !DoNotShowUntil::isVisible(item["uuid"])
@@ -126,6 +108,61 @@ class Ax39
                 Bank::valueAtDate(item["uuid"], CommonUtils::today()).to_f/(0.3*3600*item["ax39"]["hours"]),
                 Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/(3600*item["ax39"]["hours"])
             ].max
+        end
+    end
+end
+
+class Ax39forSections
+
+    # Ax39forSections::completionRatio(item)
+    def self.completionRatio(item)
+        cachekey = "abdc09cb-49ec-4a0e-96e1-92abba113bfd:#{item["uuid"]}"
+        ratio = XCacheValuesWithExpiry::getOrNull(cachekey)
+        return ratio if ratio
+        ratio = Ax39::completionRatio(item)
+        XCacheValuesWithExpiry::set(cachekey, ratio, 3600)
+        ratio
+    end
+
+    # Ax39forSections::itemShouldShow(item)
+    def self.itemShouldShow(item)
+        cachekey = "2383339b-6beb-4249-bac9-2db0924eb347:#{item["uuid"]}"
+        itemShouldShow = XCacheValuesWithExpiry::getOrNull(cachekey)
+        return itemShouldShow if !itemShouldShow.nil?
+        itemShouldShow = Ax39::itemShouldShow(item)
+        XCacheValuesWithExpiry::set(cachekey, itemShouldShow, 3600)
+        itemShouldShow
+    end
+
+    # Ax39forSections::toStringElements(item)
+    def self.toStringElements(item)
+        if item["ax39"].nil? then
+            return ["(no Ax39)", nil]
+        end
+        if item["ax39"]["type"] == "daily-singleton-run" then
+            return ["(daily fire and forget)", nil]
+        end
+
+        if item["ax39"]["type"] == "daily-time-commitment" then
+            return ["(today : #{"%5.2f" % (Bank::valueAtDate(item["uuid"], CommonUtils::today()).to_f/3600)} of #{"%5.2f" % item["ax39"]["hours"]} hours)", 100*Ax39forSections::completionRatio(item)]
+        end
+
+        if item["ax39"]["type"] == "weekly-time-commitment" then
+            return ["(weekly: #{"%5.2f" %  (Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/3600)} of #{"%5.2f" % item["ax39"]["hours"]} hours)", 100*Ax39forSections::completionRatio(item)]
+        end
+    end
+
+    # Ax39forSections::toString(item)
+    def self.toString(item)
+        Ax39forSections::toStringElements(item).compact.join(" ")
+    end
+
+    # Ax39forSections::processEvent(event)
+    def self.processEvent(event)
+        if event["mikuType"] == "(bank account has been updated)" then
+            setuuid = event["setuuid"]
+            XCache::destroy("abdc09cb-49ec-4a0e-96e1-92abba113bfd:#{setuuid}") # to decache the completion ratio 
+            XCache::destroy("2383339b-6beb-4249-bac9-2db0924eb347:#{setuuid}") # to decache the shouldShow flag
         end
     end
 end

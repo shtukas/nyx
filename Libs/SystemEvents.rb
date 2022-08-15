@@ -8,8 +8,16 @@ class SystemEvents
 
         #puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
+        if event["mikuType"] == "(bank account has been updated)" then
+            Ax39forSections::processEvent(event)
+        end
+
         if event["mikuType"] == "(object has been logically deleted)" then
             Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
+        end
+
+        if event["mikuType"] == "(change in ItemToGroupMapping for elements)" then
+            ItemToGroupMapping::processEvent(event)
         end
 
         if event["mikuType"] == "NxBankEvent" then
@@ -75,5 +83,11 @@ class SystemEvents
             filepath = "#{Config::starlightCommLine()}/#{CommonUtils::timeStringL22()}.event.json"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
         }
+    end
+
+    # SystemEvents::processAndBroadcast(event)
+    def self.processAndBroadcast(event)
+        SystemEvents::processEvent(event)
+        SystemEvents::broadcast(event)
     end
 end

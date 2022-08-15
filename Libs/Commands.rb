@@ -34,7 +34,7 @@ class Commands
         if Interpreting::match(">group", input) then
             item = store.getDefault()
             return if item.nil?
-            NxGroups::entityToProject(item)
+            NxGroups::addEntityToGroup(item)
             return
         end
 
@@ -42,7 +42,7 @@ class Commands
             ordinal, _ = Interpreting::tokenizer(input)
             entity = store.get(ordinal.to_i)
             return if entity.nil?
-            NxGroups::entityToProject(entity)
+            NxGroups::addEntityToGroup(entity)
             return
         end
 
