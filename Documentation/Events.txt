@@ -91,3 +91,8 @@ We have two types of events
     "mikuType" => "NetworkLinks-records",
     "records"  => NetworkLinks::records()
 }
+
+{
+    "mikuType" => "(element has been done for today)",
+    "objectuuid"  => objectuuid,
+}

@@ -164,5 +164,10 @@ class Ax39forSections
             XCache::destroy("abdc09cb-49ec-4a0e-96e1-92abba113bfd:#{setuuid}") # to decache the completion ratio 
             XCache::destroy("2383339b-6beb-4249-bac9-2db0924eb347:#{setuuid}") # to decache the shouldShow flag
         end
+        if event["mikuType"] == "(element has been done for today)" then
+            objectuuid = event["objectuuid"]
+            XCache::destroy("abdc09cb-49ec-4a0e-96e1-92abba113bfd:#{objectuuid}") # to decache the completion ratio 
+            XCache::destroy("2383339b-6beb-4249-bac9-2db0924eb347:#{objectuuid}") # to decache the shouldShow flag
+        end
     end
 end

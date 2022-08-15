@@ -16,6 +16,10 @@ class SystemEvents
             #
         end
 
+        if event["mikuType"] == "(element has been done for today)" then
+            Ax39forSections::processEvent(event)
+        end
+
         if event["mikuType"] == "(change in ItemToGroupMapping for elements)" then
             ItemToGroupMapping::processEvent(event)
         end

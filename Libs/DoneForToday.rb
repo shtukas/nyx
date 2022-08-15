@@ -10,6 +10,10 @@ class DoneForToday
           "targetuuid" => uuid,
           "targetdate" => CommonUtils::today(),
         })
+        SystemEvents::processAndBroadcast({
+            "mikuType" => "(element has been done for today)",
+            "objectuuid"  => uuid,
+        })
     end
 
     # DoneForToday::isDoneToday(uuid)
