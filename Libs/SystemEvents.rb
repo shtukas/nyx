@@ -63,6 +63,8 @@ class SystemEvents
 
     # SystemEvents::processCommLine(verbose)
     def self.processCommLine(verbose)
+
+        # Old style. Keep while we process the remaining items
         LucilleCore::locationsAtFolder(Config::starlightCommLine())
             .each{|filepath|
                 next if !File.exists?(filepath)
@@ -76,15 +78,34 @@ class SystemEvents
                 SystemEvents::processEvent(e)
                 FileUtils.rm(filepath)
             }
+
+        # New style. Keep while we process the remaining items
+        # We are reading from the instance folder
+        instanceId = Config::get("instanceId")
+        LucilleCore::locationsAtFolder("#{Config::starlightCommLine()}/#{instanceId}")
+            .each{|filepath|
+                next if !File.exists?(filepath)
+                next if File.basename(filepath).start_with?(".")
+                next if File.basename(filepath)[-11, 11] != ".event.json"
+                e = JSON.parse(IO.read(filepath))
+                if verbose then
+                    puts "SystemEvents::processCommLine: #{JSON.pretty_generate(e)}"
+                end
+                SystemEvents::processEvent(e)
+                FileUtils.rm(filepath)
+            }
+
     end
 
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
         #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
-        Machines::theOtherInstanceIds().each{|instanceName|
+        Machines::theOtherInstanceIds().each{|targetInstanceId|
             e = event.clone
-            e["targetInstance"] = instanceName
-            filepath = "#{Config::starlightCommLine()}/#{CommonUtils::timeStringL22()}.event.json"
+            # We technically no longer need to mark the instance with the recipient's id
+            # because we are dropping the event in the right folder, but we keep it anyway.
+            e["targetInstance"] = targetInstanceId
+            filepath = "#{Config::starlightCommLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
         }
     end
