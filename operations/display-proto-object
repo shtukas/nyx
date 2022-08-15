@@ -1,0 +1,8 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+objectuuid = ARGV[0]
+puts JSON.pretty_generate(Fx256::getProtoItemOrNull(objectuuid))

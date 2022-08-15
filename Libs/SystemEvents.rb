@@ -13,7 +13,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(object has been logically deleted)" then
-            Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
+            #
         end
 
         if event["mikuType"] == "(change in ItemToGroupMapping for elements)" then

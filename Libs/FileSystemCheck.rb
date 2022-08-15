@@ -24,7 +24,7 @@ class FileSystemCheck
         if !Nx111::types().include?(nx111["type"]) then
             puts "objectuuid has an incorrect nx111 value type".red
             puts "objectuuid: #{objectuuid}".red
-            puts "nx111: type: #{nx111["type"]}".red
+            puts "nx111: type: #{JSON.pretty_generate(nx111["type"])}".red
             raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
         end
         if nx111["type"] == "text" then
@@ -94,7 +94,7 @@ class FileSystemCheck
         end
         if nx111["type"] == "DxPure" then
             sha1 = nx111["sha1"]
-            puts "fsck of starships has not been implemented yet (there should not be much to do as being immutable, they should have been fscked at creation and then left alone, we should only check for presence of the file)"
+            puts "fsck of DxPure has not been implemented (there should not be much to do as being immutable, they should have been fscked at creation and then left alone, we should only check for presence of the file)"
             return
         end
         raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
