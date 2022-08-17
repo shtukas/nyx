@@ -186,17 +186,7 @@ class Landing
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-
-            if item["nx111"] then
-                if item["nx111"]["type"] == "file" then
-                    puts "nx111: file: nhash: #{item["nx111"]["nhash"]} (#{item["nx111"]["parts"].size} parts)".yellow
-                else
-                    puts "nx111: #{item["nx111"]}".yellow
-                end
-            else
-                puts "nx111: (not found)".yellow
-            end
-
+            puts Nx111::toString(item["nx111"]).yellow
             puts "ax39: #{JSON.generate(item["ax39"])}".yellow
 
             NetworkLinks::linkeduuids(item["uuid"])

@@ -129,10 +129,7 @@ class Nx111
 
         if nx111["type"] == "text" then
             text = nx111["text"]
-            puts "text:" 
-            puts "-----------------------------------------"
-            puts text
-            puts "-----------------------------------------"
+            CommonUtils::accessText(text)
             LucilleCore::pressEnterToContinue()
             return
         end

@@ -19,6 +19,14 @@ class CommonUtils
         IO.read(filepath)
     end
 
+    # CommonUtils::accessText(text)
+    def self.accessText(text)
+        filename = SecureRandom.uuid
+        filepath = "/tmp/#{filename}.txt"
+        File.open(filepath, 'w') {|f| f.write(text)}
+        system("open '#{filepath}'")
+    end
+
     # CommonUtils::isInteger(str)
     def self.isInteger(str)
         str == str.to_i.to_s
