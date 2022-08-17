@@ -575,7 +575,7 @@ class Fx18sSynchronisation
             FileUtils.rm(filepath)
         }
 
-        DxPure::localFilepathsEnumerator().each{|dxBufferOutFilepath|
+        DxPureFileManagement::bufferOutFilepathsEnumerator().each{|dxBufferOutFilepath|
             sha1 = File.basename(dxBufferOutFilepath).gsub(".sqlite3", "")
             eGridFilepath = DxPureFileManagement::energyGridDriveFilepath(sha1)
             if File.exists?(eGridFilepath) then

@@ -104,7 +104,7 @@ class DxPureFileManagement
 
     # DxPureFileManagement::bufferOutFilepath(sha1)
     def self.bufferOutFilepath(sha1)
-        filepath = "#{Config::pathToLocalDataBankStargate()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        filepath = "#{Config::pathToLocalDataBankStargate()}/DxPureBufferOut/#{sha1[0, 2]}/#{sha1}.sqlite3"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkdir(File.dirname(filepath))
         end
@@ -141,6 +141,16 @@ class DxPureFileManagement
         return filepath if File.exists?(filepath)
 
         nil
+    end
+
+    # DxPureFileManagement::bufferOutFilepathsEnumerator()
+    def self.bufferOutFilepathsEnumerator()
+        Enumerator.new do |filepaths|
+            Find.find("#{Config::pathToLocalDataBankStargate()}/DxPureBufferOut") do |path|
+                next if path[-8, 8] != ".sqlite3"
+                filepaths << path
+            end
+        end
     end
 end
 
@@ -193,19 +203,6 @@ class DxPure
         end
         mikuType
     end
-
-    # ------------------------------------------------------------
-    # Basic IO (2)
-
-    # DxPure::sha1ToEnergyGrid1Filepath(sha1)
-    def self.sha1ToEnergyGrid1Filepath(sha1)
-        filepath = "#{StargateCentral::pathToCentral()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkdir(File.dirname(filepath))
-        end
-        filepath
-    end
-
 
     # ------------------------------------------------------------
     # Basic Utils
@@ -293,31 +290,10 @@ class DxPure
     # ------------------------------------------------------------
     # Operations
 
-    # DxPure::acquireFilepathOrNull(sha1)
-    def self.acquireFilepathOrNull(sha1)
-        localFilepath = DxPureFileManagement::bufferOutFilepath(sha1)
-        if File.exists?(localFilepath) then
-            return localFilepath
-        end
-        acquisition = StargateCentral::acquireCentral()
-        if !acquisition then
-            return nil
-        end
-        eGrid1Filepath = DxPureFileManagement::energyGridDriveFilepath(sha1)
-        if File.exists?(eGrid1Filepath) then
-            puts "file copy:"
-            puts "    #{eGrid1Filepath}"
-            puts "    #{localFilepath}"
-            FileUtils.cp(eGrid1Filepath, localFilepath)
-            return localFilepath
-        end
-        return nil
-    end
-
     # DxPure::access(sha1)
     def self.access(sha1)
-        filepath = DxPure::acquireFilepathOrNull(sha1)
-        if !filepath then
+        filepath = DxPureFileManagement::acquireFilepathOrNull(sha1)
+        if filepath.nil? then
             puts "I could not access the DxPure file for sha1 #{sha1}"
             puts "DxPure::access aborted"
             LucilleCore::pressEnterToContinue()
@@ -361,18 +337,5 @@ class DxPure
         end
 
         raise "(error: fa74feac-37c6-4525-93ba-933f52d54321) DxPure fsck: unsupported mikuType: #{mikuType}"
-    end
-
-    # ------------------------------------------------------------
-    # Collection Management
-
-    # DxPure::localFilepathsEnumerator()
-    def self.localFilepathsEnumerator()
-        Enumerator.new do |filepaths|
-            Find.find("#{Config::pathToLocalDataBankStargate()}/DxPure") do |path|
-                next if path[-8, 8] != ".sqlite3"
-                filepaths << path
-            end
-        end
     end
 end
