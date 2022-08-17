@@ -28,7 +28,7 @@ class Catalyst
             TxDateds::section2(),
             Waves::section2(true),
             NxLines::section2(),
-            NxGroups::section2(),
+            Owners::section2(),
             Waves::section2(false),
             NxTasks::section2(),
             Streaming::section2(),
@@ -168,10 +168,10 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        Ax39Carriers::section1()
+        Owners::section1()
             .each{|item|
                 store.register(item, false)
-                line = "#{store.prefixString()} #{Ax39Carriers::toStringForSection1(item)}".yellow
+                line = "#{store.prefixString()} #{Owners::toStringForSection1(item)}".yellow
                 break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

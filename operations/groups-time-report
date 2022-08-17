@@ -7,24 +7,24 @@ require_relative "../Libs/loader.rb"
 puts ""
 
 total = 0
-NxGroups::items().each{|thread|
-    ax39 = thread["ax39"]
+Owners::owners().each{|owner|
+    ax39 = owner["ax39"]
     type = ax39["type"]
     next if !["daily-time-commitment"].include?(ax39["type"])
     total = total + ax39["hours"]
-    puts "#{thread["description"].ljust(50)}: #{(type.split("-")[0]).ljust(6)} - #{"%5.2f" % ax39["hours"]}"
+    puts "#{owner["description"].ljust(50)}: #{(type.split("-")[0]).ljust(6)} - #{"%5.2f" % ax39["hours"]}"
 }
 puts "total: #{total}"
 
 puts ""
 
 total = 0
-NxGroups::items().each{|thread|
-    ax39 = thread["ax39"]
+Owners::owners().each{|owner|
+    ax39 = owner["ax39"]
     type = ax39["type"]
     next if !["weekly-time-commitment"].include?(ax39["type"])
     total = total + ax39["hours"]
-    puts "#{thread["description"].ljust(50)}: #{(type.split("-")[0]).ljust(6)} - #{"%5.2f" % ax39["hours"]}"
+    puts "#{owner["description"].ljust(50)}: #{(type.split("-")[0]).ljust(6)} - #{"%5.2f" % ax39["hours"]}"
 }
 puts "total: #{total}"
 

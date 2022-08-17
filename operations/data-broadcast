@@ -8,8 +8,8 @@ puts "Temporarily disabled until we learnt to send only the missing data and onl
 exit
 
 SystemEvents::broadcast({
-    "mikuType" => "ElementToOwnerMapping-records",
-    "records"  => ElementToOwnerMapping::records()
+    "mikuType" => "OwnerMapping-records",
+    "records"  => OwnerMapping::records()
 })
 
 SystemEvents::broadcast({

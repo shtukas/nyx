@@ -101,9 +101,6 @@ class LxFunction
             if item["mikuType"] == "NxCollection" then
                 return NxCollections::toString(item)
             end
-            if item["mikuType"] == "NxConcept" then
-                return NxConcepts::toString(item)
-            end
             if item["mikuType"] == "NxEntity" then
                 return NxEntities::toString(item)
             end
@@ -130,9 +127,6 @@ class LxFunction
             end
             if item["mikuType"] == "TopLevel" then
                 return TopLevel::toString(item)
-            end
-            if item["mikuType"] == "NxGroup" then
-                return NxGroups::toString(item)
             end
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)

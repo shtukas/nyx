@@ -6,9 +6,9 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | thread | toplevel",
-            "anniversaries | ondates | todos | threads | waves",
-            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >group | (n) >group | >nyx",
+            "wave | anniversary | frame | today | ondate | todo | task | toplevel",
+            "anniversaries | ondates | todos | owners | waves",
+            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | owner landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | push (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
@@ -31,18 +31,18 @@ class Commands
         end
 
 
-        if Interpreting::match(">group", input) then
+        if Interpreting::match(">owner", input) then
             item = store.getDefault()
             return if item.nil?
-            NxGroups::addEntityToGroup(item)
+            Owners::addElementToOwner(item)
             return
         end
 
-        if Interpreting::match("* >group", input) then
+        if Interpreting::match("* >owner", input) then
             ordinal, _ = Interpreting::tokenizer(input)
             entity = store.get(ordinal.to_i)
             return if entity.nil?
-            NxGroups::addEntityToGroup(entity)
+            Owners::addElementToOwner(entity)
             return
         end
 
@@ -90,7 +90,11 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             # Ax39 are functional only on NxGroups and NxTasks
-            return if !["NxGroup", "NxTask"].include?(item["mikuType"])
+            if !["NxTask"].include?(item["mikuType"]) then
+                puts "At the moment, the setting of Ax39s only works on NxTasks"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
             Fx18Attributes::setJsonEncoded(item["uuid"], "ax39",  Ax39::interactivelyCreateNewAx())
             return
         end
@@ -185,7 +189,7 @@ class Commands
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
-            NxGroups::interactivelyProposeToAttachTaskToProject(item)
+            Owners::interactivelyProposeToAttachThisElementToOwner(item)
             return
         end
 
@@ -209,6 +213,24 @@ class Commands
 
         if Interpreting::match("ondates", input) then
             TxDateds::dive()
+            return
+        end
+
+        if Interpreting::match("owner landing", input) then
+            LxAction::action("owner landing", store.getDefault())
+            return
+        end
+
+        if Interpreting::match("owner landing *", input) then
+            _, _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            LxAction::action("owner landing", item)
+            return
+        end
+
+        if Interpreting::match("owners", input) then
+            Owners::dive()
             return
         end
 
@@ -244,16 +266,6 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             NxBallsService::carryOn(item["uuid"])
-            return
-        end
-
-        if input == "thread" then
-            NxGroups::interactivelyIssueNewItemOrNull()
-            return
-        end
-
-        if Interpreting::match("threads", input) then
-            NxGroups::dive()
             return
         end
 
@@ -370,7 +382,7 @@ class Commands
             item = NxTasks::interactivelyCreateNewOrNull()
             return if item.nil?
             if item["ax39"].nil? then
-                NxGroups::interactivelyProposeToAttachTaskToProject(item)
+                Owners::interactivelyProposeToAttachThisElementToOwner(item)
             end
             return
         end
@@ -435,12 +447,12 @@ class Commands
                     "lambda" => lambda { Anniversaries::section2() }
                 },
                 {
-                    "name" => "Ax39Carriers::section1()",
-                    "lambda" => lambda { Ax39Carriers::section1() }
+                    "name" => "Owners::section1()",
+                    "lambda" => lambda { Owners::section1() }
                 },
                 {
-                    "name" => "NxGroups::section2()",
-                    "lambda" => lambda { NxGroups::section2() }
+                    "name" => "Owners::section2()",
+                    "lambda" => lambda { Owners::section2() }
                 },
                 {
                     "name" => "NxFrames::items()",

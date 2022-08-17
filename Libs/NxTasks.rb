@@ -129,7 +129,7 @@ class NxTasks
         items = NxTasks::items()
                 .select{|item| item["ax39"].nil? }
                 .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                .select{|item| ElementToOwnerMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
+                .select{|item| OwnerMapping::elementuuidToOwnersuuids(item["uuid"]).empty? }
                 .first(50)
 
         XCacheValuesWithExpiry::set(key, items, 86400)

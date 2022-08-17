@@ -213,7 +213,6 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
 require_relative "Iam.rb"
-require_relative "ElementToOwnerMapping.rb"
 
 require_relative "FileSystemCheck.rb"
 require_relative "Fx18s.rb"
@@ -242,6 +241,9 @@ require_relative "NxIceds.rb"
 require_relative "Nx20s.rb"
 require_relative "NetworkLinks.rb"
 
+require_relative "Owners.rb"
+require_relative "OwnerMapping.rb"
+
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
 
@@ -255,7 +257,6 @@ require_relative "Stargate.rb"
 require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
-require_relative "NxGroups.rb"
 require_relative "TopLevel.rb"
 
 require_relative "UniqueStringsFunctions.rb"

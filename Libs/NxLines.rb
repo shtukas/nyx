@@ -59,7 +59,7 @@ class NxLines
     # NxLines::section2()
     def self.section2()
         NxLines::items()
-            .select{|item| ElementToOwnerMapping::itemuuidToGroupuuidsCached(item["uuid"]).empty? }
+            .select{|item| OwnerMapping::elementuuidToOwnersuuidsCached(item["uuid"]).empty? }
             .sort{|l1, l2| l1["unixtime"] <=> l2["unixtime"] }
     end
 end

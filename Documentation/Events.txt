@@ -17,8 +17,8 @@ We have two types of events
 }
 
 {
-    "mikuType" => "(change in ElementToOwnerMapping for elements)",
-    "objectuuids"  => Array[String],
+    "mikuType"    => "(owner-elements-mapping-update)",
+    "objectuuids" => Array[String],
 }
 
 {
@@ -65,14 +65,14 @@ We have two types of events
 
 {
     "targetInstance" : TargetInstanceName # added by the broadcaster
-    "mikuType"       : "ElementToOwnerMapping"
-    "groupuuid"      : String
+    "mikuType"       : "OwnerMapping"
+    "owneruuid"      : String
     "itemuuid"       : String
 }
 
 {
-    "mikuType" => "ElementToOwnerMapping-records",
-    "records"  => ElementToOwnerMapping::records()
+    "mikuType" => "OwnerMapping-records",
+    "records"  => OwnerMapping::records()
 }
 
 {
@@ -81,7 +81,7 @@ We have two types of events
 }
 
 {
-    "mikuType"  => "NetworkLinks",
+    "mikuType"   => "NetworkLinks",
     "sourceuuid" => sourceuuid,
     "operation"  => operation,
     "targetuuid" => targetuuid
@@ -93,6 +93,6 @@ We have two types of events
 }
 
 {
-    "mikuType" => "(element has been done for today)",
-    "objectuuid"  => objectuuid,
+    "mikuType"   => "(element has been done for today)",
+    "objectuuid" => objectuuid,
 }

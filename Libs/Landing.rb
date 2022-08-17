@@ -197,6 +197,8 @@ class Landing
                 puts "nx111: (not found)".yellow
             end
 
+            puts "ax39: #{JSON.generate(item["ax39"])}".yellow
+
             NetworkLinks::linkeduuids(item["uuid"])
                 .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                 .each{|entityuuid|
@@ -304,9 +306,6 @@ class Landing
         if item["mikuType"] == "Ax1Text" then
             Ax1Text::landing(item)
             return nil
-        end
-        if item["mikuType"] == "NxGroup" then
-            return NxGroups::metadataLanding(item)
         end
         if item["mikuType"] == "NxLine" then
             puts JSON.pretty_generate(item)

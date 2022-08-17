@@ -20,8 +20,8 @@ class SystemEvents
             Ax39forSections::processEvent(event)
         end
 
-        if event["mikuType"] == "(change in ElementToOwnerMapping for elements)" then
-            ElementToOwnerMapping::processEvent(event)
+        if event["mikuType"] == "(owner-elements-mapping-update)" then
+            OwnerMapping::processEvent(event)
         end
 
         if event["mikuType"] == "NxBankEvent" then
@@ -48,12 +48,12 @@ class SystemEvents
             Fx256::processEvent(event)
         end
 
-        if event["mikuType"] == "ElementToOwnerMapping" then
-            ElementToOwnerMapping::processEvent(event)
+        if event["mikuType"] == "OwnerMapping" then
+            OwnerMapping::processEvent(event)
         end
 
-        if event["mikuType"] == "ElementToOwnerMapping-records" then
-            ElementToOwnerMapping::processEvent(event)
+        if event["mikuType"] == "OwnerMapping-records" then
+            OwnerMapping::processEvent(event)
         end
 
         if event["mikuType"] == "NetworkLinks-records" then

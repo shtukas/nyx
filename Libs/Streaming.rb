@@ -28,7 +28,7 @@ class Streaming
                 puts LxFunction::function("toString", item).green
             end
             firstLoop = false
-            command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >group, >nyx, nyx: ")
+            command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >owner, >nyx, nyx: ")
             if command == "access" then
                 LxAction::action("access", item)
                 next
@@ -58,10 +58,10 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">group" then
-                thread = NxGroups::architectOneOrNull()
+            if command == ">owner" then
+                thread = Owners::architectOneOrNull()
                 return if thread.nil?
-                ElementToOwnerMapping::issue(thread["uuid"], item["uuid"])
+                OwnerMapping::issue(thread["uuid"], item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return nil
             end
@@ -80,7 +80,7 @@ class Streaming
     def self.processItem(item)
         puts LxFunction::function("toString", item).green
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >group, >nyx, nyx, next (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >owner, >nyx, nyx, next (default), exit (rstream): ")
             if command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
@@ -96,10 +96,10 @@ class Streaming
                 Catalyst::primaryCommandProcess()
                 next
             end
-            if command == ">group" then
-                thread = NxGroups::architectOneOrNull()
+            if command == ">owner" then
+                thread = Owners::architectOneOrNull()
                 return if thread.nil?
-                ElementToOwnerMapping::issue(thread["uuid"], item["uuid"])
+                OwnerMapping::issue(thread["uuid"], item["uuid"])
                 return nil
             end
             if command == ">nyx" then
@@ -142,7 +142,7 @@ class Streaming
         return if items.empty?
         loop {
             item = items.shift
-            next if !ElementToOwnerMapping::itemuuidToGroupuuids(item["uuid"]).empty?
+            next if !OwnerMapping::elementuuidToOwnersuuids(item["uuid"]).empty?
             command = Streaming::processItem(item)
             break if command == "should-stop-rstream"
             break if BankExtended::stdRecoveredDailyTimeInHours(uuid) >= 1
