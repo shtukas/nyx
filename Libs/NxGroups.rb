@@ -118,8 +118,9 @@ class NxGroups
     def self.toStringForSection2(item)
         doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        ax39str = Ax39forSections::toString(item)
-        "(group) #{item["description"]} #{ax39str}#{doneForTodayStr}#{dnsustr}"
+        ax39str2 = Ax39forSections::toStringElements(item)
+        ax39str2_2 = ax39str2[1] ? "#{"%6.2f" % ax39str2[1]} %" : ""
+        "(group) #{item["description"]} #{ax39str2_2}#{doneForTodayStr}#{dnsustr}"
     end
 
     # NxGroups::section1()
@@ -137,7 +138,7 @@ class NxGroups
 
     # NxGroups::section2()
     def self.section2()
-        groups = NxGroups::items()
+        NxGroups::items()
             .select{|group| Ax39forSections::itemShouldShow(group) }
             .map{|group|
                 {
@@ -147,18 +148,17 @@ class NxGroups
             }
             .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
             .map{|px| px["group"] }
-        return [] if groups.empty?
-        group1 = groups.shift
-        elements = NxGroups::elements(group1, 6)
-        if elements.size > 0 then
-            elements.each{|element|
-                XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toStringForSection2(group1)}]".yellow + " #{LxFunction::function("toString", element)}")
+            .map{|group|
+                elements = NxGroups::elements(group, 6)
+                if elements.size > 0 then
+                    elements.each{|element|
+                        XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{NxGroups::toStringForSection2(group)}] #{LxFunction::function("toString", element)}")
+                    }
+                    elements
+                else
+                    group
+                end
             }
-            elements
-        else
-            group1
-        end
-
     end
 
     # ----------------------------------------------------------------------
@@ -249,7 +249,7 @@ class NxGroups
                     }
             end
 
-            if Ax39::completionRatio(group) > 1 then
+            if Ax39::completionRatio(group) >= 1 then
                 puts ""
                 puts "You are time overflowing"
             end

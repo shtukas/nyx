@@ -148,7 +148,7 @@ class Ax39forSections
         end
 
         if item["ax39"]["type"] == "weekly-time-commitment" then
-            return ["(weekly: #{"%5.2f" %  (Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/3600)} of #{"%5.2f" % item["ax39"]["hours"]} hours)", 100*Ax39forSections::completionRatio(item)]
+            return ["(weekly: #{"%5.2f" % (Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/3600)} of #{"%5.2f" % item["ax39"]["hours"]} hours)", 100*Ax39forSections::completionRatio(item)]
         end
     end
 
