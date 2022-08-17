@@ -104,7 +104,7 @@ class DxPureFileManagement
 
     # DxPureFileManagement::bufferOutFilepath(sha1)
     def self.bufferOutFilepath(sha1)
-        filepath = "#{Config::pathToLocalDataBankStargate()}/DxPureBufferOut/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        filepath = "#{Config::pathToLocalDataBankStargate()}/DxPureBufferOut/#{sha1}.sqlite3"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkdir(File.dirname(filepath))
         end
@@ -141,6 +141,14 @@ class DxPureFileManagement
         return filepath if File.exists?(filepath)
 
         nil
+    end
+
+    # DxPureFileManagement::dropOnCommline(filepath1)
+    def self.dropOnCommline(filepath1)
+        Machines::theOtherInstanceIds().each{|targetInstanceId|
+            filepath2 = "#{Config::starlightCommLine()}/#{targetInstanceId}/#{File.basename(filepath1)}"
+            FileUtils.cp(filepath1, filepath2)
+        }
     end
 
     # DxPureFileManagement::bufferOutFilepathsEnumerator()
@@ -228,10 +236,10 @@ class DxPure
             raise "(error: b0824d0c-f8bd-4312-a550-f2752d49b3db) location: #{location}"
         end
 
-        randomValue  = SecureRandom.hex
-        mikuType     = "DxPureAionPoint"
-        unixtime     = Time.new.to_i
-        datetime     = Time.new.utc.iso8601
+        randomValue = SecureRandom.hex
+        mikuType    = "DxPureAionPoint"
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
         # owner
         # location
 
@@ -255,6 +263,8 @@ class DxPure
         filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
 
         FileUtils.mv(filepath1, filepath2)
+
+        DxPureFileManagement::dropOnCommline(filepath2)
 
         sha1
     end

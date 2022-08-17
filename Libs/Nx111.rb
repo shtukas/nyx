@@ -209,6 +209,8 @@ class Nx111
             puts "We are going to run with that"
             LucilleCore::pressEnterToContinue()
 
+            DxPureFileManagement::dropOnCommline(filepath2)
+
             nx111 = item["nx111"]
             Nx111::access(item, nx111)
 
