@@ -71,7 +71,7 @@ class SystemEvents
                 next if !File.exists?(filepath1)
                 next if File.basename(filepath1).start_with?(".")
 
-                if File.basename(filepath1)[-11, 11] != ".event.json" then
+                if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))
                     if verbose then
                         puts "SystemEvents::processCommLine: event: #{JSON.pretty_generate(e)}"
@@ -80,7 +80,7 @@ class SystemEvents
                     FileUtils.rm(filepath1)
                 end
 
-                if File.basename(filepath1)[-8, 8] != ".sqlite3" then
+                if File.basename(filepath1)[-8, 8] == ".sqlite3" then
 
                     if verbose then
                         puts "SystemEvents::processCommLine: DxPure file: #{File.basename(filepath1)}"
