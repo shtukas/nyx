@@ -293,7 +293,7 @@ class Fx256AtLevel2WithCache
 
     # Fx256AtLevel2WithCache::objectuuids(name1, name2)
     def self.objectuuids(name1, name2)
-        puts "Fx256AtLevel2WithCache::objectuuids(#{name1}, #{name2})"
+        #puts "Fx256AtLevel2WithCache::objectuuids(#{name1}, #{name2})"
 
         cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/#{name2}/cache-objectuuids.json"
         if File.exists?(cache) then
@@ -308,7 +308,7 @@ class Fx256AtLevel2WithCache
 
     # Fx256AtLevel2WithCache::mikuTypeToObjectuuids(mikuType, name1, name2)
     def self.mikuTypeToObjectuuids(mikuType, name1, name2)
-        puts "Fx256AtLevel2WithCache::mikuTypeToObjectuuids(#{mikuType}, #{name1}, #{name2})"
+        #puts "Fx256AtLevel2WithCache::mikuTypeToObjectuuids(#{mikuType}, #{name1}, #{name2})"
 
         cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/#{name2}/cache-mikuTypeToObjectuuids-#{mikuType}.json"
         if File.exists?(cache) then
@@ -324,13 +324,13 @@ class Fx256AtLevel2WithCache
 
     # Fx256AtLevel2WithCache::mikuTypeCount(mikuType, name1, name2)
     def self.mikuTypeCount(mikuType, name1, name2)
-        puts "Fx256AtLevel2WithCache::mikuTypeCount(#{mikuType}, #{name1}, #{name2})"
+        #puts "Fx256AtLevel2WithCache::mikuTypeCount(#{mikuType}, #{name1}, #{name2})"
         Fx256AtLevel2WithCache::mikuTypeToObjectuuids(mikuType, name1, name2).size
     end
 
     # Fx256AtLevel2WithCache::mikuTypeToItems(mikuType, name1, name2)
     def self.mikuTypeToItems(mikuType, name1, name2)
-        puts "Fx256AtLevel2WithCache::mikuTypeToItems(#{mikuType}, #{name1}, #{name2})"
+        #puts "Fx256AtLevel2WithCache::mikuTypeToItems(#{mikuType}, #{name1}, #{name2})"
         cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/#{name2}/cache-mikuTypeToItems-#{mikuType}.json"
         if File.exists?(cache) then
             return JSON.parse(IO.read(cache))
@@ -346,7 +346,7 @@ class Fx256AtLevel2WithCache
 
     # Fx256AtLevel2WithCache::nx20s(name1, name2)
     def self.nx20s(name1, name2)
-        puts "Fx256AtLevel2WithCache::nx20s(#{name1}, #{name2})"
+        #puts "Fx256AtLevel2WithCache::nx20s(#{name1}, #{name2})"
         cache = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache/#{name1}/#{name2}/cache-nx20s.json"
         if File.exists?(cache) then
             return JSON.parse(IO.read(cache))
