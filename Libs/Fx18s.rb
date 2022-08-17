@@ -602,8 +602,8 @@ class Fx18sSynchronisation
                 puts "    #{xcacheFilepath}"
                 FileUtils.cp(dxBufferOutFilepath, xcacheFilepath)
             end
-                puts "Fx18sSynchronisation::sync() deleting"
-                puts "    #{dxBufferOutFilepath}"
+            puts "Fx18sSynchronisation::sync() deleting"
+            puts "    #{dxBufferOutFilepath}"
             FileUtils.rm(dxBufferOutFilepath)
         }
     end

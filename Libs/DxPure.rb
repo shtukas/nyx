@@ -143,12 +143,20 @@ class DxPureFileManagement
         nil
     end
 
-    # DxPureFileManagement::dropOnCommline(filepath1)
-    def self.dropOnCommline(filepath1)
+    # DxPureFileManagement::dropDxPureFileOnCommline(filepath1)
+    def self.dropDxPureFileOnCommline(filepath1)
         Machines::theOtherInstanceIds().each{|targetInstanceId|
             filepath2 = "#{Config::starlightCommLine()}/#{targetInstanceId}/#{File.basename(filepath1)}"
             FileUtils.cp(filepath1, filepath2)
         }
+    end
+
+    # DxPureFileManagement::dropDxPureFileInXCache(filepath1)
+    def self.dropDxPureFileInXCache(filepath1)
+        sha1 = File.basename(filepath1).gsub(".sqlite3", "")
+        filepath2 = DxPureFileManagement::xcacheFilepath(sha1)
+        return if File.exists?(filepath2) 
+        FileUtils.cp(filepath1, filepath2)
     end
 
     # DxPureFileManagement::bufferOutFilepathsEnumerator()
@@ -260,11 +268,15 @@ class DxPure
 
         sha1 = Digest::SHA1.file(filepath1).hexdigest
 
+        # We move the file to the BufferOut
         filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
+        FileUtils.cp(filepath1, filepath2)
 
-        FileUtils.mv(filepath1, filepath2)
+        # and we copy it to XCache
+        DxPureFileManagement::dropDxPureFileInXCache(filepath2)
 
-        DxPureFileManagement::dropOnCommline(filepath2)
+        # and we drop it on the comm line
+        DxPureFileManagement::dropDxPureFileOnCommline(filepath2)
 
         sha1
     end

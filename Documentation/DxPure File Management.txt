@@ -1,0 +1,22 @@
+
+DxPure File Management
+
+1. When we create the file, for instance in DxPure::issueDxPureAionPoint, then we:
+    - put the file in the BufferOut
+    - copy it to XCache
+    - drop it on the comm line
+
+2. When we convert an existing aion-point, in Nx111::access, we:
+    - move the file to the BufferOut
+    - copy it to XCache
+    - drop it on the comm line
+
+3. When we process the commline, in SystemEvents::processCommLine, we:
+    - move the file to the BufferOut (this is in case the target instance get to sync with EnergyGrid, before the instance that made the file)
+    - copy it to XCache
+    - remove the file from the commline
+
+4. When we process the BufferOut, we:
+    - move the file to EnergyGrid
+    - copy it to XCache
+    - remove the file from BufferOut

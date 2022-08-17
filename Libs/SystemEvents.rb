@@ -63,38 +63,46 @@ class SystemEvents
 
     # SystemEvents::processCommLine(verbose)
     def self.processCommLine(verbose)
-
-        # Old style. Keep while we process the remaining items
-        LucilleCore::locationsAtFolder(Config::starlightCommLine())
-            .each{|filepath|
-                next if !File.exists?(filepath)
-                next if File.basename(filepath).start_with?(".")
-                next if File.basename(filepath)[-11, 11] != ".event.json"
-                e = JSON.parse(IO.read(filepath))
-                next if e["targetInstance"] != Config::get("instanceId")
-                if verbose then
-                    puts "SystemEvents::processCommLine: #{JSON.pretty_generate(e)}"
-                end
-                SystemEvents::processEvent(e)
-                FileUtils.rm(filepath)
-            }
-
         # New style. Keep while we process the remaining items
         # We are reading from the instance folder
         instanceId = Config::get("instanceId")
         LucilleCore::locationsAtFolder("#{Config::starlightCommLine()}/#{instanceId}")
-            .each{|filepath|
-                next if !File.exists?(filepath)
-                next if File.basename(filepath).start_with?(".")
-                next if File.basename(filepath)[-11, 11] != ".event.json"
-                e = JSON.parse(IO.read(filepath))
-                if verbose then
-                    puts "SystemEvents::processCommLine: #{JSON.pretty_generate(e)}"
-                end
-                SystemEvents::processEvent(e)
-                FileUtils.rm(filepath)
-            }
+            .each{|filepath1|
+                next if !File.exists?(filepath1)
+                next if File.basename(filepath1).start_with?(".")
 
+                if File.basename(filepath1)[-11, 11] != ".event.json" then
+                    e = JSON.parse(IO.read(filepath1))
+                    if verbose then
+                        puts "SystemEvents::processCommLine: event: #{JSON.pretty_generate(e)}"
+                    end
+                    SystemEvents::processEvent(e)
+                    FileUtils.rm(filepath1)
+                end
+
+                if File.basename(filepath1)[-8, 8] != ".sqlite3" then
+
+                    if verbose then
+                        puts "SystemEvents::processCommLine: DxPure file: #{File.basename(filepath1)}"
+                    end
+
+                    sha1 = Digest::SHA1.file(filepath1).hexdigest
+                    if File.basename(filepath1) != "#{sha1}.sqlite3" then
+                        puts "SystemEvents::processCommLine: DxPure file: #{File.basename(filepath1)}"
+                        puts "The file has #{sha1}, which is an anomalie."
+                        next
+                    end
+
+                    # We move the file to the BufferOut
+                    filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
+                    FileUtils.cp(filepath1, filepath2)
+
+                    # and we copy it to XCache
+                    DxPureFileManagement::dropDxPureFileInXCache(filepath1)
+
+                    FileUtils.rm(filepath1)
+                end
+            }
     end
 
     # SystemEvents::broadcast(event)

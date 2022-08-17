@@ -181,9 +181,15 @@ class Nx111
 
             sha1 = Digest::SHA1.file(filepath1).hexdigest
 
+            # We move the file to the BufferOut
             filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
+            FileUtils.cp(filepath1, filepath2)
 
-            FileUtils.mv(filepath1, filepath2)
+            # and we copy it to XCache
+            DxPureFileManagement::dropDxPureFileInXCache(filepath2)
+
+            # and we drop it on the comm line
+            DxPureFileManagement::dropDxPureFileOnCommline(filepath2)
 
             nx111_v2 = {
                 "uuid" => SecureRandom.uuid,
@@ -208,8 +214,6 @@ class Nx111
             puts "item: #{JSON.pretty_generate(item)}"
             puts "We are going to run with that"
             LucilleCore::pressEnterToContinue()
-
-            DxPureFileManagement::dropOnCommline(filepath2)
 
             nx111 = item["nx111"]
             Nx111::access(item, nx111)
