@@ -89,8 +89,9 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            return if item["mikuType"] != "NxGroup"
-            Fx18Attributes::setJsonEncoded(item["uuid"], "repeatType",  JSON.generate(Ax39::interactivelyCreateNewAx()))
+            # Ax39 are functional only on NxGroups and NxTasks
+            return if !["NxGroup", "NxTask"].include?(item["mikuType"])
+            Fx18Attributes::setJsonEncoded(item["uuid"], "ax39",  Ax39::interactivelyCreateNewAx())
             return
         end
 
@@ -368,7 +369,9 @@ class Commands
         if Interpreting::match("task", input) then
             item = NxTasks::interactivelyCreateNewOrNull()
             return if item.nil?
-            NxGroups::interactivelyProposeToAttachTaskToProject(item)
+            if item["ax39"].nil? then
+                NxGroups::interactivelyProposeToAttachTaskToProject(item)
+            end
             return
         end
 
@@ -432,8 +435,8 @@ class Commands
                     "lambda" => lambda { Anniversaries::section2() }
                 },
                 {
-                    "name" => "NxGroups::section1()",
-                    "lambda" => lambda { NxGroups::section1() }
+                    "name" => "Ax39Carriers::section1()",
+                    "lambda" => lambda { Ax39Carriers::section1() }
                 },
                 {
                     "name" => "NxGroups::section2()",

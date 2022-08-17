@@ -168,10 +168,10 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
-        NxGroups::section1()
+        Ax39Carriers::section1()
             .each{|item|
                 store.register(item, false)
-                line = "#{store.prefixString()} #{NxGroups::toStringForSection1(item)}".yellow
+                line = "#{store.prefixString()} #{Ax39Carriers::toStringForSection1(item)}".yellow
                 break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

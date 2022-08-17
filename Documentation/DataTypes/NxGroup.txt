@@ -5,4 +5,4 @@ NxGroup:
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
-    "ax39"        : nil or Ax39
+    "ax39"        : null or Ax39

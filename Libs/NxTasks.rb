@@ -12,6 +12,7 @@ class NxTasks
             "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
             "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
             "nx111"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111"),
+            "ax39"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "ax39"),
         }
     end
 
@@ -34,12 +35,17 @@ class NxTasks
         return nil if description == ""
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
+        ax39 = nil
+        if LucilleCore::askQuestionAnswerAsBoolean("Attach a Ax39 (time commitment) ? ", false) then
+            ax39 = Ax39::interactivelyCreateNewAxOrNull()
+        end
         Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
         Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
+        Fx18Attributes::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = NxTasks::objectuuidToItemOrNull(uuid)
@@ -103,7 +109,8 @@ class NxTasks
     def self.toString(item)
         builder = lambda{
             nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : " (line)"
-            "(task)#{nx111String} #{item["description"]}"
+            ax39str = item["ax39"] ? " #{Ax39::toString(item)}" : ""
+            "(task)#{nx111String} #{item["description"]}#{ax39str}"
         }
         builder.call()
     end
@@ -120,9 +127,10 @@ class NxTasks
         return items if items
 
         items = NxTasks::items()
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                    .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
-                    .first(50)
+                .select{|item| item["ax39"].nil? }
+                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                .select{|item| ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"]).empty? }
+                .first(50)
 
         XCacheValuesWithExpiry::set(key, items, 86400)
 
@@ -132,6 +140,7 @@ class NxTasks
     # NxTasks::section2()
     def self.section2()
         NxTasks::topItemsForSection2()
+            .select{|item| item["ax39"].nil? }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             .first(6)
     end

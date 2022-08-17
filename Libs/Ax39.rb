@@ -112,6 +112,31 @@ class Ax39
     end
 end
 
+class Ax39Carriers
+
+    # Ax39Carriers::toStringForSection1(item)
+    def self.toStringForSection1(item)
+        doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
+        dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
+        ax39str2 = Ax39forSections::toStringElements(item)
+        ax39str2_2 = ax39str2[1] ? "#{"%6.2f" % ax39str2[1]} %" : ""
+        "(#{item["mikuType"].ljust(7)}) #{item["description"].ljust(50)} #{ax39str2[0].ljust(30)}#{ax39str2_2.rjust(10)}#{doneForTodayStr.rjust(18)}#{dnsustr.ljust(20)}"
+    end
+
+    # Ax39Carriers::section1()
+    def self.section1()
+        (NxGroups::items() + NxTasks::items().select{|item| item["ax39"] })
+            .map{|item|
+                {
+                    "item" => item,
+                    "ratio" => Ax39forSections::completionRatio(item)
+                }
+            }
+            .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
+            .map{|px| px["item"] }
+    end
+end
+
 class Ax39forSections
 
     # Ax39forSections::completionRatio(item)
