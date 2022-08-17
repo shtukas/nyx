@@ -231,11 +231,10 @@ class NxGroups
 
     # NxGroups::elementsLanding(group)
     def self.elementsLanding(group)
-        NxBallsService::issue(group["uuid"], NxGroups::toString(group), [group["uuid"]])
         loop {
             system("clear")
 
-            puts "running: #{NxGroups::toString(group).green} #{NxBallsService::activityStringOrEmptyString("", group["uuid"], "")}"
+            puts NxGroups::toString(group).green
 
             store = ItemStore.new()
 
