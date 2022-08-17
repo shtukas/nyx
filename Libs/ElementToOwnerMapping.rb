@@ -1,17 +1,17 @@
 
 # encoding: UTF-8
 
-class ItemToGroupMapping
+class ElementToOwnerMapping
 
-    # ItemToGroupMapping::databaseFile()
+    # ElementToOwnerMapping::databaseFile()
     def self.databaseFile()
         "#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3"
     end
 
-    # ItemToGroupMapping::insertRow(row)
+    # ElementToOwnerMapping::insertRow(row)
     def self.insertRow(row)
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.execute "delete from _mapping_ where _eventuuid_=?", [row["_eventuuid_"]]
@@ -19,15 +19,15 @@ class ItemToGroupMapping
             db.close
         }
         SystemEvents::processAndBroadcast({
-            "mikuType" => "(change in ItemToGroupMapping for elements)",
+            "mikuType" => "(change in ElementToOwnerMapping for elements)",
             "objectuuids"  => [row["_itemuuid_"], row["_groupuuid_"]],
         })
     end
 
-    # ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
+    # ElementToOwnerMapping::issueNoEvents(groupuuid, itemuuid)
     def self.issueNoEvents(groupuuid, itemuuid)
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, itemuuid, groupuuid, "true"]
@@ -35,24 +35,24 @@ class ItemToGroupMapping
         }
     end
 
-    # ItemToGroupMapping::issue(groupuuid, itemuuid)
+    # ElementToOwnerMapping::issue(groupuuid, itemuuid)
     def self.issue(groupuuid, itemuuid)
-        ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
+        ElementToOwnerMapping::issueNoEvents(groupuuid, itemuuid)
         SystemEvents::broadcast({
-          "mikuType"  => "ItemToGroupMapping",
+          "mikuType"  => "ElementToOwnerMapping",
           "groupuuid" => groupuuid,
           "itemuuid"  => itemuuid
         })
         SystemEvents::processAndBroadcast({
-            "mikuType" => "(change in ItemToGroupMapping for elements)",
+            "mikuType" => "(change in ElementToOwnerMapping for elements)",
             "objectuuids"  => [groupuuid, itemuuid],
         })
     end
 
-    # ItemToGroupMapping::detach(groupuuid, itemuuid)
+    # ElementToOwnerMapping::detach(groupuuid, itemuuid)
     def self.detach(groupuuid, itemuuid)
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, itemuuid, groupuuid, "false"]
@@ -60,11 +60,11 @@ class ItemToGroupMapping
         }
     end
 
-    # ItemToGroupMapping::groupuuidToItemuuids(groupuuid)
+    # ElementToOwnerMapping::groupuuidToItemuuids(groupuuid)
     def self.groupuuidToItemuuids(groupuuid)
         answer = []
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -76,11 +76,11 @@ class ItemToGroupMapping
         answer
     end
 
-    # ItemToGroupMapping::trueIfItemIsInAGroup(itemuuid)
+    # ElementToOwnerMapping::trueIfItemIsInAGroup(itemuuid)
     def self.trueIfItemIsInAGroup(itemuuid)
         answer = false
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -93,11 +93,11 @@ class ItemToGroupMapping
         answer
     end
 
-    # ItemToGroupMapping::itemuuidToGroupuuids(itemuuid)
+    # ElementToOwnerMapping::itemuuidToGroupuuids(itemuuid)
     def self.itemuuidToGroupuuids(itemuuid)
         answer = []
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -109,21 +109,21 @@ class ItemToGroupMapping
         answer
     end
 
-    # ItemToGroupMapping::itemuuidToGroupuuidsCached(itemuuid)
+    # ElementToOwnerMapping::itemuuidToGroupuuidsCached(itemuuid)
     def self.itemuuidToGroupuuidsCached(itemuuid)
         key = "0512f14d-c322-4155-ba05-ea6f53943ec7:#{itemuuid}"
         linkeduuids = XCacheValuesWithExpiry::getOrNull(key)
         return linkeduuids if linkeduuids
-        linkeduuids = ItemToGroupMapping::itemuuidToGroupuuids(itemuuid)
+        linkeduuids = ElementToOwnerMapping::itemuuidToGroupuuids(itemuuid)
         XCacheValuesWithExpiry::set(key, linkeduuids, 3600)
         linkeduuids
     end
 
-    # ItemToGroupMapping::eventuuids()
+    # ElementToOwnerMapping::eventuuids()
     def self.eventuuids()
         answer = []
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -135,11 +135,11 @@ class ItemToGroupMapping
         answer
     end
 
-    # ItemToGroupMapping::records()
+    # ElementToOwnerMapping::records()
     def self.records()
         answer = []
         $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(ItemToGroupMapping::databaseFile())
+            db = SQLite3::Database.new(ElementToOwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -151,23 +151,23 @@ class ItemToGroupMapping
         answer
     end
 
-    # ItemToGroupMapping::processEvent(event)
+    # ElementToOwnerMapping::processEvent(event)
     def self.processEvent(event)
-        if event["mikuType"] == "ItemToGroupMapping" then
+        if event["mikuType"] == "ElementToOwnerMapping" then
             groupuuid = event["groupuuid"]
             itemuuid  = event["itemuuid"]
-            ItemToGroupMapping::issueNoEvents(groupuuid, itemuuid)
+            ElementToOwnerMapping::issueNoEvents(groupuuid, itemuuid)
         end
-        if event["mikuType"] == "ItemToGroupMapping-records" then
-            eventuuids = ItemToGroupMapping::eventuuids()
+        if event["mikuType"] == "ElementToOwnerMapping-records" then
+            eventuuids = ElementToOwnerMapping::eventuuids()
             event["records"].each{|row|
                 next if eventuuids.include?(row["_eventuuid_"])
-                ItemToGroupMapping::insertRow(row)
+                ElementToOwnerMapping::insertRow(row)
             }
         end
-        if event["mikuType"] == "(change in ItemToGroupMapping for elements)" then
+        if event["mikuType"] == "(change in ElementToOwnerMapping for elements)" then
             event["objectuuids"].each{|objectuuid|
-                XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec7:#{objectuuid}") # Decache ItemToGroupMapping::itemuuidToGroupuuidsCached
+                XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec7:#{objectuuid}") # Decache ElementToOwnerMapping::itemuuidToGroupuuidsCached
             }
         end
     end

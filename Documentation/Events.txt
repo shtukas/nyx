@@ -17,7 +17,7 @@ We have two types of events
 }
 
 {
-    "mikuType" => "(change in ItemToGroupMapping for elements)",
+    "mikuType" => "(change in ElementToOwnerMapping for elements)",
     "objectuuids"  => Array[String],
 }
 
@@ -65,14 +65,14 @@ We have two types of events
 
 {
     "targetInstance" : TargetInstanceName # added by the broadcaster
-    "mikuType"       : "ItemToGroupMapping"
+    "mikuType"       : "ElementToOwnerMapping"
     "groupuuid"      : String
     "itemuuid"       : String
 }
 
 {
-    "mikuType" => "ItemToGroupMapping-records",
-    "records"  => ItemToGroupMapping::records()
+    "mikuType" => "ElementToOwnerMapping-records",
+    "records"  => ElementToOwnerMapping::records()
 }
 
 {

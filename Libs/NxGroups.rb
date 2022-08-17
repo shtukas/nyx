@@ -76,7 +76,7 @@ class NxGroups
 
     # NxGroups::elementuuids(thread)
     def self.elementuuids(thread)
-        ItemToGroupMapping::groupuuidToItemuuids(thread["uuid"]).uniq
+        ElementToOwnerMapping::groupuuidToItemuuids(thread["uuid"]).uniq
     end
 
     # NxGroups::elements(thread, count)
@@ -86,7 +86,7 @@ class NxGroups
             .map{|elementuuid|  
                 element = Fx256::getAliveProtoItemOrNull(elementuuid)
                 if element.nil? then
-                    ItemToGroupMapping::detach(thread["uuid"], elementuuid)
+                    ElementToOwnerMapping::detach(thread["uuid"], elementuuid)
                 end
                 element
             }
@@ -256,12 +256,12 @@ class NxGroups
                 if type == "line" then
                     element = NxLines::interactivelyIssueNewLineOrNull()
                     next if element.nil?
-                    ItemToGroupMapping::issue(group["uuid"], element["uuid"])
+                    ElementToOwnerMapping::issue(group["uuid"], element["uuid"])
                 end
                 if type == "task" then
                     element = NxTasks::interactivelyCreateNewOrNull()
                     next if element.nil?
-                    ItemToGroupMapping::issue(group["uuid"], element["uuid"])
+                    ElementToOwnerMapping::issue(group["uuid"], element["uuid"])
                 end
             end
 
@@ -277,7 +277,7 @@ class NxGroups
                 indx = command[6, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                ItemToGroupMapping::detach(group["uuid"], entity["uuid"])
+                ElementToOwnerMapping::detach(group["uuid"], entity["uuid"])
                 next
             end
 
@@ -287,8 +287,8 @@ class NxGroups
                 next if entity.nil?
                 group2 = NxGroups::architectOneOrNull()
                 return if group2.nil?
-                ItemToGroupMapping::issue(group2["uuid"], entity["uuid"])
-                ItemToGroupMapping::detach(group["uuid"], entity["uuid"])
+                ElementToOwnerMapping::issue(group2["uuid"], entity["uuid"])
+                ElementToOwnerMapping::detach(group["uuid"], entity["uuid"])
                 next
             end
         }
@@ -317,7 +317,7 @@ class NxGroups
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to a thread ? ") then
             thread = NxGroups::architectOneOrNull()
             return if thread.nil?
-            ItemToGroupMapping::issue(thread["uuid"], item["uuid"])
+            ElementToOwnerMapping::issue(thread["uuid"], item["uuid"])
         end
     end
 
@@ -345,7 +345,7 @@ class NxGroups
         end
         thread = NxGroups::architectOneOrNull()
         return if thread.nil?
-        ItemToGroupMapping::issue(thread["uuid"], entity["uuid"])
+        ElementToOwnerMapping::issue(thread["uuid"], entity["uuid"])
         NxBallsService::close(entity["uuid"], true)
     end
 end

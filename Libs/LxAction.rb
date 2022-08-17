@@ -238,7 +238,7 @@ class LxAction
 
         if command == "start" then
             return if NxBallsService::isRunning(item["uuid"])
-            accounts = [item["uuid"]] + ItemToGroupMapping::itemuuidToGroupuuids(item["uuid"])
+            accounts = [item["uuid"]] + ElementToOwnerMapping::itemuuidToGroupuuids(item["uuid"])
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end
