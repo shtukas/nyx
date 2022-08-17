@@ -111,6 +111,13 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
+                if item["ax39"] then
+                    if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done for today ? ", true) then
+                        DoneForToday::setDoneToday(item["uuid"])
+                        NxBallsService::close(item["uuid"], true)
+                    end
+                    return
+                end
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                     Fx256::deleteObjectLogically(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
@@ -130,14 +137,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
-                end
-                return
-            end
-
-            if item["mikuType"] == "NxGroup" then
-                NxBallsService::close(item["uuid"], true)
-                if LucilleCore::askQuestionAnswerAsBoolean("done for today ? ", true) then
-                    DoneForToday::setDoneToday(item["uuid"])
                 end
                 return
             end
@@ -227,6 +226,9 @@ class LxAction
             end
 
             if item["mikuType"] == "NxTask" then
+                if item["ax39"] then
+                    return
+                end
                 if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done ? ") then
                     NxBallsService::close(item["uuid"], true)
                     NxTasks::destroy(item["uuid"])

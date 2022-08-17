@@ -32,7 +32,7 @@ class The99Percent
 
     # The99Percent::getCurrentCount()
     def self.getCurrentCount()
-        ["TxDated", "NxGroup", "NxTask", "NxIced", "NxLine"]
+        ["TxDated", "NxTask", "NxIced", "NxLine"]
             .map{|mikuType| Fx256WithCache::mikuTypeCount(mikuType) }
             .inject(0, :+)
     end

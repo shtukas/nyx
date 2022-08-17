@@ -299,18 +299,6 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxGroup" then
-            [
-                "uuid",
-                "mikuType",
-                "unixtime",
-                "description",
-                "ax39",
-            ]
-                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            return
-        end
-
         if mikuType == "Wave" then
             [
                 "uuid",

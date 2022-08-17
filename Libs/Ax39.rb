@@ -70,22 +70,19 @@ class Ax39
     # Ax39::itemShouldShow(item)
     def self.itemShouldShow(item)
         return false if !DoNotShowUntil::isVisible(item["uuid"])
+        return false if DoneForToday::isDoneToday(item["uuid"])
         if item["ax39"].nil? then
-            return false if DoneForToday::isDoneToday(item["uuid"])
             return true
         end
         if item["ax39"]["type"] == "daily-singleton-run" then
-            return false if DoneForToday::isDoneToday(item["uuid"])
             return true
         end
         if item["ax39"]["type"] == "daily-time-commitment" then
-            return false if DoneForToday::isDoneToday(item["uuid"])
             return false if Ax39::completionRatio(item) >= 1
             return true
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
             return false if Time.new.wday == 5 # We don't show those on Fridays
-            return false if DoneForToday::isDoneToday(item["uuid"])
             return false if Ax39::completionRatio(item) >= 1
             return true
         end
@@ -110,6 +107,27 @@ class Ax39
             ].max
         end
     end
+
+    # Ax39::orderingValue(item)
+    def self.orderingValue(item)
+        if item["ax39"]["type"] == "daily-singleton-run" then
+            return DoneForToday::isDoneToday(item["uuid"]) ? 1 : 0
+        end
+        if item["ax39"]["type"] == "daily-time-commitment" then
+            return [ 
+                Bank::valueAtDate(item["uuid"], CommonUtils::today()).to_f/(3600*item["ax39"]["hours"]),
+                BankExtended::stdRecoveredDailyTimeInHours(item["uuid"]).to_f/item["ax39"]["hours"],
+                DoneForToday::isDoneToday(item["uuid"]) ? 1 : 0
+            ].max
+        end
+        if item["ax39"]["type"] == "weekly-time-commitment" then
+            return [
+                Bank::valueAtDate(item["uuid"], CommonUtils::today()).to_f/(0.3*3600*item["ax39"]["hours"]),
+                Bank::combinedValueOnThoseDays(item["uuid"], CommonUtils::dateSinceLastSaturday()).to_f/(3600*item["ax39"]["hours"]),
+                DoneForToday::isDoneToday(item["uuid"]) ? 1 : 0
+            ].max
+        end
+    end
 end
 
 class Ax39forSections
@@ -120,6 +138,16 @@ class Ax39forSections
         ratio = XCacheValuesWithExpiry::getOrNull(cachekey)
         return ratio if ratio
         ratio = Ax39::completionRatio(item)
+        XCacheValuesWithExpiry::set(cachekey, ratio, 3600)
+        ratio
+    end
+
+    # Ax39forSections::orderingValue(item)
+    def self.orderingValue(item)
+        cachekey = "0e9aba8c-9818-4c4b-9338-756508d6ea71:#{item["uuid"]}"
+        ratio = XCacheValuesWithExpiry::getOrNull(cachekey)
+        return ratio if ratio
+        ratio = Ax39::orderingValue(item)
         XCacheValuesWithExpiry::set(cachekey, ratio, 3600)
         ratio
     end
@@ -163,11 +191,14 @@ class Ax39forSections
             setuuid = event["setuuid"]
             XCache::destroy("abdc09cb-49ec-4a0e-96e1-92abba113bfd:#{setuuid}") # to decache the completion ratio 
             XCache::destroy("2383339b-6beb-4249-bac9-2db0924eb347:#{setuuid}") # to decache the shouldShow flag
+            XCache::destroy("0e9aba8c-9818-4c4b-9338-756508d6ea71:#{setuuid}") # to decache the orderingValue
+
         end
         if event["mikuType"] == "(element has been done for today)" then
             objectuuid = event["objectuuid"]
             XCache::destroy("abdc09cb-49ec-4a0e-96e1-92abba113bfd:#{objectuuid}") # to decache the completion ratio 
             XCache::destroy("2383339b-6beb-4249-bac9-2db0924eb347:#{objectuuid}") # to decache the shouldShow flag
+            XCache::destroy("0e9aba8c-9818-4c4b-9338-756508d6ea71:#{objectuuid}") # to decache the orderingValue
         end
     end
 end

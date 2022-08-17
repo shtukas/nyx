@@ -52,7 +52,7 @@ class Owners
             .map{|item|
                 {
                     "item" => item,
-                    "ratio" => Ax39forSections::completionRatio(item)
+                    "ratio" => Ax39forSections::orderingValue(item)
                 }
             }
             .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}

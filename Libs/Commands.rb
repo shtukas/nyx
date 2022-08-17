@@ -89,7 +89,6 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            # Ax39 are functional only on NxGroups and NxTasks
             if !["NxTask"].include?(item["mikuType"]) then
                 puts "At the moment, the setting of Ax39s only works on NxTasks"
                 LucilleCore::pressEnterToContinue()
