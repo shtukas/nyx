@@ -575,12 +575,36 @@ class Fx18sSynchronisation
             FileUtils.rm(filepath)
         }
 
-        DxPure::localFilepathsEnumerator().each{|dxLocalFilepath|
-            sha1 = File.basename(dxLocalFilepath).gsub(".sqlite3", "")
-            eGridFilepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
-            next if File.exists?(eGridFilepath)
-            puts "Fx18sSynchronisation::sync(): DxPure: #{dxLocalFilepath}"
-            FileUtils.cp(dxLocalFilepath, eGridFilepath)
+        DxPure::localFilepathsEnumerator().each{|dxBufferOutFilepath|
+            sha1 = File.basename(dxBufferOutFilepath).gsub(".sqlite3", "")
+            eGridFilepath = DxPureFileManagement::energyGridDriveFilepath(sha1)
+            if File.exists?(eGridFilepath) then
+                eGridSha1 = Digest::SHA1.file(eGridFilepath).hexdigest
+                if File.basename(eGridFilepath) != "#{eGridSha1}.sqlite3" then
+                puts "Fx18sSynchronisation::sync()"
+                    puts "    I am trying to move #{dxBufferOutFilepath}"
+                    puts "    I found #{eGridFilepath}"
+                    puts "    #{eGridFilepath} has a sha1 of #{eGridSha1}"
+                    puts "    Which is an irregularity 🤔"
+                    puts "    Exit"
+                    exit
+                end
+            else
+                puts "Fx18sSynchronisation::sync() copy"
+                puts "    #{dxBufferOutFilepath}"
+                puts "    #{eGridFilepath}"
+                FileUtils.cp(dxBufferOutFilepath, eGridFilepath)
+            end
+            xcacheFilepath = DxPureFileManagement::xcacheFilepath(sha1)
+            if !File.exists?(xcacheFilepath) then
+                puts "Fx18sSynchronisation::sync() copy"
+                puts "    #{dxBufferOutFilepath}"
+                puts "    #{xcacheFilepath}"
+                FileUtils.cp(dxBufferOutFilepath, xcacheFilepath)
+            end
+                puts "Fx18sSynchronisation::sync() deleting"
+                puts "    #{dxBufferOutFilepath}"
+            FileUtils.rm(dxBufferOutFilepath)
         }
     end
 end

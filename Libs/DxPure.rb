@@ -100,6 +100,50 @@ class DxPureElizabethFsck1_Migration
     end
 end
 
+class DxPureFileManagement
+
+    # DxPureFileManagement::bufferOutFilepath(sha1)
+    def self.bufferOutFilepath(sha1)
+        filepath = "#{Config::pathToLocalDataBankStargate()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
+        end
+        filepath
+    end
+
+    # DxPureFileManagement::energyGridDriveFilepath(sha1)
+    def self.energyGridDriveFilepath(sha1)
+        filepath = "#{StargateCentral::pathToCentral()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
+        if !File.exists?(File.dirname(filepath)) then
+            FileUtils.mkdir(File.dirname(filepath))
+        end
+        filepath
+    end
+
+    # DxPureFileManagement::xcacheFilepath(sha1)
+    def self.xcacheFilepath(sha1)
+        XCache::filepath(sha1)
+    end
+
+    # DxPureFileManagement::acquireFilepathOrNull(sha1)
+    def self.acquireFilepathOrNull(sha1)
+
+        # First we try the out buffer, just in case
+        filepath = DxPureFileManagement::bufferOutFilepath(sha1)
+        return filepath if File.exists?(filepath)
+
+        # Then we try the cache
+        filepath = DxPureFileManagement::xcacheFilepath(sha1)
+        return filepath if File.exists?(filepath)
+
+        # And if no luck so far, we try the drive
+        filepath = DxPureFileManagement::energyGridDriveFilepath(sha1)
+        return filepath if File.exists?(filepath)
+
+        nil
+    end
+end
+
 class DxPure
 
     # ------------------------------------------------------------
@@ -153,15 +197,6 @@ class DxPure
     # ------------------------------------------------------------
     # Basic IO (2)
 
-    # DxPure::sha1ToLocalFilepath(sha1)
-    def self.sha1ToLocalFilepath(sha1)
-        filepath = "#{Config::pathToLocalDataBankStargate()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
-        if !File.exists?(File.dirname(filepath)) then
-            FileUtils.mkdir(File.dirname(filepath))
-        end
-        filepath
-    end
-
     # DxPure::sha1ToEnergyGrid1Filepath(sha1)
     def self.sha1ToEnergyGrid1Filepath(sha1)
         filepath = "#{StargateCentral::pathToCentral()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
@@ -177,8 +212,8 @@ class DxPure
 
     # DxPure::getMikuTypeOrNull(sha1)
     def self.getMikuTypeOrNull(sha1)
-        filepath = DxPure::sha1ToLocalFilepath(sha1)
-        return nil if !File.exists?(filepath)
+        filepath = DxPureFileManagement::acquireFilepathOrNull(sha1)
+        return nil if filepath.nil?
         DxPure::getMikuType(filepath)
     end
 
@@ -220,7 +255,7 @@ class DxPure
 
         sha1 = Digest::SHA1.file(filepath1).hexdigest
 
-        filepath2 = DxPure::sha1ToLocalFilepath(sha1)
+        filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
 
         FileUtils.mv(filepath1, filepath2)
 
@@ -244,9 +279,9 @@ class DxPure
 
     # DxPure::toString(sha1)
     def self.toString(sha1)
-        filepath = DxPure::sha1ToLocalFilepath(sha1)
-        if !File.exists?(filepath) then
-            return "(error: I cannot see the file #{filepath} for DxPure::toString(#{sha1}))"
+        filepath = DxPureFileManagement::acquireFilepathOrNull(sha1)
+        if filepath.nil? then
+            return "(error: 892c102a) I cannot acquire DxPure file for #{sha1}"
         end
         mikuType = DxPure::getMikuType(filepath)
         if mikuType == "DxPureAionPoint" then
@@ -260,7 +295,7 @@ class DxPure
 
     # DxPure::acquireFilepathOrNull(sha1)
     def self.acquireFilepathOrNull(sha1)
-        localFilepath = DxPure::sha1ToLocalFilepath(sha1)
+        localFilepath = DxPureFileManagement::bufferOutFilepath(sha1)
         if File.exists?(localFilepath) then
             return localFilepath
         end
@@ -268,7 +303,7 @@ class DxPure
         if !acquisition then
             return nil
         end
-        eGrid1Filepath = DxPure::sha1ToEnergyGrid1Filepath(sha1)
+        eGrid1Filepath = DxPureFileManagement::energyGridDriveFilepath(sha1)
         if File.exists?(eGrid1Filepath) then
             puts "file copy:"
             puts "    #{eGrid1Filepath}"
@@ -290,7 +325,6 @@ class DxPure
         end
         mikuType = DxPure::getMikuType(filepath)
         if mikuType == "DxPureAionPoint" then
-            filepath = DxPure::sha1ToLocalFilepath(sha1)
             operator = DxPureElizabeth.new(filepath)
             rootnhash = DxPure::readValueOrNull(filepath, "rootnhash")
             parentLocation = "#{ENV['HOME']}/Desktop/DxPure-Export-#{SecureRandom.hex(4)}"

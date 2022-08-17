@@ -181,7 +181,7 @@ class Nx111
 
             sha1 = Digest::SHA1.file(filepath1).hexdigest
 
-            filepath2 = DxPure::sha1ToLocalFilepath(sha1)
+            filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
 
             FileUtils.mv(filepath1, filepath2)
 
