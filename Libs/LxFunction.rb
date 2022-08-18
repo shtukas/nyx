@@ -98,6 +98,9 @@ class LxFunction
             if item["mikuType"] == "NxCollection" then
                 return NxCollections::toString(item)
             end
+            if item["mikuType"] == "NxConcept" then
+                return NxConcepts::toString(item)
+            end
             if item["mikuType"] == "NxEntity" then
                 return NxEntities::toString(item)
             end

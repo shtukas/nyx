@@ -45,6 +45,6 @@ class NxConcepts
 
     # NxConcepts::toString(item)
     def self.toString(item)
-        "(entity) #{item["description"]}"
+        "(concept) #{item["description"]}"
     end
 end
