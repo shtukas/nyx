@@ -73,6 +73,15 @@ class Owners
             .map{|px| px["owner"] }
             .map{|owner|
                 elements = Owners::elements(owner, 6)
+                            .map{|element|
+                                {
+                                    "element" => element,
+                                    "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
+                                }
+                            }
+                            .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+                            .map{|px| px["element"] }
+
                 if !elements.empty? then
                     elements.each{|element|
                         XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{Owners::section2StringPrefix(owner).white}] #{LxFunction::function("toString", element)}")
