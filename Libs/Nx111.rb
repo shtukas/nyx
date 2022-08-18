@@ -108,11 +108,17 @@ class Nx111
 
     # Nx111::toString(nx111)
     def self.toString(nx111)
+        if nx111.nil? then
+            return "(nx111) null"
+        end
         "(nx111) #{nx111["type"]}"
     end
 
     # Nx111::toStringShort(nx111)
     def self.toStringShort(nx111)
+        if nx111.nil? then
+            return "(nx111) null"
+        end
         "#{nx111["type"]}"
     end
 
