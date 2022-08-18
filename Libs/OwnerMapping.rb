@@ -73,7 +73,7 @@ class OwnerMapping
             end
             db.close
         }
-        answer
+        answer.uniq
     end
 
     # OwnerMapping::isOwned(itemuuid)
@@ -106,12 +106,12 @@ class OwnerMapping
             end
             db.close
         }
-        answer
+        answer.uniq
     end
 
     # OwnerMapping::elementuuidToOwnersuuidsCached(elementuuid)
     def self.elementuuidToOwnersuuidsCached(elementuuid)
-        key = "0512f14d-c322-4155-ba05-ea6f53943ec7:#{elementuuid}"
+        key = "0512f14d-c322-4155-ba05-ea6f53943ec8:#{elementuuid}"
         linkeduuids = XCacheValuesWithExpiry::getOrNull(key)
         return linkeduuids if linkeduuids
         linkeduuids = OwnerMapping::elementuuidToOwnersuuids(elementuuid)
@@ -167,7 +167,7 @@ class OwnerMapping
         end
         if event["mikuType"] == "(owner-elements-mapping-update)" then
             event["objectuuids"].each{|objectuuid|
-                XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec7:#{objectuuid}") # Decache OwnerMapping::elementuuidToOwnersuuidsCached
+                XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec8:#{objectuuid}") # Decache OwnerMapping::elementuuidToOwnersuuidsCached
             }
         end
     end
