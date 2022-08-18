@@ -62,6 +62,11 @@ class Transmutation
             return
         end
 
+        if source == "NxIced" and target == "NxDataNode" then
+            Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
+            return
+        end
+
         if source == "NxLine" and target == "TxDated" then
             description = item["line"]
             nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
@@ -74,7 +79,6 @@ class Transmutation
         if source == "NxLine" and target == "NxTask" then
             description = item["line"]
             nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
-
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
             Fx18Attributes::setJsonEncoded(item["uuid"], "description", description)
             Fx18Attributes::setJsonEncoded(item["uuid"], "nx111", nx111)
