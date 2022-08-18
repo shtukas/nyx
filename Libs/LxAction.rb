@@ -87,10 +87,7 @@ class LxAction
 
         if command == "done" then
 
-            # If the item was running, then we stop it
-            if NxBallsService::isRunning(item["uuid"]) then
-                 NxBallsService::close(item["uuid"], true)
-            end
+            NxBallsService::close(item["uuid"], true)
 
             if item["mikuType"] == "(rstream-to-target)" then
                 return
@@ -114,13 +111,11 @@ class LxAction
                 if item["ax39"] then
                     if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done for today ? ", true) then
                         DoneForToday::setDoneToday(item["uuid"])
-                        NxBallsService::close(item["uuid"], true)
                     end
                     return
                 end
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                     Fx256::deleteObjectLogically(item["uuid"])
-                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
@@ -128,21 +123,19 @@ class LxAction
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ", true) then
                     Fx256::deleteObjectLogically(item["uuid"])
-                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
 
             if item["mikuType"] == "TxDated" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Confirm destruction of TxDated '#{item["description"].green}' ? ", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
-                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
 
             if item["mikuType"] == "Wave" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm wave done-ing '#{Waves::toString(item).green} ? '", true) then
+                if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                 end
                 return
@@ -200,46 +193,9 @@ class LxAction
         end
 
         if command == "run" then
-
             LxAction::action("start", item)
-
             LxAction::action("access", item)
-
-            # Dedicated post access (otherwise we carry on running)
-
-            if item["mikuType"] == "fitness1" then
-                NxBallsService::close(item["uuid"], true)
-            end
-
-            if item["mikuType"] == "TxDated" and item["description"].include?("(vienna)") then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy ? : ", true) then
-                    TxDateds::destroy(item["uuid"])
-                    NxBallsService::close(item["uuid"], true)
-                end
-            end
-
-            if item["mikuType"] == "Wave" then
-                if LucilleCore::askQuestionAnswerAsBoolean("'#{item["description"].green}' done ? ", true) then
-                    Waves::performWaveNx46WaveDone(item)
-                    NxBallsService::close(item["uuid"], true)
-                end
-            end
-
-            if item["mikuType"] == "NxTask" then
-                if item["ax39"] then
-                    return
-                end
-                if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done ? ") then
-                    NxBallsService::close(item["uuid"], true)
-                    NxTasks::destroy(item["uuid"])
-                    return
-                end
-                if !LucilleCore::askQuestionAnswerAsBoolean("Continue ? ") then
-                    NxBallsService::close(item["uuid"], true)
-                    return
-                end
-            end
-
+            NxBallsService::close(item["uuid"], true)
             return
         end
 
