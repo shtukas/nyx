@@ -201,7 +201,7 @@ class LxAction
         if command == "run" then
             LxAction::action("start", item)
             LxAction::action("access", item)
-            LucilleCore::pressEnterToContinue("Press enter to done and finish: ")
+            LucilleCore::pressEnterToContinue("Press [enter] to done and finish: ")
             LxAction::action("done", item)
             return
         end
