@@ -81,21 +81,6 @@ class Anniversaries
 
     # ----------------------------------------------------------------------------------
 
-    # Anniversaries::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxAnniversary"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
-            "startdate"   => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "startdate"),
-            "repeatType"  => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "repeatType"),
-            "lastCelebrationDate" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "lastCelebrationDate")
-        }
-    end
-
     # Anniversaries::anniversaries()
     def self.anniversaries()
         Fx256WithCache::mikuTypeToItems("NxAnniversary")
@@ -137,7 +122,7 @@ class Anniversaries
         Fx18Attributes::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = Anniversaries::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
         end

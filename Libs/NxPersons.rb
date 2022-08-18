@@ -3,18 +3,6 @@
 
 class NxPersons
 
-    # NxPersons::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxPerson"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "name"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "name")
-        }
-    end
-
     # NxPersons::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("NxPerson")
@@ -30,7 +18,7 @@ class NxPersons
         Fx18Attributes::setJsonEncoded(uuid, "name",        name1)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxPersons::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"
         end

@@ -6,19 +6,6 @@ class NxDataNodes
     # ----------------------------------------------------------------------
     # IO
 
-    # NxDataNodes::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxDataNode"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
-            "nx111"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111"),
-        }
-    end
-
     # NxDataNodes::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("NxDataNode")
@@ -48,7 +35,7 @@ class NxDataNodes
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxDataNodes::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 1121ff68-dccb-4ee2-92ca-f8c17be9559c) How did that happen ? 🤨"
         end
@@ -70,7 +57,7 @@ class NxDataNodes
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxDataNodes::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: b75d5950-4d8f-4fc4-bf5a-1b0e0ddd436c) How did that happen ? 🤨"
         end
@@ -92,7 +79,7 @@ class NxDataNodes
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxDataNodes::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: ac3d8924-352d-48bb-8ee0-3383fa8242a5) How did that happen ? 🤨"
         end

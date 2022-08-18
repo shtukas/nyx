@@ -6,23 +6,6 @@ class Ax1Text
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # Ax1Text::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "Ax1Text"
-        item = {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "text"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "text"),
-        }
-        # Sometimes, during a commline update
-        # and Fx256::getAliveProtoItemOrNull(objectuuid) returns something
-        # that thing may not have text considering that the events come in order of "uuid", "mikuType", "unixtime", "datetime", "text"
-        return nil if item["text"].nil?
-        item
-    end
-
     # Ax1Text::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("Ax1Text")
@@ -41,7 +24,7 @@ class Ax1Text
         Fx18Attributes::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = Ax1Text::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"
         end

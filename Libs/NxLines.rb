@@ -6,18 +6,6 @@ class NxLines
     # ----------------------------------------------------------------------
     # IO
 
-    # NxLines::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxLine"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "line"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "line"),
-        }
-    end
-
     # NxLines::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("NxLine")
@@ -36,7 +24,7 @@ class NxLines
         Fx18Attributes::setJsonEncoded(uuid, "line",        line)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxLines::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         raise "(error: 1853d31a-bb37-46d6-b4c2-7afcf88e0c56) How did that happen?" if item.nil?
         item
     end

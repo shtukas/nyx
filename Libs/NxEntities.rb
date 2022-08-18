@@ -6,18 +6,6 @@ class NxEntities
     # ----------------------------------------------------------------------
     # IO
 
-    # NxEntities::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxEntity"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description")
-        }
-    end
-
     # NxEntities::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("NxEntity")
@@ -43,7 +31,7 @@ class NxEntities
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxEntities::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 291521ea-221b-4a81-9b6e-9ef0925d2ca5) How did that happen ? 🤨"
         end

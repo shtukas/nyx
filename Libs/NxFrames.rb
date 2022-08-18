@@ -2,19 +2,6 @@
 
 class NxFrames
 
-    # NxFrames::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxFrame"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
-            "nx111"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111"),
-        }
-    end
-
     # NxFrames::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("NxFrame")
@@ -44,7 +31,7 @@ class NxFrames
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxFrames::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"
         end

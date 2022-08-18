@@ -2,20 +2,6 @@
 
 class NxTasks
 
-    # NxTasks::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "NxTask"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
-            "nx111"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111"),
-            "ax39"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "ax39"),
-        }
-    end
-
     # NxTasks::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("NxTask")
@@ -48,7 +34,7 @@ class NxTasks
         Fx18Attributes::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxTasks::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
         end
@@ -72,7 +58,7 @@ class NxTasks
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxTasks::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: f78008bf-12d4-4483-b4bb-96e3472d46a2) How did that happen ? 🤨"
         end
@@ -95,7 +81,7 @@ class NxTasks
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = NxTasks::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 7938316c-cb54-4d60-a480-f161f19718ef) How did that happen ? 🤨"
         end

@@ -6,18 +6,6 @@ class TopLevel
     # ----------------------------------------------------------------------
     # Objects Management
 
-    # TopLevel::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "TopLevel"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "text"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "text"),
-        }
-    end
-
     # TopLevel::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("TopLevel")
@@ -36,7 +24,7 @@ class TopLevel
         Fx18Attributes::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = TopLevel::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"
         end

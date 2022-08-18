@@ -4,21 +4,6 @@ class Waves
     # --------------------------------------------------
     # IO
 
-    # Waves::objectuuidToItemOrNull(objectuuid)
-    def self.objectuuidToItemOrNull(objectuuid)
-        return nil if Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") != "Wave"
-        {
-            "uuid"        => objectuuid,
-            "mikuType"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType"),
-            "unixtime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "unixtime"),
-            "datetime"    => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "datetime"),
-            "description" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "description"),
-            "nx46"        => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx46"),
-            "nx111"       => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111"),
-            "lastDoneDateTime" => Fx18Attributes::getJsonDecodeOrNull(objectuuid, "lastDoneDateTime"),
-        }
-    end
-
     # Waves::items()
     def self.items()
         Fx256WithCache::mikuTypeToItems("Wave")
@@ -153,7 +138,7 @@ class Waves
         Fx18Attributes::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
-        item = Waves::objectuuidToItemOrNull(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"
         end

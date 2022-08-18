@@ -209,7 +209,7 @@ class Owners
             puts "You need to provide a Ax39 to this task to be a valid owner"
             LucilleCore::pressEnterToContinue()
             Fx18Attributes::setJsonEncoded(uuid, "ax39", Ax39::interactivelyCreateNewAx())
-            return NxTasks::objectuuidToItemOrNull(item["uuid"])
+            return Fx256::getProtoItemOrNull(item["uuid"])
         end
         nil
     end
