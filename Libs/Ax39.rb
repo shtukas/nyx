@@ -198,5 +198,10 @@ class Ax39forSections
             XCache::destroy("2383339b-6beb-4249-bac9-2db0924eb347:#{objectuuid}") # to decache the shouldShow flag
             XCache::destroy("0e9aba8c-9818-4c4b-9338-756508d6ea72:#{objectuuid}") # to decache the orderingValue
         end
+        if event["mikuType"] == "(do not show until has been updated)" then
+            objectuuid = event["targetuuid"]
+            XCache::destroy("2383339b-6beb-4249-bac9-2db0924eb347:#{objectuuid}") # to decache the shouldShow flag
+            XCache::destroy("0e9aba8c-9818-4c4b-9338-756508d6ea72:#{objectuuid}") # to decache the orderingValue
+        end
     end
 end

@@ -24,6 +24,10 @@ class SystemEvents
             OwnerMapping::processEvent(event)
         end
 
+        if event["mikuType"] == "(do not show until has been updated)" then
+            Ax39forSections::processEvent(event)
+        end
+
         if event["mikuType"] == "NxBankEvent" then
             Bank::processEvent(event)
         end

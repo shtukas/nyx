@@ -2,10 +2,6 @@
 
 We have two types of events
 
-1. Internal events.
-
-2. Global events, published to the other machine(s)
-
 {
     "mikuType"   => "(object has been updated)",
     "objectuuid" => objectuuid,
@@ -19,6 +15,11 @@ We have two types of events
 {
     "mikuType"    => "(owner-elements-mapping-update)",
     "objectuuids" => Array[String],
+}
+
+{
+    "mikuType"    => "(do not show until has been updated)",
+    "targetuuid"  => uuid,
 }
 
 {
