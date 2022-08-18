@@ -87,14 +87,14 @@ class LxAction
 
         if command == "done" then
 
-            NxBallsService::close(item["uuid"], true)
-
             if item["mikuType"] == "(rstream-to-target)" then
+                NxBallsService::close(item["uuid"], true)
                 return
             end
 
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::done(item["uuid"])
+                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -104,6 +104,7 @@ class LxAction
             end
 
             if item["mikuType"] == "NxFrame" then
+                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -112,10 +113,12 @@ class LxAction
                     if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done for today ? ", true) then
                         DoneForToday::setDoneToday(item["uuid"])
                     end
+                    NxBallsService::close(item["uuid"], true)
                     return
                 end
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                     Fx256::deleteObjectLogically(item["uuid"])
+                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
@@ -124,6 +127,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ", true) then
                     Fx256::deleteObjectLogically(item["uuid"])
                 end
+                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -131,6 +135,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
+                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -138,6 +143,7 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                 end
+                NxBallsService::close(item["uuid"], true)
                 return
             end
         end
@@ -195,7 +201,8 @@ class LxAction
         if command == "run" then
             LxAction::action("start", item)
             LxAction::action("access", item)
-            NxBallsService::close(item["uuid"], true)
+            LucilleCore::pressEnterToContinue("Press enter to done and finish: ")
+            LxAction::action("done", item)
             return
         end
 

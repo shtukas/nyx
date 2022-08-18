@@ -22,7 +22,7 @@ class NxLines
         Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncoded(uuid, "line",        line)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         raise "(error: 1853d31a-bb37-46d6-b4c2-7afcf88e0c56) How did that happen?" if item.nil?

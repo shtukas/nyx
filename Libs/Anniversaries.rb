@@ -120,7 +120,7 @@ class Anniversaries
         Fx18Attributes::setJsonEncoded(uuid, "startdate",   startdate)
         Fx18Attributes::setJsonEncoded(uuid, "repeatType",  repeatType)
         Fx18Attributes::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then

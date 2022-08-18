@@ -33,7 +33,7 @@ class NxDataNodes
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
@@ -55,7 +55,7 @@ class NxDataNodes
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
@@ -77,7 +77,7 @@ class NxDataNodes
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then

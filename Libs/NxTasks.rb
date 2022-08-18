@@ -32,7 +32,7 @@ class NxTasks
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
         Fx18Attributes::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
@@ -56,7 +56,7 @@ class NxTasks
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
@@ -79,7 +79,7 @@ class NxTasks
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then

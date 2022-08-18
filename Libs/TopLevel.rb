@@ -22,7 +22,7 @@ class TopLevel
         Fx18Attributes::setJsonEncoded(uuid, "unixtime", unixtime)
         Fx18Attributes::setJsonEncoded(uuid, "datetime", datetime)
         Fx18Attributes::setJsonEncoded(uuid, "text", text)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then

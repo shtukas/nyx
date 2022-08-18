@@ -16,7 +16,7 @@ class NxPersons
         Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         Fx18Attributes::setJsonEncoded(uuid, "name",        name1)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then

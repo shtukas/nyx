@@ -31,7 +31,7 @@ class NxConcepts
         Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
         Fx18Attributes::setJsonEncoded(uuid, "datetime",    datetime)
         Fx18Attributes::setJsonEncoded(uuid, "description", description)
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then

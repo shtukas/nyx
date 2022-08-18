@@ -136,7 +136,7 @@ class Waves
         Fx18Attributes::setJsonEncoded(uuid, "nx46",        JSON.generate(nx46))
         Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
         Fx18Attributes::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
-        FileSystemCheck::fsckObjectErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
