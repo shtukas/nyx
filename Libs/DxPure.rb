@@ -113,6 +113,7 @@ class DxPureFileManagement
 
     # DxPureFileManagement::energyGridDriveFilepath(sha1)
     def self.energyGridDriveFilepath(sha1)
+        StargateCentral::ensureEnergyGrid1()
         filepath = "#{StargateCentral::pathToCentral()}/DxPure/#{sha1[0, 2]}/#{sha1}.sqlite3"
         if !File.exists?(File.dirname(filepath)) then
             FileUtils.mkdir(File.dirname(filepath))

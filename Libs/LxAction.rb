@@ -182,7 +182,7 @@ class LxAction
 
         if command == "owner landing" then
             if item["mikuType"] == "NxTask" and item["ax39"] then
-                Owners::ownerLanding(group)
+                Owners::ownerLanding(item)
                 return
             end
             puts "Action `owner landing` only works on NxTasks which carry a Nx39"
