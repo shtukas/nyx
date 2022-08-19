@@ -236,10 +236,12 @@ class DxPure
 
     # DxPure::dxPureTypes()
     def self.dxPureTypes()
-        ["aion-point"]
+        [
+            "aion-point" # This is a shorthand for DxPureAionPoint
+        ]
     end
 
-    # DxPure::issueDxPureAionPoint(owner, location)
+    # DxPure::issueDxPureAionPoint(owner, location) # sha1
     def self.issueDxPureAionPoint(owner, location)
         if !File.exists?(location) then
             raise "(error: b0824d0c-f8bd-4312-a550-f2752d49b3db) location: #{location}"

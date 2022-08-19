@@ -1,7 +1,7 @@
 
 ## (Dx) Pure Immutable Data Files
 
-For the moment are Nx111 companion files. 
+The can be issues and accessed using the DxPure class, but can mostly be found as Nx111 companion files.
 
 {
     "uuid"  : String
@@ -9,16 +9,22 @@ For the moment are Nx111 companion files.
     "sha1"  : sha1 in the full filename of the pure immutable content-addressed data island, of the form <sha1>.sqlite3
 }
 
-### Database
+### DxPure file
 
 create table _dx_ (_key_ text primary key, _value_ blob);
 
 ### Filenames
 
-The Nx111 contains the sha1, the filename is then `<sha1>.sqlite3`, located at (depth 2)
+The Nx111 contains the sha1, the filename is then `<sha1>.sqlite3`
 
-```
-path/to/PureImmutableDataIslands/<fragment2>/<sha1>.sqlite3
-```
+### DxPure Types
 
+DxPureAionPoint:
+    "randomValue" : String
+    "mikuType"    : "DxPureAionPoint"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "owner"       : String
+    "rootnhash"   : nhash of the aion root
+    (...)           The file also contains all the datablobs
 

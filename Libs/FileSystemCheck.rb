@@ -63,18 +63,6 @@ class FileSystemCheck
             }
             return
         end
-        if nx111["type"] == "aion-point" then
-            rootnhash = nx111["rootnhash"]
-            operator = ExDataElizabethForFsck.new(objectuuid)
-            status = AionFsck::structureCheckAionHash(operator, rootnhash)
-            if !status then
-                puts "objectuuid: #{objectuuid}".red
-                puts "nx111: #{nx111}".red
-                puts "objectuuid, could not validate aion-point".red
-                raise "FileSystemCheck::fsckNx111ErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
-            end
-            return
-        end
         if nx111["type"] == "unique-string" then
             return
         end

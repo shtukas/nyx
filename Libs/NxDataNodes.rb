@@ -46,7 +46,7 @@ class NxDataNodes
     def self.issueNewItemAionPointFromLocation(location)
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        nx111 = Nx111::locationToAionPointNx111(uuid, location)
+        nx111 = Nx111::locationToNx111DxPureAionPoint(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)

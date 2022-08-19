@@ -72,7 +72,7 @@ class NxTasks
         end
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        nx111 = Nx111::locationToAionPointNx111(uuid, location)
+        nx111 = Nx111::locationToNx111DxPureAionPoint(uuid, location)
         Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
         Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
         Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)

@@ -50,13 +50,14 @@ class UniqueStringsFunctions
             next if item["nx111"].nil?
             CommonUtils::putsOnPreviousLine("looking into #{item["uuid"]}")
             nx111 = item["nx111"]
-            if nx111["type"] == "aion-point" then
-                rootnhash = nx111["rootnhash"]
-                operator = ExDataElizabeth.new(item["uuid"])
-                if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
-                    Nx111::access(item, nx111)
-                    return
-                end
+            if nx111["type"] == "DxPure" then
+                # TODO: (look inside aion-points)
+                #rootnhash = nx111["rootnhash"]
+                #operator = ExDataElizabeth.new(item["uuid"])
+                #if UniqueStringsFunctions::uniqueStringIsInNhash(operator, rootnhash, uniquestring) then
+                #    Nx111::access(item, nx111)
+                #    return
+                #end
             end
         }
 
