@@ -39,7 +39,6 @@ require 'drb/drb'
 
 # ------------------------------------------------------------
 
-
 checkLocation = lambda{|location|
     if !File.exists?(location) then
         puts "I cannot see location: #{location.green}"

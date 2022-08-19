@@ -13,8 +13,8 @@ Nx111
 }
 
 {
-    "uuid"      : String
-    "type"      : "unique-string"
+    "uuid"         : String
+    "type"         : "unique-string"
     "uniquestring" : Unique String # Unique strings can be anything, but when possible, it's recommended to use "Nx01-<substring>", note that in this case "Nx01" is indeed part of the string.
 }
 
@@ -25,15 +25,7 @@ Nx111
 }
 
 {
-    "uuid"            : String
-    "type"            : "file"
-    "dottedExtension" : dottedExtension
-    "nhash"           : nhash
-    "parts"           : Array[nhash]
-}
-
-{
     "uuid"  : String
-    "type"  : "DxPure"
+    "type"  : "DxPure" # replaces "aion-point" and (primitive) "file"
     "sha1"  : sha1 in the full filename of the pure immutable content-addressed data island, of the form <sha1>.sqlite3
 }

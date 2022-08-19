@@ -1,51 +1,45 @@
-
 # encoding: UTF-8
 
 class PrimitiveFiles
 
-    # PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(objectuuid, filepath)
-    def self.nhashcommitFileReturnPartsHashsImproved_v2(objectuuid, filepath)
-        raise "[a324c706-3867-4fbb-b0de-f8c2edd2d110, filepath: #{filepath}]" if !File.exists?(filepath)
-        raise "[fba5194d-cad3-4766-953e-a994923925fe, filepath: #{filepath}]" if !File.file?(filepath)
+    # PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
+    def self.commitFileReturnDataElements(filepath, operator)
+        raise "[4b23d843-1960-4c19-b0bb-4bf4ea9f14b4, filepath: #{filepath}]" if !File.exists?(filepath)
+        raise "[43d2b5e1-06d5-4dc9-844c-c04bf353dfba, filepath: #{filepath}]" if !File.file?(filepath)
 
-        # The interface of v2 is simpler, we get the filepath and return the hashes. In the meantime 
-        # an island (through the Elizabeth) will have been created and populated
+        dottedExtension = File.extname(filepath)
 
         nhash = CommonUtils::filepathToContentHash(filepath)
-
-        elizabeth = ExDataElizabeth.new(objectuuid)
 
         parts = []
         partSizeInBytes = 1024*1024 # 1 MegaBytes
         f = File.open(filepath)
         while ( blob = f.read(partSizeInBytes) ) do
-            parts << elizabeth.putBlob(blob)
+            parts << operator.putBlob(blob)
         end
         f.close()
 
-        [nhash, parts]
-    end
-
-    # PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath) # [dottedExtension, nhash, parts]
-    def self.locationToPrimitiveFileDataArrayOrNull(objectuuid, filepath)
-        return nil if !File.exists?(filepath)
-        return nil if !File.file?(filepath)
-        dottedExtension = File.extname(filepath)
-        nhash, parts = PrimitiveFiles::nhashcommitFileReturnPartsHashsImproved_v2(objectuuid, filepath)
         [dottedExtension, nhash, parts]
     end
 
-    # PrimitiveFiles::locationToPrimitiveFileNx111OrNull(objectuuid, location) # Nx111
-    def self.locationToPrimitiveFileNx111OrNull(objectuuid, location)
-        data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, location)
-        return nil if data.nil?
-        dottedExtension, nhash, parts = data
-        {
-            "uuid"            => SecureRandom.uuid,
-            "type"            => "file",
-            "dottedExtension" => dottedExtension,
-            "nhash"           => nhash,
-            "parts"           => parts
+    # PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
+    def self.fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
+        puts "PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, #{dottedExtension}, #{nhash}, #{parts})"
+        if dottedExtension[0, 1] != "." then
+            puts "objectuuid: #{objectuuid}".red
+            puts "nx111: #{nx111}".red
+            puts "primitive parts, dotted extension is malformed".red
+            raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
+        end
+        parts.each{|nhash|
+            blob = operator.getBlobOrNull(nhash)
+            if blob.nil? then
+                puts "objectuuid: #{objectuuid}".red
+                puts "nx111: #{nx111}".red
+                puts "nhash: #{nhash}".red
+                puts "primitive parts, nhash not found: #{nhash}".red
+                raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
+            end
         }
     end
 end

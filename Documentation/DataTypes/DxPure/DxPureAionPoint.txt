@@ -1,8 +1,0 @@
-
-DxPureAionPoint:
-    "randomValue"  : String
-    "mikuType"     : "DxPureAionPoint"
-    "unixtime"     : Float
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "owner"        : String
-    "rootnhash"    : nhash

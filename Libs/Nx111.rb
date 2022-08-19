@@ -9,20 +9,22 @@ class Nx111
             "text",
             "url",
             "file",
+            "aion-point",
             "unique-string",
             "Dx8Unit",
             "DxPure"
         ]
     end
 
-    # Nx111::typesForNewItems()
-    def self.typesForNewItems()
+    # Nx111::typesForNewObjects()
+    def self.typesForNewObjects()
         [
             "text",
             "url",
             "file",
+            "aion-point",
             "unique-string",
-            "Dx8Unit",
+            "Dx8Unit"
         ]
     end
 
@@ -37,9 +39,22 @@ class Nx111
         }
     end
 
+    # Nx111::locationToNx111DxPureFileOrNull(objectuuid, location) # Nx111
+    def self.locationToNx111DxPureFileOrNull(objectuuid, location)
+        raise "[b54a34d7-4717-4478-bb4e-64f665a2b686, filepath: #{filepath}]" if !File.exists?(filepath)
+        raise "[386e4a91-9580-4711-8a71-209472a2e17c, filepath: #{filepath}]" if !File.file?(filepath)
+        filepath = location
+        sha1 = DxPure::issueDxPureFile(objectuuid, filepath)
+        {
+            "uuid" => SecureRandom.uuid,
+            "type" => "DxPure",
+            "sha1" => sha1
+        }
+    end
+
     # Nx111::interactivelyCreateNewNx111OrNull(objectuuid)
     def self.interactivelyCreateNewNx111OrNull(objectuuid)
-        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx111 type", Nx111::typesForNewItems())
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("nx111 type", Nx111::typesForNewObjects())
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
@@ -61,15 +76,13 @@ class Nx111
         if type == "file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            data = PrimitiveFiles::locationToPrimitiveFileDataArrayOrNull(objectuuid, location) # [dottedExtension, nhash, parts]
-            raise "(error: a3339b50-e3df-4e5d-912d-a6b23aeb5c33)" if data.nil?
-            dottedExtension, nhash, parts = data
+            return nil if !File.file?(location)
+            filepath = location
+            sha1 = DxPure::issueDxPureFile(objectuuid, filepath)
             return {
-                "uuid"            => SecureRandom.uuid,
-                "type"            => "file",
-                "dottedExtension" => dottedExtension,
-                "nhash"           => nhash,
-                "parts"           => parts
+                "uuid" => SecureRandom.uuid,
+                "type" => "DxPure",
+                "sha1" => sha1
             }
         end
         if type == "aion-point" then
@@ -89,15 +102,6 @@ class Nx111
                 "uuid" => SecureRandom.uuid,
                 "type" => "unique-string",
                 "uniquestring" => uniquestring
-            }
-        end
-        if type == "DxPure" then
-            sha1 = DxPure::interactivelyIssueNewOrNull(objectuuid)
-            return nil if sha1.nil?
-            return {
-                "uuid" => SecureRandom.uuid,
-                "type" => "DxPure",
-                "sha1" => sha1
             }
         end
         raise "(error: aae1002c-2f78-4c2b-9455-bdd0b5c0ebd6): #{type}"
@@ -143,23 +147,6 @@ class Nx111
             return
         end
 
-        if nx111["type"] == "file" then
-            dottedExtension = nx111["dottedExtension"]
-            nhash = nx111["nhash"]
-            parts = nx111["parts"]
-            operator = ExDataElizabeth.new(item["uuid"])
-            filepath = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
-            File.open(filepath, "w"){|f|
-                parts.each{|nhash|
-                    blob = operator.getBlobOrNull(nhash)
-                    raise "(error: a614a728-fb28-455f-9430-43aab78ea35f)" if blob.nil?
-                    f.write(blob)
-                }
-            }
-            system("open '#{filepath}'")
-            return
-        end
-
         if nx111["type"] == "Dx8Unit" then
             unitId = nx111["unitId"]
             location = Dx8UnitsUtils::acquireUnit(unitId)
@@ -191,5 +178,75 @@ class Nx111
 
         puts "Code to be written (33685044-382e-4e98-bf8c-6fb4cf31ce1c)"
         exit
+    end
+
+    # Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
+    def self.fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
+        return if nx111.nil?
+
+        repeatKey = "d17407ac-1c38-4b03-bbe7-66ff9cf8039a:#{objectuuid}:#{JSON.generate(nx111)}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(#{objectuuid}, #{nx111})"
+
+        if objectuuid.nil? then
+            puts "objectuuid: #{objectuuid}".red
+            puts "Malformed Fx18 file, I could not find a uuid".red
+            raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
+        end
+
+        if !Nx111::types().include?(nx111["type"]) then
+            puts "objectuuid has an incorrect nx111 value type".red
+            puts "objectuuid: #{objectuuid}".red
+            puts "nx111: type: #{JSON.pretty_generate(nx111["type"])}".red
+            raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
+        end
+
+        if nx111["type"] == "text" then
+            text = nx111["text"]
+            if text.nil? then
+                puts "objectuuid: #{objectuuid}".red
+                puts "nx111: #{nx111}".red
+                puts "Fx18FileDataForFsck::getBlobOrNull(objectuuid, nhash): could not find the text".red
+                raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
+            end
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if nx111["type"] == "url" then
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if nx111["type"] == "unique-string" then
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if nx111["type"] == "Dx8Unit" then
+            unitId = nx111["unitId"]
+            location = Dx8UnitsUtils::acquireUnit(unitId)
+            if location.nil? then
+                puts "I could not acquire the Dx8Unit. Aborting operation."
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            puts "Dx8Unit: location: #{location}"
+            if !File.exists?(location) then
+                puts "note: could not find location for Dx8Unit: #{unitId}".red
+            end
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if nx111["type"] == "DxPure" then
+            sha1 = nx111["sha1"]
+            DxPure::fsckSha1RaiseError(sha1)
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        raise "(24500b54-9a88-4058-856a-a26b3901c23a: incorrect nx111 value: #{nx111})"
     end
 end

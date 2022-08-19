@@ -38,7 +38,7 @@ class Upload
         end
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
-            child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
+            child = NxDataNodes::issueNewNxDataNodeWithNx111DxPureFileFromLocationOrNull(location)
             next if child.nil?
             if overrideDatetime then
                 Fx18Attributes::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)
@@ -59,7 +59,7 @@ class Upload
         if action == "single file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return if location.nil?
-            child = NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
+            child = NxDataNodes::issueNewNxDataNodeWithNx111DxPureFileFromLocationOrNull(location)
             return if child.nil?
             if overrideDatetime then
                 Fx18Attributes::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)

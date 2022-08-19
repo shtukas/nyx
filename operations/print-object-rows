@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+objectuuid = ARGV[0]
+Fx256::objectrows(objectuuid).each{|row|
+    puts JSON.pretty_generate(row)
+}

@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel",
             "anniversaries | ondates | todos | owners | waves",
-            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | owner landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
+            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
@@ -212,19 +212,6 @@ class Commands
 
         if Interpreting::match("ondates", input) then
             TxDateds::dive()
-            return
-        end
-
-        if Interpreting::match("owner landing", input) then
-            LxAction::action("owner landing", store.getDefault())
-            return
-        end
-
-        if Interpreting::match("owner landing *", input) then
-            _, _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            LxAction::action("owner landing", item)
             return
         end
 

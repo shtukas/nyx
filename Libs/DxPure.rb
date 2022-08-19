@@ -251,8 +251,6 @@ class DxPure
         mikuType    = "DxPureAionPoint"
         unixtime    = Time.new.to_i
         datetime    = Time.new.utc.iso8601
-        # owner
-        # location
 
         filepath1 = "/tmp/#{SecureRandom.hex}.sqlite3"
         DxPure::makeNewPureFile(filepath1)
@@ -267,7 +265,52 @@ class DxPure
         DxPure::insertIntoPure(filepath1, "owner", owner)
         DxPure::insertIntoPure(filepath1, "rootnhash", rootnhash)
 
-        DxPure::fsckFileRaiseError(filepath1)
+        DxPure::fsckFileNoRepeatRaiseError(filepath1)
+
+        sha1 = Digest::SHA1.file(filepath1).hexdigest
+
+        # We move the file to the BufferOut
+        filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
+        FileUtils.cp(filepath1, filepath2)
+
+        # and we copy it to XCache
+        DxPureFileManagement::dropDxPureFileInXCache(filepath2)
+
+        # and we drop it on the comm line
+        DxPureFileManagement::dropDxPureFileOnCommline(filepath2)
+
+        sha1
+    end
+
+    # DxPure::issueDxPureFile(owner, filepath) # sha1
+    def self.issueDxPureFile(owner, filepath)
+
+        if !File.exists?(filepath) then
+            raise "(error: a3a2be9f-f52b-4eba-8d23-f1278ed0cc98) filepath: #{filepath}"
+        end
+
+        randomValue = SecureRandom.hex
+        mikuType    = "DxPureFile"
+        unixtime    = Time.new.to_i
+        datetime    = Time.new.utc.iso8601
+
+        filepath1 = "/tmp/#{SecureRandom.hex}.sqlite3"
+        DxPure::makeNewPureFile(filepath1)
+
+        operator = DxPureElizabeth.new(filepath1)
+
+        dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
+
+        DxPure::insertIntoPure(filepath1, "randomValue", randomValue)
+        DxPure::insertIntoPure(filepath1, "mikuType", mikuType)
+        DxPure::insertIntoPure(filepath1, "unixtime", unixtime)
+        DxPure::insertIntoPure(filepath1, "datetime", datetime)
+        DxPure::insertIntoPure(filepath1, "owner", owner)
+        DxPure::insertIntoPure(filepath1, "dottedExtension", dottedExtension)
+        DxPure::insertIntoPure(filepath1, "nhash", nhash)
+        DxPure::insertIntoPure(filepath1, "parts", JSON.generate(parts))
+
+        DxPure::fsckFileNoRepeatRaiseError(filepath1)
 
         sha1 = Digest::SHA1.file(filepath1).hexdigest
 
@@ -335,14 +378,46 @@ class DxPure
             LucilleCore::pressEnterToContinue()
             return
         end
+        if mikuType == "DxPureFile" then
+            dottedExtension = DxPure::readValueOrNull(filepath, "dottedExtension")
+            nhash = DxPure::readValueOrNull(filepath, "nhash")
+            parts = JSON.parse(DxPure::readValueOrNull(filepath, "parts"))
+            operator = DxPureElizabeth.new(filepath)
+            filepath = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
+            File.open(filepath, "w"){|f|
+                parts.each{|nhash|
+                    blob = operator.getBlobOrNull(nhash)
+                    raise "(error: 13709695-3dca-493b-be46-62d4ef6cf18f)" if blob.nil?
+                    f.write(blob)
+                }
+            }
+            system("open '#{filepath}'")
+            puts "Item exported at #{filepath}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
         raise "(error: 9a06ba98-9ec5-4dd5-94c8-1a87dd566506) DxPure access: unsupported mikuType: #{mikuType}"
     end
 
     # ------------------------------------------------------------
     # Fsck
 
-    # DxPure::fsckFileRaiseError(filepath)
-    def self.fsckFileRaiseError(filepath)
+    # DxPure::fsckFileNoRepeatRaiseError(filepath)
+    def self.fsckFileNoRepeatRaiseError(filepath)
+        if !File.exists?(filepath) then
+            puts "DxPure::fsckFileNoRepeatRaiseError(#{filepath})"
+            raise "(error: 99735f99-09c8-48f2-b305-78c684b4cdb7) filepath doesn't exists"
+        end
+        if !File.file?(filepath) then
+            puts "DxPure::fsckFileNoRepeatRaiseError(#{filepath})"
+            raise "(error: d0801faa-8ca7-4b08-a4cf-c485a0b91bfc) filepath doesn't point at an actual path"
+        end
+
+        repeatKey = "432de527-0721-486f-a596-36d98a8fd7f7:#{Digest::SHA1.file(filepath).hexdigest}"
+        return if XCache::getFlag(repeatKey)
+
+        puts "DxPure::fsckFileNoRepeatRaiseError(#{filepath})"
+
         mikuType = DxPure::getMikuType(filepath)
 
         ensureAttributeExists = lambda {|filepath, attrname|
@@ -358,9 +433,52 @@ class DxPure
             ensureAttributeExists.call(filepath, "datetime")
             ensureAttributeExists.call(filepath, "owner")
             ensureAttributeExists.call(filepath, "rootnhash")
+
+            rootnhash = DxPure::readValueOrNull(filepath, "rootnhash")
+            operator  = DxPureElizabeth.new(filepath)
+            puts "AionFsck::structureCheckAionHash(operator, #{rootnhash})"
+            status    = AionFsck::structureCheckAionHash(operator, rootnhash)
+            if !status then
+                puts "DxPure::fsckFileNoRepeatRaiseError(#{filepath})"
+                puts "could not validate aion-point".red
+                raise "(error: bbbc2cf1-4948-4c8c-89cd-399c4f793c6c)"
+            end
+
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if mikuType == "DxPureFile" then
+            ensureAttributeExists.call(filepath, "randomValue")
+            ensureAttributeExists.call(filepath, "mikuType")
+            ensureAttributeExists.call(filepath, "unixtime")
+            ensureAttributeExists.call(filepath, "datetime")
+            ensureAttributeExists.call(filepath, "owner")
+            ensureAttributeExists.call(filepath, "dottedExtension")
+            ensureAttributeExists.call(filepath, "nhash")
+            ensureAttributeExists.call(filepath, "parts")
+
+            operator        = DxPureElizabeth.new(filepath)
+            dottedExtension = DxPure::readValueOrNull(filepath, "dottedExtension")
+            nhash           = DxPure::readValueOrNull(filepath, "nhash")
+            parts           = JSON.parse(DxPure::readValueOrNull(filepath, "parts"))
+            PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
+            XCache::setFlag(repeatKey, true)
             return
         end
 
         raise "(error: fa74feac-37c6-4525-93ba-933f52d54321) DxPure fsck: unsupported mikuType: #{mikuType}"
+    end
+
+    # DxPure::fsckSha1RaiseError(sha1)
+    def self.fsckSha1RaiseError(sha1)
+        puts "DxPure::fsckSha1RaiseError(#{sha1})"
+        filepath = DxPureFileManagement::acquireFilepathOrNull(sha1)
+        if filepath.nil? then
+            puts "DxPure::fsckSha1RaiseError(#{sha1})"
+            puts "Could not acquire filepath"
+            raise "(error: 7a733da1-d23a-45d6-9ec5-114a54039d7a)"
+        end
+        DxPure::fsckFileNoRepeatRaiseError(filepath)
     end
 end

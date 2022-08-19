@@ -64,11 +64,11 @@ class NxDataNodes
         item
     end
 
-    # NxDataNodes::issuePrimitiveFileFromLocationOrNull(location)
-    def self.issuePrimitiveFileFromLocationOrNull(location)
+    # NxDataNodes::issueNewNxDataNodeWithNx111DxPureFileFromLocationOrNull(location)
+    def self.issueNewNxDataNodeWithNx111DxPureFileFromLocationOrNull(location)
         description = nil
         uuid = SecureRandom.uuid
-        nx111 = PrimitiveFiles::locationToPrimitiveFileNx111OrNull(uuid, location)
+        nx111 = Nx111::locationToNx111DxPureFileOrNull(uuid, location)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)

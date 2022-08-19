@@ -180,16 +180,6 @@ class LxAction
             return
         end
 
-        if command == "owner landing" then
-            if item["mikuType"] == "NxTask" and item["ax39"] then
-                Owners::ownerLanding(item)
-                return
-            end
-            puts "Action `owner landing` only works on NxTasks which carry a Nx39"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)

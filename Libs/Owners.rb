@@ -118,8 +118,8 @@ class Owners
         NxBallsService::close(element["uuid"], true)
     end
 
-    # Owners::ownerLanding(owner)
-    def self.ownerLanding(owner)
+    # Owners::elementsLanding(owner)
+    def self.elementsLanding(owner)
         loop {
             system("clear")
 
@@ -234,7 +234,7 @@ class Owners
             owners = Owners::owners().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
             owner = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", owners, lambda{|item| Owners::toString(item) })
             break if owner.nil?
-            Owners::ownerLanding(owner)
+            Owners::elementsLanding(owner)
         }
     end
 end
