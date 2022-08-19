@@ -567,14 +567,6 @@ class Fx18sSynchronisation
     # Fx18sSynchronisation::sync()
     def self.sync()
 
-        LucilleCore::locationsAtFolder("#{Config::pathToLocalDataBankStargate()}/Datablobs").each{|filepath|
-            next if filepath[-5, 5] != ".data"
-            puts "Fx18sSynchronisation::sync(): transferring blob: #{filepath}"
-            blob = IO.read(filepath)
-            ExData::putBlobOnEnergyGrid1(blob)
-            FileUtils.rm(filepath)
-        }
-
         DxPureFileManagement::bufferOutFilepathsEnumerator().each{|dxBufferOutFilepath|
             sha1 = File.basename(dxBufferOutFilepath).gsub(".sqlite3", "")
             eGridFilepath = DxPureFileManagement::energyGridDriveFilepath(sha1)

@@ -62,11 +62,12 @@ class LxAction
 
             if item["mikuType"] == "TopLevel" then
                 uuid = item["uuid"]
-                nhash = Fx18Attributes::getJsonDecodeOrNull(uuid, "nhash")
-                text = ExData::getBlobOrNull(nhash)
-                text = CommonUtils::editTextSynchronously(text)
-                nhash = ExData::putBlobInLocalDatablobsFolder(text)
-                Fx18Attributes::setJsonEncoded(uuid, "nhash", nhash)
+                text = item["text"]
+                CommonUtils::accessText(text)
+                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit ? ") then
+                    text = CommonUtils::editTextSynchronously(text)
+                    Fx18Attributes::setJsonEncoded(uuid, "text", text)
+                end
                 return
             end
 

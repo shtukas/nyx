@@ -54,7 +54,6 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Datablobs")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPureBufferOut")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared/shared-config.json")
 
@@ -203,8 +202,6 @@ require_relative "DoNotShowUntil.rb"
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
 require_relative "DxPure.rb"
-
-require_relative "ExData.rb"
 
 require_relative "Galaxy.rb"
 

@@ -45,61 +45,6 @@ class DxPureElizabeth
     end
 end
 
-class DxPureElizabethFsck1_Migration
-
-    def initialize(filepath)
-        if !File.exists?(filepath) then
-            raise "(error: 954c1f8d-bba8-4e5c-bd2f-0bed8406ec14)"
-        end
-        @filepath = filepath
-    end
-
-    def putBlob(blob)
-        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
-        DxPure::insertIntoPure(@filepath, nhash, blob)
-        nhash
-    end
-
-    def filepathToContentHash(filepath)
-        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
-    end
-
-    def getBlobOrNull(nhash)
-        blob = DxPure::readValueOrNull(@filepath, nhash)
-        if blob then
-            return blob
-        end
-
-        blob = ExData::getBlobOrNullForFsck(nhash)
-        if blob then
-            putBlob(blob)
-            return blob
-        end
-
-        nil
-    end
-
-    def readBlobErrorIfNotFound(nhash)
-        blob = getBlobOrNull(nhash)
-        return blob if blob
-        puts "(error: 76169e64-9c86-4b17-ae10-30f6b72f2f72) could not find blob, nhash: #{nhash}"
-        raise "(error: 185c1263-b427-4409-9970-2902f0ade5d3, nhash: #{nhash})" if blob.nil?
-    end
-
-    def datablobCheck(nhash)
-        begin
-            blob = readBlobErrorIfNotFound(nhash)
-            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
-            if !status then
-                puts "(error: ff6d6934-a139-43f0-93ff-14123ba364a6) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
-            end
-            return status
-        rescue
-            false
-        end
-    end
-end
-
 class DxPureFileManagement
 
     # DxPureFileManagement::bufferOutFilepath(sha1)
