@@ -54,15 +54,6 @@ class Catalyst
             }
         end
 
-        Thread.new {
-            loop {
-                sleep 600
-                $commline_semaphore.synchronize {
-                    SystemEvents::processCommLine(false)
-                }
-            }
-        }
-
         loop {
 
             #puts "(code trace)"
