@@ -70,7 +70,7 @@ class DxPureElizabethFsck1_Migration
             return blob
         end
 
-        blob = ExData::getBlobOrNull(nhash)
+        blob = ExData::getBlobOrNullForFsck(nhash)
         if blob then
             putBlob(blob)
             return blob

@@ -80,7 +80,6 @@ class ExData
         # First we look inside the local block
         blob = ExData::getBlobFromLocalDatablobsFolder(nhash)
         if blob then
-            XCacheDatablobs::putBlob(blob)
             return blob
         end
 
