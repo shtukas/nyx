@@ -190,6 +190,11 @@ class LxAction
         end
 
         if command == "run" then
+            if item["mikuType"] == "fitness1" then
+                LxAction::action("access", item)
+                return
+            end
+
             LxAction::action("start", item)
             LxAction::action("access", item)
             LucilleCore::pressEnterToContinue("Press [enter] to done and finish: ")
