@@ -195,6 +195,13 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "Wave" then
+                LxAction::action("start", item)
+                LxAction::action("access", item)
+                LxAction::action("done", item)
+                return
+            end
+
             LxAction::action("start", item)
             LxAction::action("access", item)
             LucilleCore::pressEnterToContinue("Press [enter] to done and finish: ")
