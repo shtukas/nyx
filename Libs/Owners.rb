@@ -49,6 +49,7 @@ class Owners
     # Owners::section1()
     def self.section1()
         Owners::owners()
+            .select{|owner| Ax39forSections::itemShouldShow(owner) }
             .map{|item|
                 {
                     "item" => item,
