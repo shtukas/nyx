@@ -365,7 +365,7 @@ class Commands
         end
 
         if Interpreting::match("task", input) then
-            item = NxTasks::interactivelyCreateNewOrNull()
+            item = NxTasks::interactivelyCreateNewOrNull(true)
             return if item.nil?
             if item["ax39"].nil? then
                 Owners::interactivelyProposeToAttachThisElementToOwner(item)

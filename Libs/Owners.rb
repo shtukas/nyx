@@ -171,7 +171,7 @@ class Owners
                     OwnerMapping::issue(owner["uuid"], element["uuid"])
                 end
                 if type == "task" then
-                    element = NxTasks::interactivelyCreateNewOrNull()
+                    element = NxTasks::interactivelyCreateNewOrNull(false)
                     next if element.nil?
                     OwnerMapping::issue(owner["uuid"], element["uuid"])
                 end
@@ -213,7 +213,7 @@ class Owners
         item = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", items, lambda{|item| LxFunction::function("toString", item) })
         return item if item
         if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner ? ") then
-            item = NxTasks::interactivelyCreateNewOrNull()
+            item = NxTasks::interactivelyCreateNewOrNull(true)
             return nil if item.nil?
             return item if item["ax39"]
             puts "You need to provide a Ax39 to this task to be a valid owner"
