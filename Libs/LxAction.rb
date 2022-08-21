@@ -114,6 +114,12 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "NxIced" then
+                NxIceds::destroy(item["uuid"])
+                NxBallsService::close(item["uuid"], true)
+                return
+            end
+
             if item["mikuType"] == "NxTask" then
                 if item["ax39"] then
                     if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done for today ? ", true) then
