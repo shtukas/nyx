@@ -26,6 +26,11 @@ class LxAction
 
         if command == "access" then
 
+            if Owners::itemIsOwner(item) then
+                Landing::landingOwner(item)
+                return nil
+            end
+
             puts LxFunction::function("toString", item).green
 
             if item["mikuType"] == "fitness1" then
