@@ -194,26 +194,6 @@ class LxAction
             end
         end
 
-        if command == "run" then
-            if item["mikuType"] == "fitness1" then
-                LxAction::action("access", item)
-                return
-            end
-
-            if item["mikuType"] == "Wave" then
-                LxAction::action("start", item)
-                LxAction::action("access", item)
-                LxAction::action("done", item)
-                return
-            end
-
-            LxAction::action("start", item)
-            LxAction::action("access", item)
-            LucilleCore::pressEnterToContinue("Press [enter] to done and finish: ")
-            LxAction::action("done", item)
-            return
-        end
-
         if command == "start" then
             return if NxBallsService::isRunning(item["uuid"])
             accounts = [item["uuid"]] + OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
