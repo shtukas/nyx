@@ -15,14 +15,14 @@ class NxTasks
     # --------------------------------------------------
     # Makers
 
-    # NxTasks::interactivelyCreateNewOrNull()
-    def self.interactivelyCreateNewOrNull()
+    # NxTasks::interactivelyCreateNewOrNull(shouldPromptForTimeCommitment)
+    def self.interactivelyCreateNewOrNull(shouldPromptForTimeCommitment)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         ax39 = nil
-        if LucilleCore::askQuestionAnswerAsBoolean("Attach a Ax39 (time commitment) ? ", false) then
+        if shouldPromptForTimeCommitment and LucilleCore::askQuestionAnswerAsBoolean("Attach a Ax39 (time commitment) ? ", false) then
             ax39 = Ax39::interactivelyCreateNewAxOrNull()
         end
         Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)

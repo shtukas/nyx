@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel",
             "anniversaries | ondates | todos | owners | waves",
-            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
+            "<datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
@@ -16,19 +16,6 @@ class Commands
 
     # Commands::run(input, store)
     def self.run(input, store) # [command or null, item or null]
-
-        if Interpreting::match("..", input) then
-            LxAction::action("run", store.getDefault())
-            return
-        end
-
-        if Interpreting::match(".. *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            LxAction::action("run", item)
-            return
-        end
 
 
         if Interpreting::match(">owner", input) then
@@ -300,19 +287,6 @@ class Commands
             return
         end
 
-        if Interpreting::match("run", input) then
-            LxAction::action("run", store.getDefault())
-            return
-        end
-
-        if Interpreting::match("run *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            LxAction::action("run", item)
-            return
-        end
-
         if Interpreting::match("do not show until *", input) then
             _, _, _, _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
@@ -380,7 +354,7 @@ class Commands
         end
 
         if Interpreting::match("task", input) then
-            item = NxTasks::interactivelyCreateNewOrNull()
+            item = NxTasks::interactivelyCreateNewOrNull(true)
             return if item.nil?
             if item["ax39"].nil? then
                 Owners::interactivelyProposeToAttachThisElementToOwner(item)

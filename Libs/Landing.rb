@@ -289,21 +289,26 @@ class Landing
         nil
     end
 
-    # Landing::landing(item, isSearchAndSelect)
+    # Landing::landingOwner(item)
+    def self.landingOwner(item)
+        options = ["metadata landing", "elements landing"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+        if option.nil? then
+            return
+        end
+        if option == "elements landing" then
+            Owners::elementsLanding(item)
+        end
+        if option == "metadata landing" then
+            Landing::implementsNx111Landing(item, isSearchAndSelect)
+        end
+    end
+
+    # Landing::landing(item, isSearchAndSelect) # item or null
     def self.landing(item, isSearchAndSelect)
         if Owners::itemIsOwner(item) then
-            options = ["metadata landing", "elements landing"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option.nil? then
-                return
-            end
-            if option == "elements landing" then
-                Owners::elementsLanding(item)
-                return
-            end
-            if option == "metadata landing" then
-                # We let it carry on...
-            end
+            Landing::landingOwner(item)
+            return nil
         end
         if Iam::implementsNx111(item) then
             return Landing::implementsNx111Landing(item, isSearchAndSelect)
