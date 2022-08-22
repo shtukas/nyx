@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel",
             "anniversaries | ondates | todos | owners | waves",
-            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
+            "<datecode> | <n> | run/.. (<n>) | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
@@ -128,6 +128,21 @@ class Commands
             item = store.getDefault()
             return if item.nil?
             DoneForToday::setDoneToday(item["uuid"])
+            return
+        end
+
+        if Interpreting::match("edit", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Fx256::edit(item)
+            return
+        end
+
+        if Interpreting::match("edit *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            Fx256::edit(item)
             return
         end
 

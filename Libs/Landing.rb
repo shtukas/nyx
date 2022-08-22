@@ -198,7 +198,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | edit | note | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -235,6 +235,10 @@ class Landing
                 nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
                 next if nx111.nil?
                 Fx18Attributes::setJsonEncoded(item["uuid"], "nx111", nx111)
+            end
+
+            if Interpreting::match("edit", command) then
+                item = Fx256::edit(item)
             end
 
             if Interpreting::match("iam", command) then

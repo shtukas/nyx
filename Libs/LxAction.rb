@@ -64,10 +64,6 @@ class LxAction
                 uuid = item["uuid"]
                 text = item["text"]
                 CommonUtils::accessText(text)
-                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit ? ") then
-                    text = CommonUtils::editTextSynchronously(text)
-                    Fx18Attributes::setJsonEncoded(uuid, "text", text)
-                end
                 return
             end
 

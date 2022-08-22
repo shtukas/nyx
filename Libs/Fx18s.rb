@@ -235,6 +235,26 @@ class Fx256
             }
         end
     end
+
+    # Fx256::edit(item) # item
+    def self.edit(item) # item
+        if item["mikuType"] == "TopLevel" then
+            uuid = item["uuid"]
+            text = item["text"]
+            text = CommonUtils::editTextSynchronously(text)
+            Fx18Attributes::setJsonEncoded(uuid, "text", text)
+            return Fx256::getProtoItemOrNull(uuid)
+        end
+
+        if item["nx111"] then
+            puts "You are trying to edit a nx111 carrier"
+            puts "Follow: 9e0705fc-8637-47f9-9bce-29df79d05292"
+            exit
+            return Fx256::getProtoItemOrNull(uuid)
+        end
+
+        raise "(error: 402f0ee5-4bd1-4b73-a418-d16ac12760ca)"
+    end
 end
 
 class Fx18Attributes
