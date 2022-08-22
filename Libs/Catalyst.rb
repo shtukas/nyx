@@ -22,7 +22,7 @@ class Catalyst
 
     # Catalyst::section2()
     def self.section2()
-        [
+        items = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::section2(),
             TxDateds::section2(),
@@ -36,6 +36,8 @@ class Catalyst
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+        its1, its2 = items.partition{|item| NxBallsService::isActive(item["uuid"]) }
+        its1 + its2
     end
 
     # Catalyst::program()
