@@ -300,7 +300,7 @@ class Landing
             Owners::elementsLanding(item)
         end
         if option == "metadata landing" then
-            Landing::implementsNx111Landing(item, isSearchAndSelect)
+            Landing::implementsNx111Landing(item, false)
         end
     end
 
