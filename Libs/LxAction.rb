@@ -66,9 +66,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TopLevel" then
-                uuid = item["uuid"]
-                text = item["text"]
-                CommonUtils::accessText(text)
+                TopLevel::access(item)
                 return
             end
 

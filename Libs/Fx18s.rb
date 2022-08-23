@@ -239,11 +239,7 @@ class Fx256
     # Fx256::edit(item) # item
     def self.edit(item) # item
         if item["mikuType"] == "TopLevel" then
-            uuid = item["uuid"]
-            text = item["text"]
-            text = CommonUtils::editTextSynchronously(text)
-            Fx18Attributes::setJsonEncoded(uuid, "text", text)
-            return Fx256::getProtoItemOrNull(uuid)
+            return TopLevel::edit(item)
         end
 
         if item["nx111"] then

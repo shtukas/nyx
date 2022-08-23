@@ -57,6 +57,24 @@ class TopLevel
     # ----------------------------------------------------------------------
     # Operations
 
+    # TopLevel::access(item)
+    def self.access(item)
+        raise "(error: 403ff59d-ee29-4a98-85da-cf111589f1fa)" if item["mikuType"] != "TopLevel"
+        uuid = item["uuid"]
+        text = item["text"]
+        CommonUtils::accessText(text)
+    end
+
+    # TopLevel::edit(item)
+    def self.edit(item)
+        raise "(error: 47de6ab7-35c3-4c33-944e-3cff0cff4bea)" if item["mikuType"] != "TopLevel"
+        uuid = item["uuid"]
+        text = item["text"]
+        text = CommonUtils::editTextSynchronously(text)
+        Fx18Attributes::setJsonEncoded(uuid, "text", text)
+        Fx256::getProtoItemOrNull(uuid)
+    end
+
     # TopLevel::landing(uuid)
     def self.landing(uuid)
         loop {
