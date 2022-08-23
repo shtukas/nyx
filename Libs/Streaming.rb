@@ -80,9 +80,13 @@ class Streaming
     def self.processItem(item)
         puts LxFunction::function("toString", item).green
         loop {
-            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), landing (and back), done, insert, >owner, >nyx, nyx, next (default), exit (rstream): ")
+            command = LucilleCore::askQuestionAnswerAsString("    run (start and access), access, landing (and back), done, insert, >owner, >nyx, nyx, next (default), exit (rstream): ")
             if command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
+            end
+            if command == "access" then
+                LxAction::action("access", item)
+                next
             end
             if command == "landing" then
                 LxAction::action("landing", item)
