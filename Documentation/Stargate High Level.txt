@@ -1,0 +1,8 @@
+
+DxF1s are log of events, some are attributes values, some are datablobs. They represent the nodes of the stargate network.
+
+Databases:
+  - Bank
+  - DoNotShowUntil
+  - item-to-group-mapping.sqlite3
+  - network-links.sqlite3
