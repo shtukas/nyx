@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel",
             "anniversaries | ondates | todos | owners | waves",
-            "<datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
+            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
         ].join("\n")
@@ -46,6 +46,14 @@ class Commands
             section2 = JSON.parse(XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", "[]"))
             section2 = section2.select{|ix| ix["item"]["uuid"] != item["uuid"]}
             XCache::set("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", JSON.generate(section2))
+            return
+        end
+
+        if input == ".." then
+            item = store.getDefault()
+            return if item.nil?
+            LxAction::action("start", item)
+            LxAction::action("access", item)
             return
         end
 
