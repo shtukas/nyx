@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | toplevel",
+            "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming",
             "anniversaries | ondates | todos | owners | waves",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
@@ -174,6 +174,11 @@ class Commands
             puts Commands::commands().yellow
             LucilleCore::pressEnterToContinue()
             return
+        end
+
+        if input == "incoming" then
+            item = TxIncomings::interactivelyIssueNewLineOrNull()
+            puts JSON.pretty_generate(item)
         end
 
         if Interpreting::match("internet off", input) then

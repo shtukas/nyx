@@ -189,6 +189,18 @@ class Catalyst
 
         puts ""
         vspaceleft = vspaceleft - 1
+        TxIncomings::items()
+            .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"]}
+            .each{|item|
+                store.register(item, false)
+                line = "#{store.prefixString()} #{TxIncomings::toString(item)}"
+                break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                puts line
+                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+            }
+
+        puts ""
+        vspaceleft = vspaceleft - 1
         Catalyst::section2()
             .each{|item|
                 store.register(item, true)

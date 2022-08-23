@@ -145,6 +145,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxIncoming" then
+                Fx256::deleteObjectLogically(item["uuid"])
+                return
+            end
+
             if item["mikuType"] == "Wave" then
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
