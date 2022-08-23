@@ -54,6 +54,11 @@ class Commands
             return if item.nil?
             LxAction::action("start", item)
             LxAction::action("access", item)
+            if item["mikuType"] == "Wave" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", true) then
+                    Waves::performWaveNx46WaveDone(item)
+                end
+            end
             return
         end
 
