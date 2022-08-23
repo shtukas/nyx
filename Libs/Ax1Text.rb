@@ -59,14 +59,17 @@ class Ax1Text
             uuid = item["uuid"]
             puts Ax1Text::toString(item)
             operations = [
-                "access/edit",
+                "access",
+                "edit",
                 "destroy"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             break if operation.nil?
-            if operation == "access/edit" then
-                text = item["text"]
-                text = CommonUtils::editTextSynchronously(text)
+            if operation == "access" then
+                CommonUtils::accessText(item["text"])
+            end
+            if operation == "edit" then
+                text = CommonUtils::editTextSynchronously(item["text"])
                 Fx18Attributes::setJsonEncoded(uuid, "text", text)
             end
             if operation == "destroy" then

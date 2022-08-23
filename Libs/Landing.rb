@@ -198,7 +198,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | iam | <n> | description | datetime | nx111 | note | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | edit | note | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -235,6 +235,10 @@ class Landing
                 nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
                 next if nx111.nil?
                 Fx18Attributes::setJsonEncoded(item["uuid"], "nx111", nx111)
+            end
+
+            if Interpreting::match("edit", command) then
+                item = Fx256::edit(item)
             end
 
             if Interpreting::match("iam", command) then
@@ -285,21 +289,26 @@ class Landing
         nil
     end
 
-    # Landing::landing(item, isSearchAndSelect)
+    # Landing::landingOwner(item)
+    def self.landingOwner(item)
+        options = ["metadata landing", "elements landing"]
+        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
+        if option.nil? then
+            return
+        end
+        if option == "elements landing" then
+            Owners::elementsLanding(item)
+        end
+        if option == "metadata landing" then
+            Landing::implementsNx111Landing(item, false)
+        end
+    end
+
+    # Landing::landing(item, isSearchAndSelect) # item or null
     def self.landing(item, isSearchAndSelect)
         if Owners::itemIsOwner(item) then
-            options = ["metadata landing", "elements landing"]
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-            if option.nil? then
-                return
-            end
-            if option == "elements landing" then
-                Owners::elementsLanding(item)
-                return
-            end
-            if option == "metadata landing" then
-                # We let it carry on...
-            end
+            Landing::landingOwner(item)
+            return nil
         end
         if Iam::implementsNx111(item) then
             return Landing::implementsNx111Landing(item, isSearchAndSelect)

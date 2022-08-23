@@ -26,6 +26,11 @@ class LxAction
 
         if command == "access" then
 
+            if Owners::itemIsOwner(item) then
+                Landing::landingOwner(item)
+                return nil
+            end
+
             puts LxFunction::function("toString", item).green
 
             if item["mikuType"] == "fitness1" then
@@ -64,10 +69,6 @@ class LxAction
                 uuid = item["uuid"]
                 text = item["text"]
                 CommonUtils::accessText(text)
-                if LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit ? ") then
-                    text = CommonUtils::editTextSynchronously(text)
-                    Fx18Attributes::setJsonEncoded(uuid, "text", text)
-                end
                 return
             end
 
@@ -105,6 +106,12 @@ class LxAction
             end
 
             if item["mikuType"] == "NxFrame" then
+                NxBallsService::close(item["uuid"], true)
+                return
+            end
+
+            if item["mikuType"] == "NxIced" then
+                NxIceds::destroy(item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return
             end
@@ -187,19 +194,6 @@ class LxAction
                 Fx18Attributes::setJsonEncoded(item["uuid"], "datetime", datetime)
                 return
             end
-        end
-
-        if command == "run" then
-            if item["mikuType"] == "fitness1" then
-                LxAction::action("access", item)
-                return
-            end
-
-            LxAction::action("start", item)
-            LxAction::action("access", item)
-            LucilleCore::pressEnterToContinue("Press [enter] to done and finish: ")
-            LxAction::action("done", item)
-            return
         end
 
         if command == "start" then
