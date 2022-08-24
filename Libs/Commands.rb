@@ -62,6 +62,20 @@ class Commands
             return
         end
 
+        if Interpreting::match(".. *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            LxAction::action("start", item)
+            LxAction::action("access", item)
+            if item["mikuType"] == "Wave" then
+                if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", true) then
+                    Waves::performWaveNx46WaveDone(item)
+                end
+            end
+            return
+        end
+
         if Interpreting::match("access", input) then
             LxAction::action("access", store.getDefault())
             return
