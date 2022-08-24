@@ -144,12 +144,30 @@ class Catalyst
                 }
         end
 
+        items = Owners::section1()
+        if items.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+            items
+                .each{|item|
+                    store.register(item, false)
+                    line = "#{store.prefixString()} #{Owners::toStringForSection1(item)}".yellow
+                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+        end
+
         items = TxIncomings::items()
         if items.size > 0 then
             puts ""
             vspaceleft = vspaceleft - 1
             items
                 .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"]}
+                .first(6)
                 .each{|item|
                     store.register(item, true)
                     line = "#{store.prefixString()} #{TxIncomings::toString(item)}"
@@ -171,23 +189,6 @@ class Catalyst
                     toString2 = XCache::getOrNull("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{item["uuid"]}")
                     toString = toString2 ? toString2 : toString1
                     line = "#{store.prefixString()} #{toString}"
-                    break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
-                    if NxBallsService::isActive(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-        end
-
-        items = Owners::section1()
-        if items.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-            items
-                .each{|item|
-                    store.register(item, false)
-                    line = "#{store.prefixString()} #{Owners::toStringForSection1(item)}".yellow
                     break if (vspaceleft - CommonUtils::verticalSize(line)) < 0
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green

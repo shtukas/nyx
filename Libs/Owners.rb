@@ -159,19 +159,14 @@ class Owners
 
             store = ItemStore.new()
 
-            packets = Owners::elements(owner, 50)
-            if packets.size > 0 then
+            items = Owners::elements(owner, 50)
+            if items.size > 0 then
                 puts ""
-                packets
+                Owners::elements(owner, 50)
                     .each{|element|
                         indx = store.register(element, false)
                         puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
                     }
-            end
-
-            if Ax39::completionRatio(owner) >= 1 then
-                puts ""
-                puts "You are time overflowing"
             end
 
             puts ""
