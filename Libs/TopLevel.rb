@@ -100,4 +100,16 @@ class TopLevel
             end
         }
     end
+
+    # TopLevel::dive()
+    def self.dive()
+        loop {
+            system("clear")
+            items = TopLevel::items()
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("top level", items, lambda{|item| LxFunction::function("toString", item) })
+            return if item.nil?
+            Landing::landing(item, false)
+        }
+    end
 end

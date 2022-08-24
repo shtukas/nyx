@@ -73,7 +73,7 @@ class NetworkLinks
                 linkeduuids = linkeduuids - [row["_targetuuid_"]]
             end
         end
-        linkeduuids
+        linkeduuids.compact
     end
 
     # NetworkLinks::eventuuids()

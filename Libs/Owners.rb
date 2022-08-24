@@ -244,7 +244,9 @@ class Owners
     # Owners::dive()
     def self.dive()
         loop {
-            owners = Owners::owners().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            system("clear")
+            owners = Owners::owners()
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
             owner = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", owners, lambda{|item| Owners::toString(item) })
             break if owner.nil?
             Owners::elementsLanding(owner)

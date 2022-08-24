@@ -7,7 +7,7 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming",
-            "anniversaries | ondates | todos | owners | waves",
+            "anniversaries | ondates | todos | owners | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance | >>",
@@ -181,6 +181,11 @@ class Commands
 
         if Interpreting::match("frame", input) then
             NxFrames::interactivelyCreateNewOrNull()
+            return
+        end
+
+        if Interpreting::match("frames", input) then
+            NxFrames::dive()
             return
         end
 
@@ -411,6 +416,12 @@ class Commands
         if input == "toplevel" then
             item = TopLevel::interactivelyIssueNew()
             puts JSON.pretty_generate(item)
+            return
+        end
+
+        if input == "toplevels" then
+            TopLevel::dive()
+            return
         end
 
         if Interpreting::match("transmute", input) then

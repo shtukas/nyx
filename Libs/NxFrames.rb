@@ -51,4 +51,19 @@ class NxFrames
     def self.toStringForSearch(item)
         "(frame) #{item["description"]}"
     end
+
+    # --------------------------------------------------
+    # Operations
+
+    # NxFrames::dive()
+    def self.dive()
+        loop {
+            system("clear")
+            items = NxFrames::items()
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("frame", items, lambda{|item| LxFunction::function("toString", item) })
+            return if item.nil?
+            Landing::landing(item, false)
+        }
+    end
 end

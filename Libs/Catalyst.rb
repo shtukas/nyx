@@ -142,28 +142,6 @@ class Catalyst
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        Owners::section1()
-            .each{|item|
-                break if vspaceleft <= 0
-                store.register(item, false)
-                line = "#{store.prefixString()} #{Owners::toStringForSection1(item)}".yellow
-                if NxBallsService::isActive(item["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-
-        TxIncomings::items()
-            .sort{|i1, i2| i1["unixtime"]<=>i2["unixtime"]}
-            .each{|item|
-                break if vspaceleft <= 0
-                store.register(item, true)
-                line = "#{store.prefixString()} #{TxIncomings::toString(item)}"
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-
         Catalyst::section2()
             .each{|item|
                 break if vspaceleft <= 0
@@ -172,31 +150,6 @@ class Catalyst
                 toString2 = XCache::getOrNull("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{item["uuid"]}")
                 toString = toString2 ? toString2 : toString1
                 line = "#{store.prefixString()} #{toString}"
-                if NxBallsService::isActive(item["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-
-        TopLevel::items()
-            .sort{|i1, i2|  i1["unixtime"] <=> i2["unixtime"]}
-            .each{|item|
-                break if vspaceleft <= 0
-                store.register(item, false)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
-                if NxBallsService::isActive(item["uuid"]) then
-                    line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                end
-                puts line
-                vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-            }
-
-        NxFrames::items()
-            .each{|item|
-                break if vspaceleft <= 0
-                store.register(item, false)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}".yellow
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end

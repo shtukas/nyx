@@ -43,7 +43,6 @@ class LxAction
                 return
             end
 
-
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::access(item)
                 return
