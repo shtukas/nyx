@@ -152,6 +152,11 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxIncoming" then
+                Fx256::deleteObjectLogically(item["uuid"])
+                return
+            end
+
             if item["mikuType"] == "Wave" then
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
@@ -203,7 +208,18 @@ class LxAction
 
         if command == "start" then
             return if NxBallsService::isRunning(item["uuid"])
-            accounts = [item["uuid"]] + OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+            accounts = []
+            accounts << item["uuid"] # Item's own uuid
+            OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+                .each{|owneruuid|
+                    accounts << owneruuid # Owner of a owned item
+                }
+            if item["mikuType"] == "TxIncoming" then
+                ox = Owners::interactivelySelectOneOrNull()
+                if ox then
+                    accounts << ox["uuid"] # temporary owner for TxIncoming
+                end
+            end
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end

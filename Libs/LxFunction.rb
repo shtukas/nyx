@@ -70,7 +70,9 @@ class LxFunction
             if item["mikuType"] == "TxDated" then
                 return item["description"]
             end
-
+            if item["mikuType"] == "TxIncoming" then
+                return item["line"]
+            end
             if item["mikuType"] == "Wave" then
                 return item["description"]
             end
@@ -130,6 +132,9 @@ class LxFunction
             end
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
+            end
+            if item["mikuType"] == "TxIncoming" then
+                return item["line"]
             end
             if item["mikuType"] == "Wave" then
                 return Waves::toString(item)

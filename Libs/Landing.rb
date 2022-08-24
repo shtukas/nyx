@@ -320,6 +320,10 @@ class Landing
             Ax1Text::landing(item)
             return nil
         end
+        if item["mikuType"] == "TopLevel" then
+            TopLevel::access(item)
+            return nil
+        end
         if item["mikuType"] == "NxLine" then
             puts JSON.pretty_generate(item)
             puts "We do not have a landing for NxLines"

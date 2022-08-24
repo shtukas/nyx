@@ -173,6 +173,20 @@ class FileSystemCheck
                 "uuid",
                 "mikuType",
                 "unixtime",
+                "datetime",
+                "line",
+            ]
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
+        if mikuType == "TxIncoming" then
+            [
+                "uuid",
+                "mikuType",
+                "unixtime",
+                "datetime",
                 "line",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }

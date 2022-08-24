@@ -1,6 +1,37 @@
 class Owners
 
     # --------------------------------
+    # Making
+
+    # Owners::interactivelySelectOneOrNull()
+    def self.interactivelySelectOneOrNull()
+        items = Owners::owners()
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", items, lambda{|item| LxFunction::function("toString", item) })
+    end
+
+    # Owners::makeNewOwnerOrNull() # item or null
+    def self.makeNewOwnerOrNull()
+        item = NxTasks::interactivelyCreateNewOrNull(true)
+        return nil if item.nil?
+        return item if item["ax39"]
+        puts "You need to provide a Ax39 to this task to be a valid owner"
+        LucilleCore::pressEnterToContinue()
+        Fx18Attributes::setJsonEncoded(uuid, "ax39", Ax39::interactivelyCreateNewAx())
+        Fx256::getProtoItemOrNull(item["uuid"])
+    end
+
+    # Owners::architectOneOrNull() # item or null
+    def self.architectOneOrNull()
+        item = Owners::interactivelySelectOneOrNull()
+        return item if item
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner ? ") then
+            return Owners::makeNewOwnerOrNull()
+        end
+        nil
+    end
+
+    # --------------------------------
     # Data
 
     # Owners::owners()
@@ -107,7 +138,11 @@ class Owners
 
     # Owners::addElementToOwner(element)
     def self.addElementToOwner(element)
-        puts "Owners::addElementToOwner(#{element})"
+        puts "Owners::addElementToOwner(#{JSON.pretty_generate(element)})"
+        if element["mikuType"] == "TxIncoming" then
+            Fx18Attributes::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
+            element = Fx256::getProtoItemOrNull(element["uuid"])
+        end
         if !["NxTask", "NxLine"].include?(element["mikuType"]) then
             puts "The operation Owners::addElementToOwner only works on NxLines or NxTasks"
             LucilleCore::pressEnterToContinue()
@@ -128,19 +163,14 @@ class Owners
 
             store = ItemStore.new()
 
-            packets = Owners::elements(owner, 50)
-            if packets.size > 0 then
+            items = Owners::elements(owner, 50)
+            if items.size > 0 then
                 puts ""
-                packets
+                Owners::elements(owner, 50)
                     .each{|element|
                         indx = store.register(element, false)
                         puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
                     }
-            end
-
-            if Ax39::completionRatio(owner) >= 1 then
-                puts ""
-                puts "You are time overflowing"
             end
 
             puts ""
@@ -204,24 +234,6 @@ class Owners
                 next
             end
         }
-    end
-
-    # Owners::architectOneOrNull() # item or null
-    def self.architectOneOrNull()
-        items = Owners::owners()
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", items, lambda{|item| LxFunction::function("toString", item) })
-        return item if item
-        if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner ? ") then
-            item = NxTasks::interactivelyCreateNewOrNull(true)
-            return nil if item.nil?
-            return item if item["ax39"]
-            puts "You need to provide a Ax39 to this task to be a valid owner"
-            LucilleCore::pressEnterToContinue()
-            Fx18Attributes::setJsonEncoded(uuid, "ax39", Ax39::interactivelyCreateNewAx())
-            return Fx256::getProtoItemOrNull(item["uuid"])
-        end
-        nil
     end
 
     # Owners::itemIsOwner(item)

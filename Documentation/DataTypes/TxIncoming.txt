@@ -1,0 +1,6 @@
+TxIncoming
+    "uuid"         uuid
+    "mikuType"     "TxIncoming"
+    "unixtime"     Time.new.to_i
+    "datetime"     Time.new.utc.iso8601
+    "line"         line
