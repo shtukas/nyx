@@ -138,7 +138,11 @@ class Owners
 
     # Owners::addElementToOwner(element)
     def self.addElementToOwner(element)
-        puts "Owners::addElementToOwner(#{element})"
+        puts "Owners::addElementToOwner(#{JSON.pretty_generate(element)})"
+        if element["mikuType"] == "TxIncoming" then
+            Fx18Attributes::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
+            element = Fx256::getProtoItemOrNull(element["uuid"])
+        end
         if !["NxTask", "NxLine"].include?(element["mikuType"]) then
             puts "The operation Owners::addElementToOwner only works on NxLines or NxTasks"
             LucilleCore::pressEnterToContinue()
