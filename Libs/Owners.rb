@@ -1,6 +1,37 @@
 class Owners
 
     # --------------------------------
+    # Making
+
+    # Owners::interactivelySelectOneOrNull()
+    def self.interactivelySelectOneOrNull()
+        items = Owners::owners()
+                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", items, lambda{|item| LxFunction::function("toString", item) })
+    end
+
+    # Owners::makeNewOwnerOrNull() # item or null
+    def self.makeNewOwnerOrNull()
+        item = NxTasks::interactivelyCreateNewOrNull(true)
+        return nil if item.nil?
+        return item if item["ax39"]
+        puts "You need to provide a Ax39 to this task to be a valid owner"
+        LucilleCore::pressEnterToContinue()
+        Fx18Attributes::setJsonEncoded(uuid, "ax39", Ax39::interactivelyCreateNewAx())
+        Fx256::getProtoItemOrNull(item["uuid"])
+    end
+
+    # Owners::architectOneOrNull() # item or null
+    def self.architectOneOrNull()
+        item = Owners::interactivelySelectOneOrNull()
+        return item if item
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner ? ") then
+            return Owners::makeNewOwnerOrNull()
+        end
+        nil
+    end
+
+    # --------------------------------
     # Data
 
     # Owners::owners()
@@ -204,24 +235,6 @@ class Owners
                 next
             end
         }
-    end
-
-    # Owners::architectOneOrNull() # item or null
-    def self.architectOneOrNull()
-        items = Owners::owners()
-                    .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        item = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", items, lambda{|item| LxFunction::function("toString", item) })
-        return item if item
-        if LucilleCore::askQuestionAnswerAsBoolean("Issue new owner ? ") then
-            item = NxTasks::interactivelyCreateNewOrNull(true)
-            return nil if item.nil?
-            return item if item["ax39"]
-            puts "You need to provide a Ax39 to this task to be a valid owner"
-            LucilleCore::pressEnterToContinue()
-            Fx18Attributes::setJsonEncoded(uuid, "ax39", Ax39::interactivelyCreateNewAx())
-            return Fx256::getProtoItemOrNull(item["uuid"])
-        end
-        nil
     end
 
     # Owners::itemIsOwner(item)
