@@ -65,7 +65,14 @@ class LxAction
             end
 
             if item["mikuType"] == "TopLevel" then
-                TopLevel::access(item)
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
+                return if action.nil?
+                if action == "access" then
+                    TopLevel::access(item)
+                end
+                if action == "edit" then
+                    TopLevel::edit(item)
+                end
                 return
             end
 
