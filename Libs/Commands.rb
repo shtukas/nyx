@@ -442,10 +442,6 @@ class Commands
                     "lambda" => lambda { Anniversaries::listingItems() }
                 },
                 {
-                    "name" => "Owners::section1()",
-                    "lambda" => lambda { Owners::section1() }
-                },
-                {
                     "name" => "Owners::listingItems()",
                     "lambda" => lambda { Owners::listingItems() }
                 },

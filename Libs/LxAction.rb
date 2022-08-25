@@ -32,6 +32,30 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxDated" then
+                LxAction::action("start", item)
+                LxAction::action("access", item)
+                loop {
+                    actions = ["keep running and back to listing", "stop and back to listing", "stop and destroy"]
+                    action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
+                    next if action.nil?
+                    if action == "keep running and back to listing" then
+                        return
+                    end
+                    if action == "stop and back to listing" then
+                        LxAction::action("stop", item)
+                        return
+                    end
+                    if action == "stop and destroy" then
+                        LxAction::action("stop", item)
+                        LxAction::action("destroy", item)
+                        return
+                    end
+                }
+
+                return
+            end
+
             raise "(.. action not implemented for mikuType: #{item["mikuType"]})"
 
             return
@@ -226,9 +250,10 @@ class LxAction
                 .each{|owneruuid|
                     accounts << owneruuid # Owner of a owned item
                 }
-            if item["mikuType"] == "TxIncoming" then
+            if ["TxIncoming", "TxDated"].include?(item["mikuType"]) then
                 ox = Owners::interactivelySelectOneOrNull()
                 if ox then
+                    puts "registering extra bank account: #{LxFunction::function("toString", ox).green}"
                     accounts << ox["uuid"] # temporary owner for TxIncoming
                 end
             end

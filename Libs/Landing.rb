@@ -297,7 +297,7 @@ class Landing
             return
         end
         if option == "elements landing" then
-            Owners::elementsLanding(item)
+            Owners::landingElementsListing(item)
         end
         if option == "metadata landing" then
             Landing::implementsNx111Landing(item, false)

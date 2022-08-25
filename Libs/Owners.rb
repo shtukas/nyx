@@ -77,20 +77,6 @@ class Owners
         item["description"]
     end
 
-    # Owners::section1()
-    def self.section1()
-        Owners::owners()
-            .select{|owner| Ax39forSections::itemShouldShow(owner) }
-            .map{|item|
-                {
-                    "item" => item,
-                    "ratio" => Ax39forSections::orderingValue(item)
-                }
-            }
-            .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
-            .map{|px| px["item"] }
-    end
-
     # Owners::listingItems()
     def self.listingItems()
         Owners::owners()
@@ -103,26 +89,6 @@ class Owners
             }
             .sort{|p1, p2| p1["ratio"] <=> p2["ratio"]}
             .map{|px| px["owner"] }
-            .map{|owner|
-                elements = Owners::elements(owner, 6)
-                            .map{|element|
-                                {
-                                    "element" => element,
-                                    "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
-                                }
-                            }
-                            .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-                            .map{|px| px["element"] }
-
-                if !elements.empty? then
-                    elements.each{|element|
-                        XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{Owners::listingItemsStringPrefix(owner).white}] #{LxFunction::function("toString", element)}")
-                    }
-                    elements
-                else
-                    owner
-                end
-            }
     end
     # --------------------------------
     # Operations
@@ -154,8 +120,8 @@ class Owners
         NxBallsService::close(element["uuid"], true)
     end
 
-    # Owners::elementsLanding(owner)
-    def self.elementsLanding(owner)
+    # Owners::landingElementsListing(owner)
+    def self.landingElementsListing(owner)
         loop {
             system("clear")
 
@@ -163,6 +129,22 @@ class Owners
 
             store = ItemStore.new()
 
+            puts "Managed Items:"
+            Owners::elements(owner, 6)
+                .map{|element|
+                    {
+                        "element" => element,
+                        "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
+                    }
+                }
+                .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+                .map{|px| px["element"] }
+                .each{|element|
+                    indx = store.register(element, false)
+                    puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
+                }
+
+            puts "50 Elements:"
             items = Owners::elements(owner, 50)
             if items.size > 0 then
                 puts ""
@@ -249,7 +231,7 @@ class Owners
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
             owner = LucilleCore::selectEntityFromListOfEntitiesOrNull("owner", owners, lambda{|item| Owners::toString(item) })
             break if owner.nil?
-            Owners::elementsLanding(owner)
+            Owners::landingElementsListing(owner)
         }
     end
 end
