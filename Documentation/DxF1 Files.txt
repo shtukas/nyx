@@ -5,11 +5,11 @@ create table _DxF1_ (
     _objectuuid_ text,
     _eventuuid_  text primary key,
     _eventTime_  float,
-    _type_       text,
+    _eventType_  text,
     _name_       text,
     _value_      blob
 );
 
-The two possible types are "attribute" and "datablob".
+The two possible types for eventType are "attribute" and "datablob".
 
 In the case of "attribute" the value is JSON encoded. In the case of "datablob" the name is a nhash and the value is a data blob. 

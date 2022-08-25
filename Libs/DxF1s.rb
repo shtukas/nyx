@@ -1,6 +1,30 @@
 
 class DxF1s
 
+    # DxF1s::pathToRepository()
+    def self.pathToRepository()
+        "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s"
+    end
+
+    # DxF1s::filepath(objectuuid)
+    def self.filepath(objectuuid)
+        sha1 = Digest::SHA1.hexdigest(objectuuid)
+        folderpath = "#{DxF1s::pathToRepository()}/#{sha1[0, 2]}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{sha1}.dxf1.sqlite3"
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob)", [])
+            db.close
+        end
+        filepath
+    end
+
 end
 
 class Fx256
@@ -59,6 +83,8 @@ class Fx256
         if eventData3.nil? then
             raise "(error: db06a417-68d1-471d-888f-9e497b268750)"
         end
+
+        DxF1s::filepath(objectuuid)
 
         db = SQLite3::Database.new(Fx256::filepath(objectuuid))
         db.busy_timeout = 117
