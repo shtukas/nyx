@@ -96,9 +96,8 @@ class LxAction
 
         if command == "access" then
 
-            puts LxFunction::function("toString", item).green
-
             if item["mikuType"] == "fitness1" then
+                puts LxFunction::function("toString", item).green
                 system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
             end
@@ -136,6 +135,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TopLevel" then
+                puts LxFunction::function("toString", item).green
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
                 return if action.nil?
                 if action == "access" then
@@ -148,13 +148,13 @@ class LxAction
             end
 
             if item["mikuType"] == "TxTimeCommitmentProject" then
+                puts LxFunction::function("toString", item).green
                 TxTimeCommitmentProjects::access(item)
                 return
             end
 
-
-
             if Iam::implementsNx111(item) then
+                puts LxFunction::function("toString", item).green
                 if item["nx111"].nil? then
                     LucilleCore::pressEnterToContinue()
                     return
