@@ -1,4 +1,8 @@
 
+class DxF1s
+
+end
+
 class Fx256
 
     # Fx256::filepath(objectuuid)
