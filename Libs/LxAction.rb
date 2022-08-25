@@ -24,6 +24,19 @@ class LxAction
             return
         end
 
+        if command == ".." then
+            ## .. performs the optimal sequence for this item
+
+            if item["mikuType"] == "fitness1" then
+                LxAction::action("access", item)
+                return
+            end
+
+            raise "(.. action not implemented for mikuType: #{item["mikuType"]})"
+
+            return
+        end
+
         if command == "access" then
 
             if Owners::itemIsOwner(item) then

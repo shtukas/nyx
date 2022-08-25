@@ -43,4 +43,10 @@ class TxIncomings
     def self.toString(item)
         "(incoming) #{item["line"]}"
     end
+
+    # TxIncomings::listingItems()
+    def self.listingItems()
+        TxIncomings::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+    end
 end

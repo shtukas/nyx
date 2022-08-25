@@ -154,8 +154,8 @@ class Streaming
         NxBallsService::close(uuid, true)
     end
 
-    # Streaming::section2()
-    def self.section2()
+    # Streaming::listingItems()
+    def self.listingItems()
         uuid = Streaming::uuid()
         rt = BankExtended::stdRecoveredDailyTimeInHours(uuid)
         return [] if rt > 1

@@ -134,7 +134,7 @@ class LxFunction
                 return TxDateds::toString(item)
             end
             if item["mikuType"] == "TxIncoming" then
-                return item["line"]
+                return TxIncomings::toString(item)
             end
             if item["mikuType"] == "Wave" then
                 return Waves::toString(item)

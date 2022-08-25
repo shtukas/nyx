@@ -165,8 +165,8 @@ class Waves
         false
     end
 
-    # Waves::section2(priority)
-    def self.section2(priority)
+    # Waves::listingItems(priority)
+    def self.listingItems(priority)
         Waves::items()
             .select{|item| priority ? Waves::isPriority(item) : !Waves::isPriority(item) }
     end

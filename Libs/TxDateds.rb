@@ -94,8 +94,8 @@ class TxDateds
     # --------------------------------------------------
     # 
 
-    # TxDateds::section2()
-    def self.section2()
+    # TxDateds::listingItems()
+    def self.listingItems()
         TxDateds::items()
             .select{|item| item["datetime"][0, 10] <= CommonUtils::today() }
             .sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }

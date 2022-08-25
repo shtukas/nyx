@@ -10,7 +10,7 @@ class Commands
             "anniversaries | ondates | todos | owners | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
-            "search | nyx | speed | nxballs | maintenance | >>",
+            "search | nyx | speed | nxballs | maintenance",
         ].join("\n")
     end
 
@@ -40,25 +40,8 @@ class Commands
             return
         end
 
-        if input == ">>" then
-            item = store.getDefault()
-            return if item.nil?
-            section2 = JSON.parse(XCache::getOrDefaultValue("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", "[]"))
-            section2 = section2.select{|ix| ix["item"]["uuid"] != item["uuid"]}
-            XCache::set("c52feab4-9bfb-4e73-a8f3-b39d90a055c3", JSON.generate(section2))
-            return
-        end
-
         if input == ".." then
-            item = store.getDefault()
-            return if item.nil?
-            LxAction::action("start", item)
-            LxAction::action("access", item)
-            if item["mikuType"] == "Wave" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", true) then
-                    Waves::performWaveNx46WaveDone(item)
-                end
-            end
+            LxAction::action("..", store.getDefault())
             return
         end
 
@@ -66,13 +49,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("start", item)
-            LxAction::action("access", item)
-            if item["mikuType"] == "Wave" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Done ? ", true) then
-                    Waves::performWaveNx46WaveDone(item)
-                end
-            end
+            LxAction::action("..", item)
             return
         end
 
@@ -461,52 +438,52 @@ class Commands
                     "lambda" => lambda { JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`) }
                 },
                 {
-                    "name" => "Anniversaries::section2()",
-                    "lambda" => lambda { Anniversaries::section2() }
+                    "name" => "Anniversaries::listingItems()",
+                    "lambda" => lambda { Anniversaries::listingItems() }
                 },
                 {
                     "name" => "Owners::section1()",
                     "lambda" => lambda { Owners::section1() }
                 },
                 {
-                    "name" => "Owners::section2()",
-                    "lambda" => lambda { Owners::section2() }
+                    "name" => "Owners::listingItems()",
+                    "lambda" => lambda { Owners::listingItems() }
                 },
                 {
                     "name" => "NxFrames::items()",
                     "lambda" => lambda { NxFrames::items() }
                 },
                 {
-                    "name" => "NxLines::section2()",
-                    "lambda" => lambda { NxLines::section2() }
+                    "name" => "NxLines::listingItems()",
+                    "lambda" => lambda { NxLines::listingItems() }
                 },
                 {
-                    "name" => "NxTasks::section2()",
-                    "lambda" => lambda { NxTasks::section2() }
+                    "name" => "NxTasks::listingItems()",
+                    "lambda" => lambda { NxTasks::listingItems() }
                 },
                 {
-                    "name" => "Streaming::section2()",
-                    "lambda" => lambda { Streaming::section2() }
+                    "name" => "Streaming::listingItems()",
+                    "lambda" => lambda { Streaming::listingItems() }
                 },
                 {
                     "name" => "TopLevel::items()",
                     "lambda" => lambda { TopLevel::items() }
                 },
                 {
-                    "name" => "TxDateds::section2()",
-                    "lambda" => lambda { TxDateds::section2() }
+                    "name" => "TxDateds::listingItems()",
+                    "lambda" => lambda { TxDateds::listingItems() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",
                     "lambda" => lambda { The99Percent::getCurrentCount() }
                 },
                 {
-                    "name" => "Waves::section2(true)",
-                    "lambda" => lambda { Waves::section2(true) }
+                    "name" => "Waves::listingItems(true)",
+                    "lambda" => lambda { Waves::listingItems(true) }
                 },
                 {
-                    "name" => "Waves::section2(false)",
-                    "lambda" => lambda { Waves::section2(false) }
+                    "name" => "Waves::listingItems(false)",
+                    "lambda" => lambda { Waves::listingItems(false) }
                 },
             ]
 

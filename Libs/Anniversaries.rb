@@ -153,8 +153,8 @@ class Anniversaries
         end
     end
 
-    # Anniversaries::section2()
-    def self.section2()
+    # Anniversaries::listingItems()
+    def self.listingItems()
         Anniversaries::anniversaries()
             .select{|anniversary| Anniversaries::nextDateOrdinal(anniversary)[0] <= CommonUtils::today() }
     end

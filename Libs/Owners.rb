@@ -72,8 +72,8 @@ class Owners
         "#{item["description"].ljust(50)} #{ax39str2[0].ljust(30)}#{ax39str2_2.rjust(10)}#{doneForTodayStr.rjust(18)}#{dnsustr.ljust(20)}"
     end
 
-    # Owners::section2StringPrefix(item)
-    def self.section2StringPrefix(item)
+    # Owners::listingItemsStringPrefix(item)
+    def self.listingItemsStringPrefix(item)
         item["description"]
     end
 
@@ -91,8 +91,8 @@ class Owners
             .map{|px| px["item"] }
     end
 
-    # Owners::section2()
-    def self.section2()
+    # Owners::listingItems()
+    def self.listingItems()
         Owners::owners()
             .select{|owner| Ax39forSections::itemShouldShow(owner) }
             .map{|owner|
@@ -116,7 +116,7 @@ class Owners
 
                 if !elements.empty? then
                     elements.each{|element|
-                        XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{Owners::section2StringPrefix(owner).white}] #{LxFunction::function("toString", element)}")
+                        XCache::set("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{element["uuid"]}", "[#{Owners::listingItemsStringPrefix(owner).white}] #{LxFunction::function("toString", element)}")
                     }
                     elements
                 else

@@ -123,8 +123,8 @@ class NxTasks
         items
     end
 
-    # NxTasks::section2()
-    def self.section2()
+    # NxTasks::listingItems()
+    def self.listingItems()
         NxTasks::topItemsForSection2()
             .select{|item| item["ax39"].nil? }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }

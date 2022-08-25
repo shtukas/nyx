@@ -20,18 +20,19 @@ class Catalyst
         LxAction::action(command, objectOpt)
     end
 
-    # Catalyst::section2()
-    def self.section2()
+    # Catalyst::listingItems()
+    def self.listingItems()
         items = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
-            Anniversaries::section2(),
-            TxDateds::section2(),
-            Waves::section2(true),
-            NxLines::section2(),
-            Owners::section2(),
-            Waves::section2(false),
-            NxTasks::section2(),
-            Streaming::section2(),
+            Anniversaries::listingItems(),
+            TxDateds::listingItems(),
+            Waves::listingItems(true),
+            TxIncomings::listingItems(),
+            NxLines::listingItems(),
+            Owners::listingItems(),
+            Waves::listingItems(false),
+            NxTasks::listingItems(),
+            Streaming::listingItems(),
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
@@ -142,7 +143,7 @@ class Catalyst
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        Catalyst::section2()
+        Catalyst::listingItems()
             .each{|item|
                 break if vspaceleft <= 0
                 store.register(item, true)
