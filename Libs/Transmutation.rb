@@ -58,6 +58,7 @@ class Transmutation
 
         if source == "NxFrame" and target == "NxTask" then
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
+            item = Fx256::getProtoItemOrNull(uuid)
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
@@ -88,12 +89,14 @@ class Transmutation
 
         if source == "NxTask" and target == "NxDataNode" then
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
+            item = Fx256::getProtoItemOrNull(uuid)
             LxAction::action("landing", item)
             return
         end
 
         if source == "TxDated" and target == "NxDataNode" then
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
+            item = Fx256::getProtoItemOrNull(uuid)
             LxAction::action("landing", item)
             return
         end
@@ -105,6 +108,16 @@ class Transmutation
 
         if source == "TxDated" and target == "NxTask" then
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
+            item = Fx256::getProtoItemOrNull(uuid)
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            return
+        end
+
+        if source == "TxIncoming" and target == "NxTask" then
+            Fx18Attributes::setJsonEncoded(item["uuid"], "description", item["line"])
+            Fx18Attributes::setJsonEncoded(item["uuid"], "nx111", nil)
+            Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
+            item = Fx256::getProtoItemOrNull(item["uuid"])
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
