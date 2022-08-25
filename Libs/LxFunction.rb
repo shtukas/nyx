@@ -63,6 +63,9 @@ class LxFunction
             if item["mikuType"] == "NxTimeline" then
                 return item["description"]
             end
+            if item["mikuType"] == "TxTimeCommitmentProject" then
+                return item["description"]
+            end
             if item["mikuType"] == "TopLevel" then
                 firstline = TopLevel::getFirstLineOrNull(item)
                 return (firstline ? firstline : "(no generic-description)")
@@ -126,6 +129,9 @@ class LxFunction
             end
             if item["mikuType"] == "NxTimeline" then
                 return NxTimelines::toString(item)
+            end
+            if item["mikuType"] == "TxTimeCommitmentProject" then
+                return TxTimeCommitmentProjects::toString(item)
             end
             if item["mikuType"] == "TopLevel" then
                 return TopLevel::toString(item)

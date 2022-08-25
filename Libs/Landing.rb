@@ -289,25 +289,10 @@ class Landing
         nil
     end
 
-    # Landing::landingOwner(item)
-    def self.landingOwner(item)
-        options = ["metadata landing", "elements landing"]
-        option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
-        if option.nil? then
-            return
-        end
-        if option == "elements landing" then
-            Owners::landingElementsListing(item)
-        end
-        if option == "metadata landing" then
-            Landing::implementsNx111Landing(item, false)
-        end
-    end
-
     # Landing::landing(item, isSearchAndSelect) # item or null
     def self.landing(item, isSearchAndSelect)
-        if Owners::itemIsOwner(item) then
-            Landing::landingOwner(item)
+        if item["mikuType"] == "TxTimeCommitmentProject" then
+            TxTimeCommitmentProjects::landing(item)
             return nil
         end
         if Iam::implementsNx111(item) then

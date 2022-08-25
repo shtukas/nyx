@@ -58,7 +58,7 @@ class Transmutation
 
         if source == "NxFrame" and target == "NxTask" then
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
-            Owners::interactivelyProposeToAttachThisElementToOwner(item)
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -82,7 +82,7 @@ class Transmutation
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
             Fx18Attributes::setJsonEncoded(item["uuid"], "description", description)
             Fx18Attributes::setJsonEncoded(item["uuid"], "nx111", nx111)
-            Owners::interactivelyProposeToAttachThisElementToOwner(item)
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -105,7 +105,7 @@ class Transmutation
 
         if source == "TxDated" and target == "NxTask" then
             Fx18Attributes::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
-            Owners::interactivelyProposeToAttachThisElementToOwner(item)
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
 

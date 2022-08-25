@@ -29,14 +29,16 @@ class Catalyst
             Waves::listingItems(true),
             TxIncomings::listingItems(),
             NxLines::listingItems(),
-            Owners::listingItems(),
+            TxTimeCommitmentProjects::listingItems(),
             Waves::listingItems(false),
             NxTasks::listingItems(),
             Streaming::listingItems(),
         ]
             .flatten
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
+            .select{|item| !OwnerMapping::isOwned(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
+
         its1, its2 = items.partition{|item| NxBallsService::isActive(item["uuid"]) }
         its1 + its2
     end
@@ -102,6 +104,67 @@ class Catalyst
             end
 
             Catalyst::printListing()
+        }
+    end
+
+    # Catalyst::printListingLoop(announce, items)
+    def self.printListingLoop(announce, items)
+        loop {
+            items = items
+                    .map{|item| Fx256::getAliveProtoItemOrNull(item["uuid"]).compact }
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            its1, its2 = items.partition{|item| NxBallsService::isActive(item["uuid"]) }
+            items = its1 + its2
+
+            system("clear")
+            
+            vspaceleft = CommonUtils::screenHeight()-3
+
+            puts ""
+            puts announce
+            puts ""
+            vspaceleft = vspaceleft - 3
+
+            store = ItemStore.new()
+
+            NxBallsIO::nxballs()
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+                .each{|nxball|
+                    store.register(nxball, false)
+                    line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                    puts line.green
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+
+            items
+                .each{|item|
+                    break if vspaceleft <= 0
+                    store.register(item, true)
+                    toString1 = LxFunction::function("toString", item)
+                    toString2 = XCache::getOrNull("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{item["uuid"]}")
+                    toString = toString2 ? toString2 : toString1
+                    line = "#{store.prefixString()} #{toString}"
+                    if NxBallsService::isActive(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> (`exit` to exit) ")
+
+            return if input == "exit"
+
+            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+                if (item = store.getDefault()) then
+                    NxBallsService::close(item["uuid"], true)
+                    DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                    return
+                end
+            end
+
+            Commands::run(input, store)
         }
     end
 

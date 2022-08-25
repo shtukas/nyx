@@ -2,8 +2,3 @@
 create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _itemuuid_ text, _groupuuid_ text, _status_ text)
 
 _status_ is either "true" or "false". "true" means there is a link and "false" means there isn't. The table is then a log table, an event table, instead of a simple kv lookup, to allow for several tables to sync.
-
-At the moment:
-    - Owners are NxTasks which carry a Ax39
-    - Elements are NxLines or NxTasks.
-

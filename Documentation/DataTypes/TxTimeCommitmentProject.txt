@@ -1,0 +1,11 @@
+TxTimeCommitmentProject:
+    "uuid"         : String
+    "mikuType"     : "TxTimeCommitmentProject"
+    "unixtime"     : Float
+    "datetime"     : DateTime Iso8601
+    "description"  : String
+    "nx111"        : null or Nx111
+    "ax39"         : Ax39
+    "elementuuids" : Array[String] # objectuuids
+
+If the Nx111 is set then the item cannot own elements. If the Nx111 is not set then the item can own elements (also referred to as an owner).

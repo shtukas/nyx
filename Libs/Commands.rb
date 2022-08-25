@@ -7,7 +7,7 @@ class Commands
     def self.commands()
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming",
-            "anniversaries | ondates | todos | owners | waves | frames | toplevels",
+            "anniversaries | ondates | todos | time-commitment-projects | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy | >owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
@@ -21,7 +21,7 @@ class Commands
         if Interpreting::match(">owner", input) then
             item = store.getDefault()
             return if item.nil?
-            Owners::addElementToOwner(item)
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -29,7 +29,7 @@ class Commands
             ordinal, _ = Interpreting::tokenizer(input)
             entity = store.get(ordinal.to_i)
             return if entity.nil?
-            Owners::addElementToOwner(entity)
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(entity)
             return
         end
 
@@ -80,8 +80,8 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            if !["NxTask"].include?(item["mikuType"]) then
-                puts "At the moment, the setting of Ax39s only works on NxTasks"
+            if !["TxTimeCommitmentProject"].include?(item["mikuType"]) then
+                puts "At the moment, the setting of Ax39s only works on TxTimeCommitmentProjects"
                 LucilleCore::pressEnterToContinue()
                 return
             end
@@ -90,7 +90,7 @@ class Commands
         end
 
         if Interpreting::match("destroy", input) then
-            LxAction::action("destroy", store.getDefault())
+            LxAction::action("destroy-with-prompt", store.getDefault())
             return
         end
 
@@ -98,7 +98,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("destroy", item)
+            LxAction::action("destroy-with-prompt", item)
             return
         end
 
@@ -204,7 +204,7 @@ class Commands
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxLines::issue(line)
-            Owners::interactivelyProposeToAttachThisElementToOwner(item)
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -231,8 +231,8 @@ class Commands
             return
         end
 
-        if Interpreting::match("owners", input) then
-            Owners::dive()
+        if Interpreting::match("time-commitment-projects", input) then
+
             return
         end
 
@@ -371,7 +371,7 @@ class Commands
             item = NxTasks::interactivelyCreateNewOrNull(true)
             return if item.nil?
             if item["ax39"].nil? then
-                Owners::interactivelyProposeToAttachThisElementToOwner(item)
+                TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             end
             return
         end
@@ -440,10 +440,6 @@ class Commands
                 {
                     "name" => "Anniversaries::listingItems()",
                     "lambda" => lambda { Anniversaries::listingItems() }
-                },
-                {
-                    "name" => "Owners::listingItems()",
-                    "lambda" => lambda { Owners::listingItems() }
                 },
                 {
                     "name" => "NxFrames::items()",

@@ -59,7 +59,7 @@ class Streaming
                 next
             end
             if command == ">owner" then
-                thread = Owners::architectOneOrNull()
+                thread = TxTimeCommitmentProjects::architectOneOrNull()
                 return if thread.nil?
                 OwnerMapping::issue(thread["uuid"], item["uuid"])
                 NxBallsService::close(item["uuid"], true)
@@ -101,7 +101,7 @@ class Streaming
                 next
             end
             if command == ">owner" then
-                thread = Owners::architectOneOrNull()
+                thread = TxTimeCommitmentProjects::architectOneOrNull()
                 return if thread.nil?
                 OwnerMapping::issue(thread["uuid"], item["uuid"])
                 return nil

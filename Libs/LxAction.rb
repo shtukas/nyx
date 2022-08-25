@@ -48,11 +48,15 @@ class LxAction
                     end
                     if action == "stop and destroy" then
                         LxAction::action("stop", item)
-                        LxAction::action("destroy", item)
+                        LxAction::action("destroy-with-prompt", item)
                         return
                     end
                 }
+                return
+            end
 
+            if item["mikuType"] == "TxTimeCommitmentProject" then
+                TxTimeCommitmentProjects::doubleDot(item)
                 return
             end
 
@@ -62,11 +66,6 @@ class LxAction
         end
 
         if command == "access" then
-
-            if Owners::itemIsOwner(item) then
-                Landing::landingOwner(item)
-                return nil
-            end
 
             puts LxFunction::function("toString", item).green
 
@@ -110,6 +109,11 @@ class LxAction
                 if action == "edit" then
                     TopLevel::edit(item)
                 end
+                return
+            end
+
+            if item["mikuType"] == "TxTimeCommitmentProject" then
+                TxTimeCommitmentProjects::access(item)
                 return
             end
 
@@ -202,7 +206,7 @@ class LxAction
             end
         end
 
-        if command == "destroy" then
+        if command == "destroy-with-prompt" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
                 Fx256::deleteObjectLogically(item["uuid"])
             end
@@ -251,7 +255,7 @@ class LxAction
                     accounts << owneruuid # Owner of a owned item
                 }
             if ["TxIncoming", "TxDated"].include?(item["mikuType"]) then
-                ox = Owners::interactivelySelectOneOrNull()
+                ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
                 if ox then
                     puts "registering extra bank account: #{LxFunction::function("toString", ox).green}"
                     accounts << ox["uuid"] # temporary owner for TxIncoming

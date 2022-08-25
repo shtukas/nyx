@@ -1,9 +1,9 @@
 Ax39 represents a time commitment, either daily or weekly.
 
-It is carried by some NxTasks
+It is carried by TxTimeCommitmentProjects
 
 {
-    "type"  => "daily-singleton-run" # limited to threads
+    "type"  => "daily-singleton-run"
 }
 
 {
