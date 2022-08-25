@@ -194,6 +194,20 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "TxTimeCommitmentProject" then
+            [
+                "uuid",
+                "mikuType",
+                "unixtime",
+                "datetime",
+                "ax39",
+                "elementuuids",
+            ]
+                .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            XCache::setFlag(repeatKey, true)
+            return
+        end
+
         if mikuType == "NxPerson" then
             [
                 "uuid",
