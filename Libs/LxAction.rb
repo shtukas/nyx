@@ -130,7 +130,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxIncoming" then
-                puts "(TxIncoming) '#{item["line"]}'"
+                puts TxIncomings::toString(item)
                 LucilleCore::pressEnterToContinue()
                 return
             end
