@@ -111,7 +111,8 @@ class Catalyst
     def self.printListingLoop(announce, items)
         loop {
             items = items
-                    .map{|item| Fx256::getAliveProtoItemOrNull(item["uuid"]).compact }
+                    .map{|item| Fx256::getAliveProtoItemOrNull(item["uuid"]) }
+                    .compact
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
             its1, its2 = items.partition{|item| NxBallsService::isActive(item["uuid"]) }
