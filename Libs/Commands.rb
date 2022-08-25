@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming",
+            "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming | line",
             "anniversaries | ondates | todos | time-commitment-projects | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy",
             ">task | >owner | (n) >owner | >nyx",
@@ -219,7 +219,7 @@ class Commands
         if input == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
-            item = NxLines::issue(line)
+            item = NxTasks::issueDescriptionOnlyNoNx111(line)
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end

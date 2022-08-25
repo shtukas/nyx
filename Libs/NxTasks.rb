@@ -88,6 +88,25 @@ class NxTasks
         item
     end
 
+    # NxTasks::issueDescriptionOnlyNoNx111(description)
+    def self.issueDescriptionOnlyNoNx111(description)
+        uuid  = SecureRandom.uuid
+        nx111 = nil
+        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
+        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        Fx18Attributes::setJsonEncoded(uuid, "description", description)
+        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        Fx256::broadcastObjectEvents(uuid)
+        item = Fx256::getProtoItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 5ea6abff-1007-4bd5-ab61-bde26c621a8b) How did that happen ? 🤨"
+        end
+        item
+    end
+
     # --------------------------------------------------
     # Data
 
