@@ -15,3 +15,5 @@ When we update an item
     1. Find the _dxf1_ item, either in local or in the vaults
     2. Update the _dxf1_ while updating its name to match the new contents
     3. Update the 
+
+The Catalyst items' Miku Types indicate how they are processed. The Nyx items' Miku Types indicate what they are.
