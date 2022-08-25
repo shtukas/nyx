@@ -129,6 +129,12 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxIncoming" then
+                puts "(TxIncoming) '#{item["line"]}'"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
             if item["mikuType"] == "TopLevel" then
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
                 return if action.nil?
@@ -145,6 +151,8 @@ class LxAction
                 TxTimeCommitmentProjects::access(item)
                 return
             end
+
+
 
             if Iam::implementsNx111(item) then
                 if item["nx111"].nil? then
