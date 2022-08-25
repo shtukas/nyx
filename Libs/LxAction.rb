@@ -231,6 +231,7 @@ class LxAction
 
             if item["mikuType"] == "TxIncoming" then
                 Fx256::deleteObjectLogically(item["uuid"])
+                NxBallsService::close(item["uuid"], true)
                 return
             end
 
