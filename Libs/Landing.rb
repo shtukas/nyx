@@ -79,7 +79,7 @@ class Landing
                 puts "(... many items, use `navigation` ...)"
             end
 
-            puts "commands: iam | <n> | description | datetime | note | json | link | unlink | network-migration | navigation | upload | return (within search) | destroy".yellow
+            puts "commands: iam | <n> | description | datetime | text | json | link | unlink | network-migration | navigation | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -117,7 +117,7 @@ class Landing
                 Iam::transmutation(item)
             end
 
-            if Interpreting::match("note", command) then
+            if Interpreting::match("text", command) then
                 i2 = Ax1Text::interactivelyIssueNew()
                 puts JSON.pretty_generate(i2)
                 NetworkLinks::link(item["uuid"], i2["uuid"])
@@ -198,7 +198,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | iam | <n> | description | datetime | nx111 | edit | note | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | edit | text | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -246,7 +246,7 @@ class Landing
                 return
             end
 
-            if Interpreting::match("note", command) then
+            if Interpreting::match("text", command) then
                 i2 = Ax1Text::interactivelyIssueNew()
                 puts JSON.pretty_generate(i2)
                 NetworkLinks::link(item["uuid"], i2["uuid"])
