@@ -1,6 +1,0 @@
-
-{
-    "item"     : item,
-    "toString" : String
-    "metric"   : Float
-}
