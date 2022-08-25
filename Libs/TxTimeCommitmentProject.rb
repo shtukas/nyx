@@ -83,7 +83,8 @@ class TxTimeCommitmentProjects
     # TxTimeCommitmentProjects::listingItems()
     def self.listingItems()
         TxTimeCommitmentProjects::items()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            .select{|item| Ax39forSections::itemShouldShow(item) }
+            .sort{|i1, i2| Ax39forSections::orderingValue(i1) <=> Ax39forSections::orderingValue(i2) }
     end
 
     # TxTimeCommitmentProjects::elements(owner, count)
