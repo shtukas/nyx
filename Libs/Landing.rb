@@ -79,7 +79,7 @@ class Landing
                 puts "(... many items, use `navigation` ...)"
             end
 
-            puts "commands: iam | <n> | description | datetime | text | json | link | unlink | network-migration | navigation | upload | return (within search) | destroy".yellow
+            puts "commands: iam | <n> | description | datetime | line | text | json | link | unlink | network-migration | navigation | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -115,6 +115,14 @@ class Landing
 
             if Interpreting::match("iam", command) then
                 Iam::transmutation(item)
+            end
+
+            if Interpreting::match("line", command) then
+                l1 = NxLines::interactivelyIssueNewLineOrNull()
+                next if l1.nil?
+                puts JSON.pretty_generate(l1)
+                NetworkLinks::link(item["uuid"], l1["uuid"])
+                next
             end
 
             if Interpreting::match("text", command) then
@@ -198,7 +206,7 @@ class Landing
                     puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
                 }
 
-            puts "commands: access | iam | <n> | description | datetime | nx111 | edit | text | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
+            puts "commands: access | iam | <n> | description | datetime | nx111 | edit | line | text | json | link | unlink | network-migration | upload | return (within search) | destroy".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -244,6 +252,14 @@ class Landing
             if Interpreting::match("iam", command) then
                 Iam::transmutation(item)
                 return
+            end
+
+            if Interpreting::match("line", command) then
+                l1 = NxLines::interactivelyIssueNewLineOrNull()
+                next if l1.nil?
+                puts JSON.pretty_generate(l1)
+                NetworkLinks::link(item["uuid"], l1["uuid"])
+                next
             end
 
             if Interpreting::match("text", command) then
@@ -295,12 +311,6 @@ class Landing
             TxTimeCommitmentProjects::landing(item)
             return nil
         end
-        if Iam::implementsNx111(item) then
-            return Landing::implementsNx111Landing(item, isSearchAndSelect)
-        end
-        if Iam::isNetworkAggregation(item) then
-            return Landing::networkAggregationNodeLanding(item, isSearchAndSelect)
-        end
         if item["mikuType"] == "Ax1Text" then
             Ax1Text::landing(item)
             return nil
@@ -310,10 +320,16 @@ class Landing
             return nil
         end
         if item["mikuType"] == "NxLine" then
+            puts "landing:"
             puts JSON.pretty_generate(item)
-            puts "We do not have a landing for NxLines"
             LucilleCore::pressEnterToContinue()
             return nil
+        end
+        if Iam::implementsNx111(item) then
+            return Landing::implementsNx111Landing(item, isSearchAndSelect)
+        end
+        if Iam::isNetworkAggregation(item) then
+            return Landing::networkAggregationNodeLanding(item, isSearchAndSelect)
         end
         raise "(error: 1e84c68b-b602-41af-b2e9-00e66fa687ac) item: #{item}"
     end
