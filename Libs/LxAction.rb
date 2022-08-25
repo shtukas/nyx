@@ -55,6 +55,35 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxIncoming" then
+                LxAction::action("start", item)
+                LxAction::action("access", item)
+                actions = ["destroy", "transmute to task and get owner", "do not display until"]
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
+                if action.nil? then
+                    LxAction::action("stop", item)
+                    return
+                end
+                if action == "destroy" then
+                    LxAction::action("stop", item)
+                    LxAction::action("destroy-with-prompt", item)
+                    return
+                end
+                if action == "transmute to task and get owner" then
+                    LxAction::action("stop", item)
+                    puts "Write it: 7a114e67-6767-4d99-b6d0-fc002e2ebd0f"
+                    exit
+                    return
+                end
+                if action == "do not display until" then
+                    LxAction::action("stop", item)
+                    puts "Write it: 9a681ca6-c5ca-4839-ae1a-0ecd973d25a0"
+                    exit
+                    return
+                end
+                return
+            end
+
             if item["mikuType"] == "TxTimeCommitmentProject" then
                 TxTimeCommitmentProjects::doubleDot(item)
                 return
