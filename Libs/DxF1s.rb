@@ -154,8 +154,10 @@ class DxF1
 
     # DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
     def self.eventExistsAtDxF1(objectuuid, eventuuid)
+        filepath = DxF1::filepathOrNullNoSideEffect(objectuuid)
+        return false if filepath.nil?
         answer = false
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
