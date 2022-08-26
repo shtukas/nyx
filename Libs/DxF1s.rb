@@ -24,13 +24,10 @@ class DxF1s
         end
         filepath
     end
-end
 
-class Fx18Attributes
-
-    # Fx18Attributes::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
+    # DxF1s::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
-        puts "Fx18Attributes::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
+        puts "DxF1s::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         row = Fx256::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
         if row then
             SystemEvents::broadcast({
@@ -40,12 +37,12 @@ class Fx18Attributes
         end
     end
 
-    # Fx18Attributes::setJsonEncoded(objectuuid, attname, attvalue)
+    # DxF1s::setJsonEncoded(objectuuid, attname, attvalue)
     def self.setJsonEncoded(objectuuid, attname, attvalue)
-        Fx18Attributes::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
+        DxF1s::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
-    # Fx18Attributes::getJsonDecodeOrNull(objectuuid, attname)
+    # DxF1s::getJsonDecodeOrNull(objectuuid, attname)
     def self.getJsonDecodeOrNull(objectuuid, attname)
         db = SQLite3::Database.new(Fx256::filepath(objectuuid))
         db.busy_timeout = 117
@@ -60,7 +57,7 @@ class Fx18Attributes
         attvalue
     end
 
-    # Fx18Attributes::getJsonDecodeOrNullUsingFilepath(filepath, attname)
+    # DxF1s::getJsonDecodeOrNullUsingFilepath(filepath, attname)
     def self.getJsonDecodeOrNullUsingFilepath(filepath, attname)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -182,7 +179,7 @@ class Fx256
 
     # Fx256::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        value = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "isAlive")
+        value = DxF1s::getJsonDecodeOrNull(objectuuid, "isAlive")
         return true if value.nil?
         value
     end
@@ -290,7 +287,7 @@ class Fx256
 
     # Fx256::deleteObjectLogicallyNoEvents(objectuuid)
     def self.deleteObjectLogicallyNoEvents(objectuuid)
-        Fx18Attributes::setJsonEncoded(objectuuid, "isAlive", false)
+        DxF1s::setJsonEncoded(objectuuid, "isAlive", false)
     end
 
     # Fx256::deleteObjectLogically(objectuuid)

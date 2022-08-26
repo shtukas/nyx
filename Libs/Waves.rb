@@ -128,14 +128,14 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "Wave")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncoded(uuid, "description", description)
-        Fx18Attributes::setJsonEncoded(uuid, "nx46",        JSON.generate(nx46))
-        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
-        Fx18Attributes::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",    "Wave")
+        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1s::setJsonEncoded(uuid, "description", description)
+        DxF1s::setJsonEncoded(uuid, "nx46",        JSON.generate(nx46))
+        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1s::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -176,7 +176,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        Fx18Attributes::setJsonEncoded(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        DxF1s::setJsonEncoded(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"

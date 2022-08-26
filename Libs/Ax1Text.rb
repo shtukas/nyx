@@ -17,11 +17,11 @@ class Ax1Text
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncoded(uuid, "uuid", uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType", "Ax1Text")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime", unixtime)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime", datetime)
-        Fx18Attributes::setJsonEncoded(uuid, "text", text)
+        DxF1s::setJsonEncoded(uuid, "uuid", uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType", "Ax1Text")
+        DxF1s::setJsonEncoded(uuid, "unixtime", unixtime)
+        DxF1s::setJsonEncoded(uuid, "datetime", datetime)
+        DxF1s::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -70,7 +70,7 @@ class Ax1Text
             end
             if operation == "edit" then
                 text = CommonUtils::editTextSynchronously(item["text"])
-                Fx18Attributes::setJsonEncoded(uuid, "text", text)
+                DxF1s::setJsonEncoded(uuid, "text", text)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then

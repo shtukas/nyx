@@ -101,7 +101,7 @@ class Commands
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            Fx18Attributes::setJsonEncoded(item["uuid"], "ax39",  Ax39::interactivelyCreateNewAx())
+            DxF1s::setJsonEncoded(item["uuid"], "ax39",  Ax39::interactivelyCreateNewAx())
             return
         end
 

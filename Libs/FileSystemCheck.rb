@@ -24,7 +24,7 @@ class FileSystemCheck
             return
         end
 
-        mikuType = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType")
+        mikuType = DxF1s::getJsonDecodeOrNull(objectuuid, "mikuType")
         if mikuType.nil? then
             puts "objectuuid: #{objectuuid}".red
             puts "Malformed Fx18 file, I could not find a mikuType".red
@@ -32,7 +32,7 @@ class FileSystemCheck
         end
 
         ensureAttribute = lambda {|objectuuid, mikuType, attname|
-            attvalue = Fx18Attributes::getJsonDecodeOrNull(objectuuid, attname)
+            attvalue = DxF1s::getJsonDecodeOrNull(objectuuid, attname)
             if attvalue.nil? then
                 puts "ensureAttribute(#{objectuuid}, #{mikuType}, #{attname})"
                 puts "objectuuid: #{objectuuid}".red
@@ -79,7 +79,7 @@ class FileSystemCheck
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
 
-            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -120,7 +120,7 @@ class FileSystemCheck
                 "datetime",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -148,7 +148,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -162,7 +162,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -229,7 +229,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -269,7 +269,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -285,7 +285,7 @@ class FileSystemCheck
                 "lastDoneDateTime",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = Fx18Attributes::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return

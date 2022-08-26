@@ -112,14 +112,14 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxAnniversary")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncoded(uuid, "description", description)
-        Fx18Attributes::setJsonEncoded(uuid, "startdate",   startdate)
-        Fx18Attributes::setJsonEncoded(uuid, "repeatType",  repeatType)
-        Fx18Attributes::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
+        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxAnniversary")
+        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1s::setJsonEncoded(uuid, "description", description)
+        DxF1s::setJsonEncoded(uuid, "startdate",   startdate)
+        DxF1s::setJsonEncoded(uuid, "repeatType",  repeatType)
+        DxF1s::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -142,7 +142,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        DxF1s::setJsonEncoded(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -184,13 +184,13 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                Fx18Attributes::setJsonEncoded(item["uuid"], "description", description)
+                DxF1s::setJsonEncoded(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                Fx18Attributes::setJsonEncoded(item["uuid"], "startdate",   startdate)
+                DxF1s::setJsonEncoded(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then

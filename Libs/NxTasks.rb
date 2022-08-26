@@ -25,13 +25,13 @@ class NxTasks
         if shouldPromptForTimeCommitment and LucilleCore::askQuestionAnswerAsBoolean("Attach a Ax39 (time commitment) ? ", false) then
             ax39 = Ax39::interactivelyCreateNewAxOrNull()
         end
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncoded(uuid, "description", description)
-        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
-        Fx18Attributes::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
+        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1s::setJsonEncoded(uuid, "description", description)
+        DxF1s::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
+        DxF1s::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -50,12 +50,12 @@ class NxTasks
             "type" => "url",
             "url"  => url
         }
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncoded(uuid, "description", description)
-        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1s::setJsonEncoded(uuid, "description", description)
+        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -73,12 +73,12 @@ class NxTasks
         description = File.basename(location)
         uuid = SecureRandom.uuid
         nx111 = Nx111::locationToNx111DxPureAionPoint(uuid, location)
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncoded(uuid, "description", description)
-        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
+        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1s::setJsonEncoded(uuid, "description", description)
+        DxF1s::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -92,12 +92,12 @@ class NxTasks
     def self.issueDescriptionOnlyNoNx111(description)
         uuid  = SecureRandom.uuid
         nx111 = nil
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        Fx18Attributes::setJsonEncoded(uuid, "description", description)
-        Fx18Attributes::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1s::setJsonEncoded(uuid, "description", description)
+        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)

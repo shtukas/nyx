@@ -17,11 +17,11 @@ class TopLevel
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        Fx18Attributes::setJsonEncoded(uuid, "uuid", uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType", "TopLevel")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime", unixtime)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime", datetime)
-        Fx18Attributes::setJsonEncoded(uuid, "text", text)
+        DxF1s::setJsonEncoded(uuid, "uuid", uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType", "TopLevel")
+        DxF1s::setJsonEncoded(uuid, "unixtime", unixtime)
+        DxF1s::setJsonEncoded(uuid, "datetime", datetime)
+        DxF1s::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -71,7 +71,7 @@ class TopLevel
         uuid = item["uuid"]
         text = item["text"]
         text = CommonUtils::editTextSynchronously(text)
-        Fx18Attributes::setJsonEncoded(uuid, "text", text)
+        DxF1s::setJsonEncoded(uuid, "text", text)
         Fx256::getProtoItemOrNull(uuid)
     end
 
@@ -90,7 +90,7 @@ class TopLevel
             if operation == "access/edit" then
                 text = item["text"]
                 text = CommonUtils::editTextSynchronously(text)
-                Fx18Attributes::setJsonEncoded(uuid, "text", text)
+                DxF1s::setJsonEncoded(uuid, "text", text)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then

@@ -37,14 +37,14 @@ class TxTimeCommitmentProjects
         ax39 = Ax39::interactivelyCreateNewAx()
 
         unixtime   = Time.new.to_i
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",         uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",     "TxTimeCommitmentProject")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",     unixtime)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",     datetime)
-        Fx18Attributes::setJsonEncoded(uuid, "description",  description)
-        Fx18Attributes::setJsonEncoded(uuid, "nx111",        nx111)
-        Fx18Attributes::setJsonEncoded(uuid, "elementuuids", [])
-        Fx18Attributes::setJsonEncoded(uuid, "ax39",         ax39)
+        DxF1s::setJsonEncoded(uuid, "uuid",         uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",     "TxTimeCommitmentProject")
+        DxF1s::setJsonEncoded(uuid, "unixtime",     unixtime)
+        DxF1s::setJsonEncoded(uuid, "datetime",     datetime)
+        DxF1s::setJsonEncoded(uuid, "description",  description)
+        DxF1s::setJsonEncoded(uuid, "nx111",        nx111)
+        DxF1s::setJsonEncoded(uuid, "elementuuids", [])
+        DxF1s::setJsonEncoded(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
@@ -271,7 +271,7 @@ class TxTimeCommitmentProjects
     def self.interactivelyAddThisElementToOwner(element)
         puts "TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
         if element["mikuType"] == "TxIncoming" then
-            Fx18Attributes::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
+            DxF1s::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
             element = Fx256::getProtoItemOrNull(element["uuid"])
         end
         if !["NxTask", "NxLine"].include?(element["mikuType"]) then

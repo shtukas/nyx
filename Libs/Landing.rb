@@ -98,11 +98,11 @@ class Landing
                 if item["mikuType"] == "NxPerson" then
                     name1 = CommonUtils::editTextSynchronously(item["name"]).strip
                     next if name1 == ""
-                    Fx18Attributes::setJsonEncoded(item["uuid"], "name", name1)
+                    DxF1s::setJsonEncoded(item["uuid"], "name", name1)
                 else
                     description = CommonUtils::editTextSynchronously(item["description"]).strip
                     next if description == ""
-                    Fx18Attributes::setJsonEncoded(item["uuid"], "description", description)
+                    DxF1s::setJsonEncoded(item["uuid"], "description", description)
                 end
                 next
             end
@@ -110,7 +110,7 @@ class Landing
             if Interpreting::match("datetime", command) then
                 datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
                 next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-                Fx18Attributes::setJsonEncoded(item["uuid"], "datetime", datetime)
+                DxF1s::setJsonEncoded(item["uuid"], "datetime", datetime)
             end
 
             if Interpreting::match("iam", command) then
@@ -229,20 +229,20 @@ class Landing
             if Interpreting::match("description", command) then
                 description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
-                Fx18Attributes::setJsonEncoded(item["uuid"], "description", description)
+                DxF1s::setJsonEncoded(item["uuid"], "description", description)
                 next
             end
 
             if Interpreting::match("datetime", command) then
                 datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
                 next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-                Fx18Attributes::setJsonEncoded(item["uuid"], "datetime", datetime)
+                DxF1s::setJsonEncoded(item["uuid"], "datetime", datetime)
             end
 
             if Interpreting::match("nx111", command) then
                 nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
                 next if nx111.nil?
-                Fx18Attributes::setJsonEncoded(item["uuid"], "nx111", nx111)
+                DxF1s::setJsonEncoded(item["uuid"], "nx111", nx111)
             end
 
             if Interpreting::match("edit", command) then

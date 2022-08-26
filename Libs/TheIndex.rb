@@ -27,7 +27,7 @@ class Fx256AtLevel2WithCache
         end
 
         objectuuids = Fx256AtLevel2WithCache::objectuuids(name1, name2)
-                        .select{|objectuuid| Fx18Attributes::getJsonDecodeOrNull(objectuuid, "mikuType") == mikuType }
+                        .select{|objectuuid| DxF1s::getJsonDecodeOrNull(objectuuid, "mikuType") == mikuType }
 
         Fx256X::fileput(cache, JSON.pretty_generate(objectuuids))
         objectuuids

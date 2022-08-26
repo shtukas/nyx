@@ -26,11 +26,11 @@ class NxConcepts
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         uuid = SecureRandom.uuid
-        Fx18Attributes::setJsonEncoded(uuid, "uuid",        uuid)
-        Fx18Attributes::setJsonEncoded(uuid, "mikuType",    "NxConcept")
-        Fx18Attributes::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        Fx18Attributes::setJsonEncoded(uuid, "datetime",    datetime)
-        Fx18Attributes::setJsonEncoded(uuid, "description", description)
+        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxConcept")
+        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1s::setJsonEncoded(uuid, "datetime",    datetime)
+        DxF1s::setJsonEncoded(uuid, "description", description)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         Fx256::broadcastObjectEvents(uuid)
         item = Fx256::getProtoItemOrNull(uuid)

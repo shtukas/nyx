@@ -279,7 +279,7 @@ class LxAction
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-                Fx18Attributes::setJsonEncoded(item["uuid"], "datetime", datetime)
+                DxF1s::setJsonEncoded(item["uuid"], "datetime", datetime)
                 return
             end
         end
