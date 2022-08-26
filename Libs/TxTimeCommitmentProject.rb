@@ -46,7 +46,7 @@ class TxTimeCommitmentProjects
         DxF1s::setJsonEncoded(uuid, "elementuuids", [])
         DxF1s::setJsonEncoded(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 058e5a67-7fbe-4922-b638-2533428ee019) How did that happen ? 🤨"

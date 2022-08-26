@@ -14,7 +14,12 @@ class FileSystemCheck
     # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid)
     def self.fsckObjectuuidErrorAtFirstFailure(objectuuid)
 
-        repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{JSON.generate(Fx256::objectrows(objectuuid))}"
+        return
+
+        filepath = DxF1s::filepathOrNullNoSideEffect(objectuuid)
+        return if filepath.nil?
+
+        repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{File.mtime(filepath)}"
         return if XCache::getFlag(repeatKey)
 
         puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid})"

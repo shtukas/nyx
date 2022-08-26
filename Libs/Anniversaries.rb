@@ -121,7 +121,7 @@ class Anniversaries
         DxF1s::setJsonEncoded(uuid, "repeatType",  repeatType)
         DxF1s::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"

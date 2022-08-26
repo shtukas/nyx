@@ -33,7 +33,7 @@ class NxTasks
         DxF1s::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
         DxF1s::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -57,7 +57,7 @@ class NxTasks
         DxF1s::setJsonEncoded(uuid, "description", description)
         DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: f78008bf-12d4-4483-b4bb-96e3472d46a2) How did that happen ? 🤨"
@@ -80,7 +80,7 @@ class NxTasks
         DxF1s::setJsonEncoded(uuid, "description", description)
         DxF1s::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 7938316c-cb54-4d60-a480-f161f19718ef) How did that happen ? 🤨"
@@ -99,7 +99,7 @@ class NxTasks
         DxF1s::setJsonEncoded(uuid, "description", description)
         DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 5ea6abff-1007-4bd5-ab61-bde26c621a8b) How did that happen ? 🤨"

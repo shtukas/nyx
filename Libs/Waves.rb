@@ -137,7 +137,7 @@ class Waves
         DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
         DxF1s::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"

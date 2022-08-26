@@ -32,7 +32,7 @@ class NxTimelines
         DxF1s::setJsonEncoded(uuid, "datetime",    datetime)
         DxF1s::setJsonEncoded(uuid, "description", description)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: a6cc9094-7100-4aa3-8ebc-1fec0669733e) How did that happen ? 🤨"

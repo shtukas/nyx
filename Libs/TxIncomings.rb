@@ -23,7 +23,7 @@ class TxIncomings
         DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1s::setJsonEncoded(uuid, "line",        line)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         raise "(error: 23934808-2c52-439b-abc0-6c34cf5c854a) How did that happen?" if item.nil?
         item

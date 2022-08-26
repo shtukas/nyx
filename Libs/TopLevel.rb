@@ -23,7 +23,7 @@ class TopLevel
         DxF1s::setJsonEncoded(uuid, "datetime", datetime)
         DxF1s::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"

@@ -17,7 +17,7 @@ class NxPersons
         DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1s::setJsonEncoded(uuid, "name",        name1)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObjectEvents(uuid)
+        Fx256::broadcastObject(uuid)
         item = Fx256::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"
