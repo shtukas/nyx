@@ -1,0 +1,7 @@
+Dx* is a new category of data types for the Nyx network that are content focused.
+
+They mostly are made of an optional description together with the payload. The Miku type determines the type of the payload. This is a change relatively to, say, Nx111 carriers, where the type was carried by the Nx111 objects.
+
+They are still sequences of events, so are editable in that sense, and the updates to other instances can take the form of individual events (records) or whole files being propagated.
+
+They are encoded as DxF1 files.

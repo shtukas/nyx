@@ -1,0 +1,7 @@
+
+DxText:
+    "uuid"        : String
+    "mikuType"    : "DxText"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "text"        : String # The text

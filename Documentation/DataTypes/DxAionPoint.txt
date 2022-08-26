@@ -1,0 +1,15 @@
+
+DxAionPoint:
+    "uuid"        : uuid
+    "mikuType"    : "DxAionPoint"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "rootnhash"   : String
+    (datablobs)
+
+
+
+
+
+

@@ -58,7 +58,7 @@ class Transmutation
 
         if source == "NxFrame" and target == "NxTask" then
             DxF1::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = TheIndex::getItemOrNull(uuid)
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
@@ -89,14 +89,14 @@ class Transmutation
 
         if source == "NxTask" and target == "NxDataNode" then
             DxF1::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = TheIndex::getItemOrNull(uuid)
             LxAction::action("landing", item)
             return
         end
 
         if source == "TxDated" and target == "NxDataNode" then
             DxF1::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = TheIndex::getItemOrNull(uuid)
             LxAction::action("landing", item)
             return
         end
@@ -108,7 +108,7 @@ class Transmutation
 
         if source == "TxDated" and target == "NxTask" then
             DxF1::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = TheIndex::getItemOrNull(uuid)
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
@@ -117,7 +117,7 @@ class Transmutation
             DxF1::setJsonEncoded(item["uuid"], "description", item["line"])
             DxF1::setJsonEncoded(item["uuid"], "nx111", nil)
             DxF1::setJsonEncoded(item["uuid"], "mikuType", "NxTask")
-            item = DxF1::getProtoItemOrNull(item["uuid"])
+            item = TheIndex::getItemOrNull(item["uuid"])
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end

@@ -149,11 +149,6 @@ class DxF1
         })
     end
 
-    # DxF1::broadcastObjectFile(objectuuid)
-    def self.broadcastObjectFile(objectuuid)
-        puts "todo: DxF1::broadcastObjectFile"
-    end
-
     # DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
     def self.eventExistsAtDxF1(objectuuid, eventuuid)
         filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
@@ -191,7 +186,7 @@ class Fx256
             puts "You are trying to edit a nx111 carrier"
             puts "Follow: 9e0705fc-8637-47f9-9bce-29df79d05292"
             exit
-            return DxF1::getProtoItemOrNull(uuid)
+            return TheIndex::getItemOrNull(uuid)
         end
 
         raise "(error: 402f0ee5-4bd1-4b73-a418-d16ac12760ca)"

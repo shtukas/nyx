@@ -1,0 +1,7 @@
+DxUrl:
+    "uuid"        : uuid
+    "mikuType"    : "DxUrl"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "url"         : String

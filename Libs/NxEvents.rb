@@ -34,8 +34,7 @@ class NxEvents
         DxF1::setJsonEncoded(uuid, "description", description)
         DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: c4d9e89d-d4f2-4a44-8c66-311431977b4c) How did that happen ? 🤨"
         end

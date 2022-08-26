@@ -32,8 +32,7 @@ class TxDateds
         DxF1::setJsonEncoded(uuid, "description", description)
         DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
         end
@@ -55,8 +54,7 @@ class TxDateds
         DxF1::setJsonEncoded(uuid, "description", description)
         DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 69486f48-3748-4c73-b604-a7edad98871d) How did that happen ? 🤨"
         end

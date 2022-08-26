@@ -30,8 +30,7 @@ class NxEntities
         DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setJsonEncoded(uuid, "description", description)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 291521ea-221b-4a81-9b6e-9ef0925d2ca5) How did that happen ? 🤨"
         end

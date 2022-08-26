@@ -23,8 +23,7 @@ class TopLevel
         DxF1::setJsonEncoded(uuid, "datetime", datetime)
         DxF1::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"
         end
@@ -72,7 +71,7 @@ class TopLevel
         text = item["text"]
         text = CommonUtils::editTextSynchronously(text)
         DxF1::setJsonEncoded(uuid, "text", text)
-        DxF1::getProtoItemOrNull(uuid)
+        TheIndex::getItemOrNull(uuid)
     end
 
     # TopLevel::landing(uuid)

@@ -23,8 +23,7 @@ class NxLines
         DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setJsonEncoded(uuid, "line",        line)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         raise "(error: 1853d31a-bb37-46d6-b4c2-7afcf88e0c56) How did that happen?" if item.nil?
         item
     end

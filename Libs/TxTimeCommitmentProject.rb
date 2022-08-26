@@ -46,8 +46,7 @@ class TxTimeCommitmentProjects
         DxF1::setJsonEncoded(uuid, "elementuuids", [])
         DxF1::setJsonEncoded(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 058e5a67-7fbe-4922-b638-2533428ee019) How did that happen ? 🤨"
         end
@@ -272,7 +271,7 @@ class TxTimeCommitmentProjects
         puts "TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
         if element["mikuType"] == "TxIncoming" then
             DxF1::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
-            element = DxF1::getProtoItemOrNull(element["uuid"])
+            element = TheIndex::getItemOrNull(element["uuid"])
         end
         if !["NxTask", "NxLine"].include?(element["mikuType"]) then
             puts "The operation TxTimeCommitmentProjects::interactivelyAddThisElementToOwner only works on NxLines or NxTasks"

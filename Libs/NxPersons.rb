@@ -17,8 +17,7 @@ class NxPersons
         DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setJsonEncoded(uuid, "name",        name1)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        DxF1::broadcastObjectFile(uuid)
-        item = DxF1::getProtoItemOrNull(uuid)
+        item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"
         end

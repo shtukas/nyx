@@ -1,27 +1,24 @@
 
 # encoding: UTF-8
 
-class Ax1Text
+class DxLine
 
-    # ----------------------------------------------------------------------
-    # Objects Management
-
-    # Ax1Text::items()
+    # DxLine::items()
     def self.items()
-        TheIndex::mikuTypeToItems("Ax1Text")
+        TheIndex::mikuTypeToItems("DxLine")
     end
 
-    # Ax1Text::interactivelyIssueNew()
-    def self.interactivelyIssueNew()
+    # DxLine::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
-        text = CommonUtils::editTextSynchronously("")
+        line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "Ax1Text")
+        DxF1::setJsonEncoded(uuid, "mikuType", "DxLine")
         DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
         DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "text", text)
+        DxF1::setJsonEncoded(uuid, "line", line)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -33,7 +30,7 @@ class Ax1Text
     # ----------------------------------------------------------------------
     # Data
 
-    # Ax1Text::getFirstLineOrNull(item)
+    # DxLine::getFirstLineOrNull(item)
     def self.getFirstLineOrNull(item)
         text = item["text"]
         return nil if text.nil?
@@ -41,9 +38,9 @@ class Ax1Text
         text.lines.first.strip
     end
 
-    # Ax1Text::toString(item)
+    # DxLine::toString(item)
     def self.toString(item)
-        firstline = Ax1Text::getFirstLineOrNull(item)
+        firstline = DxLine::getFirstLineOrNull(item)
         return "(note) (no text)" if firstline.nil?
         "(note) #{firstline}"
     end
@@ -51,12 +48,12 @@ class Ax1Text
     # ----------------------------------------------------------------------
     # Operations
 
-    # Ax1Text::landing(item)
+    # DxLine::landing(item)
     def self.landing(item)
         loop {
             system("clear")
             uuid = item["uuid"]
-            puts Ax1Text::toString(item)
+            puts DxLine::toString(item)
             operations = [
                 "access",
                 "edit",
@@ -72,7 +69,7 @@ class Ax1Text
                 DxF1::setJsonEncoded(uuid, "text", text)
             end
             if operation == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{DxLine::toString(item).green}' ? ") then
                     DxF1::deleteObjectLogically(uuid)
                     break
                 end
