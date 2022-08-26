@@ -8,7 +8,7 @@ class TopLevel
 
     # TopLevel::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("TopLevel")
+        TheIndex::mikuTypeToItems("TopLevel")
     end
 
     # TopLevel::interactivelyIssueNew()
@@ -17,14 +17,14 @@ class TopLevel
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        DxF1s::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType", "TopLevel")
-        DxF1s::setJsonEncoded(uuid, "unixtime", unixtime)
-        DxF1s::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1s::setJsonEncoded(uuid, "text", text)
+        DxF1::setJsonEncoded(uuid, "uuid", uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType", "TopLevel")
+        DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
+        DxF1::setJsonEncoded(uuid, "datetime", datetime)
+        DxF1::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"
         end
@@ -51,7 +51,7 @@ class TopLevel
 
     # TopLevel::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("TopLevel")
+        TheIndex::mikuTypeToItems("TopLevel")
     end
 
     # ----------------------------------------------------------------------
@@ -71,15 +71,15 @@ class TopLevel
         uuid = item["uuid"]
         text = item["text"]
         text = CommonUtils::editTextSynchronously(text)
-        DxF1s::setJsonEncoded(uuid, "text", text)
-        Fx256::getProtoItemOrNull(uuid)
+        DxF1::setJsonEncoded(uuid, "text", text)
+        DxF1::getProtoItemOrNull(uuid)
     end
 
     # TopLevel::landing(uuid)
     def self.landing(uuid)
         loop {
             system("clear")
-            item = Fx256::getAliveProtoItemOrNull(uuid)
+            item = TheIndex::getItemOrNull(uuid)
             puts TopLevel::toString(item)
             operations = [
                 "access/edit",
@@ -90,11 +90,11 @@ class TopLevel
             if operation == "access/edit" then
                 text = item["text"]
                 text = CommonUtils::editTextSynchronously(text)
-                DxF1s::setJsonEncoded(uuid, "text", text)
+                DxF1::setJsonEncoded(uuid, "text", text)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{TopLevel::toString(item).green}' ? ") then
-                    Fx256::deleteObjectLogically(uuid)
+                    DxF1::deleteObjectLogically(uuid)
                     break
                 end
             end

@@ -28,7 +28,6 @@ class Catalyst
             TxDateds::listingItems(),
             Waves::listingItems(true),
             TxIncomings::listingItems(),
-            NxLines::listingItems(),
             TxTimeCommitmentProjects::listingItems(),
             Waves::listingItems(false),
             NxTasks::listingItems(),
@@ -79,7 +78,7 @@ class Catalyst
                     # Now we need to adjust the unixtime to put it on top
                     topunixtime = NxTasks::topUnixtime()
                     puts "Setting top unixtime: #{topunixtime}"
-                    DxF1s::setJsonEncoded(item["uuid"], "unixtime", topunixtime)
+                    DxF1::setJsonEncoded(item["uuid"], "unixtime", topunixtime)
                     LucilleCore::removeFileSystemLocation(location)
                     XCache::destroy("Top-Tasks-For-Section2-7be0c69eaed3")
                 }
@@ -111,7 +110,7 @@ class Catalyst
     def self.printListingLoop(announce, items)
         loop {
             items = items
-                    .map{|item| Fx256::getAliveProtoItemOrNull(item["uuid"]) }
+                    .map{|item| TheIndex::getItemOrNull(item["uuid"]) }
                     .compact
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }

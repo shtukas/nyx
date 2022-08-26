@@ -5,20 +5,20 @@ class NxPersons
 
     # NxPersons::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("NxPerson")
+        TheIndex::mikuTypeToItems("NxPerson")
     end
 
     # NxPersons::issue(name1)
     def self.issue(name1)
         uuid = SecureRandom.uuid
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxPerson")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "name",        name1)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxPerson")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "name",        name1)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d7e99869-7566-40af-9349-558198695ddb) How did that happen ? 🤨"
         end

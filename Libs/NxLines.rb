@@ -8,7 +8,7 @@ class NxLines
 
     # NxLines::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("NxLine")
+        TheIndex::mikuTypeToItems("NxLine")
     end
 
     # ----------------------------------------------------------------------
@@ -17,14 +17,14 @@ class NxLines
     # NxLines::issue(line)
     def self.issue(line)
         uuid = SecureRandom.uuid
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxLine")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "line",        line)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxLine")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "line",        line)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         raise "(error: 1853d31a-bb37-46d6-b4c2-7afcf88e0c56) How did that happen?" if item.nil?
         item
     end

@@ -6,12 +6,12 @@ class Waves
 
     # Waves::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("Wave")
+        TheIndex::mikuTypeToItems("Wave")
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -128,17 +128,17 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "Wave")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx46",        JSON.generate(nx46))
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
-        DxF1s::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "Wave")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx46",        JSON.generate(nx46))
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"
         end
@@ -176,7 +176,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        DxF1s::setJsonEncoded(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        DxF1::setJsonEncoded(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"

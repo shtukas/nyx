@@ -8,7 +8,7 @@ require_relative "../Libs/loader.rb"
 
 puts ""
 puts "Fx18s:".green
-eventuuids = Fx256::eventuuids()
+eventuuids = []
 puts "Found #{eventuuids.size} events"
 puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join(":"))}"
 

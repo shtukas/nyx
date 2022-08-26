@@ -5,4 +5,4 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-Fx256::deleteObjectLogically(uuid)
+DxF1::deleteObjectLogically(uuid)

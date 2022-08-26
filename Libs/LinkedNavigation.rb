@@ -49,8 +49,8 @@ class LinkedNavigation
         loop {
             system("clear")
 
-            puts "lowest  datetime: #{DxF1s::getJsonDecodeOrNull(uuids.first, "datetime")}"
-            puts "highest datetime: #{DxF1s::getJsonDecodeOrNull(uuids.last, "datetime")}"
+            puts "lowest  datetime: #{DxF1::getJsonDecodeOrNull(uuids.first, "datetime")}"
+            puts "highest datetime: #{DxF1::getJsonDecodeOrNull(uuids.last, "datetime")}"
 
             options = ["display all", "edition desk export all", "zoom on time period"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -59,10 +59,10 @@ class LinkedNavigation
             if option == "display all" then
                 loop {
                     system("clear")
-                    lb  = lambda{|itemuuid| LxFunction::function("toString", Fx256::getAliveProtoItemOrNull(itemuuid)) }
+                    lb  = lambda{|itemuuid| LxFunction::function("toString", TheIndex::getItemOrNull(itemuuid)) }
                     linkeditemuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", uuids, lb)
                     break if linkeditemuuid.nil?
-                    item = Fx256::getAliveProtoItemOrNull(linkeditemuuid)
+                    item = TheIndex::getItemOrNull(linkeditemuuid)
                     break if item.nil?
                     Landing::landing(item, isSearchAndSelect = false)
                 }
@@ -79,7 +79,7 @@ class LinkedNavigation
                 puts "datetime2:"
                 datetime2 = CommonUtils::interactiveDateTimeBuilder()
                 subset = uuids.select{|uuid| 
-                    datetime = DxF1s::getJsonDecodeOrNull(uuid, "datetime")
+                    datetime = DxF1::getJsonDecodeOrNull(uuid, "datetime")
                     datetime >= datetime1 and datetime <= datetime2 
                 }
             end

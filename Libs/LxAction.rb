@@ -123,7 +123,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx256::deleteObjectLogically(item["uuid"])
+                    DxF1::deleteObjectLogically(item["uuid"])
                 end
                 return
             end
@@ -207,7 +207,7 @@ class LxAction
                     return
                 end
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
-                    Fx256::deleteObjectLogically(item["uuid"])
+                    DxF1::deleteObjectLogically(item["uuid"])
                     NxBallsService::close(item["uuid"], true)
                 end
                 return
@@ -215,7 +215,7 @@ class LxAction
 
             if item["mikuType"] == "NxLine" then
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ", true) then
-                    Fx256::deleteObjectLogically(item["uuid"])
+                    DxF1::deleteObjectLogically(item["uuid"])
                 end
                 NxBallsService::close(item["uuid"], true)
                 return
@@ -230,7 +230,7 @@ class LxAction
             end
 
             if item["mikuType"] == "TxIncoming" then
-                Fx256::deleteObjectLogically(item["uuid"])
+                DxF1::deleteObjectLogically(item["uuid"])
                 NxBallsService::close(item["uuid"], true)
                 return
             end
@@ -246,7 +246,7 @@ class LxAction
 
         if command == "destroy-with-prompt" then
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
-                Fx256::deleteObjectLogically(item["uuid"])
+                DxF1::deleteObjectLogically(item["uuid"])
             end
             return
         end
@@ -279,7 +279,7 @@ class LxAction
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-                DxF1s::setJsonEncoded(item["uuid"], "datetime", datetime)
+                DxF1::setJsonEncoded(item["uuid"], "datetime", datetime)
                 return
             end
         end

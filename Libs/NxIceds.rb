@@ -4,12 +4,12 @@ class NxIceds
 
     # NxIceds::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("NxIced")
+        TheIndex::mikuTypeToItems("NxIced")
     end
 
     # NxIceds::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------

@@ -1,23 +1,23 @@
 
-class DxF1s
+class DxF1
 
-    # DxF1s::pathToRepository()
+    # DxF1::pathToRepository()
     def self.pathToRepository()
         "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s"
     end
 
-    # DxF1s::filepathOrNullNoSideEffect(objectuuid)
+    # DxF1::filepathOrNullNoSideEffect(objectuuid)
     def self.filepathOrNullNoSideEffect(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
-        folderpath = "#{DxF1s::pathToRepository()}/#{sha1[0, 2]}"
+        folderpath = "#{DxF1::pathToRepository()}/#{sha1[0, 2]}"
         return nil if !File.exists?(folderpath)
         "#{folderpath}/#{sha1}.dxf1.sqlite3"
     end
 
-    # DxF1s::filepath(objectuuid)
+    # DxF1::filepath(objectuuid)
     def self.filepath(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
-        folderpath = "#{DxF1s::pathToRepository()}/#{sha1[0, 2]}"
+        folderpath = "#{DxF1::pathToRepository()}/#{sha1[0, 2]}"
         if !File.exists?(folderpath) then
             FileUtils.mkpath(folderpath)
         end
@@ -33,8 +33,8 @@ class DxF1s
         filepath
     end
 
-    # DxF1s::commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) # row or null
-    def self.commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) 
+    # DxF1::commit(objectuuid, eventuuid, eventTime, attname, attvalue) # row or null
+    def self.commit(objectuuid, eventuuid, eventTime, attname, attvalue) 
         if objectuuid.nil? then
             raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
         end
@@ -44,175 +44,67 @@ class DxF1s
         if eventTime.nil? then
             raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
         end
-        if eventData2.nil? then
+        if attname.nil? then
             raise "(error: 0b103332-556d-4043-9cdd-81cf70b7a289)"
         end
-        if eventData3.nil? then
+        if attvalue.nil? then
             raise "(error: db06a417-68d1-471d-888f-9e497b268750)"
         end
 
-        filepath = DxF1s::filepath(objectuuid)
+        filepath = DxF1::filepath(objectuuid)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", eventData2, eventData3]
+        db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attname, attvalue]
         db.close
 
-        db = SQLite3::Database.new(Fx256::filepath(objectuuid))
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData2, eventData3]
-        returnedrow = nil
-        db.execute("select * from _fx18_ where _eventuuid_=?", [eventuuid]) do |row|
-            returnedrow = row.clone
-        end
-        db.close
-        Fx256X::flashCacheBranchAtObjectuuid(objectuuid)
-        returnedrow
+        TheIndex::updateIndexAtObjectAttempt(objectuuid)
     end 
 
-    # DxF1s::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
+    # DxF1::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
-        puts "DxF1s::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        row = DxF1s::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
-        if row then
-            SystemEvents::broadcast({
-                "mikuType" => "Fx18-records",
-                "records"  => [row]
-            })
-        end
+        puts "DxF1::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
+        DxF1::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
+        puts "todo: implement post object broadcast"
     end
 
-    # DxF1s::setJsonEncoded(objectuuid, attname, attvalue)
+    # DxF1::setJsonEncoded(objectuuid, attname, attvalue)
     def self.setJsonEncoded(objectuuid, attname, attvalue)
-        DxF1s::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
+        DxF1::set1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
-    # DxF1s::getJsonDecodeOrNull(objectuuid, attname)
+    # DxF1::getJsonDecodeOrNull(objectuuid, attname)
     def self.getJsonDecodeOrNull(objectuuid, attname)
-        db = SQLite3::Database.new(Fx256::filepath(objectuuid))
+        db = SQLite3::Database.new(DxF1::filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         attvalue = nil
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _fx18_ where _objectuuid_=? and _eventData2_=? order by _eventTime_", [objectuuid, attname]) do |row|
-            attvalue = JSON.parse(row["_eventData3_"])
-        end
-        db.close
-        attvalue
-    end
-
-    # DxF1s::getJsonDecodeOrNullUsingFilepath(filepath, attname)
-    def self.getJsonDecodeOrNullUsingFilepath(filepath, attname)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        attvalue = nil
-        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _fx18_ where _eventData2_=? order by _eventTime_", [attname]) do |row|
-            attvalue = JSON.parse(row["_eventData3_"])
-        end
-        db.close
-        attvalue
-    end
-end
-
-class Fx256
-
-    # Fx256::filepath(objectuuid)
-    def self.filepath(objectuuid)
-        sha1 = Digest::SHA1.hexdigest(objectuuid)
-        folderpath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256/#{sha1[0, 1]}/#{sha1[1, 1]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        filepath = "#{folderpath}/Fx18.sqlite3"
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("create table _fx18_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventData2_ blob, _eventData3_ blob)", [])
-            db.close
-        end
-        filepath
-    end
-
-    # Fx256::filepathAtCoordinates(name1, name2)
-    def self.filepathAtCoordinates(name1, name2)
-        folderpath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256/#{name1}/#{name2}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        filepath = "#{folderpath}/Fx18.sqlite3"
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("create table _fx18_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventData2_ blob, _eventData3_ blob)", [])
-            db.close
-        end
-        filepath
-    end
-
-    # DxF1s::commitRow(row)
-    def self.commitRow(row)
-        DxF1s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData2_"], row["_eventData3_"])
-    end
-
-    # Fx256::getProtoItemOrNull(objectuuid)
-    def self.getProtoItemOrNull(objectuuid)
-
-        item = {}
-
-        db = SQLite3::Database.new(Fx256::filepath(objectuuid))
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from _fx18_ where _objectuuid_=? order by _eventTime_", [objectuuid]) do |row|
-
-            eventuuid = row["_eventuuid_"]
-            eventTime = row["_eventTime_"]
-
-            attrname = row["_eventData2_"]
-            attvalue = 
-                begin
-                    JSON.parse(row["_eventData3_"])
-                rescue 
-                    row["_eventData3_"] # We have some non json encoded legacy data at that attribute
-                end
-
-            filepath = DxF1s::filepath(objectuuid)
-            db1 = SQLite3::Database.new(filepath)
-            db1.busy_timeout = 117
-            db1.busy_handler { |count| true }
-            db1.results_as_hash = true
-            db1.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
-            db1.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attrname, JSON.generate(attvalue)]
-            db1.close
-
-        end
-        db.execute "delete from _fx18_ where _objectuuid_=?", [objectuuid]
-        db.close
-
-        item = {}
-
-        filepath = DxF1s::filepath(objectuuid)
-        db = SQLite3::Database.new(filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from _dxf1_ where _objectuuid_=? and _eventType_=? order by _eventTime_", [objectuuid, "attribute"]) do |row|
-            attrname = row["_name_"]
+        db.execute("select * from _dxf1_ where _objectuuid_=? and _name_=? order by _eventTime_", [objectuuid, attname]) do |row|
             attvalue = JSON.parse(row["_value_"])
-            item[attrname] = attvalue
+        end
+        db.close
+        attvalue
+    end
+
+    # DxF1::getProtoItemAtFilepathOrNull(filepath)
+    def self.getProtoItemAtFilepathOrNull(filepath)
+
+        # We can only do this because with the current conventions, there is only one objectuuid per DxF1 file.
+
+        item = {}
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _dxf1_ where _eventType_=? order by _eventTime_", ["attribute"]) do |row|
+            attname = row["_name_"]
+            attvalue = JSON.parse(row["_value_"])
+            item[attname] = attvalue
         end
         db.close
         
@@ -223,100 +115,28 @@ class Fx256
         item
     end
 
-    # Fx256::objectIsAlive(objectuuid)
+    # DxF1::getProtoItemOrNull(objectuuid)
+    def self.getProtoItemOrNull(objectuuid)
+        filepath = DxF1::filepath(objectuuid)
+        DxF1::getProtoItemAtFilepathOrNull(filepath)
+    end
+
+    # DxF1::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        value = DxF1s::getJsonDecodeOrNull(objectuuid, "isAlive")
+        value = DxF1::getJsonDecodeOrNull(objectuuid, "isAlive")
         return true if value.nil?
         value
     end
 
-    # Fx256::getAliveProtoItemOrNull(objectuuid)
-    def self.getAliveProtoItemOrNull(objectuuid)
-        item = Fx256::getProtoItemOrNull(objectuuid)
-        return nil if item.nil?
-        return nil if (!item["isAlive"].nil? and !item["isAlive"]) # Object is logically deleted
-        item
-    end
-
-    # Fx256::level1Foldernames()
-    def self.level1Foldernames()
-        ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]
-    end
-
-    # Fx256::level2Foldernames()
-    def self.level2Foldernames()
-        ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"]
-    end
-
-    # Fx256::eventuuids()
-    def self.eventuuids()
-        eventuuids = []
-        Fx256::level1Foldernames().each{|name1|
-            Fx256::level2Foldernames().each{|name2|
-                db = SQLite3::Database.new(Fx256::filepathAtCoordinates(name1, name2))
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("select _eventuuid_ from _fx18_ order by _eventTime_", []) do |row|
-                    eventuuids << row["_eventuuid_"]
-                end
-                db.close
-            }
-        }
-        eventuuids
-    end
-
-    # Fx256::objectuuidsAtLevel2(name1, name2)
-    def self.objectuuidsAtLevel2(name1, name2)
-        objectuuids = []
-        db = SQLite3::Database.new(Fx256::filepathAtCoordinates(name1, name2))
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select distinct(_objectuuid_) as _objectuuid_ from _fx18_", []) do |row|
-            objectuuids << row["_objectuuid_"]
-        end
-        db.close
-        objectuuids
-    end
-
-    # Fx256::objectuuids()
-    def self.objectuuids()
-        objectuuids = []
-        Fx256::level1Foldernames().each{|name1|
-            Fx256::level2Foldernames().each{|name2|
-                objectuuids = objectuuids + Fx256::objectuuidsAtLevel2(name1, name2)
-            }
-        }
-        objectuuids
-    end
-
-    # Fx256::rows()
-    def self.rows()
-        rows = []
-        Fx256::level1Foldernames().each{|name1|
-            Fx256::level2Foldernames().each{|name2|
-                db = SQLite3::Database.new(Fx256::filepathAtCoordinates(name1, name2))
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute("select * from _fx18_ order by _eventTime_", []) do |row|
-                    rows << row.clone
-                end
-                db.close
-            }
-        }
-        rows
-    end
-
-    # Fx256::deleteObjectLogicallyNoEvents(objectuuid)
+    # DxF1::deleteObjectLogicallyNoEvents(objectuuid)
     def self.deleteObjectLogicallyNoEvents(objectuuid)
-        DxF1s::setJsonEncoded(objectuuid, "isAlive", false)
+        DxF1::setJsonEncoded(objectuuid, "isAlive", false)
     end
 
-    # Fx256::deleteObjectLogically(objectuuid)
+    # DxF1::deleteObjectLogically(objectuuid)
     def self.deleteObjectLogically(objectuuid)
-        Fx256::deleteObjectLogicallyNoEvents(objectuuid)
+        DxF1::deleteObjectLogicallyNoEvents(objectuuid)
+        TheIndex::destroy(objectuuid)
         SystemEvents::broadcast({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
@@ -327,13 +147,20 @@ class Fx256
         })
     end
 
-    # Fx256::processEvent(event)
-    def self.processEvent(event)
-        if event["mikuType"] == "Fx18-records" then
-            event["records"].each{|row|
-                DxF1s::commitRow(row)
-            }
-        end
+    # DxF1::broadcastObjectFile(objectuuid)
+    def self.broadcastObjectFile(objectuuid)
+        puts "todo: DxF1::broadcastObjectFile"
+    end
+end
+
+class Fx256
+
+    # Fx256::filepathOrNull(objectuuid)
+    def self.filepathOrNull(objectuuid)
+        sha1 = Digest::SHA1.hexdigest(objectuuid)
+        folderpath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256/#{sha1[0, 1]}/#{sha1[1, 1]}"
+        return nil if !File.exists?(folderpath)
+        "#{folderpath}/Fx18.sqlite3"
     end
 
     # Fx256::edit(item) # item
@@ -346,21 +173,15 @@ class Fx256
             puts "You are trying to edit a nx111 carrier"
             puts "Follow: 9e0705fc-8637-47f9-9bce-29df79d05292"
             exit
-            return Fx256::getProtoItemOrNull(uuid)
+            return DxF1::getProtoItemOrNull(uuid)
         end
 
         raise "(error: 402f0ee5-4bd1-4b73-a418-d16ac12760ca)"
     end
-
-    # Fx256::broadcastObject(objectuuid)
-    def self.broadcastObject(objectuuid)
-        puts "todo: Fx256::broadcastObject"
-    end
 end
 
-class Fx18sSynchronisation
-
-    # Fx18sSynchronisation::sync()
+class FxSynchronisation
+    # FxSynchronisation::sync()
     def self.sync()
 
         DxPureFileManagement::bufferOutFilepathsEnumerator().each{|dxBufferOutFilepath|
@@ -369,7 +190,7 @@ class Fx18sSynchronisation
             if File.exists?(eGridFilepath) then
                 eGridSha1 = Digest::SHA1.file(eGridFilepath).hexdigest
                 if File.basename(eGridFilepath) != "#{eGridSha1}.sqlite3" then
-                puts "Fx18sSynchronisation::sync()"
+                puts "FxSynchronisation::sync()"
                     puts "    I am trying to move #{dxBufferOutFilepath}"
                     puts "    I found #{eGridFilepath}"
                     puts "    #{eGridFilepath} has a sha1 of #{eGridSha1}"
@@ -378,19 +199,19 @@ class Fx18sSynchronisation
                     exit
                 end
             else
-                puts "Fx18sSynchronisation::sync() copy"
+                puts "FxSynchronisation::sync() copy"
                 puts "    #{dxBufferOutFilepath}"
                 puts "    #{eGridFilepath}"
                 FileUtils.cp(dxBufferOutFilepath, eGridFilepath)
             end
             xcacheFilepath = DxPureFileManagement::xcacheFilepath(sha1)
             if !File.exists?(xcacheFilepath) then
-                puts "Fx18sSynchronisation::sync() copy"
+                puts "FxSynchronisation::sync() copy"
                 puts "    #{dxBufferOutFilepath}"
                 puts "    #{xcacheFilepath}"
                 FileUtils.cp(dxBufferOutFilepath, xcacheFilepath)
             end
-            puts "Fx18sSynchronisation::sync() deleting"
+            puts "FxSynchronisation::sync() deleting"
             puts "    #{dxBufferOutFilepath}"
             FileUtils.rm(dxBufferOutFilepath)
         }

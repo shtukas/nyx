@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        Fx256WithCache::mikuTypeToItems("NxAnniversary")
+        TheIndex::mikuTypeToItems("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -112,17 +112,17 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxAnniversary")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "startdate",   startdate)
-        DxF1s::setJsonEncoded(uuid, "repeatType",  repeatType)
-        DxF1s::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxAnniversary")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "startdate",   startdate)
+        DxF1::setJsonEncoded(uuid, "repeatType",  repeatType)
+        DxF1::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
         end
@@ -142,7 +142,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        DxF1s::setJsonEncoded(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        DxF1::setJsonEncoded(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -184,17 +184,17 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                DxF1s::setJsonEncoded(item["uuid"], "description", description)
+                DxF1::setJsonEncoded(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                DxF1s::setJsonEncoded(item["uuid"], "startdate",   startdate)
+                DxF1::setJsonEncoded(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then
-                Fx256::deleteObjectLogically(item["uuid"])
+                DxF1::deleteObjectLogically(item["uuid"])
                 break
             end
         }

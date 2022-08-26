@@ -18,11 +18,6 @@ SystemEvents::broadcast({
 })
 
 SystemEvents::broadcast({
-    "mikuType" => "Fx18-records",
-    "records"  => Fx256::rows()
-})
-
-SystemEvents::broadcast({
     "mikuType" => "NetworkLinks-records",
     "records"  => NetworkLinks::records()
 })

@@ -8,12 +8,12 @@ class NxEvents
 
     # NxEvents::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("NxEvent")
+        TheIndex::mikuTypeToItems("NxEvent")
     end
 
     # NxEvents::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -27,15 +27,15 @@ class NxEvents
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = CommonUtils::interactiveDateTimeBuilder()
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxEvent")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    datetime)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxEvent")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    datetime)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: c4d9e89d-d4f2-4a44-8c66-311431977b4c) How did that happen ? 🤨"
         end

@@ -4,12 +4,12 @@ class NxFrames
 
     # NxFrames::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("NxFrame")
+        TheIndex::mikuTypeToItems("NxFrame")
     end
 
     # NxFrames::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -23,15 +23,15 @@ class NxFrames
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxFrame")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    unixtime)
-        DxF1s::setJsonEncoded(uuid, "datetime",    datetime)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxFrame")
+        DxF1::setJsonEncoded(uuid, "unixtime",    unixtime)
+        DxF1::setJsonEncoded(uuid, "datetime",    datetime)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"
         end

@@ -8,7 +8,7 @@ class Ax1Text
 
     # Ax1Text::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("Ax1Text")
+        TheIndex::mikuTypeToItems("Ax1Text")
     end
 
     # Ax1Text::interactivelyIssueNew()
@@ -17,14 +17,14 @@ class Ax1Text
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        DxF1s::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType", "Ax1Text")
-        DxF1s::setJsonEncoded(uuid, "unixtime", unixtime)
-        DxF1s::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1s::setJsonEncoded(uuid, "text", text)
+        DxF1::setJsonEncoded(uuid, "uuid", uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType", "Ax1Text")
+        DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
+        DxF1::setJsonEncoded(uuid, "datetime", datetime)
+        DxF1::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"
         end
@@ -70,11 +70,11 @@ class Ax1Text
             end
             if operation == "edit" then
                 text = CommonUtils::editTextSynchronously(item["text"])
-                DxF1s::setJsonEncoded(uuid, "text", text)
+                DxF1::setJsonEncoded(uuid, "text", text)
             end
             if operation == "destroy" then
                 if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{Ax1Text::toString(item).green}' ? ") then
-                    Fx256::deleteObjectLogically(uuid)
+                    DxF1::deleteObjectLogically(uuid)
                     break
                 end
             end

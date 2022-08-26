@@ -14,9 +14,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid)
     def self.fsckObjectuuidErrorAtFirstFailure(objectuuid)
 
-        return
-
-        filepath = DxF1s::filepathOrNullNoSideEffect(objectuuid)
+        filepath = DxF1::filepathOrNullNoSideEffect(objectuuid)
         return if filepath.nil?
 
         repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{File.mtime(filepath)}"
@@ -24,20 +22,20 @@ class FileSystemCheck
 
         puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid})"
 
-        if !Fx256::objectIsAlive(objectuuid) then
+        if !DxF1::objectIsAlive(objectuuid) then
             XCache::setFlag(repeatKey, true)
             return
         end
 
-        mikuType = DxF1s::getJsonDecodeOrNull(objectuuid, "mikuType")
+        mikuType = DxF1::getJsonDecodeOrNull(objectuuid, "mikuType")
         if mikuType.nil? then
             puts "objectuuid: #{objectuuid}".red
-            puts "Malformed Fx18 file, I could not find a mikuType".red
+            puts "Malformed DxF1 file, I could not find a mikuType".red
             raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid: #{objectuuid})"
         end
 
         ensureAttribute = lambda {|objectuuid, mikuType, attname|
-            attvalue = DxF1s::getJsonDecodeOrNull(objectuuid, attname)
+            attvalue = DxF1::getJsonDecodeOrNull(objectuuid, attname)
             if attvalue.nil? then
                 puts "ensureAttribute(#{objectuuid}, #{mikuType}, #{attname})"
                 puts "objectuuid: #{objectuuid}".red
@@ -84,7 +82,7 @@ class FileSystemCheck
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
 
-            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -125,7 +123,7 @@ class FileSystemCheck
                 "datetime",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -153,7 +151,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -167,7 +165,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -234,7 +232,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -274,7 +272,7 @@ class FileSystemCheck
                 "description",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -290,7 +288,7 @@ class FileSystemCheck
                 "lastDoneDateTime",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
-            nx111 = DxF1s::getJsonDecodeOrNull(objectuuid, "nx111")
+            nx111 = DxF1::getJsonDecodeOrNull(objectuuid, "nx111")
             Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid, nx111)
             XCache::setFlag(repeatKey, true)
             return
@@ -298,20 +296,31 @@ class FileSystemCheck
 
         puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid: #{objectuuid}) unsupported MikuType: #{mikuType}"
         if LucilleCore::askQuestionAnswerAsBoolean("delete object ? ") then
-            Fx256::deleteObjectLogically(objectuuid)
+            DxF1::deleteObjectLogically(objectuuid)
             return
         end
 
         raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid: #{objectuuid}) unsupported MikuType: #{mikuType}"
     end
 
-    # FileSystemCheck::fsck()
-    def self.fsck()
-        Fx256::objectuuids()
-            .each{|objectuuid|
-                FileSystemCheck::exitIfMissingCanary()
-                FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid)
-            }
+    # FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath)
+    def self.fsckDxF1FilepathErrorAtFirstFailure(filepath)
+        puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath})"
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        if item.nil? then
+            puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}), item was nil"
+            exit
+        end
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"])
+    end
+
+    # FileSystemCheck::fsckErrorAtFirstFailure()
+    def self.fsckErrorAtFirstFailure()
+        Find.find("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s") do |path|
+            FileSystemCheck::exitIfMissingCanary()
+            next if File.basename(path)[-8, 8] != ".sqlite3"
+            FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(path)
+        end
         puts "fsck completed successfully".green
     end
 end

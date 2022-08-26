@@ -365,9 +365,9 @@ class DxPure
 
         mikuType = DxPure::getMikuType(filepath)
 
-        ensureAttributeExists = lambda {|filepath, attrname|
-            if DxPure::readValueOrNull(filepath, attrname).nil? then
-                raise "(error: 5d636d7d-0a9c-4ef9-8abc-0992c99dafde) filepath: #{filepath}, attrname: #{attrname}"
+        ensureAttributeExists = lambda {|filepath, attname|
+            if DxPure::readValueOrNull(filepath, attname).nil? then
+                raise "(error: 5d636d7d-0a9c-4ef9-8abc-0992c99dafde) filepath: #{filepath}, attname: #{attname}"
             end
         }
 

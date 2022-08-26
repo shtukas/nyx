@@ -191,7 +191,7 @@ class Nx111
 
         if objectuuid.nil? then
             puts "objectuuid: #{objectuuid}".red
-            puts "Malformed Fx18 file, I could not find a uuid".red
+            puts "Malformed DxF1 file, I could not find a uuid".red
             raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
         end
 

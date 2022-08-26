@@ -4,5 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-FxSynchronisation::sync()
-puts "grid-sync completed".green #
+TheIndex::rebuildIndexFromScratch()

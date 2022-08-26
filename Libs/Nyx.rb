@@ -96,7 +96,7 @@ class Nyx
             if operation == "make new data entity" then
                 item = Nyx::interactivelyMakeNewOrNull()
                 next if item.nil?
-                item = Fx256::getAliveProtoItemOrNull(item["uuid"])
+                item = TheIndex::getItemOrNull(item["uuid"])
                 if item.nil? then
                     raise "(error: 2bce1d88-4460-47ba-9fda-6db066974c75) this should not have hapenned 🤔"
                 end

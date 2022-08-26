@@ -8,12 +8,12 @@ class NxCollections
 
     # NxCollections::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("NxCollection")
+        TheIndex::mikuTypeToItems("NxCollection")
     end
 
     # NxCollections::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # ----------------------------------------------------------------------
@@ -26,14 +26,14 @@ class NxCollections
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         uuid = SecureRandom.uuid
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxCollection")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    datetime)
-        DxF1s::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxCollection")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    datetime)
+        DxF1::setJsonEncoded(uuid, "description", description)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 01666ee3-d5b4-4fd1-9615-981ac7949ae9) How did that happen ? 🤨"
         end

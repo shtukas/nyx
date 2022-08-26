@@ -4,12 +4,12 @@ class NxTasks
 
     # NxTasks::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("NxTask")
+        TheIndex::mikuTypeToItems("NxTask")
     end
 
     # NxTasks::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -25,16 +25,16 @@ class NxTasks
         if shouldPromptForTimeCommitment and LucilleCore::askQuestionAnswerAsBoolean("Attach a Ax39 (time commitment) ? ", false) then
             ax39 = Ax39::interactivelyCreateNewAxOrNull()
         end
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
-        DxF1s::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
+        DxF1::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
         end
@@ -50,15 +50,15 @@ class NxTasks
             "type" => "url",
             "url"  => url
         }
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: f78008bf-12d4-4483-b4bb-96e3472d46a2) How did that happen ? 🤨"
         end
@@ -73,15 +73,15 @@ class NxTasks
         description = File.basename(location)
         uuid = SecureRandom.uuid
         nx111 = Nx111::locationToNx111DxPureAionPoint(uuid, location)
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 7938316c-cb54-4d60-a480-f161f19718ef) How did that happen ? 🤨"
         end
@@ -92,15 +92,15 @@ class NxTasks
     def self.issueDescriptionOnlyNoNx111(description)
         uuid  = SecureRandom.uuid
         nx111 = nil
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1s::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
+        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 5ea6abff-1007-4bd5-ab61-bde26c621a8b) How did that happen ? 🤨"
         end

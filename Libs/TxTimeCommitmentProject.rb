@@ -7,12 +7,12 @@ class TxTimeCommitmentProjects
 
     # TxTimeCommitmentProjects::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("TxTimeCommitmentProject")
+        TheIndex::mikuTypeToItems("TxTimeCommitmentProject")
     end
 
     # TxTimeCommitmentProjects::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -37,17 +37,17 @@ class TxTimeCommitmentProjects
         ax39 = Ax39::interactivelyCreateNewAx()
 
         unixtime   = Time.new.to_i
-        DxF1s::setJsonEncoded(uuid, "uuid",         uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",     "TxTimeCommitmentProject")
-        DxF1s::setJsonEncoded(uuid, "unixtime",     unixtime)
-        DxF1s::setJsonEncoded(uuid, "datetime",     datetime)
-        DxF1s::setJsonEncoded(uuid, "description",  description)
-        DxF1s::setJsonEncoded(uuid, "nx111",        nx111)
-        DxF1s::setJsonEncoded(uuid, "elementuuids", [])
-        DxF1s::setJsonEncoded(uuid, "ax39",         ax39)
+        DxF1::setJsonEncoded(uuid, "uuid",         uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",     "TxTimeCommitmentProject")
+        DxF1::setJsonEncoded(uuid, "unixtime",     unixtime)
+        DxF1::setJsonEncoded(uuid, "datetime",     datetime)
+        DxF1::setJsonEncoded(uuid, "description",  description)
+        DxF1::setJsonEncoded(uuid, "nx111",        nx111)
+        DxF1::setJsonEncoded(uuid, "elementuuids", [])
+        DxF1::setJsonEncoded(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 058e5a67-7fbe-4922-b638-2533428ee019) How did that happen ? 🤨"
         end
@@ -92,7 +92,7 @@ class TxTimeCommitmentProjects
         OwnerMapping::owneruuidToElementsuuids(owner["uuid"]).uniq
             .first(count)
             .map{|elementuuid|  
-                element = Fx256::getAliveProtoItemOrNull(elementuuid)
+                element = TheIndex::getItemOrNull(elementuuid)
                 if element.nil? then
                     OwnerMapping::detach(owner["uuid"], elementuuid)
                 end
@@ -271,8 +271,8 @@ class TxTimeCommitmentProjects
     def self.interactivelyAddThisElementToOwner(element)
         puts "TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
         if element["mikuType"] == "TxIncoming" then
-            DxF1s::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
-            element = Fx256::getProtoItemOrNull(element["uuid"])
+            DxF1::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
+            element = DxF1::getProtoItemOrNull(element["uuid"])
         end
         if !["NxTask", "NxLine"].include?(element["mikuType"]) then
             puts "The operation TxTimeCommitmentProjects::interactivelyAddThisElementToOwner only works on NxLines or NxTasks"

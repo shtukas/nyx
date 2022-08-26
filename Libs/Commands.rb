@@ -101,7 +101,7 @@ class Commands
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            DxF1s::setJsonEncoded(item["uuid"], "ax39",  Ax39::interactivelyCreateNewAx())
+            DxF1::setJsonEncoded(item["uuid"], "ax39",  Ax39::interactivelyCreateNewAx())
             return
         end
 
@@ -458,14 +458,6 @@ class Commands
                     "lambda" => lambda { Anniversaries::listingItems() }
                 },
                 {
-                    "name" => "NxFrames::items()",
-                    "lambda" => lambda { NxFrames::items() }
-                },
-                {
-                    "name" => "NxLines::listingItems()",
-                    "lambda" => lambda { NxLines::listingItems() }
-                },
-                {
                     "name" => "NxTasks::listingItems()",
                     "lambda" => lambda { NxTasks::listingItems() }
                 },
@@ -480,6 +472,14 @@ class Commands
                 {
                     "name" => "TxDateds::listingItems()",
                     "lambda" => lambda { TxDateds::listingItems() }
+                },
+                {
+                    "name" => "TxIncomings::listingItems()",
+                    "lambda" => lambda { TxIncomings::listingItems() }
+                },
+                {
+                    "name" => "TxTimeCommitmentProjects::listingItems()",
+                    "lambda" => lambda { TxTimeCommitmentProjects::listingItems() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",

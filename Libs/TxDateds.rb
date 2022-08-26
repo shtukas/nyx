@@ -4,12 +4,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        Fx256WithCache::mikuTypeToItems("TxDated")
+        TheIndex::mikuTypeToItems("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        Fx256::deleteObjectLogically(uuid)
+        DxF1::deleteObjectLogically(uuid)
     end
 
     # --------------------------------------------------
@@ -25,15 +25,15 @@ class TxDateds
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "TxDated")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    unixtime)
-        DxF1s::setJsonEncoded(uuid, "datetime",    datetime)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "TxDated")
+        DxF1::setJsonEncoded(uuid, "unixtime",    unixtime)
+        DxF1::setJsonEncoded(uuid, "datetime",    datetime)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
         end
@@ -48,15 +48,15 @@ class TxDateds
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        DxF1s::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1s::setJsonEncoded(uuid, "mikuType",    "TxDated")
-        DxF1s::setJsonEncoded(uuid, "unixtime",    unixtime)
-        DxF1s::setJsonEncoded(uuid, "datetime",    datetime)
-        DxF1s::setJsonEncoded(uuid, "description", description)
-        DxF1s::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
+        DxF1::setJsonEncoded(uuid, "mikuType",    "TxDated")
+        DxF1::setJsonEncoded(uuid, "unixtime",    unixtime)
+        DxF1::setJsonEncoded(uuid, "datetime",    datetime)
+        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
-        Fx256::broadcastObject(uuid)
-        item = Fx256::getProtoItemOrNull(uuid)
+        DxF1::broadcastObjectFile(uuid)
+        item = DxF1::getProtoItemOrNull(uuid)
         if item.nil? then
             raise "(error: 69486f48-3748-4c73-b604-a7edad98871d) How did that happen ? 🤨"
         end

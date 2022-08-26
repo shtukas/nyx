@@ -53,8 +53,6 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256-Cache")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPureBufferOut")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared/shared-config.json")
@@ -236,7 +234,6 @@ require_relative "NxEvents.rb"
 require_relative "NxEntities.rb"
 require_relative "NxConcepts.rb"
 require_relative "NxIceds.rb"
-require_relative "Nx20s.rb"
 require_relative "NetworkLinks.rb"
 
 require_relative "OwnerMapping.rb"
@@ -266,6 +263,58 @@ require_relative "Waves.rb"
 
 require_relative "XCacheDatablobs.rb"
 require_relative "XCacheValuesWithExpiry.rb"
+
+# ------------------------------------------------------------
+
+root = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/Fx256"
+if File.exists?(root) then
+    Find.find(root) do |path|
+        if File.basename(path) == "Fx18.sqlite3" then
+            puts path
+
+            db = SQLite3::Database.new(path)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _fx18_", []) do |row|
+
+                objectuuid = row["_objectuuid_"]
+                eventuuid  = row["_eventuuid_"]
+                eventTime  = row["_eventTime_"]
+
+                puts "migrating event: #{eventuuid}"
+
+                attname = row["_eventData2_"]
+                attvalue = 
+                    begin
+                        JSON.parse(row["_eventData3_"])
+                    rescue 
+                        row["_eventData3_"] # We have some non json encoded legacy data at that attribute
+                    end
+
+                filepath1 = DxF1::filepath(objectuuid)
+                db1 = SQLite3::Database.new(filepath1)
+                db1.busy_timeout = 117
+                db1.busy_handler { |count| true }
+                db1.results_as_hash = true
+                db1.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
+                db1.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attname, JSON.generate(attvalue)]
+                db1.close
+
+            end
+            db.close
+
+        end
+    end
+    puts "The migration of data from Fx256 has completed. You can now delete the folder."
+    LucilleCore::pressEnterToContinue()
+
+    puts "I am now going to run the index update for you"
+    LucilleCore::pressEnterToContinue()
+    TheIndex::rebuildIndexFromScratch()
+    exit
+end
+
 
 # ------------------------------------------------------------
 

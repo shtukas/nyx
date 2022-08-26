@@ -5,7 +5,7 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        item = Fx256::getAliveProtoItemOrNull(itemuuid)
+        item = TheIndex::getItemOrNull(itemuuid)
         return if item.nil?
         if !["NxTask", "NxIced"].include?(item["mikuType"]) then
             puts "I am authorised to >nyx only NxTasks and NxIceds in this function"
@@ -13,7 +13,7 @@ class Streaming
             return
         end
         LxAction::action("stop", item["uuid"])
-        DxF1s::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
+        DxF1::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
         LxAction::action("landing", item)
     end
 
@@ -35,7 +35,7 @@ class Streaming
             end
             if command == "done" then
                 LxAction::action("stop", item)
-                Fx256::deleteObjectLogically(item["uuid"])
+                DxF1::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "detach" then
@@ -93,7 +93,7 @@ class Streaming
                 next
             end
             if command == "done" then
-                Fx256::deleteObjectLogically(item["uuid"])
+                DxF1::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
             if command == "insert" then

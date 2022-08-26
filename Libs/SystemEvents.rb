@@ -45,11 +45,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            Fx256::deleteObjectLogicallyNoEvents(event["objectuuid"])
-        end
-
-        if event["mikuType"] == "Fx18-records" then
-            Fx256::processEvent(event)
+            DxF1::deleteObjectLogicallyNoEvents(event["objectuuid"])
         end
 
         if event["mikuType"] == "OwnerMapping" then

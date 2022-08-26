@@ -5,4 +5,4 @@
 require_relative "../Libs/loader.rb"
 
 objectuuid = ARGV[0]
-puts JSON.pretty_generate(Fx256::getProtoItemOrNull(objectuuid))
+puts JSON.pretty_generate(DxF1::getProtoItemOrNull(objectuuid))

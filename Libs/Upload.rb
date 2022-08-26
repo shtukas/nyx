@@ -17,7 +17,7 @@ class Upload
             puts "processing: #{location}"
             child = NxDataNodes::issueNewItemAionPointFromLocation(location)
             if overrideDatetime then
-                DxF1s::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)
+                DxF1::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)
             end
             NetworkLinks::link(item["uuid"], child["uuid"])
         }
@@ -41,7 +41,7 @@ class Upload
             child = NxDataNodes::issueNewNxDataNodeWithNx111DxPureFileFromLocationOrNull(location)
             next if child.nil?
             if overrideDatetime then
-                DxF1s::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)
+                DxF1::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)
             end
             NetworkLinks::link(item["uuid"], child["uuid"])
         }
@@ -62,7 +62,7 @@ class Upload
             child = NxDataNodes::issueNewNxDataNodeWithNx111DxPureFileFromLocationOrNull(location)
             return if child.nil?
             if overrideDatetime then
-                DxF1s::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)
+                DxF1::setJsonEncoded(child["uuid"], "datetime", overrideDatetime)
             end
             NetworkLinks::link(item["uuid"], child["uuid"])
         end
