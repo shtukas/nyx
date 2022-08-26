@@ -82,6 +82,9 @@ class SystemEvents
                 end
 
                 if File.basename(filepath1)[-13, 13] == ".dxf1.sqlite3" then
+                    if verbose then
+                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
+                    end
                     db = SQLite3::Database.new(filepath1)
                     db.busy_timeout = 117
                     db.busy_handler { |count| true }
