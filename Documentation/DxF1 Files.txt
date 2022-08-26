@@ -1,7 +1,7 @@
 
 # DxF1 Files, are the nodes of the network. They are sqlite files. The file name is the sha1 of the objectuuid.
 
-create table _DxF1_ (
+create table _dxf1_ (
     _objectuuid_ text,
     _eventuuid_  text primary key,
     _eventTime_  float,

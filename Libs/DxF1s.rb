@@ -25,10 +25,52 @@ class DxF1s
         filepath
     end
 
+    # DxF1s::commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) # row or null
+    def self.commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) 
+        if objectuuid.nil? then
+            raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
+        end
+        if eventuuid.nil? then
+            raise "(error: 1025633f-b0aa-42ed-9751-b5f87af23450)"
+        end
+        if eventTime.nil? then
+            raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
+        end
+        if eventData2.nil? then
+            raise "(error: 0b103332-556d-4043-9cdd-81cf70b7a289)"
+        end
+        if eventData3.nil? then
+            raise "(error: db06a417-68d1-471d-888f-9e497b268750)"
+        end
+
+        filepath = DxF1s::filepath(objectuuid)
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", eventData2, eventData3]
+        db.close
+
+        db = SQLite3::Database.new(Fx256::filepath(objectuuid))
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData2, eventData3]
+        returnedrow = nil
+        db.execute("select * from _fx18_ where _eventuuid_=?", [eventuuid]) do |row|
+            returnedrow = row.clone
+        end
+        db.close
+        Fx256X::flashCacheBranchAtObjectuuid(objectuuid)
+        returnedrow
+    end 
+
     # DxF1s::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "DxF1s::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        row = Fx256::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
+        row = DxF1s::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
         if row then
             SystemEvents::broadcast({
                 "mikuType" => "Fx18-records",
@@ -112,44 +154,9 @@ class Fx256
         filepath
     end
 
-    # Fx256::commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) # row or null
-    def self.commit(objectuuid, eventuuid, eventTime, eventData2, eventData3) 
-        if objectuuid.nil? then
-            raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
-        end
-        if eventuuid.nil? then
-            raise "(error: 1025633f-b0aa-42ed-9751-b5f87af23450)"
-        end
-        if eventTime.nil? then
-            raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
-        end
-        if eventData2.nil? then
-            raise "(error: 0b103332-556d-4043-9cdd-81cf70b7a289)"
-        end
-        if eventData3.nil? then
-            raise "(error: db06a417-68d1-471d-888f-9e497b268750)"
-        end
-
-        DxF1s::filepath(objectuuid)
-
-        db = SQLite3::Database.new(Fx256::filepath(objectuuid))
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _fx18_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _fx18_ (_objectuuid_, _eventuuid_, _eventTime_, _eventData2_, _eventData3_) values (?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventData2, eventData3]
-        returnedrow = nil
-        db.execute("select * from _fx18_ where _eventuuid_=?", [eventuuid]) do |row|
-            returnedrow = row.clone
-        end
-        db.close
-        Fx256X::flashCacheBranchAtObjectuuid(objectuuid)
-        returnedrow
-    end 
-
-    # Fx256::commitRow(row)
+    # DxF1s::commitRow(row)
     def self.commitRow(row)
-        Fx256::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData2_"], row["_eventData3_"])
+        DxF1s::commit(row["_objectuuid_"], row["_eventuuid_"], row["_eventTime_"], row["_eventData2_"], row["_eventData3_"])
     end
 
     # Fx256::getProtoItemOrNull(objectuuid)
@@ -307,7 +314,7 @@ class Fx256
     def self.processEvent(event)
         if event["mikuType"] == "Fx18-records" then
             event["records"].each{|row|
-                Fx256::commitRow(row)
+                DxF1s::commitRow(row)
             }
         end
     end
