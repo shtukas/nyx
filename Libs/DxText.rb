@@ -1,24 +1,27 @@
 
 # encoding: UTF-8
 
-class DxLine
+class DxText
 
-    # DxLine::items()
+    # ----------------------------------------------------------------------
+    # Objects Management
+
+    # DxText::items()
     def self.items()
-        TheIndex::mikuTypeToItems("DxLine")
+        TheIndex::mikuTypeToItems("DxText")
     end
 
-    # DxLine::interactivelyIssueNewOrNull()
-    def self.interactivelyIssueNewOrNull()
+    # DxText::interactivelyIssueNew()
+    def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
-        line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+        text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxLine")
+        DxF1::setJsonEncoded(uuid, "mikuType", "DxText")
         DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
         DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "line", line)
+        DxF1::setJsonEncoded(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -30,17 +33,25 @@ class DxLine
     # ----------------------------------------------------------------------
     # Data
 
-    # DxLine::toString(item)
+    # DxText::getFirstLineOrNull(item)
+    def self.getFirstLineOrNull(item)
+        text = item["text"]
+        return nil if text.nil?
+        return nil if text == ""
+        text.lines.first.strip
+    end
+
+    # DxText::toString(item)
     def self.toString(item)
-        "(DxLine) #{item["line"]}"
+        firstline = DxText::getFirstLineOrNull(item)
+        "(DxText) #{firstline ? firstline : "(no text)"}"
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # DxLine::access(item)
+    # DxText::access(item)
     def self.access(item)
-        puts "DxLine: #{item["line"]}"
-        LucilleCore::pressEnterToContinue()
+        CommonUtils::accessText(item["text"])
     end
 end

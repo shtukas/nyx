@@ -1,24 +1,24 @@
 
 # encoding: UTF-8
 
-class DxLine
+class DxUrl
 
-    # DxLine::items()
+    # DxUrl::items()
     def self.items()
-        TheIndex::mikuTypeToItems("DxLine")
+        TheIndex::mikuTypeToItems("DxUrl")
     end
 
-    # DxLine::interactivelyIssueNewOrNull()
+    # DxUrl::interactivelyIssueNewOrNull()
     def self.interactivelyIssueNewOrNull()
         uuid = SecureRandom.uuid
-        line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+        url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxLine")
+        DxF1::setJsonEncoded(uuid, "mikuType", "DxUrl")
         DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
         DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "line", line)
+        DxF1::setJsonEncoded(uuid, "url", url)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -30,17 +30,17 @@ class DxLine
     # ----------------------------------------------------------------------
     # Data
 
-    # DxLine::toString(item)
+    # DxUrl::toString(item)
     def self.toString(item)
-        "(DxLine) #{item["line"]}"
+        "(DxUrl) #{item["url"]}"
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # DxLine::access(item)
+    # DxUrl::access(item)
     def self.access(item)
-        puts "DxLine: #{item["line"]}"
+        puts "DxUrl: #{item["url"]}"
         LucilleCore::pressEnterToContinue()
     end
 end

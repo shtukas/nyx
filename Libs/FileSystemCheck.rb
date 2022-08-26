@@ -30,6 +30,7 @@ class FileSystemCheck
         mikuType = DxF1::getJsonDecodeOrNull(objectuuid, "mikuType")
         if mikuType.nil? then
             puts "objectuuid: #{objectuuid}".red
+            puts "filepath: #{filepath}".red
             puts "Malformed DxF1 file, I could not find a mikuType".red
             raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid: #{objectuuid})"
         end
@@ -305,6 +306,9 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath)
     def self.fsckDxF1FilepathErrorAtFirstFailure(filepath)
+        repeatKey = "0dfca14a-252b-45fc-bd80-95179ad4ac6e:#{filepath}:#{File.mtime(filepath)}"
+        return if XCache::getFlag(repeatKey)
+
         puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath})"
         item = DxF1::getProtoItemAtFilepathOrNull(filepath)
         if item.nil? then
@@ -312,6 +316,8 @@ class FileSystemCheck
             exit
         end
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"])
+
+        XCache::setFlag(repeatKey, true)
     end
 
     # FileSystemCheck::fsckErrorAtFirstFailure()

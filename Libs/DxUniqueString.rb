@@ -1,24 +1,27 @@
 
 # encoding: UTF-8
 
-class DxLine
+class DxUniqueString
 
-    # DxLine::items()
+    # ----------------------------------------------------------------------
+    # Objects Management
+
+    # DxUniqueString::items()
     def self.items()
-        TheIndex::mikuTypeToItems("DxLine")
+        TheIndex::mikuTypeToItems("DxUniqueString")
     end
 
-    # DxLine::interactivelyIssueNewOrNull()
-    def self.interactivelyIssueNewOrNull()
+    # DxUniqueString::interactivelyIssueNew()
+    def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
-        line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
+        uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxLine")
+        DxF1::setJsonEncoded(uuid, "mikuType", "DxUniqueString")
         DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
         DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "line", line)
+        DxF1::setJsonEncoded(uuid, "uniquestring", uniquestring)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -30,17 +33,17 @@ class DxLine
     # ----------------------------------------------------------------------
     # Data
 
-    # DxLine::toString(item)
+    # DxUniqueString::toString(item)
     def self.toString(item)
-        "(DxLine) #{item["line"]}"
+        "(DxUniqueString) #{item["uniquestring"]}"
     end
 
     # ----------------------------------------------------------------------
     # Operations
 
-    # DxLine::access(item)
+    # DxUniqueString::access(item)
     def self.access(item)
-        puts "DxLine: #{item["line"]}"
+        puts "DxUniqueString::access has not been implemented yet"
         LucilleCore::pressEnterToContinue()
     end
 end

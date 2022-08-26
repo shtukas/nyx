@@ -1,0 +1,17 @@
+
+DxFile:
+    "uuid"            : uuid
+    "mikuType"        : "DxFile"
+    "unixtime"        : unixtime
+    "datetime"        : DateTime Iso 8601 UTC Zulu
+    "description"     : String # optional
+    "dottedExtension" : String
+    "nhash"           : String
+    "parts"           : Array[String]
+    (datablobs)
+
+
+
+
+
+
