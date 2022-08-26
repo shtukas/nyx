@@ -11,7 +11,7 @@ DxPure File Management
     - copy it to XCache
     - drop it on the comm line
 
-3. When we process the commline, in SystemEvents::processCommLine, we:
+3. When we process the commline, in SystemEvents::processCommsLine, we:
     - move the file to the BufferOut (this is in case the target instance get to sync with EnergyGrid, before the instance that made the file)
     - copy it to XCache
     - remove the file from the commline

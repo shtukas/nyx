@@ -61,12 +61,12 @@ class SystemEvents
         end
     end
 
-    # SystemEvents::processCommLine(verbose)
-    def self.processCommLine(verbose)
+    # SystemEvents::processCommsLine(verbose)
+    def self.processCommsLine(verbose)
         # New style. Keep while we process the remaining items
         # We are reading from the instance folder
         instanceId = Config::get("instanceId")
-        LucilleCore::locationsAtFolder("#{Config::starlightCommLine()}/#{instanceId}")
+        LucilleCore::locationsAtFolder("#{Config::starlightCommsLine()}/#{instanceId}")
             .each{|filepath1|
                 next if !File.exists?(filepath1)
                 next if File.basename(filepath1).start_with?(".")
@@ -74,21 +74,54 @@ class SystemEvents
                 if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))
                     if verbose then
-                        puts "SystemEvents::processCommLine: event: #{JSON.pretty_generate(e)}"
+                        puts "SystemEvents::processCommsLine: event: #{JSON.pretty_generate(e)}"
                     end
                     SystemEvents::processEvent(e)
                     FileUtils.rm(filepath1)
+                    next
+                end
+
+                if File.basename(filepath1)[-13, 13] == ".dxf1.sqlite3" then
+                    db = SQLite3::Database.new(filepath1)
+                    db.busy_timeout = 117
+                    db.busy_handler { |count| true }
+                    db.results_as_hash = true
+                    db.execute("select * from _dxf1_", []) do |row|
+
+                        objectuuid = row["_objectuuid_"]
+                        eventuuid  = row["_eventuuid_"]
+                        eventTime  = row["_eventTime_"]
+                        eventType  = row["_eventType_"]
+                        attname    = row["_name_"]
+                        attvalue   = row["_value_"]
+
+                        next if DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
+
+                        db1 = SQLite3::Database.new(DxF1::filepath(objectuuid))
+                        db1.busy_timeout = 117
+                        db1.busy_handler { |count| true }
+                        db1.results_as_hash = true
+                        # I am commenting the next one out because we have checked that the record doesn't exists
+                        # db1.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
+                        db1.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attname, JSON.generate(attvalue)]
+                        db1.close
+
+                    end
+                    db.close
+                    FileUtils.rm(filepath1)
+                    next
                 end
 
                 if File.basename(filepath1)[-8, 8] == ".sqlite3" then
+                    # Having already considered DxF1 files, we are going to assume that this one is a DxPure
 
                     if verbose then
-                        puts "SystemEvents::processCommLine: DxPure file: #{File.basename(filepath1)}"
+                        puts "SystemEvents::processCommsLine: DxPure file: #{File.basename(filepath1)}"
                     end
 
                     sha1 = Digest::SHA1.file(filepath1).hexdigest
                     if File.basename(filepath1) != "#{sha1}.sqlite3" then
-                        puts "SystemEvents::processCommLine: DxPure file: #{File.basename(filepath1)}"
+                        puts "SystemEvents::processCommsLine: DxPure file: #{File.basename(filepath1)}"
                         puts "The file has #{sha1}, which is an anomalie."
                         next
                     end
@@ -113,7 +146,7 @@ class SystemEvents
             # We technically no longer need to mark the instance with the recipient's id
             # because we are dropping the event in the right folder, but we keep it anyway.
             e["targetInstance"] = targetInstanceId
-            filepath = "#{Config::starlightCommLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
+            filepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
             File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
         }
     end
@@ -122,5 +155,15 @@ class SystemEvents
     def self.processAndBroadcast(event)
         SystemEvents::processEvent(event)
         SystemEvents::broadcast(event)
+    end
+
+    # SystemEvents::publishDxF1OnCommsline(objectuuid)
+    def self.publishDxF1OnCommsline(objectuuid)
+        filepath = DxF1::filepathOrNullNoSideEffect(objectuuid)
+        return if filepath.nil?
+        Machines::theOtherInstanceIds().each{|targetInstanceId|
+            targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.dxf1.sqlite3"
+            FileUtils.cp(filepath, targetFilepath)
+        }
     end
 end

@@ -47,7 +47,7 @@ class Catalyst
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
 
-        SystemEvents::processCommLine(true)
+        SystemEvents::processCommsLine(true)
 
         if Config::get("instanceId") == "Lucille20-pascal" then 
             Thread.new {
@@ -67,7 +67,7 @@ class Catalyst
             end
 
             $commline_semaphore.synchronize {
-                SystemEvents::processCommLine(true)
+                SystemEvents::processCommsLine(true)
             }
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Top")

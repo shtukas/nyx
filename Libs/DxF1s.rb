@@ -61,13 +61,13 @@ class DxF1
         db.close
 
         TheIndex::updateIndexAtObjectAttempt(objectuuid)
+        SystemEvents::publishDxF1OnCommsline(objectuuid)
     end 
 
     # DxF1::set1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.set1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "DxF1::set1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
         DxF1::commit(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
-        puts "todo: implement post object broadcast"
     end
 
     # DxF1::setJsonEncoded(objectuuid, attname, attvalue)
@@ -150,6 +150,20 @@ class DxF1
     # DxF1::broadcastObjectFile(objectuuid)
     def self.broadcastObjectFile(objectuuid)
         puts "todo: DxF1::broadcastObjectFile"
+    end
+
+    # DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
+    def self.eventExistsAtDxF1(objectuuid, eventuuid)
+        answer = false
+        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select _eventuuid_ from _dxf1_", [eventuuid]) do |row|
+            answer = true
+        end
+        db.close
+        answer
     end
 end
 

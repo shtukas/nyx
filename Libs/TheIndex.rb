@@ -119,9 +119,9 @@ class TheIndex
         unixtime   = item["unixtime"]
         mikuType   = item["mikuType"]
 
-        raise "(error: db5d1368-da9f-49f9-96a3-654074941023)" if objectuuid.nil?
-        raise "(error: d9b6408d-69c1-4055-9d03-c3edb3958e9d)" if unixtime.nil?
-        raise "(error: 27aaef4d-a24e-4295-8044-b37e0092f599)" if mikuType.nil?
+        return if objectuuid.nil?
+        return if unixtime.nil?
+        return if mikuType.nil?
 
         announce   = LxFunction::function("generic-description", item)
 

@@ -19,8 +19,8 @@ class Config
         ENV['HOME']
     end
 
-    # Config::starlightCommLine()
-    def self.starlightCommLine()
+    # Config::starlightCommsLine()
+    def self.starlightCommsLine()
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/multi-instance-shared/commsline"
     end
 end

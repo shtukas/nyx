@@ -92,7 +92,7 @@ class DxPureFileManagement
     # DxPureFileManagement::dropDxPureFileOnCommline(filepath1)
     def self.dropDxPureFileOnCommline(filepath1)
         Machines::theOtherInstanceIds().each{|targetInstanceId|
-            filepath2 = "#{Config::starlightCommLine()}/#{targetInstanceId}/#{File.basename(filepath1)}"
+            filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{File.basename(filepath1)}"
             FileUtils.cp(filepath1, filepath2)
         }
     end
