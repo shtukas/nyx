@@ -275,4 +275,84 @@ end
 
 class TheIndex
 
+    # create table _index_ (_objectuuid_ text primary key, _unixtime_ float, _mikuType_ text, _announce_ text, _item_ text)
+
+    # TheIndex::databaseFile()
+    def self.databaseFile()
+        "#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3"
+    end
+
+    # TheIndex::objectuuids() # Array[objectuuid]
+    def self.objectuuids()
+        objectuuids = []
+        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select _objectuuid_ from _index_", []) do |row|
+            objectuuids << row["_objectuuid_"]
+        end
+        db.close
+        objectuuids
+    end
+
+    # TheIndex::mikuTypeCount(mikuType) # Integer
+    def self.mikuTypeCount(mikuType)
+        count = nil
+        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select count(*) as _count_ from _index_ where _mikuType_=?", [mikuType]) do |row|
+            count = row["_count_"]
+        end
+        db.close
+        count
+    end
+
+    # TheIndex::mikuTypeToObjectuuids(mikuType) # Array[objectuuid]
+    def self.mikuTypeToObjectuuids(mikuType)
+        objectuuids = []
+        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select _objectuuid_ from _index_ where _mikuType_=?", []) do |row|
+            objectuuids << row["_objectuuid_"]
+        end
+        db.close
+        objectuuids
+    end
+
+    # TheIndex::mikuTypeToItems(mikuType) # Array[Item]
+    def self.mikuTypeToItems(mikuType)
+        items = []
+        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select _item_ from _index_ where _mikuType_=?", []) do |row|
+            items << JSON.parse(row["_item_"])
+        end
+        db.close
+        items
+    end
+
+    # TheIndex::nx20s() # Array[Nx20]
+    def self.nx20s()
+        nx20s = []
+        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _index_", []) do |row|
+            nx20s << {
+                "announce"   => "(#{row["_mikuType_"]}) #{row["_announce_"]}",
+                "unixtime"   => row["_unixtime_"],
+                "objectuuid" => row["_objectuuid_"]
+            }
+        end
+        db.close
+        nx20s
+    end
 end
