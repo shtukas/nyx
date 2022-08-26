@@ -6,12 +6,14 @@ class DxF1
         "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s"
     end
 
-    # DxF1::filepathOrNullNoSideEffect(objectuuid)
-    def self.filepathOrNullNoSideEffect(objectuuid)
+    # DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
+    def self.filepathIfExistsOrNullNoSideEffect(objectuuid)
         sha1 = Digest::SHA1.hexdigest(objectuuid)
         folderpath = "#{DxF1::pathToRepository()}/#{sha1[0, 2]}"
         return nil if !File.exists?(folderpath)
-        "#{folderpath}/#{sha1}.dxf1.sqlite3"
+        filepath = "#{folderpath}/#{sha1}.dxf1.sqlite3"
+        return nil if !File.exists?(filepath)
+        filepath
     end
 
     # DxF1::filepath(objectuuid)
@@ -154,14 +156,14 @@ class DxF1
 
     # DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
     def self.eventExistsAtDxF1(objectuuid, eventuuid)
-        filepath = DxF1::filepathOrNullNoSideEffect(objectuuid)
+        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return false if filepath.nil?
         answer = false
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select _eventuuid_ from _dxf1_", [eventuuid]) do |row|
+        db.execute("select _eventuuid_ from _dxf1_ where _eventuuid_=?", [eventuuid]) do |row|
             answer = true
         end
         db.close

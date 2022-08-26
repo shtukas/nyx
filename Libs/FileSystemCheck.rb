@@ -14,7 +14,7 @@ class FileSystemCheck
     # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid)
     def self.fsckObjectuuidErrorAtFirstFailure(objectuuid)
 
-        filepath = DxF1::filepathOrNullNoSideEffect(objectuuid)
+        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return if filepath.nil?
 
         repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{File.mtime(filepath)}"

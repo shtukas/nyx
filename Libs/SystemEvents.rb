@@ -159,7 +159,7 @@ class SystemEvents
 
     # SystemEvents::publishDxF1OnCommsline(objectuuid)
     def self.publishDxF1OnCommsline(objectuuid)
-        filepath = DxF1::filepathOrNullNoSideEffect(objectuuid)
+        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return if filepath.nil?
         Machines::theOtherInstanceIds().each{|targetInstanceId|
             targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.dxf1.sqlite3"
