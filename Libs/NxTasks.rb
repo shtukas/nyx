@@ -25,13 +25,13 @@ class NxTasks
         if shouldPromptForTimeCommitment and LucilleCore::askQuestionAnswerAsBoolean("Attach a Ax39 (time commitment) ? ", false) then
             ax39 = Ax39::interactivelyCreateNewAxOrNull()
         end
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "nx111",       nx111) # possibly null
-        DxF1::setJsonEncoded(uuid, "ax39",        ax39) # possibly null
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "NxTask")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "nx111",       nx111) # possibly null
+        DxF1::setAttribute2(uuid, "ax39",        ax39) # possibly null
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -49,12 +49,12 @@ class NxTasks
             "type" => "url",
             "url"  => url
         }
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "NxTask")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -71,12 +71,12 @@ class NxTasks
         description = File.basename(location)
         uuid = SecureRandom.uuid
         nx111 = Nx111::locationToNx111DxPureAionPoint(uuid, location)
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "NxTask")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -89,12 +89,12 @@ class NxTasks
     def self.issueDescriptionOnlyNoNx111(description)
         uuid  = SecureRandom.uuid
         nx111 = nil
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "NxTask")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "NxTask")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "nx111",       nx111)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then

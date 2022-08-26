@@ -14,14 +14,17 @@ class DxUniqueString
     # DxUniqueString::interactivelyIssueNew()
     def self.interactivelyIssueNew()
         uuid = SecureRandom.uuid
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description.nil?
         uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxUniqueString")
-        DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
-        DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "uniquestring", uniquestring)
+        DxF1::setAttribute2(uuid, "uuid", uuid)
+        DxF1::setAttribute2(uuid, "mikuType", "DxUniqueString")
+        DxF1::setAttribute2(uuid, "unixtime", unixtime)
+        DxF1::setAttribute2(uuid, "datetime", datetime)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "uniquestring", uniquestring)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then

@@ -37,14 +37,14 @@ class TxTimeCommitmentProjects
         ax39 = Ax39::interactivelyCreateNewAx()
 
         unixtime   = Time.new.to_i
-        DxF1::setJsonEncoded(uuid, "uuid",         uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",     "TxTimeCommitmentProject")
-        DxF1::setJsonEncoded(uuid, "unixtime",     unixtime)
-        DxF1::setJsonEncoded(uuid, "datetime",     datetime)
-        DxF1::setJsonEncoded(uuid, "description",  description)
-        DxF1::setJsonEncoded(uuid, "nx111",        nx111)
-        DxF1::setJsonEncoded(uuid, "elementuuids", [])
-        DxF1::setJsonEncoded(uuid, "ax39",         ax39)
+        DxF1::setAttribute2(uuid, "uuid",         uuid)
+        DxF1::setAttribute2(uuid, "mikuType",     "TxTimeCommitmentProject")
+        DxF1::setAttribute2(uuid, "unixtime",     unixtime)
+        DxF1::setAttribute2(uuid, "datetime",     datetime)
+        DxF1::setAttribute2(uuid, "description",  description)
+        DxF1::setAttribute2(uuid, "nx111",        nx111)
+        DxF1::setAttribute2(uuid, "elementuuids", [])
+        DxF1::setAttribute2(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -270,7 +270,7 @@ class TxTimeCommitmentProjects
     def self.interactivelyAddThisElementToOwner(element)
         puts "TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
         if element["mikuType"] == "TxIncoming" then
-            DxF1::setJsonEncoded(element["uuid"], "mikuType", "NxLine")
+            DxF1::setAttribute2(element["uuid"], "mikuType", "NxLine")
             element = TheIndex::getItemOrNull(element["uuid"])
         end
         if !["NxTask", "NxLine"].include?(element["mikuType"]) then

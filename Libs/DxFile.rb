@@ -27,14 +27,14 @@ class DxFile
 
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
 
-        DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxFile")
-        DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
-        DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "dottedExtension", dottedExtension)
-        DxF1::setJsonEncoded(uuid, "nhash", nhash)
-        DxF1::setJsonEncoded(uuid, "parts", parts)
+        DxF1::setAttribute2(uuid, "uuid", uuid)
+        DxF1::setAttribute2(uuid, "mikuType", "DxFile")
+        DxF1::setAttribute2(uuid, "unixtime", unixtime)
+        DxF1::setAttribute2(uuid, "datetime", datetime)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "dottedExtension", dottedExtension)
+        DxF1::setAttribute2(uuid, "nhash", nhash)
+        DxF1::setAttribute2(uuid, "parts", parts)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
@@ -49,7 +49,7 @@ class DxFile
 
     # DxFile::toString(item)
     def self.toString(item)
-        "(DxFile) #{item["description"]}"
+        "(DxFile) #{item["description"] ? item["description"] : "nhash: #{item["nhash"]}"}"
     end
 
     # ----------------------------------------------------------------------

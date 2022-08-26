@@ -49,8 +49,8 @@ class LinkedNavigation
         loop {
             system("clear")
 
-            puts "lowest  datetime: #{DxF1::getJsonDecodeOrNull(uuids.first, "datetime")}"
-            puts "highest datetime: #{DxF1::getJsonDecodeOrNull(uuids.last, "datetime")}"
+            puts "lowest  datetime: #{DxF1::getAttribute(uuids.first, "datetime")}"
+            puts "highest datetime: #{DxF1::getAttribute(uuids.last, "datetime")}"
 
             options = ["display all", "edition desk export all", "zoom on time period"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
@@ -79,7 +79,7 @@ class LinkedNavigation
                 puts "datetime2:"
                 datetime2 = CommonUtils::interactiveDateTimeBuilder()
                 subset = uuids.select{|uuid| 
-                    datetime = DxF1::getJsonDecodeOrNull(uuid, "datetime")
+                    datetime = DxF1::getAttribute(uuid, "datetime")
                     datetime >= datetime1 and datetime <= datetime2 
                 }
             end

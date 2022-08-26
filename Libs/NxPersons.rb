@@ -11,11 +11,11 @@ class NxPersons
     # NxPersons::issue(name1)
     def self.issue(name1)
         uuid = SecureRandom.uuid
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "NxPerson")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setJsonEncoded(uuid, "name",        name1)
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "NxPerson")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setAttribute2(uuid, "name",        name1)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then

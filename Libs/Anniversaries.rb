@@ -112,14 +112,14 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "NxAnniversary")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "startdate",   startdate)
-        DxF1::setJsonEncoded(uuid, "repeatType",  repeatType)
-        DxF1::setJsonEncoded(uuid, "lastCelebrationDate", lastCelebrationDate)
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "NxAnniversary")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "startdate",   startdate)
+        DxF1::setAttribute2(uuid, "repeatType",  repeatType)
+        DxF1::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -141,7 +141,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        DxF1::setJsonEncoded(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        DxF1::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -183,13 +183,13 @@ class Anniversaries
             if Interpreting::match("description", command) then
                 description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
                 return if description == ""
-                DxF1::setJsonEncoded(item["uuid"], "description", description)
+                DxF1::setAttribute2(item["uuid"], "description", description)
             end
 
             if Interpreting::match("update start date", command) then
                 startdate = CommonUtils::editTextSynchronously(item["startdate"])
                 return if startdate == ""
-                DxF1::setJsonEncoded(item["uuid"], "startdate",   startdate)
+                DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("destroy", command) then

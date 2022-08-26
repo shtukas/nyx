@@ -78,7 +78,7 @@ class Catalyst
                     # Now we need to adjust the unixtime to put it on top
                     topunixtime = NxTasks::topUnixtime()
                     puts "Setting top unixtime: #{topunixtime}"
-                    DxF1::setJsonEncoded(item["uuid"], "unixtime", topunixtime)
+                    DxF1::setAttribute2(item["uuid"], "unixtime", topunixtime)
                     LucilleCore::removeFileSystemLocation(location)
                     XCache::destroy("Top-Tasks-For-Section2-7be0c69eaed3")
                 }

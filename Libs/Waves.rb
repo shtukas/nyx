@@ -128,14 +128,14 @@ class Waves
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
         nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "Wave")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "nx46",        JSON.generate(nx46))
-        DxF1::setJsonEncoded(uuid, "nx111",       nx111)
-        DxF1::setJsonEncoded(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "Wave")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
+        DxF1::setAttribute2(uuid, "nx111",       nx111)
+        DxF1::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -175,7 +175,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        DxF1::setJsonEncoded(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        DxF1::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"

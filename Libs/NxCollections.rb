@@ -26,11 +26,11 @@ class NxCollections
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
         uuid = SecureRandom.uuid
-        DxF1::setJsonEncoded(uuid, "uuid",        uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType",    "NxCollection")
-        DxF1::setJsonEncoded(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setJsonEncoded(uuid, "datetime",    datetime)
-        DxF1::setJsonEncoded(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "uuid",        uuid)
+        DxF1::setAttribute2(uuid, "mikuType",    "NxCollection")
+        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        DxF1::setAttribute2(uuid, "datetime",    datetime)
+        DxF1::setAttribute2(uuid, "description", description)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then

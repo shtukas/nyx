@@ -23,9 +23,24 @@ class LxFunction
             if item["mikuType"] == "NxAnniversary" then
                 return item["description"]
             end
-            if item["mikuType"] == "Ax1Text" then
-                firstline = Ax1Text::getFirstLineOrNull(item)
+            if item["mikuType"] == "DxAionPoint" then
+                return item["description"]
+            end
+            if item["mikuType"] == "DxFile" then
+                return (item["description"] ? item["description"] : "DxFile: #{item["nhash"]}")
+            end
+            if item["mikuType"] == "DxLine" then
+                return item["line"]
+            end
+            if item["mikuType"] == "DxText" then
+                firstline = DxText::getFirstLineOrNull(item)
                 return (firstline ? firstline : "(no generic-description)")
+            end
+            if item["mikuType"] == "DxUniqueString" then
+                return item["description"]
+            end
+            if item["mikuType"] == "DxUrl" then
+                return item["url"]
             end
             if item["mikuType"] == "NxDataNode" then
                 return item["description"]
@@ -88,8 +103,23 @@ class LxFunction
             if item["mikuType"] == "fitness1" then
                 return item["announce"]
             end
-            if item["mikuType"] == "Ax1Text" then
-                return Ax1Text::toString(item)
+            if item["mikuType"] == "DxAionPoint" then
+                return DxAionPoint::toString(item)
+            end
+            if item["mikuType"] == "DxFile" then
+                return DxFile::toString(item)
+            end
+            if item["mikuType"] == "DxLine" then
+                return DxLine::toString(item)
+            end
+            if item["mikuType"] == "DxText" then
+                return DxText::toString(item)
+            end
+            if item["mikuType"] == "DxUniqueString" then
+                return DxUniqueString::toString(item)
+            end
+            if item["mikuType"] == "DxUrl" then
+                return DxUrl::toString(item)
             end
             if item["mikuType"] == "NxAnniversary" then
                 return Anniversaries::toString(item)

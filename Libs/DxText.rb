@@ -17,11 +17,11 @@ class DxText
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxText")
-        DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
-        DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "text", text)
+        DxF1::setAttribute2(uuid, "uuid", uuid)
+        DxF1::setAttribute2(uuid, "mikuType", "DxText")
+        DxF1::setAttribute2(uuid, "unixtime", unixtime)
+        DxF1::setAttribute2(uuid, "datetime", datetime)
+        DxF1::setAttribute2(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
@@ -53,5 +53,35 @@ class DxText
     # DxText::access(item)
     def self.access(item)
         CommonUtils::accessText(item["text"])
+    end
+
+    # DxText::landing(item)
+    def self.landing(item)
+        loop {
+            system("clear")
+            puts DxText::toString(item)
+            operations = [
+                "access",
+                "edit",
+                "destroy"
+            ]
+            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
+            break if operation.nil?
+            if operation == "access" then
+                CommonUtils::accessText(item["text"])
+            end
+            if operation == "edit" then
+                uuid = item["uuid"]
+                text = CommonUtils::editTextSynchronously(item["text"])
+                DxF1::setAttribute2(uuid, "text", text)
+            end
+            if operation == "destroy" then
+                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{DxText::toString(item).green}' ? ") then
+                    uuid = item["uuid"]
+                    DxF1::deleteObjectLogically(uuid)
+                    break
+                end
+            end
+        }
     end
 end

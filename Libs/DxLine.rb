@@ -14,11 +14,11 @@ class DxLine
         line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
-        DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxLine")
-        DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
-        DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "line", line)
+        DxF1::setAttribute2(uuid, "uuid", uuid)
+        DxF1::setAttribute2(uuid, "mikuType", "DxLine")
+        DxF1::setAttribute2(uuid, "unixtime", unixtime)
+        DxF1::setAttribute2(uuid, "datetime", datetime)
+        DxF1::setAttribute2(uuid, "line", line)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then

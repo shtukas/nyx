@@ -72,13 +72,13 @@ class DxF1
         DxF1::setAttribute0(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
     end
 
-    # DxF1::setJsonEncoded(objectuuid, attname, attvalue)
-    def self.setJsonEncoded(objectuuid, attname, attvalue)
+    # DxF1::setAttribute2(objectuuid, attname, attvalue)
+    def self.setAttribute2(objectuuid, attname, attvalue)
         DxF1::setAttribute1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
-    # DxF1::getJsonDecodeOrNull(objectuuid, attname)
-    def self.getJsonDecodeOrNull(objectuuid, attname)
+    # DxF1::getAttribute(objectuuid, attname)
+    def self.getAttribute(objectuuid, attname)
         db = SQLite3::Database.new(DxF1::filepath(objectuuid))
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -125,14 +125,14 @@ class DxF1
 
     # DxF1::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        value = DxF1::getJsonDecodeOrNull(objectuuid, "isAlive")
+        value = DxF1::getAttribute(objectuuid, "isAlive")
         return true if value.nil?
         value
     end
 
     # DxF1::deleteObjectLogicallyNoEvents(objectuuid)
     def self.deleteObjectLogicallyNoEvents(objectuuid)
-        DxF1::setJsonEncoded(objectuuid, "isAlive", false)
+        DxF1::setAttribute2(objectuuid, "isAlive", false)
     end
 
     # DxF1::deleteObjectLogically(objectuuid)

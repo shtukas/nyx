@@ -5,4 +5,9 @@
 require_relative "../Libs/loader.rb"
 
 objectuuid = ARGV[0]
+
+puts "From the index:"
 puts JSON.pretty_generate(TheIndex::getItemOrNull(objectuuid))
+
+puts "From the Dxf1 file:"
+puts JSON.pretty_generate(DxF1::getProtoItemOrNull(objectuuid))

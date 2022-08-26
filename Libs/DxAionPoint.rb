@@ -25,12 +25,12 @@ class DxAionPoint
 
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
 
-        DxF1::setJsonEncoded(uuid, "uuid", uuid)
-        DxF1::setJsonEncoded(uuid, "mikuType", "DxAionPoint")
-        DxF1::setJsonEncoded(uuid, "unixtime", unixtime)
-        DxF1::setJsonEncoded(uuid, "datetime", datetime)
-        DxF1::setJsonEncoded(uuid, "description", description)
-        DxF1::setJsonEncoded(uuid, "rootnhash", rootnhash)
+        DxF1::setAttribute2(uuid, "uuid", uuid)
+        DxF1::setAttribute2(uuid, "mikuType", "DxAionPoint")
+        DxF1::setAttribute2(uuid, "unixtime", unixtime)
+        DxF1::setAttribute2(uuid, "datetime", datetime)
+        DxF1::setAttribute2(uuid, "description", description)
+        DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
         item = TheIndex::getItemOrNull(uuid)
@@ -45,7 +45,7 @@ class DxAionPoint
 
     # DxAionPoint::toString(item)
     def self.toString(item)
-        "(DxAionPoint) #{item["url"]}"
+        "(DxAionPoint) #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------
@@ -53,7 +53,7 @@ class DxAionPoint
 
     # DxAionPoint::access(item)
     def self.access(item)
-        puts "DxAionPoint: #{item["url"]}"
+        puts "DxAionPoint: #{item["description"]}"
         LucilleCore::pressEnterToContinue()
     end
 end

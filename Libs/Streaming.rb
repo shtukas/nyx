@@ -13,7 +13,7 @@ class Streaming
             return
         end
         LxAction::action("stop", item["uuid"])
-        DxF1::setJsonEncoded(item["uuid"], "mikuType", "NxDataNode")
+        DxF1::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
         LxAction::action("landing", item)
     end
 

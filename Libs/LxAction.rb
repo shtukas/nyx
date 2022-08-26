@@ -257,8 +257,8 @@ class LxAction
 
         if command == "landing" then
 
-            if item["mikuType"] == "Ax1Text" then
-                Ax1Text::landing(item)
+            if item["mikuType"] == "DxText" then
+                DxText::landing(item)
                 return
             end
  
@@ -279,7 +279,7 @@ class LxAction
         if command == "redate" then
             if item["mikuType"] == "TxDated" then
                 datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-                DxF1::setJsonEncoded(item["uuid"], "datetime", datetime)
+                DxF1::setAttribute2(item["uuid"], "datetime", datetime)
                 return
             end
         end

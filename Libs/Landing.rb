@@ -98,11 +98,11 @@ class Landing
                 if item["mikuType"] == "NxPerson" then
                     name1 = CommonUtils::editTextSynchronously(item["name"]).strip
                     next if name1 == ""
-                    DxF1::setJsonEncoded(item["uuid"], "name", name1)
+                    DxF1::setAttribute2(item["uuid"], "name", name1)
                 else
                     description = CommonUtils::editTextSynchronously(item["description"]).strip
                     next if description == ""
-                    DxF1::setJsonEncoded(item["uuid"], "description", description)
+                    DxF1::setAttribute2(item["uuid"], "description", description)
                 end
                 next
             end
@@ -110,7 +110,7 @@ class Landing
             if Interpreting::match("datetime", command) then
                 datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
                 next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-                DxF1::setJsonEncoded(item["uuid"], "datetime", datetime)
+                DxF1::setAttribute2(item["uuid"], "datetime", datetime)
             end
 
             if Interpreting::match("iam", command) then
@@ -126,7 +126,7 @@ class Landing
             end
 
             if Interpreting::match("text", command) then
-                i2 = Ax1Text::interactivelyIssueNew()
+                i2 = DxText::interactivelyIssueNew()
                 puts JSON.pretty_generate(i2)
                 NetworkLinks::link(item["uuid"], i2["uuid"])
                 next
@@ -229,20 +229,20 @@ class Landing
             if Interpreting::match("description", command) then
                 description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
-                DxF1::setJsonEncoded(item["uuid"], "description", description)
+                DxF1::setAttribute2(item["uuid"], "description", description)
                 next
             end
 
             if Interpreting::match("datetime", command) then
                 datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
                 next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-                DxF1::setJsonEncoded(item["uuid"], "datetime", datetime)
+                DxF1::setAttribute2(item["uuid"], "datetime", datetime)
             end
 
             if Interpreting::match("nx111", command) then
                 nx111 = Nx111::interactivelyCreateNewNx111OrNull(item["uuid"])
                 next if nx111.nil?
-                DxF1::setJsonEncoded(item["uuid"], "nx111", nx111)
+                DxF1::setAttribute2(item["uuid"], "nx111", nx111)
             end
 
             if Interpreting::match("edit", command) then
@@ -263,7 +263,7 @@ class Landing
             end
 
             if Interpreting::match("text", command) then
-                i2 = Ax1Text::interactivelyIssueNew()
+                i2 = DxText::interactivelyIssueNew()
                 puts JSON.pretty_generate(i2)
                 NetworkLinks::link(item["uuid"], i2["uuid"])
                 next
@@ -311,8 +311,8 @@ class Landing
             TxTimeCommitmentProjects::landing(item)
             return nil
         end
-        if item["mikuType"] == "Ax1Text" then
-            Ax1Text::landing(item)
+        if item["mikuType"] == "DxText" then
+            DxText::landing(item)
             return nil
         end
         if item["mikuType"] == "TopLevel" then
