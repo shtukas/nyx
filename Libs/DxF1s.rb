@@ -63,7 +63,7 @@ class DxF1
         db.close
 
         TheIndex::updateIndexAtObjectAttempt(objectuuid)
-        SystemEvents::publishDxF1OnCommsline(objectuuid)
+        #SystemEvents::publishDxF1OnCommsline(objectuuid)
     end
 
     # DxF1::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
@@ -225,7 +225,7 @@ class DxF1
         db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "datablob", nhash, blob]
         db.close
 
-        SystemEvents::publishDxF1OnCommsline(objectuuid)
+        #SystemEvents::publishDxF1OnCommsline(objectuuid)
     end
 
     # DxF1::setDatablob1(objectuuid, nhash, blob)

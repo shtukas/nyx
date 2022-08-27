@@ -65,12 +65,16 @@ class FileSystemCheck
                 "mikuType",
                 "unixtime",
                 "datetime",
-                "description",
                 "dottedExtension",
                 "nhash",
                 "parts",
             ]
                 .each{|attname| ensureAttribute.call(objectuuid, mikuType, attname) }
+            operator = DxF1Elizabeth.new(objectuuid)
+            dottedExtension = DxF1::getAttribute(objectuuid, "dottedExtension")
+            nhash = DxF1::getAttribute(objectuuid, "nhash")
+            parts = DxF1::getAttribute(objectuuid, "parts")
+            PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
             XCache::setFlag(repeatKey, true)
             return
         end
