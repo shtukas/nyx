@@ -270,12 +270,12 @@ class LxAction
         if command == "landing" then
 
             if item["mikuType"] == "DxText" then
-                DxText::landing(item)
+                DxText::landing(item, isSearchAndSelect)
                 return
             end
  
             if item["mikuType"] == "NxAnniversary" then
-                Anniversaries::landing(item)
+                Anniversaries::landing(item, isSearchAndSelect)
                 return
             end
  

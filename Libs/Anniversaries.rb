@@ -169,7 +169,7 @@ class Anniversaries
         LucilleCore::pressEnterToContinue()
     end
 
-    # Anniversaries::landing(item)
+    # Anniversaries::landing(item, isSearchAndSelect)
     def self.landing(item)
         loop {
 

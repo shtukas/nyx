@@ -53,6 +53,20 @@ class FileSystemCheck
             raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
         }
 
+        ensureItemFileExists = lambda {|itemuuid|
+            filepath = DxF1::filepathIfExistsOrNullNoSideEffect(itemuuid)
+            if filepath.nil? then
+                puts "DxF1::filepathIfExistsOrNullNoSideEffect(#{itemuuid})"
+                puts "Missing file for itemuuid (v1): #{itemuuid}"
+                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+            end
+            if !File.exists?(filepath) then
+                puts "DxF1::filepathIfExistsOrNullNoSideEffect(#{itemuuid})"
+                puts "Missing file for itemuuid (v2): #{itemuuid}"
+                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+            end
+        }
+
         mikuType = item["mikuType"]
 
         if mikuType == "CxAionPoint" then
@@ -155,6 +169,9 @@ class FileSystemCheck
         if mikuType == "NxEvent" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
+            if item["nx112"] then
+                ensureItemFileExists.call(item["nx112"])
+            end
         end
 
         if mikuType == "NxCollection" then
@@ -172,11 +189,17 @@ class FileSystemCheck
         if mikuType == "NxFrame" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
+            if item["nx112"] then
+                ensureItemFileExists.call(item["nx112"])
+            end
         end
 
         if mikuType == "NxIced" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
+            if item["nx112"] then
+                ensureItemFileExists.call(item["nx112"])
+            end
         end
 
         if mikuType == "NxLine" then
@@ -194,6 +217,9 @@ class FileSystemCheck
         if mikuType == "NxTask" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
+            if item["nx112"] then
+                ensureItemFileExists.call(item["nx112"])
+            end
         end
 
         if mikuType == "NxTimeline" then
@@ -207,10 +233,16 @@ class FileSystemCheck
         if mikuType == "TxDated" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
+            if item["nx112"] then
+                ensureItemFileExists.call(item["nx112"])
+            end
         end
 
         if mikuType == "TxTimeCommitmentProject" then
             # ensureAttribute.call("nx112") # optional
+            if item["nx112"] then
+                ensureItemFileExists.call(item["nx112"])
+            end
             ensureAttribute.call("ax39")
             ensureAttribute.call("elementuuids")
         end

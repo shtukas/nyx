@@ -77,8 +77,8 @@ class DxF1
         DxF1::setAttribute1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
-    # DxF1::getAttributeAtFile(filepath, attname)
-    def self.getAttributeAtFile(filepath, attname)
+    # DxF1::getAttributeAtFileOrNull(filepath, attname)
+    def self.getAttributeAtFileOrNull(filepath, attname)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
@@ -92,9 +92,9 @@ class DxF1
         attvalue
     end
 
-    # DxF1::getAttribute(objectuuid, attname)
-    def self.getAttribute(objectuuid, attname)
-        DxF1::getAttributeAtFile(DxF1::filepath(objectuuid), attname)
+    # DxF1::getAttributeOrNull(objectuuid, attname)
+    def self.getAttributeOrNull(objectuuid, attname)
+        DxF1::getAttributeAtFileOrNull(DxF1::filepath(objectuuid), attname)
     end
 
     # DxF1::getProtoItemAtFilepathOrNull(filepath)
@@ -130,7 +130,7 @@ class DxF1
 
     # DxF1::objectIsAlive(objectuuid)
     def self.objectIsAlive(objectuuid)
-        value = DxF1::getAttribute(objectuuid, "isAlive")
+        value = DxF1::getAttributeOrNull(objectuuid, "isAlive")
         return true if value.nil?
         value
     end
@@ -394,6 +394,12 @@ class DxF1sAtStargateCentral
         db2.busy_handler { |count| true }
         db2.results_as_hash = true
 
+        remoteEventuuids = []
+
+        db2.execute("select _eventuuid_ from _dxf1_", []) do |row|
+            remoteEventuuids << row["_eventuuid_"]
+        end
+
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
         db1.execute("select * from _dxf1_ order by _eventTime_", []) do |row|
 
@@ -422,16 +428,11 @@ class DxF1sAtStargateCentral
                 raise "(error: b4917158-4902-47d3-979c-4587bb195ee3)"
             end
 
-            isPresent = false
-            db2.execute("select count(*) as _count_ from _dxf1_ where _eventuuid_=?", [eventuuid]) do |row|
-                count = row["_count_"]
-                isPresent = (count > 0)
-            end
-            next if isPresent
+            next if remoteEventuuids.include?(eventuuid)
 
             puts "    insert eventuuid: #{eventuuid} @ #{filepath2}"
 
-            # db2.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid] # We do not need to delete if we did the isPresent check
+            # db2.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid] # We do not need to delete if we did the `remoteEventuuids.include?` check
             db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, attvalue]
 
         end
@@ -460,7 +461,11 @@ class DxF1sAtStargateCentral
     def self.sync()
         StargateCentral::ensureCentral()
         DxF1Extended::dxF1sFilepathsEnumerator().each{|filepath1|
-            objectuuid = DxF1::getAttributeAtFile(filepath1, "uuid")
+            objectuuid = DxF1::getAttributeAtFileOrNull(filepath1, "uuid")
+            if objectuuid.nil? then
+                puts "I could not extract a uuid at filepath: #{filepath1}"
+                exit
+            end
             filepath2 = DxF1sAtStargateCentral::dxF1Filepath(objectuuid)
             DxF1sAtStargateCentral::localToCentralFilePropagation(filepath1, filepath2)
         }

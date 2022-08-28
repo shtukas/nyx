@@ -55,8 +55,8 @@ class DxText
         CommonUtils::accessText(item["text"])
     end
 
-    # DxText::landing(item)
-    def self.landing(item)
+    # DxText::landing(item, isSearchAndSelect)
+    def self.landing(item, isSearchAndSelect)
         loop {
             system("clear")
             puts DxText::toString(item)

@@ -109,7 +109,7 @@ class TxTimeCommitmentProjects
         LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
     end
 
-    # TxTimeCommitmentProjects::landing(item)
+    # TxTimeCommitmentProjects::landing(item, isSearchAndSelect)
     def self.landing(item)
         puts "TODO: 02:50"
         exit
