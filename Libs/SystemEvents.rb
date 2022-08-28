@@ -172,6 +172,8 @@ class SystemEvents
                         db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, JSON.generate(attvalue)]
                         db2.close
 
+                        TheIndex::updateIndexAtObjectAttempt(objectuuid)
+
                     end
                     db1.close
                     FileUtils.rm(filepath1)
