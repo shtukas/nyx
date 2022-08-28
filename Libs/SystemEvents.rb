@@ -67,6 +67,7 @@ class SystemEvents
             attname    = event["attname"]
             attvalue   = event["attvalue"]
             DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+            TheIndex::updateIndexAtObjectAttempt(objectuuid)
         end
     end
 
