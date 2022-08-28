@@ -1,0 +1,8 @@
+
+channel: e0fba9fd-c00b-4d0c-b884-4f058ef87653
+Channel on which we post stuff like
+{
+    "unixtime"   : Integer
+    "objectuuid" : String
+}
+When the object is older than 60s, we publish the corresponding DxF1, and we do it once per flush of the channel

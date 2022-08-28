@@ -69,6 +69,7 @@ class Catalyst
 
             $commline_semaphore.synchronize {
                 SystemEvents::processCommsLine(true)
+                SystemEvents::flushChannel1()
             }
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Top")

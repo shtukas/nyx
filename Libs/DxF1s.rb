@@ -63,7 +63,10 @@ class DxF1
         db.close
 
         TheIndex::updateIndexAtObjectAttempt(objectuuid)
-        #SystemEvents::publishDxF1OnCommsline(objectuuid)
+        Mercury2::put("e0fba9fd-c00b-4d0c-b884-4f058ef87653", {
+            "unixtime"   => Time.new.to_i,
+            "objectuuid" => objectuuid
+        })
     end
 
     # DxF1::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
@@ -148,7 +151,7 @@ class DxF1
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
         })
-        SystemEvents::processEvent({
+        SystemEvents::process({
             "mikuType"   => "(object has been logically deleted)",
             "objectuuid" => objectuuid,
         })
@@ -230,7 +233,10 @@ class DxF1
         db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "datablob", nhash, blob]
         db.close
 
-        #SystemEvents::publishDxF1OnCommsline(objectuuid)
+        Mercury2::put("e0fba9fd-c00b-4d0c-b884-4f058ef87653", {
+            "unixtime"   => Time.new.to_i,
+            "objectuuid" => objectuuid
+        })
     end
 
     # DxF1::setDatablob1(objectuuid, nhash, blob)

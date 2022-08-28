@@ -24,7 +24,7 @@ class DoNotShowUntil
     # DoNotShowUntil::setUnixtime(uuid, unixtime)
     def self.setUnixtime(uuid, unixtime)
         DoNotShowUntil::setUnixtimeNoEvents(uuid, unixtime)
-        SystemEvents::processEvent({
+        SystemEvents::process({
           "mikuType"       => "(do not show until has been updated)",
           "targetuuid"     => uuid,
         })
