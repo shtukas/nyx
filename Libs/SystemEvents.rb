@@ -156,11 +156,14 @@ class SystemEvents
                         attvalue   = row["_value_"]
 
                         next if DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
+
+                        filepath2 = DxF1::filepath(objectuuid)
+
                         if verbose then
-                            puts "SystemEvents::processCommsLine: writing event: #{eventuuid} at file: #{File.basename(filepath1)}"
+                            puts "SystemEvents::processCommsLine: writing event: #{eventuuid} at file: #{File.basename(filepath2)}"
                         end
 
-                        db2 = SQLite3::Database.new(DxF1::filepath(objectuuid))
+                        db2 = SQLite3::Database.new(filepath2)
                         db2.busy_timeout = 117
                         db2.busy_handler { |count| true }
                         db2.results_as_hash = true
