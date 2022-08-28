@@ -35,8 +35,8 @@ class DxF1
         filepath
     end
 
-    # DxF1::setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
-    def self.setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
+    # DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+    def self.setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
         if objectuuid.nil? then
             raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
         end
@@ -58,6 +58,11 @@ class DxF1
         db.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
         db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attname, JSON.generate(attvalue)]
         db.close
+    end
+
+    # DxF1::setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
+    def self.setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
+        DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
 
         SystemEvents::broadcast({
             "mikuType"   => "AttributeUpdate",

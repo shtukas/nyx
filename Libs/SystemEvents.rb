@@ -59,6 +59,15 @@ class SystemEvents
         if event["mikuType"] == "NetworkLinks-records" then
             NetworkLinks::processEvent(event)
         end
+
+        if event["mikuType"] == "AttributeUpdate" then
+            objectuuid = event["objectuuid"]
+            eventuuid  = event["eventuuid"]
+            eventTime  = event["eventTime"]
+            attname    = event["attname"]
+            attvalue   = event["attvalue"]
+            DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+        end
     end
 
     # SystemEvents::broadcast(event)
