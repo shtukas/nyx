@@ -153,7 +153,7 @@ class SystemEvents
                         eventTime  = row["_eventTime_"]
                         eventType  = row["_eventType_"]
                         attname    = row["_name_"]
-                        attvalue   = row["_value_"]
+                        attvalue   = JSON.parse(row["_value_"])
 
                         next if DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
 
