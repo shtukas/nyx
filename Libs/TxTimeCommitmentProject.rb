@@ -110,9 +110,112 @@ class TxTimeCommitmentProjects
     end
 
     # TxTimeCommitmentProjects::landing(item, isSearchAndSelect)
-    def self.landing(item)
-        puts "TODO: 02:50"
-        exit
+    def self.landing(item, isSearchAndSelect)
+        loop {
+            system("clear")
+
+            puts TxTimeCommitmentProjects::toString(item).green
+
+            store = ItemStore.new()
+
+            items = TxTimeCommitmentProjects::elements(item, 6)
+            if items.size > 0 then
+                puts ""
+                puts "Managed Items:"
+                items
+                    .map{|element|
+                        {
+                            "element" => element,
+                            "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
+                        }
+                    }
+                    .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+                    .map{|px| px["element"] }
+                    .each{|element|
+                        indx = store.register(element, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
+                    }
+            end
+
+            items = TxTimeCommitmentProjects::elements(item, 50)
+            if items.size > 0 then
+                puts ""
+                puts "50 Elements:"
+                TxTimeCommitmentProjects::elements(item, 50)
+                    .each{|element|
+                        indx = store.register(element, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
+                    }
+            end
+
+            puts ""
+            puts "commands: <n> | insert | done <n> | detach <n> | transfer <n> | done (owner) | destroy (owner)".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Streaming::processItem(entity)
+            end
+
+            if command == "done" then
+                DoneForToday::setDoneToday(item["uuid"])
+                NxBallsService::close(item["uuid"], true)
+                break
+            end
+
+            if command == "insert" then
+                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
+                next if type.nil?
+                if type == "line" then
+                    element = NxLines::interactivelyIssueNewLineOrNull()
+                    next if element.nil?
+                    OwnerMapping::issue(item["uuid"], element["uuid"])
+                end
+                if type == "task" then
+                    element = NxTasks::interactivelyCreateNewOrNull(false)
+                    next if element.nil?
+                    OwnerMapping::issue(item["uuid"], element["uuid"])
+                end
+            end
+
+            if  command.start_with?("done") and command != "done" then
+                indx = command[4, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                LxAction::action("done", entity)
+                next
+            end
+
+            if  command.start_with?("detach") and command != "detach" then
+                indx = command[6, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                OwnerMapping::detach(item["uuid"], entity["uuid"])
+                next
+            end
+
+            if  command.start_with?("transfer") and command != "transfer" then
+                indx = command[8, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                item2 = TxTimeCommitmentProjects::architectOneOrNull()
+                return if item2.nil?
+                OwnerMapping::issue(item2["uuid"], entity["uuid"])
+                OwnerMapping::detach(item["uuid"], entity["uuid"])
+                next
+            end
+
+            if Interpreting::match("destroy", command) then
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
+                    DxF1::deleteObjectLogically(item["uuid"])
+                    break
+                end
+            end
+        }
         nil
     end
 
@@ -161,108 +264,6 @@ class TxTimeCommitmentProjects
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
             break if item.nil?
             LxAction::action("landing", item)
-        }
-    end
-
-    # TxTimeCommitmentProjects::elementsInventory(owner)
-    def self.elementsInventory(owner)
-        loop {
-            system("clear")
-
-            puts TxTimeCommitmentProjects::toString(owner).green
-
-            store = ItemStore.new()
-
-            items = TxTimeCommitmentProjects::elements(owner, 6)
-            if items.size > 0 then
-                puts ""
-                puts "Managed Items:"
-                items
-                    .map{|element|
-                        {
-                            "element" => element,
-                            "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
-                        }
-                    }
-                    .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-                    .map{|px| px["element"] }
-                    .each{|element|
-                        indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
-                    }
-            end
-
-            items = TxTimeCommitmentProjects::elements(owner, 50)
-            if items.size > 0 then
-                puts ""
-                puts "50 Elements:"
-                TxTimeCommitmentProjects::elements(owner, 50)
-                    .each{|element|
-                        indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", element)}"
-                    }
-            end
-
-            puts ""
-            puts "commands: <n> | insert | done (owner) | done <n> | detach <n> | transfer <n>".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                Streaming::processItem(entity)
-            end
-
-            if command == "done" then
-                DoneForToday::setDoneToday(owner["uuid"])
-                NxBallsService::close(owner["uuid"], true)
-                break
-            end
-
-            if command == "insert" then
-                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
-                next if type.nil?
-                if type == "line" then
-                    element = NxLines::interactivelyIssueNewLineOrNull()
-                    next if element.nil?
-                    OwnerMapping::issue(owner["uuid"], element["uuid"])
-                end
-                if type == "task" then
-                    element = NxTasks::interactivelyCreateNewOrNull(false)
-                    next if element.nil?
-                    OwnerMapping::issue(owner["uuid"], element["uuid"])
-                end
-            end
-
-            if  command.start_with?("done") and command != "done" then
-                indx = command[4, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                LxAction::action("done", entity)
-                next
-            end
-
-            if  command.start_with?("detach") and command != "detach" then
-                indx = command[6, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                OwnerMapping::detach(owner["uuid"], entity["uuid"])
-                next
-            end
-
-            if  command.start_with?("transfer") and command != "transfer" then
-                indx = command[8, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                owner2 = TxTimeCommitmentProjects::architectOneOrNull()
-                return if owner2.nil?
-                OwnerMapping::issue(owner2["uuid"], entity["uuid"])
-                OwnerMapping::detach(owner["uuid"], entity["uuid"])
-                next
-            end
         }
     end
 
