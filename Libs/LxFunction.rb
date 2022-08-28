@@ -202,7 +202,6 @@ class LxFunction
         end
 
         puts "I do not know how to LxFunction::function (command: #{command}, item: #{JSON.pretty_generate(item)})"
-        puts "Aborting."
-        exit
+        raise "(error: e123ee48-3aad-4fdd-8548-0aef46814bbd)"
     end
 end

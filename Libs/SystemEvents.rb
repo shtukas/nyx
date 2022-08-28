@@ -67,7 +67,14 @@ class SystemEvents
             attname    = event["attname"]
             attvalue   = event["attvalue"]
             DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-            TheIndex::updateIndexAtObjectAttempt(objectuuid)
+            begin
+                # This cane fail when we are using a new program, which doesn't expect old mikuTypes 
+                # (for instance generic-description is failing)
+                # on data that is still old.
+                TheIndex::updateIndexAtObjectAttempt(objectuuid)
+            rescue
+
+            end
         end
     end
 
