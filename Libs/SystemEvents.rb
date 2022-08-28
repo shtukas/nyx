@@ -87,6 +87,16 @@ class SystemEvents
         Machines::theOtherInstanceIds().each{|targetInstanceId|
             targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.dxf1.sqlite3"
             FileUtils.cp(filepath, targetFilepath)
+            if File.size(targetFilepath) > 1024*1024*100 then
+                # The target is big, let's remove the datablobs and only keep the attributes
+                db = SQLite3::Database.new(targetFilepath)
+                db.busy_timeout = 117
+                db.busy_handler { |count| true }
+                db.results_as_hash = true
+                db1.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
+                db1.execute "vacuum", []
+                db.close
+            end
         }
     end
 
