@@ -152,6 +152,9 @@ class SystemEvents
                     if verbose then
                         puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
                     end
+
+                    updatedObjectuuids = []
+
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
                     db1.busy_handler { |count| true }
@@ -182,10 +185,12 @@ class SystemEvents
                         db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, JSON.generate(attvalue)]
                         db2.close
 
-                        TheIndex::updateIndexAtObjectAttempt(objectuuid)
-
+                        updatedObjectuuids << objectuuid
                     end
                     db1.close
+
+                    updatedObjectuuids.each{|objectuuid| TheIndex::updateIndexAtObjectAttempt(objectuuid) }
+
                     FileUtils.rm(filepath1)
                     next
                 end
