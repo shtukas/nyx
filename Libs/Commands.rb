@@ -8,8 +8,8 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming | line",
             "anniversaries | ondates | todos | time-commitment-projects | waves | frames | toplevels",
-            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | transmute | transmute (<n>) | destroy",
-            ">task | >owner | (n) >owner | >nyx",
+            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | destroy",
+            ">owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
         ].join("\n")
@@ -31,21 +31,6 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
-            return
-        end
-
-        if Interpreting::match(">task", input) then
-            item = store.getDefault()
-            return if item.nil?
-            Transmutation::transmutation1(item, item["mikuType"], "NxTask")
-            return
-        end
-
-        if Interpreting::match("* >task", input) then
-            ordinal, _ = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            Transmutation::transmutation1(item, item["mikuType"], "NxTask")
             return
         end
 
@@ -141,7 +126,7 @@ class Commands
         if Interpreting::match("edit", input) then
             item = store.getDefault()
             return if item.nil?
-            Fx256::edit(item)
+            DxF1Extended::edit(item)
             return
         end
 
@@ -149,7 +134,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            Fx256::edit(item)
+            DxF1Extended::edit(item)
             return
         end
 
@@ -219,7 +204,7 @@ class Commands
         if input == "line" then
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
-            item = NxTasks::issueDescriptionOnlyNoNx111(line)
+            item = NxTasks::issueDescriptionOnly(line)
             TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
             return
         end
@@ -414,21 +399,6 @@ class Commands
 
         if input == "toplevels" then
             TopLevel::dive()
-            return
-        end
-
-        if Interpreting::match("transmute", input) then
-            item = store.getDefault()
-            return if item.nil?
-            LxAction::action("transmute", item)
-            return
-        end
-
-        if Interpreting::match("transmute *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            LxAction::action("transmute", item)
             return
         end
 

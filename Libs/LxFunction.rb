@@ -23,6 +23,24 @@ class LxFunction
             if item["mikuType"] == "NxAnniversary" then
                 return item["description"]
             end
+            if item["mikuType"] == "CxAionPoint" then
+                return "#{item["mikuType"]}"
+            end
+            if item["mikuType"] == "CxDx8Unit" then
+                return "#{item["mikuType"]}"
+            end
+            if item["mikuType"] == "CxFile" then
+               return "#{item["mikuType"]}"
+            end
+            if item["mikuType"] == "CxText" then
+                return "#{item["mikuType"]}"
+            end
+            if item["mikuType"] == "CxUniqueString" then
+                return "#{item["mikuType"]}"
+            end
+            if item["mikuType"] == "CxUrl" then
+                return "#{item["mikuType"]}"
+            end
             if item["mikuType"] == "DxAionPoint" then
                 return item["description"]
             end
@@ -41,9 +59,6 @@ class LxFunction
             end
             if item["mikuType"] == "DxUrl" then
                 return item["url"]
-            end
-            if item["mikuType"] == "NxDataNode" then
-                return item["description"]
             end
             if item["mikuType"] == "NxCollection" then
                 return item["description"]
@@ -106,6 +121,18 @@ class LxFunction
             if item["mikuType"] == "DxAionPoint" then
                 return DxAionPoint::toString(item)
             end
+            if item["mikuType"] == "CxFile" then
+                return CxFile::toString(item)
+            end
+            if item["mikuType"] == "CxText" then
+                return CxText::toString(item)
+            end
+            if item["mikuType"] == "CxUniqueString" then
+                return CxUniqueString::toString(item)
+            end
+            if item["mikuType"] == "CxUrl" then
+                return CxUrl::toString(item)
+            end
             if item["mikuType"] == "DxFile" then
                 return DxFile::toString(item)
             end
@@ -126,9 +153,6 @@ class LxFunction
             end
             if item["mikuType"] == "NxBall.v2" then
                 return item["description"]
-            end
-            if item["mikuType"] == "NxDataNode" then
-                return NxDataNodes::toString(item)
             end
             if item["mikuType"] == "NxCollection" then
                 return NxCollections::toString(item)

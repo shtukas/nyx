@@ -4,5 +4,5 @@
 
 require_relative "../Libs/loader.rb"
 
-FxSynchronisation::sync()
+DxF1sAtStargateCentral::sync()
 puts "grid-sync completed".green #

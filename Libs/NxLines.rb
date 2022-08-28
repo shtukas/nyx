@@ -22,7 +22,7 @@ class NxLines
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "line",        line)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         raise "(error: 1853d31a-bb37-46d6-b4c2-7afcf88e0c56) How did that happen?" if item.nil?
         item

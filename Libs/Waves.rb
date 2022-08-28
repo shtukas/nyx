@@ -127,16 +127,16 @@ class Waves
         nx46 = Waves::makeNx46InteractivelyOrNull()
         return nil if nx46.nil?
         uuid = SecureRandom.uuid
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
+        cx = Cx::interactivelyCreateNewCxForOwnerOrNull(uuid)
         DxF1::setAttribute2(uuid, "uuid",        uuid)
         DxF1::setAttribute2(uuid, "mikuType",    "Wave")
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "description", description)
         DxF1::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
-        DxF1::setAttribute2(uuid, "nx111",       nx111)
+        DxF1::setAttribute2(uuid, "nx112",       cx ? cx["uuid"] : nil)
         DxF1::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"
@@ -151,8 +151,7 @@ class Waves
     def self.toString(item)
         lastDoneDateTime = item["lastDoneDateTime"]
         ago = "#{((Time.new.to_i - DateTime.parse(lastDoneDateTime).to_time.to_i).to_f/86400).round(2)} days ago"
-        nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(wave) #{item["description"]}#{nx111String} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊"
+        "(wave) #{item["description"]}#{Cx::uuidToString(item["nx112"])} (#{Waves::nx46ToString(item["nx46"])}) (#{ago}) 🌊"
     end
 
     # Waves::isPriority(item)
@@ -171,6 +170,12 @@ class Waves
     end
 
     # -------------------------------------------------------------------------
+
+    # Waves::access(item)
+    def self.access(item)
+        puts Waves::toString(item).green
+        Cx::access(item["nx112"])
+    end
 
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)

@@ -5,16 +5,8 @@ class Streaming
 
     # Streaming::itemToNyx(itemuuid)
     def self.itemuuidToNyx(itemuuid)
-        item = TheIndex::getItemOrNull(itemuuid)
-        return if item.nil?
-        if !["NxTask", "NxIced"].include?(item["mikuType"]) then
-            puts "I am authorised to >nyx only NxTasks and NxIceds in this function"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-        LxAction::action("stop", item["uuid"])
-        DxF1::setAttribute2(item["uuid"], "mikuType", "NxDataNode")
-        LxAction::action("landing", item)
+        puts "TODO 02:01"
+        exit
     end
 
     # Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"

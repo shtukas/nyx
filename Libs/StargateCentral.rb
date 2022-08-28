@@ -10,8 +10,8 @@ class StargateCentral
         File.exists?(StargateCentral::pathToCentral())
     end
 
-    # StargateCentral::ensureEnergyGrid1()
-    def self.ensureEnergyGrid1()
+    # StargateCentral::ensureCentral()
+    def self.ensureCentral()
         return if File.exists?(StargateCentral::pathToCentral())
         puts "I need the EnergyGrid1 drive, please plug".green
         LucilleCore::pressEnterToContinue()
@@ -20,8 +20,8 @@ class StargateCentral
         exit 1
     end
 
-    # StargateCentral::acquireCentral()
-    def self.acquireCentral() # Boolean # Indicates whether we got there or not
+    # StargateCentral::attemptCentral()
+    def self.attemptCentral() # Boolean # Indicates whether we got there or not
         return true if File.exists?(StargateCentral::pathToCentral())
         puts "I need the EnergyGrid1 drive, please plug".green
         LucilleCore::pressEnterToContinue()

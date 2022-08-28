@@ -100,6 +100,20 @@ class TheIndex
         nx20s
     end
 
+    # TheIndex::items() # Array[Item]
+    def self.items()
+        items = []
+        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select _item_ from _index_", []) do |row|
+            items << JSON.parse(row["_item_"])
+        end
+        db.close
+        items
+    end
+
     # -----------------------------------------------------------------
     # WRITE
 

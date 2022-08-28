@@ -77,19 +77,24 @@ class DxF1
         DxF1::setAttribute1(objectuuid, SecureRandom.uuid, Time.new.to_f, attname, attvalue)
     end
 
-    # DxF1::getAttribute(objectuuid, attname)
-    def self.getAttribute(objectuuid, attname)
-        db = SQLite3::Database.new(DxF1::filepath(objectuuid))
+    # DxF1::getAttributeAtFile(filepath, attname)
+    def self.getAttributeAtFile(filepath, attname)
+        db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
         attvalue = nil
         # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _dxf1_ where _objectuuid_=? and _name_=? order by _eventTime_", [objectuuid, attname]) do |row|
+        db.execute("select * from _dxf1_ where _name_=? order by _eventTime_", [attname]) do |row|
             attvalue = JSON.parse(row["_value_"])
         end
         db.close
         attvalue
+    end
+
+    # DxF1::getAttribute(objectuuid, attname)
+    def self.getAttribute(objectuuid, attname)
+        DxF1::getAttributeAtFile(DxF1::filepath(objectuuid), attname)
     end
 
     # DxF1::getProtoItemAtFilepathOrNull(filepath)
@@ -252,13 +257,21 @@ end
 
 class DxF1Elizabeth
 
-    def initialize(objectuuid)
-        @objectuuid = objectuuid
+    # XCacheDatablobs::putBlob(blob)
+    # XCacheDatablobs::getBlobOrNull(nhash)
+
+    def initialize(objectuuid, readXCache, writeXCache)
+        @objectuuid  = objectuuid
+        @readXCache  = readXCache
+        @writeXCache = writeXCache
     end
 
     def putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         DxF1::setDatablob1(@objectuuid, nhash, blob)
+        if @writeXCache then
+            XCacheDatablobs::putBlob(blob)
+        end
         nhash
     end
 
@@ -267,7 +280,29 @@ class DxF1Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        DxF1::getDatablobOrNull(@objectuuid, nhash)
+
+        if @readXCache then
+            blob = XCacheDatablobs::getBlobOrNull(nhash)
+            return blob if blob
+        end
+
+        blob = DxF1::getDatablobOrNull(@objectuuid, nhash)
+        if blob then
+            if @writeXCache then
+                XCacheDatablobs::putBlob(blob)
+            end
+            return blob
+        end
+
+        blob = DxF1sAtStargateCentral::getDatablobOrNull(@objectuuid, nhash)
+        if blob then
+            if @writeXCache then
+                XCacheDatablobs::putBlob(blob)
+            end
+            return blob
+        end
+
+        nil
     end
 
     def readBlobErrorIfNotFound(nhash)
@@ -291,16 +326,26 @@ class DxF1Elizabeth
     end
 end
 
-class Fx256
+class DxF1Extended
 
-    # Fx256::edit(item) # item
+    # DxF1Extended::dxF1sFilepathsEnumerator()
+    def self.dxF1sFilepathsEnumerator()
+        Enumerator.new do |filepaths|
+            Find.find(DxF1::pathToRepository()) do |path|
+                next if path[-8, 8] != ".sqlite3"
+                filepaths << path
+            end
+        end
+    end
+
+    # DxF1Extended::edit(item) # item
     def self.edit(item) # item
         if item["mikuType"] == "TopLevel" then
             return TopLevel::edit(item)
         end
 
-        if item["nx111"] then
-            puts "You are trying to edit a nx111 carrier"
+        if item["nx112"] then
+            puts "You are trying to edit a Nx112"
             puts "Follow: 9e0705fc-8637-47f9-9bce-29df79d05292"
             exit
             return TheIndex::getItemOrNull(uuid)
@@ -310,40 +355,129 @@ class Fx256
     end
 end
 
-class FxSynchronisation
-    # FxSynchronisation::sync()
-    def self.sync()
+class DxF1sAtStargateCentral
 
-        DxPureFileManagement::bufferOutFilepathsEnumerator().each{|dxBufferOutFilepath|
-            sha1 = File.basename(dxBufferOutFilepath).gsub(".sqlite3", "")
-            eGridFilepath = DxPureFileManagement::energyGridDriveFilepath(sha1)
-            if File.exists?(eGridFilepath) then
-                eGridSha1 = Digest::SHA1.file(eGridFilepath).hexdigest
-                if File.basename(eGridFilepath) != "#{eGridSha1}.sqlite3" then
-                puts "FxSynchronisation::sync()"
-                    puts "    I am trying to move #{dxBufferOutFilepath}"
-                    puts "    I found #{eGridFilepath}"
-                    puts "    #{eGridFilepath} has a sha1 of #{eGridSha1}"
-                    puts "    Which is an irregularity 🤔"
-                    puts "    Exit"
-                    exit
-                end
-            else
-                puts "FxSynchronisation::sync() copy"
-                puts "    #{dxBufferOutFilepath}"
-                puts "    #{eGridFilepath}"
-                FileUtils.cp(dxBufferOutFilepath, eGridFilepath)
+    # DxF1sAtStargateCentral::dxF1Filepath(objectuuid)
+    def self.dxF1Filepath(objectuuid)
+        StargateCentral::ensureCentral()
+        sha1 = Digest::SHA1.hexdigest(objectuuid)
+        folderpath = "#{StargateCentral::pathToCentral()}/DxF1s/#{sha1[0, 2]}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{sha1}.dxf1.sqlite3"
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob)", [])
+            db.close
+        end
+        filepath
+    end
+
+    # DxF1sAtStargateCentral::localToCentralFilePropagation(filepath1, filepath2)
+    def self.localToCentralFilePropagation(filepath1, filepath2)
+
+        puts "DxF1sAtStargateCentral::localToCentralFilePropagation(filepath1, filepath2)"
+        puts "    - #{filepath1}"
+        puts "    - #{filepath2}"
+
+        db1 = SQLite3::Database.new(filepath1)
+        db1.busy_timeout = 117
+        db1.busy_handler { |count| true }
+        db1.results_as_hash = true
+
+        db2 = SQLite3::Database.new(filepath2)
+        db2.busy_timeout = 117
+        db2.busy_handler { |count| true }
+        db2.results_as_hash = true
+
+        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
+        db1.execute("select * from _dxf1_ order by _eventTime_", []) do |row|
+
+            # create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob);
+
+            objectuuid = row["_objectuuid_"]
+            eventuuid  = row["_eventuuid_"]
+            eventTime  = row["_eventTime_"]
+            eventType  = row["_eventType_"]
+            attname    = row["_name_"]
+            attvalue   = row["_value_"]
+
+            if objectuuid.nil? then
+                raise "(error: 5f8d7d27-d85d-44f6-a009-66c455662b70)"
             end
-            xcacheFilepath = DxPureFileManagement::xcacheFilepath(sha1)
-            if !File.exists?(xcacheFilepath) then
-                puts "FxSynchronisation::sync() copy"
-                puts "    #{dxBufferOutFilepath}"
-                puts "    #{xcacheFilepath}"
-                FileUtils.cp(dxBufferOutFilepath, xcacheFilepath)
+            if eventuuid.nil? then
+                raise "(error: c7f1e621-ca91-4aec-93eb-69696255f5c3)"
             end
-            puts "FxSynchronisation::sync() deleting"
-            puts "    #{dxBufferOutFilepath}"
-            FileUtils.rm(dxBufferOutFilepath)
+            if eventTime.nil? then
+                raise "(error: 66d59d04-7588-4fb8-af01-e13500bba102)"
+            end
+            if attname.nil? then
+                raise "(error: 3eb066bd-6881-4efa-a1f7-326ea51701b5)"
+            end
+            if attvalue.nil? then
+                raise "(error: b4917158-4902-47d3-979c-4587bb195ee3)"
+            end
+
+            isPresent = false
+            db2.execute("select count(*) as _count_ from _dxf1_ where _eventuuid_=?", [eventuuid]) do |row|
+                count = row["_count_"]
+                isPresent = (count > 0)
+            end
+            next if isPresent
+
+            puts "    insert eventuuid: #{eventuuid} @ #{filepath2}"
+
+            # db2.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid] # We do not need to delete if we did the isPresent check
+            db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, attvalue]
+
+        end
+
+        db2.close
+
+        # By now all the events have been propagated.
+        # We are now going to delete the datablobs on local and vacuum the file if needed
+
+        hasDatablobs = false
+        db1.execute("select count(*) as _count_ from _dxf1_ where _eventType_=?", ["datablob"]) do |row|
+            count = row["_count_"]
+            hasDatablobs = (count > 0)
+        end
+        
+        if hasDatablobs then
+            puts "    removing datablobs from #{filepath1}"
+            db1.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
+            db1.execute "vacuum", []
+        end
+
+        db1.close
+    end
+
+    # DxF1sAtStargateCentral::sync()
+    def self.sync()
+        StargateCentral::ensureCentral()
+        DxF1Extended::dxF1sFilepathsEnumerator().each{|filepath1|
+            objectuuid = DxF1::getAttributeAtFile(filepath1, "uuid")
+            filepath2 = DxF1sAtStargateCentral::dxF1Filepath(objectuuid)
+            DxF1sAtStargateCentral::localToCentralFilePropagation(filepath1, filepath2)
         }
+    end
+
+    # DxF1sAtStargateCentral::getDatablobOrNull(objectuuid, nhash)
+    def self.getDatablobOrNull(objectuuid, nhash)
+        db = SQLite3::Database.new(DxF1sAtStargateCentral::dxF1Filepath(objectuuid))
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
+        db.execute("select * from _dxf1_ where _name_=? order by _eventTime_", [nhash]) do |row|
+            blob = row["_value_"]
+        end
+        db.close
+        blob
     end
 end

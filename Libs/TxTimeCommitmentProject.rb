@@ -28,10 +28,11 @@ class TxTimeCommitmentProjects
         uuid = SecureRandom.uuid
 
         if LucilleCore::askQuestionAnswerAsBoolean("Singleton item ? ") then
-            nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
+            cx = Cx::interactivelyCreateNewCxForOwnerOrNull(uuid)
+            nx112 = cx ? cx["uuid"] : nil
         else
             puts "You have chosen to build an owner, not asking for contents"
-            nx111 = nil
+            nx112 = nil
         end
 
         ax39 = Ax39::interactivelyCreateNewAx()
@@ -42,10 +43,10 @@ class TxTimeCommitmentProjects
         DxF1::setAttribute2(uuid, "unixtime",     unixtime)
         DxF1::setAttribute2(uuid, "datetime",     datetime)
         DxF1::setAttribute2(uuid, "description",  description)
-        DxF1::setAttribute2(uuid, "nx111",        nx111)
+        DxF1::setAttribute2(uuid, "nx112",        nx112)
         DxF1::setAttribute2(uuid, "elementuuids", [])
         DxF1::setAttribute2(uuid, "ax39",         ax39)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 058e5a67-7fbe-4922-b638-2533428ee019) How did that happen ? 🤨"
@@ -88,14 +89,11 @@ class TxTimeCommitmentProjects
 
     # TxTimeCommitmentProjects::elements(owner, count)
     def self.elements(owner, count)
-        OwnerMapping::owneruuidToElementsuuids(owner["uuid"]).uniq
-            .first(count)
-            .map{|elementuuid|  
-                element = TheIndex::getItemOrNull(elementuuid)
-                if element.nil? then
-                    OwnerMapping::detach(owner["uuid"], elementuuid)
-                end
-                element
+        OwnerMapping::owneruuidToElementsuuids(owner["uuid"])
+            .uniq
+            .first(count*10)
+            .map{|elementuuid|
+                TheIndex::getItemOrNull(elementuuid)
             }
             .compact
             .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
@@ -113,7 +111,9 @@ class TxTimeCommitmentProjects
 
     # TxTimeCommitmentProjects::landing(item)
     def self.landing(item)
-        Landing::implementsNx111Landing(item, false)
+        puts "TODO: 02:50"
+        exit
+        nil
     end
 
     # TxTimeCommitmentProjects::access(item)
@@ -121,29 +121,29 @@ class TxTimeCommitmentProjects
         system("clear")
         elements = TxTimeCommitmentProjects::elements(item, 50)
 
-        if item["nx111"] and elements.size > 0 then
+        if item["nx112"] and elements.size > 0 then
             puts "Accessing '#{TxTimeCommitmentProjects::toString(item).green}}'"
-            aspect = LucilleCore::selectEntityFromListOfEntitiesOrNull("aspect", ["access own Nx111", "elements listing"])
+            aspect = LucilleCore::selectEntityFromListOfEntitiesOrNull("aspect", ["carrier", "elements listing"])
             return if aspect.nil?
-            if aspect == "access own Nx111" then
+            if aspect == "carrier" then
                 LxAction::action("start", item)
-                Nx111::access(item, item["nx111"])
+                Cx::access(item["nx112"])
             end
             if aspect == "elements listing" then
                 Catalyst::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
             end
         end
 
-        if item["nx111"].nil? and elements.size > 0 then
+        if item["nx112"].nil? and elements.size > 0 then
             Catalyst::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
         end
 
-        if item["nx111"] and elements.size == 0 then
+        if item["nx112"] and elements.size == 0 then
             LxAction::action("start", item)
-            Nx111::access(item, item["nx111"])
+            Cx::access(item["nx112"])
         end
 
-        if item["nx111"].nil? and elements.size == 0 then
+        if item["nx112"].nil? and elements.size == 0 then
             LxAction::action("start", item)
         end
     end
@@ -160,7 +160,7 @@ class TxTimeCommitmentProjects
             items = TxTimeCommitmentProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
             break if item.nil?
-            Landing::implementsNx111Landing(item, isSearchAndSelect = false)
+            LxAction::action("landing", item)
         }
     end
 
@@ -280,11 +280,12 @@ class TxTimeCommitmentProjects
         end
         owner = TxTimeCommitmentProjects::architectOneOrNull()
         return if owner.nil?
+        puts JSON.pretty_generate(owner)
         OwnerMapping::issue(owner["uuid"], element["uuid"])
         NxBallsService::close(element["uuid"], true)
     end
 
-    # TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(element)
+    # TxTimeCommitmentProjects::interactivelyProposeToAttachThisElementToOwner(element)
     def self.interactivelyProposeToAttachThisElementToOwner(element)
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to an owner ? ") then
             owner = TxTimeCommitmentProjects::architectOneOrNull()

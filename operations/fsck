@@ -4,4 +4,18 @@
 
 require_relative "../Libs/loader.rb"
 
-FileSystemCheck::fsckErrorAtFirstFailure()
+runhash = 
+    if LucilleCore::askQuestionAnswerAsBoolean("Use current runhash ? (the alternative is to issue a new one) ", true) then
+        r = XCache::getOrNull("371dbc1d-8fbc-498b-ac98-d17d978cfdbf")
+        if r.nil? then
+            r = SecureRandom.hex
+            XCache::set("371dbc1d-8fbc-498b-ac98-d17d978cfdbf", r)
+        end
+        r
+    else
+        r = SecureRandom.hex
+        XCache::set("371dbc1d-8fbc-498b-ac98-d17d978cfdbf", r)
+        r
+    end
+
+FileSystemCheck::fsckErrorAtFirstFailure(runhash, false)

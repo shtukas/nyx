@@ -54,7 +54,6 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxPureBufferOut")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared/shared-config.json")
 
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3"
@@ -195,12 +194,19 @@ require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Commands.rb"
 
+require_relative "CxText.rb"
+require_relative "CxUniqueString.rb"
+require_relative "CxUrl.rb"
+require_relative "CxAionPoint.rb"
+require_relative "CxFile.rb"
+require_relative "CxDx8Unit.rb"
+require_relative "Cx.rb"
+
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
-require_relative "DxPure.rb"
 require_relative "DxF1s.rb"
 
 require_relative "DxLine.rb"
@@ -209,6 +215,7 @@ require_relative "DxUniqueString.rb"
 require_relative "DxUrl.rb"
 require_relative "DxAionPoint.rb"
 require_relative "DxFile.rb"
+require_relative "Dx.rb"
 
 require_relative "Galaxy.rb"
 
@@ -226,8 +233,6 @@ require_relative "LinkedNavigation.rb"
 
 require_relative "Machines.rb"
 
-require_relative "NxDataNodes.rb"
-require_relative "Nx111.rb"
 require_relative "NxTimelines.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
@@ -254,7 +259,6 @@ require_relative "StargateCentral.rb"
 require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"
 
-require_relative "Transmutation.rb"
 require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
 require_relative "TopLevel.rb"

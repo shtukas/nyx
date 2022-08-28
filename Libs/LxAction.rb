@@ -20,7 +20,8 @@ class LxAction
 
         if command == ">nyx" then
             NxBallsService::close(item["uuid"], true)
-            Transmutation::transmutation1(item, item["mikuType"], "NxDataNode")
+            puts "TODO"
+            exit
             return
         end
 
@@ -89,6 +90,22 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "Wave" then
+                LxAction::action("start", item)
+                LxAction::action("access", item)
+                if LucilleCore::askQuestionAnswerAsBoolean("done '#{LxFunction::function("toString", item).green}' ? ") then
+                    Waves::performWaveNx46WaveDone(item)
+                    LxAction::action("stop", item)
+                else
+                    if LucilleCore::askQuestionAnswerAsBoolean("continue ? ") then
+                        return
+                    else
+                        LxAction::action("stop", item)
+                    end
+                end
+                return
+            end
+
             raise "(.. action not implemented for mikuType: #{item["mikuType"]})"
 
             return
@@ -153,13 +170,8 @@ class LxAction
                 return
             end
 
-            if Iam::implementsNx111(item) then
-                puts LxFunction::function("toString", item).green
-                if item["nx111"].nil? then
-                    LucilleCore::pressEnterToContinue()
-                    return
-                end
-                Nx111::access(item, item["nx111"])
+            if item["mikuType"] == "Wave" then
+                Waves::access(item)
                 return
             end
 
@@ -305,11 +317,6 @@ class LxAction
 
         if command == "stop" then
             NxBallsService::close(item["uuid"], true)
-            return
-        end
-
-        if command == "transmute" then
-            Transmutation::transmutationToInteractivelySelectedTargetType(item)
             return
         end
 

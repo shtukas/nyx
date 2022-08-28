@@ -20,7 +20,7 @@ class NxTasks
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
+        cx = Cx::interactivelyCreateNewCxForOwnerOrNull(uuid)
         ax39 = nil
         if shouldPromptForTimeCommitment and LucilleCore::askQuestionAnswerAsBoolean("Attach a Ax39 (time commitment) ? ", false) then
             ax39 = Ax39::interactivelyCreateNewAxOrNull()
@@ -30,9 +30,9 @@ class NxTasks
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx111",       nx111) # possibly null
-        DxF1::setAttribute2(uuid, "ax39",        ax39) # possibly null
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        DxF1::setAttribute2(uuid, "nx112",       cx ? cx["uuid"] : nil)
+        DxF1::setAttribute2(uuid, "ax39",        ax39)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
@@ -44,18 +44,14 @@ class NxTasks
     def self.issueViennaURL(url)
         uuid        = SecureRandom.uuid
         description = "(vienna) #{url}"
-        nx111 = {
-            "uuid" => SecureRandom.uuid,
-            "type" => "url",
-            "url"  => url
-        }
+        ownee = CxUrl::issueNewForOwner(uuid, url)
         DxF1::setAttribute2(uuid, "uuid",        uuid)
         DxF1::setAttribute2(uuid, "mikuType",    "NxTask")
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        DxF1::setAttribute2(uuid, "nx112",       ownee["uuid"])
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: f78008bf-12d4-4483-b4bb-96e3472d46a2) How did that happen ? 🤨"
@@ -70,14 +66,14 @@ class NxTasks
         end
         description = File.basename(location)
         uuid = SecureRandom.uuid
-        nx111 = Nx111::locationToNx111DxPureAionPoint(uuid, location)
+        cx = CxAionPoint::issueNewForOwnerOrNull(uuid, location)
         DxF1::setAttribute2(uuid, "uuid",        uuid)
         DxF1::setAttribute2(uuid, "mikuType",    "NxTask")
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx111",       nx111) # possibly null, in principle, although not in the case of a location
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        DxF1::setAttribute2(uuid, "nx112",       cx ? cx["uuid"] : nil) # possibly null, in principle, although not in the case of a location
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 7938316c-cb54-4d60-a480-f161f19718ef) How did that happen ? 🤨"
@@ -85,17 +81,15 @@ class NxTasks
         item
     end
 
-    # NxTasks::issueDescriptionOnlyNoNx111(description)
-    def self.issueDescriptionOnlyNoNx111(description)
+    # NxTasks::issueDescriptionOnly(description)
+    def self.issueDescriptionOnly(description)
         uuid  = SecureRandom.uuid
-        nx111 = nil
         DxF1::setAttribute2(uuid, "uuid",        uuid)
         DxF1::setAttribute2(uuid, "mikuType",    "NxTask")
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 5ea6abff-1007-4bd5-ab61-bde26c621a8b) How did that happen ? 🤨"
@@ -109,9 +103,8 @@ class NxTasks
     # NxTasks::toString(item)
     def self.toString(item)
         builder = lambda{
-            nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : " (line)"
             ax39str = item["ax39"] ? " #{Ax39::toString(item)}" : ""
-            "(task)#{nx111String} #{item["description"]}#{ax39str}"
+            "(task)#{Cx::uuidToString(item["nx112"])} #{item["description"]}#{ax39str}"
         }
         builder.call()
     end
@@ -149,5 +142,15 @@ class NxTasks
     # NxTasks::topUnixtime()
     def self.topUnixtime()
         ([Time.new.to_f] + NxTasks::items().map{|item| item["unixtime"] }).min - 1
+    end
+
+    # --------------------------------------------------
+    # Operations
+
+    # NxTasks::landing(item, isSearchAndSelect)
+    def self.landing(item, isSearchAndSelect)
+        puts "landing:"
+        puts JSON.pretty_generate(item)
+        LucilleCore::pressEnterToContinue()
     end
 end

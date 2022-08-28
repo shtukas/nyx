@@ -22,7 +22,7 @@ class TxIncomings
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "line",        line)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         raise "(error: 23934808-2c52-439b-abc0-6c34cf5c854a) How did that happen?" if item.nil?
         item

@@ -4,7 +4,7 @@ NxEvent:
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu [1]
     "description" : String
-    "nx111"       : Nx111
+    "nx112"       : String
 
 
 [1] This datetime is particularly important as the datetime of the event

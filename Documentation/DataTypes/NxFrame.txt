@@ -4,4 +4,4 @@ NxFrame:
     "unixtime"    : Float
     "datetime"    : DateTime Iso8601
     "description" : String
-    "nx111"       : null or Nx111
+    "nx112"       : String

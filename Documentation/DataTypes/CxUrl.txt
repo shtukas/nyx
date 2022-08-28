@@ -1,0 +1,7 @@
+CxUrl:
+    "uuid"        : uuid
+    "mikuType"    : "CxUrl"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "owneruuid"   : String
+    "url"         : String

@@ -7,7 +7,6 @@ class Nyx
     def self.nyxNodes()
         [
             NxConcepts::items(),
-            NxDataNodes::items(),
             NxEntities::items(),
             NxEvents::items(),
             NxPersons::items(),
@@ -21,11 +20,26 @@ class Nyx
 
     # Nyx::interactivelyMakeNewOrNull() # objectuuid or null
     def self.interactivelyMakeNewOrNull()
-        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", ["NxDataNode"] + Iam::aggregationTypes())
+        action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", Iam::nyxNetworkTypes())
         return if action.nil?
 
-        if action == "NxDataNode" then
-            return NxDataNodes::interactivelyIssueNewItemOrNull()
+        if action == "DxLine" then
+            return DxLine::interactivelyIssueNewOrNull()
+        end
+        if action == "DxUrl" then
+            return DxUrl::interactivelyIssueNewOrNull()
+        end
+        if action == "DxText" then
+            return DxText::interactivelyIssueNew()
+        end
+        if action == "DxFile" then
+            return DxFile::interactivelyIssueNewOrNull()
+        end
+        if action == "DxAionPoint" then
+            return DxAionPoint::interactivelyIssueNewOrNull()
+        end
+        if action == "DxUniqueString" then
+            return DxUniqueString::interactivelyIssueNew()
         end
         if action == "NxPerson" then
             return NxPersons::interactivelyIssueNewOrNull()

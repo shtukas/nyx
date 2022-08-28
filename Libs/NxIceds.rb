@@ -18,8 +18,7 @@ class NxIceds
     # NxIceds::toString(item)
     def self.toString(item)
         builder = lambda{
-            nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-            "(iced) #{item["description"]}#{nx111String}"
+            "(iced) #{item["description"]}#{Cx::uuidToString(item["nx112"])}"
         }
         builder.call()
     end

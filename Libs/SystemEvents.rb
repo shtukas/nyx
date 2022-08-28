@@ -114,30 +114,6 @@ class SystemEvents
                     FileUtils.rm(filepath1)
                     next
                 end
-
-                if File.basename(filepath1)[-8, 8] == ".sqlite3" then
-                    # Having already considered DxF1 files, we are going to assume that this one is a DxPure
-
-                    if verbose then
-                        puts "SystemEvents::processCommsLine: DxPure file: #{File.basename(filepath1)}"
-                    end
-
-                    sha1 = Digest::SHA1.file(filepath1).hexdigest
-                    if File.basename(filepath1) != "#{sha1}.sqlite3" then
-                        puts "SystemEvents::processCommsLine: DxPure file: #{File.basename(filepath1)}"
-                        puts "The file has #{sha1}, which is an anomalie."
-                        next
-                    end
-
-                    # We move the file to the BufferOut
-                    filepath2 = DxPureFileManagement::bufferOutFilepath(sha1)
-                    FileUtils.cp(filepath1, filepath2)
-
-                    # and we copy it to XCache
-                    DxPureFileManagement::dropDxPureFileInXCache(filepath1)
-
-                    FileUtils.rm(filepath1)
-                end
             }
     end
 

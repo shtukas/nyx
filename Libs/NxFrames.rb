@@ -20,7 +20,7 @@ class NxFrames
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid
-        nx111 = Nx111::interactivelyCreateNewNx111OrNull(uuid)
+        cx = Cx::interactivelyCreateNewCxForOwnerOrNull(uuid)
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         DxF1::setAttribute2(uuid, "uuid",        uuid)
@@ -28,8 +28,8 @@ class NxFrames
         DxF1::setAttribute2(uuid, "unixtime",    unixtime)
         DxF1::setAttribute2(uuid, "datetime",    datetime)
         DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx111",       nx111)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        DxF1::setAttribute2(uuid, "nx112",       cx ? cx["uuid"] : nil)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: b63ae301-b0a1-47da-a445-8c53a457d0fe) How did that happen ? 🤨"
@@ -42,8 +42,7 @@ class NxFrames
 
     # NxFrames::toString(item)
     def self.toString(item)
-        nx111String = item["nx111"] ? " (#{Nx111::toStringShort(item["nx111"])})" : ""
-        "(frame) #{item["description"]}#{nx111String}"
+        "(frame) #{item["description"]}#{Cx::uuidToString(item["nx112"])}"
     end
 
     # NxFrames::toStringForSearch(item)

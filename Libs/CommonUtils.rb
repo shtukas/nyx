@@ -350,6 +350,11 @@ class CommonUtils
         end
     end
 
+    # CommonUtils::now_iso8601()
+    def self.now_iso8601()
+        Time.new.utc.iso8601
+    end
+
     # CommonUtils::updateDateTimeWithANewDate(datetime, date)
     def self.updateDateTimeWithANewDate(datetime, date)
         datetime = "#{date}#{datetime[10, 99]}"

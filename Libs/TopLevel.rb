@@ -22,7 +22,7 @@ class TopLevel
         DxF1::setAttribute2(uuid, "unixtime", unixtime)
         DxF1::setAttribute2(uuid, "datetime", datetime)
         DxF1::setAttribute2(uuid, "text", text)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: d794e690-2b62-46a1-822b-c8f60d7b4075) How did that happen ? 🤨"

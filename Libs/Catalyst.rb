@@ -34,6 +34,7 @@ class Catalyst
             Streaming::listingItems(),
         ]
             .flatten
+            .select{|item| item["isAlive"].nil? or item["isAlive"] }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
             .select{|item| !OwnerMapping::isOwned(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }

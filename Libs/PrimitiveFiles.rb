@@ -26,19 +26,15 @@ class PrimitiveFiles
     def self.fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
         puts "PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, #{dottedExtension}, #{nhash}, #{parts})"
         if dottedExtension[0, 1] != "." then
-            puts "objectuuid: #{objectuuid}".red
-            puts "nx111: #{nx111}".red
+            puts "dottedExtension: #{dottedExtension}".red
             puts "primitive parts, dotted extension is malformed".red
-            raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
+            raise "(error: 02:36)"
         end
         parts.each{|nhash|
             blob = operator.getBlobOrNull(nhash)
             if blob.nil? then
-                puts "objectuuid: #{objectuuid}".red
-                puts "nx111: #{nx111}".red
-                puts "nhash: #{nhash}".red
                 puts "primitive parts, nhash not found: #{nhash}".red
-                raise "Nx111::fsckNx111NoRepeatErrorAtFirstFailure(objectuuid: #{objectuuid}, nx111: #{nx111})"
+                raise "(error: 02:33)"
             end
         }
     end

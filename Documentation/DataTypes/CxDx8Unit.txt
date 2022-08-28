@@ -1,7 +1,8 @@
-NxIced:
+
+CxDx8Unit:
     "uuid"        : String
-    "mikuType"    : "NxIced"
+    "mikuType"    : "CxDx8Unit"
     "unixtime"    : Float
     "datetime"    : DateTime Iso 8601 UTC Zulu
-    "description" : String
-    "nx112"       : String
+    "owneruuid"   : String
+    "unitId"      : String

@@ -1,0 +1,17 @@
+
+CxFile:
+    "uuid"            : uuid
+    "mikuType"        : "CxFile"
+    "unixtime"        : unixtime
+    "datetime"        : DateTime Iso 8601 UTC Zulu
+    "owneruuid"       : String
+    "dottedExtension" : String
+    "nhash"           : String
+    "parts"           : Array[String]
+    (datablobs)
+
+
+
+
+
+
