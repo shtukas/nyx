@@ -73,9 +73,47 @@ class SystemEvents
                 # on data that is still old.
                 TheIndex::updateIndexAtObjectAttempt(objectuuid)
             rescue
-
             end
         end
+    end
+
+    # SystemEvents::broadcastAllData()
+    def self.broadcastAllData()
+        # --------------------------------------------------------------------------
+        # DxF1 data
+
+        filepath2 = "/tmp/#{SecureRandom.hex}.sqlite3"
+        db2 = SQLite3::Database.new(filepath2)
+        db2.busy_timeout = 117
+        db2.busy_handler { |count| true }
+        db2.results_as_hash = true
+        db2.execute("create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob)", [])
+        root = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s"
+        Find.find(root) do |filepath1|
+            next if File.basename(filepath1)[-8, 8] != ".sqlite3"
+            db1 = SQLite3::Database.new(filepath1)
+            db1.busy_timeout = 117
+            db1.busy_handler { |count| true }
+            db1.results_as_hash = true
+            db1.execute("select * from _dxf1_ where _eventType_=?", ["attribute"]) do |row|
+                objectuuid = row["_objectuuid_"]
+                eventuuid  = row["_eventuuid_"]
+                eventTime  = row["_eventTime_"]
+                eventType  = row["_eventType_"]
+                attname    = row["_name_"]
+                attvalue   = JSON.parse(row["_value_"])
+                db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, JSON.generate(attvalue)]
+            end
+            db1.close
+        end
+        db2.close
+        Machines::theOtherInstanceIds().each{|targetInstanceId|
+            filepath3 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.dxf1.sqlite3"
+            FileUtils.cp(filepath2, filepath3)
+        }
+
+        # --------------------------------------------------------------------------
+        # 
     end
 
     # SystemEvents::broadcast(event)
@@ -110,8 +148,8 @@ class SystemEvents
                 db.busy_timeout = 117
                 db.busy_handler { |count| true }
                 db.results_as_hash = true
-                db1.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
-                db1.execute "vacuum", []
+                db.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
+                db.execute "vacuum", []
                 db.close
             end
         }
