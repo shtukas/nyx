@@ -132,6 +132,9 @@ class SystemEvents
     def self.processCommsLine(verbose)
         # New style. Keep while we process the remaining items
         # We are reading from the instance folder
+
+        updatedObjectuuids = []
+
         instanceId = Config::get("instanceId")
         LucilleCore::locationsAtFolder("#{Config::starlightCommsLine()}/#{instanceId}")
             .each{|filepath1|
@@ -152,8 +155,6 @@ class SystemEvents
                     if verbose then
                         puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
                     end
-
-                    updatedObjectuuids = []
 
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
@@ -189,13 +190,13 @@ class SystemEvents
                     end
                     db1.close
 
-                    updatedObjectuuids.each{|objectuuid| TheIndex::updateIndexAtObjectAttempt(objectuuid) }
-
                     FileUtils.rm(filepath1)
                     next
                 end
 
                 raise "(error: 600967d9-e9d4-4612-bf62-f8cc4f616fd1) I do not know how to process file: #{filepath1}"
             }
+
+        updatedObjectuuids.each{|objectuuid| TheIndex::updateIndexAtObjectAttempt(objectuuid) }
     end
 end
