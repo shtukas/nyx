@@ -49,9 +49,6 @@ class DxF1
         if attname.nil? then
             raise "(error: 0b103332-556d-4043-9cdd-81cf70b7a289)"
         end
-        if attvalue.nil? then
-            raise "(error: db06a417-68d1-471d-888f-9e497b268750)"
-        end
 
         filepath = DxF1::filepath(objectuuid)
         db = SQLite3::Database.new(filepath)
@@ -59,20 +56,30 @@ class DxF1
         db.busy_handler { |count| true }
         db.results_as_hash = true
         db.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
-        db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attname, attvalue]
+        db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attname, JSON.generate(attvalue)]
         db.close
 
-        TheIndex::updateIndexAtObjectAttempt(objectuuid)
+        SystemEvents::broadcast({
+            "mikuType"   => "AttributeUpdate",
+            "objectuuid" => objectuuid,
+            "eventuuid"  => eventuuid,
+            "eventTime"  => eventTime,
+            "attname"    => attname,
+            "attvalue"   => attvalue
+        })
+
         Mercury2::put("e0fba9fd-c00b-4d0c-b884-4f058ef87653", {
             "unixtime"   => Time.new.to_i,
             "objectuuid" => objectuuid
         })
+
+        TheIndex::updateIndexAtObjectAttempt(objectuuid)
     end
 
     # DxF1::setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.setAttribute1(objectuuid, eventuuid, eventTime, attname, attvalue)
         puts "DxF1::setAttribute1(#{objectuuid}, #{eventuuid}, #{eventTime}, #{attname}, #{attvalue})"
-        DxF1::setAttribute0(objectuuid, eventuuid, eventTime, attname, JSON.generate(attvalue))
+        DxF1::setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
     end
 
     # DxF1::setAttribute2(objectuuid, attname, attvalue)

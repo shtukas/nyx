@@ -97,3 +97,12 @@ We have two types of events
     "mikuType"   => "(element has been done for today)",
     "objectuuid" => objectuuid,
 }
+
+{
+    "mikuType"   => "AttributeUpdate",
+    "objectuuid" => objectuuid,
+    "eventuuid"  => String
+    "eventTime"  => Float
+    "attname"    => string
+    "attvalue"   => value
+}
