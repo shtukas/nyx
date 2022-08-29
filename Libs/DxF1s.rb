@@ -402,7 +402,7 @@ class DxF1Extended
                     "eventuuids" => DxF1::eventuuids(filepath)
                 }
             }
-            .select{|nx1915| !nx1915["objectuuid"].nil? }
+            .select{|nx1915| !nx1915["objectuuid"].nil? } # I think I have at least one DxF1 file with no uuid
     end
 
     # DxF1Extended::nx1915Wanted(remoteNx1915s)
