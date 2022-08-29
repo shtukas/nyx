@@ -407,13 +407,15 @@ class DxF1Extended
 
     # DxF1Extended::nx1915Wanted(remoteNx1915s)
     def self.nx1915Wanted(remoteNx1915s)
-        remoteNx1915s.map{|nx1915|
-            objectuuid = nx1915["objectuuid"]
-            {
-                "objectuuid" => objectuuid,
-                "eventuuids" => nx1915["eventuuids"] - DxF1::eventuuids2(objectuuid)
+        remoteNx1915s
+            .map{|nx1915|
+                objectuuid = nx1915["objectuuid"]
+                {
+                    "objectuuid" => objectuuid,
+                    "eventuuids" => nx1915["eventuuids"] - DxF1::eventuuids2(objectuuid)
+                }
             }
-        }
+            .select{|nx1915| nx1915["eventuuids"].size > 0 }
     end
 end
 
