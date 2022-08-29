@@ -33,6 +33,12 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "NxIced" then
+                LxAction::action("start", item)
+                LxAction::action("access", item)
+                return
+            end
+
             if item["mikuType"] == "TxDated" then
                 LxAction::action("start", item)
                 LxAction::action("access", item)
@@ -124,6 +130,16 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "CxAionPoint" then
+                CxAionPoint::access(item)
+                return
+            end
+
+            if item["mikuType"] == "CxFile" then
+                CxFile::access(item)
+                return
+            end
+
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::access(item)
                 return
@@ -135,6 +151,11 @@ class LxAction
                         NxBallsService::close(item["uuid"], true)
                     end
                 end
+                return
+            end
+
+            if item["mikuType"] == "NxIced" then
+                Nx112::carrierAccess(item)
                 return
             end
 

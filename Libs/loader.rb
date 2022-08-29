@@ -246,6 +246,7 @@ require_relative "NxEntities.rb"
 require_relative "NxConcepts.rb"
 require_relative "NxIceds.rb"
 require_relative "NetworkLinks.rb"
+require_relative "Nx112.rb"
 
 require_relative "OwnerMapping.rb"
 

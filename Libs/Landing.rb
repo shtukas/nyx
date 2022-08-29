@@ -54,6 +54,9 @@ class Landing
             TopLevel::access(item)
             return nil
         end
+        if item["mikuType"] == "NxIced" then
+            return NxIceds::landing(item, isSearchAndSelect)
+        end
         if item["mikuType"] == "NxLine" then
             puts "landing:"
             puts JSON.pretty_generate(item)
