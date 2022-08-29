@@ -157,4 +157,34 @@ class NetworkLinks
             NetworkLinks::unlink(item["uuid"], entity["uuid"])
         }
     end
+
+    # NetworkLinks::linkToArchitectured(item)
+    def self.linkToArchitectured(item)
+        item2 = Nyx::architectOneOrNull()
+        return if item2.nil?
+        NetworkLinks::link(item["uuid"], item2["uuid"])
+    end
+
+    # Landing::selectOneLinkedAndUnlink(item)
+    def self.selectOneLinkedAndUnlink(item)
+        store = ItemStore.new()
+
+        NetworkLinks::linkeduuids(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+            .each{|entityuuid|
+                entity = TheIndex::getItemOrNull(entityuuid)
+                next if entity.nil?
+                indx = store.register(entity, false)
+                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+            }
+
+        i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")
+
+        return if i == ""
+
+        if (indx = Interpreting::readAsIntegerOrNull(i)) then
+            entity = store.get(indx)
+            return if entity.nil?
+            NetworkLinks::unlink(item["uuid"], entity["uuid"])
+        end
+    end
 end

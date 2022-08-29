@@ -55,7 +55,7 @@ class Commands
         end
 
         if Interpreting::match("access", input) then
-            LxAction::action("access", store.getDefault())
+            LxAccess::access(store.getDefault())
             return
         end
 
@@ -63,7 +63,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("access", item)
+            LxAccess::access(item)
             return
         end
 

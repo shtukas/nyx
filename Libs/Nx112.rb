@@ -19,6 +19,6 @@ class Nx112
             LucilleCore::pressEnterToContinue()
             return
         end
-        LxAction::action("access", target)
+        LxAccess::access(target)
     end
 end

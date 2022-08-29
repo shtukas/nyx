@@ -171,12 +171,6 @@ class Waves
 
     # -------------------------------------------------------------------------
 
-    # Waves::access(item)
-    def self.access(item)
-        puts Waves::toString(item).green
-        Cx::access(item["nx112"])
-    end
-
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"

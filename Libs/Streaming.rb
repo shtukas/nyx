@@ -13,7 +13,7 @@ class Streaming
     def self.runItem(item)
         puts LxFunction::function("toString", item).green
         LxAction::action("start", item)
-        LxAction::action("access", item)
+        LxAccess::access(item)
         firstLoop = true
         loop {
             if !firstLoop then
@@ -22,7 +22,7 @@ class Streaming
             firstLoop = false
             command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >owner, >nyx, nyx: ")
             if command == "access" then
-                LxAction::action("access", item)
+                LxAccess::access(item)
                 next
             end
             if command == "done" then
@@ -77,7 +77,7 @@ class Streaming
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
             if command == "access" then
-                LxAction::action("access", item)
+                LxAccess::access(item)
                 next
             end
             if command == "landing" then

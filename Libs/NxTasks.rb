@@ -143,14 +143,4 @@ class NxTasks
     def self.topUnixtime()
         ([Time.new.to_f] + NxTasks::items().map{|item| item["unixtime"] }).min - 1
     end
-
-    # --------------------------------------------------
-    # Operations
-
-    # NxTasks::landing(item, isSearchAndSelect)
-    def self.landing(item, isSearchAndSelect)
-        puts "landing:"
-        puts JSON.pretty_generate(item)
-        LucilleCore::pressEnterToContinue()
-    end
 end

@@ -29,19 +29,19 @@ class LxAction
             ## .. performs the optimal sequence for this item
 
             if item["mikuType"] == "fitness1" then
-                LxAction::action("access", item)
+                LxAccess::access(item)
                 return
             end
 
             if item["mikuType"] == "NxIced" then
                 LxAction::action("start", item)
-                LxAction::action("access", item)
+                LxAccess::access(item)
                 return
             end
 
             if item["mikuType"] == "TxDated" then
                 LxAction::action("start", item)
-                LxAction::action("access", item)
+                LxAccess::access(item)
                 loop {
                     actions = ["keep running and back to listing", "stop and back to listing", "stop and destroy"]
                     action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
@@ -64,7 +64,7 @@ class LxAction
 
             if item["mikuType"] == "TxIncoming" then
                 LxAction::action("start", item)
-                LxAction::action("access", item)
+                LxAccess::access(item)
                 actions = ["destroy", "transmute to task and get owner", "do not display until"]
                 action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
                 if action.nil? then
@@ -98,7 +98,7 @@ class LxAction
 
             if item["mikuType"] == "Wave" then
                 LxAction::action("start", item)
-                LxAction::action("access", item)
+                LxAccess::access(item)
                 if LucilleCore::askQuestionAnswerAsBoolean("done '#{LxFunction::function("toString", item).green}' ? ") then
                     Waves::performWaveNx46WaveDone(item)
                     LxAction::action("stop", item)
@@ -115,91 +115,6 @@ class LxAction
             raise "(.. action not implemented for mikuType: #{item["mikuType"]})"
 
             return
-        end
-
-        if command == "access" then
-
-            if item["mikuType"] == "fitness1" then
-                puts LxFunction::function("toString", item).green
-                system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
-                return
-            end
-
-            if item["mikuType"] == "(rstream-to-target)" then
-                Streaming::icedStreamingToTarget()
-                return
-            end
-
-            if item["mikuType"] == "CxAionPoint" then
-                CxAionPoint::access(item)
-                return
-            end
-
-            if item["mikuType"] == "CxFile" then
-                CxFile::access(item)
-                return
-            end
-
-            if item["mikuType"] == "NxAnniversary" then
-                Anniversaries::access(item)
-                return
-            end
-
-            if item["mikuType"] == "NxBall.v2" then
-                if NxBallsService::isRunning(item["uuid"]) then
-                    if LucilleCore::askQuestionAnswerAsBoolean("complete '#{LxFunction::function("toString", item).green}' ? ") then
-                        NxBallsService::close(item["uuid"], true)
-                    end
-                end
-                return
-            end
-
-            if item["mikuType"] == "NxIced" then
-                Nx112::carrierAccess(item)
-                return
-            end
-
-            if item["mikuType"] == "NxLine" then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{LxFunction::function("toString", item).green}' ? ") then
-                    DxF1::deleteObjectLogically(item["uuid"])
-                end
-                return
-            end
-
-            if item["mikuType"] == "TxIncoming" then
-                puts TxIncomings::toString(item)
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-
-            if item["mikuType"] == "TopLevel" then
-                puts LxFunction::function("toString", item).green
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
-                return if action.nil?
-                if action == "access" then
-                    TopLevel::access(item)
-                end
-                if action == "edit" then
-                    TopLevel::edit(item)
-                end
-                return
-            end
-
-            if item["mikuType"] == "TxTimeCommitmentProject" then
-                puts LxFunction::function("toString", item).green
-                TxTimeCommitmentProjects::access(item)
-                return
-            end
-
-            if item["mikuType"] == "Wave" then
-                Waves::access(item)
-                return
-            end
-
-            if Iam::isNetworkAggregation(item) then
-                LinkedNavigation::navigate(item)
-                return
-            end
         end
 
         if command == "done" then
@@ -296,10 +211,10 @@ class LxAction
             end
 
             if ["DxText", "NxAnniversary", "NxIced"].include?(item["mikuType"]) then
-                return Landing::landing_new(item, isSearchAndSelect)
+                return Landing::landing(item, isSearchAndSelect)
             end
 
-            return Landing::landing_old(item, isSearchAndSelect = false)
+            return Landing::landing(item, isSearchAndSelect = false)
         end
 
         if command == "redate" then
