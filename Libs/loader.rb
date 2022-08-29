@@ -190,6 +190,7 @@ require_relative "Ax39.rb"
 require_relative "Bank.rb"
 
 require_relative "Catalyst.rb"
+require_relative "CatalystListing.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "Commands.rb"

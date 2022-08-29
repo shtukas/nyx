@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming | line",
             "anniversaries | ondates | todos | time-commitment-projects | waves | frames | toplevels",
-            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | Ax39 | expose (<n>) | destroy",
+            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | (n) >owner | >nyx",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
@@ -74,19 +74,6 @@ class Commands
 
         if Interpreting::match("anniversaries", input) then
             Anniversaries::anniversariesDive()
-            return
-        end
-
-        if Interpreting::match("Ax39 *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            if !["TxTimeCommitmentProject"].include?(item["mikuType"]) then
-                puts "At the moment, the setting of Ax39s only works on TxTimeCommitmentProjects"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            DxF1::setAttribute2(item["uuid"], "ax39",  Ax39::interactivelyCreateNewAx())
             return
         end
 

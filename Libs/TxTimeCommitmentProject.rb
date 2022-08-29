@@ -167,6 +167,12 @@ class TxTimeCommitmentProjects
                 break
             end
 
+            if command == "ax39"  then
+                ax39 = Ax39::interactivelyCreateNewAx()
+                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
+                return
+            end
+
             if command == "insert" then
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
                 next if type.nil?
