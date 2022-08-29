@@ -267,7 +267,7 @@ class SystemEvents
                         eventTime  = row["_eventTime_"]
                         eventType  = row["_eventType_"]
                         attname    = row["_name_"]
-                        attvalue   = JSON.parse(row["_value_"])
+                        attvalue   = row["_value_"] # We cannot deserialise that, could be a datablob
 
                         next if DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
 
@@ -283,7 +283,7 @@ class SystemEvents
                         db2.results_as_hash = true
                         # I am commenting the next one out because we have checked that the record doesn't exists
                         # db2.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
-                        db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, JSON.generate(attvalue)]
+                        db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, attvalue]
                         db2.close
 
                         updatedObjectuuids << objectuuid
