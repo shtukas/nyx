@@ -85,7 +85,7 @@ class SystemEvents
         end
 
         if event["mikuType"] == "XSyncStep1-93b7" then
-            # We are sending this to tell the recipient what they have
+            # We are sending this to tell the recipient what we have
             callerId = event["sourceId"]
             SystemEvents::sendTo({
                 "mikuType"                  => "XSyncStep2-e6db",

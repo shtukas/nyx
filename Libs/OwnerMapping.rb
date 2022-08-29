@@ -30,6 +30,7 @@ class OwnerMapping
             db = SQLite3::Database.new(OwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
+            db.execute "delete from _mapping_ where _eventuuid_=?", [eventuuid]
             db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, itemuuid, groupuuid, "true"]
             db.close
         }
