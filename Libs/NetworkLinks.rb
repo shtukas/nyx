@@ -193,16 +193,14 @@ class NetworkLinks
     # NetworkLinks::recordOrNull(eventuuid)
     def self.recordOrNull(eventuuid)
         answer = nil
-        $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(NetworkLinks::databaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _link_ where _eventuuid_=?", [eventuuid]) do |row|
-                answer = row.clone
-            end
-            db.close
-        }
+        db = SQLite3::Database.new(NetworkLinks::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _links_ where _eventuuid_=?", [eventuuid]) do |row|
+            answer = row.clone
+        end
+        db.close
         answer
     end
 end
