@@ -169,36 +169,6 @@ class Anniversaries
         LucilleCore::pressEnterToContinue()
     end
 
-    # Anniversaries::landing(item, isSearchAndSelect)
-    def self.landing(item)
-        loop {
-
-            puts Anniversaries::toString(item).green
-
-            puts "description | update start date | destroy".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-            break if command == ""
-
-            if Interpreting::match("description", command) then
-                description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-                return if description == ""
-                DxF1::setAttribute2(item["uuid"], "description", description)
-            end
-
-            if Interpreting::match("update start date", command) then
-                startdate = CommonUtils::editTextSynchronously(item["startdate"])
-                return if startdate == ""
-                DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
-            end
-
-            if Interpreting::match("destroy", command) then
-                DxF1::deleteObjectLogically(item["uuid"])
-                break
-            end
-        }
-    end
-
     # Anniversaries::anniversariesDive()
     def self.anniversariesDive()
         loop {
@@ -206,7 +176,7 @@ class Anniversaries
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?
-            Anniversaries::landing(anniversary)
+            Landing::landing_new(anniversary)
         }
     end
 end

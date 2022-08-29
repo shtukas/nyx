@@ -39,10 +39,10 @@ class Landing
             return TxTimeCommitmentProjects::landing(item, isSearchAndSelect)
         end
         if item["mikuType"] == "DxAionPoint" then
-            return DxAionPoint::landing(item, isSearchAndSelect)
+            return Landing::landing_new(item, isSearchAndSelect)
         end
         if item["mikuType"] == "DxFile" then
-            return DxFile::landing(item, isSearchAndSelect)
+            return Landing::landing_new(item, isSearchAndSelect)
         end
         if item["mikuType"] == "DxLine" then
             return DxLine::landing(item, isSearchAndSelect)
@@ -124,7 +124,15 @@ class Landing
                 end
             end
 
-            commands = ["access", "iam", "<n>", "description", "datetime", "line", "text", "nx112", "json", "link", "unlink", "network-migration", "navigation", "upload", "return (within search)", "destroy"]
+            commands = ["access", "iam", "<n>", "description", "name", "datetime", "line", "text", "nx112", "json", "link", "unlink", "network-migration", "navigation", "upload", "return (within search)", "destroy"]
+
+            if item["mikuType"] == "NxAnniversary" then
+                commands = ["description", "update start date", "destroy"]
+            end
+
+            if item["mikuType"] == "DxFile" then
+                commands = ["access", "description", "json", "destroy"]
+            end
 
             puts "commands: #{commands.join(" | ")}"
 
@@ -146,6 +154,13 @@ class Landing
                 next
             end
 
+            if Interpreting::match("name", command) then
+                name1 = CommonUtils::editTextSynchronously(item["name"]).strip
+                next if name1 == ""
+                DxF1::setAttribute2(item["uuid"], "name", name1)
+                next
+            end
+
             if Interpreting::match("description", command) then
                 description = CommonUtils::editTextSynchronously(item["description"]).strip
                 next if description == ""
@@ -157,6 +172,12 @@ class Landing
                 datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
                 next if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
                 DxF1::setAttribute2(item["uuid"], "datetime", datetime)
+            end
+
+            if Interpreting::match("update start date", command) then
+                startdate = CommonUtils::editTextSynchronously(item["startdate"])
+                return if startdate == ""
+                DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
             end
 
             if Interpreting::match("iam", command) then

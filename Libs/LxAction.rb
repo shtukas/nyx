@@ -295,18 +295,16 @@ class LxAction
                 return
             end
  
-            if item["mikuType"] == "NxAnniversary" then
-                Anniversaries::landing(item, isSearchAndSelect)
-                return
-            end
- 
             if item["mikuType"] == "fitness1" then
                 system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
             end
 
-            Landing::landing_old(item, isSearchAndSelect = false)
-            return
+            if ["NxAnniversary", "NxIced"].include?(item["mikuType"]) then
+                return Landing::landing_new(item, isSearchAndSelect)
+            end
+
+            return Landing::landing_old(item, isSearchAndSelect = false)
         end
 
         if command == "redate" then
