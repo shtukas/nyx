@@ -13,7 +13,7 @@ class Nyx
             DxUniqueString::items(),
             DxUrl::items(),
             NxConcepts::items(),
-            NxCollections::items()
+            NxCollections::items(),
             NxEntities::items(),
             NxEvents::items(),
             NxPersons::items(),
