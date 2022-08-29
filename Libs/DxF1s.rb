@@ -271,6 +271,27 @@ class DxF1
         db.close
         blob
     end
+
+    # DxF1::eventuuids(filepath)
+    def self.eventuuids(filepath)
+        eventuuids = []
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select _eventuuid_ from _dxf1_", []) do |row|
+            eventuuids << row["_eventuuid_"]
+        end
+        db.close
+        eventuuids
+    end
+
+    # DxF1::eventuuids2(objectuuid)
+    def self.eventuuids2(objectuuid)
+        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
+        return [] if filepath.nil?
+        DxF1::eventuuids(filepath)
+    end
 end
 
 class DxF1Elizabeth
@@ -370,6 +391,28 @@ class DxF1Extended
         end
 
         raise "(error: 402f0ee5-4bd1-4b73-a418-d16ac12760ca)"
+    end
+
+    # DxF1Extended::nx1915s()
+    def self.nx1915s()
+        DxF1Extended::dxF1sFilepathsEnumerator()
+            .map{|filepath|
+                {
+                    "objectuuid" => DxF1::getAttributeAtFileOrNull(filepath, "uuid"),
+                    "eventuuids" => DxF1::eventuuids(filepath)
+                }
+            }
+    end
+
+    # DxF1Extended::nx1915Wanted(remoteNx1915s)
+    def self.nx1915Wanted(remoteNx1915s)
+        remoteNx1915s.map{|nx1915|
+            objectuuid = nx1915["objectuuid"]
+            {
+                "objectuuid" => objectuuid,
+                "eventuuids" => nx1915["eventuuids"] - DxF1::eventuuids2(objectuuid)
+            }
+        }
     end
 end
 

@@ -18,8 +18,8 @@ class NetworkLinks
         db.close
     end
 
-    # NetworkLinks::issueNoEvents(sourceuuid, operation, targetuuid)
-    def self.issueNoEvents(sourceuuid, operation, targetuuid)
+    # NetworkLinks::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
+    def self.issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
         raise "(error: 1afe537d-edae-4f87-9615-042b9c43cd05)" if sourceuuid.nil?
         if !["link", "unlink"].include?(operation) then
             raise "(error: 535c3cf7-f93b-43b2-8530-eb892910ceda) operation: #{operation}"
@@ -28,7 +28,7 @@ class NetworkLinks
         db = SQLite3::Database.new(NetworkLinks::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
-        db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, sourceuuid, operation, targetuuid]
+        db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, sourceuuid, operation, targetuuid]
         db.close
     end
 
@@ -37,9 +37,11 @@ class NetworkLinks
         if !["link", "unlink"].include?(operation) then
             raise "(error: cf4cb260-1709-474d-a4f9-3f99f95fdb52) operation: #{operation}"
         end
-        NetworkLinks::issueNoEvents(sourceuuid, operation, targetuuid)
+        eventuuid = SecureRandom.uuid
+        NetworkLinks::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
         SystemEvents::broadcast({
-          "mikuType"  => "NetworkLinks",
+          "mikuType"   => "NetworkLinks",
+          "eventuuid"  => eventuuid,
           "sourceuuid" => sourceuuid,
           "operation"  => operation,
           "targetuuid" => targetuuid
@@ -165,7 +167,7 @@ class NetworkLinks
         NetworkLinks::link(item["uuid"], item2["uuid"])
     end
 
-    # LxLanding::selectOneLinkedAndUnlink(item)
+    # NetworkLinks::selectOneLinkedAndUnlink(item)
     def self.selectOneLinkedAndUnlink(item)
         store = ItemStore.new()
 
@@ -186,5 +188,21 @@ class NetworkLinks
             return if entity.nil?
             NetworkLinks::unlink(item["uuid"], entity["uuid"])
         end
+    end
+
+    # NetworkLinks::recordOrNull(eventuuid)
+    def self.recordOrNull(eventuuid)
+        answer = nil
+        $item_to_group_mapping_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkLinks::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _mapping_ where _eventuuid_=?", [eventuuid]) do |row|
+                answer = row.clone
+            end
+            db.close
+        }
+        answer
     end
 end

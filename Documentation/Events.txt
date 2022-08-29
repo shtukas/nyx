@@ -24,11 +24,12 @@ We have two types of events
 
 {
     "targetInstance" : TargetInstanceName # added by the broadcaster
-    "mikuType" => "NxBankEvent",
-    "setuuid"  => setuuid,
-    "unixtime" => unixtime,
-    "date"     => date,
-    "weight"   => weight
+    "mikuType"  => "NxBankEvent"
+    "eventuuid" => String
+    "setuuid"   => setuuid
+    "unixtime"  => unixtime
+    "date"      => date
+    "weight"    => weight
 }
 
 {
@@ -67,6 +68,7 @@ We have two types of events
 {
     "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"       : "OwnerMapping"
+    "eventuuid"      : String
     "owneruuid"      : String
     "itemuuid"       : String
 }
@@ -83,6 +85,7 @@ We have two types of events
 
 {
     "mikuType"   => "NetworkLinks",
+    "eventuuid"  => String
     "sourceuuid" => sourceuuid,
     "operation"  => operation,
     "targetuuid" => targetuuid
@@ -105,4 +108,38 @@ We have two types of events
     "eventTime"  => Float
     "attname"    => string
     "attvalue"   => value
+}
+
+{
+    "mikuType" : "XSyncStep0-a369" # Any instance receiving this publishes a Step 1.
+                                   # It is sent to all other instances.
+                                   # And self publishes Step1
+                                   # Its purpose is to trigger a multi instance sync process from 
+                                   # one instance.
+}
+
+{
+    "mikuType" : "XSyncStep1-93b7"
+    "sourceId" : instanceId,
+                 We are sending this to tell the recipient that we want to know what they have
+}
+
+{
+    "mikuType"                  : "XSyncStep2-e6db"
+    "sourceId"                  : instanceId
+    "nx1915s"                   : Array[nx1915]
+    "bankEventsuuids"           : Array[eventuuid]
+    "elementToOwnerEventsuuids" : Array[eventuuid]
+    "networkLinksEventsuuids"   : Array[eventuuid]
+                                  We are sending this to tell the recipient what they have
+}
+
+{
+    "mikuType"                  : "XSyncStep3-b82e"
+    "sourceId"                  : instanceId
+    "nx1915s"                   : Array[nx1915]
+    "bankEventsuuids"           : Array[eventuuid]
+    "elementToOwnerEventsuuids" : Array[eventuuid]
+    "networkLinksEventsuuids"   : Array[eventuuid]
+                                  We are sending this to tell the receipient what we want
 }

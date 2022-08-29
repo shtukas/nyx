@@ -75,58 +75,113 @@ class SystemEvents
             rescue
             end
         end
-    end
 
-    # SystemEvents::broadcastAllData()
-    def self.broadcastAllData()
-        # --------------------------------------------------------------------------
-        # DxF1 data
-
-        filepath2 = "/tmp/#{SecureRandom.hex}.sqlite3"
-        db2 = SQLite3::Database.new(filepath2)
-        db2.busy_timeout = 117
-        db2.busy_handler { |count| true }
-        db2.results_as_hash = true
-        db2.execute("create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob)", [])
-        root = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s"
-        Find.find(root) do |filepath1|
-            next if File.basename(filepath1)[-8, 8] != ".sqlite3"
-            db1 = SQLite3::Database.new(filepath1)
-            db1.busy_timeout = 117
-            db1.busy_handler { |count| true }
-            db1.results_as_hash = true
-            db1.execute("select * from _dxf1_ where _eventType_=?", ["attribute"]) do |row|
-                objectuuid = row["_objectuuid_"]
-                eventuuid  = row["_eventuuid_"]
-                eventTime  = row["_eventTime_"]
-                eventType  = row["_eventType_"]
-                attname    = row["_name_"]
-                attvalue   = JSON.parse(row["_value_"])
-                db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, JSON.generate(attvalue)]
-            end
-            db1.close
+        if event["mikuType"] == "XSyncStep0-a369" then
+            # We are sending this to tell the recipient that we want to know what they have
+            SystemEvents::broadcast({
+                "mikuType" => "XSyncStep1-93b7",
+                "sourceId" => Config::get("instanceId"),
+            })
         end
-        db2.close
-        Machines::theOtherInstanceIds().each{|targetInstanceId|
-            filepath3 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.dxf1.sqlite3"
-            FileUtils.cp(filepath2, filepath3)
-        }
 
-        # --------------------------------------------------------------------------
-        # 
+        if event["mikuType"] == "XSyncStep1-93b7" then
+            # We are sending this to tell the recipient what they have
+            callerId = event["sourceId"]
+            SystemEvents::sendTo({
+                "mikuType"                  => "XSyncStep2-e6db",
+                "sourceId"                  => Config::get("instanceId"),
+                "nx1915s"                   => DxF1Extended::nx1915s(),
+                "bankEventsuuids"           => Bank::eventuuids(),
+                "elementToOwnerEventsuuids" => OwnerMapping::eventuuids(),
+                "networkLinksEventsuuids"   => NetworkLinks::eventuuids()
+            }, callerId)
+        end
+
+        if event["mikuType"] == "XSyncStep2-e6db" then
+            # We are sending this to tell the receipient what we want
+            callerId = event["sourceId"]
+            remoteNx1915s = event["nx1915s"]
+            remoteBankEventsuuids = event["bankEventsuuids"]
+            remoteElementToOwnerEventsuuids = event["elementToOwnerEventsuuids"]
+            remoteNetworkLinksEventsuuids = event["networkLinksEventsuuids"]
+            SystemEvents::sendTo({
+                "mikuType"                  => "XSyncStep3-b82e",
+                "sourceId"                  => Config::get("instanceId"),
+                "nx1915s"                   => DxF1Extended::nx1915Wanted(remoteNx1915s),
+                "bankEventsuuids"           => remoteBankEventsuuids - Bank::eventuuids(),
+                "elementToOwnerEventsuuids" => remoteElementToOwnerEventsuuids - OwnerMapping::eventuuids(),
+                "networkLinksEventsuuids"   => remoteNetworkLinksEventsuuids - NetworkLinks::eventuuids()
+            }, callerId)
+        end
+
+        if event["mikuType"] == "XSyncStep3-b82e" then
+            # We are sending this to tell the receipient what we want
+            callerId = event["sourceId"]
+            nx1915s = event["nx1915s"]
+            bankEventsuuids = event["bankEventsuuids"]
+            elementToOwnerEventsuuids = event["elementToOwnerEventsuuids"]
+            networkLinksEventsuuids = event["networkLinksEventsuuids"]
+
+            nx1915s.each{|nx1915|
+                objectuuid = nx1915["objectuuid"]
+                puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
+                SystemEvents::publishDxF1OnCommsline(objectuuid)
+            }
+
+            bankEventsuuids.each{|eventuuid|
+                row = Bank::recordOrNull(eventuuid)
+                next if row.nil?
+                SystemEvents::broadcast({
+                  "mikuType"  => "NxBankEvent",
+                  "eventuuid" => row["_eventuuid_"],
+                  "setuuid"   => row["_setuuid_"],
+                  "unixtime"  => row["_unixtime_"],
+                  "date"      => row["_date_"],
+                  "weight"    => row["_weight_"]
+                })
+            }
+
+            elementToOwnerEventsuuids.each{|eventuuid|
+                row = OwnerMapping::recordOrNull(eventuuid)
+                next if row.nil?
+                SystemEvents::broadcast({
+                    "mikuType"  => "OwnerMapping",
+                    "eventuuid" => row["_eventuuid_"],
+                    "owneruuid" => row["_groupuuid_"],
+                    "itemuuid"  => row["_itemuuid_"]
+                })
+            }
+
+            networkLinksEventsuuids.each{|eventuuid|
+                row = NetworkLinks::recordOrNull(eventuuid)
+                next if row.nil?
+                SystemEvents::broadcast({
+                    "mikuType"   => "NetworkLinks",
+                    "eventuuid"  => row["_eventuuid_"],
+                    "sourceuuid" => row["_sourceuuid_"],
+                    "operation"  => row["_operation_"],
+                    "targetuuid" => row["_targetuuid_"]
+                })
+            }
+        end
     end
 
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
         #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
         Machines::theOtherInstanceIds().each{|targetInstanceId|
-            e = event.clone
-            # We technically no longer need to mark the instance with the recipient's id
-            # because we are dropping the event in the right folder, but we keep it anyway.
-            e["targetInstance"] = targetInstanceId
-            filepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
-            File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
+            SystemEvents::sendTo(event.clone, targetInstanceId)
         }
+    end
+
+    # SystemEvents::sendTo(event, targetInstanceId)
+    def self.sendTo(event, targetInstanceId)
+        #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
+        # We technically no longer need to mark the instance with the recipient's id
+        # because we are dropping the event in the right folder, but we keep it anyway.
+        event["targetInstance"] = targetInstanceId
+        filepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
+        File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
     end
 
     # SystemEvents::processAndBroadcast(event)
@@ -244,4 +299,5 @@ class SystemEvents
 
         updatedObjectuuids.each{|objectuuid| TheIndex::updateIndexAtObjectAttempt(objectuuid) }
     end
+
 end

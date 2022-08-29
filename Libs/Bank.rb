@@ -98,6 +98,22 @@ class Bank
         value
     end
 
+    # Bank::recordOrNull(eventuuid)
+    def self.recordOrNull(eventuuid)
+        answer = nil
+        $bank_database_semaphore.synchronize {
+            db = SQLite3::Database.new(Bank::pathToBank())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _bank_ where _eventuuid_=?", [eventuuid]) do |row|
+                answer = row.clone
+            end
+            db.close
+        }
+        answer
+    end
+
     # Bank::combinedValueOnThoseDays(setuuid, dates)
     def self.combinedValueOnThoseDays(setuuid, dates)
         dates.map{|date| Bank::valueAtDate(setuuid, date) }.inject(0, :+)

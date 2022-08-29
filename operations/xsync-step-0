@@ -1,0 +1,16 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+event = {
+    "mikuType" => "XSyncStep0-a369"
+}
+
+SharedConfig::get("allInstanceIds").each{|targetInstanceId|
+    e = event.clone
+    e["targetInstance"] = targetInstanceId
+    filepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
+    File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(e)) }
+}

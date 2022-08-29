@@ -24,20 +24,20 @@ class OwnerMapping
         })
     end
 
-    # OwnerMapping::issueNoEvents(groupuuid, itemuuid)
-    def self.issueNoEvents(groupuuid, itemuuid)
+    # OwnerMapping::issueNoEvents(eventuuid, groupuuid, itemuuid)
+    def self.issueNoEvents(eventuuid, groupuuid, itemuuid)
         $item_to_group_mapping_database_semaphore.synchronize {
             db = SQLite3::Database.new(OwnerMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
-            db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, itemuuid, groupuuid, "true"]
+            db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, itemuuid, groupuuid, "true"]
             db.close
         }
     end
 
     # OwnerMapping::issue(owneruuid, itemuuid)
     def self.issue(owneruuid, itemuuid)
-        OwnerMapping::issueNoEvents(owneruuid, itemuuid)
+        OwnerMapping::issueNoEvents(SecureRandom.uuid, owneruuid, itemuuid)
         SystemEvents::broadcast({
           "mikuType"  => "OwnerMapping",
           "owneruuid" => owneruuid,
@@ -154,9 +154,10 @@ class OwnerMapping
     # OwnerMapping::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "OwnerMapping" then
+            eventuuid = event["eventuuid"]
             owneruuid = event["owneruuid"]
             itemuuid  = event["itemuuid"]
-            OwnerMapping::issueNoEvents(owneruuid, itemuuid)
+            OwnerMapping::issueNoEvents(eventuuid, owneruuid, itemuuid)
         end
         if event["mikuType"] == "OwnerMapping-records" then
             eventuuids = OwnerMapping::eventuuids()
@@ -170,5 +171,21 @@ class OwnerMapping
                 XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec8:#{objectuuid}") # Decache OwnerMapping::elementuuidToOwnersuuidsCached
             }
         end
+    end
+
+    # OwnerMapping::recordOrNull(eventuuid)
+    def self.recordOrNull(eventuuid)
+        answer = nil
+        $item_to_group_mapping_database_semaphore.synchronize {
+            db = SQLite3::Database.new(OwnerMapping::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _mapping_ where _eventuuid_=?", [eventuuid]) do |row|
+                answer = row.clone
+            end
+            db.close
+        }
+        answer
     end
 end

@@ -33,10 +33,10 @@ Nyx Networks:
 
 Misc:
     Ax39
-    DxLine: (need attribution)
+    DxLine: (need attribution) # Named as if it belons to the Nyx side of the world. 
     Nx01
     Nx45
     Nx20 (Search Item)
     NxBall.v2
     NxDeleted
-    NxLine: (need attribution)
+    NxLine: (need attribution) # Created from the NyxLanding. 

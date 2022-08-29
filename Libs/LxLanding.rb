@@ -69,7 +69,7 @@ class LxLanding
             end
 
             if item["mikuType"] == "NxPerson" then
-                commands = ["name", "destroy"]
+                commands = ["name", "link", "unlink", "destroy"]
             end
 
             if item["mikuType"] == "TopLevel" then
@@ -163,7 +163,7 @@ class LxLanding
             end
 
             if Interpreting::match("unlink", command) then
-                LxLanding::selectOneLinkedAndUnlink(item)
+                NetworkLinks::selectOneLinkedAndUnlink(item)
             end
 
             if Interpreting::match("network-migration", command) then
