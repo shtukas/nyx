@@ -230,6 +230,8 @@ require_relative "LxAction.rb"
 require_relative "LxFunction.rb"
 require_relative "Landing.rb"
 require_relative "LinkedNavigation.rb"
+require_relative "LxEdit.rb"
+require_relative "LxAccess.rb"
 
 require_relative "Machines.rb"
 

@@ -54,34 +54,4 @@ class DxText
     def self.access(item)
         CommonUtils::accessText(item["text"])
     end
-
-    # DxText::landing(item, isSearchAndSelect)
-    def self.landing(item, isSearchAndSelect)
-        loop {
-            system("clear")
-            puts DxText::toString(item)
-            operations = [
-                "access",
-                "edit",
-                "destroy"
-            ]
-            operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
-            break if operation.nil?
-            if operation == "access" then
-                CommonUtils::accessText(item["text"])
-            end
-            if operation == "edit" then
-                uuid = item["uuid"]
-                text = CommonUtils::editTextSynchronously(item["text"])
-                DxF1::setAttribute2(uuid, "text", text)
-            end
-            if operation == "destroy" then
-                if LucilleCore::askQuestionAnswerAsBoolean("confirm destroy of '#{DxText::toString(item).green}' ? ") then
-                    uuid = item["uuid"]
-                    DxF1::deleteObjectLogically(uuid)
-                    break
-                end
-            end
-        }
-    end
 end

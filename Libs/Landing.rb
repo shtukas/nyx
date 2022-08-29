@@ -48,7 +48,7 @@ class Landing
             return Landing::landing_new(item, isSearchAndSelect)
         end
         if item["mikuType"] == "DxText" then
-            return DxText::landing(item, isSearchAndSelect)
+            return Landing::landing_new(item, isSearchAndSelect)
         end
         if item["mikuType"] == "TopLevel" then
             TopLevel::access(item)
@@ -124,7 +124,7 @@ class Landing
                 end
             end
 
-            commands = ["access", "iam", "<n>", "description", "name", "datetime", "line", "text", "nx112", "json", "link", "unlink", "network-migration", "navigation", "upload", "return (within search)", "destroy"]
+            commands = ["access", "edit", "<n>", "description", "name", "datetime", "line", "text", "nx112", "json", "link", "unlink", "network-migration", "navigation", "upload", "return (within search)", "destroy"]
 
             if item["mikuType"] == "NxAnniversary" then
                 commands = ["description", "update start date", "destroy"]
@@ -132,6 +132,10 @@ class Landing
 
             if item["mikuType"] == "DxFile" then
                 commands = ["access", "description", "json", "destroy"]
+            end
+
+            if item["mikuType"] == "DxText" then
+                commands = ["access", "edit", "destroy"]
             end
 
             puts "commands: #{commands.join(" | ")}"
@@ -150,7 +154,7 @@ class Landing
             end
 
             if Interpreting::match("access", command) then
-                Nx112::carrierAccess(item)
+                LxAccess::access(item)
                 next
             end
 
@@ -180,9 +184,8 @@ class Landing
                 DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
             end
 
-            if Interpreting::match("iam", command) then
-                puts "TODO"
-                exit
+            if Interpreting::match("edit", command) then
+                item = LxEdit::edit(item)
             end
 
             if Interpreting::match("line", command) then

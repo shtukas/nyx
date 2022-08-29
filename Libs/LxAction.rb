@@ -289,18 +289,13 @@ class LxAction
         end
 
         if command == "landing" then
-
-            if item["mikuType"] == "DxText" then
-                DxText::landing(item, isSearchAndSelect)
-                return
-            end
  
             if item["mikuType"] == "fitness1" then
                 system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
                 return
             end
 
-            if ["NxAnniversary", "NxIced"].include?(item["mikuType"]) then
+            if ["DxText", "NxAnniversary", "NxIced"].include?(item["mikuType"]) then
                 return Landing::landing_new(item, isSearchAndSelect)
             end
 
