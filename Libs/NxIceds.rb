@@ -72,7 +72,7 @@ class NxIceds
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                result = Landing::landing(entity, isSearchAndSelect)
+                result = Landing::landing_old(entity, isSearchAndSelect)
                 if isSearchAndSelect and result then
                     return result
                 end

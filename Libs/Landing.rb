@@ -33,8 +33,8 @@ class Landing
         NetworkLinks::link(item["uuid"], newitem["uuid"])
     end
 
-    # Landing::landing(item, isSearchAndSelect) # item or null
-    def self.landing(item, isSearchAndSelect)
+    # Landing::landing_old(item, isSearchAndSelect) # item or null
+    def self.landing_old(item, isSearchAndSelect)
         if item["mikuType"] == "TxTimeCommitmentProject" then
             return TxTimeCommitmentProjects::landing(item, isSearchAndSelect)
         end
@@ -82,5 +82,10 @@ class Landing
             return NxTimelines::landing(item, isSearchAndSelect)
         end
         raise "(error: 1e84c68b-b602-41af-b2e9-00e66fa687ac) item: #{item}"
+    end
+
+    # Landing::landing(item, isSearchAndSelect) # item or null
+    def self.landing(item, isSearchAndSelect)
+        
     end
 end

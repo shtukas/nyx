@@ -108,7 +108,7 @@ class TopLevel
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("top level", items, lambda{|item| LxFunction::function("toString", item) })
             return if item.nil?
-            Landing::landing(item, false)
+            Landing::landing_old(item, false)
         }
     end
 end

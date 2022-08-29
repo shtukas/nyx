@@ -103,7 +103,7 @@ class Nyx
                 loop {
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|item| LxFunction::function("toString", item) })
                     break if node.nil?
-                    Landing::landing(node, isSearchAndSelect = false)
+                    Landing::landing_old(node, isSearchAndSelect = false)
                 }
             end
 

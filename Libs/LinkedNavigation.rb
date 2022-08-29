@@ -8,7 +8,7 @@ class LinkedNavigation
                 system("clear")
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| LxFunction::function("toString", item) })
                 return if item.nil?
-                Landing::landing(item, isSearchAndSelect = false)
+                Landing::landing_old(item, isSearchAndSelect = false)
             }
         else
             uuids = items.map{|item| item["uuid"] }
@@ -24,7 +24,7 @@ class LinkedNavigation
                 system("clear")
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| LxFunction::function("toString", item) })
                 return if item.nil?
-                Landing::landing(item, isSearchAndSelect = false)
+                Landing::landing_old(item, isSearchAndSelect = false)
             }
         else
             loop {
@@ -64,7 +64,7 @@ class LinkedNavigation
                     break if linkeditemuuid.nil?
                     item = TheIndex::getItemOrNull(linkeditemuuid)
                     break if item.nil?
-                    Landing::landing(item, isSearchAndSelect = false)
+                    Landing::landing_old(item, isSearchAndSelect = false)
                 }
             end
 
