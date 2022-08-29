@@ -2,7 +2,10 @@
 
 class Catalyst
 
-    # Catalyst::idToSmallShift(id)
+end
+
+class CatalystListing
+    # CatalystListing::idToSmallShift(id)
     def self.idToSmallShift(id)
         shift = XCache::getOrNull("0f8a5f9b-d3de-4910-bafd-13c3718007dc:#{id}")
         return shift.to_f if shift
@@ -11,7 +14,7 @@ class Catalyst
         shift
     end
 
-    # Catalyst::primaryCommandProcess()
+    # CatalystListing::primaryCommandProcess()
     def self.primaryCommandProcess()
         puts Commands::commands().yellow
         input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -20,7 +23,7 @@ class Catalyst
         LxAction::action(command, objectOpt)
     end
 
-    # Catalyst::listingItems()
+    # CatalystListing::listingItems()
     def self.listingItems()
         items = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
@@ -43,7 +46,7 @@ class Catalyst
         its1 + its2
     end
 
-    # Catalyst::program()
+    # CatalystListing::program()
     def self.program()
 
         initialCodeTrace = CommonUtils::generalCodeTrace()
@@ -104,11 +107,11 @@ class Catalyst
                 next
             end
 
-            Catalyst::printListing()
+            CatalystListing::printListing()
         }
     end
 
-    # Catalyst::printListingLoop(announce, items)
+    # CatalystListing::printListingLoop(announce, items)
     def self.printListingLoop(announce, items)
         loop {
             items = items
@@ -170,7 +173,7 @@ class Catalyst
         }
     end
 
-    # Catalyst::printListing()
+    # CatalystListing::printListing()
     def self.printListing()
         system("clear")
 
@@ -208,7 +211,7 @@ class Catalyst
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        Catalyst::listingItems()
+        CatalystListing::listingItems()
             .each{|item|
                 break if vspaceleft <= 0
                 store.register(item, true)

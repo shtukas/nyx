@@ -47,7 +47,7 @@ class Streaming
                 next
             end
             if command == "insert" then
-                Catalyst::primaryCommandProcess()
+                CatalystListing::primaryCommandProcess()
                 next
             end
             if command == ">owner" then
@@ -89,7 +89,7 @@ class Streaming
                 return "item-done"
             end
             if command == "insert" then
-                Catalyst::primaryCommandProcess()
+                CatalystListing::primaryCommandProcess()
                 next
             end
             if command == ">owner" then

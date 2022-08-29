@@ -233,12 +233,12 @@ class TxTimeCommitmentProjects
                 Cx::access(item["nx112"])
             end
             if aspect == "elements listing" then
-                Catalyst::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
+                CatalystListing::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
             end
         end
 
         if item["nx112"].nil? and elements.size > 0 then
-            Catalyst::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
+            CatalystListing::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
         end
 
         if item["nx112"] and elements.size == 0 then

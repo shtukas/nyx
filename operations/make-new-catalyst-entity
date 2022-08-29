@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-Catalyst::primaryCommandProcess()
+CatalystListing::primaryCommandProcess()
