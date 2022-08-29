@@ -198,7 +198,7 @@ class NetworkLinks
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
-            db.execute("select * from _mapping_ where _eventuuid_=?", [eventuuid]) do |row|
+            db.execute("select * from _link_ where _eventuuid_=?", [eventuuid]) do |row|
                 answer = row.clone
             end
             db.close
