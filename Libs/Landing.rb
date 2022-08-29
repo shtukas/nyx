@@ -45,7 +45,7 @@ class Landing
             return Landing::landing_new(item, isSearchAndSelect)
         end
         if item["mikuType"] == "DxLine" then
-            return DxLine::landing(item, isSearchAndSelect)
+            return Landing::landing_new(item, isSearchAndSelect)
         end
         if item["mikuType"] == "DxText" then
             return DxText::landing(item, isSearchAndSelect)
