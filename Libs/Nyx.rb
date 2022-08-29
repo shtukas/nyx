@@ -6,10 +6,18 @@ class Nyx
     # Nyx::nyxNodes()
     def self.nyxNodes()
         [
+            DxAionPoint::items(),
+            DxFile::items(),
+            DxLine::items(),
+            DxText::items(),
+            DxUniqueString::items(),
+            DxUrl::items(),
             NxConcepts::items(),
+            NxCollections::items()
             NxEntities::items(),
             NxEvents::items(),
             NxPersons::items(),
+            NxTimelines::items()
         ].flatten
     end
 
@@ -22,7 +30,6 @@ class Nyx
     def self.interactivelyMakeNewOrNull()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", Iam::nyxNetworkTypes())
         return if action.nil?
-
         if action == "DxLine" then
             return DxLine::interactivelyIssueNewOrNull()
         end
@@ -56,7 +63,6 @@ class Nyx
         if action == "NxTimeline" then
             return NxTimelines::interactivelyIssueNewItemOrNull()
         end
-
         raise "(error: 46cb00c3-9c1d-41cd-8d3d-bfc6598d3e73)"
     end
 
