@@ -402,6 +402,7 @@ class DxF1Extended
                     "eventuuids" => DxF1::eventuuids(filepath)
                 }
             }
+            .select{|nx1915| !nx1915["objectuuid"].nil? }
     end
 
     # DxF1Extended::nx1915Wanted(remoteNx1915s)

@@ -131,7 +131,7 @@ We have two types of events
     "bankEventsuuids"           : Array[eventuuid]
     "elementToOwnerEventsuuids" : Array[eventuuid]
     "networkLinksEventsuuids"   : Array[eventuuid]
-                                  We are sending this to tell the recipient what they have
+                                  We are sending this to tell the recipient what we have
 }
 
 {
