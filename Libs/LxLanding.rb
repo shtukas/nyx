@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class Landing
+class LxLanding
 
-    # Landing::landing(item, isSearchAndSelect) # item or null
+    # LxLanding::landing(item, isSearchAndSelect) # item or null
     def self.landing(item, isSearchAndSelect)
 
         return nil if item.nil?
@@ -85,7 +85,7 @@ class Landing
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                result = Landing::landing(entity, isSearchAndSelect)
+                result = LxLanding::landing(entity, isSearchAndSelect)
                 if isSearchAndSelect and result then
                     return result
                 end
@@ -163,7 +163,7 @@ class Landing
             end
 
             if Interpreting::match("unlink", command) then
-                Landing::selectOneLinkedAndUnlink(item)
+                LxLanding::selectOneLinkedAndUnlink(item)
             end
 
             if Interpreting::match("network-migration", command) then

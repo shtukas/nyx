@@ -211,10 +211,10 @@ class LxAction
             end
 
             if ["DxText", "NxAnniversary", "NxIced"].include?(item["mikuType"]) then
-                return Landing::landing(item, isSearchAndSelect)
+                return LxLanding::landing(item, isSearchAndSelect)
             end
 
-            return Landing::landing(item, isSearchAndSelect = false)
+            return LxLanding::landing(item, isSearchAndSelect = false)
         end
 
         if command == "redate" then

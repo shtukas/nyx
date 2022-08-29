@@ -165,7 +165,7 @@ class NetworkLinks
         NetworkLinks::link(item["uuid"], item2["uuid"])
     end
 
-    # Landing::selectOneLinkedAndUnlink(item)
+    # LxLanding::selectOneLinkedAndUnlink(item)
     def self.selectOneLinkedAndUnlink(item)
         store = ItemStore.new()
 

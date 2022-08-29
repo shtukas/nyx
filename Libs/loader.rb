@@ -226,12 +226,12 @@ require_relative "Iam.rb"
 
 require_relative "FileSystemCheck.rb"
 
-require_relative "LxAction.rb"
-require_relative "LxFunction.rb"
-require_relative "Landing.rb"
 require_relative "LinkedNavigation.rb"
-require_relative "LxEdit.rb"
 require_relative "LxAccess.rb"
+require_relative "LxAction.rb"
+require_relative "LxEdit.rb"
+require_relative "LxFunction.rb"
+require_relative "LxLanding.rb"
 
 require_relative "Machines.rb"
 
