@@ -5,9 +5,11 @@
 require_relative "../Libs/loader.rb"
 
 dbFilepath = OwnerMapping::databaseFile()
-targetInstanceId = "Lucille18-pascal"
-targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.owner-mapping.sqlite3"
-FileUtils.cp(dbFilepath, targetFilepath)
+
+Machines::theOtherInstanceIds().each{|targetInstanceId|
+    targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.owner-mapping.sqlite3"
+    FileUtils.cp(dbFilepath, targetFilepath)
+}
 
 exit
 
