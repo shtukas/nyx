@@ -16,12 +16,13 @@ Machines::theOtherInstanceIds().each{|targetInstanceId|
     FileUtils.cp(filepath1, filepath2)
 }
 
-exit
+filepath1 = NetworkLinks::databaseFile()
+Machines::theOtherInstanceIds().each{|targetInstanceId|
+    filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.network-links.sqlite3"
+    FileUtils.cp(filepath1, filepath2)
+}
 
-SystemEvents::broadcast({
-    "mikuType" => "NetworkLinks-records",
-    "records"  => NetworkLinks::records()
-})
+exit
 
 SystemEvents::broadcast({
     "mikuType" => "DxF1-records",

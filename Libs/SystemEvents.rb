@@ -64,10 +64,6 @@ class SystemEvents
             end
         end
 
-        if event["mikuType"] == "NetworkLinks-records" then
-            NetworkLinks::processEvent(event)
-        end
-
         if event["mikuType"] == "DxF1-records" then
             DxF1Extended::processEvent(event)
         end
@@ -234,6 +230,28 @@ class SystemEvents
                         next if knowneventuuids.include?(row["_eventuuid_"])
                         puts "bank: importing row: #{JSON.pretty_generate(row)}"
                         Bank::insertRecord(row)
+                    end
+                    db1.close
+
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
+                if File.basename(filepath1)[-22, 22] == ".network-links.sqlite3" then
+                    if verbose then
+                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
+                    end
+
+                    knowneventuuids = NetworkLinks::eventuuids()
+
+                    db1 = SQLite3::Database.new(filepath1)
+                    db1.busy_timeout = 117
+                    db1.busy_handler { |count| true }
+                    db1.results_as_hash = true
+                    db1.execute("select * from _links_", []) do |row|
+                        next if knowneventuuids.include?(row["_eventuuid_"])
+                        puts "network links: importing row: #{JSON.pretty_generate(row)}"
+                        NetworkLinks::insertRow(row)
                     end
                     db1.close
 

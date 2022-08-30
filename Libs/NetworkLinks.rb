@@ -91,27 +91,14 @@ class NetworkLinks
         answer
     end
 
-    # NetworkLinks::records()
-    def self.records()
-        db = SQLite3::Database.new(NetworkLinks::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        answer = []
-        db.execute("select * from _links_", []) do |row|
-            answer << row.clone
-        end
-        answer
-    end
-
     # NetworkLinks::processEvent(event)
     def self.processEvent(event)
-        if event["mikuType"] == "NetworkLinks-records" then
-            eventuuids = NetworkLinks::eventuuids()
-            event["records"].each{|row|
-                next if eventuuids.include?(row["_eventuuid_"])
-                NetworkLinks::insertRow(row)
-            }
+        if event["mikuType"] == "NetworkLinks" then
+            eventuuid  = event["eventuuid"]
+            sourceuuid = event["sourceuuid"]
+            operation  = event["operation"]
+            targetuuid = event["targetuuid"]
+            NetworkLinks::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
         end
     end
 
@@ -188,19 +175,5 @@ class NetworkLinks
             return if entity.nil?
             NetworkLinks::unlink(item["uuid"], entity["uuid"])
         end
-    end
-
-    # NetworkLinks::recordOrNull(eventuuid)
-    def self.recordOrNull(eventuuid)
-        answer = nil
-        db = SQLite3::Database.new(NetworkLinks::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from _links_ where _eventuuid_=?", [eventuuid]) do |row|
-            answer = row.clone
-        end
-        db.close
-        answer
     end
 end

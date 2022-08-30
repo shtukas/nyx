@@ -89,16 +89,6 @@ We have two types of events
 }
 
 {
-    "mikuType"  => "Bank-records",
-    "records"   => Bank::records()
-}
-
-{
     "mikuType" => "DxF1-records",
     "records"  => DxF1Extended::records()
-}
-
-{
-    "mikuType" => "NetworkLinks-records",
-    "records"  => NetworkLinks::records()
 }
