@@ -136,22 +136,6 @@ class OwnerMapping
         answer
     end
 
-    # OwnerMapping::records()
-    def self.records()
-        answer = []
-        $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerMapping::databaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _mapping_", []) do |row|
-                answer << row.clone
-            end
-            db.close
-        }
-        answer
-    end
-
     # OwnerMapping::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "OwnerMapping" then
@@ -165,21 +149,5 @@ class OwnerMapping
                 XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec8:#{objectuuid}") # Decache OwnerMapping::elementuuidToOwnersuuidsCached
             }
         end
-    end
-
-    # OwnerMapping::recordOrNull(eventuuid)
-    def self.recordOrNull(eventuuid)
-        answer = nil
-        $item_to_group_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerMapping::databaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("select * from _mapping_ where _eventuuid_=?", [eventuuid]) do |row|
-                answer = row.clone
-            end
-            db.close
-        }
-        answer
     end
 end

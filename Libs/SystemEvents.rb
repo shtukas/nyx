@@ -201,6 +201,28 @@ class SystemEvents
                     next
                 end
 
+                if File.basename(filepath1)[-22, 22] == ".owner-mapping.sqlite3" then
+                    if verbose then
+                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
+                    end
+
+                    knowneventuuids = OwnerMapping::eventuuids()
+
+                    db1 = SQLite3::Database.new(filepath1)
+                    db1.busy_timeout = 117
+                    db1.busy_handler { |count| true }
+                    db1.results_as_hash = true
+                    db1.execute("select * from _mapping_", []) do |row|
+                        next if knowneventuuids.include?(row["_eventuuid_"])
+                        puts "owner-mapping: importing row: #{JSON.pretty_generate(row)}"
+                        OwnerMapping::insertRow(row)
+                    end
+                    db1.close
+
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
                 raise "(error: 600967d9-e9d4-4612-bf62-f8cc4f616fd1) I do not know how to process file: #{filepath1}"
             }
 
