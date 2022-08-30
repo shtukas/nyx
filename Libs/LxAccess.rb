@@ -25,6 +25,11 @@ class LxAccess
             return
         end
 
+        if item["mikuType"] == "DxAionPoint" then
+            DxAionPoint::access(item)
+            return
+        end
+
         if item["mikuType"] == "DxText" then
             CommonUtils::accessText(item["text"])
             return
