@@ -160,13 +160,6 @@ class OwnerMapping
             itemuuid  = event["itemuuid"]
             OwnerMapping::issueNoEvents(eventuuid, owneruuid, itemuuid)
         end
-        if event["mikuType"] == "OwnerMapping-records" then
-            eventuuids = OwnerMapping::eventuuids()
-            event["records"].each{|row|
-                next if eventuuids.include?(row["_eventuuid_"])
-                OwnerMapping::insertRow(row)
-            }
-        end
         if event["mikuType"] == "(owner-elements-mapping-update)" then
             event["objectuuids"].each{|objectuuid|
                 XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec8:#{objectuuid}") # Decache OwnerMapping::elementuuidToOwnersuuidsCached

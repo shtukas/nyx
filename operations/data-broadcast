@@ -4,10 +4,12 @@
 
 require_relative "../Libs/loader.rb"
 
-SystemEvents::broadcast({
-    "mikuType" => "OwnerMapping-records",
-    "records"  => OwnerMapping::records()
-})
+dbFilepath = OwnerMapping::databaseFile()
+targetInstanceId = "Lucille18-pascal"
+targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.owner-mapping.sqlite3"
+FileUtils.cp(dbFilepath, targetFilepath)
+
+exit
 
 SystemEvents::broadcast({
     "mikuType" => "Bank-records",

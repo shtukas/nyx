@@ -89,11 +89,6 @@ We have two types of events
 }
 
 {
-    "mikuType" => "OwnerMapping-records",
-    "records"  => OwnerMapping::records()
-}
-
-{
     "mikuType"  => "Bank-records",
     "records"   => Bank::records()
 }

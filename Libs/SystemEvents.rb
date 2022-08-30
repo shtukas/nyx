@@ -64,10 +64,6 @@ class SystemEvents
             end
         end
 
-        if event["mikuType"] == "OwnerMapping-records" then
-            OwnerMapping::processEvent(event)
-        end
-
         if event["mikuType"] == "NetworkLinks-records" then
             NetworkLinks::processEvent(event)
         end
