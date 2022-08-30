@@ -13,11 +13,6 @@ We have two types of events
 }
 
 {
-    "mikuType"    => "(owner-elements-mapping-update)",
-    "objectuuids" => Array[String],
-}
-
-{
     "mikuType"    => "(do not show until has been updated)",
     "targetuuid"  => uuid,
 }
