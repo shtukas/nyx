@@ -75,6 +75,10 @@ class SystemEvents
         if event["mikuType"] == "Bank-records" then
             Bank::processEvent(event)
         end
+
+        if event["mikuType"] == "DxF1-records" then
+            DxF1Extended::processEvent(event)
+        end
     end
 
     # SystemEvents::broadcast(event)

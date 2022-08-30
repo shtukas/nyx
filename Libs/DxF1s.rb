@@ -35,6 +35,39 @@ class DxF1
         filepath
     end
 
+    # DxF1::putRow(row)
+    def self.putRow(row)
+        objectuuid = row["_objectuuid_"]
+        eventuuid  = row["_eventuuid_"]
+        eventTime  = row["_eventTime_"]
+        eventType  = row["_eventType_"]
+        attname    = row["_name_"]
+        attvalue   = row["_value_"]
+
+        raise "1aa8abf7-0075-4c98-8b43-20f5f43b03be" if eventType != "attribute"
+
+        if objectuuid.nil? then
+            raise "(error: a3202192-2d16-4f82-80e9-a86a18d407c8)"
+        end
+        if eventuuid.nil? then
+            raise "(error: 1025633f-b0aa-42ed-9751-b5f87af23450)"
+        end
+        if eventTime.nil? then
+            raise "(error: 9a6caf6b-fa31-4fda-b963-f0c04f4e50a2)"
+        end
+        if attname.nil? then
+            raise "(error: 0b103332-556d-4043-9cdd-81cf70b7a289)"
+        end
+
+        db = SQLite3::Database.new(DxF1::filepath(objectuuid))
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
+        db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "attribute", attname, attvalue]
+        db.close
+    end
+
     # DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
         if objectuuid.nil? then
@@ -394,6 +427,15 @@ class DxF1Extended
                 DxF1::records(filepath)
             }
             .flatten
+    end
+
+    def self.processEvent(event)
+        if event["mikuType"] == "DxF1-records" then
+            event["records"].each{|row|
+                puts JSON.pretty_generate(row)
+                DxF1::putRow(row)
+            }
+        end
     end
 end
 
