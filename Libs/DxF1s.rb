@@ -419,24 +419,6 @@ class DxF1Extended
 
         raise "(error: 402f0ee5-4bd1-4b73-a418-d16ac12760ca)"
     end
-
-    # DxF1Extended::records()
-    def self.records()
-        DxF1Extended::dxF1sFilepathsEnumerator()
-            .map{|filepath|
-                DxF1::records(filepath)
-            }
-            .flatten
-    end
-
-    def self.processEvent(event)
-        if event["mikuType"] == "DxF1-records" then
-            event["records"].each{|row|
-                puts JSON.pretty_generate(row)
-                DxF1::putRow(row)
-            }
-        end
-    end
 end
 
 class DxF1sAtStargateCentral

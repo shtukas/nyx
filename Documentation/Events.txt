@@ -87,8 +87,3 @@ We have two types of events
     "attname"    => string
     "attvalue"   => value
 }
-
-{
-    "mikuType" => "DxF1-records",
-    "records"  => DxF1Extended::records()
-}

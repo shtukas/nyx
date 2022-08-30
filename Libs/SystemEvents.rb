@@ -63,10 +63,6 @@ class SystemEvents
             rescue
             end
         end
-
-        if event["mikuType"] == "DxF1-records" then
-            DxF1Extended::processEvent(event)
-        end
     end
 
     # SystemEvents::broadcast(event)
