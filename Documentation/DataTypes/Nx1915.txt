@@ -1,4 +1,0 @@
-Nx1915 {
-    "objectuuid" => String
-    "eventuuids" => Array[eventuuid]
-}

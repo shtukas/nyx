@@ -32,10 +32,6 @@ class SystemEvents
             Bank::processEvent(event)
         end
 
-        if event["mikuType"] == "Bank-records" then
-            Bank::processEvent(event)
-        end
-
         if event["mikuType"] == "NxDoNotShowUntil" then
             DoNotShowUntil::processEvent(event)
         end
@@ -50,14 +46,6 @@ class SystemEvents
 
         if event["mikuType"] == "OwnerMapping" then
             OwnerMapping::processEvent(event)
-        end
-
-        if event["mikuType"] == "OwnerMapping-records" then
-            OwnerMapping::processEvent(event)
-        end
-
-        if event["mikuType"] == "NetworkLinks-records" then
-            NetworkLinks::processEvent(event)
         end
 
         if event["mikuType"] == "AttributeUpdate" then
@@ -76,93 +64,16 @@ class SystemEvents
             end
         end
 
-        if event["mikuType"] == "XSyncStep0-a369" then
-            # We are sending this to tell the recipient that we want to know what they have
-            SystemEvents::broadcast({
-                "mikuType" => "XSyncStep1-93b7",
-                "sourceId" => Config::get("instanceId"),
-            })
+        if event["mikuType"] == "OwnerMapping-records" then
+            OwnerMapping::processEvent(event)
         end
 
-        if event["mikuType"] == "XSyncStep1-93b7" then
-            # We are sending this to tell the recipient what we have
-            callerId = event["sourceId"]
-            SystemEvents::sendTo({
-                "mikuType"                  => "XSyncStep2-e6db",
-                "sourceId"                  => Config::get("instanceId"),
-                "nx1915s"                   => DxF1Extended::nx1915s(),
-                "bankEventsuuids"           => Bank::eventuuids(),
-                "elementToOwnerEventsuuids" => OwnerMapping::eventuuids(),
-                "networkLinksEventsuuids"   => NetworkLinks::eventuuids()
-            }, callerId)
+        if event["mikuType"] == "NetworkLinks-records" then
+            NetworkLinks::processEvent(event)
         end
 
-        if event["mikuType"] == "XSyncStep2-e6db" then
-            # We are sending this to tell the receipient what we want
-            callerId = event["sourceId"]
-            remoteNx1915s = event["nx1915s"]
-            remoteBankEventsuuids = event["bankEventsuuids"]
-            remoteElementToOwnerEventsuuids = event["elementToOwnerEventsuuids"]
-            remoteNetworkLinksEventsuuids = event["networkLinksEventsuuids"]
-            SystemEvents::sendTo({
-                "mikuType"                  => "XSyncStep3-b82e",
-                "sourceId"                  => Config::get("instanceId"),
-                "nx1915s"                   => DxF1Extended::nx1915Wanted(remoteNx1915s),
-                "bankEventsuuids"           => remoteBankEventsuuids - Bank::eventuuids(),
-                "elementToOwnerEventsuuids" => remoteElementToOwnerEventsuuids - OwnerMapping::eventuuids(),
-                "networkLinksEventsuuids"   => remoteNetworkLinksEventsuuids - NetworkLinks::eventuuids()
-            }, callerId)
-        end
-
-        if event["mikuType"] == "XSyncStep3-b82e" then
-            # We are sending this to tell the receipient what we want
-            callerId = event["sourceId"]
-            nx1915s = event["nx1915s"]
-            bankEventsuuids = event["bankEventsuuids"]
-            elementToOwnerEventsuuids = event["elementToOwnerEventsuuids"]
-            networkLinksEventsuuids = event["networkLinksEventsuuids"]
-
-            nx1915s.each{|nx1915|
-                objectuuid = nx1915["objectuuid"]
-                puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
-                SystemEvents::publishDxF1OnCommsline(objectuuid)
-            }
-
-            bankEventsuuids.each{|eventuuid|
-                row = Bank::recordOrNull(eventuuid)
-                next if row.nil?
-                SystemEvents::broadcast({
-                  "mikuType"  => "NxBankEvent",
-                  "eventuuid" => row["_eventuuid_"],
-                  "setuuid"   => row["_setuuid_"],
-                  "unixtime"  => row["_unixtime_"],
-                  "date"      => row["_date_"],
-                  "weight"    => row["_weight_"]
-                })
-            }
-
-            elementToOwnerEventsuuids.each{|eventuuid|
-                row = OwnerMapping::recordOrNull(eventuuid)
-                next if row.nil?
-                SystemEvents::broadcast({
-                    "mikuType"  => "OwnerMapping",
-                    "eventuuid" => row["_eventuuid_"],
-                    "owneruuid" => row["_groupuuid_"],
-                    "itemuuid"  => row["_itemuuid_"]
-                })
-            }
-
-            networkLinksEventsuuids.each{|eventuuid|
-                row = NetworkLinks::recordOrNull(eventuuid)
-                next if row.nil?
-                SystemEvents::broadcast({
-                    "mikuType"   => "NetworkLinks",
-                    "eventuuid"  => row["_eventuuid_"],
-                    "sourceuuid" => row["_sourceuuid_"],
-                    "operation"  => row["_operation_"],
-                    "targetuuid" => row["_targetuuid_"]
-                })
-            }
+        if event["mikuType"] == "Bank-records" then
+            Bank::processEvent(event)
         end
     end
 
@@ -176,10 +87,6 @@ class SystemEvents
 
     # SystemEvents::sendTo(event, targetInstanceId)
     def self.sendTo(event, targetInstanceId)
-        #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
-        # We technically no longer need to mark the instance with the recipient's id
-        # because we are dropping the event in the right folder, but we keep it anyway.
-        event["targetInstance"] = targetInstanceId
         filepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.event.json"
         File.open(filepath, "w"){|f| f.puts(JSON.pretty_generate(event)) }
     end

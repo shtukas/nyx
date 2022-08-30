@@ -23,7 +23,6 @@ We have two types of events
 }
 
 {
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"  => "NxBankEvent"
     "eventuuid" => String
     "setuuid"   => setuuid
@@ -33,54 +32,38 @@ We have two types of events
 }
 
 {
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"       => "NxDoNotShowUntil",
     "targetuuid"     => uuid,
     "targetunixtime" => unixtime
 }
 
 {
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "SetDoneToday"
     "targetuuid" => uuid
     "targetdate" => CommonUtils::today()
 }
 
 {
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "NxDeleted"
     "objectuuid" => objectuuid
 }
 
 {
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "Daily Slots: Unregister",
     "objectuuid" => objectuuid,
 }
 
 {
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"   => "Daily Slots: Register",
     "hour"       => hour,
     "objectuuid" => objectuuid,
 }
 
 {
-    "targetInstance" : TargetInstanceName # added by the broadcaster
     "mikuType"       : "OwnerMapping"
     "eventuuid"      : String
     "owneruuid"      : String
     "itemuuid"       : String
-}
-
-{
-    "mikuType" => "OwnerMapping-records",
-    "records"  => OwnerMapping::records()
-}
-
-{
-    "mikuType"  => "Bank-records",
-    "records"   => Bank::records()
 }
 
 {
@@ -89,11 +72,6 @@ We have two types of events
     "sourceuuid" => sourceuuid,
     "operation"  => operation,
     "targetuuid" => targetuuid
-}
-
-{
-    "mikuType" => "NetworkLinks-records",
-    "records"  => NetworkLinks::records()
 }
 
 {
@@ -111,35 +89,21 @@ We have two types of events
 }
 
 {
-    "mikuType" : "XSyncStep0-a369" # Any instance receiving this publishes a Step 1.
-                                   # It is sent to all other instances.
-                                   # And self publishes Step1
-                                   # Its purpose is to trigger a multi instance sync process from 
-                                   # one instance.
+    "mikuType" => "OwnerMapping-records",
+    "records"  => OwnerMapping::records()
 }
 
 {
-    "mikuType" : "XSyncStep1-93b7"
-    "sourceId" : instanceId,
-                 We are sending this to tell the recipient that we want to know what they have
+    "mikuType"  => "Bank-records",
+    "records"   => Bank::records()
 }
 
 {
-    "mikuType"                  : "XSyncStep2-e6db"
-    "sourceId"                  : instanceId
-    "nx1915s"                   : Array[nx1915]
-    "bankEventsuuids"           : Array[eventuuid]
-    "elementToOwnerEventsuuids" : Array[eventuuid]
-    "networkLinksEventsuuids"   : Array[eventuuid]
-                                  We are sending this to tell the recipient what we have
+    "mikuType" => "DxF1-records",
+    "records"  => DxF1Extended::records()
 }
 
 {
-    "mikuType"                  : "XSyncStep3-b82e"
-    "sourceId"                  : instanceId
-    "nx1915s"                   : Array[nx1915]
-    "bankEventsuuids"           : Array[eventuuid]
-    "elementToOwnerEventsuuids" : Array[eventuuid]
-    "networkLinksEventsuuids"   : Array[eventuuid]
-                                  We are sending this to tell the receipient what we want
+    "mikuType" => "NetworkLinks-records",
+    "records"  => NetworkLinks::records()
 }

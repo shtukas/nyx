@@ -272,26 +272,20 @@ class DxF1
         blob
     end
 
-    # DxF1::eventuuids(filepath)
-    def self.eventuuids(filepath)
-        eventuuids = []
+    # DxF1::records(filepath)
+    def self.records(filepath)
+        records = []
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select _eventuuid_ from _dxf1_", []) do |row|
-            eventuuids << row["_eventuuid_"]
+        db.execute("select * from _dxf1_ where _eventType_=?", ["attribute"]) do |row|
+            records << row
         end
         db.close
-        eventuuids
+        records
     end
 
-    # DxF1::eventuuids2(objectuuid)
-    def self.eventuuids2(objectuuid)
-        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-        return [] if filepath.nil?
-        DxF1::eventuuids(filepath)
-    end
 end
 
 class DxF1Elizabeth
@@ -393,29 +387,13 @@ class DxF1Extended
         raise "(error: 402f0ee5-4bd1-4b73-a418-d16ac12760ca)"
     end
 
-    # DxF1Extended::nx1915s()
-    def self.nx1915s()
+    # DxF1Extended::records()
+    def self.records()
         DxF1Extended::dxF1sFilepathsEnumerator()
             .map{|filepath|
-                {
-                    "objectuuid" => DxF1::getAttributeAtFileOrNull(filepath, "uuid"),
-                    "eventuuids" => DxF1::eventuuids(filepath)
-                }
+                DxF1::records(filepath)
             }
-            .select{|nx1915| !nx1915["objectuuid"].nil? } # I think I have at least one DxF1 file with no uuid
-    end
-
-    # DxF1Extended::nx1915Wanted(remoteNx1915s)
-    def self.nx1915Wanted(remoteNx1915s)
-        remoteNx1915s
-            .map{|nx1915|
-                objectuuid = nx1915["objectuuid"]
-                {
-                    "objectuuid" => objectuuid,
-                    "eventuuids" => nx1915["eventuuids"] - DxF1::eventuuids2(objectuuid)
-                }
-            }
-            .select{|nx1915| nx1915["eventuuids"].size > 0 }
+            .flatten
     end
 end
 
