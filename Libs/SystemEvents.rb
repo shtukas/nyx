@@ -68,10 +68,6 @@ class SystemEvents
             NetworkLinks::processEvent(event)
         end
 
-        if event["mikuType"] == "Bank-records" then
-            Bank::processEvent(event)
-        end
-
         if event["mikuType"] == "DxF1-records" then
             DxF1Extended::processEvent(event)
         end
@@ -216,6 +212,28 @@ class SystemEvents
                         next if knowneventuuids.include?(row["_eventuuid_"])
                         puts "owner-mapping: importing row: #{JSON.pretty_generate(row)}"
                         OwnerMapping::insertRow(row)
+                    end
+                    db1.close
+
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
+                if File.basename(filepath1)[-13, 13] == ".bank.sqlite3" then
+                    if verbose then
+                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
+                    end
+
+                    knowneventuuids = Bank::eventuuids()
+
+                    db1 = SQLite3::Database.new(filepath1)
+                    db1.busy_timeout = 117
+                    db1.busy_handler { |count| true }
+                    db1.results_as_hash = true
+                    db1.execute("select * from _bank_", []) do |row|
+                        next if knowneventuuids.include?(row["_eventuuid_"])
+                        puts "bank: importing row: #{JSON.pretty_generate(row)}"
+                        Bank::insertRecord(row)
                     end
                     db1.close
 

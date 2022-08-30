@@ -67,13 +67,6 @@ class Bank
             Bank::putNoEvents(eventuuid, setuuid, unixtime, date, weight)
             XCache::destroy("256e3994-7469-46a8-abd1-238bb25d5976:#{setuuid}:#{date}") # decaching the value for that date
         end
-        if event["mikuType"] == "Bank-records" then
-            eventuuids = Bank::eventuuids()
-            event["records"].each{|row|
-                next if eventuuids.include?(row["_eventuuid_"])
-                Bank::insertRecord(row)
-            }
-        end
     end
 
     # Bank::valueAtDate(setuuid, date)
@@ -131,20 +124,6 @@ class Bank
         end
         db.close
         eventuuids
-    end
-
-    # Bank::records()
-    def self.records()
-        db = SQLite3::Database.new(Bank::pathToBank())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        records = []
-        db.execute("select * from _bank_", []) do |row|
-            records << row.clone
-        end
-        db.close
-        records
     end
 end
 

@@ -4,19 +4,19 @@
 
 require_relative "../Libs/loader.rb"
 
-dbFilepath = OwnerMapping::databaseFile()
-
+filepath1 = OwnerMapping::databaseFile()
 Machines::theOtherInstanceIds().each{|targetInstanceId|
-    targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.owner-mapping.sqlite3"
-    FileUtils.cp(dbFilepath, targetFilepath)
+    filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.owner-mapping.sqlite3"
+    FileUtils.cp(filepath1, filepath2)
+}
+
+filepath1 = Bank::pathToBank()
+Machines::theOtherInstanceIds().each{|targetInstanceId|
+    filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.bank.sqlite3"
+    FileUtils.cp(filepath1, filepath2)
 }
 
 exit
-
-SystemEvents::broadcast({
-    "mikuType" => "Bank-records",
-    "records"  => Bank::records()
-})
 
 SystemEvents::broadcast({
     "mikuType" => "NetworkLinks-records",
