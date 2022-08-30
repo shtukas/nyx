@@ -18,10 +18,6 @@ class OwnerMapping
             db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_itemuuid_"], row["_groupuuid_"], row["_status_"]]
             db.close
         }
-        SystemEvents::processAndBroadcast({
-            "mikuType" => "(owner-elements-mapping-update)",
-            "objectuuids"  => [row["_itemuuid_"], row["_groupuuid_"]],
-        })
     end
 
     # OwnerMapping::issueNoEvents(eventuuid, groupuuid, itemuuid)
@@ -38,15 +34,13 @@ class OwnerMapping
 
     # OwnerMapping::issue(owneruuid, itemuuid)
     def self.issue(owneruuid, itemuuid)
-        OwnerMapping::issueNoEvents(SecureRandom.uuid, owneruuid, itemuuid)
+        eventuuid = SecureRandom.uuid
+        OwnerMapping::issueNoEvents(eventuuid, owneruuid, itemuuid)
         SystemEvents::broadcast({
           "mikuType"  => "OwnerMapping",
+          "eventuuid" => eventuuid,
           "owneruuid" => owneruuid,
           "itemuuid"  => itemuuid
-        })
-        SystemEvents::processAndBroadcast({
-            "mikuType" => "(owner-elements-mapping-update)",
-            "objectuuids"  => [owneruuid, itemuuid],
         })
     end
 
@@ -143,11 +137,6 @@ class OwnerMapping
             owneruuid = event["owneruuid"]
             itemuuid  = event["itemuuid"]
             OwnerMapping::issueNoEvents(eventuuid, owneruuid, itemuuid)
-        end
-        if event["mikuType"] == "(owner-elements-mapping-update)" then
-            event["objectuuids"].each{|objectuuid|
-                XCache::destroy("0512f14d-c322-4155-ba05-ea6f53943ec8:#{objectuuid}") # Decache OwnerMapping::elementuuidToOwnersuuidsCached
-            }
         end
     end
 end

@@ -20,10 +20,6 @@ class SystemEvents
             Ax39forSections::processEvent(event)
         end
 
-        if event["mikuType"] == "(owner-elements-mapping-update)" then
-            OwnerMapping::processEvent(event)
-        end
-
         if event["mikuType"] == "(do not show until has been updated)" then
             Ax39forSections::processEvent(event)
         end
