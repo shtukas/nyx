@@ -25,6 +25,7 @@ class CatalystListing
         items = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
+            MxPlanning::listingItems(),
             TxDateds::listingItems(),
             Waves::listingItems(true),
             TxIncomings::listingItems(),
@@ -199,32 +200,24 @@ class CatalystListing
         puts ""
         vspaceleft = vspaceleft - 1
 
+        listingItems = CatalystListing::listingItems()
+        listingItemsUUIDs = listingItems.map{|item| item["uuid"] }
+
         NxBallsIO::nxballs()
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
             .each{|nxball|
+                next if listingItemsUUIDs.include?(nxball["uuid"])
                 store.register(nxball, false)
                 line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                 puts line.green
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        planning = MxPlanning::displayItems()
-        planning.each{|displayItem|
-            store.register(displayItem["item"], true) # We register the planning item itself.
-            line = "#{store.prefixString()} #{MxPlanning::displayItemToString(displayItem)}"
-            puts line
-            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-        }
-        if planning.size > 0 then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
         planninguuids = MxPlanning::catalystItemsUUIDs()
 
         CatalystListing::listingItems()
             .each{|item|
-                next if planninguuids.include?(item["uuid"])
+                next if planninguuids.any?(item["uuid"])
                 break if vspaceleft <= 0
                 store.register(item, true)
                 toString1 = LxFunction::function("toString", item)
@@ -245,7 +238,7 @@ class CatalystListing
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
-                NxBallsService::close(item["uuid"], true)
+                LxAction::action("stop", item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end

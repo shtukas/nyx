@@ -180,6 +180,18 @@ class NxBallsService
         nxball["status"]["startUnixtime"]
     end
 
+    # NxBallsService::startUnixtimeOrNull(uuid)
+    def self.startUnixtimeOrNull(uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        if nxball.nil? then
+            return nil
+        end
+        if nxball["status"]["type"] == "paused" then
+            return nil
+        end
+        nxball["status"]["startUnixtime"]
+    end
+
     # NxBallsService::activityStringOrEmptyString(leftSide, uuid, rightSide)
     def self.activityStringOrEmptyString(leftSide, uuid, rightSide)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)

@@ -10,7 +10,7 @@ class Commands
             "anniversaries | ondates | todos | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | >owner (n) | >nyx | >planning",
-            "planning set ordinal | planning set timespan",
+            "planning set ordinal <n> | planning set timespan <n>",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
         ].join("\n")
@@ -56,9 +56,9 @@ class Commands
 
         if Interpreting::match(">planning *", input) then
             _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            item = MxPlanning::interactivelyIssueNewWithCatalystItem(catalystitem)
+            catalystitem = store.get(ordinal.to_i)
+            return if catalystitem.nil?
+            planningItem = MxPlanning::interactivelyIssueNewWithCatalystItem(catalystitem)
             puts JSON.pretty_generate(planningItem)
             return
         end
@@ -259,13 +259,14 @@ class Commands
             _, _, _, o = Interpreting::tokenizer(input)
             item = store.get(o.to_i)
             return if item.nil?
-            if item["mikuType"] != "MxPlanning" then
-                puts "You can only do that on a MxPlanning"
+            if item["mikuType"] != "MxPlanningDisplay" then
+                puts "You can only do that on a MxPlanningDisplay which acts on behalf of a MxPlanning"
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            item["ordinal"] = MxPlanning::interactivelyDecideOrdinal()
-            MxPlanning::commit(item)
+            item2 = item["item"]
+            item2["ordinal"] = MxPlanning::interactivelyDecideOrdinal()
+            MxPlanning::commit(item2)
             return
         end
 
@@ -273,13 +274,14 @@ class Commands
             _, _, _, o = Interpreting::tokenizer(input)
             item = store.get(o.to_i)
             return if item.nil?
-            if item["mikuType"] != "MxPlanning" then
-                puts "You can only do that on a MxPlanning"
+            if item["mikuType"] != "MxPlanningDisplay" then
+                puts "You can only do that on a MxPlanningDisplay which acts on behalf of a MxPlanning"
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            item["timespanInHour"] = MxPlanning::interactivelyDecideTimespan()
-            MxPlanning::commit(item)
+            item2 = item["item"]
+            item2["timespanInHour"] = MxPlanning::interactivelyDecideTimespan()
+            MxPlanning::commit(item2)
             return
         end
 
@@ -336,7 +338,7 @@ class Commands
             return if datecode == ""
             unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
             return if unixtime.nil?
-            NxBallsService::close(item["uuid"], true)
+            LxAction::action("stop", item)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
@@ -452,6 +454,10 @@ class Commands
                 {
                     "name" => "Anniversaries::listingItems()",
                     "lambda" => lambda { Anniversaries::listingItems() }
+                },
+                {
+                    "name" => "MxPlanning::listingItems()",
+                    "lambda" => lambda { MxPlanning::listingItems() }
                 },
                 {
                     "name" => "NxTasks::listingItems()",

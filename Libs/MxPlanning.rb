@@ -57,11 +57,6 @@ class MxPlanning
         (MxPlanning::items().map{|item| item["ordinal"] } + [0]).max + 1
     end
 
-    # MxPlanning::newUUID()
-    def self.newUUID()
-        SecureRandom.hex[0, 4]
-    end
-
     # MxPlanning::interactivelyDecideOrdinal()
     def self.interactivelyDecideOrdinal()
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (`next` for next): ")
@@ -84,7 +79,7 @@ class MxPlanning
         ordinal = MxPlanning::interactivelyDecideOrdinal()
         timespanInHour = MxPlanning::interactivelyDecideTimespan()
         item = {
-            "uuid"           => MxPlanning::newUUID(),
+            "uuid"           => SecureRandom.uuid,
             "mikuType"       => "MxPlanning",
             "payload"        => payload,
             "ordinal"        => ordinal,
@@ -105,7 +100,7 @@ class MxPlanning
         ordinal = MxPlanning::interactivelyDecideOrdinal()
         timespanInHour = MxPlanning::interactivelyDecideTimespan()
         item = {
-            "uuid"           => MxPlanning::newUUID(),
+            "uuid"           => SecureRandom.uuid,
             "mikuType"       => "MxPlanning",
             "payload"        => payload,
             "ordinal"        => ordinal,
@@ -124,7 +119,7 @@ class MxPlanning
         ordinal = MxPlanning::interactivelyDecideOrdinal()
         timespanInHour = MxPlanning::interactivelyDecideTimespan()
         planningItem = {
-            "uuid"           => MxPlanning::newUUID(),
+            "uuid"           => SecureRandom.uuid,
             "mikuType"       => "MxPlanning",
             "payload"        => payload,
             "ordinal"        => ordinal,
@@ -138,7 +133,7 @@ class MxPlanning
     def self.toString(item)
         payload = item["payload"]
         if payload["type"] == "simple" then
-            return payload["description"]
+            return "(planning line) #{payload["description"]}"
         end
         if payload["type"] == "pointer" then
             return LxFunction::function("toString", payload["item"])
@@ -163,9 +158,14 @@ class MxPlanning
         items = MxPlanning::items().sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"]}
         unixtime1 = Time.new.to_f
         unixtime2 = nil
-        items.map{|item|
+        items
+        .select{|item| DoNotShowUntil::isVisible("MxPlanningDisplayItem:#{item["uuid"]}") }
+        .map{|item|
+            uuid = "MxPlanningDisplayItem:#{item["uuid"]}"
+            unixtime1 = NxBallsService::startUnixtimeOrNull(uuid) || unixtime1
             unixtime2 = unixtime1 + item["timespanInHour"]*3600
             displayItem = {
+                "uuid"          => uuid,
                 "mikuType"      => "MxPlanningDisplay",
                 "item"          => item,
                 "startUnixtime" => unixtime1,
@@ -183,7 +183,7 @@ class MxPlanning
 
     # MxPlanning::displayItemToString(displayItem)
     def self.displayItemToString(displayItem)
-        "(id: #{displayItem["item"]["uuid"]}) (ord: #{"%5.2f" % displayItem["item"]["ordinal"]}) (start: #{MxPlanning::unixtimeToTime(displayItem["startUnixtime"]).green}, end: #{MxPlanning::unixtimeToTime(displayItem["endUnixtime"]).green}) #{MxPlanning::toString(displayItem["item"])}"
+        "(ord: #{"%5.2f" % displayItem["item"]["ordinal"]}) (start: #{MxPlanning::unixtimeToTime(displayItem["startUnixtime"]).green}, end: #{MxPlanning::unixtimeToTime(displayItem["endUnixtime"]).green}) #{MxPlanning::toString(displayItem["item"])}"
     end
 
     # MxPlanning::catalystItemsUUIDs()
@@ -191,5 +191,10 @@ class MxPlanning
         MxPlanning::items()
         .select{|item| item["payload"]["type"] == "pointer" }
         .map{|item| item["payload"]["item"]["uuid"]}
+    end
+
+    # MxPlanning::listingItems()
+    def self.listingItems()
+        MxPlanning::displayItems()
     end
 end

@@ -111,7 +111,7 @@ class LxAction
         end
 
         if command == ">nyx" then
-            NxBallsService::close(item["uuid"], true)
+            LxAction::action("stop", item)
             puts "TODO"
             exit
             return
@@ -119,8 +119,9 @@ class LxAction
 
         if command == "done" then
 
+            LxAction::action("stop", item)
+
             if item["mikuType"] == "(rstream-to-target)" then
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -129,25 +130,28 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "MxPlanningDisplay" then
+                if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done ? ", true) then
+                    MxPlanning::destroy(item["item"]["uuid"])
+                end
+                return
+            end
+
             if item["mikuType"] == "NxAnniversary" then
                 Anniversaries::done(item["uuid"])
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
             if item["mikuType"] == "NxBall.v2" then
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
             if item["mikuType"] == "NxFrame" then
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
             if item["mikuType"] == "NxIced" then
                 NxIceds::destroy(item["uuid"])
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -156,12 +160,10 @@ class LxAction
                     if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done for today ? ", true) then
                         DoneForToday::setDoneToday(item["uuid"])
                     end
-                    NxBallsService::close(item["uuid"], true)
                     return
                 end
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{LxFunction::function("toString", item).green}' ? ") then
                     DxF1::deleteObjectLogically(item["uuid"])
-                    NxBallsService::close(item["uuid"], true)
                 end
                 return
             end
@@ -170,7 +172,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{LxFunction::function("toString", item).green}' ? ", true) then
                     DxF1::deleteObjectLogically(item["uuid"])
                 end
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -178,13 +179,11 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
             if item["mikuType"] == "TxIncoming" then
                 DxF1::deleteObjectLogically(item["uuid"])
-                NxBallsService::close(item["uuid"], true)
                 return
             end
 
@@ -192,12 +191,12 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
                 end
-                NxBallsService::close(item["uuid"], true)
                 return
             end
         end
 
         if command == "destroy-with-prompt" then
+            LxAction::action("stop", item)
             if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{LxFunction::function("toString", item).green}' ") then
                 DxF1::deleteObjectLogically(item["uuid"])
             end
@@ -231,7 +230,19 @@ class LxAction
         end
 
         if command == "start" then
+
+            if item["mikuType"] == "MxPlanning" then
+                if item["payload"]["type"] == "pointer" then
+                    LxAction::action("start", item["payload"]["item"])
+                end
+            end
+
+            if item["mikuType"] == "MxPlanningDisplay" then
+                LxAction::action("start", item["item"])
+            end
+
             return if NxBallsService::isRunning(item["uuid"])
+
             accounts = []
             accounts << item["uuid"] # Item's own uuid
             OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
@@ -245,11 +256,20 @@ class LxAction
                     accounts << ox["uuid"] # temporary owner for TxIncoming
                 end
             end
+
             NxBallsService::issue(item["uuid"], LxFunction::function("toString", item), accounts)
             return
         end
 
         if command == "stop" then
+            if item["mikuType"] == "MxPlanning" then
+                if item["payload"]["type"] == "pointer" then
+                    LxAction::action("stop", item["payload"]["item"])
+                end
+            end
+            if item["mikuType"] == "MxPlanningDisplay" then
+                LxAction::action("stop", item["item"])
+            end
             NxBallsService::close(item["uuid"], true)
             return
         end

@@ -148,6 +148,12 @@ class LxFunction
             if item["mikuType"] == "DxUrl" then
                 return DxUrl::toString(item)
             end
+            if item["mikuType"] == "MxPlanning" then
+                return MxPlanning::toString(item)
+            end
+            if item["mikuType"] == "MxPlanningDisplay" then
+                return MxPlanning::displayItemToString(item)
+            end
             if item["mikuType"] == "NxAnniversary" then
                 return Anniversaries::toString(item)
             end
