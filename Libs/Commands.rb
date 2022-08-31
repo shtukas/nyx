@@ -9,7 +9,8 @@ class Commands
             "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
-            ">owner | >owner (n) | >nyx | >planning", 
+            ">owner | >owner (n) | >nyx | >planning",
+            "planning set ordinal | planning set timespan",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
         ].join("\n")
@@ -263,6 +264,34 @@ class Commands
             item = MxPlanning::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            return
+        end
+
+        if Interpreting::match("planning set ordinal *", input) then
+            _, _, _, o = Interpreting::tokenizer(input)
+            item = store.get(o.to_i)
+            return if item.nil?
+            if item["mikuType"] != "MxPlanning" then
+                puts "You can only do that on a MxPlanning"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            item["ordinal"] = MxPlanning::interactivelyDecideOrdinal()
+            MxPlanning::commit(item)
+            return
+        end
+
+        if Interpreting::match("planning set timespan *", input) then
+            _, _, _, o = Interpreting::tokenizer(input)
+            item = store.get(o.to_i)
+            return if item.nil?
+            if item["mikuType"] != "MxPlanning" then
+                puts "You can only do that on a MxPlanning"
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            item["timespanInHour"] = MxPlanning::interactivelyDecideTimespan()
+            MxPlanning::commit(item)
             return
         end
 
