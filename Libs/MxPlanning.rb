@@ -115,6 +115,25 @@ class MxPlanning
         item
     end
 
+    # MxPlanning::interactivelyIssueNewWithCatalystItem(catalystitem)
+    def self.interactivelyIssueNewWithCatalystItem(catalystitem)
+        payload = {
+            "type" => "pointer",
+            "item" => item
+        }
+        ordinal = MxPlanning::interactivelyDecideOrdinal()
+        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        planningItem = {
+            "uuid"           => MxPlanning::newUUID(),
+            "mikuType"       => "MxPlanning",
+            "payload"        => payload,
+            "ordinal"        => ordinal,
+            "timespanInHour" => timespanInHour
+        }
+        MxPlanning::commit(planningItem)
+        planningItem
+    end
+
     # MxPlanning::toString(item)
     def self.toString(item)
         payload = item["payload"]

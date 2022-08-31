@@ -58,20 +58,8 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            payload = {
-                "type" => "pointer",
-                "item" => item
-            }
-            ordinal = MxPlanning::interactivelyDecideOrdinal()
-            timespanInHour = MxPlanning::interactivelyDecideTimespan()
-            planningItem = {
-                "uuid"           => MxPlanning::newUUID(),
-                "payload"        => payload,
-                "ordinal"        => ordinal,
-                "timespanInHour" => timespanInHour
-            }
+            item = MxPlanning::interactivelyIssueNewWithCatalystItem(catalystitem)
             puts JSON.pretty_generate(planningItem)
-            MxPlanning::commit(planningItem)
             return
         end
 
