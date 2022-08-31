@@ -14,5 +14,12 @@ Payload
 }
 {
     "type" : "pointer"
-    "item" : String
+    "item" : CatalystItem
+}
+
+MxPlanningDisplay {
+    "mikuType"      : "MxPlanningDisplay"
+    "item"          : item
+    "startUnixtime" : Float
+    "endUnixtime"   : Float
 }

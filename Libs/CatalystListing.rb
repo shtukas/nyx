@@ -208,6 +208,17 @@ class CatalystListing
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
+        planning = MxPlanning::displayItems()
+        planning.each{|displayItem|
+            line = MxPlanning::displayItemToString(displayItem)
+            puts line
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+        }
+        if planning.size > 0 then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
         CatalystListing::listingItems()
             .each{|item|
                 break if vspaceleft <= 0
