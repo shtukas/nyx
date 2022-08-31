@@ -82,3 +82,13 @@ We have two types of events
     "attname"    => string
     "attvalue"   => value
 }
+
+{
+    "mikuType" : "MxPlanningCommit"
+    "item"     : MxPlanning
+}
+
+{
+    "mikuType" : "MxPlanningDelete"
+    "itemuuid" : String
+}
