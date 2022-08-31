@@ -1,0 +1,18 @@
+MxPlanning objects are stored in XCacheSets.
+
+MxPlanning {
+    "uuid"           : String
+    "payload"        : Payload
+    "timespanInHour" : Float
+    "ordinal"        : Float
+}
+
+Payload 
+{
+    "type"        : "simple"
+    "description" : String
+}
+{
+    "type" : "pointer"
+    "item" : String
+}
