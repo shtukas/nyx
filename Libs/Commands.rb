@@ -261,7 +261,7 @@ class Commands
         end
 
         if Interpreting::match("planning", input) then
-            item = MxPlanning::interactivelyIssueNewOrNull()
+            item = MxPlanning::interactivelyIssueNewLineOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return

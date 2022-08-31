@@ -36,6 +36,7 @@ class MxPlanning
         return nil if type == ""
         if type == "line" then
             description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return nil if description == ""
             return {
                 "type"        => "simple",
                 "description" => description
@@ -80,6 +81,27 @@ class MxPlanning
     def self.interactivelyIssueNewOrNull()
         payload = MxPlanning::interactivelyMakeNewPayloadOrNull()
         return nil if payload.nil?
+        ordinal = MxPlanning::interactivelyDecideOrdinal()
+        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        item = {
+            "uuid"           => MxPlanning::newUUID(),
+            "mikuType"       => "MxPlanning",
+            "payload"        => payload,
+            "ordinal"        => ordinal,
+            "timespanInHour" => timespanInHour
+        }
+        MxPlanning::commit(item)
+        item
+    end
+
+    # MxPlanning::interactivelyIssueNewLineOrNull()
+    def self.interactivelyIssueNewLineOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return if description == ""
+        payload = {
+            "type"        => "simple",
+            "description" => description
+        }
         ordinal = MxPlanning::interactivelyDecideOrdinal()
         timespanInHour = MxPlanning::interactivelyDecideTimespan()
         item = {
