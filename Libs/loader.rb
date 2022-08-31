@@ -236,6 +236,7 @@ require_relative "LxFunction.rb"
 require_relative "LxLanding.rb"
 
 require_relative "Machines.rb"
+require_relative "MxPlanning.rb"
 
 require_relative "NxTimelines.rb"
 require_relative "Nyx.rb"
