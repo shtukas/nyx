@@ -10,6 +10,7 @@ class Commands
             "anniversaries | ondates | todos | time-commitment-projects | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | (n) >owner | >nyx",
+            "planning new | planning done <id>", 
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
         ].join("\n")
@@ -241,6 +242,19 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             NxBallsService::pause(item["uuid"])
+            return
+        end
+
+        if Interpreting::match("planning new", input) then
+            item = MxPlanning::interactivelyIssueNewOrNull()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            return
+        end
+
+        if Interpreting::match("planning done *", input) then
+            _, _, id = Interpreting::tokenizer(input)
+            MxPlanning::destroy(id)
             return
         end
 

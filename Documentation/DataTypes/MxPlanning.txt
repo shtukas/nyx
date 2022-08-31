@@ -3,8 +3,8 @@ MxPlanning objects are stored in XCacheSets.
 MxPlanning {
     "uuid"           : String
     "payload"        : Payload
-    "timespanInHour" : Float
     "ordinal"        : Float
+    "timespanInHour" : Float
 }
 
 Payload 

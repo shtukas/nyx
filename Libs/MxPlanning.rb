@@ -30,6 +30,53 @@ class MxPlanning
         })
     end
 
+    # MxPlanning::interactivelyMakeNewPayloadOrNull()
+    def self.interactivelyMakeNewPayloadOrNull()
+        type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "pointer"])
+        return nil if type == ""
+        if type == "line" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return {
+                "type"        => "simple",
+                "description" => description
+            }
+        end
+        if type == "pointer" then
+            item = nil # Interactively choose a catalyst item
+            raise "(error: 30f01d52-c70b-43f3-a208-6eefef0af2b4) no implemented yet"
+            return {
+                "type" => "item",
+                "item" => item
+            }
+        end
+    end
+
+    # MxPlanning::nextOrdinal()
+    def self.nextOrdinal()
+        (MxPlanning::items().map{|item| item["ordinal"] } + [0]).max + 1
+    end
+
+    # MxPlanning::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
+        payload = MxPlanning::interactivelyMakeNewPayloadOrNull()
+        return nil if payload.nil?
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (`next` for next): ")
+        if ordinal == "next" then
+            ordinal = MxPlanning::nextOrdinal()
+        else
+            ordinal = ordinal.to_f
+        end
+        timespanInHour = LucilleCore::askQuestionAnswerAsString("timespanInHour: ").to_f
+        item = {
+            "uuid"           => SecureRandom.hex[0, 4],
+            "payload"        => payload,
+            "ordinal"        => ordinal,
+            "timespanInHour" => timespanInHour
+        }
+        MxPlanning::commit(item)
+        item
+    end
+
     # MxPlanning::toString(item)
     def self.toString(item)
         payload = item["payload"]
@@ -79,6 +126,6 @@ class MxPlanning
 
     # MxPlanning::displayItemToString(displayItem)
     def self.displayItemToString(displayItem)
-        "(id: #{displayItem["item"]["uuid"]}) (ord: #{"%5.2f" % displayItem["item"]["ordinal"]}) (start: #{MxPlanning::unixtimeToTime(displayItem["startUnixtime"])}, end: #{MxPlanning::unixtimeToTime(displayItem["endUnixtime"])}) #{MxPlanning::toString(displayItem["item"])}"
+        "(id: #{displayItem["item"]["uuid"]}) (ord: #{"%5.2f" % displayItem["item"]["ordinal"]}) (start: #{MxPlanning::unixtimeToTime(displayItem["startUnixtime"]).green}, end: #{MxPlanning::unixtimeToTime(displayItem["endUnixtime"])}) #{MxPlanning::toString(displayItem["item"])}"
     end
 end
