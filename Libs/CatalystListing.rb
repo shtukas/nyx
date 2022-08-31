@@ -210,7 +210,8 @@ class CatalystListing
 
         planning = MxPlanning::displayItems()
         planning.each{|displayItem|
-            line = MxPlanning::displayItemToString(displayItem)
+            store.register(displayItem["item"], true) # We register the planning item itself.
+            line = "#{store.prefixString()} #{MxPlanning::displayItemToString(displayItem)}"
             puts line
             vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
         }
@@ -219,8 +220,11 @@ class CatalystListing
             vspaceleft = vspaceleft - 1
         end
 
+        planninguuids = MxPlanning::catalystItemsUUIDs()
+
         CatalystListing::listingItems()
             .each{|item|
+                next if planninguuids.include?(item["uuid"])
                 break if vspaceleft <= 0
                 store.register(item, true)
                 toString1 = LxFunction::function("toString", item)

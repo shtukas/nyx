@@ -6,11 +6,10 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming | line",
-            "anniversaries | ondates | todos | time-commitment-projects | waves | frames | toplevels",
+            "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming | line | planning",
+            "anniversaries | ondates | todos | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
-            ">owner | (n) >owner | >nyx",
-            "planning new | planning done <id>", 
+            ">owner | >owner (n) | >nyx | >planning", 
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
         ].join("\n")
@@ -18,29 +17,6 @@ class Commands
 
     # Commands::run(input, store)
     def self.run(input, store) # [command or null, item or null]
-
-
-        if Interpreting::match(">owner", input) then
-            item = store.getDefault()
-            return if item.nil?
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
-            return
-        end
-
-        if Interpreting::match("* >owner", input) then
-            ordinal, _ = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
-            return
-        end
-
-        if Interpreting::match(">nyx", input) then
-            item = store.getDefault()
-            return if item.nil?
-            LxAction::action(">nyx", item.clone)
-            return
-        end
 
         if input == ".." then
             LxAction::action("..", store.getDefault())
@@ -52,6 +28,49 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             LxAction::action("..", item)
+            return
+        end
+
+        if Interpreting::match(">nyx", input) then
+            item = store.getDefault()
+            return if item.nil?
+            LxAction::action(">nyx", item.clone)
+            return
+        end
+
+        if Interpreting::match(">owner", input) then
+            item = store.getDefault()
+            return if item.nil?
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            return
+        end
+
+        if Interpreting::match(">owner *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            return
+        end
+
+        if Interpreting::match(">planning *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            payload = {
+                "type" => "pointer",
+                "item" => item
+            }
+            ordinal = MxPlanning::interactivelyDecideOrdinal()
+            timespanInHour = MxPlanning::interactivelyDecideTimespan()
+            planningItem = {
+                "uuid"           => MxPlanning::newUUID(),
+                "payload"        => payload,
+                "ordinal"        => ordinal,
+                "timespanInHour" => timespanInHour
+            }
+            puts JSON.pretty_generate(planningItem)
+            MxPlanning::commit(planningItem)
             return
         end
 
@@ -197,6 +216,11 @@ class Commands
             return
         end
 
+        if Interpreting::match("maintenance", input) then
+            TxDateds::dive()
+            return
+        end
+
         if Interpreting::match("nyx", input) then
             Nyx::program()
             return
@@ -220,16 +244,6 @@ class Commands
             return
         end
 
-        if Interpreting::match("time-commitment-projects", input) then
-
-            return
-        end
-
-        if Interpreting::match("maintenance", input) then
-            TxDateds::dive()
-            return
-        end
-
         if Interpreting::match("pause", input) then
             item = store.getDefault()
             return if item.nil?
@@ -245,16 +259,10 @@ class Commands
             return
         end
 
-        if Interpreting::match("planning new", input) then
+        if Interpreting::match("planning", input) then
             item = MxPlanning::interactivelyIssueNewOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("planning done *", input) then
-            _, _, id = Interpreting::tokenizer(input)
-            MxPlanning::destroy(id)
             return
         end
 

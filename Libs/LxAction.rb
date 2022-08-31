@@ -18,13 +18,6 @@ class LxAction
             exit
         end
 
-        if command == ">nyx" then
-            NxBallsService::close(item["uuid"], true)
-            puts "TODO"
-            exit
-            return
-        end
-
         if command == ".." then
             ## .. performs the optimal sequence for this item
 
@@ -117,10 +110,22 @@ class LxAction
             return
         end
 
+        if command == ">nyx" then
+            NxBallsService::close(item["uuid"], true)
+            puts "TODO"
+            exit
+            return
+        end
+
         if command == "done" then
 
             if item["mikuType"] == "(rstream-to-target)" then
                 NxBallsService::close(item["uuid"], true)
+                return
+            end
+
+            if item["mikuType"] == "MxPlanning" then
+                MxPlanning::destroy(item["uuid"])
                 return
             end
 
