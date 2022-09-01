@@ -40,6 +40,22 @@ class LxAccess
             return
         end
 
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                puts item["payload"]["description"].green
+                LucilleCore::pressEnterToContinue()
+            end
+            if item["payload"]["type"] == "pointer" then
+                LxAccess::access(item["payload"]["item"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            LxAccess::access(item["item"])
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return

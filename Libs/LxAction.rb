@@ -127,10 +127,10 @@ class LxAction
 
             if item["mikuType"] == "MxPlanning" then
                 if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done ? ", true) then
+                    MxPlanning::destroy(item["uuid"])
                     if item["payload"]["type"] == "pointer" then
                         LxAction::action("done", item["payload"]["item"])
                     end
-                    MxPlanning::destroy(item["uuid"])
                 end
                 return
             end
