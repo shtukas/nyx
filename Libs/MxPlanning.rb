@@ -167,21 +167,21 @@ class MxPlanning
         unixtime1 = Time.new.to_f
         unixtime2 = nil
         items
-        .select{|item| DoNotShowUntil::isVisible("MxPlanningDisplayItem:#{item["uuid"]}") }
-        .map{|item|
-            uuid = "MxPlanningDisplayItem:#{item["uuid"]}"
-            unixtime1 = NxBallsService::startUnixtimeOrNull(uuid) || unixtime1
-            unixtime2 = unixtime1 + item["timespanInHour"]*3600
-            displayItem = {
-                "uuid"          => uuid,
-                "mikuType"      => "MxPlanningDisplay",
-                "item"          => item,
-                "startUnixtime" => unixtime1,
-                "endUnixtime"   => unixtime2
+            .select{|item| DoNotShowUntil::isVisible("MxPlanningDisplayItem:#{item["uuid"]}") }
+            .map{|item|
+                uuid = Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{item["uuid"]}")
+                unixtime1 = NxBallsService::startUnixtimeOrNull(uuid) || unixtime1
+                unixtime2 = unixtime1 + item["timespanInHour"]*3600
+                displayItem = {
+                    "uuid"          => uuid,
+                    "mikuType"      => "MxPlanningDisplay",
+                    "item"          => item,
+                    "startUnixtime" => unixtime1,
+                    "endUnixtime"   => unixtime2
+                }
+                unixtime1 = unixtime2
+                displayItem
             }
-            unixtime1 = unixtime2
-            displayItem
-        }
     end
 
     # MxPlanning::unixtimeToTime(unixtime)
