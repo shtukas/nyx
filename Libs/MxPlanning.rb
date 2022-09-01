@@ -169,6 +169,7 @@ class MxPlanning
         items
             .select{|item| DoNotShowUntil::isVisible("MxPlanningDisplayItem:#{item["uuid"]}") }
             .map{|item|
+                XCacheValuesWithExpiry::set("recently-listed-uuid-ad5b7c29c1c6:#{item["uuid"]}", "true", 60) # A special purpose way to not display a NxBall.
                 uuid = Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{item["uuid"]}")
                 unixtime1 = NxBallsService::startUnixtimeOrNull(uuid) || unixtime1
                 unixtime2 = unixtime1 + item["timespanInHour"]*3600

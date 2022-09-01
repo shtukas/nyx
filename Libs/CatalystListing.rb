@@ -206,7 +206,8 @@ class CatalystListing
         NxBallsIO::nxballs()
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
             .each{|nxball|
-                next if listingItemsUUIDs.include?(nxball["uuid"])
+                next if listingItemsUUIDs.include?(nxball["uuid"]) # We do not display items that are part of the listing
+                next if XCacheValuesWithExpiry::getOrNull("recently-listed-uuid-ad5b7c29c1c6:#{nxball["uuid"]}") # A special purpose way to not display a NxBall.
                 store.register(nxball, false)
                 line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                 puts line.green
@@ -217,7 +218,7 @@ class CatalystListing
 
         CatalystListing::listingItems()
             .each{|item|
-                next if planninguuids.any?(item["uuid"])
+                next if planninguuids.any?(item["uuid"]) # We do not display in the lower listing items that are planning managed
                 break if vspaceleft <= 0
                 store.register(item, true)
                 toString1 = LxFunction::function("toString", item)
