@@ -682,21 +682,7 @@ class PolyAction
 
         return if NxBallsService::isRunning(item["uuid"])
 
-        accounts = []
-        accounts << item["uuid"] # Item's own uuid
-        OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
-            .each{|owneruuid|
-                accounts << owneruuid # Owner of a owned item
-            }
-        if ["InboxItem", "TxDated"].include?(item["mikuType"]) then
-            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
-            if ox then
-                puts "registering extra bank account: #{PolyFunction::toString(ox).green}"
-                accounts << ox["uuid"]
-            end
-        end
-
-        NxBallsService::issue(item["uuid"], PolyFunction::toString(item), accounts)
+        NxBallsService::issue(item["uuid"], PolyFunction::toString(item), PolyAction::bankAccounts(item))
     end
 
     # PolyAction::stop(item)
@@ -846,5 +832,42 @@ class PolyAction
         end
 
         raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mnikuType: #{item["mikuType"]}"
+    end
+
+    # PolyAction::bankAccounts(item)
+    def self.bankAccounts(item)
+
+        decideTxTimeCommitmentProjectUUIDOrNull = lambda {|itemuuid|
+            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
+            uuid = XCache::getOrNull(key)
+            if uuid == "null" then
+                return nil
+            end
+            if uuid then
+                return uuid
+            end
+            puts "This is important, pay attention"
+            LucilleCore::pressEnterToContinue()
+            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
+            if ox then
+                XCache::set(key, ox["uuid"])
+                return ox["uuid"]
+            else
+                XCache::set(key, "null")
+                return nil
+            end
+        }
+
+        accounts = [item["uuid"]] # Item's own uuid
+
+        if ["NxLine", "Nxtask"].include?(item["mikuType"]) then
+            accounts = accounts + OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+        end
+
+        if ["InboxItem", "TxDated"].include?(item["mikuType"]) then
+            accounts = accounts + [decideTxTimeCommitmentProjectUUIDOrNull.call(item["uuid"])].compact
+        end
+
+        accounts
     end
 end
