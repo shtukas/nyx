@@ -136,9 +136,7 @@ class LxAction
             end
 
             if item["mikuType"] == "MxPlanningDisplay" then
-                if LucilleCore::askQuestionAnswerAsBoolean("'#{LxFunction::function("toString", item).green}' done ? ", true) then
-                    LxAction::action("done", item["item"])
-                end
+                LxAction::action("done", item["item"])
                 return
             end
 
