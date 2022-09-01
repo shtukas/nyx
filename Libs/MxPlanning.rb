@@ -64,8 +64,8 @@ class MxPlanning
 
     # MxPlanning::interactivelyDecideOrdinal()
     def self.interactivelyDecideOrdinal()
-        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (`next` for next): ")
-        if ordinal == "next" then
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (`next` or empty for next): ")
+        if ordinal == "next" or ordinal == "" then
             ordinal = MxPlanning::nextOrdinal()
         else
             ordinal = ordinal.to_f
