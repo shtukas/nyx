@@ -39,7 +39,7 @@ class FileSystemCheck
         if item["datetime"].nil? then
             puts JSON.pretty_generate(item)
             puts "Missing attribute: datetime"
-            if LucilleCore::askQuestionAnswerAsBoolean("Should  I add it now ? ", true) then
+            if LucilleCore::askQuestionAnswerAsBoolean("Should I add it now ? ", true) then
                 DxF1::setAttribute2(item["uuid"], "datetime", CommonUtils::now_iso8601())
                 return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex, true)
             end
@@ -148,6 +148,7 @@ class FileSystemCheck
         end
 
         if mikuType == "DxText" then
+            ensureAttribute.call("description")
             ensureAttribute.call("text")
         end
 

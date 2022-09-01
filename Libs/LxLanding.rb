@@ -135,7 +135,8 @@ class LxLanding
             end
 
             if Interpreting::match("text", command) then
-                i2 = DxText::interactivelyIssueNew()
+                i2 = DxText::interactivelyIssueNewOrNull()
+                return if i2.nil?
                 puts JSON.pretty_generate(i2)
                 NetworkLinks::link(item["uuid"], i2["uuid"])
                 next

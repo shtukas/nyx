@@ -37,7 +37,7 @@ class Nyx
             return DxUrl::interactivelyIssueNewOrNull()
         end
         if action == "DxText" then
-            return DxText::interactivelyIssueNew()
+            return DxText::interactivelyIssueNewOrNull()
         end
         if action == "DxFile" then
             return DxFile::interactivelyIssueNewOrNull()

@@ -51,8 +51,7 @@ class LxFunction
                 return item["line"]
             end
             if item["mikuType"] == "DxText" then
-                firstline = DxText::getFirstLineOrNull(item)
-                return (firstline ? firstline : "(no generic-description)")
+                return item["description"]
             end
             if item["mikuType"] == "DxUniqueString" then
                 return item["description"]

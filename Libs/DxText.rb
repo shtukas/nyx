@@ -11,8 +11,10 @@ class DxText
         TheIndex::mikuTypeToItems("DxText")
     end
 
-    # DxText::interactivelyIssueNew()
-    def self.interactivelyIssueNew()
+    # DxText::interactivelyIssueNewOrNull()
+    def self.interactivelyIssueNewOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
         uuid = SecureRandom.uuid
         text = CommonUtils::editTextSynchronously("")
         unixtime = Time.new.to_i
@@ -21,6 +23,7 @@ class DxText
         DxF1::setAttribute2(uuid, "mikuType", "DxText")
         DxF1::setAttribute2(uuid, "unixtime", unixtime)
         DxF1::setAttribute2(uuid, "datetime", datetime)
+        DxF1::setAttribute2(uuid, "description", description)
         DxF1::setAttribute2(uuid, "text", text)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
@@ -33,18 +36,9 @@ class DxText
     # ----------------------------------------------------------------------
     # Data
 
-    # DxText::getFirstLineOrNull(item)
-    def self.getFirstLineOrNull(item)
-        text = item["text"]
-        return nil if text.nil?
-        return nil if text == ""
-        text.lines.first.strip
-    end
-
     # DxText::toString(item)
     def self.toString(item)
-        firstline = DxText::getFirstLineOrNull(item)
-        "(DxText) #{firstline ? firstline : "(no text)"}"
+        "(DxText) #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------

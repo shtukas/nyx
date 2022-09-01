@@ -191,6 +191,10 @@ class LxAction
                 return
             end
 
+            if item["mikuType"] == "TxTimeCommitmentProject" then
+                return
+            end
+
             if item["mikuType"] == "Wave" then
                 if LucilleCore::askQuestionAnswerAsBoolean("done-ing '#{Waves::toString(item).green} ? '", true) then
                     Waves::performWaveNx46WaveDone(item)
