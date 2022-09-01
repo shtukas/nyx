@@ -54,15 +54,6 @@ class Commands
             return
         end
 
-        if Interpreting::match(">planning *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            item = MxPlanning::interactivelyIssueNewWithCatalystItem(catalystitem)
-            puts JSON.pretty_generate(planningItem)
-            return
-        end
-
         if Interpreting::match("access", input) then
             LxAccess::access(store.getDefault())
             return
@@ -245,6 +236,15 @@ class Commands
             item = store.get(ordinal.to_i)
             return if item.nil?
             NxBallsService::pause(item["uuid"])
+            return
+        end
+
+        if Interpreting::match("planning *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            catalystitem = store.get(ordinal.to_i)
+            return if catalystitem.nil?
+            planningItem = MxPlanning::interactivelyIssueNewWithCatalystItem(catalystitem)
+            puts JSON.pretty_generate(planningItem)
             return
         end
 
