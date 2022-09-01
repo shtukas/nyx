@@ -9,7 +9,7 @@ class Commands
             "wave | anniversary | frame | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
-            ">owner | >owner (n) | >nyx | >planning",
+            ">owner | >owner (n) | >planning",
             "planning set ordinal <n> | planning set timespan <n>",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
@@ -20,7 +20,7 @@ class Commands
     def self.run(input, store) # [command or null, item or null]
 
         if input == ".." then
-            LxAction::action("..", store.getDefault())
+            PolyAction::doubleDot(store.getDefault())
             return
         end
 
@@ -28,14 +28,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("..", item)
-            return
-        end
-
-        if Interpreting::match(">nyx", input) then
-            item = store.getDefault()
-            return if item.nil?
-            LxAction::action(">nyx", item.clone)
+            PolyAction::doubleDot(item)
             return
         end
 
@@ -55,7 +48,7 @@ class Commands
         end
 
         if Interpreting::match("access", input) then
-            LxAccess::access(store.getDefault())
+            PolyAction::access(store.getDefault())
             return
         end
 
@@ -63,7 +56,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAccess::access(item)
+            PolyAction::access(item)
             return
         end
 
@@ -78,7 +71,7 @@ class Commands
         end
 
         if Interpreting::match("destroy", input) then
-            LxAction::action("destroy-with-prompt", store.getDefault())
+            PolyAction::destroyWithPrompt(store.getDefault())
             return
         end
 
@@ -86,12 +79,12 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("destroy-with-prompt", item)
+            PolyAction::destroyWithPrompt(item)
             return
         end
 
         if Interpreting::match("done", input) then
-            LxAction::action("done", store.getDefault())
+            PolyAction::done(store.getDefault())
             return
         end
 
@@ -99,7 +92,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("done", item)
+            PolyAction::done(item)
             return
         end
 
@@ -178,7 +171,7 @@ class Commands
         end
 
         if Interpreting::match("landing", input) then
-            LxAction::action("landing", store.getDefault())
+            PolyAction::landing(store.getDefault())
             return
         end
 
@@ -186,7 +179,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("landing", item)
+            PolyAction::landing(item)
             return
         end
 
@@ -340,7 +333,7 @@ class Commands
             return if datecode == ""
             unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
             return if unixtime.nil?
-            LxAction::action("stop", item)
+            PolyAction::stop(item)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
@@ -348,7 +341,7 @@ class Commands
         if Interpreting::match("redate", input) then
             item = store.getDefault()
             return if item.nil?
-            LxAction::action("redate", item)
+            PolyAction::redate(item)
             return
         end
 
@@ -356,7 +349,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("redate", item)
+            PolyAction::redate(item)
             return
         end
 
@@ -373,7 +366,7 @@ class Commands
         end
 
         if Interpreting::match("start", input) then
-            LxAction::action("start", store.getDefault())
+            PolyAction::start(store.getDefault())
             return
         end
 
@@ -381,12 +374,12 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("start", item)
+            PolyAction::start(item)
             return
         end
 
         if Interpreting::match("stop", input) then
-            LxAction::action("stop", store.getDefault())
+            PolyAction::stop(store.getDefault())
             return
         end
 
@@ -394,7 +387,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            LxAction::action("stop", item)
+            PolyAction::stop(item)
             return
         end
 
@@ -411,7 +404,7 @@ class Commands
             _, ordinal, timeInHours = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            puts "Adding #{timeInHours.to_f} hours to #{LxFunction::function("toString", item).green}"
+            puts "Adding #{timeInHours.to_f} hours to #{PolyFunction::toString(item).green}"
             Bank::put(item["uuid"], timeInHours.to_f*3600)
             return
         end

@@ -11,22 +11,22 @@ class Streaming
 
     # Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
     def self.runItem(item)
-        puts LxFunction::function("toString", item).green
-        LxAction::action("start", item)
-        LxAccess::access(item)
+        puts PolyFunction::toString(item).green
+        PolyAction::start(item)
+        PolyAction::access(item)
         firstLoop = true
         loop {
             if !firstLoop then
-                puts LxFunction::function("toString", item).green
+                puts PolyFunction::toString(item).green
             end
             firstLoop = false
             command = LucilleCore::askQuestionAnswerAsString("    access, done, detach (running), (keep and) next (default), landing (and back), insert, >owner, >nyx, nyx: ")
             if command == "access" then
-                LxAccess::access(item)
+                PolyAction::access(item)
                 next
             end
             if command == "done" then
-                LxAction::action("stop", item)
+                PolyAction::stop(item)
                 DxF1::deleteObjectLogically(item["uuid"])
                 return "item-done"
             end
@@ -39,11 +39,11 @@ class Streaming
                 return "should-stop-rstream"
             end
             if command == "" or command == "next" then
-                LxAction::action("stop", item)
+                PolyAction::stop(item)
                 return nil
             end
             if command == "landing" then
-                LxAction::action("landing", item)
+                PolyAction::landing(item)
                 next
             end
             if command == "insert" then
@@ -70,18 +70,18 @@ class Streaming
 
     # Streaming::processItem(item) # return: nil, "should-stop-rstream", "item-done"
     def self.processItem(item)
-        puts LxFunction::function("toString", item).green
+        puts PolyFunction::toString(item).green
         loop {
             command = LucilleCore::askQuestionAnswerAsString("    run (start and access), access, landing (and back), done, insert, >owner, >nyx, nyx, next (default), exit (rstream): ")
             if command == "run" then
                 return Streaming::runItem(item) # return: nil, "should-stop-rstream", "item-done"
             end
             if command == "access" then
-                LxAccess::access(item)
+                PolyAction::access(item)
                 next
             end
             if command == "landing" then
-                LxAction::action("landing", item)
+                PolyAction::landing(item)
                 next
             end
             if command == "done" then

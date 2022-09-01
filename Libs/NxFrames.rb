@@ -59,9 +59,9 @@ class NxFrames
             system("clear")
             items = NxFrames::items()
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("frame", items, lambda{|item| LxFunction::function("toString", item) })
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("frame", items, lambda{|item| PolyFunction::toString(item) })
             return if item.nil?
-            LxLanding::landing(item, false)
+            PolyFunction::landing(item, false)
         }
     end
 end

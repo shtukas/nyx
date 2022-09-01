@@ -27,7 +27,7 @@ class Search
                 break if nx20.nil?
                 system('clear')
                 item = TheIndex::getItemOrNull(nx20["objectuuid"])
-                result = LxLanding::landing(item, isSearchAndSelect)
+                result = PolyFunction::landing(item, isSearchAndSelect)
                 if isSearchAndSelect and result then
                     return result
                 end

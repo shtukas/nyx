@@ -137,7 +137,7 @@ class TheIndex
         return if unixtime.nil?
         return if mikuType.nil?
 
-        announce   = LxFunction::function("generic-description", item)
+        announce = PolyFunction::genericDescription(item)
 
         db = SQLite3::Database.new(TheIndex::databaseFile())
         db.busy_timeout = 117

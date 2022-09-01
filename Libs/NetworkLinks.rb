@@ -112,12 +112,12 @@ class NetworkLinks
 
     # NetworkLinks::interactivelySelectLinkedEntityOrNull(uuid)
     def self.interactivelySelectLinkedEntityOrNull(uuid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", NetworkLinks::linkedEntities(uuid), lambda{ |item| LxFunction::function("toString", item) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", NetworkLinks::linkedEntities(uuid), lambda{ |item| PolyFunction::toString(item) })
     end
 
     # NetworkLinks::interactivelySelectLinkedEntities(uuid)
     def self.interactivelySelectLinkedEntities(uuid)
-        selected, unselected = LucilleCore::selectZeroOrMore("entity", [], NetworkLinks::linkedEntities(uuid), lambda{ |item| LxFunction::function("toString", item) })
+        selected, unselected = LucilleCore::selectZeroOrMore("entity", [], NetworkLinks::linkedEntities(uuid), lambda{ |item| PolyFunction::toString(item) })
         selected
     end
 
@@ -163,7 +163,7 @@ class NetworkLinks
                 entity = TheIndex::getItemOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
-                puts "[#{indx.to_s.ljust(3)}] #{LxFunction::function("toString", entity)}"
+                puts "[#{indx.to_s.ljust(3)}] #{PolyFunction::toString(entity)}"
             }
 
         i = LucilleCore::askQuestionAnswerAsString("> remove index (empty to exit): ")

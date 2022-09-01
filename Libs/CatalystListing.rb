@@ -15,9 +15,7 @@ class CatalystListing
     def self.primaryCommandProcess()
         puts Commands::commands().yellow
         input = LucilleCore::askQuestionAnswerAsString("> ")
-        command, objectOpt = Commands::run(input, nil)
-        #puts "parser: command:#{command}, objectOpt: #{objectOpt}"
-        LxAction::action(command, objectOpt)
+        Commands::run(input, nil)
     end
 
     # CatalystListing::listingItems()
@@ -138,7 +136,7 @@ class CatalystListing
                 .each{|item|
                     break if vspaceleft <= 0
                     store.register(item, true)
-                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
+                    line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
@@ -212,7 +210,7 @@ class CatalystListing
         inbox = InboxItems::listingItems()
         inbox.each{|item|
             store.register(item, false)
-            line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
+            line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
             if NxBallsService::isActive(item["uuid"]) then
                 line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
             end
@@ -231,7 +229,7 @@ class CatalystListing
                 next if planninguuids.any?(item["uuid"]) # We do not display in the lower listing items that are planning managed
                 break if vspaceleft <= 0
                 store.register(item, true)
-                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
+                line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
@@ -246,7 +244,7 @@ class CatalystListing
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
-                LxAction::action("stop", item)
+                PolyAction::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end

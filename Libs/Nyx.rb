@@ -107,9 +107,9 @@ class Nyx
                             .reverse
 
                 loop {
-                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|item| LxFunction::function("toString", item) })
+                    node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|item| PolyFunction::toString(item) })
                     break if node.nil?
-                    LxLanding::landing(node, isSearchAndSelect = false)
+                    PolyFunction::landing(node, isSearchAndSelect = false)
                 }
             end
 
@@ -120,12 +120,12 @@ class Nyx
                 if item.nil? then
                     raise "(error: 2bce1d88-4460-47ba-9fda-6db066974c75) this should not have hapenned 🤔"
                 end
-                LxAction::action("landing", item)
+                PolyAction::landing(item)
             end
             if operation == "make new event" then
                 item = NxEvents::interactivelyIssueNewItemOrNull()
                 puts JSON.pretty_generate(item)
-                LxAction::action("landing", item)
+                PolyAction::landing(item)
             end
         }
     end

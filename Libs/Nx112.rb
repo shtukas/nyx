@@ -6,7 +6,7 @@ class Nx112
     # Nx112::carrierAccess(item)
     def self.carrierAccess(item)
         return if item.nil?
-        puts "Nx112::carrierAccess(item): #{LxFunction::function("toString", item)}"
+        puts "Nx112::carrierAccess(item): #{PolyFunction::toString(item)}"
         Nx112::targetAccess(item["nx112"])
     end
 
@@ -19,6 +19,6 @@ class Nx112
             LucilleCore::pressEnterToContinue()
             return
         end
-        LxAccess::access(target)
+        PolyAction::access(target)
     end
 end
