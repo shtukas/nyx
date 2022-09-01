@@ -33,11 +33,11 @@ class CatalystListing
         ]
             .flatten
             .select{|item| item["isAlive"].nil? or item["isAlive"] }
-            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
-            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
-            .select{|item| !OwnerMapping::isOwned(item["uuid"]) or NxBallsService::isActive(item["uuid"]) }
+            .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .select{|item| !OwnerMapping::isOwned(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
 
-        its1, its2 = items.partition{|item| NxBallsService::isActive(item["uuid"]) }
+        its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
         its1 + its2
     end
 
@@ -109,7 +109,7 @@ class CatalystListing
                     .compact
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
                     .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            its1, its2 = items.partition{|item| NxBallsService::isActive(item["uuid"]) }
+            its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
             items = its1 + its2
 
             system("clear")
@@ -137,7 +137,7 @@ class CatalystListing
                     break if vspaceleft <= 0
                     store.register(item, true)
                     line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
-                    if NxBallsService::isActive(item["uuid"]) then
+                    if NxBallsService::isPresent(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
                     puts line
@@ -211,7 +211,7 @@ class CatalystListing
         inbox.each{|item|
             store.register(item, false)
             line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
-            if NxBallsService::isActive(item["uuid"]) then
+            if NxBallsService::isPresent(item["uuid"]) then
                 line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
             end
             puts line
@@ -230,7 +230,7 @@ class CatalystListing
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
-                if NxBallsService::isActive(item["uuid"]) then
+                if NxBallsService::isPresent(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
                 puts line

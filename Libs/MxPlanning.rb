@@ -171,13 +171,13 @@ class MxPlanning
             .map{|item|
                 XCacheValuesWithExpiry::set("recently-listed-uuid-ad5b7c29c1c6:#{item["uuid"]}", "true", 60) # A special purpose way to not display a NxBall.
                 uuid = Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{item["uuid"]}")
-                unixtime1 = NxBallsService::startUnixtimeOrNull(uuid) || unixtime1
+                unixtime1 = NxBallsService::thisRunStartUnixtimeOrNull(uuid) || unixtime1
                 unixtime2 = unixtime1 + item["timespanInHour"]*3600
                 displayItem = {
                     "uuid"          => uuid,
                     "mikuType"      => "MxPlanningDisplay",
                     "item"          => item,
-                    "startUnixtime" => unixtime1,
+                    "thisRunStartUnixtime" => unixtime1,
                     "endUnixtime"   => unixtime2
                 }
                 unixtime1 = unixtime2
@@ -192,7 +192,7 @@ class MxPlanning
 
     # MxPlanning::displayItemToString(displayItem)
     def self.displayItemToString(displayItem)
-        "(MxPlanningDisplay) (ord: #{"%5.2f" % displayItem["item"]["ordinal"]}) (start: #{MxPlanning::unixtimeToTime(displayItem["startUnixtime"]).green}, timespan: #{("%5.2f" % displayItem["item"]["timespanInHour"]).green} hours, end: #{MxPlanning::unixtimeToTime(displayItem["endUnixtime"]).green}) #{MxPlanning::toString(displayItem["item"])}"
+        "(MxPlanningDisplay) (ord: #{"%5.2f" % displayItem["item"]["ordinal"]}) (start: #{MxPlanning::unixtimeToTime(displayItem["thisRunStartUnixtime"]).green}, timespan: #{("%5.2f" % displayItem["item"]["timespanInHour"]).green} hours, end: #{MxPlanning::unixtimeToTime(displayItem["endUnixtime"]).green}) #{MxPlanning::toString(displayItem["item"])}"
     end
 
     # MxPlanning::catalystItemsUUIDs()

@@ -432,6 +432,17 @@ class PolyFunction
             end
         }
     end
+
+    # PolyFunction::timeBeforeNotificationsInHours(item)
+    def self.timeBeforeNotificationsInHours(item)
+        if item["mikuType"] == "MxPlanning" then
+            return item["timespanInHour"]
+        end
+        if item["mikuType"] == "MxPlanningDisplay" then
+            return PolyFunction::timeBeforeNotificationsInHours(item["item"])
+        end
+        1
+    end
 end
 
 class PolyAction
@@ -682,33 +693,21 @@ class PolyAction
 
         return if NxBallsService::isRunning(item["uuid"])
 
-        NxBallsService::issue(item["uuid"], PolyFunction::toString(item), PolyAction::bankAccounts(item))
+        NxBallsService::issue(item["uuid"], PolyFunction::toString(item), PolyAction::bankAccounts(item), PolyFunction::timeBeforeNotificationsInHours(item))
     end
 
     # PolyAction::stop(item)
     def self.stop(item)
         PolyFunction::_check(item, "PolyAction::stop")
-
-        if command == "stop" then
-            if item["mikuType"] == "MxPlanning" then
-                if item["payload"]["type"] == "pointer" then
-                    PolyAction::stop(item["payload"]["item"])
-                end
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "pointer" then
+                PolyAction::stop(item["payload"]["item"])
             end
-            if item["mikuType"] == "MxPlanningDisplay" then
-                PolyAction::stop(item["item"])
-            end
-            NxBallsService::close(item["uuid"], true)
-            return
         end
-
-        if command == "wave" then
-            Waves::issueNewWaveInteractivelyOrNull()
-            return
+        if item["mikuType"] == "MxPlanningDisplay" then
+            PolyAction::stop(item["item"])
         end
-
-        puts "I do not know how to PolyAction::stop(#{JSON.pretty_generate(item)})"
-        raise "(error: 13f1d929-9ae3-4c11-b795-cf399b35a17f)"
+        NxBallsService::close(item["uuid"], true)
     end
 
     # PolyAction::access(item)

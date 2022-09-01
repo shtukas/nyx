@@ -133,7 +133,7 @@ class Streaming
     # Streaming::icedStreamingToTarget()
     def self.icedStreamingToTarget()
         uuid = Streaming::uuid()
-        NxBallsService::issue(uuid, "(rstream-to-target)", [uuid])
+        NxBallsService::issue(uuid, "(rstream-to-target)", [uuid], 1)
         items = NxIceds::items().shuffle
         return if items.empty?
         loop {

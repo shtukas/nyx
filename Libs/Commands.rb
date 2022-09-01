@@ -8,7 +8,7 @@ class Commands
         [
             "wave | anniversary | frame | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels",
-            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
+            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | >owner (n) | >planning",
             "planning set ordinal <n> | planning set timespan <n>",
             "require internet",
@@ -283,7 +283,7 @@ class Commands
         if Interpreting::match("pursue", input) then
             item = store.getDefault()
             return if item.nil?
-            NxBallsService::carryOn(item["uuid"])
+            NxBallsService::pursue(item["uuid"])
             return
         end
 
@@ -291,37 +291,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            NxBallsService::carryOn(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("resume", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NxBallsService::carryOn(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("resume *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NxBallsService::carryOn(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("restart", input) then
-            item = store.getDefault()
-            return if item.nil?
-            NxBallsService::carryOn(item["uuid"])
-            return
-        end
-
-        if Interpreting::match("restart *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NxBallsService::carryOn(item["uuid"])
+            NxBallsService::pursue(item["uuid"])
             return
         end
 

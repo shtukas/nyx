@@ -21,6 +21,6 @@ Payload
 MxPlanningDisplay {
     "mikuType"      : "MxPlanningDisplay"
     "item"          : item
-    "startUnixtime" : Float
+    "thisRunStartUnixtime" : Float
     "endUnixtime"   : Float
 }

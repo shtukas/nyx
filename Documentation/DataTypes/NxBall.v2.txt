@@ -4,20 +4,22 @@ The name comes from jungling balls :)
 
 NxBallStatus 
     {
-        "type"           : "running"
-        "startUnixtime"  : start
-        "cursorUnixtime" : start
+        "type"                   : "running"
+        "thisRunStartUnixtime"   : Float # Unixtime at start or since restart
+        "lastMarginCallUnixtime" : Float # Unixtime of the last margin call
+        "bankedTimeInSeconds"    : Float # Time already banked (during margin calls)
     }
     {
-        "type" : "paused"
+        "type"                   : "paused"
+        "bankedTimeInSeconds"    : Float
     }
 
 NxBall {
-    "uuid"        : String
-    "variant"     : String # Primary Key
-    "mikuType"    : "NxBall.v2"
-    "unixtime"    : Float
-    "description" : description,
-    "status"      : NxBallStatus 
-    "accounts"    : accounts
+    "uuid"                       : String
+    "mikuType"                   : "NxBall.v2"
+    "unixtime"                   : Float
+    "description"                : description,
+    "desiredBankedTimeInSeconds" : null or Float # Indicate how long we should ideally run, for the notification
+    "status"                     : NxBallStatus 
+    "accounts"                   : accounts
 }
