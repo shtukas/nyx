@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | toplevel | incoming | line | planning",
+            "wave | anniversary | frame | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | resume (<n>) | restart (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | >owner (n) | >nyx | >planning",
@@ -160,8 +160,10 @@ class Commands
             return
         end
 
-        if input == "incoming" then
-            item = TxIncomings::interactivelyIssueNewLineOrNull()
+        if input == "inbox" then
+            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+            return if description == ""
+            item = InboxItems::issueDescriptionOnly(description)
             puts JSON.pretty_generate(item)
         end
 
@@ -476,8 +478,8 @@ class Commands
                     "lambda" => lambda { TxDateds::listingItems() }
                 },
                 {
-                    "name" => "TxIncomings::listingItems()",
-                    "lambda" => lambda { TxIncomings::listingItems() }
+                    "name" => "InboxItems::listingItems()",
+                    "lambda" => lambda { InboxItems::listingItems() }
                 },
                 {
                     "name" => "TxTimeCommitmentProjects::listingItems()",

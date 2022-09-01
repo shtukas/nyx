@@ -1,12 +1,12 @@
 
 Catalyst:
+    InboxItem
     NxAnniversary
     NxFrame
     NxIced
     NxTask
     TxDated
     TxTimeCommitmentProject
-    TxIncoming
     TopLevel
     Wave
 

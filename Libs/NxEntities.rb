@@ -42,6 +42,6 @@ class NxEntities
 
     # NxEntities::toString(item)
     def self.toString(item)
-        "(entity) #{item["description"]}"
+        "(NxEntity) #{item["description"]}"
     end
 end

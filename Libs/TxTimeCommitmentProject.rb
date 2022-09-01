@@ -276,10 +276,6 @@ class TxTimeCommitmentProjects
     # TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(element)
     def self.interactivelyAddThisElementToOwner(element)
         puts "TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
-        if element["mikuType"] == "TxIncoming" then
-            DxF1::setAttribute2(element["uuid"], "mikuType", "NxLine")
-            element = TheIndex::getItemOrNull(element["uuid"])
-        end
         if !["NxTask", "NxLine"].include?(element["mikuType"]) then
             puts "The operation TxTimeCommitmentProjects::interactivelyAddThisElementToOwner only works on NxLines or NxTasks"
             LucilleCore::pressEnterToContinue()

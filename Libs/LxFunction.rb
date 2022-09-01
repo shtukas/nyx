@@ -60,6 +60,9 @@ class LxFunction
             if item["mikuType"] == "DxUrl" then
                 return item["url"]
             end
+            if item["mikuType"] == "InboxItem" then
+                return item["description"]
+            end
             if item["mikuType"] == "NxCollection" then
                 return item["description"]
             end
@@ -78,9 +81,6 @@ class LxFunction
             if item["mikuType"] == "NxIced" then
                 return item["description"]
             end
-            if item["mikuType"] == "TxThread" then
-                return item["description"]
-            end
             if item["mikuType"] == "NxLine" then
                 return item["line"]
             end
@@ -93,6 +93,9 @@ class LxFunction
             if item["mikuType"] == "NxTimeline" then
                 return item["description"]
             end
+            if item["mikuType"] == "TxThread" then
+                return item["description"]
+            end
             if item["mikuType"] == "TxTimeCommitmentProject" then
                 return item["description"]
             end
@@ -102,9 +105,6 @@ class LxFunction
             end
             if item["mikuType"] == "TxDated" then
                 return item["description"]
-            end
-            if item["mikuType"] == "TxIncoming" then
-                return item["line"]
             end
             if item["mikuType"] == "Wave" then
                 return item["description"]
@@ -147,6 +147,9 @@ class LxFunction
             end
             if item["mikuType"] == "DxUrl" then
                 return DxUrl::toString(item)
+            end
+            if item["mikuType"] == "InboxItem" then
+                return InboxItems::toString(item)
             end
             if item["mikuType"] == "MxPlanning" then
                 return MxPlanning::toString(item)
@@ -198,9 +201,6 @@ class LxFunction
             end
             if item["mikuType"] == "TxDated" then
                 return TxDateds::toString(item)
-            end
-            if item["mikuType"] == "TxIncoming" then
-                return TxIncomings::toString(item)
             end
             if item["mikuType"] == "Wave" then
                 return Waves::toString(item)

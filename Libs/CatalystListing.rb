@@ -28,7 +28,6 @@ class CatalystListing
             MxPlanning::listingItems(),
             TxDateds::listingItems(),
             Waves::listingItems(true),
-            TxIncomings::listingItems(),
             TxTimeCommitmentProjects::listingItems(),
             Waves::listingItems(false),
             NxTasks::listingItems(),
@@ -73,24 +72,19 @@ class CatalystListing
                 SystemEvents::flushChannel1()
             }
 
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Top")
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/Inbox")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
-                    item = NxTasks::issueUsingLocation(location)
-                    puts "Picked up from NxTasks-Top: #{JSON.pretty_generate(item)}"
-                    # Now we need to adjust the unixtime to put it on top
-                    topunixtime = NxTasks::topUnixtime()
-                    puts "Setting top unixtime: #{topunixtime}"
-                    DxF1::setAttribute2(item["uuid"], "unixtime", topunixtime)
+                    item = InboxItems::issueUsingLocation(location)
+                    puts "Picked up from Inbox: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
-                    XCache::destroy("Top-Tasks-For-Section2-7be0c69eaed3")
                 }
 
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks-Bottom")
+            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks")
                 .each{|location|
                     next if File.basename(location).start_with?(".")
                     item = NxTasks::issueUsingLocation(location)
-                    puts "Picked up from NxTasks-Bottom: #{JSON.pretty_generate(item)}"
+                    puts "Picked up from NxTasks: #{JSON.pretty_generate(item)}"
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
@@ -144,10 +138,7 @@ class CatalystListing
                 .each{|item|
                     break if vspaceleft <= 0
                     store.register(item, true)
-                    toString1 = LxFunction::function("toString", item)
-                    toString2 = XCache::getOrNull("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{item["uuid"]}")
-                    toString = toString2 ? toString2 : toString1
-                    line = "#{store.prefixString()} #{toString}"
+                    line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
                     if NxBallsService::isActive(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
@@ -201,30 +192,46 @@ class CatalystListing
         vspaceleft = vspaceleft - 1
 
         listingItems = CatalystListing::listingItems()
-        listingItemsUUIDs = listingItems.map{|item| item["uuid"] }
 
+        displayedOneNxBall = false
         NxBallsIO::nxballs()
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
             .each{|nxball|
-                next if listingItemsUUIDs.include?(nxball["uuid"]) # We do not display items that are part of the listing
                 next if XCacheValuesWithExpiry::getOrNull("recently-listed-uuid-ad5b7c29c1c6:#{nxball["uuid"]}") # A special purpose way to not display a NxBall.
+                displayedOneNxBall = true
                 store.register(nxball, false)
                 line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
                 puts line.green
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
+        if displayedOneNxBall then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
 
-        planninguuids = MxPlanning::catalystItemsUUIDs()
+        inbox = InboxItems::listingItems()
+        inbox.each{|item|
+            store.register(item, false)
+            line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
+            if NxBallsService::isActive(item["uuid"]) then
+                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+            end
+            puts line
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+        }
+        if !inbox.empty? then
+            puts ""
+            vspaceleft = vspaceleft - 1
+        end
+
+        planninguuids = MxPlanning::catalystItemsUUIDs() + inbox.map{|item| item["uuid"] }
 
         CatalystListing::listingItems()
             .each{|item|
                 next if planninguuids.any?(item["uuid"]) # We do not display in the lower listing items that are planning managed
                 break if vspaceleft <= 0
                 store.register(item, true)
-                toString1 = LxFunction::function("toString", item)
-                toString2 = XCache::getOrNull("a95b9b32-cfc4-4896-b52b-e3c58b72f3ae:#{item["uuid"]}")
-                toString = toString2 ? toString2 : toString1
-                line = "#{store.prefixString()} #{toString}"
+                line = "#{store.prefixString()} #{LxFunction::function("toString", item)}"
                 if NxBallsService::isActive(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end

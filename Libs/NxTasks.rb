@@ -116,7 +116,7 @@ class NxTasks
 
     # NxTasks::topItemsForSection2()
     def self.topItemsForSection2()
-        key = "Top-Tasks-For-Section2-7be0c69eaed3"
+        key = "94214c23-8b66-4fd3-b6f5-93bda88903eb"
         items = XCacheValuesWithExpiry::getOrNull(key)
         return items if items
 
@@ -134,9 +134,19 @@ class NxTasks
     # NxTasks::listingItems()
     def self.listingItems()
         NxTasks::topItemsForSection2()
-            .select{|item| item["ax39"].nil? }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .first(6)
+            .reduce{|selected, item|
+                if selected.size >= 6 then
+                    selected
+                else
+                    item = TheIndex::getItemOrNull(item["uuid"])
+                    if item then
+                        selected + item
+                    else
+                        selected
+                    end
+                end
+            }
     end
 
     # NxTasks::topUnixtime()

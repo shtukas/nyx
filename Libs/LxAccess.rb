@@ -99,9 +99,8 @@ class LxAccess
             return
         end
 
-        if item["mikuType"] == "TxIncoming" then
-            puts TxIncomings::toString(item)
-            LucilleCore::pressEnterToContinue()
+        if item["mikuType"] == "InboxItem" then
+            Nx112::carrierAccess(item)
             return
         end
 

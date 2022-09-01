@@ -47,8 +47,8 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
-checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks-Top")
-checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks-Bottom")
+checkLocation.call("#{ENV['HOME']}/Desktop/Inbox")
+checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3")
@@ -225,6 +225,7 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
 require_relative "Iam.rb"
+require_relative "InboxItems.rb"
 
 require_relative "FileSystemCheck.rb"
 
@@ -268,7 +269,6 @@ require_relative "Stargate.rb"
 require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
 require_relative "TopLevel.rb"
-require_relative "TxIncomings.rb"
 require_relative "TxTimeCommitmentProject.rb"
 require_relative "TheIndex.rb"
 

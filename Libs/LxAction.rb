@@ -55,7 +55,7 @@ class LxAction
                 return
             end
 
-            if item["mikuType"] == "TxIncoming" then
+            if item["mikuType"] == "InboxItem" then
                 LxAction::action("start", item)
                 LxAccess::access(item)
                 actions = ["destroy", "transmute to task and get owner", "do not display until"]
@@ -71,8 +71,9 @@ class LxAction
                 end
                 if action == "transmute to task and get owner" then
                     LxAction::action("stop", item)
-                    puts "Write it: 7a114e67-6767-4d99-b6d0-fc002e2ebd0f"
-                    exit
+                    DxF1::setAttribute2(item["uuid"], "mikuType", "NxTask")
+                    item = TheIndex::getItemOrNull(item["uuid"]) # We assume it's not null
+                    TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
                     return
                 end
                 if action == "do not display until" then
@@ -122,6 +123,11 @@ class LxAction
             LxAction::action("stop", item)
 
             if item["mikuType"] == "(rstream-to-target)" then
+                return
+            end
+
+            if item["mikuType"] == "InboxItem" then
+                DxF1::deleteObjectLogically(item["uuid"])
                 return
             end
 
@@ -182,11 +188,6 @@ class LxAction
                 if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
                     TxDateds::destroy(item["uuid"])
                 end
-                return
-            end
-
-            if item["mikuType"] == "TxIncoming" then
-                DxF1::deleteObjectLogically(item["uuid"])
                 return
             end
 
@@ -252,11 +253,11 @@ class LxAction
                 .each{|owneruuid|
                     accounts << owneruuid # Owner of a owned item
                 }
-            if ["TxIncoming", "TxDated"].include?(item["mikuType"]) then
+            if ["InboxItem", "TxDated"].include?(item["mikuType"]) then
                 ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
                 if ox then
                     puts "registering extra bank account: #{LxFunction::function("toString", ox).green}"
-                    accounts << ox["uuid"] # temporary owner for TxIncoming
+                    accounts << ox["uuid"]
                 end
             end
 

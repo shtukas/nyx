@@ -159,6 +159,14 @@ class FileSystemCheck
             ensureAttribute.call("url")
         end
 
+        if mikuType == "InboxItem" then
+            ensureAttribute.call("description")
+            # ensureAttribute.call("nx112") # optional
+            if item["nx112"] then
+                ensureItemFileExists.call(item["nx112"])
+            end
+        end
+
         if mikuType == "NxAnniversary" then
             ensureAttribute.call("description")
             ensureAttribute.call("startdate")
@@ -203,10 +211,6 @@ class FileSystemCheck
         end
 
         if mikuType == "NxLine" then
-            ensureAttribute.call("line")
-        end
-
-        if mikuType == "TxIncoming" then
             ensureAttribute.call("line")
         end
 
