@@ -69,7 +69,7 @@ class LxLanding
             end
 
             if item["mikuType"] == "NxPerson" then
-                commands = ["name", "link", "unlink", "destroy"]
+                commands = ["name", "line", "text", "link", "unlink", "destroy"]
             end
 
             if item["mikuType"] == "TopLevel" then
