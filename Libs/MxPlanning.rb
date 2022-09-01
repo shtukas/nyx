@@ -74,7 +74,7 @@ class MxPlanning
 
     # MxPlanning::interactivelyDecideTimespanInHours()
     def self.interactivelyDecideTimespanInHours()
-        input = LucilleCore::askQuestionAnswerAsString("timespan (`n mins` or `n hours`): ").to_f
+        input = LucilleCore::askQuestionAnswerAsString("timespan (`n mins` or `n hours`): ")
         number = input.to_f
         if input.include?("min") then
             return number*(60.to_f/3600)
