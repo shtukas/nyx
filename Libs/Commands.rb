@@ -278,7 +278,7 @@ class Commands
                 LucilleCore::pressEnterToContinue()
                 return
             end
-            item["timespanInHour"] = MxPlanning::interactivelyDecideTimespan()
+            item["timespanInHour"] = MxPlanning::interactivelyDecideTimespanInHours()
             MxPlanning::commit(item)
             return
         end

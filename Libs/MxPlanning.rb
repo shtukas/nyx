@@ -72,9 +72,17 @@ class MxPlanning
         end
     end
 
-    # MxPlanning::interactivelyDecideTimespan()
-    def self.interactivelyDecideTimespan()
-        LucilleCore::askQuestionAnswerAsString("timespanInHour: ").to_f
+    # MxPlanning::interactivelyDecideTimespanInHours()
+    def self.interactivelyDecideTimespanInHours()
+        input = LucilleCore::askQuestionAnswerAsString("timespan (`n mins` or `n hours`): ").to_f
+        number = input.to_f
+        if input.include?("min") then
+            return number*(60.to_f/3600)
+        end
+        if input.include?("hour") then
+            return number
+        end
+        MxPlanning::interactivelyDecideTimespanInHours()
     end
 
     # MxPlanning::interactivelyIssueNewOrNull()
@@ -82,7 +90,7 @@ class MxPlanning
         payload = MxPlanning::interactivelyMakeNewPayloadOrNull()
         return nil if payload.nil?
         ordinal = MxPlanning::interactivelyDecideOrdinal()
-        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        timespanInHour = MxPlanning::interactivelyDecideTimespanInHours()
         item = {
             "uuid"           => MxPlanning::newUUID(),
             "mikuType"       => "MxPlanning",
@@ -103,7 +111,7 @@ class MxPlanning
             "description" => description
         }
         ordinal = MxPlanning::interactivelyDecideOrdinal()
-        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        timespanInHour = MxPlanning::interactivelyDecideTimespanInHours()
         item = {
             "uuid"           => MxPlanning::newUUID(),
             "mikuType"       => "MxPlanning",
@@ -122,7 +130,7 @@ class MxPlanning
             "item" => catalystitem
         }
         ordinal = MxPlanning::interactivelyDecideOrdinal()
-        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        timespanInHour = MxPlanning::interactivelyDecideTimespanInHours()
         planningItem = {
             "uuid"           => MxPlanning::newUUID(),
             "mikuType"       => "MxPlanning",
