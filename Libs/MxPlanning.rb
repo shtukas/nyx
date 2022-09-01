@@ -119,7 +119,7 @@ class MxPlanning
     def self.interactivelyIssueNewWithCatalystItem(catalystitem)
         payload = {
             "type" => "pointer",
-            "item" => item
+            "item" => catalystitem
         }
         ordinal = MxPlanning::interactivelyDecideOrdinal()
         timespanInHour = MxPlanning::interactivelyDecideTimespan()
