@@ -530,6 +530,10 @@ class DxF1sAtStargateCentral
             objectuuid = DxF1::getAttributeAtFileOrNull(filepath1, "uuid")
             if objectuuid.nil? then
                 puts "I could not extract a uuid at filepath: #{filepath1}"
+                if LucilleCore::askQuestionAnswerAsBoolean("destroy file ? ") then
+                    FileUtils.rm(filepath1)
+                    next
+                end
                 exit
             end
             filepath2 = DxF1sAtStargateCentral::dxF1Filepath(objectuuid)

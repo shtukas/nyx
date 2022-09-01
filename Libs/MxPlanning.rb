@@ -59,17 +59,25 @@ class MxPlanning
 
     # MxPlanning::interactivelyDecideOrdinal()
     def self.interactivelyDecideOrdinal()
-        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (`next` for next): ")
-        if ordinal == "next" then
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (`next` or empty for next): ")
+        if ordinal == "next" or ordinal == "" then
             ordinal = MxPlanning::nextOrdinal()
         else
             ordinal = ordinal.to_f
         end
     end
 
-    # MxPlanning::interactivelyDecideTimespan()
-    def self.interactivelyDecideTimespan()
-        LucilleCore::askQuestionAnswerAsString("timespanInHour: ").to_f
+    # MxPlanning::interactivelyDecideTimespanInHours()
+    def self.interactivelyDecideTimespanInHours()
+        input = LucilleCore::askQuestionAnswerAsString("timespan (`n mins` or `n hours`): ")
+        number = input.to_f
+        if input.include?("min") then
+            return number*(60.to_f/3600)
+        end
+        if input.include?("hour") then
+            return number
+        end
+        MxPlanning::interactivelyDecideTimespanInHours()
     end
 
     # MxPlanning::interactivelyIssueNewOrNull()
@@ -77,7 +85,7 @@ class MxPlanning
         payload = MxPlanning::interactivelyMakeNewPayloadOrNull()
         return nil if payload.nil?
         ordinal = MxPlanning::interactivelyDecideOrdinal()
-        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        timespanInHour = MxPlanning::interactivelyDecideTimespanInHours()
         item = {
             "uuid"           => SecureRandom.uuid,
             "mikuType"       => "MxPlanning",
@@ -98,7 +106,7 @@ class MxPlanning
             "description" => description
         }
         ordinal = MxPlanning::interactivelyDecideOrdinal()
-        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        timespanInHour = MxPlanning::interactivelyDecideTimespanInHours()
         item = {
             "uuid"           => SecureRandom.uuid,
             "mikuType"       => "MxPlanning",
@@ -114,10 +122,10 @@ class MxPlanning
     def self.interactivelyIssueNewWithCatalystItem(catalystitem)
         payload = {
             "type" => "pointer",
-            "item" => item
+            "item" => catalystitem
         }
         ordinal = MxPlanning::interactivelyDecideOrdinal()
-        timespanInHour = MxPlanning::interactivelyDecideTimespan()
+        timespanInHour = MxPlanning::interactivelyDecideTimespanInHours()
         planningItem = {
             "uuid"           => SecureRandom.uuid,
             "mikuType"       => "MxPlanning",
