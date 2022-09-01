@@ -141,10 +141,10 @@ class MxPlanning
     def self.toString(item)
         payload = item["payload"]
         if payload["type"] == "simple" then
-            return "(planning line) #{payload["description"]}"
+            return "(MxPlanning, line) #{payload["description"]}"
         end
         if payload["type"] == "pointer" then
-            return LxFunction::function("toString", payload["item"])
+            return "(MxPlanning, pointer) #{LxFunction::function("toString", payload["item"])}"
         end
         raise "(error: 9fbcd583-6757-4b90-bd9d-b56c6aabe73f): #{item}"
     end
