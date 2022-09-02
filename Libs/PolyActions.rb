@@ -420,4 +420,9 @@ class PolyActions
 
         accounts
     end
+
+    # PolyActions::transmutation(item, targetMikuType)
+    def self.transmutation(item, targetMikuType)
+
+    end
 end
