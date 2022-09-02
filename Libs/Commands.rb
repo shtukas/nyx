@@ -171,7 +171,7 @@ class Commands
         end
 
         if Interpreting::match("landing", input) then
-            PolyActions::landing(store.getDefault())
+            PolyFunctions::landing(store.getDefault(), isSearchAndSelect = false)
             return
         end
 
@@ -179,7 +179,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::landing(item)
+            PolyFunctions::landing(item, isSearchAndSelect = false)
             return
         end
 

@@ -269,7 +269,7 @@ class TxTimeCommitmentProjects
             items = TxTimeCommitmentProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
             break if item.nil?
-            PolyActions::landing(item)
+            PolyFunctions::landing(item, isSearchAndSelect = false)
         }
     end
 

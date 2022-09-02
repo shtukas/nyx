@@ -195,25 +195,6 @@ class PolyActions
         end
     end
 
-    # PolyActions::landing(item)
-    def self.landing(item)
-        PolyFunctions::_check(item, "PolyActions::landing")
-
-        if item["mikuType"] == "fitness1" then
-            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
-            return
-        end
-
-        if ["DxText", "NxAnniversary", "NxIced"].include?(item["mikuType"]) then
-            return PolyFunctions::landing(item, isSearchAndSelect)
-        end
-
-        return PolyFunctions::landing(item, isSearchAndSelect = false)
-
-        puts "I do not know how to PolyActions::landing(#{JSON.pretty_generate(item)})"
-        raise "(error: 249ab52b-2eb5-4d99-904b-70994e223654)"
-    end
-
     # PolyActions::redate(item)
     def self.redate(item)
         PolyFunctions::_check(item, "PolyActions::redate")

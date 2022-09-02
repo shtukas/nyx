@@ -120,12 +120,12 @@ class Nyx
                 if item.nil? then
                     raise "(error: 2bce1d88-4460-47ba-9fda-6db066974c75) this should not have hapenned 🤔"
                 end
-                PolyActions::landing(item)
+                PolyFunctions::landing(item, isSearchAndSelect = false)
             end
             if operation == "make new event" then
                 item = NxEvents::interactivelyIssueNewItemOrNull()
                 puts JSON.pretty_generate(item)
-                PolyActions::landing(item)
+                PolyFunctions::landing(item, isSearchAndSelect = false)
             end
         }
     end

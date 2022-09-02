@@ -251,7 +251,16 @@ class PolyFunctions
     # PolyFunctions::landing(item, isSearchAndSelect) # item or null
     def self.landing(item, isSearchAndSelect)
 
-        return nil if item.nil?
+        PolyFunctions::_check(item, "PolyFunctions::landing")
+
+        if item["mikuType"] == "fitness1" then
+            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            return nil
+        end
+
+        if ["DxText", "NxAnniversary", "NxIced"].include?(item["mikuType"]) then
+            return PolyFunctions::landing(item, isSearchAndSelect)
+        end
 
         if item["mikuType"] == "TxTimeCommitmentProject" then
             return TxTimeCommitmentProjects::landing(item, isSearchAndSelect)
