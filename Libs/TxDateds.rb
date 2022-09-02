@@ -84,7 +84,7 @@ class TxDateds
             items = TxDateds::items().sort{|i1, i2| i1["datetime"] <=> i2["datetime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxDateds::toString(item) })
             break if item.nil?
-            PolyAction::landing(item)
+            PolyActions::landing(item)
         }
     end
 

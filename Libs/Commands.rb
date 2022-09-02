@@ -20,7 +20,7 @@ class Commands
     def self.run(input, store) # [command or null, item or null]
 
         if input == ".." then
-            PolyAction::doubleDot(store.getDefault())
+            PolyActions::doubleDot(store.getDefault())
             return
         end
 
@@ -28,7 +28,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::doubleDot(item)
+            PolyActions::doubleDot(item)
             return
         end
 
@@ -48,7 +48,7 @@ class Commands
         end
 
         if Interpreting::match("access", input) then
-            PolyAction::access(store.getDefault())
+            PolyActions::access(store.getDefault())
             return
         end
 
@@ -56,7 +56,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::access(item)
+            PolyActions::access(item)
             return
         end
 
@@ -71,7 +71,7 @@ class Commands
         end
 
         if Interpreting::match("destroy", input) then
-            PolyAction::destroyWithPrompt(store.getDefault())
+            PolyActions::destroyWithPrompt(store.getDefault())
             return
         end
 
@@ -79,12 +79,12 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::destroyWithPrompt(item)
+            PolyActions::destroyWithPrompt(item)
             return
         end
 
         if Interpreting::match("done", input) then
-            PolyAction::done(store.getDefault())
+            PolyActions::done(store.getDefault())
             return
         end
 
@@ -92,7 +92,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::done(item)
+            PolyActions::done(item)
             return
         end
 
@@ -171,7 +171,7 @@ class Commands
         end
 
         if Interpreting::match("landing", input) then
-            PolyAction::landing(store.getDefault())
+            PolyActions::landing(store.getDefault())
             return
         end
 
@@ -179,7 +179,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::landing(item)
+            PolyActions::landing(item)
             return
         end
 
@@ -303,7 +303,7 @@ class Commands
             return if datecode == ""
             unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
             return if unixtime.nil?
-            PolyAction::stop(item)
+            PolyActions::stop(item)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
             return
         end
@@ -311,7 +311,7 @@ class Commands
         if Interpreting::match("redate", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyAction::redate(item)
+            PolyActions::redate(item)
             return
         end
 
@@ -319,7 +319,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::redate(item)
+            PolyActions::redate(item)
             return
         end
 
@@ -336,7 +336,7 @@ class Commands
         end
 
         if Interpreting::match("start", input) then
-            PolyAction::start(store.getDefault())
+            PolyActions::start(store.getDefault())
             return
         end
 
@@ -344,12 +344,12 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::start(item)
+            PolyActions::start(item)
             return
         end
 
         if Interpreting::match("stop", input) then
-            PolyAction::stop(store.getDefault())
+            PolyActions::stop(store.getDefault())
             return
         end
 
@@ -357,7 +357,7 @@ class Commands
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyAction::stop(item)
+            PolyActions::stop(item)
             return
         end
 
@@ -374,7 +374,7 @@ class Commands
             _, ordinal, timeInHours = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            puts "Adding #{timeInHours.to_f} hours to #{PolyFunction::toString(item).green}"
+            puts "Adding #{timeInHours.to_f} hours to #{PolyFunctions::toString(item).green}"
             Bank::put(item["uuid"], timeInHours.to_f*3600)
             return
         end

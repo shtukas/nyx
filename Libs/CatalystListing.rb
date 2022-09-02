@@ -136,7 +136,7 @@ class CatalystListing
                 .each{|item|
                     break if vspaceleft <= 0
                     store.register(item, true)
-                    line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
+                    line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
                     if NxBallsService::isPresent(item["uuid"]) then
                         line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                     end
@@ -210,7 +210,7 @@ class CatalystListing
         inbox = InboxItems::listingItems()
         inbox.each{|item|
             store.register(item, false)
-            line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
+            line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
             if NxBallsService::isPresent(item["uuid"]) then
                 line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
             end
@@ -229,7 +229,7 @@ class CatalystListing
                 next if planninguuids.any?(item["uuid"]) # We do not display in the lower listing items that are planning managed
                 break if vspaceleft <= 0
                 store.register(item, true)
-                line = "#{store.prefixString()} #{PolyFunction::toString(item)}"
+                line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
                 if NxBallsService::isPresent(item["uuid"]) then
                     line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                 end
@@ -244,7 +244,7 @@ class CatalystListing
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
-                PolyAction::stop(item)
+                PolyActions::stop(item)
                 DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
                 return
             end

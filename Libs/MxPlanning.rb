@@ -144,7 +144,7 @@ class MxPlanning
             return "(MxPlanning, line) #{payload["description"]}"
         end
         if payload["type"] == "pointer" then
-            return "(MxPlanning, pointer) #{PolyFunction::toString(payload["item"])}"
+            return "(MxPlanning, pointer) #{PolyFunctions::toString(payload["item"])}"
         end
         raise "(error: 9fbcd583-6757-4b90-bd9d-b56c6aabe73f): #{item}"
     end

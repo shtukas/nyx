@@ -6,9 +6,9 @@ class LinkedNavigation
         if LucilleCore::askQuestionAnswerAsBoolean("individualy access #{items.size} items ? (no for edition deskting) ") then
             loop {
                 system("clear")
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunction::toString(item) })
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunctions::toString(item) })
                 return if item.nil?
-                PolyFunction::landing(item, isSearchAndSelect = false)
+                PolyFunctions::landing(item, isSearchAndSelect = false)
             }
         else
             uuids = items.map{|item| item["uuid"] }
@@ -22,9 +22,9 @@ class LinkedNavigation
         if items.size < 50 then
             loop {
                 system("clear")
-                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunction::toString(item) })
+                item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunctions::toString(item) })
                 return if item.nil?
-                PolyFunction::landing(item, isSearchAndSelect = false)
+                PolyFunctions::landing(item, isSearchAndSelect = false)
             }
         else
             loop {
@@ -59,12 +59,12 @@ class LinkedNavigation
             if option == "display all" then
                 loop {
                     system("clear")
-                    lb  = lambda{|itemuuid| PolyFunction::toString(TheIndex::getItemOrNull(itemuuid)) }
+                    lb  = lambda{|itemuuid| PolyFunctions::toString(TheIndex::getItemOrNull(itemuuid)) }
                     linkeditemuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", uuids, lb)
                     break if linkeditemuuid.nil?
                     item = TheIndex::getItemOrNull(linkeditemuuid)
                     break if item.nil?
-                    PolyFunction::landing(item, isSearchAndSelect = false)
+                    PolyFunctions::landing(item, isSearchAndSelect = false)
                 }
             end
 

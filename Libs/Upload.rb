@@ -48,7 +48,7 @@ class Upload
 
     # Upload::interactivelyUploadToItem(item)
     def self.interactivelyUploadToItem(item)
-        puts "Upload to '#{PolyFunction::toString(item)}'".green
+        puts "Upload to '#{PolyFunctions::toString(item)}'".green
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["single file", "aion-points", "primitive files"])
         return if action.nil?
         overrideDatetime = nil

@@ -137,7 +137,7 @@ class TheIndex
         return if unixtime.nil?
         return if mikuType.nil?
 
-        announce = PolyFunction::genericDescription(item)
+        announce = PolyFunctions::genericDescription(item)
 
         db = SQLite3::Database.new(TheIndex::databaseFile())
         db.busy_timeout = 117

@@ -133,7 +133,7 @@ class TxTimeCommitmentProjects
                     .map{|px| px["element"] }
                     .each{|element|
                         indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunction::toString(element)}"
+                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
                     }
             end
 
@@ -144,7 +144,7 @@ class TxTimeCommitmentProjects
                 TxTimeCommitmentProjects::elements(item, 50)
                     .each{|element|
                         indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunction::toString(element)}"
+                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
                     }
             end
 
@@ -192,7 +192,7 @@ class TxTimeCommitmentProjects
                 indx = command[4, 99].strip.to_i
                 entity = store.get(indx)
                 next if entity.nil?
-                PolyAction::done(entity)
+                PolyActions::done(entity)
                 next
             end
 
@@ -235,7 +235,7 @@ class TxTimeCommitmentProjects
             aspect = LucilleCore::selectEntityFromListOfEntitiesOrNull("aspect", ["carrier", "elements listing"])
             return if aspect.nil?
             if aspect == "carrier" then
-                PolyAction::start(item)
+                PolyActions::start(item)
                 Cx::access(item["nx112"])
             end
             if aspect == "elements listing" then
@@ -248,12 +248,12 @@ class TxTimeCommitmentProjects
         end
 
         if item["nx112"] and elements.size == 0 then
-            PolyAction::start(item)
+            PolyActions::start(item)
             Cx::access(item["nx112"])
         end
 
         if item["nx112"].nil? and elements.size == 0 then
-            PolyAction::start(item)
+            PolyActions::start(item)
         end
     end
 
@@ -269,7 +269,7 @@ class TxTimeCommitmentProjects
             items = TxTimeCommitmentProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
             break if item.nil?
-            PolyAction::landing(item)
+            PolyActions::landing(item)
         }
     end
 

@@ -230,7 +230,6 @@ require_relative "InboxItems.rb"
 require_relative "FileSystemCheck.rb"
 
 require_relative "LinkedNavigation.rb"
-require_relative "Poly.rb"
 
 require_relative "Machines.rb"
 require_relative "MxPlanning.rb"
@@ -254,6 +253,8 @@ require_relative "OwnerMapping.rb"
 
 require_relative "PrimitiveFiles.rb"
 require_relative "ProgrammableBooleans.rb"
+require_relative "PolyActions.rb"
+require_relative "PolyFunctions.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
