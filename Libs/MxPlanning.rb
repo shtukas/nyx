@@ -161,13 +161,20 @@ class MxPlanning
         end
     end
 
+    # MxPlanning::mxPlanningItemUUIDToMxPlanningDisplayItemUUID(uuid)
+    def self.mxPlanningItemUUIDToMxPlanningDisplayItemUUID(uuid)
+        Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{uuid}")
+    end
+
     # MxPlanning::displayItems()
     def self.displayItems()
         items = MxPlanning::items().sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"]}
         unixtime1 = Time.new.to_f
         unixtime2 = nil
         items
-            .select{|item| DoNotShowUntil::isVisible("MxPlanningDisplayItem:#{item["uuid"]}") }
+            .select{|item| 
+                DoNotShowUntil::isVisible(MxPlanning::mxPlanningItemUUIDToMxPlanningDisplayItemUUID(item["uuid"])) 
+            }
             .map{|item|
                 (lambda{|item|
                     if item["payload"]["type"] == "pointer" then
@@ -178,7 +185,7 @@ class MxPlanning
                     end
 
                     XCacheValuesWithExpiry::set("recently-listed-uuid-ad5b7c29c1c6:#{item["uuid"]}", "true", 60) # A special purpose way to not display a NxBall.
-                    uuid = Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{item["uuid"]}")
+                    uuid = MxPlanning::mxPlanningItemUUIDToMxPlanningDisplayItemUUID(item["uuid"])
                     unixtime1 = NxBallsService::thisRunStartUnixtimeOrNull(uuid) || unixtime1
                     unixtime2 = unixtime1 + item["timespanInHour"]*3600
                     displayItem = {
@@ -193,7 +200,6 @@ class MxPlanning
                 }).call(item)
             }
             .compact
-
     end
 
     # MxPlanning::unixtimeToTime(unixtime)
