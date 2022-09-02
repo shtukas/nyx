@@ -244,7 +244,7 @@ class PolyActions
 
         return if NxBallsService::isRunning(item["uuid"])
 
-        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyActions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
+        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
 
     # PolyActions::stop(item)
@@ -388,43 +388,6 @@ class PolyActions
         end
 
         raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
-    end
-
-    # PolyActions::bankAccounts(item)
-    def self.bankAccounts(item)
-
-        decideTxTimeCommitmentProjectUUIDOrNull = lambda {|itemuuid|
-            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
-            uuid = XCache::getOrNull(key)
-            if uuid == "null" then
-                return nil
-            end
-            if uuid then
-                return uuid
-            end
-            puts "This is important, pay attention"
-            LucilleCore::pressEnterToContinue()
-            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
-            if ox then
-                XCache::set(key, ox["uuid"])
-                return ox["uuid"]
-            else
-                XCache::set(key, "null")
-                return nil
-            end
-        }
-
-        accounts = [item["uuid"]] # Item's own uuid
-
-        if ["NxLine", "Nxtask"].include?(item["mikuType"]) then
-            accounts = accounts + OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
-        end
-
-        if ["InboxItem", "TxDated"].include?(item["mikuType"]) then
-            accounts = accounts + [decideTxTimeCommitmentProjectUUIDOrNull.call(item["uuid"])].compact
-        end
-
-        accounts
     end
 
     # PolyActions::transmutation(item, targetMikuType)

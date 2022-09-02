@@ -443,4 +443,50 @@ class PolyFunctions
         end
         1
     end
+
+    # PolyFunctions::bankAccounts(item)
+    def self.bankAccounts(item)
+
+        decideTxTimeCommitmentProjectUUIDOrNull = lambda {|itemuuid|
+            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
+            uuid = XCache::getOrNull(key)
+            if uuid == "null" then
+                return nil
+            end
+            if uuid then
+                return uuid
+            end
+            puts "This is important, pay attention. We need an owner for this item, for the account."
+            LucilleCore::pressEnterToContinue()
+            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
+            if ox then
+                XCache::set(key, ox["uuid"])
+                SystemEvents::broadcast({
+                    "mikuType" => "XCacheSet",
+                    "key"      => key,
+                    "value"    => ox["uuid"]
+                })
+                return ox["uuid"]
+            else
+                XCache::set(key, "null")
+                SystemEvents::broadcast({
+                    "mikuType" => "XCacheSet",
+                    "key"      => key,
+                    "value"    => "null"
+                })
+                return nil
+            end
+        }
+
+        accounts = [item["uuid"]] # Item's own uuid
+
+        ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+        if ownersuuids.size > 0 then
+            accounts = accounts + ownersuuids
+        else
+            accounts = accounts + [decideTxTimeCommitmentProjectUUIDOrNull.call(item["uuid"])].compact
+        end
+
+        accounts
+    end
 end

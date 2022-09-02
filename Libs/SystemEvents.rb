@@ -68,6 +68,12 @@ class SystemEvents
             MxPlanning::processEvent(event)
         end
 
+        if event["mikuType"] == "XCacheSet" then
+            key = event["key"]
+            value = event["value"]
+            XCache::set(key, value)
+        end
+
     end
 
     # SystemEvents::broadcast(event)
@@ -265,5 +271,4 @@ class SystemEvents
 
         updatedObjectuuids.each{|objectuuid| TheIndex::updateIndexAtObjectAttempt(objectuuid) }
     end
-
 end

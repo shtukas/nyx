@@ -92,3 +92,9 @@ We have two types of events
     "mikuType" : "MxPlanningDelete"
     "itemuuid" : String
 }
+
+{
+    "mikuType" : "XCacheUpdate"
+    "key"      : String
+    "value"    : String
+}
