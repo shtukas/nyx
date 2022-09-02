@@ -7,7 +7,12 @@ class Nx112
     def self.carrierAccess(item)
         return if item.nil?
         puts "Nx112::carrierAccess(item): #{PolyFunctions::toString(item)}"
-        Nx112::targetAccess(item["nx112"])
+        if item["nx112"] then
+            Nx112::targetAccess(item["nx112"])
+        else
+            LucilleCore::pressEnterToContinue()
+        end
+
     end
 
     # Nx112::targetAccess(uuid)
