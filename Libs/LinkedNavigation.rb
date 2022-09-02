@@ -37,38 +37,40 @@ class LinkedNavigation
         end
     end
 
-    # LinkedNavigation::navigate(item)
-    def self.navigate(item)
-        uuids = NetworkLinks::linkeduuids(item["uuid"])
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-        LinkedNavigation::navigateMiscEntities(uuids)
+    # LinkedNavigation::navigateItem(item)
+    def self.navigateItem(item)
+        entities = NetworkLinks::linkedEntities(uuid)
+        if entities.empty? then
+            puts "I could not find linked entities for item: `#{PolyFunctions::toString(item)}`"
+            LucilleCore::pressEnterToContinue()
+            return
+        end 
+        entities = entities.sort{ |e1, e2| e1["datetime"] <=> e2["datetime"] }
+        LinkedNavigation::navigateGivenEntities(entities)
     end
 
-    # LinkedNavigation::navigateMiscEntities(uuids)
-    def self.navigateMiscEntities(uuids)
+    # LinkedNavigation::navigateGivenEntities(entities)
+    def self.navigateGivenEntities(entities)
         loop {
             system("clear")
 
-            puts "lowest  datetime: #{DxF1::getAttributeOrNull(uuids.first, "datetime")}"
-            puts "highest datetime: #{DxF1::getAttributeOrNull(uuids.last, "datetime")}"
+            puts "lowest  datetime: #{entities.first["datetime"]}"
+            puts "highest datetime: #{entities.last["datetime"]}"
 
-            options = ["display all", "edition desk export all", "zoom on time period"]
+            options = ["list all", "desk export all", "zoom on time period"]
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("option", options)
             return if option.nil?
             
-            if option == "display all" then
+            if option == "list all" then
                 loop {
                     system("clear")
-                    lb  = lambda{|itemuuid| PolyFunctions::toString(TheIndex::getItemOrNull(itemuuid)) }
-                    linkeditemuuid = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", uuids, lb)
-                    break if linkeditemuuid.nil?
-                    item = TheIndex::getItemOrNull(linkeditemuuid)
-                    break if item.nil?
-                    PolyFunctions::landing(item, isSearchAndSelect = false)
+                    entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", entities, lambda{|entity| PolyFunctions::toString(entity) })
+                    break if entity.nil?
+                    PolyFunctions::landing(entity, isSearchAndSelect = false)
                 }
             end
 
-            if option == "edition desk export all" then
+            if option == "desk export all" then
                 puts "Code to be written (8cfc7215-743a-418f-9f92-9e40c22f27ab)"
                 exit
             end
@@ -78,10 +80,12 @@ class LinkedNavigation
                 datetime1 = CommonUtils::interactiveDateTimeBuilder()
                 puts "datetime2:"
                 datetime2 = CommonUtils::interactiveDateTimeBuilder()
-                subset = uuids.select{|uuid| 
-                    datetime = DxF1::getAttributeOrNull(uuid, "datetime")
-                    datetime >= datetime1 and datetime <= datetime2 
-                }
+                entities = entities
+                                .select{|entity| 
+                                    datetime = entity["datetime"]
+                                    datetime >= datetime1 and datetime <= datetime2 
+                                }
+                LinkedNavigation::navigateGivenEntities(entities)
             end
         }
     end

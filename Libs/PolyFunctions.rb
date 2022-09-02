@@ -282,7 +282,14 @@ class PolyFunctions
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
-            puts "nx112: #{item["nx112"]}".yellow
+
+            if item["nx112"] then
+                puts "nx112: #{item["nx112"]}".yellow
+            end
+
+            if item["rootnhash"] then
+                puts "rootnhash: #{item["rootnhash"]}".yellow
+            end
 
             store = ItemStore.new()
 
@@ -414,7 +421,7 @@ class PolyFunctions
             end
 
             if Interpreting::match("navigation", command) then
-                LinkedNavigation::navigate(item)
+                LinkedNavigation::navigateItem(item)
             end
 
             if Interpreting::match("unlink", command) then

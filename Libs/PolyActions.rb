@@ -356,7 +356,7 @@ class PolyActions
         end
 
         if Iam::isNetworkAggregation(item) then
-            LinkedNavigation::navigate(item)
+            LinkedNavigation::navigateItem(item)
             return
         end
 
