@@ -20,9 +20,6 @@ class PolyFunctions
     def self.genericDescription(item)
         PolyFunctions::_check(item, "PolyFunctions::genericDescription")
 
-        if item["mikuType"] == "NxAnniversary" then
-            return item["description"]
-        end
         if item["mikuType"] == "CxAionPoint" then
             return "#{item["mikuType"]}"
         end
@@ -62,6 +59,9 @@ class PolyFunctions
         if item["mikuType"] == "InboxItem" then
             return item["description"]
         end
+        if item["mikuType"] == "NxAnniversary" then
+            return item["description"]
+        end
         if item["mikuType"] == "NxCollection" then
             return item["description"]
         end
@@ -72,9 +72,6 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "NxEvent" then
-            return item["description"]
-        end
-        if item["mikuType"] == "NxFrame" then
             return item["description"]
         end
         if item["mikuType"] == "NxIced" then
@@ -90,6 +87,9 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "NxTimeline" then
+            return item["description"]
+        end
+        if item["mikuType"] == "TxFloat" then
             return item["description"]
         end
         if item["mikuType"] == "TxThread" then
@@ -180,9 +180,6 @@ class PolyFunctions
         if item["mikuType"] == "NxEvent" then
             return NxEvents::toString(item)
         end
-        if item["mikuType"] == "NxFrame" then
-            return NxFrames::toString(item)
-        end
         if item["mikuType"] == "NxIced" then
             return NxIceds::toString(item)
         end
@@ -197,6 +194,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTimeline" then
             return NxTimelines::toString(item)
+        end
+        if item["mikuType"] == "TxFloat" then
+            return TxFloats::toString(item)
         end
         if item["mikuType"] == "TxTimeCommitmentProject" then
             return TxTimeCommitmentProjects::toString(item)

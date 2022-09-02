@@ -1,13 +1,13 @@
 # encoding: UTF-8
 
-class NxFrames
+class TxFloats
 
-    # NxFrames::items()
+    # TxFloats::items()
     def self.items()
-        TheIndex::mikuTypeToItems("NxFrame")
+        TheIndex::mikuTypeToItems("TxFloat")
     end
 
-    # NxFrames::destroy(uuid)
+    # TxFloats::destroy(uuid)
     def self.destroy(uuid)
         DxF1::deleteObjectLogically(uuid)
     end
@@ -15,7 +15,7 @@ class NxFrames
     # --------------------------------------------------
     # Makers
 
-    # NxFrames::interactivelyCreateNewOrNull()
+    # TxFloats::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -24,7 +24,7 @@ class NxFrames
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
         DxF1::setAttribute2(uuid, "uuid",        uuid)
-        DxF1::setAttribute2(uuid, "mikuType",    "NxFrame")
+        DxF1::setAttribute2(uuid, "mikuType",    "TxFloat")
         DxF1::setAttribute2(uuid, "unixtime",    unixtime)
         DxF1::setAttribute2(uuid, "datetime",    datetime)
         DxF1::setAttribute2(uuid, "description", description)
@@ -40,26 +40,32 @@ class NxFrames
     # --------------------------------------------------
     # Data
 
-    # NxFrames::toString(item)
+    # TxFloats::toString(item)
     def self.toString(item)
-        "(frame) #{item["description"]}#{Cx::uuidToString(item["nx112"])}"
+        "(float) #{item["description"]}#{Cx::uuidToString(item["nx112"])}"
     end
 
-    # NxFrames::toStringForSearch(item)
+    # TxFloats::toStringForSearch(item)
     def self.toStringForSearch(item)
-        "(frame) #{item["description"]}"
+        "(float) #{item["description"]}"
+    end
+
+    # TxFloats::listingItems()
+    def self.listingItems()
+        TxFloats::items()
+            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 
     # --------------------------------------------------
     # Operations
 
-    # NxFrames::dive()
+    # TxFloats::dive()
     def self.dive()
         loop {
             system("clear")
-            items = NxFrames::items()
+            items = TxFloats::items()
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("frame", items, lambda{|item| PolyFunctions::toString(item) })
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("float", items, lambda{|item| PolyFunctions::toString(item) })
             return if item.nil?
             PolyFunctions::landing(item, false)
         }

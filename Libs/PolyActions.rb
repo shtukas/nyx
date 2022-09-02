@@ -134,7 +134,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxFrame" then
+        if item["mikuType"] == "TxFloat" then
             return
         end
 

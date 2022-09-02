@@ -138,12 +138,12 @@ class Commands
         end
 
         if Interpreting::match("frame", input) then
-            NxFrames::interactivelyCreateNewOrNull()
+            TxFloats::interactivelyCreateNewOrNull()
             return
         end
 
         if Interpreting::match("frames", input) then
-            NxFrames::dive()
+            TxFloats::dive()
             return
         end
 

@@ -1,6 +1,6 @@
-NxFrame:
+TxFloat:
     "uuid"        : String
-    "mikuType"    : "NxFrame"
+    "mikuType"    : "TxFloat"
     "unixtime"    : Float
     "datetime"    : DateTime Iso8601
     "description" : String
