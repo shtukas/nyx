@@ -244,7 +244,7 @@ class PolyActions
 
         return if NxBallsService::isRunning(item["uuid"])
 
-        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyActions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item))
+        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyActions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
 
     # PolyActions::stop(item)

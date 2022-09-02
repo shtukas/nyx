@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | toplevel | inbox | line | planning",
+            "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | >owner (n) | >planning",
@@ -137,12 +137,12 @@ class Commands
             return
         end
 
-        if Interpreting::match("frame", input) then
+        if Interpreting::match("float", input) then
             TxFloats::interactivelyCreateNewOrNull()
             return
         end
 
-        if Interpreting::match("frames", input) then
+        if Interpreting::match("floats", input) then
             TxFloats::dive()
             return
         end
