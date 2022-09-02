@@ -134,7 +134,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxFrame" then
+        if item["mikuType"] == "TxFloat" then
             return
         end
 
@@ -231,20 +231,12 @@ class PolyActions
     # PolyActions::start(item)
     def self.start(item)
         PolyFunctions::_check(item, "PolyActions::start")
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::start(item["payload"]["item"])
-            end
-        end
-
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::start(item["item"])
-        end
-
         return if NxBallsService::isRunning(item["uuid"])
-
-        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyActions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item))
+        # We only start the thing that was targetted by the start command
+        # Simple items line InboxItems ot NxTasks, but also structures like MxPlanning and MxPlanningDisplay
+        # What we have, though, is a comprehensive PolyFunctions::bankAccounts, function.
+        # So we start the targetted item and the owner.
+        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
 
     # PolyActions::stop(item)
@@ -344,6 +336,7 @@ class PolyActions
 
         if item["mikuType"] == "NxTask" then
             Nx112::carrierAccess(item)
+            return
         end
 
         if item["mikuType"] == "TopLevel" then
@@ -360,6 +353,11 @@ class PolyActions
         end
 
         if item["mikuType"] == "InboxItem" then
+            Nx112::carrierAccess(item)
+            return
+        end
+
+        if item["mikuType"] == "TxFloat" then
             Nx112::carrierAccess(item)
             return
         end
@@ -381,43 +379,11 @@ class PolyActions
             return
         end
 
-        raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mnikuType: #{item["mikuType"]}"
+        raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
     end
 
-    # PolyActions::bankAccounts(item)
-    def self.bankAccounts(item)
+    # PolyActions::transmutation(item, targetMikuType)
+    def self.transmutation(item, targetMikuType)
 
-        decideTxTimeCommitmentProjectUUIDOrNull = lambda {|itemuuid|
-            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
-            uuid = XCache::getOrNull(key)
-            if uuid == "null" then
-                return nil
-            end
-            if uuid then
-                return uuid
-            end
-            puts "This is important, pay attention"
-            LucilleCore::pressEnterToContinue()
-            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
-            if ox then
-                XCache::set(key, ox["uuid"])
-                return ox["uuid"]
-            else
-                XCache::set(key, "null")
-                return nil
-            end
-        }
-
-        accounts = [item["uuid"]] # Item's own uuid
-
-        if ["NxLine", "Nxtask"].include?(item["mikuType"]) then
-            accounts = accounts + OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
-        end
-
-        if ["InboxItem", "TxDated"].include?(item["mikuType"]) then
-            accounts = accounts + [decideTxTimeCommitmentProjectUUIDOrNull.call(item["uuid"])].compact
-        end
-
-        accounts
     end
 end

@@ -6,7 +6,7 @@ class Commands
     # Commands::commands()
     def self.commands()
         [
-            "wave | anniversary | frame | today | ondate | todo | task | toplevel | inbox | line | planning",
+            "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | >owner (n) | >planning",
@@ -137,13 +137,13 @@ class Commands
             return
         end
 
-        if Interpreting::match("frame", input) then
-            NxFrames::interactivelyCreateNewOrNull()
+        if Interpreting::match("float", input) then
+            TxFloats::interactivelyCreateNewOrNull()
             return
         end
 
-        if Interpreting::match("frames", input) then
-            NxFrames::dive()
+        if Interpreting::match("floats", input) then
+            TxFloats::dive()
             return
         end
 
@@ -154,10 +154,10 @@ class Commands
         end
 
         if input == "inbox" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            item = InboxItems::issueDescriptionOnly(description)
+            item = InboxItems::interactivelyCreateNewOrNull()
+            return if item.nil?
             puts JSON.pretty_generate(item)
+            return
         end
 
         if Interpreting::match("internet off", input) then

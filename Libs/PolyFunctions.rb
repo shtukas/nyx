@@ -20,9 +20,6 @@ class PolyFunctions
     def self.genericDescription(item)
         PolyFunctions::_check(item, "PolyFunctions::genericDescription")
 
-        if item["mikuType"] == "NxAnniversary" then
-            return item["description"]
-        end
         if item["mikuType"] == "CxAionPoint" then
             return "#{item["mikuType"]}"
         end
@@ -62,6 +59,9 @@ class PolyFunctions
         if item["mikuType"] == "InboxItem" then
             return item["description"]
         end
+        if item["mikuType"] == "NxAnniversary" then
+            return item["description"]
+        end
         if item["mikuType"] == "NxCollection" then
             return item["description"]
         end
@@ -72,9 +72,6 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "NxEvent" then
-            return item["description"]
-        end
-        if item["mikuType"] == "NxFrame" then
             return item["description"]
         end
         if item["mikuType"] == "NxIced" then
@@ -90,6 +87,9 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "NxTimeline" then
+            return item["description"]
+        end
+        if item["mikuType"] == "TxFloat" then
             return item["description"]
         end
         if item["mikuType"] == "TxThread" then
@@ -180,9 +180,6 @@ class PolyFunctions
         if item["mikuType"] == "NxEvent" then
             return NxEvents::toString(item)
         end
-        if item["mikuType"] == "NxFrame" then
-            return NxFrames::toString(item)
-        end
         if item["mikuType"] == "NxIced" then
             return NxIceds::toString(item)
         end
@@ -197,6 +194,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTimeline" then
             return NxTimelines::toString(item)
+        end
+        if item["mikuType"] == "TxFloat" then
+            return TxFloats::toString(item)
         end
         if item["mikuType"] == "TxTimeCommitmentProject" then
             return TxTimeCommitmentProjects::toString(item)
@@ -442,5 +442,64 @@ class PolyFunctions
             return PolyFunctions::timeBeforeNotificationsInHours(item["item"])
         end
         1
+    end
+
+    # PolyFunctions::bankAccounts(item)
+    def self.bankAccounts(item)
+
+        accounts = [item["uuid"]] # Item's own uuid
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            return PolyFunctions::bankAccounts(item["item"]) # We return the bank accounts of the MxPlanning
+        end
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                # we continue to deciding an owner
+            end
+            if item["payload"]["type"] == "pointer" then
+                return PolyFunctions::bankAccounts(item["payload"]["item"])
+            end
+        end
+
+        decideOwnerUUIDOrNull = lambda {|itemuuid|
+            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
+            uuid = XCache::getOrNull(key)
+            if uuid == "null" then
+                return nil
+            end
+            if uuid then
+                return uuid
+            end
+            puts "This is important, pay attention. We need an owner for this item, for the account."
+            LucilleCore::pressEnterToContinue()
+            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
+            if ox then
+                XCache::set(key, ox["uuid"])
+                SystemEvents::broadcast({
+                    "mikuType" => "XCacheSet",
+                    "key"      => key,
+                    "value"    => ox["uuid"]
+                })
+                return ox["uuid"]
+            else
+                XCache::set(key, "null")
+                SystemEvents::broadcast({
+                    "mikuType" => "XCacheSet",
+                    "key"      => key,
+                    "value"    => "null"
+                })
+                return nil
+            end
+        }
+
+        ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+        if ownersuuids.size > 0 then
+            accounts = accounts + ownersuuids
+        else
+            accounts = accounts + [decideOwnerUUIDOrNull.call(item["uuid"])].compact
+        end
+
+        accounts
     end
 end

@@ -89,8 +89,8 @@ class CatalystListing
             if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
                 system("clear")
                 puts "frames:"
-                NxFrames::items().each{|frame|
-                    puts "    - #{NxFrames::toString(frame)}"
+                TxFloats::items().each{|frame|
+                    puts "    - #{TxFloats::toString(frame)}"
                 }
                 LucilleCore::pressEnterToContinue()
                 XCache::setFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}", true)
@@ -186,6 +186,19 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
+        puts ""
+        vspaceleft = vspaceleft - 1
+
+        floats = TxFloats::listingItems()
+        floats.each{|item|
+            store.register(item, false)
+            line = "#{store.prefixString()} #{PolyFunctions::toString(item)}".yellow
+            if NxBallsService::isPresent(item["uuid"]) then
+                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+            end
+            puts line
+            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+        }
         puts ""
         vspaceleft = vspaceleft - 1
 

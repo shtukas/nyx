@@ -2,7 +2,7 @@
 Catalyst:
     InboxItem
     NxAnniversary
-    NxFrame
+    TxFloat
     NxIced
     NxTask
     TxDated

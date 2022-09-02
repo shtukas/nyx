@@ -169,20 +169,31 @@ class MxPlanning
         items
             .select{|item| DoNotShowUntil::isVisible("MxPlanningDisplayItem:#{item["uuid"]}") }
             .map{|item|
-                XCacheValuesWithExpiry::set("recently-listed-uuid-ad5b7c29c1c6:#{item["uuid"]}", "true", 60) # A special purpose way to not display a NxBall.
-                uuid = Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{item["uuid"]}")
-                unixtime1 = NxBallsService::thisRunStartUnixtimeOrNull(uuid) || unixtime1
-                unixtime2 = unixtime1 + item["timespanInHour"]*3600
-                displayItem = {
-                    "uuid"          => uuid,
-                    "mikuType"      => "MxPlanningDisplay",
-                    "item"          => item,
-                    "thisRunStartUnixtime" => unixtime1,
-                    "endUnixtime"   => unixtime2
-                }
-                unixtime1 = unixtime2
-                displayItem
+                (lambda{|item|
+                    if item["payload"]["type"] == "pointer" then
+                        if TheIndex::getItemOrNull(item["payload"]["item"]["uuid"]).nil? then
+                            MxPlanning::destroy(item["uuid"])
+                            return nil
+                        end
+                    end
+
+                    XCacheValuesWithExpiry::set("recently-listed-uuid-ad5b7c29c1c6:#{item["uuid"]}", "true", 60) # A special purpose way to not display a NxBall.
+                    uuid = Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{item["uuid"]}")
+                    unixtime1 = NxBallsService::thisRunStartUnixtimeOrNull(uuid) || unixtime1
+                    unixtime2 = unixtime1 + item["timespanInHour"]*3600
+                    displayItem = {
+                        "uuid"          => uuid,
+                        "mikuType"      => "MxPlanningDisplay",
+                        "item"          => item,
+                        "thisRunStartUnixtime" => unixtime1,
+                        "endUnixtime"   => unixtime2
+                    }
+                    unixtime1 = unixtime2
+                    displayItem
+                }).call(item)
             }
+            .compact
+
     end
 
     # MxPlanning::unixtimeToTime(unixtime)

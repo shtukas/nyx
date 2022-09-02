@@ -195,7 +195,7 @@ class FileSystemCheck
             ensureAttribute.call("description")
         end
 
-        if mikuType == "NxFrame" then
+        if mikuType == "TxFloat" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
             if item["nx112"] then
