@@ -447,7 +447,22 @@ class PolyFunctions
     # PolyFunctions::bankAccounts(item)
     def self.bankAccounts(item)
 
-        decideTxTimeCommitmentProjectUUIDOrNull = lambda {|itemuuid|
+        accounts = [item["uuid"]] # Item's own uuid
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            return PolyFunctions::bankAccounts(item["item"]) # We return the bank accounts of the MxPlanning
+        end
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                # we continue to deciding an owner
+            end
+            if item["payload"]["type"] == "pointer" then
+                return PolyFunctions::bankAccounts(item["payload"]["item"])
+            end
+        end
+
+        decideOwnerUUIDOrNull = lambda {|itemuuid|
             key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
             uuid = XCache::getOrNull(key)
             if uuid == "null" then
@@ -478,13 +493,11 @@ class PolyFunctions
             end
         }
 
-        accounts = [item["uuid"]] # Item's own uuid
-
         ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
         if ownersuuids.size > 0 then
             accounts = accounts + ownersuuids
         else
-            accounts = accounts + [decideTxTimeCommitmentProjectUUIDOrNull.call(item["uuid"])].compact
+            accounts = accounts + [decideOwnerUUIDOrNull.call(item["uuid"])].compact
         end
 
         accounts

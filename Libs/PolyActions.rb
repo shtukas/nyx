@@ -231,19 +231,11 @@ class PolyActions
     # PolyActions::start(item)
     def self.start(item)
         PolyFunctions::_check(item, "PolyActions::start")
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::start(item["payload"]["item"])
-            end
-        end
-
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::start(item["item"])
-        end
-
         return if NxBallsService::isRunning(item["uuid"])
-
+        # We only start the thing that was targetted by the start command
+        # Simple items line InboxItems ot NxTasks, but also structures like MxPlanning and MxPlanningDisplay
+        # What we have, though, is a comprehensive PolyFunctions::bankAccounts, function.
+        # So we start the targetted item and the owner.
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
 
