@@ -344,6 +344,7 @@ class PolyActions
 
         if item["mikuType"] == "NxTask" then
             Nx112::carrierAccess(item)
+            return
         end
 
         if item["mikuType"] == "TopLevel" then
@@ -360,6 +361,11 @@ class PolyActions
         end
 
         if item["mikuType"] == "InboxItem" then
+            Nx112::carrierAccess(item)
+            return
+        end
+
+        if item["mikuType"] == "TxFloat" then
             Nx112::carrierAccess(item)
             return
         end
@@ -381,7 +387,7 @@ class PolyActions
             return
         end
 
-        raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mnikuType: #{item["mikuType"]}"
+        raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
     end
 
     # PolyActions::bankAccounts(item)
