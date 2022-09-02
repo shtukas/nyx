@@ -15,8 +15,8 @@ class InboxItems
     # --------------------------------------------------
     # Makers
 
-    # InboxItems::interactivelyCreateNewOrNull(shouldPromptForTimeCommitment)
-    def self.interactivelyCreateNewOrNull(shouldPromptForTimeCommitment)
+    # InboxItems::interactivelyCreateNewOrNull()
+    def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid = SecureRandom.uuid

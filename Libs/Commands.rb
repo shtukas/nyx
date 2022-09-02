@@ -154,10 +154,10 @@ class Commands
         end
 
         if input == "inbox" then
-            description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-            return if description == ""
-            item = InboxItems::issueDescriptionOnly(description)
+            item = InboxItems::interactivelyCreateNewOrNull()
+            return if item.nil?
             puts JSON.pretty_generate(item)
+            return
         end
 
         if Interpreting::match("internet off", input) then
