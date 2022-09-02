@@ -193,9 +193,6 @@ class PolyActions
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
             DxF1::deleteObjectLogically(item["uuid"])
         end
-
-        puts "I do not know how to PolyActions::destroyWithPrompt(#{JSON.pretty_generate(item)})"
-        raise "(error: 6d79f9cb-7a15-4e51-a40f-a95e37cd1ddd)"
     end
 
     # PolyActions::landing(item)
