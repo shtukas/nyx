@@ -89,6 +89,7 @@ class InboxItems
     # InboxItems::listingItems()
     def self.listingItems()
         InboxItems::items()
+            .select{|item| item["isAlive"].nil? or item["isAlive"] }
             .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
     end
 end
