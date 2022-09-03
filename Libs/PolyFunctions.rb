@@ -258,10 +258,6 @@ class PolyFunctions
             return nil
         end
 
-        if ["DxText", "NxAnniversary", "NxIced"].include?(item["mikuType"]) then
-            return PolyFunctions::landing(item, isSearchAndSelect)
-        end
-
         if item["mikuType"] == "TxTimeCommitmentProject" then
             return TxTimeCommitmentProjects::landing(item, isSearchAndSelect)
         end
@@ -318,15 +314,15 @@ class PolyFunctions
             end
 
             if item["mikuType"] == "DxFile" then
-                commands = ["access", "description", "json", "destroy"]
+                commands = ["access", "description", "link", "unlink", "json", "destroy"]
             end
 
             if item["mikuType"] == "DxText" then
-                commands = ["access", "edit", "destroy"]
+                commands = ["access", "edit", "link", "unlink", "destroy"]
             end
 
             if item["mikuType"] == "NxLine" then
-                commands = ["edit", "destroy"]
+                commands = ["edit", "link", "unlink", "destroy"]
             end
 
             if item["mikuType"] == "NxPerson" then

@@ -89,8 +89,7 @@ class Nyx
             operations = [
                 "search",
                 "last [n] nodes dive",
-                "make new data entity",
-                "make new event"
+                "make new nyx node"
             ]
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
@@ -112,18 +111,9 @@ class Nyx
                     PolyFunctions::landing(node, isSearchAndSelect = false)
                 }
             end
-
-            if operation == "make new data entity" then
+            if operation == "make new nyx node" then
                 item = Nyx::interactivelyMakeNewOrNull()
                 next if item.nil?
-                item = TheIndex::getItemOrNull(item["uuid"])
-                if item.nil? then
-                    raise "(error: 2bce1d88-4460-47ba-9fda-6db066974c75) this should not have hapenned 🤔"
-                end
-                PolyFunctions::landing(item, isSearchAndSelect = false)
-            end
-            if operation == "make new event" then
-                item = NxEvents::interactivelyIssueNewItemOrNull()
                 puts JSON.pretty_generate(item)
                 PolyFunctions::landing(item, isSearchAndSelect = false)
             end
