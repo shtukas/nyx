@@ -316,4 +316,50 @@ class PolyFunctions
 
         accounts
     end
+
+    # PolyFunctions::foxTerrierAtItem(item)
+    def self.foxTerrierAtItem(item)
+        loop {
+            system("clear")
+            puts "------------------------------".green
+            puts "Fox Terrier Or Null (`select`)".green
+            puts "------------------------------".green
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+            store = ItemStore.new()
+            # We register the item which is also the default element in the store
+            store.register(item, true)
+            entities = NetworkLinks::linkedEntities(item["uuid"])
+            if entities.size > 0 then
+                puts ""
+                if entities.size < 200 then
+                    entities
+                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                        .each{|entity|
+                            indx = store.register(entity, false)
+                            puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+                        }
+                else
+                    puts "(... many entities, use `navigation` ...)"
+                end
+            end
+
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return nil if input == ""
+
+            if input == "select" then
+                return item
+            end
+
+            if (indx = Interpreting::readAsIntegerOrNull(input)) then
+                entity = store.get(indx)
+                return if entity.nil?
+                resultOpt = PolyFunctions::foxTerrierAtItem(entity)
+                return resultOpt if resultOpt
+            end
+        }
+    end
 end

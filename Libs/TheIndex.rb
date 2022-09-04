@@ -91,9 +91,9 @@ class TheIndex
         db.results_as_hash = true
         db.execute("select * from _index_", []) do |row|
             nx20s << {
-                "announce"   => "(#{row["_mikuType_"]}) #{row["_announce_"]}",
-                "unixtime"   => row["_unixtime_"],
-                "objectuuid" => row["_objectuuid_"]
+                "announce" => "(#{row["_mikuType_"]}) #{row["_announce_"]}",
+                "unixtime" => row["_unixtime_"],
+                "item"     => JSON.parse(row["_item_"])
             }
         end
         db.close

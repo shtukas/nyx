@@ -23,9 +23,7 @@ class Nyx
 
     # Nyx::selectExistingNetworkNodeOrNull()
     def self.selectExistingNetworkNodeOrNull()
-        puts "Nyx::selectExistingNetworkNodeOrNull() [needs implementation]"
-        LucilleCore::pressEnterToContinue()
-        nil
+        Search::foxTerrier()
     end
 
     # Nyx::interactivelyMakeNewOrNull() # objectuuid or null
