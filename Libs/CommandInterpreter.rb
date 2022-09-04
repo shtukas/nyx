@@ -6,13 +6,18 @@ class CommandInterpreter
     # CommandInterpreter::commands()
     def self.commands()
         [
+            "Catalyst:",
+            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
+            "update startd date (<n>)",
             "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels",
-            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             ">owner | >owner (n) | >planning",
             "planning set ordinal <n> | planning set timespan <n>",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
+            "Nyx:",
+            "description (<n>) | nx112 (<n>)",
+            "link:line (<n>) | link:text (<n>) | link (<n>) | navigation (<n>) | network-migration (<n>)"
         ].join("\n")
     end
 
@@ -28,7 +33,9 @@ class CommandInterpreter
         end
 
         if input == ".." then
-            PolyActions::doubleDot(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::doubleDot(item)
             return
         end
 
@@ -56,7 +63,9 @@ class CommandInterpreter
         end
 
         if Interpreting::match("access", input) then
-            PolyActions::access(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::access(item)
             return
         end
 
@@ -79,7 +88,9 @@ class CommandInterpreter
         end
 
         if Interpreting::match("destroy", input) then
-            PolyActions::destroyWithPrompt(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::destroyWithPrompt(item)
             return
         end
 
@@ -91,8 +102,38 @@ class CommandInterpreter
             return
         end
 
+        if Interpreting::match("datetime", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::updateDatetime(item)
+        end
+
+        if Interpreting::match("datetime *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::updateDatetime(item)
+            return
+        end
+
+        if Interpreting::match("description", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::updateDescription(item)
+        end
+
+        if Interpreting::match("description *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::updateDescription(item)
+            return
+        end
+
         if Interpreting::match("done", input) then
-            PolyActions::done(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::done(item)
             return
         end
 
@@ -131,7 +172,9 @@ class CommandInterpreter
         end
 
         if Interpreting::match("expose", input) then
-            puts JSON.pretty_generate(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -179,7 +222,7 @@ class CommandInterpreter
         end
 
         if Interpreting::match("landing", input) then
-            PolyFunctions::landing(store.getDefault(), isSearchAndSelect = false)
+            PolyActions::landing(store.getDefault())
             return
         end
 
@@ -187,7 +230,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyFunctions::landing(item, isSearchAndSelect = false)
+            PolyActions::landing(item)
             return
         end
 
@@ -199,8 +242,110 @@ class CommandInterpreter
             return
         end
 
+        if Interpreting::match("nx112", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::setNx112(item)
+        end
+
+        if Interpreting::match("nx112 *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::setNx112(item)
+            return
+        end
+
+        if input == "link:line" then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::link_line(item)
+            return
+        end
+
+        if input == "link:line *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::link_line(item)
+            return
+        end
+
+        if input == "link:text" then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::link_text(item)
+            return
+        end
+
+        if input == "link:text *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::link_text(item)
+            return
+        end
+
+        if input == "link" then
+            item = store.getDefault()
+            return if item.nil?
+            NetworkLinks::linkToArchitectured(item)
+            return
+        end
+
+        if input == "link *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            NetworkLinks::linkToArchitectured(item)
+            return
+        end
+
         if Interpreting::match("maintenance", input) then
             TxDateds::dive()
+            return
+        end
+
+        if Interpreting::match("name", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::updateDescription(item)
+        end
+
+        if Interpreting::match("name *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::updateDescription(item)
+            return
+        end
+
+        if Interpreting::match("navigation", input) then
+            item = store.getDefault()
+            return if item.nil?
+            LinkedNavigation::navigateItem(item)
+        end
+
+        if Interpreting::match("navigation *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            LinkedNavigation::navigateItem(item)
+            return
+        end
+
+        if input == "network-migration" then
+            item = store.getDefault()
+            return if item.nil?
+            NetworkLinks::networkMigration(item)
+            return
+        end
+
+        if input == "network-migration *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            NetworkLinks::networkMigration(item)
             return
         end
 
@@ -339,12 +484,14 @@ class CommandInterpreter
         end
 
         if Interpreting::match("search", input) then
-            Search::run(isSearchAndSelect = false)
+            Search::run()
             return
         end
 
         if Interpreting::match("start", input) then
-            PolyActions::start(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::start(item)
             return
         end
 
@@ -357,7 +504,9 @@ class CommandInterpreter
         end
 
         if Interpreting::match("stop", input) then
-            PolyActions::stop(store.getDefault())
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::stop(item)
             return
         end
 
@@ -400,6 +549,50 @@ class CommandInterpreter
 
         if input == "toplevels" then
             TopLevel::dive()
+            return
+        end
+
+        if input == "unlink" then
+            item = store.getDefault()
+            return if item.nil?
+            NetworkLinks::selectOneLinkedAndUnlink(item)
+            return
+        end
+
+        if input == "unlink *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            NetworkLinks::selectOneLinkedAndUnlink(item)
+            return
+        end
+
+        if Interpreting::match("update start date", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::updateStartDate(item)
+        end
+
+        if Interpreting::match("update start date *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::updateStartDate(item)
+            return
+        end
+
+        if input == "upload" then
+            item = store.getDefault()
+            return if item.nil?
+            Upload::interactivelyUploadToItem(item)
+            return
+        end
+
+        if input == "upload *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            Upload::interactivelyUploadToItem(item)
             return
         end
 

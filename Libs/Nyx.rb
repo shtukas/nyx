@@ -23,7 +23,9 @@ class Nyx
 
     # Nyx::selectExistingNetworkNodeOrNull()
     def self.selectExistingNetworkNodeOrNull()
-        Search::run(isSearchAndSelect = true)
+        puts "Nyx::selectExistingNetworkNodeOrNull() [needs implementation]"
+        LucilleCore::pressEnterToContinue()
+        nil
     end
 
     # Nyx::interactivelyMakeNewOrNull() # objectuuid or null
@@ -94,7 +96,7 @@ class Nyx
             operation = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", operations)
             return if operation.nil?
             if operation == "search" then
-                Search::run(isSearchAndSelect = false)
+                Search::run()
             end
             if operation == "last [n] nodes dive" then
                 cardinal = LucilleCore::askQuestionAnswerAsString("cardinal : ").to_i
@@ -108,14 +110,14 @@ class Nyx
                 loop {
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|item| PolyFunctions::toString(item) })
                     break if node.nil?
-                    PolyFunctions::landing(node, isSearchAndSelect = false)
+                    PolyActions::landing(node)
                 }
             end
             if operation == "make new nyx node" then
                 item = Nyx::interactivelyMakeNewOrNull()
                 next if item.nil?
                 puts JSON.pretty_generate(item)
-                PolyFunctions::landing(item, isSearchAndSelect = false)
+                PolyActions::landing(item)
             end
         }
     end

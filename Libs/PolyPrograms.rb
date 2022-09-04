@@ -94,8 +94,8 @@ class PolyPrograms
         CommandInterpreter::commandPrompt(store)
     end
 
-    # PolyPrograms::landing(item, elements)
-    def self.landing(item, elements)
+    # PolyPrograms::landing(item, entities)
+    def self.landing(item, entities)
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
@@ -107,19 +107,26 @@ class PolyPrograms
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
             store = ItemStore.new()
-            if elements.size > 0 then
+            # We register the item which is also the default element in the store
+            store.register(item, true)
+            if entities.size > 0 then
                 puts ""
-                if elements.size < 200 then
-                    elements
+                if entities.size < 200 then
+                    entities
                         .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                         .each{|entity|
                             indx = store.register(entity, false)
                             puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
                         }
                 else
-                    puts "(... many elements, use `navigation` ...)"
+                    puts "(... many entities, use `navigation` ...)"
                 end
             end
+
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return if input == ""
+            CommandInterpreter::run(input, store)
         }
     end
 end

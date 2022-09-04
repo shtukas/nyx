@@ -109,8 +109,8 @@ class TxTimeCommitmentProjects
         LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
     end
 
-    # TxTimeCommitmentProjects::landing(item, isSearchAndSelect)
-    def self.landing(item, isSearchAndSelect)
+    # TxTimeCommitmentProjects::landing(item)
+    def self.landing(item)
         loop {
             system("clear")
 
@@ -269,7 +269,7 @@ class TxTimeCommitmentProjects
             items = TxTimeCommitmentProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
             break if item.nil?
-            PolyFunctions::landing(item, isSearchAndSelect = false)
+            PolyActions::landing(item)
         }
     end
 

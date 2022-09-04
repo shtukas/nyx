@@ -19,7 +19,7 @@ Usage:
     if (indx = Interpreting::readAsIntegerOrNull(command)) then
         item = projectItems[indx]
         next if item.nil?
-        ProjectItems::landing(item, isSearchAndSelect)
+        ProjectItems::landing(item)
     end
 
     if Interpreting::match("select *", command) then

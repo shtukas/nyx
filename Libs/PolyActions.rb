@@ -367,4 +367,107 @@ class PolyActions
     def self.transmutation(item, targetMikuType)
 
     end
+
+    # PolyActions::updateDescription(item)
+    def self.updateDescription(item)
+
+        noImplementationTypes = [
+            "CxAionPoint",
+            "CxDx8Unit",
+            "CxFile",
+            "CxText",
+            "CxUniqueString",
+            "CxUrl",
+            "DxUrl"
+        ]
+
+        if noImplementationTypes.include?(item["mikuType"]) then
+            puts "update description is not implemented for #{item["mikuType"]}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if item["mikuType"] == "DxLine" then
+            str = CommonUtils::editTextSynchronously(item["line"]).strip
+            return if str == ""
+            DxF1::setAttribute2(item["uuid"], "line", str)
+        end
+
+        if item["mikuType"] == "NxPerson" then
+            str = CommonUtils::editTextSynchronously(item["name"]).strip
+            return if str == ""
+            DxF1::setAttribute2(item["uuid"], "name", str)
+        end
+
+        description = CommonUtils::editTextSynchronously(item["description"]).strip
+        return if description == ""
+        DxF1::setAttribute2(item["uuid"], "description", description)
+    end
+
+    # PolyActions::updateName(item)
+    def self.updateName(item)
+        PolyActions::updateDescription(item)
+    end
+
+    # PolyActions::updateDatetime(item)
+    def self.updateDatetime(item)
+        datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
+        return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
+        DxF1::setAttribute2(item["uuid"], "datetime", datetime)
+    end
+
+    # PolyActions::updateStartDate(item)
+    def self.updateStartDate(item)
+        if item["mikuType"] != "NxAnniversary" then
+            puts "update description is only implemented for NxAnniversary"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        startdate = CommonUtils::editTextSynchronously(item["startdate"])
+        return if startdate == ""
+        DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
+    end
+
+    # PolyActions::link_line(item)
+    def self.link_line(item)
+        l1 = NxLines::interactivelyIssueNewLineOrNull()
+        return if l1.nil?
+        puts JSON.pretty_generate(l1)
+        NetworkLinks::link(item["uuid"], l1["uuid"])
+    end
+
+    # PolyActions::link_text(item)
+    def self.link_text(item)
+        i2 = DxText::interactivelyIssueNewOrNull()
+        return if i2.nil?
+        puts JSON.pretty_generate(i2)
+        NetworkLinks::link(item["uuid"], i2["uuid"])
+    end
+
+    # PolyActions::setNx112(item)
+    def self.setNx112(item)
+        i2 = Cx::interactivelyCreateNewCxForOwnerOrNull(item["uuid"])
+        return if i2.nil?
+        puts JSON.pretty_generate(i2)
+        DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
+    end
+
+    # PolyActions::landing(item)
+    def self.landing(item)
+
+        PolyFunctions::_check(item, "PolyActions::landing")
+
+        if item["mikuType"] == "fitness1" then
+            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            return nil
+        end
+
+        if item["mikuType"] == "TxTimeCommitmentProject" then
+            return TxTimeCommitmentProjects::landing(item)
+        end
+
+        entities = NetworkLinks::linkedEntities(item["uuid"])
+        PolyPrograms::landing(item, entities)
+    end
 end

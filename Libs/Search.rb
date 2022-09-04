@@ -3,8 +3,8 @@
 
 class Search
 
-    # Search::run(isSearchAndSelect)
-    def self.run(isSearchAndSelect)
+    # Search::run()
+    def self.run()
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
@@ -27,10 +27,7 @@ class Search
                 break if nx20.nil?
                 system('clear')
                 item = TheIndex::getItemOrNull(nx20["objectuuid"])
-                result = PolyFunctions::landing(item, isSearchAndSelect)
-                if isSearchAndSelect and result then
-                    return result
-                end
+                PolyActions::landing(item)
             }
         }
         
