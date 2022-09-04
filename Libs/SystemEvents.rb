@@ -81,6 +81,12 @@ class SystemEvents
                 FileUtils.rm(filepath)
             end
         end
+
+        if event["mikuType"] == "XCacheFlag" then
+            key = event["key"]
+            flag = event["flag"]
+            XCache::setFlag(key, flag)
+        end
     end
 
     # SystemEvents::broadcast(event)

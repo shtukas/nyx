@@ -77,14 +77,20 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            if !XCache::getFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}") then
+            key = "8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}"
+            if !XCache::getFlag(key) then
                 system("clear")
                 puts "frames:"
                 TxFloats::items().each{|frame|
                     puts "    - #{TxFloats::toString(frame)}"
                 }
                 LucilleCore::pressEnterToContinue()
-                XCache::setFlag("8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}", true)
+                XCache::setFlag(key, true)
+                SystemEvents::broadcast({
+                    "mikuType" => "XCacheFlag",
+                    "key"      => key,
+                    "flag"     => true
+                })
                 next
             end
 

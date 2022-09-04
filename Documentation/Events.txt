@@ -103,3 +103,9 @@ We have two types of events
     "mikuType"   => "NxFileDeletion"
     "objectuuid" => objectuuid
 }
+
+{
+    "mikuType" : "XCacheFlag"
+    "key"      : String
+    "flag"     : Boolean
+}
