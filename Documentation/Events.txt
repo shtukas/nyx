@@ -98,3 +98,8 @@ We have two types of events
     "key"      : String
     "value"    : String
 }
+
+{
+    "mikuType"   => "NxFileDeletion"
+    "objectuuid" => objectuuid
+}
