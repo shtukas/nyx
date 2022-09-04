@@ -1,4 +1,3 @@
-
 class PolyFunctions
 
     # PolyFunctions::_check(item, functionname)

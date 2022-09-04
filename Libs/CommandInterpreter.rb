@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class Commands
+class CommandInterpreter
 
-    # Commands::commands()
+    # CommandInterpreter::commands()
     def self.commands()
         [
             "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
@@ -16,8 +16,16 @@ class Commands
         ].join("\n")
     end
 
-    # Commands::run(input, store)
+    # CommandInterpreter::run(input, store)
     def self.run(input, store) # [command or null, item or null]
+
+        if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+            if (item = store.getDefault()) then
+                PolyActions::stop(item)
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+        end
 
         if input == ".." then
             PolyActions::doubleDot(store.getDefault())
@@ -148,7 +156,7 @@ class Commands
         end
 
         if Interpreting::match("help", input) then
-            puts Commands::commands().yellow
+            puts CommandInterpreter::commands().yellow
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -493,5 +501,15 @@ class Commands
             LucilleCore::pressEnterToContinue()
             return
         end
+    end
+
+    # CommandInterpreter::commandPrompt(store)
+    def self.commandPrompt(store)
+        puts ""
+        input = LucilleCore::askQuestionAnswerAsString("> ")
+
+        return if input == ""
+
+        CommandInterpreter::run(input, store)
     end
 end

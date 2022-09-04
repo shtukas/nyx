@@ -4,9 +4,9 @@ class CatalystListing
 
     # CatalystListing::primaryCommandProcess()
     def self.primaryCommandProcess()
-        puts Commands::commands().yellow
+        puts CommandInterpreter::commands().yellow
         input = LucilleCore::askQuestionAnswerAsString("> ")
-        Commands::run(input, nil)
+        CommandInterpreter::run(input, nil)
     end
 
     # CatalystListing::listingItems()
@@ -147,7 +147,7 @@ class CatalystListing
                 end
             end
 
-            Commands::run(input, store)
+            CommandInterpreter::run(input, store)
         }
     end
 end

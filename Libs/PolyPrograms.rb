@@ -91,19 +91,35 @@ class PolyPrograms
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        puts ""
-        input = LucilleCore::askQuestionAnswerAsString("> ")
+        CommandInterpreter::commandPrompt(store)
+    end
 
-        return if input == ""
-
-        if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
-            if (item = store.getDefault()) then
-                PolyActions::stop(item)
-                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                return
+    # PolyPrograms::landing(item, elements)
+    def self.landing(item, elements)
+        loop {
+            return nil if item.nil?
+            uuid = item["uuid"]
+            item = DxF1::getProtoItemOrNull(uuid)
+            return nil if item.nil?
+            system("clear")
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+            store = ItemStore.new()
+            if elements.size > 0 then
+                puts ""
+                if elements.size < 200 then
+                    elements
+                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                        .each{|entity|
+                            indx = store.register(entity, false)
+                            puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+                        }
+                else
+                    puts "(... many elements, use `navigation` ...)"
+                end
             end
-        end
-
-        Commands::run(input, store)
+        }
     end
 end
