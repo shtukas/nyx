@@ -43,7 +43,7 @@ class Streaming
                 return nil
             end
             if command == "landing" then
-                PolyFunctions::landing(item, isSearchAndSelect = false)
+                PolyActions::landing(item)
                 next
             end
             if command == "insert" then
@@ -81,7 +81,7 @@ class Streaming
                 next
             end
             if command == "landing" then
-                PolyFunctions::landing(item, isSearchAndSelect = false)
+                PolyActions::landing(item)
                 next
             end
             if command == "done" then

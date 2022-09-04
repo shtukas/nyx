@@ -1,6 +1,5 @@
-Nx20 
-{
-    "announce"   : String
-    "unixtime"   : Float # used for ordering the items
-    "objectuuid" : String
+Nx20  {
+    "announce" : String
+    "unixtime" : Float # used for ordering the items
+    "item"     : Item
 }

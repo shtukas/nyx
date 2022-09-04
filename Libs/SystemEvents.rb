@@ -74,6 +74,13 @@ class SystemEvents
             XCache::set(key, value)
         end
 
+        if event["mikuType"] == "NxFileDeletion" then
+            objectuuid = event["objectuuid"]
+            filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
+            if File.exists?(filepath) then
+                FileUtils.rm(filepath)
+            end
+        end
     end
 
     # SystemEvents::broadcast(event)

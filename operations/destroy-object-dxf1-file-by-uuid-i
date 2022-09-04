@@ -5,7 +5,8 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-filepath = DxF1::filepathIfExistsOrNullNoSideEffect(uuid)
-exit if filepath.nil?
-puts filepath
-FileUtils.rm(filepath)
+
+SystemEvents::processAndBroadcast({
+    "mikuType"   => "NxFileDeletion",
+    "objectuuid" => uuid
+})
