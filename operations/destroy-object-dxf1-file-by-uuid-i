@@ -7,6 +7,6 @@ require_relative "../Libs/loader.rb"
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
 
 SystemEvents::processAndBroadcast({
-    "mikuType"   => "NxFileDeletion"
+    "mikuType"   => "NxFileDeletion",
     "objectuuid" => uuid
 })
