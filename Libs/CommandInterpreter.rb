@@ -484,7 +484,7 @@ class CommandInterpreter
         end
 
         if Interpreting::match("search", input) then
-            Search::run()
+            Search::navigation()
             return
         end
 

@@ -3,8 +3,8 @@
 
 class Search
 
-    # Search::run()
-    def self.run()
+    # Search::navigation()
+    def self.navigation()
         loop {
             system('clear')
             fragment = LucilleCore::askQuestionAnswerAsString("search fragment (empty to abort) : ")
