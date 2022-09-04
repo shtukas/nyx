@@ -253,6 +253,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "CxDx8Unit" then
+            CxDx8Unit::access(item)
+            return
+        end
+
         if item["mikuType"] == "CxFile" then
             CxFile::access(item)
             return
