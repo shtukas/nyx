@@ -107,6 +107,65 @@ class PolyPrograms
         CommandInterpreter::commandPrompt(store)
     end
 
+    # PolyPrograms::itemsOperationalListing(announce, items)
+    def self.itemsOperationalListing(announce, items)
+        loop {
+            items = items
+                    .map{|item| TheIndex::getItemOrNull(item["uuid"]) }
+                    .compact
+                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
+                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
+            its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
+            items = its1 + its2
+
+            system("clear")
+
+            vspaceleft = CommonUtils::screenHeight()-3
+
+            puts ""
+            puts announce
+            puts ""
+            vspaceleft = vspaceleft - 3
+
+            store = ItemStore.new()
+
+            NxBallsIO::nxballs()
+                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+                .each{|nxball|
+                    store.register(nxball, false)
+                    line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                    puts line.green
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+
+            items
+                .each{|item|
+                    break if vspaceleft <= 0
+                    store.register(item, true)
+                    line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                    if NxBallsService::isPresent(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> (`exit` to exit) ")
+
+            return if input == "exit"
+
+            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+                if (item = store.getDefault()) then
+                    NxBallsService::close(item["uuid"], true)
+                    DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                    return
+                end
+            end
+
+            CommandInterpreter::run(input, store)
+        }
+    end
+
     # PolyPrograms::landing(item, entities)
     def self.landing(item, entities)
         loop {

@@ -140,7 +140,7 @@ class TxTimeCommitmentProjects
             items = TxTimeCommitmentProjects::elements(item, 50)
             if items.size > 0 then
                 puts ""
-                puts "50 Elements:"
+                puts "Tail (items.size items):"
                 TxTimeCommitmentProjects::elements(item, 50)
                     .each{|element|
                         indx = store.register(element, false)
@@ -149,28 +149,17 @@ class TxTimeCommitmentProjects
             end
 
             puts ""
-            puts "commands: <n> | insert | done <n> | detach <n> | transfer <n> | done (owner) | destroy (owner)".yellow
+            puts "commands: <n> (processItem) | done <n> | detach <n> | transfer <n> | insert | ax39 | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == ""
+            break if command == "exit"
 
             if (indx = Interpreting::readAsIntegerOrNull(command)) then
                 entity = store.get(indx)
                 next if entity.nil?
                 Streaming::processItem(entity)
-            end
-
-            if command == "done" then
-                DoneForToday::setDoneToday(item["uuid"])
-                NxBallsService::close(item["uuid"], true)
-                break
-            end
-
-            if command == "ax39"  then
-                ax39 = Ax39::interactivelyCreateNewAx()
-                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
-                return
+                next
             end
 
             if command == "insert" then
@@ -204,6 +193,12 @@ class TxTimeCommitmentProjects
                 next
             end
 
+            if command == "ax39"  then
+                ax39 = Ax39::interactivelyCreateNewAx()
+                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
+                return
+            end
+
             if  command.start_with?("transfer") and command != "transfer" then
                 indx = command[8, 99].strip.to_i
                 entity = store.get(indx)
@@ -213,13 +208,6 @@ class TxTimeCommitmentProjects
                 OwnerMapping::issue(item2["uuid"], entity["uuid"])
                 OwnerMapping::detach(item["uuid"], entity["uuid"])
                 next
-            end
-
-            if Interpreting::match("destroy", command) then
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy item ? : ") then
-                    DxF1::deleteObjectLogically(item["uuid"])
-                    break
-                end
             end
         }
         nil
@@ -239,12 +227,12 @@ class TxTimeCommitmentProjects
                 Cx::access(item["nx112"])
             end
             if aspect == "elements listing" then
-                CatalystListing::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
+                PolyPrograms::itemsOperationalListing("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
             end
         end
 
         if item["nx112"].nil? and elements.size > 0 then
-            CatalystListing::printListingLoop("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
+            PolyPrograms::itemsOperationalListing("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
         end
 
         if item["nx112"] and elements.size == 0 then

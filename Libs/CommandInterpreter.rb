@@ -10,7 +10,7 @@ class CommandInterpreter
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
             "update startd date (<n>)",
             "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
-            "anniversaries | ondates | todos | waves | frames | toplevels",
+            "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
             ">owner | >owner (n) | >planning",
             "planning set ordinal <n> | planning set timespan <n>",
             "require internet",
@@ -533,6 +533,11 @@ class CommandInterpreter
             return if item.nil?
             puts "Adding #{timeInHours.to_f} hours to #{PolyFunctions::toString(item).green}"
             Bank::put(item["uuid"], timeInHours.to_f*3600)
+            return
+        end
+
+        if Interpreting::match("time commitments", input) then
+            TxTimeCommitmentProjects::dive()
             return
         end
 
