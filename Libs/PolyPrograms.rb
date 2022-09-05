@@ -137,8 +137,8 @@ class PolyPrograms
                     entities
                         .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
                         .each{|entity|
-                            indx = store.register(entity, false)
-                            puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+                            store.register(entity, false)
+                            puts "#{store.prefixString()} #{PolyFunctions::toString(entity)}"
                         }
                 else
                     puts "(... many entities, use `navigation` ...)"
@@ -184,7 +184,11 @@ class PolyPrograms
                     .map{|px| px["element"] }
                     .each{|element|
                         indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
+                        line = "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                        if NxBallsService::isPresent(element["uuid"]) then
+                            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
+                        end
+                        puts line
                     }
             end
 
@@ -195,22 +199,25 @@ class PolyPrograms
                 TxTimeCommitmentProjects::elements(item, 50)
                     .each{|element|
                         indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
+                        line = "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                        if NxBallsService::isPresent(element["uuid"]) then
+                            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
+                        end
+                        puts line
                     }
             end
 
             puts ""
-            puts "commands: <n> (processItem) | done <n> | detach <n> | transfer <n> | insert | ax39 | exit".yellow
+            puts "commands: ax39 | insert | detach <n> | transfer <n> | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if command == "exit"
 
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                Streaming::processItem(entity)
-                next
+            if command == "ax39"  then
+                ax39 = Ax39::interactivelyCreateNewAx()
+                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
+                return
             end
 
             if command == "insert" then
@@ -226,13 +233,6 @@ class PolyPrograms
                     next if element.nil?
                     OwnerMapping::issue(item["uuid"], element["uuid"])
                 end
-            end
-
-            if  command.start_with?("done") and command != "done" then
-                indx = command[4, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::done(entity)
                 next
             end
 
@@ -242,12 +242,6 @@ class PolyPrograms
                 next if entity.nil?
                 OwnerMapping::detach(item["uuid"], entity["uuid"])
                 next
-            end
-
-            if command == "ax39"  then
-                ax39 = Ax39::interactivelyCreateNewAx()
-                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
-                return
             end
 
             if  command.start_with?("transfer") and command != "transfer" then
@@ -260,6 +254,8 @@ class PolyPrograms
                 OwnerMapping::detach(item["uuid"], entity["uuid"])
                 next
             end
+
+            CommandInterpreter::run(command, store)
         }
         nil
     end

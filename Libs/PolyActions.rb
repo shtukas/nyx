@@ -11,35 +11,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxIced" then
-            PolyActions::start(item)
-            PolyActions::access(item)
-            return
-        end
-
-        if item["mikuType"] == "TxDated" then
-            PolyActions::start(item)
-            PolyActions::access(item)
-            loop {
-                actions = ["keep running and back to listing", "stop and back to listing", "stop and destroy"]
-                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
-                next if action.nil?
-                if action == "keep running and back to listing" then
-                    return
-                end
-                if action == "stop and back to listing" then
-                    PolyActions::stop(item)
-                    return
-                end
-                if action == "stop and destroy" then
-                    PolyActions::stop(item)
-                    PolyActions::destroyWithPrompt(item)
-                    return
-                end
-            }
-            return
-        end
-
         if item["mikuType"] == "InboxItem" then
             PolyActions::start(item)
             PolyActions::access(item)
@@ -70,8 +41,51 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "MxPlanningDisplay" then
+            PolyActions::doubleDot(item["item"])
+            return
+        end
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                puts item["payload"]["description"]
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+            if item["payload"]["type"] == "pointer" then
+                PolyActions::doubleDot(item["payload"]["item"])
+                return
+            end
+            puts "I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
+            raise "(error: 0e15dec2-f925-48e4-8417-4feab8b1d65b)"
+        end
+
+        if item["mikuType"] == "TxDated" then
+            PolyActions::start(item)
+            PolyActions::access(item)
+            loop {
+                actions = ["keep running and back to listing", "stop and back to listing", "stop and destroy"]
+                action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
+                next if action.nil?
+                if action == "keep running and back to listing" then
+                    return
+                end
+                if action == "stop and back to listing" then
+                    PolyActions::stop(item)
+                    return
+                end
+                if action == "stop and destroy" then
+                    PolyActions::stop(item)
+                    PolyActions::destroyWithPrompt(item)
+                    return
+                end
+            }
+            return
+        end
+
         if item["mikuType"] == "TxTimeCommitmentProject" then
-            TxTimeCommitmentProjects::doubleDot(item)
+            # We do not start the commitment item itself, we just start the program
+            TxTimeCommitmentProjects::access(item)
             return
         end
 
@@ -91,24 +105,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::doubleDot(item["item"])
-            return
-        end
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                puts item["payload"]["description"]
-                LucilleCore::pressEnterToContinue()
-            end
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::doubleDot(item["payload"]["item"])
-            end
-            return
-        end
-
-        puts "I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
-        raise "(error: afbb56ca-90fa-47bc-972c-6681c6c58831)"
+        PolyActions::start(item)
+        PolyActions::access(item)
     end
 
     # PolyActions::done(item)
@@ -229,6 +227,7 @@ class PolyActions
     def self.start(item)
         PolyFunctions::_check(item, "PolyActions::start")
         return if NxBallsService::isRunning(item["uuid"])
+        return if item["mikuType"] == "TxTimeCommitmentProject"
         # We only start the thing that was targetted by the start command
         # Simple items line InboxItems ot NxTasks, but also structures like MxPlanning and MxPlanningDisplay
         # What we have, though, is a comprehensive PolyFunctions::bankAccounts, function.
@@ -330,9 +329,8 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxLine" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy '#{PolyFunctions::toString(item).green}' ? ") then
-                DxF1::deleteObjectLogically(item["uuid"])
-            end
+            puts PolyFunctions::toString(item).green
+            LucilleCore::pressEnterToContinue()
             return
         end
 

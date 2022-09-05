@@ -91,11 +91,18 @@ class TxTimeCommitmentProjects
     def self.elements(owner, count)
         OwnerMapping::owneruuidToElementsuuids(owner["uuid"])
             .uniq
-            .first(count*10)
-            .map{|elementuuid|
-                TheIndex::getItemOrNull(elementuuid)
+            .reduce([]){|selected, itemuuid|
+                if selected.size >= count then
+                    selected
+                else
+                    item = TheIndex::getItemOrNull(itemuuid)
+                    if item then
+                        selected + [item]
+                    else
+                        selected
+                    end
+                end
             }
-            .compact
             .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
     end
 
@@ -112,9 +119,9 @@ class TxTimeCommitmentProjects
     # TxTimeCommitmentProjects::access(item)
     def self.access(item)
         system("clear")
-        elements = TxTimeCommitmentProjects::elements(item, 50)
+        hasElements = OwnerMapping::owneruuidToElementsuuids(item["uuid"]).size > 0
 
-        if item["nx112"] and elements.size > 0 then
+        if item["nx112"] and hasElements then
             puts "Accessing '#{TxTimeCommitmentProjects::toString(item).green}}'"
             aspect = LucilleCore::selectEntityFromListOfEntitiesOrNull("aspect", ["carrier", "elements listing"])
             return if aspect.nil?
@@ -127,23 +134,18 @@ class TxTimeCommitmentProjects
             end
         end
 
-        if item["nx112"].nil? and elements.size > 0 then
+        if item["nx112"].nil? and hasElements then
             PolyPrograms::timeCommitmentProgram(item)
         end
 
-        if item["nx112"] and elements.size == 0 then
+        if item["nx112"] and !hasElements then
             PolyActions::start(item)
             Cx::access(item["nx112"])
         end
 
-        if item["nx112"].nil? and elements.size == 0 then
+        if item["nx112"].nil? and !hasElements then
             PolyActions::start(item)
         end
-    end
-
-    # TxTimeCommitmentProjects::doubleDot(item)
-    def self.doubleDot(item)
-        TxTimeCommitmentProjects::access(item)
     end
 
     # TxTimeCommitmentProjects::dive()
