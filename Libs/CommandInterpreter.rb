@@ -222,7 +222,7 @@ class CommandInterpreter
         end
 
         if Interpreting::match("landing", input) then
-            PolyActions::landing(store.getDefault())
+            PolyPrograms::landing(store.getDefault())
             return
         end
 
@@ -230,7 +230,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::landing(item)
+            PolyPrograms::landing(item)
             return
         end
 
@@ -289,6 +289,7 @@ class CommandInterpreter
         if input == "link" then
             item = store.getDefault()
             return if item.nil?
+            puts "base item: #{JSON.pretty_generate(item)}"
             NetworkLinks::linkToArchitectured(item)
             return
         end

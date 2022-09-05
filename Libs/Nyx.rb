@@ -108,14 +108,14 @@ class Nyx
                 loop {
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|item| PolyFunctions::toString(item) })
                     break if node.nil?
-                    PolyActions::landing(node)
+                    PolyPrograms::landing(node)
                 }
             end
             if operation == "make new nyx node" then
                 item = Nyx::interactivelyMakeNewOrNull()
                 next if item.nil?
                 puts JSON.pretty_generate(item)
-                PolyActions::landing(item)
+                PolyPrograms::landing(item)
             end
         }
     end

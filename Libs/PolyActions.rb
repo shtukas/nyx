@@ -457,22 +457,4 @@ class PolyActions
         puts JSON.pretty_generate(i2)
         DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
     end
-
-    # PolyActions::landing(item)
-    def self.landing(item)
-
-        PolyFunctions::_check(item, "PolyActions::landing")
-
-        if item["mikuType"] == "fitness1" then
-            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
-            return nil
-        end
-
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            return TxTimeCommitmentProjects::landing(item)
-        end
-
-        entities = NetworkLinks::linkedEntities(item["uuid"])
-        PolyPrograms::landing(item, entities)
-    end
 end

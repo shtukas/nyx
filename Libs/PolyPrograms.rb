@@ -166,8 +166,20 @@ class PolyPrograms
         }
     end
 
-    # PolyPrograms::landing(item, entities)
-    def self.landing(item, entities)
+    # PolyPrograms::landing(item)
+    def self.landing(item)
+
+        PolyFunctions::_check(item, "PolyPrograms::landing")
+
+        if item["mikuType"] == "fitness1" then
+            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            return nil
+        end
+
+        if item["mikuType"] == "TxTimeCommitmentProject" then
+            return TxTimeCommitmentProjects::landing(item)
+        end
+
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
@@ -181,6 +193,7 @@ class PolyPrograms
             store = ItemStore.new()
             # We register the item which is also the default element in the store
             store.register(item, true)
+            entities = NetworkLinks::linkedEntities(item["uuid"])
             if entities.size > 0 then
                 puts ""
                 if entities.size < 200 then
@@ -198,6 +211,14 @@ class PolyPrograms
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
+
+            if (indx = Interpreting::readAsIntegerOrNull(input)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyPrograms::landing(entity)
+                next
+            end
+
             CommandInterpreter::run(input, store)
         }
     end
