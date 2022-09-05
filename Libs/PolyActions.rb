@@ -1,6 +1,151 @@
 
 class PolyActions
 
+    # function name alphabetical order
+
+    # PolyActions::access(item)
+    def self.access(item)
+
+        if item["mikuType"] == "(rstream-to-target)" then
+            Streaming::icedStreamingToTarget()
+            return
+        end
+
+        if item["mikuType"] == "fitness1" then
+            puts PolyFunctions::toString(item).green
+            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            return
+        end
+
+        if item["mikuType"] == "CxAionPoint" then
+            CxAionPoint::access(item)
+            return
+        end
+
+        if item["mikuType"] == "CxDx8Unit" then
+            CxDx8Unit::access(item)
+            return
+        end
+
+        if item["mikuType"] == "CxFile" then
+            CxFile::access(item)
+            return
+        end
+
+        if item["mikuType"] == "CxUrl" then
+            CxUrl::access(item)
+            return
+        end
+
+        if item["mikuType"] == "DxAionPoint" then
+            DxAionPoint::access(item)
+            return
+        end
+
+        if item["mikuType"] == "DxText" then
+            CommonUtils::accessText(item["text"])
+            return
+        end
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                puts item["payload"]["description"].green
+                LucilleCore::pressEnterToContinue()
+            end
+            if item["payload"]["type"] == "pointer" then
+                PolyActions::access(item["payload"]["item"])
+            end
+            return
+        end
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            PolyActions::access(item["item"])
+            return
+        end
+
+        if item["mikuType"] == "NxAnniversary" then
+            Anniversaries::access(item)
+            return
+        end
+
+        if item["mikuType"] == "NxBall.v2" then
+            if NxBallsService::isRunning(item["uuid"]) then
+                if LucilleCore::askQuestionAnswerAsBoolean("complete '#{PolyFunctions::toString(item).green}' ? ") then
+                    NxBallsService::close(item["uuid"], true)
+                end
+            end
+            return
+        end
+
+        if item["mikuType"] == "NxIced" then
+            Nx112::carrierAccess(item)
+            return
+        end
+
+        if item["mikuType"] == "NxLine" then
+            puts PolyFunctions::toString(item).green
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if item["mikuType"] == "NxTask" then
+            Nx112::carrierAccess(item)
+            return
+        end
+
+        if item["mikuType"] == "TopLevel" then
+            puts PolyFunctions::toString(item).green
+            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
+            return if action.nil?
+            if action == "access" then
+                TopLevel::access(item)
+            end
+            if action == "edit" then
+                TopLevel::edit(item)
+            end
+            return
+        end
+
+        if item["mikuType"] == "InboxItem" then
+            Nx112::carrierAccess(item)
+            return
+        end
+
+        if item["mikuType"] == "TxFloat" then
+            Nx112::carrierAccess(item)
+            return
+        end
+
+        if item["mikuType"] == "TxTimeCommitmentProject" then
+            puts PolyFunctions::toString(item).green
+            TxTimeCommitmentProjects::access(item)
+            return
+        end
+
+        if item["mikuType"] == "Wave" then
+            puts Waves::toString(item).green
+            Nx112::carrierAccess(item)
+            return
+        end
+
+        if Iam::isNetworkAggregation(item) then
+            LinkedNavigation::navigateItem(item)
+            return
+        end
+
+        raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
+    end
+
+    # PolyActions::destroyWithPrompt(item)
+    def self.destroyWithPrompt(item)
+        PolyFunctions::_check(item, "PolyActions::destroyWithPrompt")
+
+        PolyActions::stop(item)
+        if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
+            DxF1::deleteObjectLogically(item["uuid"])
+        end
+    end
+
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
 
@@ -199,14 +344,20 @@ class PolyActions
         raise "(error: f278f3e4-3f49-4f79-89d2-e5d3b8f728e6)"
     end
 
-    # PolyActions::destroyWithPrompt(item)
-    def self.destroyWithPrompt(item)
-        PolyFunctions::_check(item, "PolyActions::destroyWithPrompt")
+    # PolyActions::link_line(item)
+    def self.link_line(item)
+        l1 = NxLines::interactivelyIssueNewLineOrNull()
+        return if l1.nil?
+        puts JSON.pretty_generate(l1)
+        NetworkLinks::link(item["uuid"], l1["uuid"])
+    end
 
-        PolyActions::stop(item)
-        if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            DxF1::deleteObjectLogically(item["uuid"])
-        end
+    # PolyActions::link_text(item)
+    def self.link_text(item)
+        i2 = DxText::interactivelyIssueNewOrNull()
+        return if i2.nil?
+        puts JSON.pretty_generate(i2)
+        NetworkLinks::link(item["uuid"], i2["uuid"])
     end
 
     # PolyActions::redate(item)
@@ -221,6 +372,14 @@ class PolyActions
 
         puts "I do not know how to PolyActions::redate(#{JSON.pretty_generate(item)})"
         raise "(error: bfc8c526-b23a-4d38-bc47-40d3733b4044)"
+    end
+
+    # PolyActions::setNx112(item)
+    def self.setNx112(item)
+        i2 = Cx::interactivelyCreateNewCxForOwnerOrNull(item["uuid"])
+        return if i2.nil?
+        puts JSON.pretty_generate(i2)
+        DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
     end
 
     # PolyActions::start(item)
@@ -247,139 +406,6 @@ class PolyActions
             PolyActions::stop(item["item"])
         end
         NxBallsService::close(item["uuid"], true)
-    end
-
-    # PolyActions::access(item)
-    def self.access(item)
-
-        if item["mikuType"] == "(rstream-to-target)" then
-            Streaming::icedStreamingToTarget()
-            return
-        end
-
-        if item["mikuType"] == "fitness1" then
-            puts PolyFunctions::toString(item).green
-            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
-            return
-        end
-
-        if item["mikuType"] == "CxAionPoint" then
-            CxAionPoint::access(item)
-            return
-        end
-
-        if item["mikuType"] == "CxDx8Unit" then
-            CxDx8Unit::access(item)
-            return
-        end
-
-        if item["mikuType"] == "CxFile" then
-            CxFile::access(item)
-            return
-        end
-
-        if item["mikuType"] == "CxUrl" then
-            CxUrl::access(item)
-            return
-        end
-
-        if item["mikuType"] == "DxAionPoint" then
-            DxAionPoint::access(item)
-            return
-        end
-
-        if item["mikuType"] == "DxText" then
-            CommonUtils::accessText(item["text"])
-            return
-        end
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                puts item["payload"]["description"].green
-                LucilleCore::pressEnterToContinue()
-            end
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::access(item["payload"]["item"])
-            end
-            return
-        end
-
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::access(item["item"])
-            return
-        end
-
-        if item["mikuType"] == "NxAnniversary" then
-            Anniversaries::access(item)
-            return
-        end
-
-        if item["mikuType"] == "NxBall.v2" then
-            if NxBallsService::isRunning(item["uuid"]) then
-                if LucilleCore::askQuestionAnswerAsBoolean("complete '#{PolyFunctions::toString(item).green}' ? ") then
-                    NxBallsService::close(item["uuid"], true)
-                end
-            end
-            return
-        end
-
-        if item["mikuType"] == "NxIced" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if item["mikuType"] == "NxLine" then
-            puts PolyFunctions::toString(item).green
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if item["mikuType"] == "NxTask" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if item["mikuType"] == "TopLevel" then
-            puts PolyFunctions::toString(item).green
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
-            return if action.nil?
-            if action == "access" then
-                TopLevel::access(item)
-            end
-            if action == "edit" then
-                TopLevel::edit(item)
-            end
-            return
-        end
-
-        if item["mikuType"] == "InboxItem" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if item["mikuType"] == "TxFloat" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            puts PolyFunctions::toString(item).green
-            TxTimeCommitmentProjects::access(item)
-            return
-        end
-
-        if item["mikuType"] == "Wave" then
-            puts Waves::toString(item).green
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if Iam::isNetworkAggregation(item) then
-            LinkedNavigation::navigateItem(item)
-            return
-        end
-
-        raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
     end
 
     # PolyActions::transmutation(item, targetMikuType)
@@ -438,16 +464,16 @@ class PolyActions
         DxF1::setAttribute2(item["uuid"], "description", description)
     end
 
-    # PolyActions::updateName(item)
-    def self.updateName(item)
-        PolyActions::updateDescription(item)
-    end
-
     # PolyActions::updateDatetime(item)
     def self.updateDatetime(item)
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
         DxF1::setAttribute2(item["uuid"], "datetime", datetime)
+    end
+
+    # PolyActions::updateName(item)
+    def self.updateName(item)
+        PolyActions::updateDescription(item)
     end
 
     # PolyActions::updateStartDate(item)
@@ -461,29 +487,5 @@ class PolyActions
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
         DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
-    end
-
-    # PolyActions::link_line(item)
-    def self.link_line(item)
-        l1 = NxLines::interactivelyIssueNewLineOrNull()
-        return if l1.nil?
-        puts JSON.pretty_generate(l1)
-        NetworkLinks::link(item["uuid"], l1["uuid"])
-    end
-
-    # PolyActions::link_text(item)
-    def self.link_text(item)
-        i2 = DxText::interactivelyIssueNewOrNull()
-        return if i2.nil?
-        puts JSON.pretty_generate(i2)
-        NetworkLinks::link(item["uuid"], i2["uuid"])
-    end
-
-    # PolyActions::setNx112(item)
-    def self.setNx112(item)
-        i2 = Cx::interactivelyCreateNewCxForOwnerOrNull(item["uuid"])
-        return if i2.nil?
-        puts JSON.pretty_generate(i2)
-        DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
     end
 end
