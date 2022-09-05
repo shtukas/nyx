@@ -393,17 +393,20 @@ class PolyActions
 
         if item["mikuType"] == "MxPlanning" then
             if item["payload"]["type"] == "simple" then
+                # Here we do not return and let the standard NxBall be issued.
+                # The reason being that in this case we want the MxPlanning to start.
+                NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
                 return
             end
             if item["payload"]["type"] == "pointer" then
                 PolyActions::start(item["payload"]["item"])
                 return
             end
-            puts "I do not know how to PolyActions::start(#{JSON.pretty_generate(item)})"
-            raise "(error: dd12d8ad-83c8-430e-a61b-41d85a9bac3d)"
         end
 
         if item["mikuType"] == "MxPlanningDisplay" then
+            # We start the MxPlanning with no bank account, because we want the highlight in the listing
+            NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [], nil)
             PolyActions::start(item["item"])
             return
         end
