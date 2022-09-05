@@ -217,46 +217,37 @@ class PolyFunctions
     # PolyFunctions::edit(item) # item
     def self.edit(item)
 
+        puts "PolyFunctions::edit(#{JSON.pretty_generate(item)})"
+
+        # order: by mikuType
+
+        if item["mikuType"] == "CxAionPoint" then
+            return CxAionPoint::edit(item)
+        end
+
+        if item["mikuType"] == "DxAionPoint" then
+            return DxAionPoint::edit(item)
+        end
+
         if item["mikuType"] == "DxText" then
             text = CommonUtils::editTextSynchronously(item["text"])
             DxF1::setAttribute2(item["uuid"], "text", text)
-            return DxF1::getProtoItemOrNull(item["uuid"])
+            return TheIndex::getItemOrNull(item["uuid"])
         end
 
         if item["mikuType"] == "TopLevel" then
             return TopLevel::edit(item)
         end
 
-        if item["mikuType"] == "DxAionPoint" then
-            operator = DxF1Elizabeth.new(item["uuid"], true, true)
-            rootnhash = item["rootnhash"]
-            parentLocation = "#{ENV['HOME']}/Desktop/DxPure-Edit-#{SecureRandom.hex(4)}"
-            FileUtils.mkdir(parentLocation)
-            AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
-            puts "Item exported at #{parentLocation}. Continue to upload update"
-            LucilleCore::pressEnterToContinue()
-
-            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            return if location.nil?
-
-            uuid = item["uuid"]
-            operator = DxF1Elizabeth.new(uuid, true, true)
-            rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
-            FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
-
-            return DxF1::getProtoItemOrNull(item["uuid"])
-        end
-
         if item["nx112"] then
-            puts "You are trying to edit a Nx112"
-            puts "Follow: 9e0705fc-8637-47f9-9bce-29df79d05292"
-            LucilleCore::pressEnterToContinue()
-            exit
-            return TheIndex::getItemOrNull(uuid)
+            targetItem = TheIndex::getItemOrNull(item["nx112"])
+            puts "target item: #{JSON.pretty_generate(targetItem)}"
+            PolyFunctions::edit(targetItem)
+            return item
         end
 
-        item
+        puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
+        raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
     end
 
     # PolyFunctions::timeBeforeNotificationsInHours(item)
