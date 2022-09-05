@@ -433,6 +433,16 @@ class PolyActions
 
     # PolyActions::transmutation(item, targetMikuType)
     def self.transmutation(item, targetMikuType)
+        interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
+            LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
+        }
+
+        # TODO: I am not sure that the Catalyst + Nyx system has the correct types 🤔
+
+        if item["mikuType"] == "TxFloat" then
+            puts "Need to write the code (follow: e143fbfd-8819-4310-8857-9aec554b5271)"
+            LucilleCore::pressEnterToContinue()
+        end
     end
 
     # PolyActions::updateDescription(item)
