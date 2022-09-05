@@ -117,8 +117,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxTimeCommitmentProject" then
-            puts PolyFunctions::toString(item).green
-            TxTimeCommitmentProjects::access(item)
+            TxTimeCommitmentProjects::access(item, "access")
             return
         end
 
@@ -148,6 +147,8 @@ class PolyActions
 
     # PolyActions::doubleDot(item)
     def self.doubleDot(item)
+
+        puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
 
         PolyFunctions::_check(item, "PolyActions::doubleDot")
 
@@ -186,11 +187,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::doubleDot(item["item"])
-            return
-        end
-
         if item["mikuType"] == "MxPlanning" then
             if item["payload"]["type"] == "simple" then
                 puts item["payload"]["description"]
@@ -203,6 +199,11 @@ class PolyActions
             end
             puts "I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
             raise "(error: 0e15dec2-f925-48e4-8417-4feab8b1d65b)"
+        end
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            PolyActions::doubleDot(item["item"])
+            return
         end
 
         if item["mikuType"] == "TxDated" then
@@ -230,7 +231,7 @@ class PolyActions
 
         if item["mikuType"] == "TxTimeCommitmentProject" then
             # We do not start the commitment item itself, we just start the program
-            TxTimeCommitmentProjects::access(item)
+            TxTimeCommitmentProjects::access(item, "doubleDot")
             return
         end
 
@@ -384,9 +385,31 @@ class PolyActions
 
     # PolyActions::start(item)
     def self.start(item)
+
+        puts "PolyActions::start(#{JSON.pretty_generate(item)})"
+
         PolyFunctions::_check(item, "PolyActions::start")
         return if NxBallsService::isRunning(item["uuid"])
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                return
+            end
+            if item["payload"]["type"] == "pointer" then
+                PolyActions::start(item["payload"]["item"])
+                return
+            end
+            puts "I do not know how to PolyActions::start(#{JSON.pretty_generate(item)})"
+            raise "(error: dd12d8ad-83c8-430e-a61b-41d85a9bac3d)"
+        end
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            PolyActions::start(item["item"])
+            return
+        end
+
         return if item["mikuType"] == "TxTimeCommitmentProject"
+
         # We only start the thing that was targetted by the start command
         # Simple items line InboxItems ot NxTasks, but also structures like MxPlanning and MxPlanningDisplay
         # What we have, though, is a comprehensive PolyFunctions::bankAccounts, function.

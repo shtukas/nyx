@@ -116,17 +116,19 @@ class TxTimeCommitmentProjects
         LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
     end
 
-    # TxTimeCommitmentProjects::access(item)
-    def self.access(item)
-        system("clear")
+    # TxTimeCommitmentProjects::access(item, mode) # mode = "access" or "doubleDot"
+    def self.access(item, mode)
+        puts "TxTimeCommitmentProjects::access(#{JSON.pretty_generate(item)}, #{mode})"
+
         hasElements = OwnerMapping::owneruuidToElementsuuids(item["uuid"]).size > 0
 
         if item["nx112"] and hasElements then
-            puts "Accessing '#{TxTimeCommitmentProjects::toString(item).green}}'"
             aspect = LucilleCore::selectEntityFromListOfEntitiesOrNull("aspect", ["carrier", "elements listing"])
             return if aspect.nil?
             if aspect == "carrier" then
-                PolyActions::start(item)
+                if mode == "doubleDot" then
+                    PolyActions::start(item)
+                end
                 Cx::access(item["nx112"])
             end
             if aspect == "elements listing" then
@@ -134,17 +136,19 @@ class TxTimeCommitmentProjects
             end
         end
 
+        if item["nx112"] and !hasElements then
+            if mode == "doubleDot" then
+                PolyActions::start(item)
+            end
+            Cx::access(item["nx112"])
+        end
+
         if item["nx112"].nil? and hasElements then
             PolyPrograms::timeCommitmentProgram(item)
         end
 
-        if item["nx112"] and !hasElements then
-            PolyActions::start(item)
-            Cx::access(item["nx112"])
-        end
-
         if item["nx112"].nil? and !hasElements then
-            PolyActions::start(item)
+            PolyPrograms::timeCommitmentProgram(item)
         end
     end
 
