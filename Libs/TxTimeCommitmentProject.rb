@@ -109,110 +109,6 @@ class TxTimeCommitmentProjects
         LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
     end
 
-    # TxTimeCommitmentProjects::landing(item)
-    def self.landing(item)
-        loop {
-            system("clear")
-
-            puts TxTimeCommitmentProjects::toString(item).green
-
-            store = ItemStore.new()
-
-            items = TxTimeCommitmentProjects::elements(item, 6)
-            if items.size > 0 then
-                puts ""
-                puts "Managed Items:"
-                items
-                    .map{|element|
-                        {
-                            "element" => element,
-                            "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
-                        }
-                    }
-                    .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-                    .map{|px| px["element"] }
-                    .each{|element|
-                        indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
-                    }
-            end
-
-            items = TxTimeCommitmentProjects::elements(item, 50)
-            if items.size > 0 then
-                puts ""
-                puts "Tail (items.size items):"
-                TxTimeCommitmentProjects::elements(item, 50)
-                    .each{|element|
-                        indx = store.register(element, false)
-                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
-                    }
-            end
-
-            puts ""
-            puts "commands: <n> (processItem) | done <n> | detach <n> | transfer <n> | insert | ax39 | exit".yellow
-
-            command = LucilleCore::askQuestionAnswerAsString("> ")
-
-            break if command == "exit"
-
-            if (indx = Interpreting::readAsIntegerOrNull(command)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                Streaming::processItem(entity)
-                next
-            end
-
-            if command == "insert" then
-                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
-                next if type.nil?
-                if type == "line" then
-                    element = NxLines::interactivelyIssueNewLineOrNull()
-                    next if element.nil?
-                    OwnerMapping::issue(item["uuid"], element["uuid"])
-                end
-                if type == "task" then
-                    element = NxTasks::interactivelyCreateNewOrNull(false)
-                    next if element.nil?
-                    OwnerMapping::issue(item["uuid"], element["uuid"])
-                end
-            end
-
-            if  command.start_with?("done") and command != "done" then
-                indx = command[4, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyActions::done(entity)
-                next
-            end
-
-            if  command.start_with?("detach") and command != "detach" then
-                indx = command[6, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                OwnerMapping::detach(item["uuid"], entity["uuid"])
-                next
-            end
-
-            if command == "ax39"  then
-                ax39 = Ax39::interactivelyCreateNewAx()
-                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
-                return
-            end
-
-            if  command.start_with?("transfer") and command != "transfer" then
-                indx = command[8, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                item2 = TxTimeCommitmentProjects::architectOneOrNull()
-                return if item2.nil?
-                OwnerMapping::issue(item2["uuid"], entity["uuid"])
-                OwnerMapping::detach(item["uuid"], entity["uuid"])
-                next
-            end
-        }
-        nil
-    end
-
     # TxTimeCommitmentProjects::access(item)
     def self.access(item)
         system("clear")
@@ -227,12 +123,12 @@ class TxTimeCommitmentProjects
                 Cx::access(item["nx112"])
             end
             if aspect == "elements listing" then
-                PolyPrograms::itemsOperationalListing("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
+                PolyPrograms::timeCommitmentProgram(item)
             end
         end
 
         if item["nx112"].nil? and elements.size > 0 then
-            PolyPrograms::itemsOperationalListing("Time Commitment Project: #{TxTimeCommitmentProjects::toString(item).green}", elements)
+            PolyPrograms::timeCommitmentProgram(item)
         end
 
         if item["nx112"] and elements.size == 0 then

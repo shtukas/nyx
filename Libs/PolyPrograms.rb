@@ -107,65 +107,6 @@ class PolyPrograms
         CommandInterpreter::commandPrompt(store)
     end
 
-    # PolyPrograms::itemsOperationalListing(announce, items)
-    def self.itemsOperationalListing(announce, items)
-        loop {
-            items = items
-                    .map{|item| TheIndex::getItemOrNull(item["uuid"]) }
-                    .compact
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) }
-                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) }
-            its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
-            items = its1 + its2
-
-            system("clear")
-
-            vspaceleft = CommonUtils::screenHeight()-3
-
-            puts ""
-            puts announce
-            puts ""
-            vspaceleft = vspaceleft - 3
-
-            store = ItemStore.new()
-
-            NxBallsIO::nxballs()
-                .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
-                .each{|nxball|
-                    store.register(nxball, false)
-                    line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                    puts line.green
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-
-            items
-                .each{|item|
-                    break if vspaceleft <= 0
-                    store.register(item, true)
-                    line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
-                    if NxBallsService::isPresent(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> (`exit` to exit) ")
-
-            return if input == "exit"
-
-            if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
-                if (item = store.getDefault()) then
-                    NxBallsService::close(item["uuid"], true)
-                    DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-                    return
-                end
-            end
-
-            CommandInterpreter::run(input, store)
-        }
-    end
-
     # PolyPrograms::landing(item)
     def self.landing(item)
 
@@ -174,10 +115,6 @@ class PolyPrograms
         if item["mikuType"] == "fitness1" then
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
             return nil
-        end
-
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            return TxTimeCommitmentProjects::landing(item)
         end
 
         loop {
@@ -221,5 +158,109 @@ class PolyPrograms
 
             CommandInterpreter::run(input, store)
         }
+    end
+
+    # PolyPrograms::timeCommitmentProgram(item)
+    def self.timeCommitmentProgram(item)
+        loop {
+            system("clear")
+
+            puts TxTimeCommitmentProjects::toString(item).green
+
+            store = ItemStore.new()
+
+            items = TxTimeCommitmentProjects::elements(item, 6)
+            if items.size > 0 then
+                puts ""
+                puts "Managed Items:"
+                items
+                    .map{|element|
+                        {
+                            "element" => element,
+                            "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
+                        }
+                    }
+                    .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
+                    .map{|px| px["element"] }
+                    .each{|element|
+                        indx = store.register(element, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
+                    }
+            end
+
+            items = TxTimeCommitmentProjects::elements(item, 50)
+            if items.size > 0 then
+                puts ""
+                puts "Tail (items.size items):"
+                TxTimeCommitmentProjects::elements(item, 50)
+                    .each{|element|
+                        indx = store.register(element, false)
+                        puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(element)}"
+                    }
+            end
+
+            puts ""
+            puts "commands: <n> (processItem) | done <n> | detach <n> | transfer <n> | insert | ax39 | exit".yellow
+
+            command = LucilleCore::askQuestionAnswerAsString("> ")
+
+            break if command == "exit"
+
+            if (indx = Interpreting::readAsIntegerOrNull(command)) then
+                entity = store.get(indx)
+                next if entity.nil?
+                Streaming::processItem(entity)
+                next
+            end
+
+            if command == "insert" then
+                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
+                next if type.nil?
+                if type == "line" then
+                    element = NxLines::interactivelyIssueNewLineOrNull()
+                    next if element.nil?
+                    OwnerMapping::issue(item["uuid"], element["uuid"])
+                end
+                if type == "task" then
+                    element = NxTasks::interactivelyCreateNewOrNull(false)
+                    next if element.nil?
+                    OwnerMapping::issue(item["uuid"], element["uuid"])
+                end
+            end
+
+            if  command.start_with?("done") and command != "done" then
+                indx = command[4, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                PolyActions::done(entity)
+                next
+            end
+
+            if  command.start_with?("detach") and command != "detach" then
+                indx = command[6, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                OwnerMapping::detach(item["uuid"], entity["uuid"])
+                next
+            end
+
+            if command == "ax39"  then
+                ax39 = Ax39::interactivelyCreateNewAx()
+                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
+                return
+            end
+
+            if  command.start_with?("transfer") and command != "transfer" then
+                indx = command[8, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                item2 = TxTimeCommitmentProjects::architectOneOrNull()
+                return if item2.nil?
+                OwnerMapping::issue(item2["uuid"], entity["uuid"])
+                OwnerMapping::detach(item["uuid"], entity["uuid"])
+                next
+            end
+        }
+        nil
     end
 end

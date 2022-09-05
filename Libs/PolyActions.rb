@@ -91,6 +91,22 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "MxPlanningDisplay" then
+            PolyActions::doubleDot(item["item"])
+            return
+        end
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                puts item["payload"]["description"]
+                LucilleCore::pressEnterToContinue()
+            end
+            if item["payload"]["type"] == "pointer" then
+                PolyActions::doubleDot(item["payload"]["item"])
+            end
+            return
+        end
+
         puts "I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
         raise "(error: afbb56ca-90fa-47bc-972c-6681c6c58831)"
     end

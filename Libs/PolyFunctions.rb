@@ -289,6 +289,10 @@ class PolyFunctions
         end
 
         decideOwnerUUIDOrNull = lambda {|itemuuid|
+            item = TheIndex::getItemOrNull(itemuuid)
+            return nil if item.nil?
+            return nil if item["mikuType"] == "TxTimeCommitmentProject"
+
             key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
             uuid = XCache::getOrNull(key)
             if uuid == "null" then
