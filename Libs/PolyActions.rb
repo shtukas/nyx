@@ -408,7 +408,12 @@ class PolyActions
             return
         end
 
-        return if item["mikuType"] == "TxTimeCommitmentProject"
+        if item["mikuType"] == "TxTimeCommitmentProject" then
+            if OwnerMapping::owneruuidToElementsuuids(item["uuid"]).size == 0 then
+                NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [item["uuid"]], 3600)
+            end
+            return
+        end
 
         # We only start the thing that was targetted by the start command
         # Simple items line InboxItems ot NxTasks, but also structures like MxPlanning and MxPlanningDisplay
