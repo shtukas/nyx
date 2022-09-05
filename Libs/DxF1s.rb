@@ -403,22 +403,6 @@ class DxF1Extended
             end
         end
     end
-
-    # DxF1Extended::edit(item) # item
-    def self.edit(item) # item
-        if item["mikuType"] == "TopLevel" then
-            return TopLevel::edit(item)
-        end
-
-        if item["nx112"] then
-            puts "You are trying to edit a Nx112"
-            puts "Follow: 9e0705fc-8637-47f9-9bce-29df79d05292"
-            exit
-            return TheIndex::getItemOrNull(uuid)
-        end
-
-        raise "(error: 402f0ee5-4bd1-4b73-a418-d16ac12760ca)"
-    end
 end
 
 class DxF1sAtStargateCentral

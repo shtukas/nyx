@@ -223,6 +223,10 @@ class PolyFunctions
             return DxF1::getProtoItemOrNull(item["uuid"])
         end
 
+        if item["mikuType"] == "TopLevel" then
+            return TopLevel::edit(item)
+        end
+
         if item["mikuType"] == "DxAionPoint" then
             operator = DxF1Elizabeth.new(item["uuid"], true, true)
             rootnhash = item["rootnhash"]
@@ -242,6 +246,14 @@ class PolyFunctions
             FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
 
             return DxF1::getProtoItemOrNull(item["uuid"])
+        end
+
+        if item["nx112"] then
+            puts "You are trying to edit a Nx112"
+            puts "Follow: 9e0705fc-8637-47f9-9bce-29df79d05292"
+            LucilleCore::pressEnterToContinue()
+            exit
+            return TheIndex::getItemOrNull(uuid)
         end
 
         item

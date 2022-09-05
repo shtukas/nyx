@@ -155,7 +155,7 @@ class CommandInterpreter
         if Interpreting::match("edit", input) then
             item = store.getDefault()
             return if item.nil?
-            DxF1Extended::edit(item)
+            PolyFunctions::edit(item)
             return
         end
 
@@ -163,7 +163,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            DxF1Extended::edit(item)
+            PolyFunctions::edit(item)
             return
         end
 

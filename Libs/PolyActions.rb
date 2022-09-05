@@ -370,7 +370,6 @@ class PolyActions
 
     # PolyActions::transmutation(item, targetMikuType)
     def self.transmutation(item, targetMikuType)
-
     end
 
     # PolyActions::updateDescription(item)
@@ -389,6 +388,22 @@ class PolyActions
         if noImplementationTypes.include?(item["mikuType"]) then
             puts "update description is not implemented for #{item["mikuType"]}"
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            PolyActions::updateDescription(item["item"])
+            return
+        end
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "pointer" then
+                PolyActions::updateDescription(item["payload"]["item"])
+            end
+            if item["payload"]["type"] == "simple" then
+                puts "description command is not implemented for: #{JSON.pretty_generate(item)}"
+                LucilleCore::pressEnterToContinue()
+            end
             return
         end
 
