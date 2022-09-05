@@ -299,7 +299,15 @@ class FileSystemCheck
         item = DxF1::getProtoItemAtFilepathOrNull(filepath)
         if item.nil? then
             puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash}, #{useTheForce}), item was nil"
-            exit
+            puts "sql dump:"
+            system("sqlite3 '#{filepath}' .dump")
+            if LucilleCore::askQuestionAnswerAsBoolean("delete file ? ") then
+                FileUtils.rm(filepath)
+                return
+            else
+                puts "exiting"
+                exit
+            end
         end
         FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, useTheForce)
         XCache::setFlag(repeatKey, true)
