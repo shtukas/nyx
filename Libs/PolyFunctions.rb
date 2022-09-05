@@ -267,7 +267,8 @@ class PolyFunctions
         accounts = [item["uuid"]] # Item's own uuid
 
         if item["mikuType"] == "MxPlanningDisplay" then
-            return PolyFunctions::bankAccounts(item["item"]) # We return the bank accounts of the MxPlanning
+            # We do not return bank accounts for the MxPlanningDisplay, but note that we do start MxPlanningDisplays
+            return []
         end
 
         if item["mikuType"] == "MxPlanning" then
