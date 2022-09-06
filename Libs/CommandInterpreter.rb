@@ -408,8 +408,8 @@ class CommandInterpreter
             _, _, _, o = Interpreting::tokenizer(input)
             item = store.get(o.to_i)
             return if item.nil?
-            if item["mikuType"] != "MxPlanningDisplay" then
-                puts "You can only do that on a MxPlanningDisplay which acts on behalf of a MxPlanning"
+            if item["mikuType"] != "MxPlanning" then
+                puts "You can only do that on a MxPlanning"
                 LucilleCore::pressEnterToContinue()
                 return
             end
@@ -423,8 +423,8 @@ class CommandInterpreter
             _, _, _, o = Interpreting::tokenizer(input)
             item = store.get(o.to_i)
             return if item.nil?
-            if item["mikuType"] != "MxPlanningDisplay" then
-                puts "You can only do that on a MxPlanningDisplay which acts on behalf of a MxPlanning"
+            if item["mikuType"] != "MxPlanning" then
+                puts "You can only do that on a MxPlanning"
                 LucilleCore::pressEnterToContinue()
                 return
             end

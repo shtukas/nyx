@@ -158,9 +158,6 @@ class PolyFunctions
         if item["mikuType"] == "MxPlanning" then
             return MxPlanning::toString(item)
         end
-        if item["mikuType"] == "MxPlanningDisplay" then
-            return MxPlanning::displayItemToString(item)
-        end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
@@ -266,9 +263,6 @@ class PolyFunctions
         if item["mikuType"] == "MxPlanning" then
             return item["timespanInHour"]
         end
-        if item["mikuType"] == "MxPlanningDisplay" then
-            return PolyFunctions::timeBeforeNotificationsInHours(item["item"])
-        end
         1
     end
 
@@ -320,10 +314,6 @@ class PolyFunctions
                 return [item["uuid"]]
             end
             raise "(error: 62bf1b6a-ba6e-4a3f-95ed-9446c8aef345)"
-        end
-
-        if item["mikuType"] == "MxPlanningDisplay" then
-            return []
         end
 
         if item["mikuType"] == "TxTimeCommitmentProject" then

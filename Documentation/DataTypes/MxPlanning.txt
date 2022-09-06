@@ -17,10 +17,3 @@ Payload
     "type" : "pointer"
     "item" : CatalystItem
 }
-
-MxPlanningDisplay {
-    "mikuType"      : "MxPlanningDisplay"
-    "item"          : item
-    "thisRunStartUnixtime" : Float
-    "endUnixtime"   : Float
-}

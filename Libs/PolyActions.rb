@@ -58,11 +58,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::access(item["item"])
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return
@@ -206,11 +201,6 @@ class PolyActions
             raise "(error: 0e15dec2-f925-48e4-8417-4feab8b1d65b)"
         end
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::doubleDot(item["item"])
-            return
-        end
-
         if item["mikuType"] == "TxDated" then
             PolyActions::start(item)
             PolyActions::access(item)
@@ -282,11 +272,6 @@ class PolyActions
                     PolyActions::done(item["payload"]["item"])
                 end
             end
-            return
-        end
-
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::done(item["item"])
             return
         end
 
@@ -412,12 +397,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::issueNxBallForItem(item)
-            PolyActions::start(item["item"])
-            return
-        end
-
         PolyActions::issueNxBallForItem(item)
     end
 
@@ -435,12 +414,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            NxBallsService::close(item["uuid"], true)
-            PolyActions::stop(item["item"])
-            return
-        end
-
         NxBallsService::close(item["uuid"], true)
     end
 
@@ -449,13 +422,6 @@ class PolyActions
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
-
-        if item["mikuType"] == "MxPlanningDisplay" then
-            puts "You are transmuting a MxPlanningDisplay, we are going to transmute the MxPlanning item"
-            LucilleCore::pressEnterToContinue()
-            PolyActions::transmute(item["item"])
-            return
-        end
 
         if item["mikuType"] == "MxPlanning" then
             if item["payload"]["type"] == "simple" then
@@ -499,11 +465,6 @@ class PolyActions
         if noImplementationTypes.include?(item["mikuType"]) then
             puts "update description is not implemented for #{item["mikuType"]}"
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::editDescription(item["item"])
             return
         end
 

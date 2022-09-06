@@ -14,11 +14,11 @@ class CatalystListing
         items = [
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
-            MxPlanning::listingItems(),
-            TxDateds::listingItems(),
             Waves::listingItems(true),
-            TxTimeCommitmentProjects::listingItems(),
             Waves::listingItems(false),
+            TxDateds::listingItems(),
+            TxTimeCommitmentProjects::listingItems(),
+            MxPlanning::listingItems(),
             NxTasks::listingItems(),
             Streaming::listingItems(),
         ]
