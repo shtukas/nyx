@@ -263,6 +263,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "CxText" then
+            CxText::access(item)
+            return
+        end
+
         if item["mikuType"] == "CxUrl" then
             CxUrl::access(item)
             return
