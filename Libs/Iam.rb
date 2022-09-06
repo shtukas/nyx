@@ -10,7 +10,7 @@ class Iam
 
     # Iam::nyxAggregationTypes()
     def self.nyxAggregationTypes()
-        ["NxPerson", "NxEntity", "NxConcept", "NxCollection", "NxTimeline"]
+        ["NxPerson", "NxEntity", "NxConcept", "NxCollection", "NxTimeline", "NxEvent"]
     end
 
     # Iam::nyxNetworkTypes()

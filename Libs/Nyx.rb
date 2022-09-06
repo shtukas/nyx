@@ -30,6 +30,7 @@ class Nyx
     def self.interactivelyMakeNewOrNull()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", Iam::nyxNetworkTypes())
         return if action.nil?
+        # ordering: alphabetical order
         if action == "DxLine" then
             return DxLine::interactivelyIssueNewOrNull()
         end
@@ -53,6 +54,9 @@ class Nyx
         end
         if action == "NxEntity" then
             return NxEntities::interactivelyIssueNewItemOrNull()
+        end
+        if action == "NxEvent" then
+            return NxEvents::interactivelyIssueNewItemOrNull()
         end
         if action == "NxConcept" then
             return NxConcepts::interactivelyIssueNewItemOrNull()

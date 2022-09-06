@@ -23,15 +23,19 @@ Catalyst:
     Wave
 
 Nyx Networks:
+
+    # Nx112 carriers:
     DxAionPoint
     DxFile
     DxText
     DxUniqueString
     DxUrl
+    NxEvent
+
+    # Aggregate:
     NxCollection
     NxConcept
     NxEntity
-    NxEvent
     NxPerson
     NxTimeline
 

@@ -68,6 +68,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "NxEvent" then
+            Nx112::carrierAccess(item)
+            return
+        end
+
         if item["mikuType"] == "NxBall.v2" then
             if NxBallsService::isRunning(item["uuid"]) then
                 if LucilleCore::askQuestionAnswerAsBoolean("complete '#{PolyFunctions::toString(item).green}' ? ") then

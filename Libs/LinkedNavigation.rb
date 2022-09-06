@@ -39,7 +39,7 @@ class LinkedNavigation
 
     # LinkedNavigation::navigateItem(item)
     def self.navigateItem(item)
-        entities = NetworkLinks::linkedEntities(uuid)
+        entities = NetworkLinks::linkedEntities(item["uuid"])
         if entities.empty? then
             puts "I could not find linked entities for item: `#{PolyFunctions::toString(item)}`"
             LucilleCore::pressEnterToContinue()
