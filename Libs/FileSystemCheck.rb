@@ -249,7 +249,6 @@ class FileSystemCheck
                 ensureItemFileExists.call(item["nx112"])
             end
             ensureAttribute.call("ax39")
-            ensureAttribute.call("elementuuids")
         end
 
         if mikuType == "Wave" then

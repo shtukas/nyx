@@ -44,7 +44,6 @@ class TxTimeCommitmentProjects
         DxF1::setAttribute2(uuid, "datetime",     datetime)
         DxF1::setAttribute2(uuid, "description",  description)
         DxF1::setAttribute2(uuid, "nx112",        nx112)
-        DxF1::setAttribute2(uuid, "elementuuids", [])
         DxF1::setAttribute2(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)

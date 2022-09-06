@@ -6,5 +6,4 @@ TxTimeCommitmentProject:
     "description"  : String
     "nx112"        : nil or String
     "ax39"         : Ax39
-    "elementuuids" : Array[String] # objectuuids
 
