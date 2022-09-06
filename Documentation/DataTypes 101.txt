@@ -1,16 +1,5 @@
 
-Catalyst:
-    InboxItem
-    NxAnniversary
-    TxFloat
-    NxIced
-    NxTask
-    TxDated
-    TxTimeCommitmentProject
-    TopLevel
-    Wave
-
-Catalyst Contents
+Data Carriers (referred to by Nx112 strings)
     CxAionPoint
     CxDx8Unit
     CxFile
@@ -18,25 +7,45 @@ Catalyst Contents
     CxUniqueString
     CxUrl
 
+Catalyst:
+
+    # self contained
+    NxAnniversary
+    TopLevel
+
+    # Nx112 carriers
+    InboxItem
+    NxIced
+    NxTask
+    TxDated
+    TxFloat
+    TxTimeCommitmentProject
+    Wave
+
 Nyx Networks:
+
+    # Nx112 carriers:
     DxAionPoint
     DxFile
     DxText
     DxUniqueString
     DxUrl
+    NxEvent
+
+    # Aggregate:
     NxCollection
     NxConcept
     NxEntity
-    NxEvent
     NxPerson
     NxTimeline
 
 Misc:
-    Ax39
-    DxLine: (need attribution) # Named as if it belons to the Nyx side of the world. 
-    Nx01
-    Nx45
-    Nx20 (Search Item)
-    NxBall.v2
-    NxDeleted
-    NxLine: (need attribution) # Created from the NyxLanding. 
+    DxLine    # (need attribution) Named as if it belons to the Nyx side of the world. 
+    NxLine:   # (need attribution) Created from the NyxLanding. 
+
+    Ax39      # Timing data for TxTimeCommitmentProject
+    Nx01      # Unique string convention
+    Nx45      # UUID naming convention 
+    Nx20      # Search Item
+    NxBall.v2 # Running data
+    NxDeleted #

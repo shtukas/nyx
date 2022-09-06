@@ -8,7 +8,7 @@ class LinkedNavigation
                 system("clear")
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunctions::toString(item) })
                 return if item.nil?
-                PolyActions::landing(item)
+                PolyPrograms::landing(item)
             }
         else
             uuids = items.map{|item| item["uuid"] }
@@ -24,7 +24,7 @@ class LinkedNavigation
                 system("clear")
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunctions::toString(item) })
                 return if item.nil?
-                PolyActions::landing(item)
+                PolyPrograms::landing(item)
             }
         else
             loop {
@@ -39,7 +39,7 @@ class LinkedNavigation
 
     # LinkedNavigation::navigateItem(item)
     def self.navigateItem(item)
-        entities = NetworkLinks::linkedEntities(uuid)
+        entities = NetworkLinks::linkedEntities(item["uuid"])
         if entities.empty? then
             puts "I could not find linked entities for item: `#{PolyFunctions::toString(item)}`"
             LucilleCore::pressEnterToContinue()
@@ -66,7 +66,7 @@ class LinkedNavigation
                     system("clear")
                     entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", entities, lambda{|entity| PolyFunctions::toString(entity) })
                     break if entity.nil?
-                    PolyActions::landing(entity)
+                    PolyPrograms::landing(entity)
                 }
             end
 

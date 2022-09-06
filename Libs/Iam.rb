@@ -10,7 +10,7 @@ class Iam
 
     # Iam::nyxAggregationTypes()
     def self.nyxAggregationTypes()
-        ["NxPerson", "NxEntity", "NxConcept", "NxCollection", "NxTimeline"]
+        ["NxPerson", "NxEntity", "NxConcept", "NxCollection", "NxTimeline", "NxEvent"]
     end
 
     # Iam::nyxNetworkTypes()
@@ -21,5 +21,30 @@ class Iam
     # Iam::isNetworkAggregation(item)
     def self.isNetworkAggregation(item)
         Iam::nyxAggregationTypes().include?(item["mikuType"])
+    end
+
+    # Iam::nx112CarrierTypes()
+    def self.nx112CarrierTypes()
+        [
+            "InboxItem",
+            "NxIced",
+            "NxTask",
+            "TxDated",
+            "TxFloat",
+            "TxTimeCommitmentProject",
+            "Wave",
+
+            "DxAionPoint",
+            "DxFile",
+            "DxText",
+            "DxUniqueString",
+            "DxUrl",
+            "NxEvent"
+        ]
+    end
+
+    # Iam::isNx112Carrier(item)
+    def self.isNx112Carrier(item)
+        Iam::nx112CarrierTypes().include?(item["mikuType"])
     end
 end

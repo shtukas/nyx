@@ -141,10 +141,10 @@ class MxPlanning
     def self.toString(item)
         payload = item["payload"]
         if payload["type"] == "simple" then
-            return "(MxPlanning, line) #{payload["description"]}"
+            return "(MxPlanning) (#{"%5.2f" % item["ordinal"]}) (l) #{payload["description"]}"
         end
         if payload["type"] == "pointer" then
-            return "(MxPlanning, pointer) #{PolyFunctions::toString(payload["item"])}"
+            return "(MxPlanning) (#{"%5.2f" % item["ordinal"]}) (p) #{PolyFunctions::toString(payload["item"])}"
         end
         raise "(error: 9fbcd583-6757-4b90-bd9d-b56c6aabe73f): #{item}"
     end
@@ -161,20 +161,12 @@ class MxPlanning
         end
     end
 
-    # MxPlanning::mxPlanningItemUUIDToMxPlanningDisplayItemUUID(uuid)
-    def self.mxPlanningItemUUIDToMxPlanningDisplayItemUUID(uuid)
-        Digest::SHA1.hexdigest("b89d1572-4dd9-480f-8746-5ed433776b41:#{uuid}")
-    end
-
     # MxPlanning::displayItems()
     def self.displayItems()
         items = MxPlanning::items().sort{|i1, i2| i1["ordinal"] <=> i2["ordinal"]}
         unixtime1 = Time.new.to_f
         unixtime2 = nil
         items
-            .select{|item| 
-                DoNotShowUntil::isVisible(MxPlanning::mxPlanningItemUUIDToMxPlanningDisplayItemUUID(item["uuid"])) 
-            }
             .map{|item|
                 (lambda{|item|
                     if item["payload"]["type"] == "pointer" then
@@ -183,20 +175,7 @@ class MxPlanning
                             return nil
                         end
                     end
-
-                    XCacheValuesWithExpiry::set("recently-listed-uuid-ad5b7c29c1c6:#{item["uuid"]}", "true", 60) # A special purpose way to not display a NxBall.
-                    uuid = MxPlanning::mxPlanningItemUUIDToMxPlanningDisplayItemUUID(item["uuid"])
-                    unixtime1 = NxBallsService::thisRunStartUnixtimeOrNull(uuid) || unixtime1
-                    unixtime2 = unixtime1 + item["timespanInHour"]*3600
-                    displayItem = {
-                        "uuid"          => uuid,
-                        "mikuType"      => "MxPlanningDisplay",
-                        "item"          => item,
-                        "thisRunStartUnixtime" => unixtime1,
-                        "endUnixtime"   => unixtime2
-                    }
-                    unixtime1 = unixtime2
-                    displayItem
+                    item
                 }).call(item)
             }
             .compact
@@ -209,7 +188,7 @@ class MxPlanning
 
     # MxPlanning::displayItemToString(displayItem)
     def self.displayItemToString(displayItem)
-        "(MxPlanningDisplay) (ord: #{"%5.2f" % displayItem["item"]["ordinal"]}) (start: #{MxPlanning::unixtimeToTime(displayItem["thisRunStartUnixtime"]).green}, timespan: #{("%5.2f" % displayItem["item"]["timespanInHour"]).green} hours, end: #{MxPlanning::unixtimeToTime(displayItem["endUnixtime"]).green}) #{MxPlanning::toString(displayItem["item"])}"
+        MxPlanning::toString(displayItem["item"])
     end
 
     # MxPlanning::catalystItemsUUIDs()

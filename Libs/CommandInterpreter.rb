@@ -7,7 +7,7 @@ class CommandInterpreter
     def self.commands()
         [
             "Catalyst:",
-            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
+            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update startd date (<n>)",
             "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
@@ -105,28 +105,28 @@ class CommandInterpreter
         if Interpreting::match("datetime", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateDatetime(item)
+            PolyActions::editDatetime(item)
         end
 
         if Interpreting::match("datetime *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateDatetime(item)
+            PolyActions::editDatetime(item)
             return
         end
 
         if Interpreting::match("description", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
         end
 
         if Interpreting::match("description *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
             return
         end
 
@@ -155,7 +155,7 @@ class CommandInterpreter
         if Interpreting::match("edit", input) then
             item = store.getDefault()
             return if item.nil?
-            DxF1Extended::edit(item)
+            PolyFunctions::edit(item)
             return
         end
 
@@ -163,7 +163,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            DxF1Extended::edit(item)
+            PolyFunctions::edit(item)
             return
         end
 
@@ -222,7 +222,7 @@ class CommandInterpreter
         end
 
         if Interpreting::match("landing", input) then
-            PolyActions::landing(store.getDefault())
+            PolyPrograms::landing(store.getDefault())
             return
         end
 
@@ -230,7 +230,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::landing(item)
+            PolyPrograms::landing(item)
             return
         end
 
@@ -289,6 +289,7 @@ class CommandInterpreter
         if input == "link" then
             item = store.getDefault()
             return if item.nil?
+            puts "base item: #{JSON.pretty_generate(item)}"
             NetworkLinks::linkToArchitectured(item)
             return
         end
@@ -309,14 +310,14 @@ class CommandInterpreter
         if Interpreting::match("name", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
         end
 
         if Interpreting::match("name *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
             return
         end
 
@@ -407,8 +408,8 @@ class CommandInterpreter
             _, _, _, o = Interpreting::tokenizer(input)
             item = store.get(o.to_i)
             return if item.nil?
-            if item["mikuType"] != "MxPlanningDisplay" then
-                puts "You can only do that on a MxPlanningDisplay which acts on behalf of a MxPlanning"
+            if item["mikuType"] != "MxPlanning" then
+                puts "You can only do that on a MxPlanning"
                 LucilleCore::pressEnterToContinue()
                 return
             end
@@ -422,8 +423,8 @@ class CommandInterpreter
             _, _, _, o = Interpreting::tokenizer(input)
             item = store.get(o.to_i)
             return if item.nil?
-            if item["mikuType"] != "MxPlanningDisplay" then
-                puts "You can only do that on a MxPlanningDisplay which acts on behalf of a MxPlanning"
+            if item["mikuType"] != "MxPlanning" then
+                puts "You can only do that on a MxPlanning"
                 LucilleCore::pressEnterToContinue()
                 return
             end
@@ -557,6 +558,22 @@ class CommandInterpreter
             return
         end
 
+        if input == "transmute" then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::transmute(item)
+            return
+        end
+
+        if input == "transmute *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::transmute(item)
+            return
+        end
+
+
         if input == "unlink" then
             item = store.getDefault()
             return if item.nil?
@@ -575,14 +592,14 @@ class CommandInterpreter
         if Interpreting::match("update start date", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateStartDate(item)
+            PolyActions::editStartDate(item)
         end
 
         if Interpreting::match("update start date *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateStartDate(item)
+            PolyActions::editStartDate(item)
             return
         end
 

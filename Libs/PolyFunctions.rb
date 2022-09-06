@@ -158,9 +158,6 @@ class PolyFunctions
         if item["mikuType"] == "MxPlanning" then
             return MxPlanning::toString(item)
         end
-        if item["mikuType"] == "MxPlanningDisplay" then
-            return MxPlanning::displayItemToString(item)
-        end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
@@ -217,34 +214,48 @@ class PolyFunctions
     # PolyFunctions::edit(item) # item
     def self.edit(item)
 
-        if item["mikuType"] == "DxText" then
-            text = CommonUtils::editTextSynchronously(item["text"])
-            DxF1::setAttribute2(item["uuid"], "text", text)
-            return DxF1::getProtoItemOrNull(item["uuid"])
+        puts "PolyFunctions::edit(#{JSON.pretty_generate(item)})"
+
+        # order: by mikuType
+
+        if item["mikuType"] == "CxAionPoint" then
+            return CxAionPoint::edit(item)
         end
 
         if item["mikuType"] == "DxAionPoint" then
-            operator = DxF1Elizabeth.new(item["uuid"], true, true)
-            rootnhash = item["rootnhash"]
-            parentLocation = "#{ENV['HOME']}/Desktop/DxPure-Edit-#{SecureRandom.hex(4)}"
-            FileUtils.mkdir(parentLocation)
-            AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
-            puts "Item exported at #{parentLocation}. Continue to upload update"
-            LucilleCore::pressEnterToContinue()
-
-            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            return if location.nil?
-
-            uuid = item["uuid"]
-            operator = DxF1Elizabeth.new(uuid, true, true)
-            rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
-            FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
-
-            return DxF1::getProtoItemOrNull(item["uuid"])
+            return DxAionPoint::edit(item)
         end
 
-        item
+        if item["mikuType"] == "DxText" then
+            text = CommonUtils::editTextSynchronously(item["text"])
+            DxF1::setAttribute2(item["uuid"], "text", text)
+            return TheIndex::getItemOrNull(item["uuid"])
+        end
+
+        if item["mikuType"] == "TopLevel" then
+            return TopLevel::edit(item)
+        end
+
+        if Iam::isNx112Carrier(item) then
+            if item["nx112"] then
+                targetItem = TheIndex::getItemOrNull(item["nx112"])
+                puts "target data carrier: #{JSON.pretty_generate(targetItem)}"
+                PolyFunctions::edit(targetItem)
+                return item
+            else
+                puts "This item doesn't have a Nx112 attached to it"
+                status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
+                if status then
+                    PolyActions::editDescription(item)
+                    return TheIndex::getItemOrNull(item["uuid"])
+                else
+                    return item
+                end
+            end
+        end
+ 
+        puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
+        raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
     end
 
     # PolyFunctions::timeBeforeNotificationsInHours(item)
@@ -252,40 +263,28 @@ class PolyFunctions
         if item["mikuType"] == "MxPlanning" then
             return item["timespanInHour"]
         end
-        if item["mikuType"] == "MxPlanningDisplay" then
-            return PolyFunctions::timeBeforeNotificationsInHours(item["item"])
-        end
         1
     end
 
     # PolyFunctions::bankAccounts(item)
     def self.bankAccounts(item)
 
-        accounts = [item["uuid"]] # Item's own uuid
+        decideOwnersUUIDs = lambda {|item|
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            return PolyFunctions::bankAccounts(item["item"]) # We return the bank accounts of the MxPlanning
-        end
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                # we continue to deciding an owner
+            ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+            if ownersuuids.size > 0 then
+                return ownersuuids
             end
-            if item["payload"]["type"] == "pointer" then
-                return PolyFunctions::bankAccounts(item["payload"]["item"])
-            end
-        end
 
-        decideOwnerUUIDOrNull = lambda {|itemuuid|
-            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
+            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{item["uuid"]}"
             uuid = XCache::getOrNull(key)
             if uuid == "null" then
-                return nil
+                return []
             end
             if uuid then
-                return uuid
+                return [uuid]
             end
-            puts "This is important, pay attention. We need an owner for this item, for the account."
+            puts "This is important, pay attention. We need an owner for this item, for the accounting."
             LucilleCore::pressEnterToContinue()
             ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
             if ox then
@@ -295,7 +294,7 @@ class PolyFunctions
                     "key"      => key,
                     "value"    => ox["uuid"]
                 })
-                return ox["uuid"]
+                return [ox["uuid"]]
             else
                 XCache::set(key, "null")
                 SystemEvents::broadcast({
@@ -303,18 +302,25 @@ class PolyFunctions
                     "key"      => key,
                     "value"    => "null"
                 })
-                return nil
+                return []
             end
         }
 
-        ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
-        if ownersuuids.size > 0 then
-            accounts = accounts + ownersuuids
-        else
-            accounts = accounts + [decideOwnerUUIDOrNull.call(item["uuid"])].compact
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                return [item["uuid"]] + decideOwnersUUIDs.call(item)
+            end
+            if item["payload"]["type"] == "pointer" then
+                return [item["uuid"]]
+            end
+            raise "(error: 62bf1b6a-ba6e-4a3f-95ed-9446c8aef345)"
         end
 
-        accounts
+        if item["mikuType"] == "TxTimeCommitmentProject" then
+            return [item["uuid"]]
+        end
+
+        [item["uuid"]] + decideOwnersUUIDs.call(item)
     end
 
     # PolyFunctions::foxTerrierAtItem(item)

@@ -43,7 +43,7 @@ class Streaming
                 return nil
             end
             if command == "landing" then
-                PolyActions::landing(item)
+                PolyPrograms::landing(item)
                 next
             end
             if command == "insert" then
@@ -81,7 +81,7 @@ class Streaming
                 next
             end
             if command == "landing" then
-                PolyActions::landing(item)
+                PolyPrograms::landing(item)
                 next
             end
             if command == "done" then
@@ -133,7 +133,7 @@ class Streaming
     # Streaming::icedStreamingToTarget()
     def self.icedStreamingToTarget()
         uuid = Streaming::uuid()
-        NxBallsService::issue(uuid, "(rstream-to-target)", [uuid], 1)
+        NxBallsService::issue(uuid, "(rstream-to-target)", [uuid], 3600)
         items = NxIceds::items().shuffle
         return if items.empty?
         loop {

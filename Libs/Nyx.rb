@@ -30,6 +30,7 @@ class Nyx
     def self.interactivelyMakeNewOrNull()
         action = LucilleCore::selectEntityFromListOfEntitiesOrNull("operation", Iam::nyxNetworkTypes())
         return if action.nil?
+        # ordering: alphabetical order
         if action == "DxLine" then
             return DxLine::interactivelyIssueNewOrNull()
         end
@@ -53,6 +54,9 @@ class Nyx
         end
         if action == "NxEntity" then
             return NxEntities::interactivelyIssueNewItemOrNull()
+        end
+        if action == "NxEvent" then
+            return NxEvents::interactivelyIssueNewItemOrNull()
         end
         if action == "NxConcept" then
             return NxConcepts::interactivelyIssueNewItemOrNull()
@@ -108,14 +112,14 @@ class Nyx
                 loop {
                     node = LucilleCore::selectEntityFromListOfEntitiesOrNull("node", nodes, lambda{|item| PolyFunctions::toString(item) })
                     break if node.nil?
-                    PolyActions::landing(node)
+                    PolyPrograms::landing(node)
                 }
             end
             if operation == "make new nyx node" then
                 item = Nyx::interactivelyMakeNewOrNull()
                 next if item.nil?
                 puts JSON.pretty_generate(item)
-                PolyActions::landing(item)
+                PolyPrograms::landing(item)
             end
         }
     end
