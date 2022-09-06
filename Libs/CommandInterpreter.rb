@@ -7,7 +7,7 @@ class CommandInterpreter
     def self.commands()
         [
             "Catalyst:",
-            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | time * * | expose (<n>) | destroy",
+            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update startd date (<n>)",
             "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
             "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
@@ -557,6 +557,22 @@ class CommandInterpreter
             TopLevel::dive()
             return
         end
+
+        if input == "transmute" then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::transmute(item)
+            return
+        end
+
+        if input == "transmute *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::transmute(item)
+            return
+        end
+
 
         if input == "unlink" then
             item = store.getDefault()

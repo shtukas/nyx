@@ -439,13 +439,38 @@ class PolyActions
         NxBallsService::close(item["uuid"], true)
     end
 
-    # PolyActions::transmutation(item, targetMikuType)
-    def self.transmutation(item, targetMikuType)
+    # PolyActions::transmute(item)
+    def self.transmute(item)
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
 
-        # TODO: I am not sure that the Catalyst + Nyx system has the correct types 🤔
+        if item["mikuType"] == "MxPlanningDisplay" then
+            puts "You are transmuting a MxPlanningDisplay, we are going to transmute the MxPlanning item"
+            LucilleCore::pressEnterToContinue()
+            PolyActions::transmute(item["item"])
+            return
+        end
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                puts "Transmuting a simple MxPlanning"
+                targetMikuType = interactivelyChooseMikuTypeOrNull.call(["NxTask"])
+                return if targetMikuType.nil?
+                if targetMikuType == "NxTask" then
+                    description = item["payload"]["description"]
+                    item2 = NxTasks::issueDescriptionOnly(description)
+                    MxPlanning::destroy(item["uuid"])
+                    TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item2)
+                end
+            end
+            if item["payload"]["type"] == "pointer" then
+                puts "Transmuting a pointer MxPlanning"
+                puts "I do not yet know how to do that..."
+                LucilleCore::pressEnterToContinue()
+            end
+            return
+        end
 
         if item["mikuType"] == "TxFloat" then
             puts "Need to write the code (follow: e143fbfd-8819-4310-8857-9aec554b5271)"
