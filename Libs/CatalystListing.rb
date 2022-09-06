@@ -18,7 +18,6 @@ class CatalystListing
             Waves::listingItems(false),
             TxDateds::listingItems(),
             TxTimeCommitmentProjects::listingItems(),
-            MxPlanning::listingItems(),
             NxTasks::listingItems(),
             Streaming::listingItems(),
         ]

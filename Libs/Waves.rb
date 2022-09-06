@@ -133,7 +133,7 @@ class Waves
         DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
         DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
         DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx46",        JSON.generate(nx46))
+        DxF1::setAttribute2(uuid, "nx46",        nx46)
         DxF1::setAttribute2(uuid, "nx112",       cx ? cx["uuid"] : nil)
         DxF1::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)

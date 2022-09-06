@@ -88,11 +88,8 @@ class PolyPrograms
             vspaceleft = vspaceleft - 1
         end
 
-        planninguuids = MxPlanning::catalystItemsUUIDs() + inbox.map{|item| item["uuid"] }
-
         CatalystListing::listingItems()
             .each{|item|
-                next if planninguuids.any?(item["uuid"]) # We do not display in the lower listing items that are planning managed
                 break if vspaceleft <= 0
                 store.register(item, true)
                 line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"

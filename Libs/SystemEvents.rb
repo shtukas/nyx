@@ -60,14 +60,6 @@ class SystemEvents
             end
         end
 
-        if event["mikuType"] == "MxPlanningCommit" then
-            MxPlanning::processEvent(event)
-        end
-
-        if event["mikuType"] == "MxPlanningDelete" then
-            MxPlanning::processEvent(event)
-        end
-
         if event["mikuType"] == "XCacheSet" then
             key = event["key"]
             value = event["value"]

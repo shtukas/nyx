@@ -84,16 +84,6 @@ We have two types of events
 }
 
 {
-    "mikuType" : "MxPlanningCommit"
-    "item"     : MxPlanning
-}
-
-{
-    "mikuType" : "MxPlanningDelete"
-    "itemuuid" : String
-}
-
-{
     "mikuType" : "XCacheUpdate"
     "key"      : String
     "value"    : String

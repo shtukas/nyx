@@ -9,10 +9,9 @@ class CommandInterpreter
             "Catalyst:",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update startd date (<n>)",
-            "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line | planning",
+            "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
-            ">owner | >owner (n) | >planning",
-            "planning set ordinal <n> | planning set timespan <n>",
+            ">owner | >owner (n)",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
             "Nyx:",
@@ -388,52 +387,6 @@ class CommandInterpreter
             return
         end
 
-        if Interpreting::match("planning *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            catalystitem = store.get(ordinal.to_i)
-            return if catalystitem.nil?
-            planningItem = MxPlanning::interactivelyIssueNewWithCatalystItem(catalystitem)
-            puts JSON.pretty_generate(planningItem)
-            return
-        end
-
-        if Interpreting::match("planning", input) then
-            item = MxPlanning::interactivelyIssueNewLineOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if Interpreting::match("planning set ordinal *", input) then
-            _, _, _, o = Interpreting::tokenizer(input)
-            item = store.get(o.to_i)
-            return if item.nil?
-            if item["mikuType"] != "MxPlanning" then
-                puts "You can only do that on a MxPlanning"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            item2 = item["item"]
-            item2["ordinal"] = MxPlanning::interactivelyDecideOrdinal()
-            MxPlanning::commit(item2)
-            return
-        end
-
-        if Interpreting::match("planning set timespan *", input) then
-            _, _, _, o = Interpreting::tokenizer(input)
-            item = store.get(o.to_i)
-            return if item.nil?
-            if item["mikuType"] != "MxPlanning" then
-                puts "You can only do that on a MxPlanning"
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            item2 = item["item"]
-            item2["timespanInHour"] = MxPlanning::interactivelyDecideTimespanInHours()
-            MxPlanning::commit(item2)
-            return
-        end
-
         if Interpreting::match("pursue", input) then
             item = store.getDefault()
             return if item.nil?
@@ -642,10 +595,6 @@ class CommandInterpreter
                 {
                     "name" => "Anniversaries::listingItems()",
                     "lambda" => lambda { Anniversaries::listingItems() }
-                },
-                {
-                    "name" => "MxPlanning::listingItems()",
-                    "lambda" => lambda { MxPlanning::listingItems() }
                 },
                 {
                     "name" => "NxTasks::listingItems()",

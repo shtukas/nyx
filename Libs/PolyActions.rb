@@ -47,17 +47,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                puts item["payload"]["description"].green
-                LucilleCore::pressEnterToContinue()
-            end
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::access(item["payload"]["item"])
-            end
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return
@@ -187,20 +176,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                puts item["payload"]["description"]
-                LucilleCore::pressEnterToContinue()
-                return
-            end
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::doubleDot(item["payload"]["item"])
-                return
-            end
-            puts "I do not know how to PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
-            raise "(error: 0e15dec2-f925-48e4-8417-4feab8b1d65b)"
-        end
-
         if item["mikuType"] == "TxDated" then
             PolyActions::start(item)
             PolyActions::access(item)
@@ -262,16 +237,6 @@ class PolyActions
 
         if item["mikuType"] == "InboxItem" then
             DxF1::deleteObjectLogically(item["uuid"])
-            return
-        end
-
-        if item["mikuType"] == "MxPlanning" then
-            if LucilleCore::askQuestionAnswerAsBoolean("'#{PolyFunctions::toString(item).green}' done ? ", true) then
-                MxPlanning::destroy(item["uuid"])
-                if item["payload"]["type"] == "pointer" then
-                    PolyActions::done(item["payload"]["item"])
-                end
-            end
             return
         end
 
@@ -387,33 +352,12 @@ class PolyActions
         PolyFunctions::_check(item, "PolyActions::start")
         return if NxBallsService::isRunning(item["uuid"])
 
-        # ordering: alphabetical mikuType
-
-        if item["mikuType"] == "MxPlanning" then
-            PolyActions::issueNxBallForItem(item)
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::start(item["payload"]["item"])
-            end
-            return
-        end
-
         PolyActions::issueNxBallForItem(item)
     end
 
     # PolyActions::stop(item)
     def self.stop(item)
         PolyFunctions::_check(item, "PolyActions::stop")
-
-        # ordering: alphabetical mikuType
-
-        if item["mikuType"] == "MxPlanning" then
-            NxBallsService::close(item["uuid"], true)
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::stop(item["payload"]["item"])
-            end
-            return
-        end
-
         NxBallsService::close(item["uuid"], true)
     end
 
@@ -422,26 +366,6 @@ class PolyActions
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                puts "Transmuting a simple MxPlanning"
-                targetMikuType = interactivelyChooseMikuTypeOrNull.call(["NxTask"])
-                return if targetMikuType.nil?
-                if targetMikuType == "NxTask" then
-                    description = item["payload"]["description"]
-                    item2 = NxTasks::issueDescriptionOnly(description)
-                    MxPlanning::destroy(item["uuid"])
-                    TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item2)
-                end
-            end
-            if item["payload"]["type"] == "pointer" then
-                puts "Transmuting a pointer MxPlanning"
-                puts "I do not yet know how to do that..."
-                LucilleCore::pressEnterToContinue()
-            end
-            return
-        end
 
         if item["mikuType"] == "TxFloat" then
             puts "Need to write the code (follow: e143fbfd-8819-4310-8857-9aec554b5271)"
@@ -465,17 +389,6 @@ class PolyActions
         if noImplementationTypes.include?(item["mikuType"]) then
             puts "update description is not implemented for #{item["mikuType"]}"
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "pointer" then
-                PolyActions::editDescription(item["payload"]["item"])
-            end
-            if item["payload"]["type"] == "simple" then
-                puts "description command is not implemented for: #{JSON.pretty_generate(item)}"
-                LucilleCore::pressEnterToContinue()
-            end
             return
         end
 
