@@ -264,17 +264,18 @@ class PolyFunctions
     # PolyFunctions::bankAccounts(item)
     def self.bankAccounts(item)
 
-        decideOwnersUUIDs = lambda {|itemuuid|
-            ownersuuids = OwnerMapping::elementuuidToOwnersuuids(itemuuid)
-            if ownersuuids.size > 0 then
+        decideOwnersUUIDs = lambda {|item|
 
+            ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+            if ownersuuids.size > 0 then
+                return ownersuuids
             end
 
-            item = TheIndex::getItemOrNull(itemuuid)
-            return [] if item.nil?
-            return [] if item["mikuType"] == "TxTimeCommitmentProject"
+            if item["mikuType"] == "TxTimeCommitmentProject" then
+                return []
+            end
 
-            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
+            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{item["uuid"]}"
             uuid = XCache::getOrNull(key)
             if uuid == "null" then
                 return []
@@ -282,7 +283,7 @@ class PolyFunctions
             if uuid then
                 return [uuid]
             end
-            puts "This is important, pay attention. We need an owner for this item, for the account."
+            puts "This is important, pay attention. We need an owner for this item, for the accounting."
             LucilleCore::pressEnterToContinue()
             ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
             if ox then
@@ -304,7 +305,7 @@ class PolyFunctions
             end
         }
 
-        [item["uuid"]] + decideOwnersUUIDs.call(item["uuid"])
+        [item["uuid"]] + decideOwnersUUIDs.call(item)
     end
 
     # PolyFunctions::foxTerrierAtItem(item)
