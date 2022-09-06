@@ -483,8 +483,8 @@ class PolyActions
         end
     end
 
-    # PolyActions::updateDescription(item)
-    def self.updateDescription(item)
+    # PolyActions::editDescription(item)
+    def self.editDescription(item)
 
         noImplementationTypes = [
             "CxAionPoint",
@@ -503,13 +503,13 @@ class PolyActions
         end
 
         if item["mikuType"] == "MxPlanningDisplay" then
-            PolyActions::updateDescription(item["item"])
+            PolyActions::editDescription(item["item"])
             return
         end
 
         if item["mikuType"] == "MxPlanning" then
             if item["payload"]["type"] == "pointer" then
-                PolyActions::updateDescription(item["payload"]["item"])
+                PolyActions::editDescription(item["payload"]["item"])
             end
             if item["payload"]["type"] == "simple" then
                 puts "description command is not implemented for: #{JSON.pretty_generate(item)}"
@@ -535,20 +535,15 @@ class PolyActions
         DxF1::setAttribute2(item["uuid"], "description", description)
     end
 
-    # PolyActions::updateDatetime(item)
-    def self.updateDatetime(item)
+    # PolyActions::editDatetime(item)
+    def self.editDatetime(item)
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
         DxF1::setAttribute2(item["uuid"], "datetime", datetime)
     end
 
-    # PolyActions::updateName(item)
-    def self.updateName(item)
-        PolyActions::updateDescription(item)
-    end
-
-    # PolyActions::updateStartDate(item)
-    def self.updateStartDate(item)
+    # PolyActions::editStartDate(item)
+    def self.editStartDate(item)
         if item["mikuType"] != "NxAnniversary" then
             puts "update description is only implemented for NxAnniversary"
             LucilleCore::pressEnterToContinue()

@@ -239,13 +239,24 @@ class PolyFunctions
             return TopLevel::edit(item)
         end
 
-        if item["nx112"] then
-            targetItem = TheIndex::getItemOrNull(item["nx112"])
-            puts "target item: #{JSON.pretty_generate(targetItem)}"
-            PolyFunctions::edit(targetItem)
-            return item
+        if Iam::isNx112Carrier(item) then
+            if item["nx112"] then
+                targetItem = TheIndex::getItemOrNull(item["nx112"])
+                puts "target data carrier: #{JSON.pretty_generate(targetItem)}"
+                PolyFunctions::edit(targetItem)
+                return item
+            else
+                puts "This item doesn't have a Nx112 attached to it"
+                status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
+                if status then
+                    PolyActions::editDescription(item)
+                    return TheIndex::getItemOrNull(item["uuid"])
+                else
+                    return item
+                end
+            end
         end
-
+ 
         puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
         raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
     end

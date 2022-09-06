@@ -105,28 +105,28 @@ class CommandInterpreter
         if Interpreting::match("datetime", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateDatetime(item)
+            PolyActions::editDatetime(item)
         end
 
         if Interpreting::match("datetime *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateDatetime(item)
+            PolyActions::editDatetime(item)
             return
         end
 
         if Interpreting::match("description", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
         end
 
         if Interpreting::match("description *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
             return
         end
 
@@ -310,14 +310,14 @@ class CommandInterpreter
         if Interpreting::match("name", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
         end
 
         if Interpreting::match("name *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateDescription(item)
+            PolyActions::editDescription(item)
             return
         end
 
@@ -592,14 +592,14 @@ class CommandInterpreter
         if Interpreting::match("update start date", input) then
             item = store.getDefault()
             return if item.nil?
-            PolyActions::updateStartDate(item)
+            PolyActions::editStartDate(item)
         end
 
         if Interpreting::match("update start date *", input) then
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyActions::updateStartDate(item)
+            PolyActions::editStartDate(item)
             return
         end
 

@@ -355,8 +355,8 @@ class CommonUtils
         Time.new.utc.iso8601
     end
 
-    # CommonUtils::updateDateTimeWithANewDate(datetime, date)
-    def self.updateDateTimeWithANewDate(datetime, date)
+    # CommonUtils::editDatetimeWithANewDate(datetime, date)
+    def self.editDatetimeWithANewDate(datetime, date)
         datetime = "#{date}#{datetime[10, 99]}"
         if !CommonUtils::isDateTime_UTC_ISO8601(datetime) then
             raise "(error: 32c505fa-4168, #{datetime})"
