@@ -271,10 +271,6 @@ class PolyFunctions
                 return ownersuuids
             end
 
-            if item["mikuType"] == "TxTimeCommitmentProject" then
-                return []
-            end
-
             key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{item["uuid"]}"
             uuid = XCache::getOrNull(key)
             if uuid == "null" then
@@ -304,6 +300,24 @@ class PolyFunctions
                 return []
             end
         }
+
+        if item["mikuType"] == "MxPlanning" then
+            if item["payload"]["type"] == "simple" then
+                return [item["uuid"]] + decideOwnersUUIDs.call(item)
+            end
+            if item["payload"]["type"] == "pointer" then
+                return [item["uuid"]]
+            end
+            raise "(error: 62bf1b6a-ba6e-4a3f-95ed-9446c8aef345)"
+        end
+
+        if item["mikuType"] == "MxPlanningDisplay" then
+            return []
+        end
+
+        if item["mikuType"] == "TxTimeCommitmentProject" then
+            return [item["uuid"]]
+        end
 
         [item["uuid"]] + decideOwnersUUIDs.call(item)
     end
