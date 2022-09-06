@@ -264,34 +264,23 @@ class PolyFunctions
     # PolyFunctions::bankAccounts(item)
     def self.bankAccounts(item)
 
-        accounts = [item["uuid"]] # Item's own uuid
+        decideOwnersUUIDs = lambda {|itemuuid|
+            ownersuuids = OwnerMapping::elementuuidToOwnersuuids(itemuuid)
+            if ownersuuids.size > 0 then
 
-        if item["mikuType"] == "MxPlanningDisplay" then
-            # We do not return bank accounts for the MxPlanningDisplay, but note that we do start MxPlanningDisplays
-            return []
-        end
-
-        if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                # we continue to deciding an owner
             end
-            if item["payload"]["type"] == "pointer" then
-                return PolyFunctions::bankAccounts(item["payload"]["item"])
-            end
-        end
 
-        decideOwnerUUIDOrNull = lambda {|itemuuid|
             item = TheIndex::getItemOrNull(itemuuid)
-            return nil if item.nil?
-            return nil if item["mikuType"] == "TxTimeCommitmentProject"
+            return [] if item.nil?
+            return [] if item["mikuType"] == "TxTimeCommitmentProject"
 
             key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{itemuuid}"
             uuid = XCache::getOrNull(key)
             if uuid == "null" then
-                return nil
+                return []
             end
             if uuid then
-                return uuid
+                return [uuid]
             end
             puts "This is important, pay attention. We need an owner for this item, for the account."
             LucilleCore::pressEnterToContinue()
@@ -303,7 +292,7 @@ class PolyFunctions
                     "key"      => key,
                     "value"    => ox["uuid"]
                 })
-                return ox["uuid"]
+                return [ox["uuid"]]
             else
                 XCache::set(key, "null")
                 SystemEvents::broadcast({
@@ -311,18 +300,11 @@ class PolyFunctions
                     "key"      => key,
                     "value"    => "null"
                 })
-                return nil
+                return []
             end
         }
 
-        ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
-        if ownersuuids.size > 0 then
-            accounts = accounts + ownersuuids
-        else
-            accounts = accounts + [decideOwnerUUIDOrNull.call(item["uuid"])].compact
-        end
-
-        accounts
+        [item["uuid"]] + decideOwnersUUIDs.call(item["uuid"])
     end
 
     # PolyFunctions::foxTerrierAtItem(item)

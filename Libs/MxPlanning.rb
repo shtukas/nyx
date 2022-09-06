@@ -184,7 +184,6 @@ class MxPlanning
                         end
                     end
 
-                    XCacheValuesWithExpiry::set("recently-listed-uuid-ad5b7c29c1c6:#{item["uuid"]}", "true", 60) # A special purpose way to not display a NxBall.
                     uuid = MxPlanning::mxPlanningItemUUIDToMxPlanningDisplayItemUUID(item["uuid"])
                     unixtime1 = NxBallsService::thisRunStartUnixtimeOrNull(uuid) || unixtime1
                     unixtime2 = unixtime1 + item["timespanInHour"]*3600

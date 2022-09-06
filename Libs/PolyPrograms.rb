@@ -62,7 +62,6 @@ class PolyPrograms
         NxBallsIO::nxballs()
             .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
             .each{|nxball|
-                next if XCacheValuesWithExpiry::getOrNull("recently-listed-uuid-ad5b7c29c1c6:#{nxball["uuid"]}") # A special purpose way to not display a NxBall.
                 displayedOneNxBall = true
                 store.register(nxball, false)
                 line = "#{store.prefixString()} [running] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"

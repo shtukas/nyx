@@ -383,6 +383,12 @@ class PolyActions
         DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
     end
 
+    # PolyActions::issueNxBallForItem(item)
+    def self.issueNxBallForItem(item)
+        puts "PolyActions::issueNxBallForItem(#{JSON.pretty_generate(item)})"
+        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
+    end
+
     # PolyActions::start(item)
     def self.start(item)
 
@@ -391,51 +397,45 @@ class PolyActions
         PolyFunctions::_check(item, "PolyActions::start")
         return if NxBallsService::isRunning(item["uuid"])
 
+        # ordering: alphabetical mikuType
+
         if item["mikuType"] == "MxPlanning" then
-            if item["payload"]["type"] == "simple" then
-                # Here we do not return and let the standard NxBall be issued.
-                # The reason being that in this case we want the MxPlanning to start.
-                NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
-                return
-            end
+            PolyActions::issueNxBallForItem(item)
             if item["payload"]["type"] == "pointer" then
                 PolyActions::start(item["payload"]["item"])
-                return
             end
+            return
         end
 
         if item["mikuType"] == "MxPlanningDisplay" then
-            # We start the MxPlanning with no bank account, because we want the highlight in the listing
-            NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [], nil)
+            PolyActions::issueNxBallForItem(item)
             PolyActions::start(item["item"])
             return
         end
 
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            if OwnerMapping::owneruuidToElementsuuids(item["uuid"]).size == 0 then
-                NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [item["uuid"]], 3600)
-            end
-            return
-        end
-
-        # We only start the thing that was targetted by the start command
-        # Simple items line InboxItems ot NxTasks, but also structures like MxPlanning and MxPlanningDisplay
-        # What we have, though, is a comprehensive PolyFunctions::bankAccounts, function.
-        # So we start the targetted item and the owner.
-        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
+        PolyActions::issueNxBallForItem(item)
     end
 
     # PolyActions::stop(item)
     def self.stop(item)
         PolyFunctions::_check(item, "PolyActions::stop")
+
+        # ordering: alphabetical mikuType
+
         if item["mikuType"] == "MxPlanning" then
+            NxBallsService::close(item["uuid"], true)
             if item["payload"]["type"] == "pointer" then
                 PolyActions::stop(item["payload"]["item"])
             end
+            return
         end
+
         if item["mikuType"] == "MxPlanningDisplay" then
+            NxBallsService::close(item["uuid"], true)
             PolyActions::stop(item["item"])
+            return
         end
+
         NxBallsService::close(item["uuid"], true)
     end
 
