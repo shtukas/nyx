@@ -109,9 +109,25 @@ class NxBallsService
         NxBallsService::marginCall(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return nil if nxball.nil?
+        return if nxball["status"]["type"] == "paused"
         nxball["status"] = {
-            "type"                => "paused",
-            "bankedTimeInSeconds" => nxball["bankedTimeInSeconds"]
+            "type"                   => "paused",
+            "lastMarginCallUnixtime" => nxball["lastMarginCallUnixtime"],
+            "bankedTimeInSeconds"    => nxball["bankedTimeInSeconds"]
+        }
+        NxBallsIO::commitItem(nxball)
+    end
+
+    # NxBallsService::pursue(uuid)
+    def self.pursue(uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        return nil if nxball.nil?
+        return if nxball["status"]["type"] == "running"
+        nxball["status"] = {
+            "type"                   => "running",
+            "thisRunStartUnixtime"   => Time.new.to_i,
+            "lastMarginCallUnixtime" => nxball["lastMarginCallUnixtime"],
+            "bankedTimeInSeconds"    => nxball["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
     end

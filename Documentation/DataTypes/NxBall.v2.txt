@@ -11,6 +11,7 @@ NxBallStatus
     }
     {
         "type"                   : "paused"
+        "lastMarginCallUnixtime" : Float # Unixtime of the last margin call
         "bankedTimeInSeconds"    : Float
     }
 
