@@ -114,7 +114,6 @@ class NxBallsService
             "bankedTimeInSeconds" => nxball["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
-        timespan
     end
 
     # NxBallsService::close(uuid, verbose) # timespan in seconds or null
@@ -181,6 +180,7 @@ if $RunNonEssentialThreads then
 
             NxBallsIO::nxballs().each{|nxball|
                 uuid = nxball["uuid"]
+                next if nxball["status"]["bankedTimeInSeconds"].nil?
                 next if nxball["status"]["bankedTimeInSeconds"] < (nxball["desiredBankedTimeInSeconds"] || 3600)
                 CommonUtils::onScreenNotification("Catalyst", "NxBall over running")
             }
