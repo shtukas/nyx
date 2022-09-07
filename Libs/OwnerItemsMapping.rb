@@ -8,58 +8,72 @@ class OwnerItemsMapping
         "#{ENV['HOME']}/Galaxy/DataBank/Stargate/owner-items-mapping.sqlite3"
     end
 
-    # OwnerItemsMapping::issueNoEvents(eventuuid, eventTime, owneruuid, itemuuid, ordinal)
-    def self.issueNoEvents(eventuuid, eventTime, owneruuid, itemuuid, ordinal)
+    # OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
+    def self.linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
         $owner_items_mapping_database_semaphore.synchronize {
             db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.execute "delete from _mapping_ where _eventuuid_=?", [eventuuid]
-            db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _owneruuid_, _itemuuid_, _ordinal_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, owneruuid, itemuuid, ordinal]
+            db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _owneruuid_, _itemuuid_, _operationType_, _ordinal_) values (?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal]
             db.close
         }
     end
 
-    # OwnerItemsMapping::issue(owneruuid, itemuuid, ordinal)
-    def self.issue(owneruuid, itemuuid, ordinal)
+    # OwnerItemsMapping::link(owneruuid, itemuuid, ordinal)
+    def self.link(owneruuid, itemuuid, ordinal)
         eventuuid = SecureRandom.uuid
         eventTime = Time.new.to_f
-        OwnerItemsMapping::issueNoEvents(eventuuid, eventTime, owneruuid, itemuuid, ordinal)
+        OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, "set", ordinal)
         SystemEvents::broadcast({
-          "mikuType"  => "OwnerItemsMapping",
-          "eventuuid" => eventuuid,
-          "eventTime" => eventTime,
-          "owneruuid" => owneruuid,
-          "itemuuid"  => itemuuid,
-          "ordinal"   => ordinal
+          "mikuType"      => "OwnerItemsMapping",
+          "eventuuid"     => eventuuid,
+          "eventTime"     => eventTime,
+          "owneruuid"     => owneruuid,
+          "itemuuid"      => itemuuid,
+          "operationType" => "set",
+          "ordinal"       => ordinal
         })
     end
 
-    # OwnerItemsMapping::detach(groupuuid, itemuuid)
-    def self.detach(groupuuid, itemuuid)
-        $owner_items_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _itemuuid_, _groupuuid_, _status_) values (?, ?, ?, ?, ?)", [SecureRandom.uuid, Time.new.to_f, itemuuid, groupuuid, "false"]
-            db.close
-        }
+    # OwnerItemsMapping::unlink(owneruuid, itemuuid)
+    def self.unlink(owneruuid, itemuuid)
+        eventuuid = SecureRandom.uuid
+        eventTime = Time.new.to_f
+        OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, "unset", nil)
+        SystemEvents::broadcast({
+          "mikuType"      => "OwnerItemsMapping",
+          "eventuuid"     => eventuuid,
+          "eventTime"     => eventTime,
+          "owneruuid"     => owneruuid,
+          "itemuuid"      => itemuuid,
+          "operationType" => "unset",
+          "ordinal"       => nil
+        })
     end
 
-    # OwnerItemsMapping::owneruuidToElementsuuids(groupuuid)
-    def self.owneruuidToElementsuuids(groupuuid)
-        answer = []
+    # OwnerItemsMapping::owneruuidToNx78(owneruuid): Map[itemuuid, ordinal]
+    def self.owneruuidToNx78(owneruuid)
+        struct1 = {}
         $owner_items_mapping_database_semaphore.synchronize {
             db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
-            db.execute("select * from _mapping_ where _groupuuid_=?", [groupuuid]) do |row|
-                answer << row['_itemuuid_']
+            db.execute("select * from _mapping_ where _owneruuid_=?", [owneruuid]) do |row|
+                if row["_operationType_"] == "set" then
+                    itemuuid = row['_itemuuid_']
+                    ordinal  = row['_ordinal_']
+                    struct1[itemuuid] = ordinal
+                end
+                if row["_operationType_"] == "unset" then
+                    itemuuid = row['_itemuuid_']
+                    struct1.delete(itemuuid)
+                end
             end
             db.close
         }
-        answer.uniq
+        struct1
     end
 
     # OwnerItemsMapping::isOwned(itemuuid)
@@ -71,8 +85,9 @@ class OwnerItemsMapping
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute("select * from _mapping_ where _itemuuid_=?", [itemuuid]) do |row|
-                answer = true # This implementation is fundamentally incorrect because to be correct we would need to take account of the _status_, but for the time being items won't be removed from groups
+                # This implementation is fundamentally incorrect because we should take account of unset operations
                 # TODO: fix it
+                answer = true
             end
             db.close
         }
@@ -88,7 +103,7 @@ class OwnerItemsMapping
             db.busy_handler { |count| true }
             db.results_as_hash = true
             db.execute("select * from _mapping_ where _itemuuid_=?", [itemuuid]) do |row|
-                answer << row['_groupuuid_']
+                answer << row['_owneruuid_']
             end
             db.close
         }
@@ -125,9 +140,12 @@ class OwnerItemsMapping
     def self.processEvent(event)
         if event["mikuType"] == "OwnerItemsMapping" then
             eventuuid = event["eventuuid"]
+            eventTime = event["eventTime"]
             owneruuid = event["owneruuid"]
             itemuuid  = event["itemuuid"]
-            OwnerItemsMapping::issueNoEvents(eventuuid, owneruuid, itemuuid)
+            operationType = event["operationType"]
+            ordinal   = event["ordinal"]
+            OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
         end
     end
 end

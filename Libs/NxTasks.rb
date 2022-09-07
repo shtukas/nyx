@@ -125,7 +125,7 @@ class NxTasks
                 item = TheIndex::getItemOrNull(itemuuid)
                 return nil if nil? # this should never happen considering how `itemuuids` was made.
                 return nil if item["ax39"]
-                return nil if OwnerMapping::elementuuidToOwnersuuids(item["uuid"]).size > 0
+                return nil if OwnerItemsMapping::elementuuidToOwnersuuids(item["uuid"]).size > 0
                 itemuuid
             }
             if selected.size >= 32 then

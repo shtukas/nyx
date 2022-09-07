@@ -25,7 +25,7 @@ class CatalystListing
             .select{|item| item["isAlive"].nil? or item["isAlive"] }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-            .select{|item| !OwnerMapping::isOwned(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .select{|item| !OwnerItemsMapping::isOwned(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
 
         its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
         its1 + its2

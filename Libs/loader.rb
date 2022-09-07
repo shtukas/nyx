@@ -57,16 +57,6 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2/shared-config.json")
 
-filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3"
-if !File.exists?(filepath) then
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute("create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _itemuuid_ text, _groupuuid_ text, _status_ text)", [])
-    db.close
-end
-
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/bank.sqlite3"
 if !File.exists?(filepath) then
     db = SQLite3::Database.new(filepath)
@@ -95,6 +85,45 @@ if !File.exists?(filepath) then
     db.results_as_hash = true
     db.execute("create table _links_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text)", [])
     db.close
+end
+
+filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/owner-items-mapping.sqlite3"
+if !File.exists?(filepath) then
+    puts "database migration: owner-items-mapping.sqlite3"
+
+    db = SQLite3::Database.new(filepath)
+    db.busy_timeout = 117
+    db.busy_handler { |count| true }
+    db.results_as_hash = true
+    db.execute("create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _owneruuid_ text, _itemuuid_ text, _operationType_ text, _ordinal_ float)", [])
+    db.close
+
+    # create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _itemuuid_ text, _groupuuid_ text, _status_ text)
+
+    db1 = SQLite3::Database.new("#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3")
+    db1.busy_timeout = 117
+    db1.busy_handler { |count| true }
+    db1.results_as_hash = true
+
+    db2 = SQLite3::Database.new("#{ENV['HOME']}/Galaxy/DataBank/Stargate/owner-items-mapping.sqlite3")
+    db2.busy_timeout = 117
+    db2.busy_handler { |count| true }
+    db2.results_as_hash = true
+
+    ordinal = 1
+
+    db1.execute("select * from _mapping_ order by _eventTime_", []) do |row|
+        eventuuid = row["_eventuuid_"]
+        eventTime = row["_eventTime_"]
+        owneruuid = row["_groupuuid_"]
+        itemuuid  = row["_itemuuid_"]
+        operationType = "set"
+        ordinal       = ordinal + 1
+        db2.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _owneruuid_, _itemuuid_, _operationType_, _ordinal_) values (?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal]
+    end
+
+    db2.close
+    db1.close
 end
 
 # ------------------------------------------------------------
@@ -248,7 +277,6 @@ require_relative "NxIceds.rb"
 require_relative "NetworkLinks.rb"
 require_relative "Nx112.rb"
 
-require_relative "OwnerMapping.rb"
 require_relative "OwnerItemsMapping.rb"
 
 require_relative "PrimitiveFiles.rb"
@@ -283,5 +311,6 @@ $bank_database_semaphore = Mutex.new
 $dnsu_database_semaphore = Mutex.new
 $item_to_group_mapping_database_semaphore = Mutex.new
 $commline_semaphore = Mutex.new
+$owner_items_mapping_database_semaphore = Mutex.new
 
 # ------------------------------------------------------------

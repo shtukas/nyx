@@ -46,7 +46,7 @@ class NxLines
     # NxLines::listingItems()
     def self.listingItems()
         NxLines::items()
-            .select{|item| OwnerMapping::elementuuidToOwnersuuidsCached(item["uuid"]).empty? }
+            .select{|item| OwnerItemsMapping::elementuuidToOwnersuuidsCached(item["uuid"]).empty? }
             .sort{|l1, l2| l1["unixtime"] <=> l2["unixtime"] }
     end
 end

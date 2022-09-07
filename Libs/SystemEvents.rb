@@ -8,6 +8,8 @@ class SystemEvents
 
         #puts "SystemEvent(#{JSON.pretty_generate(event)})"
 
+        # ordering: as they come
+
         if event["mikuType"] == "(bank account has been updated)" then
             Ax39forSections::processEvent(event)
         end
@@ -38,10 +40,6 @@ class SystemEvents
 
         if event["mikuType"] == "NxDeleted" then
             DxF1::deleteObjectLogicallyNoEvents(event["objectuuid"])
-        end
-
-        if event["mikuType"] == "OwnerMapping" then
-            OwnerMapping::processEvent(event)
         end
 
         if event["mikuType"] == "AttributeUpdate" then
@@ -78,6 +76,10 @@ class SystemEvents
             key = event["key"]
             flag = event["flag"]
             XCache::setFlag(key, flag)
+        end
+
+        if event["mikuType"] == "OwnerItemsMapping" then
+            OwnerItemsMapping::processEvent(event)
         end
     end
 
@@ -205,12 +207,12 @@ class SystemEvents
                     next
                 end
 
-                if File.basename(filepath1)[-22, 22] == ".owner-mapping.sqlite3" then
+                if File.basename(filepath1)[-28, 28] == ".owner-items-mapping.sqlite3" then
                     if verbose then
                         puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
                     end
 
-                    knowneventuuids = OwnerMapping::eventuuids()
+                    knowneventuuids = OwnerItemsMapping::eventuuids()
 
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
@@ -218,8 +220,14 @@ class SystemEvents
                     db1.results_as_hash = true
                     db1.execute("select * from _mapping_", []) do |row|
                         next if knowneventuuids.include?(row["_eventuuid_"])
-                        puts "owner-mapping: importing row: #{JSON.pretty_generate(row)}"
-                        OwnerMapping::insertRow(row)
+                        puts "owner-items-mapping: importing event: #{row["_eventuuid_"]}"
+                        eventuuid = row["_eventuuid_"]
+                        eventTime = row["_eventTime_"]
+                        owneruuid = row["_owneruuid_"]
+                        itemuuid  = row["_itemuuid_"]
+                        operationType = row["_operationType_"]
+                        ordinal   = row["_ordinal_"]
+                        OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
                     end
                     db1.close
 

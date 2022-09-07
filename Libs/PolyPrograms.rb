@@ -165,22 +165,23 @@ class PolyPrograms
 
             store = ItemStore.new()
 
-            items = TxTimeCommitmentProjects::elements(item, 6)
-            if items.size > 0 then
+            nx79s = TxTimeCommitmentProjects::nx79s(item, 6)
+            if nx79s.size > 0 then
                 puts ""
                 puts "Managed Items:"
-                items
-                    .map{|element|
+                nx79s
+                    .map{|nx79|
                         {
-                            "element" => element,
-                            "rt"      => BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])
+                            "nx79" => nx79,
+                            "rt"   => BankExtended::stdRecoveredDailyTimeInHours(nx79["item"]["uuid"])
                         }
                     }
                     .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-                    .map{|px| px["element"] }
-                    .each{|element|
+                    .map{|px| px["nx79"] }
+                    .each{|nx79|
+                        element = nx79["item"]
                         indx = store.register(element, false)
-                        line = "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
                         if NxBallsService::isPresent(element["uuid"]) then
                             line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
                         end
@@ -188,14 +189,15 @@ class PolyPrograms
                     }
             end
 
-            items = TxTimeCommitmentProjects::elements(item, 50)
-            if items.size > 0 then
+            nx79s = TxTimeCommitmentProjects::nx79s(item, 50)
+            if nx79s.size > 0 then
                 puts ""
-                puts "Tail (items.size items):"
-                TxTimeCommitmentProjects::elements(item, 50)
-                    .each{|element|
+                puts "Tail (#{nx79s.size} items):"
+                nx79s
+                    .each{|nx79|
+                        element = nx79["item"]
                         indx = store.register(element, false)
-                        line = "#{store.prefixString()} #{PolyFunctions::toString(element)}"
+                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
                         if NxBallsService::isPresent(element["uuid"]) then
                             line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
                         end
@@ -204,7 +206,7 @@ class PolyPrograms
             end
 
             puts ""
-            puts "commands: ax39 | insert | detach <n> | transfer <n> | exit".yellow
+            puts "commands: start <n> | access <n> | ax39 | insert | exit".yellow
 
             command = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -222,32 +224,26 @@ class PolyPrograms
                 if type == "line" then
                     element = NxLines::interactivelyIssueNewLineOrNull()
                     next if element.nil?
-                    OwnerMapping::issue(item["uuid"], element["uuid"])
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    OwnerItemsMapping::link(item["uuid"], element["uuid"], ordinal)
                 end
                 if type == "task" then
                     element = NxTasks::interactivelyCreateNewOrNull(false)
                     next if element.nil?
-                    OwnerMapping::issue(item["uuid"], element["uuid"])
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    OwnerItemsMapping::link(item["uuid"], element["uuid"], ordinal)
                 end
                 next
             end
 
-            if  command.start_with?("detach") and command != "detach" then
-                indx = command[6, 99].strip.to_i
-                entity = store.get(indx)
-                next if entity.nil?
-                OwnerMapping::detach(item["uuid"], entity["uuid"])
-                next
-            end
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return if input == ""
 
-            if  command.start_with?("transfer") and command != "transfer" then
-                indx = command[8, 99].strip.to_i
+            if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                item2 = TxTimeCommitmentProjects::architectOneOrNull()
-                return if item2.nil?
-                OwnerMapping::issue(item2["uuid"], entity["uuid"])
-                OwnerMapping::detach(item["uuid"], entity["uuid"])
+                PolyPrograms::landing(entity)
                 next
             end
 

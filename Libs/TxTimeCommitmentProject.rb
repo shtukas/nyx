@@ -86,23 +86,27 @@ class TxTimeCommitmentProjects
             .sort{|i1, i2| Ax39forSections::orderingValue(i1) <=> Ax39forSections::orderingValue(i2) }
     end
 
-    # TxTimeCommitmentProjects::elements(owner, count)
-    def self.elements(owner, count)
-        OwnerMapping::owneruuidToElementsuuids(owner["uuid"])
-            .uniq
+    # TxTimeCommitmentProjects::nx79s(owner, count) # Array[Nx79]
+    def self.nx79s(owner, count)
+        map = OwnerItemsMapping::owneruuidToNx78(owner["uuid"])
+        map.keys
+            .sort{|uuid1, uuid2| map[uuid1] <=> map[uuid2] }
             .reduce([]){|selected, itemuuid|
                 if selected.size >= count then
                     selected
                 else
                     item = TheIndex::getItemOrNull(itemuuid)
                     if item then
-                        selected + [item]
+                        nx79 = {
+                            "item" => item,
+                            "ordinal" => map[itemuuid]
+                        }
+                        selected + [nx79]
                     else
                         selected
                     end
                 end
             }
-            .sort{|e1, e2| e1["unixtime"] <=> e2["unixtime"] }
     end
 
     # --------------------------------------------------
@@ -119,7 +123,7 @@ class TxTimeCommitmentProjects
     def self.access(item, mode)
         puts "TxTimeCommitmentProjects::access(#{JSON.pretty_generate(item)}, #{mode})"
 
-        hasElements = OwnerMapping::owneruuidToElementsuuids(item["uuid"]).size > 0
+        hasElements = OwnerItemsMapping::owneruuidToNx78(item["uuid"]).size > 0
 
         if item["nx112"] and hasElements then
             aspect = LucilleCore::selectEntityFromListOfEntitiesOrNull("aspect", ["carrier", "elements listing"])
@@ -173,7 +177,8 @@ class TxTimeCommitmentProjects
         owner = TxTimeCommitmentProjects::architectOneOrNull()
         return if owner.nil?
         puts JSON.pretty_generate(owner)
-        OwnerMapping::issue(owner["uuid"], element["uuid"])
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        OwnerItemsMapping::link(owner["uuid"], element["uuid"], ordinal)
         NxBallsService::close(element["uuid"], true)
     end
 
@@ -182,7 +187,8 @@ class TxTimeCommitmentProjects
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to an owner ? ") then
             owner = TxTimeCommitmentProjects::architectOneOrNull()
             return if owner.nil?
-            OwnerMapping::issue(owner["uuid"], element["uuid"])
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+            OwnerItemsMapping::link(owner["uuid"], element["uuid"], ordinal)
         end
     end
 end

@@ -55,13 +55,6 @@ We have two types of events
 }
 
 {
-    "mikuType"       : "OwnerMapping"
-    "eventuuid"      : String
-    "owneruuid"      : String
-    "itemuuid"       : String
-}
-
-{
     "mikuType"   => "NetworkLinks",
     "eventuuid"  => String
     "sourceuuid" => sourceuuid,

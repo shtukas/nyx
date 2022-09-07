@@ -4,9 +4,9 @@
 
 require_relative "../Libs/loader.rb"
 
-filepath1 = OwnerMapping::databaseFile()
+filepath1 = OwnerItemsMapping::databaseFile()
 Machines::theOtherInstanceIds().each{|targetInstanceId|
-    filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.owner-mapping.sqlite3"
+    filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.owner-items-mapping.sqlite3"
     FileUtils.cp(filepath1, filepath2)
 }
 

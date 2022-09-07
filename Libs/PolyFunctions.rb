@@ -261,7 +261,7 @@ class PolyFunctions
 
         decideOwnersUUIDs = lambda {|item|
 
-            ownersuuids = OwnerMapping::elementuuidToOwnersuuids(item["uuid"])
+            ownersuuids = OwnerItemsMapping::elementuuidToOwnersuuidsCached(item["uuid"])
             if ownersuuids.size > 0 then
                 return ownersuuids
             end

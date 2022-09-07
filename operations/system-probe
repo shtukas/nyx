@@ -20,8 +20,8 @@ puts "Found #{eventuuids.size} events"
 puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join(":"))}"
 
 puts ""
-puts "OwnerMapping:".green
-eventuuids = OwnerMapping::eventuuids()
+puts "OwnerItemsMapping:".green
+eventuuids = OwnerItemsMapping::eventuuids()
 puts "Found #{eventuuids.size} events"
 puts "Events collection trace: #{Digest::SHA1.hexdigest(eventuuids.sort.join(":"))}"
 
