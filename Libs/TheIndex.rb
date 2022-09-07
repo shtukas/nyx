@@ -19,7 +19,7 @@ class TheIndex
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select _objectuuid_ from _index_", []) do |row|
+        db.execute("select _objectuuid_ from _index_ order by _unixtime_", []) do |row|
             objectuuids << row["_objectuuid_"]
         end
         db.close
@@ -33,7 +33,7 @@ class TheIndex
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select _item_ from _index_ where _objectuuid_=?", [objectuuid]) do |row|
+        db.execute("select _item_ from _index_ where _objectuuid_=? order by _unixtime_", [objectuuid]) do |row|
             item = JSON.parse(row["_item_"])
         end
         db.close
@@ -47,7 +47,7 @@ class TheIndex
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select count(*) as _count_ from _index_ where _mikuType_=?", [mikuType]) do |row|
+        db.execute("select count(*) as _count_ from _index_ where _mikuType_=? order by _unixtime_", [mikuType]) do |row|
             count = row["_count_"]
         end
         db.close
@@ -61,7 +61,7 @@ class TheIndex
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select _objectuuid_ from _index_ where _mikuType_=?", [mikuType]) do |row|
+        db.execute("select _objectuuid_ from _index_ where _mikuType_=? order by _unixtime_", [mikuType]) do |row|
             objectuuids << row["_objectuuid_"]
         end
         db.close
@@ -75,7 +75,7 @@ class TheIndex
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select _item_ from _index_ where _mikuType_=?", [mikuType]) do |row|
+        db.execute("select _item_ from _index_ where _mikuType_=? order by _unixtime_", [mikuType]) do |row|
             items << JSON.parse(row["_item_"])
         end
         db.close
@@ -89,7 +89,7 @@ class TheIndex
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select * from _index_", []) do |row|
+        db.execute("select * from _index_ order by _unixtime_", []) do |row|
             nx20s << {
                 "announce" => "(#{row["_mikuType_"]}) #{row["_announce_"]}",
                 "unixtime" => row["_unixtime_"],
@@ -107,7 +107,7 @@ class TheIndex
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
-        db.execute("select _item_ from _index_", []) do |row|
+        db.execute("select _item_ from _index_ order by _unixtime_", []) do |row|
             items << JSON.parse(row["_item_"])
         end
         db.close
