@@ -15,22 +15,22 @@ class NxBallsIO
 
     # NxBallsIO::nxballs()
     def self.nxballs()
-        XCacheSets::values("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9")
+        XCacheSets::values("38288c92-0dfa-4e85-83cc-1a2cc2300d47")
     end
 
     # NxBallsIO::getItemByIdOrNull(uuid)
     def self.getItemByIdOrNull(uuid)
-        XCacheSets::getOrNull("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", uuid)
+        XCacheSets::getOrNull("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
     end
 
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        XCacheSets::set("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", item["uuid"], item)
+        XCacheSets::set("38288c92-0dfa-4e85-83cc-1a2cc2300d47", item["uuid"], item)
     end
 
     # NxBallsIO::destroyItem(uuid)
     def self.destroyItem(uuid)
-        XCacheSets::destroy("3dd5cedc-4ceb-4f71-b2dc-3ed039eb3ee9", uuid)
+        XCacheSets::destroy("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
     end
 
 end
@@ -112,8 +112,8 @@ class NxBallsService
         return if nxball["status"]["type"] == "paused"
         nxball["status"] = {
             "type"                   => "paused",
-            "lastMarginCallUnixtime" => nxball["lastMarginCallUnixtime"],
-            "bankedTimeInSeconds"    => nxball["bankedTimeInSeconds"]
+            "lastMarginCallUnixtime" => nxball["status"]["lastMarginCallUnixtime"],
+            "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
     end
@@ -126,8 +126,8 @@ class NxBallsService
         nxball["status"] = {
             "type"                   => "running",
             "thisRunStartUnixtime"   => Time.new.to_i,
-            "lastMarginCallUnixtime" => nxball["lastMarginCallUnixtime"],
-            "bankedTimeInSeconds"    => nxball["bankedTimeInSeconds"]
+            "lastMarginCallUnixtime" => nxball["status"]["lastMarginCallUnixtime"],
+            "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
     end
