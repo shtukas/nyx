@@ -40,6 +40,13 @@ class NxTasks
         item
     end
 
+    # NxTasks::interactivelyIssueDescriptionOnlyOrNull()
+    def self.interactivelyIssueDescriptionOnlyOrNull()
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+        NxTasks::issueDescriptionOnly(description)
+    end
+
     # NxTasks::issueViennaURL(url)
     def self.issueViennaURL(url)
         uuid        = SecureRandom.uuid

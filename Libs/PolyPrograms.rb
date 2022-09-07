@@ -222,7 +222,7 @@ class PolyPrograms
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
                 next if type.nil?
                 if type == "line" then
-                    element = NxLines::interactivelyIssueNewLineOrNull()
+                    element = NxTasks::interactivelyIssueDescriptionOnlyOrNull()
                     next if element.nil?
                     ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                     OwnerItemsMapping::link(item["uuid"], element["uuid"], ordinal)

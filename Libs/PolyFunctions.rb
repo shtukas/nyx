@@ -76,9 +76,6 @@ class PolyFunctions
         if item["mikuType"] == "NxIced" then
             return item["description"]
         end
-        if item["mikuType"] == "NxLine" then
-            return item["line"]
-        end
         if item["mikuType"] == "NxPerson" then
             return item["name"]
         end
@@ -171,9 +168,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxIced" then
             return NxIceds::toString(item)
-        end
-        if item["mikuType"] == "NxLine" then
-            return NxLines::toString(item)
         end
         if item["mikuType"] == "NxPerson" then
             return NxPersons::toString(item)

@@ -1,5 +1,5 @@
 
-Data Carriers (referred to by Nx112 strings)
+Annonymous Data Carriers (owned and referred to by Nx112 strings)
     CxAionPoint
     CxDx8Unit
     CxFile
@@ -24,6 +24,9 @@ Catalyst:
 
 Nyx Networks:
 
+    # self contained
+    DxLine
+
     # Nx112 carriers:
     DxAionPoint
     DxFile
@@ -40,9 +43,6 @@ Nyx Networks:
     NxTimeline
 
 Misc:
-    DxLine    # (need attribution) Named as if it belons to the Nyx side of the world. 
-    NxLine:   # (need attribution) Created from the NyxLanding. 
-
     Ax39      # Timing data for TxTimeCommitmentProject
     Nx01      # Unique string convention
     Nx45      # UUID naming convention 

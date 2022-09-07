@@ -71,12 +71,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxLine" then
-            puts PolyFunctions::toString(item).green
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
         if item["mikuType"] == "NxTask" then
             Nx112::carrierAccess(item)
             return
@@ -267,13 +261,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxLine" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxLine '#{PolyFunctions::toString(item).green}' ? ", true) then
-                DxF1::deleteObjectLogically(item["uuid"])
-            end
-            return
-        end
-
         if item["mikuType"] == "TxDated" then
             if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
                 TxDateds::destroy(item["uuid"])
@@ -298,7 +285,7 @@ class PolyActions
 
     # PolyActions::link_line(item)
     def self.link_line(item)
-        l1 = NxLines::interactivelyIssueNewLineOrNull()
+        l1 = NxTasks::interactivelyIssueDescriptionOnlyOrNull()
         return if l1.nil?
         puts JSON.pretty_generate(l1)
         NetworkLinks::link(item["uuid"], l1["uuid"])

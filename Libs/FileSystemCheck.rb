@@ -211,10 +211,6 @@ class FileSystemCheck
             end
         end
 
-        if mikuType == "NxLine" then
-            ensureAttribute.call("line")
-        end
-
         if mikuType == "NxPerson" then
             ensureAttribute.call("name")
         end

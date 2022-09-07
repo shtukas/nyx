@@ -169,8 +169,8 @@ class TxTimeCommitmentProjects
     # TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(element)
     def self.interactivelyAddThisElementToOwner(element)
         puts "TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
-        if !["NxTask", "NxLine"].include?(element["mikuType"]) then
-            puts "The operation TxTimeCommitmentProjects::interactivelyAddThisElementToOwner only works on NxLines or NxTasks"
+        if element["mikuType"] != "NxTask" then
+            puts "The operation TxTimeCommitmentProjects::interactivelyAddThisElementToOwner only works on NxTasks"
             LucilleCore::pressEnterToContinue()
             return
         end
