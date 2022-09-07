@@ -597,12 +597,16 @@ class CommandInterpreter
                     "lambda" => lambda { Anniversaries::listingItems() }
                 },
                 {
-                    "name" => "NxTasks::listingItems()",
-                    "lambda" => lambda { NxTasks::listingItems() }
+                    "name" => "InboxItems::listingItems()",
+                    "lambda" => lambda { InboxItems::listingItems() }
                 },
                 {
-                    "name" => "Streaming::listingItems()",
-                    "lambda" => lambda { Streaming::listingItems() }
+                    "name" => "NxIceds::listingItems()",
+                    "lambda" => lambda { NxIceds::listingItems() }
+                },
+                {
+                    "name" => "NxTasks::listingItems()",
+                    "lambda" => lambda { NxTasks::listingItems() }
                 },
                 {
                     "name" => "TopLevel::items()",
@@ -611,10 +615,6 @@ class CommandInterpreter
                 {
                     "name" => "TxDateds::listingItems()",
                     "lambda" => lambda { TxDateds::listingItems() }
-                },
-                {
-                    "name" => "InboxItems::listingItems()",
-                    "lambda" => lambda { InboxItems::listingItems() }
                 },
                 {
                     "name" => "TxTimeCommitmentProjects::listingItems()",

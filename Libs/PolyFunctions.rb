@@ -115,10 +115,6 @@ class PolyFunctions
     # PolyFunctions::toString(item)
     def self.toString(item)
         PolyFunctions::_check(item, "PolyFunctions::toString")
-
-        if item["mikuType"] == "(rstream-to-target)" then
-            return item["announce"]
-        end
         if item["mikuType"] == "fitness1" then
             return item["announce"]
         end

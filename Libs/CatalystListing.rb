@@ -19,7 +19,7 @@ class CatalystListing
             TxDateds::listingItems(),
             TxTimeCommitmentProjects::listingItems(),
             NxTasks::listingItems(),
-            Streaming::listingItems(),
+            NxIceds::listingItems(),
         ]
             .flatten
             .select{|item| item["isAlive"].nil? or item["isAlive"] }

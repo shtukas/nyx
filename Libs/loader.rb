@@ -258,7 +258,6 @@ require_relative "PolyPrograms.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
-require_relative "Streaming.rb"
 require_relative "StargateCentral.rb"
 require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"

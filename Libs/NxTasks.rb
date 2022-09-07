@@ -114,39 +114,42 @@ class NxTasks
         "(task) #{item["description"]}"
     end
 
-    # NxTasks::topItemsForSection2()
-    def self.topItemsForSection2()
-        key = "94214c23-8b66-4fd3-b6f5-93bda88903eb"
-        items = XCacheValuesWithExpiry::getOrNull(key)
-        return items if items
+    # NxTasks::cacheduuidsForSection2()
+    def self.cacheduuidsForSection2()
+        key = "d0c5d86c-a815-4250-a746-9b93ecd4f443"
+        itemuuids = XCacheValuesWithExpiry::getOrNull(key)
+        return itemuuids if itemuuids
 
-        items = NxTasks::items()
-                .select{|item| item["ax39"].nil? }
-                .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-                .select{|item| OwnerMapping::elementuuidToOwnersuuids(item["uuid"]).empty? }
-                .first(50)
+        itemuuids = TheIndex::mikuTypeToObjectuuids("NxTask").reduce([]){|selected, itemuuid|
+            echoIfValid = lambda{|itemuuid|
+                item = TheIndex::getItemOrNull(itemuuid)
+                return nil if nil? # this should never happen considering how `itemuuids` was made.
+                return nil if item["ax39"]
+                return nil if OwnerMapping::elementuuidToOwnersuuids(item["uuid"]).size > 0
+                itemuuid
+            }
+            if selected.size >= 32 then
+                selected
+            else
+                ix = echoIfValid.call(itemuuid)
+                if ix then
+                    selected + [ix]
+                else
+                    selected
+                end
+            end
+        }
 
-        XCacheValuesWithExpiry::set(key, items, 86400)
+        XCacheValuesWithExpiry::set(key, itemuuids, 86400)
 
-        items
+        itemuuids
     end
 
     # NxTasks::listingItems()
     def self.listingItems()
-        NxTasks::topItemsForSection2()
-            .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            .reduce{|selected, item|
-                if selected.size >= 6 then
-                    selected
-                else
-                    item = TheIndex::getItemOrNull(item["uuid"])
-                    if item then
-                        selected + item
-                    else
-                        selected
-                    end
-                end
-            }
+        NxTasks::cacheduuidsForSection2()
+        .map{|itemuuid| TheIndex::getItemOrNull(itemuuid) }
+        .compact
     end
 
     # NxTasks::topUnixtime()

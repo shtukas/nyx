@@ -6,11 +6,6 @@ class PolyActions
     # PolyActions::access(item)
     def self.access(item)
 
-        if item["mikuType"] == "(rstream-to-target)" then
-            Streaming::icedStreamingToTarget()
-            return
-        end
-
         if item["mikuType"] == "fitness1" then
             puts PolyFunctions::toString(item).green
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
@@ -235,10 +230,6 @@ class PolyActions
         PolyFunctions::_check(item, "PolyActions::done")
 
         PolyActions::stop(item)
-
-        if item["mikuType"] == "(rstream-to-target)" then
-            return
-        end
 
         if item["mikuType"] == "InboxItem" then
             DxF1::deleteObjectLogically(item["uuid"])
