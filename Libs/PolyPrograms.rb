@@ -191,7 +191,7 @@ class PolyPrograms
                     }
             end
 
-            nx79s = TxTimeCommitmentProjects::nx79s(item, 50)
+            nx79s = TxTimeCommitmentProjects::nx79s(item, CommonUtils::screenHeight()-20)
             if nx79s.size > 0 then
                 puts ""
                 puts "Tail (#{nx79s.size} items):"
