@@ -109,11 +109,8 @@ class NxTasks
 
     # NxTasks::toString(item)
     def self.toString(item)
-        builder = lambda{
-            ax39str = item["ax39"] ? " #{Ax39::toString(item)}" : ""
-            "(task)#{Cx::uuidToString(item["nx112"])} #{item["description"]}#{ax39str}"
-        }
-        builder.call()
+        ax39str = item["ax39"] ? " #{Ax39::toString(item)}" : ""
+        "(task)#{Cx::uuidToString(item["nx112"])} #{item["description"]}#{ax39str}"
     end
 
     # NxTasks::toStringForSearch(item)
@@ -127,29 +124,34 @@ class NxTasks
         itemuuids = XCacheValuesWithExpiry::getOrNull(key)
         return itemuuids if itemuuids
 
-        itemuuids = TheIndex::mikuTypeToObjectuuids("NxTask").reduce([]){|selected, itemuuid|
-            echoIfValid = lambda{|itemuuid|
-                item = TheIndex::getItemOrNull(itemuuid)
-                return nil if nil? # this should never happen considering how `itemuuids` was made.
-                return nil if item["ax39"]
-                return nil if OwnerItemsMapping::elementuuidToOwnersuuids(item["uuid"]).size > 0
-                itemuuid
-            }
-            if selected.size >= 32 then
-                selected
-            else
-                ix = echoIfValid.call(itemuuid)
-                if ix then
-                    selected + [ix]
-                else
-                    selected
-                end
-            end
-        }
+        itemuuids0 = TheIndex::mikuTypeToItems("NxTask")
+                        .select{|item| item["ax39"] }
+                        .map{|item| item["uuid"] }
 
+        itemuuids1 = TheIndex::mikuTypeToObjectuuids("NxTask")
+                        .select{|item| item["ax39"].nil? }
+                        .reduce([]){|selected, itemuuid|
+                            echoIfValid = lambda{|itemuuid|
+                                item = TheIndex::getItemOrNull(itemuuid)
+                                return nil if nil? # this should never happen considering how `itemuuids1` was made.
+                                return nil if item["ax39"]
+                                return nil if OwnerItemsMapping::elementuuidToOwnersuuids(item["uuid"]).size > 0
+                                itemuuid
+                            }
+                            if selected.size >= 32 then
+                                selected
+                            else
+                                ix = echoIfValid.call(itemuuid)
+                                if ix then
+                                    selected + [ix]
+                                else
+                                    selected
+                                end
+                            end
+                        }
+
+        itemuuids = itemuuids0+itemuuids1
         XCacheValuesWithExpiry::set(key, itemuuids, 86400)
-
-        itemuuids
     end
 
     # NxTasks::listingItems()
