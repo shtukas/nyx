@@ -100,7 +100,7 @@ class PolyPrograms
                 vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
             }
 
-        CommandInterpreter::commandPrompt(store)
+        CommandInterpreterDefault::commandPrompt(store)
     end
 
     # PolyPrograms::itemLanding(item)
@@ -150,7 +150,7 @@ class PolyPrograms
                 next
             end
 
-            CommandInterpreter::run(input, store)
+            CommandInterpreterDefault::run(input, store)
         }
     end
 
@@ -178,11 +178,12 @@ class PolyPrograms
                         }
                     }
                     .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-                    .map{|px| px["nx79"] }
-                    .each{|nx79|
+                    .each{|px|
+                        nx79    = px["nx79"]
+                        rt      = px["rt"]
                         element = nx79["item"]
                         indx = store.register(element, false)
-                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
+                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})"
                         if NxBallsService::isPresent(element["uuid"]) then
                             line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
                         end
@@ -207,11 +208,20 @@ class PolyPrograms
             end
 
             puts ""
-            puts "commands: start <n> | access <n> | ax39 | insert | exit".yellow
+            puts "commands: start <n> | access <n> | set ordinal <n> | ax39 | insert | exit".yellow
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if input == "exit"
+
+            if input.start_with?("set ordinal")  then
+                indx = input[1, 99].strip.to_i
+                entity = store.get(indx)
+                next if entity.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                OwnerItemsMapping::link(item["uuid"], entity["uuid"], ordinal)
+                next
+            end
 
             if input == "ax39"  then
                 ax39 = Ax39::interactivelyCreateNewAx()
@@ -244,7 +254,7 @@ class PolyPrograms
                 next
             end
 
-            CommandInterpreter::run(input, store)
+            CommandInterpreterDefault::run(input, store)
         }
 
         PolyActions::stop(item)

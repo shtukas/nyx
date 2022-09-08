@@ -117,7 +117,7 @@ class TxTimeCommitmentProjects
             items = TxTimeCommitmentProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
             break if item.nil?
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", ["start", "landing"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", ["start", "landing", "access"])
             return if option.nil?
             if option == "start" then
                 PolyActions::start(item)
@@ -125,6 +125,10 @@ class TxTimeCommitmentProjects
             end
             if option == "landing" then
                 PolyPrograms::itemLanding(item)
+                return
+            end
+            if option == "access" then
+                PolyActions::access(item)
                 return
             end
         }

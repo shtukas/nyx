@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class CommandInterpreter
+class CommandInterpreterDefault
 
-    # CommandInterpreter::commands()
+    # CommandInterpreterDefault::commands()
     def self.commands()
         [
             "Catalyst:",
@@ -20,7 +20,7 @@ class CommandInterpreter
         ].join("\n")
     end
 
-    # CommandInterpreter::run(input, store)
+    # CommandInterpreterDefault::run(input, store)
     def self.run(input, store) # [command or null, item or null]
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
@@ -198,7 +198,7 @@ class CommandInterpreter
         end
 
         if Interpreting::match("help", input) then
-            puts CommandInterpreter::commands().yellow
+            puts CommandInterpreterDefault::commands().yellow
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -667,13 +667,13 @@ class CommandInterpreter
         end
     end
 
-    # CommandInterpreter::commandPrompt(store)
+    # CommandInterpreterDefault::commandPrompt(store)
     def self.commandPrompt(store)
         puts ""
         input = LucilleCore::askQuestionAnswerAsString("> ")
 
         return if input == ""
 
-        CommandInterpreter::run(input, store)
+        CommandInterpreterDefault::run(input, store)
     end
 end
