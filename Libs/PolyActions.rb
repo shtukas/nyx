@@ -47,6 +47,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "DxUrl" then
+            DxUrl::access(item)
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return
@@ -228,6 +233,11 @@ class PolyActions
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "DxUrl" then
+            DxF1::deleteObjectLogically(item["uuid"])
             return
         end
 
