@@ -9,6 +9,10 @@ class NxIceds
 
     # NxIceds::destroy(uuid)
     def self.destroy(uuid)
+        item = TheIndex::getItemOrNull(uuid)
+        if item then
+            PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
+        end
         DxF1::deleteObjectLogically(uuid)
     end
 

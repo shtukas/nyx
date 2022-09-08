@@ -215,9 +215,30 @@ class PolyActions
         PolyActions::access(item)
     end
 
+    # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
+    def self.garbageCollectionAsPartOfLaterItemDestruction(item)
+        return if item.nil?
+
+        # order : alphabetical order
+
+        if item["mikuType"] == "CxDx8Unit" then
+            unitId = item["unitId"]
+            Dx8UnitsUtils::destroyUnit(unitId)
+        end
+
+        if item["mikuType"] == "NxIced" then
+            return if item["nx112"].nil?
+            item2 = TheIndex::getItemOrNull(item["nx112"])
+            return if item2.nil?
+            PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item2)
+        end
+    end
+
     # PolyActions::done(item)
     def self.done(item)
         PolyActions::stop(item)
+
+        # order: alphabetical order
 
         if item["mikuType"] == "InboxItem" then
             DxF1::deleteObjectLogically(item["uuid"])
@@ -233,7 +254,10 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxFloat" then
+        if item["mikuType"] == "TxDated" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
+                TxDateds::destroy(item["uuid"])
+            end
             return
         end
 
@@ -255,10 +279,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxDated" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
-                TxDateds::destroy(item["uuid"])
-            end
+        if item["mikuType"] == "TxFloat" then
             return
         end
 
