@@ -183,7 +183,7 @@ class PolyPrograms
                         rt      = px["rt"]
                         element = nx79["item"]
                         indx = store.register(element, false)
-                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"])})"
+                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"]).round(2)})"
                         if NxBallsService::isPresent(element["uuid"]) then
                             line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
                         end
