@@ -15,6 +15,9 @@ class Dx8UnitsUtils
         folderpath1 = "#{Dx8UnitsUtils::infinityRepository()}/#{dx8UnitId}"
         folderpath2 = "#{Config::userHomeDirectory()}/Galaxy/Wormhole1/Dx8Units/#{dx8UnitId}"
         if File.exists?(folderpath1) and !File.exists?(folderpath2) then
+            puts "Dx8Unit, move:"
+            puts "    - #{folderpath1}"
+            puts "    - #{folderpath2}"
             FileUtils.mv(folderpath1, folderpath2)
         end
         if File.exists?(folderpath2) then
