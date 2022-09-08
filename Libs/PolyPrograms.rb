@@ -208,11 +208,19 @@ class PolyPrograms
             end
 
             puts ""
-            puts "commands: start <n> | access <n> | set ordinal <n> | ax39 | insert | exit".yellow
+            puts "commands: start (<n>) | access (<n>) | set ordinal <n> | ax39 | insert | exit".yellow
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
 
             break if input == "exit"
+
+            if input == "start"  then
+                input = "start 0"
+            end
+
+            if input == "access"  then
+                input = "access 0"
+            end
 
             if input.start_with?("set ordinal")  then
                 indx = input[1, 99].strip.to_i
