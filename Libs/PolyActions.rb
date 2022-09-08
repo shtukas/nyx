@@ -100,7 +100,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxTimeCommitmentProject" then
-            TxTimeCommitmentProjects::access(item, "access")
+            PolyPrograms::timeCommitmentProgram(item)
             return
         end
 
@@ -120,8 +120,6 @@ class PolyActions
 
     # PolyActions::destroyWithPrompt(item)
     def self.destroyWithPrompt(item)
-        PolyFunctions::_check(item, "PolyActions::destroyWithPrompt")
-
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
             DxF1::deleteObjectLogically(item["uuid"])
@@ -132,8 +130,6 @@ class PolyActions
     def self.doubleDot(item)
 
         puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
-
-        PolyFunctions::_check(item, "PolyActions::doubleDot")
 
         if item["mikuType"] == "fitness1" then
             PolyActions::access(item)
@@ -195,7 +191,7 @@ class PolyActions
 
         if item["mikuType"] == "TxTimeCommitmentProject" then
             # We do not start the commitment item itself, we just start the program
-            TxTimeCommitmentProjects::access(item, "doubleDot")
+            PolyPrograms::timeCommitmentProgram(item)
             return
         end
 
@@ -221,8 +217,6 @@ class PolyActions
 
     # PolyActions::done(item)
     def self.done(item)
-        PolyFunctions::_check(item, "PolyActions::done")
-
         PolyActions::stop(item)
 
         if item["mikuType"] == "InboxItem" then
@@ -301,8 +295,6 @@ class PolyActions
 
     # PolyActions::redate(item)
     def self.redate(item)
-        PolyFunctions::_check(item, "PolyActions::redate")
-
         if item["mikuType"] == "TxDated" then
             datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
             DxF1::setAttribute2(item["uuid"], "datetime", datetime)
@@ -321,27 +313,34 @@ class PolyActions
         DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
     end
 
-    # PolyActions::issueNxBallForItem(item)
-    def self.issueNxBallForItem(item)
-        puts "PolyActions::issueNxBallForItem(#{JSON.pretty_generate(item)})"
-        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
-    end
-
     # PolyActions::start(item)
     def self.start(item)
-
         puts "PolyActions::start(#{JSON.pretty_generate(item)})"
-
-        PolyFunctions::_check(item, "PolyActions::start")
         return if NxBallsService::isRunning(item["uuid"])
+        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [item["uuid"]], PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
 
-        PolyActions::issueNxBallForItem(item)
+        PolyFunctions::extendedOwnersuuidsAndSpecialPurposeBankAccounts(item).each{|bankaccount|
+            item = TheIndex::getItemOrNull(bankaccount)
+            if item then
+                PolyActions::start(item)
+            else
+                NxBallsService::issue(bankaccount, "bank account: #{bankaccount}", [bankaccount], nil)
+            end
+        }
     end
 
     # PolyActions::stop(item)
     def self.stop(item)
-        PolyFunctions::_check(item, "PolyActions::stop")
         NxBallsService::close(item["uuid"], true)
+
+        PolyFunctions::extendedOwnersuuidsAndSpecialPurposeBankAccounts(item).each{|bankaccount|
+            item = TheIndex::getItemOrNull(bankaccount)
+            if item then
+                PolyActions::stop(item)
+            else
+                NxBallsService::close(bankaccount, true)
+            end
+        }
     end
 
     # PolyActions::transmute(item)

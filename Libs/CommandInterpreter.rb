@@ -221,7 +221,7 @@ class CommandInterpreter
         end
 
         if Interpreting::match("landing", input) then
-            PolyPrograms::landing(store.getDefault())
+            PolyPrograms::itemLanding(store.getDefault())
             return
         end
 
@@ -229,7 +229,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyPrograms::landing(item)
+            PolyPrograms::itemLanding(item)
             return
         end
 

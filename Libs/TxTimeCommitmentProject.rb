@@ -27,14 +27,6 @@ class TxTimeCommitmentProjects
         return nil if datetime.nil?
         uuid = SecureRandom.uuid
 
-        if LucilleCore::askQuestionAnswerAsBoolean("Singleton item ? ") then
-            cx = Cx::interactivelyCreateNewCxForOwnerOrNull(uuid)
-            nx112 = cx ? cx["uuid"] : nil
-        else
-            puts "You have chosen to build an owner, not asking for contents"
-            nx112 = nil
-        end
-
         ax39 = Ax39::interactivelyCreateNewAx()
 
         unixtime   = Time.new.to_i
@@ -43,7 +35,6 @@ class TxTimeCommitmentProjects
         DxF1::setAttribute2(uuid, "unixtime",     unixtime)
         DxF1::setAttribute2(uuid, "datetime",     datetime)
         DxF1::setAttribute2(uuid, "description",  description)
-        DxF1::setAttribute2(uuid, "nx112",        nx112)
         DxF1::setAttribute2(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
         item = TheIndex::getItemOrNull(uuid)
@@ -119,42 +110,6 @@ class TxTimeCommitmentProjects
         LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
     end
 
-    # TxTimeCommitmentProjects::access(item, mode) # mode = "access" or "doubleDot"
-    def self.access(item, mode)
-        puts "TxTimeCommitmentProjects::access(#{JSON.pretty_generate(item)}, #{mode})"
-
-        hasElements = OwnerItemsMapping::owneruuidToNx78(item["uuid"]).size > 0
-
-        if item["nx112"] and hasElements then
-            aspect = LucilleCore::selectEntityFromListOfEntitiesOrNull("aspect", ["carrier", "elements listing"])
-            return if aspect.nil?
-            if aspect == "carrier" then
-                if mode == "doubleDot" then
-                    PolyActions::start(item)
-                end
-                Cx::access(item["nx112"])
-            end
-            if aspect == "elements listing" then
-                PolyPrograms::timeCommitmentProgram(item)
-            end
-        end
-
-        if item["nx112"] and !hasElements then
-            if mode == "doubleDot" then
-                PolyActions::start(item)
-            end
-            Cx::access(item["nx112"])
-        end
-
-        if item["nx112"].nil? and hasElements then
-            PolyPrograms::timeCommitmentProgram(item)
-        end
-
-        if item["nx112"].nil? and !hasElements then
-            PolyPrograms::timeCommitmentProgram(item)
-        end
-    end
-
     # TxTimeCommitmentProjects::dive()
     def self.dive()
         loop {
@@ -162,7 +117,16 @@ class TxTimeCommitmentProjects
             items = TxTimeCommitmentProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
             break if item.nil?
-            PolyPrograms::landing(item)
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", ["start", "landing"])
+            return if option.nil?
+            if option == "start" then
+                PolyActions::start(item)
+                return
+            end
+            if option == "landing" then
+                PolyPrograms::itemLanding(item)
+                return
+            end
         }
     end
 

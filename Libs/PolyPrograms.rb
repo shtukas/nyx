@@ -103,10 +103,8 @@ class PolyPrograms
         CommandInterpreter::commandPrompt(store)
     end
 
-    # PolyPrograms::landing(item)
-    def self.landing(item)
-
-        PolyFunctions::_check(item, "PolyPrograms::landing")
+    # PolyPrograms::itemLanding(item)
+    def self.itemLanding(item)
 
         if item["mikuType"] == "fitness1" then
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
@@ -148,7 +146,7 @@ class PolyPrograms
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                PolyPrograms::landing(entity)
+                PolyPrograms::itemLanding(entity)
                 next
             end
 
@@ -243,7 +241,7 @@ class PolyPrograms
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
                 next if entity.nil?
-                PolyPrograms::landing(entity)
+                PolyPrograms::itemLanding(entity)
                 next
             end
 

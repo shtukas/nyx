@@ -67,7 +67,7 @@ class TxFloats
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"]}
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("float", items, lambda{|item| PolyFunctions::toString(item) })
             return if item.nil?
-            PolyPrograms::landing(item)
+            PolyPrograms::itemLanding(item)
         }
     end
 end

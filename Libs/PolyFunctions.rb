@@ -1,23 +1,9 @@
 class PolyFunctions
 
-    # PolyFunctions::_check(item, functionname)
-    def self._check(item, functionname)
-        if item.nil?  then
-            raise "(error: d366d408-93a1-4e91-af92-c115e88c501f) null item sent to #{functionname}"
-        end
-
-        if item["mikuType"].nil? then
-            puts "Objects sent to a poly function should have a mikuType attribute."
-            puts "function name: #{functionname}"
-            puts "item: #{JSON.pretty_generate(item)}"
-            puts "Aborting."
-            raise "(error: f74385d4-5ece-4eae-8a09-90d3a5e0f120)"
-        end
-    end
-
     # PolyFunctions::genericDescription(item)
     def self.genericDescription(item)
-        PolyFunctions::_check(item, "PolyFunctions::genericDescription")
+
+        # ordering: alphabetical order
 
         if item["mikuType"] == "CxAionPoint" then
             return "#{item["mikuType"]}"
@@ -111,7 +97,6 @@ class PolyFunctions
 
     # PolyFunctions::toString(item)
     def self.toString(item)
-        PolyFunctions::_check(item, "PolyFunctions::toString")
         if item["mikuType"] == "fitness1" then
             return item["announce"]
         end
@@ -250,10 +235,10 @@ class PolyFunctions
         1
     end
 
-    # PolyFunctions::bankAccounts(item)
-    def self.bankAccounts(item)
+    # PolyFunctions::extendedOwnersuuidsAndSpecialPurposeBankAccounts(item)
+    def self.extendedOwnersuuidsAndSpecialPurposeBankAccounts(item)
 
-        decideOwnersUUIDs = lambda {|item|
+        ownersuuids = lambda {|item|
 
             ownersuuids = OwnerItemsMapping::elementuuidToOwnersuuidsCached(item["uuid"])
             if ownersuuids.size > 0 then
@@ -291,10 +276,10 @@ class PolyFunctions
         }
 
         if item["mikuType"] == "TxTimeCommitmentProject" then
-            return [item["uuid"]]
+            return []
         end
 
-        [item["uuid"]] + decideOwnersUUIDs.call(item)
+        ownersuuids.call(item)
     end
 
     # PolyFunctions::foxTerrierAtItem(item)

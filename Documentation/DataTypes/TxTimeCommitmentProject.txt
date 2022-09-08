@@ -4,6 +4,5 @@ TxTimeCommitmentProject:
     "unixtime"     : Float
     "datetime"     : DateTime Iso8601
     "description"  : String
-    "nx112"        : nil or String
     "ax39"         : Ax39
 

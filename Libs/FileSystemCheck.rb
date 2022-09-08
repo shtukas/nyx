@@ -240,10 +240,6 @@ class FileSystemCheck
         end
 
         if mikuType == "TxTimeCommitmentProject" then
-            # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
             ensureAttribute.call("ax39")
         end
 
