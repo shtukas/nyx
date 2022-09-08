@@ -120,38 +120,25 @@ class NxTasks
 
     # NxTasks::cacheduuidsForSection2()
     def self.cacheduuidsForSection2()
-        key = "d0c5d86c-a815-4250-a746-9b93ecd4f443"
+        key = "baf670c7-20c2-497d-aa50-9ac71f682017"
         itemuuids = XCacheValuesWithExpiry::getOrNull(key)
         return itemuuids if itemuuids
 
+        # Items which are time commiments
         itemuuids0 = TheIndex::mikuTypeToItems("NxTask")
                         .select{|item| item["ax39"] }
                         .map{|item| item["uuid"] }
 
-        itemuuids1 = TheIndex::mikuTypeToObjectuuids("NxTask")
+        # Items not time commitments and without an owner
+        itemuuids1 = TheIndex::mikuTypeToItems("NxTask")
                         .select{|item| item["ax39"].nil? }
-                        .reduce([]){|selected, itemuuid|
-                            echoIfValid = lambda{|itemuuid|
-                                item = TheIndex::getItemOrNull(itemuuid)
-                                return nil if nil? # this should never happen considering how `itemuuids1` was made.
-                                return nil if item["ax39"]
-                                return nil if OwnerItemsMapping::elementuuidToOwnersuuids(item["uuid"]).size > 0
-                                itemuuid
-                            }
-                            if selected.size >= 32 then
-                                selected
-                            else
-                                ix = echoIfValid.call(itemuuid)
-                                if ix then
-                                    selected + [ix]
-                                else
-                                    selected
-                                end
-                            end
-                        }
+                        .select{|item| OwnerItemsMapping::elementuuidToOwnersuuids(item["uuid"]).empty?}
+                        .first(32)
+                        .map{|item| item["uuid"] }
 
         itemuuids = itemuuids0+itemuuids1
         XCacheValuesWithExpiry::set(key, itemuuids, 86400)
+        itemuuids
     end
 
     # NxTasks::listingItems()
