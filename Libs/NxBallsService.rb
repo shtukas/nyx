@@ -181,7 +181,10 @@ class NxBallsService
         if nxball["status"]["type"] == "paused" then
             return "#{leftSide}#{"paused".green}#{rightSide}"
         end
-        "#{leftSide}totaling #{((nxball["status"]["bankedTimeInSeconds"] + Time.new.to_i-nxball["status"]["lastMarginCallUnixtime"]).to_f/3600).round(2)} hours#{rightSide}"
+        realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
+        unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
+        currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
+        "current run: #{(unrealiseTimeInSeconds.to_f/3600).round(2)} h, #{leftSide}totaling #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours#{rightSide}"
     end
 end
 
