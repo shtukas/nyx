@@ -32,7 +32,7 @@ class DxLine
 
     # DxLine::toString(item)
     def self.toString(item)
-        "(DxLine) #{item["line"]}"
+        "#{Stargate::formatTypeForToString("DxLine")} #{item["line"]}"
     end
 
     # ----------------------------------------------------------------------

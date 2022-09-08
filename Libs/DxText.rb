@@ -38,7 +38,7 @@ class DxText
 
     # DxText::toString(item)
     def self.toString(item)
-        "(DxText) #{item["description"]}"
+        "#{Stargate::formatTypeForToString("DxText")} #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------

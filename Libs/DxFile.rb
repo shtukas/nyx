@@ -82,7 +82,7 @@ class DxFile
 
     # DxFile::toString(item)
     def self.toString(item)
-        "(DxFile) #{item["description"] ? item["description"] : "nhash: #{item["nhash"]}"}"
+        "#{Stargate::formatTypeForToString("DxFile")} #{item["description"] ? item["description"] : "nhash: #{item["nhash"]}"}"
     end
 
     # ----------------------------------------------------------------------

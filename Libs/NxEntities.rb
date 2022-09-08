@@ -42,6 +42,6 @@ class NxEntities
 
     # NxEntities::toString(item)
     def self.toString(item)
-        "(NxEntity) #{item["description"]}"
+        "#{Stargate::formatTypeForToString("NxEntity")} #{item["description"]}"
     end
 end

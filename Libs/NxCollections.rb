@@ -44,6 +44,6 @@ class NxCollections
 
     # NxCollections::toString(item)
     def self.toString(item)
-        "(collection) #{item["description"]}"
+        "#{Stargate::formatTypeForToString("NxCollection")} #{item["description"]}"
     end
 end

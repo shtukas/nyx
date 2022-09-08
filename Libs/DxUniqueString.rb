@@ -39,7 +39,7 @@ class DxUniqueString
 
     # DxUniqueString::toString(item)
     def self.toString(item)
-        "(DxUniqueString) #{item["uniquestring"]}"
+        "#{Stargate::formatTypeForToString("DxUniqueString")} #{item["uniquestring"]}"
     end
 
     # ----------------------------------------------------------------------

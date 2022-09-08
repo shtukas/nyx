@@ -44,6 +44,6 @@ class NxConcepts
 
     # NxConcepts::toString(item)
     def self.toString(item)
-        "(concept) #{item["description"]}"
+        "#{Stargate::formatTypeForToString("NxConcept")} #{item["description"]}"
     end
 end
