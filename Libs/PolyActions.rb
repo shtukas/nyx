@@ -318,29 +318,12 @@ class PolyActions
         puts "PolyActions::start(#{JSON.pretty_generate(item)})"
         return if NxBallsService::isRunning(item["uuid"])
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [item["uuid"]], PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
-
-        PolyFunctions::extendedOwnersuuidsAndSpecialPurposeBankAccounts(item).each{|bankaccount|
-            item = TheIndex::getItemOrNull(bankaccount)
-            if item then
-                PolyActions::start(item)
-            else
-                NxBallsService::issue(bankaccount, "bank account: #{bankaccount}", [bankaccount], nil)
-            end
-        }
     end
 
     # PolyActions::stop(item)
     def self.stop(item)
+        puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
         NxBallsService::close(item["uuid"], true)
-
-        PolyFunctions::extendedOwnersuuidsAndSpecialPurposeBankAccounts(item).each{|bankaccount|
-            item = TheIndex::getItemOrNull(bankaccount)
-            if item then
-                PolyActions::stop(item)
-            else
-                NxBallsService::close(bankaccount, true)
-            end
-        }
     end
 
     # PolyActions::transmute(item)

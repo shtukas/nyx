@@ -120,7 +120,7 @@ class NxTasks
 
     # NxTasks::cacheduuidsForSection2()
     def self.cacheduuidsForSection2()
-        key = "baf670c7-20c2-497d-aa50-9ac71f682017"
+        key = "baf670c7-20c2-497d-aa50-9ac71f682018"
         itemuuids = XCacheValuesWithExpiry::getOrNull(key)
         return itemuuids if itemuuids
 

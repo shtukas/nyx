@@ -156,10 +156,13 @@ class PolyPrograms
 
     # PolyPrograms::timeCommitmentProgram(item)
     def self.timeCommitmentProgram(item)
+        PolyActions::start(item)
+
         loop {
             system("clear")
 
             puts TxTimeCommitmentProjects::toString(item).green
+            puts NxBallsService::activityStringOrEmptyString("", item["uuid"], "").green
 
             store = ItemStore.new()
 
@@ -206,17 +209,17 @@ class PolyPrograms
             puts ""
             puts "commands: start <n> | access <n> | ax39 | insert | exit".yellow
 
-            command = LucilleCore::askQuestionAnswerAsString("> ")
+            input = LucilleCore::askQuestionAnswerAsString("> ")
 
-            break if command == "exit"
+            break if input == "exit"
 
-            if command == "ax39"  then
+            if input == "ax39"  then
                 ax39 = Ax39::interactivelyCreateNewAx()
                 DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
-                return
+                break
             end
 
-            if command == "insert" then
+            if input == "insert" then
                 type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
                 next if type.nil?
                 if type == "line" then
@@ -234,10 +237,6 @@ class PolyPrograms
                 next
             end
 
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
                 next if entity.nil?
@@ -245,8 +244,9 @@ class PolyPrograms
                 next
             end
 
-            CommandInterpreter::run(command, store)
+            CommandInterpreter::run(input, store)
         }
-        nil
+
+        PolyActions::stop(item)
     end
 end

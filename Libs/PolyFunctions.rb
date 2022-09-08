@@ -235,53 +235,6 @@ class PolyFunctions
         1
     end
 
-    # PolyFunctions::extendedOwnersuuidsAndSpecialPurposeBankAccounts(item)
-    def self.extendedOwnersuuidsAndSpecialPurposeBankAccounts(item)
-
-        ownersuuids = lambda {|item|
-
-            ownersuuids = OwnerItemsMapping::elementuuidToOwnersuuidsCached(item["uuid"])
-            if ownersuuids.size > 0 then
-                return ownersuuids
-            end
-
-            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{item["uuid"]}"
-            uuid = XCache::getOrNull(key)
-            if uuid == "null" then
-                return []
-            end
-            if uuid then
-                return [uuid]
-            end
-            puts "This is important, pay attention. We need an owner for this item, for the accounting."
-            LucilleCore::pressEnterToContinue()
-            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
-            if ox then
-                XCache::set(key, ox["uuid"])
-                SystemEvents::broadcast({
-                    "mikuType" => "XCacheSet",
-                    "key"      => key,
-                    "value"    => ox["uuid"]
-                })
-                return [ox["uuid"]]
-            else
-                XCache::set(key, "null")
-                SystemEvents::broadcast({
-                    "mikuType" => "XCacheSet",
-                    "key"      => key,
-                    "value"    => "null"
-                })
-                return []
-            end
-        }
-
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            return []
-        end
-
-        ownersuuids.call(item)
-    end
-
     # PolyFunctions::foxTerrierAtItem(item)
     def self.foxTerrierAtItem(item)
         loop {
