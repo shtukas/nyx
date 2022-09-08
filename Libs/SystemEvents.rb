@@ -154,6 +154,11 @@ class SystemEvents
                 next if !File.exists?(filepath1)
                 next if File.basename(filepath1).start_with?(".")
 
+                if File.basename(filepath1).include?(".owner-mapping.sqlite3") then
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
                 if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))
                     if verbose then
