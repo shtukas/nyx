@@ -215,25 +215,6 @@ class PolyActions
         PolyActions::access(item)
     end
 
-    # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
-    def self.garbageCollectionAsPartOfLaterItemDestruction(item)
-        return if item.nil?
-
-        # order : alphabetical order
-
-        if item["mikuType"] == "CxDx8Unit" then
-            unitId = item["unitId"]
-            Dx8UnitsUtils::destroyUnit(unitId)
-        end
-
-        if item["mikuType"] == "NxIced" then
-            return if item["nx112"].nil?
-            item2 = TheIndex::getItemOrNull(item["nx112"])
-            return if item2.nil?
-            PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item2)
-        end
-    end
-
     # PolyActions::done(item)
     def self.done(item)
         PolyActions::stop(item)
@@ -298,6 +279,25 @@ class PolyActions
         raise "(error: f278f3e4-3f49-4f79-89d2-e5d3b8f728e6)"
     end
 
+    # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
+    def self.garbageCollectionAsPartOfLaterItemDestruction(item)
+        return if item.nil?
+
+        # order : alphabetical order
+
+        if item["mikuType"] == "CxDx8Unit" then
+            unitId = item["unitId"]
+            Dx8UnitsUtils::destroyUnit(unitId)
+        end
+
+        if item["mikuType"] == "NxIced" then
+            return if item["nx112"].nil?
+            item2 = TheIndex::getItemOrNull(item["nx112"])
+            return if item2.nil?
+            PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item2)
+        end
+    end
+
     # PolyActions::link_line(item)
     def self.link_line(item)
         l1 = NxTasks::interactivelyIssueDescriptionOnlyOrNull()
@@ -312,6 +312,25 @@ class PolyActions
         return if i2.nil?
         puts JSON.pretty_generate(i2)
         NetworkLinks::link(item["uuid"], i2["uuid"])
+    end
+
+    # PolyActions::dataPrefetch(item)
+    def self.dataPrefetch(item)
+        return if item.nil?
+
+        # order : alphabetical order
+
+        if item["mikuType"] == "CxDx8Unit" then
+            unitId = item["unitId"]
+            Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId) # this brings the file to the wormhole
+        end
+
+        if item["mikuType"] == "NxIced" then
+            return if item["nx112"].nil?
+            item2 = TheIndex::getItemOrNull(item["nx112"])
+            return if item2.nil?
+            PolyActions::dataPrefetch(item2)
+        end
     end
 
     # PolyActions::redate(item)

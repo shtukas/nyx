@@ -182,6 +182,7 @@ class PolyPrograms
                         nx79    = px["nx79"]
                         rt      = px["rt"]
                         element = nx79["item"]
+                        PolyActions::dataPrefetch(element)
                         indx = store.register(element, false)
                         line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"]).round(2)})"
                         if NxBallsService::isPresent(element["uuid"]) then
@@ -198,6 +199,7 @@ class PolyPrograms
                 nx79s
                     .each{|nx79|
                         element = nx79["item"]
+                        PolyActions::dataPrefetch(element)
                         indx = store.register(element, false)
                         line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
                         if NxBallsService::isPresent(element["uuid"]) then
