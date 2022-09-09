@@ -78,8 +78,8 @@ class SystemEvents
             XCache::setFlag(key, flag)
         end
 
-        if event["mikuType"] == "OwnerItemsMapping" then
-            OwnerItemsMapping::processEvent(event)
+        if event["mikuType"] == "TimeCommitmentMapping" then
+            TimeCommitmentMapping::processEvent(event)
         end
 
         if event["mikuType"] == "NxBall.v2" then
@@ -225,7 +225,7 @@ class SystemEvents
                         puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
                     end
 
-                    knowneventuuids = OwnerItemsMapping::eventuuids()
+                    knowneventuuids = TimeCommitmentMapping::eventuuids()
 
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
@@ -240,7 +240,7 @@ class SystemEvents
                         itemuuid  = row["_itemuuid_"]
                         operationType = row["_operationType_"]
                         ordinal   = row["_ordinal_"]
-                        OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
+                        TimeCommitmentMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
                     end
                     db1.close
 

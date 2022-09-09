@@ -79,7 +79,7 @@ class TxTimeCommitments
 
     # TxTimeCommitments::nx79s(owner, count) # Array[Nx79]
     def self.nx79s(owner, count)
-        map = OwnerItemsMapping::owneruuidToNx78(owner["uuid"])
+        map = TimeCommitmentMapping::owneruuidToNx78(owner["uuid"])
         map.keys
             .sort{|uuid1, uuid2| map[uuid1] <=> map[uuid2] }
             .reduce([]){|selected, itemuuid|
@@ -146,7 +146,7 @@ class TxTimeCommitments
         return if owner.nil?
         puts JSON.pretty_generate(owner)
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-        OwnerItemsMapping::link(owner["uuid"], element["uuid"], ordinal)
+        TimeCommitmentMapping::link(owner["uuid"], element["uuid"], ordinal)
         NxBallsService::close(element["uuid"], true)
     end
 
@@ -156,7 +156,7 @@ class TxTimeCommitments
             owner = TxTimeCommitments::architectOneOrNull()
             return if owner.nil?
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-            OwnerItemsMapping::link(owner["uuid"], element["uuid"], ordinal)
+            TimeCommitmentMapping::link(owner["uuid"], element["uuid"], ordinal)
         end
     end
 end

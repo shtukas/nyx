@@ -124,19 +124,13 @@ class NxTasks
         itemuuids = XCacheValuesWithExpiry::getOrNull(key)
         return itemuuids if itemuuids
 
-        # Items which are time commiments
-        itemuuids0 = TheIndex::mikuTypeToItems("NxTask")
-                        .select{|item| item["ax39"] }
-                        .map{|item| item["uuid"] }
-
         # Items not time commitments and without an owner
-        itemuuids1 = TheIndex::mikuTypeToItems("NxTask")
-                        .select{|item| item["ax39"].nil? }
-                        .select{|item| OwnerItemsMapping::elementuuidToOwnersuuids(item["uuid"]).empty?}
-                        .first(32)
+        itemuuids = TheIndex::mikuTypeToItems("NxTask")
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                        .select{|item| TimeCommitmentMapping::elementuuidToOwnersuuids(item["uuid"]).empty? }
+                        .first(200)
                         .map{|item| item["uuid"] }
 
-        itemuuids = itemuuids0+itemuuids1
         XCacheValuesWithExpiry::set(key, itemuuids, 86400)
         itemuuids
     end

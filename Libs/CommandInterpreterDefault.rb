@@ -626,14 +626,4 @@ class CommandInterpreterDefault
             return
         end
     end
-
-    # CommandInterpreterDefault::commandPrompt(store)
-    def self.commandPrompt(store)
-        puts ""
-        input = LucilleCore::askQuestionAnswerAsString("> ")
-
-        return if input == ""
-
-        CommandInterpreterDefault::run(input, store)
-    end
 end

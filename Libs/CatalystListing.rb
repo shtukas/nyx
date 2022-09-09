@@ -17,14 +17,13 @@ class CatalystListing
             Waves::listingItems(true),
             Waves::listingItems(false),
             TxDateds::listingItems(),
-            TxTimeCommitments::listingItems(),
             NxTasks::listingItems(),
         ]
             .flatten
             .select{|item| item["isAlive"].nil? or item["isAlive"] }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-            .select{|item| !OwnerItemsMapping::isOwned(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+            .select{|item| !TimeCommitmentMapping::isOwned(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
 
         its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
         its1 + its2
@@ -69,5 +68,23 @@ class CatalystListing
 
             PolyPrograms::catalystMainListing()
         }
+    end
+
+    # CatalystListing::getContextOrNull()
+    # context: a time commitment
+    def self.getContextOrNull()
+        uuid = XCache::getOrNull("7390a691-c8c4-4798-9214-704c5282f5e3")
+        return nil if uuid.nil?
+        TheIndex::getItemOrNull(uuid)
+    end
+
+    # CatalystListing::setContext(uuid)
+    def self.setContext(uuid)
+        XCache::set("7390a691-c8c4-4798-9214-704c5282f5e3", uuid)
+    end
+
+    # CatalystListing::emptyContext()
+    def self.emptyContext()
+        XCache::destroy("7390a691-c8c4-4798-9214-704c5282f5e3")
     end
 end

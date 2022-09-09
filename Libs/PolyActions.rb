@@ -77,7 +77,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "TxTimeCommitment" then
-            PolyPrograms::timeCommitmentProgram(item)
+            CatalystListing::setContext(item["uuid"])
             return
         end
 
@@ -133,12 +133,6 @@ class PolyActions
                     return
                 end
             }
-            return
-        end
-
-        if item["mikuType"] == "TxTimeCommitment" then
-            # We do not start the commitment item itself, we just start the program
-            PolyPrograms::timeCommitmentProgram(item)
             return
         end
 
@@ -279,7 +273,7 @@ class PolyActions
 
     # PolyActions::start(item)
     def self.start(item)
-        puts "PolyActions::start(#{JSON.pretty_generate(item)})"
+        #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
         return if NxBallsService::isRunning(item["uuid"])
         NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [item["uuid"]], PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
