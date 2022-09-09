@@ -121,14 +121,14 @@ class NxBallsService
 
     # NxBallsService::pause(uuid) # timespan in seconds or null
     def self.pause(uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        return if nxball.nil?
+        return if nxball["status"]["type"] != "running"
         NxBallsService::marginCall(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
-        return nil if nxball.nil?
-        return if nxball["status"]["type"] == "paused"
         nxball["status"] = {
-            "type"                   => "paused",
-            "lastMarginCallUnixtime" => nxball["status"]["lastMarginCallUnixtime"],
-            "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
+            "type"                => "paused",
+            "bankedTimeInSeconds" => nxball["status"]["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
     end
@@ -137,11 +137,11 @@ class NxBallsService
     def self.pursue(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return nil if nxball.nil?
-        return if nxball["status"]["type"] == "running"
+        return if nxball["status"]["type"] != "paused"
         nxball["status"] = {
             "type"                   => "running",
             "thisRunStartUnixtime"   => Time.new.to_i,
-            "lastMarginCallUnixtime" => nxball["status"]["lastMarginCallUnixtime"],
+            "lastMarginCallUnixtime" => Time.new.to_i, # we made a margin call when we went on pause
             "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
@@ -213,10 +213,15 @@ if $RunNonEssentialThreads then
             }
 
             NxBallsIO::nxballs().each{|nxball|
-                uuid = nxball["uuid"]
-                next if nxball["status"]["bankedTimeInSeconds"].nil?
-                next if nxball["status"]["bankedTimeInSeconds"] < (nxball["desiredBankedTimeInSeconds"] || 3600)
-                CommonUtils::onScreenNotification("Catalyst", "NxBall over running")
+                next if nxball["status"]["type"] != "running"
+
+                realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
+                unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
+                currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
+
+                if currentTotalTimeInSeconds > (nxball["desiredBankedTimeInSeconds"] || 3600) then
+                    CommonUtils::onScreenNotification("Catalyst", "NxBall over running")
+                end
             }
             
         }
