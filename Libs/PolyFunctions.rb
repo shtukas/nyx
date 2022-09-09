@@ -56,6 +56,9 @@ class PolyFunctions
         if item["mikuType"] == "NxEvent" then
             return item["description"]
         end
+        if ["NxIced", "InboxItem"].include?(item["mikuType"]) then
+            return item["description"]
+        end
         if item["mikuType"] == "NxPerson" then
             return item["name"]
         end
