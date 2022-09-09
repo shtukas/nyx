@@ -47,5 +47,6 @@ Misc:
     Nx01      # Unique string convention
     Nx45      # UUID naming convention 
     Nx20      # Search Item
+    Nx79      # Ownership inventory item
     NxBall.v2 # Running data
     NxDeleted #

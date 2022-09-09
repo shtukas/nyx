@@ -2,6 +2,8 @@
 
 We have two types of events
 
+# ordering: as they come
+
 {
     "mikuType"   => "(object has been updated)",
     "objectuuid" => objectuuid,
@@ -91,4 +93,11 @@ We have two types of events
     "mikuType" : "XCacheFlag"
     "key"      : String
     "flag"     : Boolean
+}
+
+(NxBall)
+
+{
+    "mikuType" : "NxBallDestroy"
+    "uuid"     : String
 }

@@ -23,14 +23,29 @@ class NxBallsIO
         XCacheSets::getOrNull("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
     end
 
+    # NxBallsIO::commitItemNoEvent(item)
+    def self.commitItemNoEvent(item)
+        XCacheSets::set("38288c92-0dfa-4e85-83cc-1a2cc2300d47", item["uuid"], item)
+    end
+
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        XCacheSets::set("38288c92-0dfa-4e85-83cc-1a2cc2300d47", item["uuid"], item)
+        NxBallsIO::commitItemNoEvent(item)
+        SystemEvents::broadcast(item)
+    end
+
+    # NxBallsIO::destroyItemNoEvent(uuid)
+    def self.destroyItemNoEvent(uuid)
+        XCacheSets::destroy("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
     end
 
     # NxBallsIO::destroyItem(uuid)
     def self.destroyItem(uuid)
-        XCacheSets::destroy("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
+        NxBallsIO::destroyItemNoEvent(uuid)
+        SystemEvents::broadcast({
+            "mikuType" => "NxBallDestroy",
+            "uuid"     => uuid
+        })
     end
 
 end
