@@ -203,10 +203,6 @@ class FileSystemCheck
             ensureAttribute.call("description")
         end
 
-        if mikuType == "TopLevel" then
-            ensureAttribute.call("text")
-        end
-
         if mikuType == "TxDated" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional

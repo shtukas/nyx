@@ -483,17 +483,6 @@ class CommandInterpreterDefault
             return
         end
 
-        if input == "toplevel" then
-            item = TopLevel::interactivelyIssueNew()
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if input == "toplevels" then
-            TopLevel::dive()
-            return
-        end
-
         if input == "transmute" then
             item = store.getDefault()
             return if item.nil?
@@ -582,10 +571,6 @@ class CommandInterpreterDefault
                 {
                     "name" => "NxTasks::listingItems()",
                     "lambda" => lambda { NxTasks::listingItems() }
-                },
-                {
-                    "name" => "TopLevel::items()",
-                    "lambda" => lambda { TopLevel::items() }
                 },
                 {
                     "name" => "TxDateds::listingItems()",

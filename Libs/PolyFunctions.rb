@@ -74,10 +74,6 @@ class PolyFunctions
         if item["mikuType"] == "TxTimeCommitment" then
             return item["description"]
         end
-        if item["mikuType"] == "TopLevel" then
-            firstline = TopLevel::getFirstLineOrNull(item)
-            return (firstline ? firstline : "(no generic-description)")
-        end
         if item["mikuType"] == "TxDated" then
             return item["description"]
         end
@@ -154,9 +150,6 @@ class PolyFunctions
         if item["mikuType"] == "TxTimeCommitment" then
             return TxTimeCommitments::toString(item)
         end
-        if item["mikuType"] == "TopLevel" then
-            return TopLevel::toString(item)
-        end
         if item["mikuType"] == "TxDated" then
             return TxDateds::toString(item)
         end
@@ -193,10 +186,6 @@ class PolyFunctions
             text = CommonUtils::editTextSynchronously(item["text"])
             DxF1::setAttribute2(item["uuid"], "text", text)
             return TheIndex::getItemOrNull(item["uuid"])
-        end
-
-        if item["mikuType"] == "TopLevel" then
-            return TopLevel::edit(item)
         end
 
         if Iam::isNx112Carrier(item) then

@@ -76,19 +76,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TopLevel" then
-            puts PolyFunctions::toString(item).green
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
-            return if action.nil?
-            if action == "access" then
-                TopLevel::access(item)
-            end
-            if action == "edit" then
-                TopLevel::edit(item)
-            end
-            return
-        end
-
         if item["mikuType"] == "TxTimeCommitment" then
             PolyPrograms::timeCommitmentProgram(item)
             return
