@@ -41,9 +41,6 @@ class PolyFunctions
         if item["mikuType"] == "DxUrl" then
             return item["url"]
         end
-        if item["mikuType"] == "InboxItem" then
-            return item["description"]
-        end
         if item["mikuType"] == "NxAnniversary" then
             return item["description"]
         end
@@ -126,9 +123,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "DxUrl" then
             return DxUrl::toString(item)
-        end
-        if item["mikuType"] == "InboxItem" then
-            return InboxItems::toString(item)
         end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)

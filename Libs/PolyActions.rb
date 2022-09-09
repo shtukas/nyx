@@ -89,11 +89,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "InboxItem" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
         if item["mikuType"] == "TxTimeCommitment" then
             PolyPrograms::timeCommitmentProgram(item)
             return
@@ -128,36 +123,6 @@ class PolyActions
 
         if item["mikuType"] == "fitness1" then
             PolyActions::access(item)
-            return
-        end
-
-        if item["mikuType"] == "InboxItem" then
-            PolyActions::start(item)
-            PolyActions::access(item)
-            actions = ["destroy", "transmute to task and get owner", "do not display until"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
-            if action.nil? then
-                PolyActions::stop(item)
-                return
-            end
-            if action == "destroy" then
-                PolyActions::stop(item)
-                PolyActions::destroyWithPrompt(item)
-                return
-            end
-            if action == "transmute to task and get owner" then
-                PolyActions::stop(item)
-                DxF1::setAttribute2(item["uuid"], "mikuType", "NxTask")
-                item = TheIndex::getItemOrNull(item["uuid"]) # We assume it's not null
-                TxTimeCommitments::interactivelyAddThisElementToOwner(item)
-                return
-            end
-            if action == "do not display until" then
-                PolyActions::stop(item)
-                puts "Write it: 9a681ca6-c5ca-4839-ae1a-0ecd973d25a0"
-                exit
-                return
-            end
             return
         end
 
@@ -215,11 +180,6 @@ class PolyActions
         PolyActions::stop(item)
 
         # order: alphabetical order
-
-        if item["mikuType"] == "InboxItem" then
-            DxF1::deleteObjectLogically(item["uuid"])
-            return
-        end
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])

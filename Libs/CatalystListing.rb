@@ -59,14 +59,6 @@ class CatalystListing
                 SystemEvents::flushChannel1()
             }
 
-            LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/Inbox")
-                .each{|location|
-                    next if File.basename(location).start_with?(".")
-                    item = InboxItems::issueUsingLocation(location)
-                    puts "Picked up from Inbox: #{JSON.pretty_generate(item)}"
-                    LucilleCore::removeFileSystemLocation(location)
-                }
-
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks")
                 .each{|location|
                     next if File.basename(location).start_with?(".")

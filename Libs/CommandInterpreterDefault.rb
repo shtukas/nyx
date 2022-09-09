@@ -193,13 +193,6 @@ class CommandInterpreterDefault
             return
         end
 
-        if input == "inbox" then
-            item = InboxItems::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
-            return
-        end
-
         if Interpreting::match("internet off", input) then
             InternetStatus::setInternetOff()
             return
@@ -585,10 +578,6 @@ class CommandInterpreterDefault
                 {
                     "name" => "Anniversaries::listingItems()",
                     "lambda" => lambda { Anniversaries::listingItems() }
-                },
-                {
-                    "name" => "InboxItems::listingItems()",
-                    "lambda" => lambda { InboxItems::listingItems() }
                 },
                 {
                     "name" => "NxTasks::listingItems()",

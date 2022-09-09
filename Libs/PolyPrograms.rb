@@ -60,21 +60,6 @@ class PolyPrograms
             vspaceleft = vspaceleft - 1
         end
 
-        inbox = InboxItems::listingItems()
-        inbox.each{|item|
-            store.register(item, false)
-            line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
-            if NxBallsService::isPresent(item["uuid"]) then
-                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-            end
-            puts line
-            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-        }
-        if !inbox.empty? then
-            puts ""
-            vspaceleft = vspaceleft - 1
-        end
-
         CatalystListing::listingItems()
             .each{|item|
                 break if vspaceleft <= 0
