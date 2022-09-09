@@ -30,20 +30,11 @@ class PolyPrograms
             vspaceleft = vspaceleft - 2
         end
 
-        if context then
-            puts ""
-            line = TxTimeCommitments::toString(context)
-            if NxBallsService::isPresent(context["uuid"]) then
-                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", context["uuid"], "")})".green
-            end
-            puts line
-            vspaceleft = vspaceleft - 2
-        end
-
         if context.nil? then
             tx = TxTimeCommitments::items()
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
                     .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+                    .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }
             if tx.size > 0 then
                 puts ""
                 vspaceleft = vspaceleft - 1
@@ -55,12 +46,20 @@ class PolyPrograms
                         vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     }
             end
-
         end
 
         if context then
 
             PolyActions::start(context)
+
+            puts ""
+            store.register(context, false)
+            line = TxTimeCommitments::toString(context)
+            if NxBallsService::isPresent(context["uuid"]) then
+                line = "#{store.prefixString()} #{line} (#{NxBallsService::activityStringOrEmptyString("", context["uuid"], "")})".green
+            end
+            puts line
+            vspaceleft = vspaceleft - 2
 
             nx79s = TxTimeCommitments::nx79s(context, 6)
             if nx79s.size > 0 then

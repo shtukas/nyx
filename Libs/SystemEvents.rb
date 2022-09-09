@@ -11,7 +11,7 @@ class SystemEvents
         # ordering: as they come
 
         if event["mikuType"] == "(bank account has been updated)" then
-            Ax39forSections::processEvent(event)
+            Ax39Extensions::processEvent(event)
         end
 
         if event["mikuType"] == "(object has been logically deleted)" then
@@ -19,11 +19,11 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(element has been done for today)" then
-            Ax39forSections::processEvent(event)
+            Ax39Extensions::processEvent(event)
         end
 
         if event["mikuType"] == "(do not show until has been updated)" then
-            Ax39forSections::processEvent(event)
+            Ax39Extensions::processEvent(event)
         end
 
         if event["mikuType"] == "NxBankEvent" then
