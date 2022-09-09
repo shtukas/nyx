@@ -67,7 +67,7 @@ class NxBallsService
             "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
             "status"      => {
                 "type"                   => "running",
-                "thisRunStartUnixtime"   => start,
+                "thisSprintStartUnixtime"   => start,
                 "lastMarginCallUnixtime" => start,
                 "bankedTimeInSeconds"    => 0
             },
@@ -140,7 +140,7 @@ class NxBallsService
         return if nxball["status"]["type"] != "paused"
         nxball["status"] = {
             "type"                   => "running",
-            "thisRunStartUnixtime"   => Time.new.to_i,
+            "thisSprintStartUnixtime"   => Time.new.to_i,
             "lastMarginCallUnixtime" => Time.new.to_i, # we made a margin call when we went on pause
             "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
         }
@@ -154,7 +154,7 @@ class NxBallsService
         timespan = nil
         if nxball["status"]["type"] == "running" then
             if verbose then
-                puts "(#{Time.new.to_s}) Running for #{((nxball["status"]["bankedTimeInSeconds"] + Time.new.to_i - nxball["status"]["thisRunStartUnixtime"]).to_f/3600).round(2)} hours"
+                puts "(#{Time.new.to_s}) nxball total time: #{((nxball["status"]["bankedTimeInSeconds"] + Time.new.to_i - nxball["status"]["thisSprintStartUnixtime"]).to_f/3600).round(2)} hours"
             end
             timespan = Time.new.to_f - nxball["status"]["lastMarginCallUnixtime"]
             timespan = [timespan, 3600*2].min
@@ -175,8 +175,8 @@ class NxBallsService
     # --------------------------------------------------------------------
     # Information
 
-    # NxBallsService::thisRunStartUnixtimeOrNull(uuid)
-    def self.thisRunStartUnixtimeOrNull(uuid)
+    # NxBallsService::thisSprintStartUnixtimeOrNull(uuid)
+    def self.thisSprintStartUnixtimeOrNull(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         if nxball.nil? then
             return nil
@@ -184,7 +184,7 @@ class NxBallsService
         if nxball["status"]["type"] == "paused" then
             return nil
         end
-        nxball["status"]["thisRunStartUnixtime"]
+        nxball["status"]["thisSprintStartUnixtime"]
     end
 
     # NxBallsService::activityStringOrEmptyString(leftSide, uuid, rightSide)
@@ -199,7 +199,7 @@ class NxBallsService
         realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
         unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
         currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
-        "current run: #{(unrealiseTimeInSeconds.to_f/3600).round(2)} h, #{leftSide}totaling #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours#{rightSide}"
+        "#{leftSide}current sprint: #{(unrealiseTimeInSeconds.to_f/3600).round(2)} h, nxball total #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours#{rightSide}"
     end
 end
 
