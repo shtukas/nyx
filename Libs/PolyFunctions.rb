@@ -209,6 +209,10 @@ class PolyFunctions
             return CxAionPoint::edit(item)
         end
 
+        if item["mikuType"] == "CxText" then
+            return CxText::edit(item)
+        end
+
         if item["mikuType"] == "DxAionPoint" then
             return DxAionPoint::edit(item)
         end

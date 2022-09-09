@@ -74,4 +74,10 @@ class CxText
     def self.access(item)
         CommonUtils::accessText(item["text"])
     end
+
+    # CxText::edit(item)
+    def self.edit(item)
+        newtext = CommonUtils::editTextSynchronously(item["text"])
+        DxF1::setAttribute2(item["uuid"], "text", newtext)
+    end
 end
