@@ -1,6 +1,0 @@
-TopLevel:
-    "uuid"     : uuid
-    "mikuType" : "TopLevel"
-    "unixtime" : unixtime
-    "datetime" : datetime
-    "text"     : text

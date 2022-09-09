@@ -46,6 +46,6 @@ class NxEvents
 
     # NxEvents::toString(item)
     def self.toString(item)
-        "(event) #{item["description"]}"
+        "#{Stargate::formatTypeForToString("NxEvent")} #{item["description"]}"
     end
 end

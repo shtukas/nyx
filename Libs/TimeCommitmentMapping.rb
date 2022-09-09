@@ -1,17 +1,17 @@
 
 # encoding: UTF-8
 
-class OwnerItemsMapping
+class TimeCommitmentMapping
 
-    # OwnerItemsMapping::databaseFile()
+    # TimeCommitmentMapping::databaseFile()
     def self.databaseFile()
         "#{ENV['HOME']}/Galaxy/DataBank/Stargate/owner-items-mapping.sqlite3"
     end
 
-    # OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
+    # TimeCommitmentMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
     def self.linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
         $owner_items_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
+            db = SQLite3::Database.new(TimeCommitmentMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.execute "delete from _mapping_ where _eventuuid_=?", [eventuuid]
@@ -20,13 +20,13 @@ class OwnerItemsMapping
         }
     end
 
-    # OwnerItemsMapping::link(owneruuid, itemuuid, ordinal)
+    # TimeCommitmentMapping::link(owneruuid, itemuuid, ordinal)
     def self.link(owneruuid, itemuuid, ordinal)
         eventuuid = SecureRandom.uuid
         eventTime = Time.new.to_f
-        OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, "set", ordinal)
+        TimeCommitmentMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, "set", ordinal)
         SystemEvents::broadcast({
-          "mikuType"      => "OwnerItemsMapping",
+          "mikuType"      => "TimeCommitmentMapping",
           "eventuuid"     => eventuuid,
           "eventTime"     => eventTime,
           "owneruuid"     => owneruuid,
@@ -36,13 +36,13 @@ class OwnerItemsMapping
         })
     end
 
-    # OwnerItemsMapping::unlink(owneruuid, itemuuid)
+    # TimeCommitmentMapping::unlink(owneruuid, itemuuid)
     def self.unlink(owneruuid, itemuuid)
         eventuuid = SecureRandom.uuid
         eventTime = Time.new.to_f
-        OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, "unset", nil)
+        TimeCommitmentMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, "unset", nil)
         SystemEvents::broadcast({
-          "mikuType"      => "OwnerItemsMapping",
+          "mikuType"      => "TimeCommitmentMapping",
           "eventuuid"     => eventuuid,
           "eventTime"     => eventTime,
           "owneruuid"     => owneruuid,
@@ -52,11 +52,11 @@ class OwnerItemsMapping
         })
     end
 
-    # OwnerItemsMapping::owneruuidToNx78(owneruuid): Map[itemuuid, ordinal]
+    # TimeCommitmentMapping::owneruuidToNx78(owneruuid): Map[itemuuid, ordinal]
     def self.owneruuidToNx78(owneruuid)
         struct1 = {}
         $owner_items_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
+            db = SQLite3::Database.new(TimeCommitmentMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -76,11 +76,11 @@ class OwnerItemsMapping
         struct1
     end
 
-    # OwnerItemsMapping::isOwned(itemuuid)
+    # TimeCommitmentMapping::isOwned(itemuuid)
     def self.isOwned(itemuuid)
         answer = false
         $owner_items_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
+            db = SQLite3::Database.new(TimeCommitmentMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -94,11 +94,11 @@ class OwnerItemsMapping
         answer
     end
 
-    # OwnerItemsMapping::elementuuidToOwnersuuids(itemuuid)
+    # TimeCommitmentMapping::elementuuidToOwnersuuids(itemuuid)
     def self.elementuuidToOwnersuuids(itemuuid)
         answer = []
         $owner_items_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
+            db = SQLite3::Database.new(TimeCommitmentMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -110,21 +110,21 @@ class OwnerItemsMapping
         answer.uniq
     end
 
-    # OwnerItemsMapping::elementuuidToOwnersuuidsCached(elementuuid)
+    # TimeCommitmentMapping::elementuuidToOwnersuuidsCached(elementuuid)
     def self.elementuuidToOwnersuuidsCached(elementuuid)
         key = "0512f14d-c322-4155-ba05-ea6f53943ec8:#{elementuuid}"
         linkeduuids = XCacheValuesWithExpiry::getOrNull(key)
         return linkeduuids if linkeduuids
-        linkeduuids = OwnerItemsMapping::elementuuidToOwnersuuids(elementuuid)
+        linkeduuids = TimeCommitmentMapping::elementuuidToOwnersuuids(elementuuid)
         XCacheValuesWithExpiry::set(key, linkeduuids, 3600)
         linkeduuids
     end
 
-    # OwnerItemsMapping::eventuuids()
+    # TimeCommitmentMapping::eventuuids()
     def self.eventuuids()
         answer = []
         $owner_items_mapping_database_semaphore.synchronize {
-            db = SQLite3::Database.new(OwnerItemsMapping::databaseFile())
+            db = SQLite3::Database.new(TimeCommitmentMapping::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
             db.results_as_hash = true
@@ -136,16 +136,16 @@ class OwnerItemsMapping
         answer
     end
 
-    # OwnerItemsMapping::processEvent(event)
+    # TimeCommitmentMapping::processEvent(event)
     def self.processEvent(event)
-        if event["mikuType"] == "OwnerItemsMapping" then
+        if event["mikuType"] == "TimeCommitmentMapping" then
             eventuuid = event["eventuuid"]
             eventTime = event["eventTime"]
             owneruuid = event["owneruuid"]
             itemuuid  = event["itemuuid"]
             operationType = event["operationType"]
             ordinal   = event["ordinal"]
-            OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
+            TimeCommitmentMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
         end
     end
 end

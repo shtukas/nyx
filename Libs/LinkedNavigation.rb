@@ -8,7 +8,7 @@ class LinkedNavigation
                 system("clear")
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunctions::toString(item) })
                 return if item.nil?
-                PolyPrograms::landing(item)
+                PolyPrograms::itemLanding(item)
             }
         else
             uuids = items.map{|item| item["uuid"] }
@@ -24,7 +24,7 @@ class LinkedNavigation
                 system("clear")
                 item = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", items, lambda{|item| PolyFunctions::toString(item) })
                 return if item.nil?
-                PolyPrograms::landing(item)
+                PolyPrograms::itemLanding(item)
             }
         else
             loop {
@@ -66,7 +66,7 @@ class LinkedNavigation
                     system("clear")
                     entity = LucilleCore::selectEntityFromListOfEntitiesOrNull("item", entities, lambda{|entity| PolyFunctions::toString(entity) })
                     break if entity.nil?
-                    PolyPrograms::landing(entity)
+                    PolyPrograms::itemLanding(entity)
                 }
             end
 

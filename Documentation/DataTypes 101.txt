@@ -11,16 +11,14 @@ Catalyst:
 
     # self contained
     NxAnniversary
-    TopLevel
+
+    #
+    TxTimeCommitment
 
     # Nx112 carriers
-    InboxItem
-    NxIced
-    NxTask
-    TxDated
-    TxFloat
-    TxTimeCommitmentProject
     Wave
+    TxDated
+    NxTask
 
 Nyx Networks:
 
@@ -43,9 +41,10 @@ Nyx Networks:
     NxTimeline
 
 Misc:
-    Ax39      # Timing data for TxTimeCommitmentProject
+    Ax39      # Timing data for TxTimeCommitment
     Nx01      # Unique string convention
     Nx45      # UUID naming convention 
     Nx20      # Search Item
+    Nx79      # Ownership inventory item
     NxBall.v2 # Running data
     NxDeleted #

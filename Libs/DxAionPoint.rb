@@ -73,7 +73,7 @@ class DxAionPoint
 
     # DxAionPoint::toString(item)
     def self.toString(item)
-        "(DxAionPoint) #{item["description"]}"
+        "#{Stargate::formatTypeForToString("DxAionPoint")} #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------

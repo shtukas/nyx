@@ -33,6 +33,6 @@ class NxPersons
 
     # NxPersons::toString(item)
     def self.toString(item)
-        "(person) #{item["name"]}"
+        "#{Stargate::formatTypeForToString("NxPerson")} #{item["name"]}"
     end
 end

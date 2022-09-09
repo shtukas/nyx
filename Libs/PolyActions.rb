@@ -47,6 +47,11 @@ class PolyActions
             return
         end
 
+        if item["mikuType"] == "DxUrl" then
+            DxUrl::access(item)
+            return
+        end
+
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
             return
@@ -66,41 +71,13 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxIced" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
         if item["mikuType"] == "NxTask" then
             Nx112::carrierAccess(item)
             return
         end
 
-        if item["mikuType"] == "TopLevel" then
-            puts PolyFunctions::toString(item).green
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", ["access", "edit"])
-            return if action.nil?
-            if action == "access" then
-                TopLevel::access(item)
-            end
-            if action == "edit" then
-                TopLevel::edit(item)
-            end
-            return
-        end
-
-        if item["mikuType"] == "InboxItem" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if item["mikuType"] == "TxFloat" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            TxTimeCommitmentProjects::access(item, "access")
+        if item["mikuType"] == "TxTimeCommitment" then
+            CatalystListing::setContext(item["uuid"])
             return
         end
 
@@ -120,8 +97,6 @@ class PolyActions
 
     # PolyActions::destroyWithPrompt(item)
     def self.destroyWithPrompt(item)
-        PolyFunctions::_check(item, "PolyActions::destroyWithPrompt")
-
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
             DxF1::deleteObjectLogically(item["uuid"])
@@ -133,40 +108,8 @@ class PolyActions
 
         puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
 
-        PolyFunctions::_check(item, "PolyActions::doubleDot")
-
         if item["mikuType"] == "fitness1" then
             PolyActions::access(item)
-            return
-        end
-
-        if item["mikuType"] == "InboxItem" then
-            PolyActions::start(item)
-            PolyActions::access(item)
-            actions = ["destroy", "transmute to task and get owner", "do not display until"]
-            action = LucilleCore::selectEntityFromListOfEntitiesOrNull("action", actions)
-            if action.nil? then
-                PolyActions::stop(item)
-                return
-            end
-            if action == "destroy" then
-                PolyActions::stop(item)
-                PolyActions::destroyWithPrompt(item)
-                return
-            end
-            if action == "transmute to task and get owner" then
-                PolyActions::stop(item)
-                DxF1::setAttribute2(item["uuid"], "mikuType", "NxTask")
-                item = TheIndex::getItemOrNull(item["uuid"]) # We assume it's not null
-                TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
-                return
-            end
-            if action == "do not display until" then
-                PolyActions::stop(item)
-                puts "Write it: 9a681ca6-c5ca-4839-ae1a-0ecd973d25a0"
-                exit
-                return
-            end
             return
         end
 
@@ -193,12 +136,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            # We do not start the commitment item itself, we just start the program
-            TxTimeCommitmentProjects::access(item, "doubleDot")
-            return
-        end
-
         if item["mikuType"] == "Wave" then
             PolyActions::start(item)
             PolyActions::access(item)
@@ -221,17 +158,17 @@ class PolyActions
 
     # PolyActions::done(item)
     def self.done(item)
-        PolyFunctions::_check(item, "PolyActions::done")
-
         PolyActions::stop(item)
 
-        if item["mikuType"] == "InboxItem" then
-            DxF1::deleteObjectLogically(item["uuid"])
-            return
-        end
+        # order: alphabetical order
 
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::done(item["uuid"])
+            return
+        end
+
+        if item["mikuType"] == "DxUrl" then
+            DxF1::deleteObjectLogically(item["uuid"])
             return
         end
 
@@ -239,12 +176,10 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxFloat" then
-            return
-        end
-
-        if item["mikuType"] == "NxIced" then
-            NxIceds::destroy(item["uuid"])
+        if item["mikuType"] == "TxDated" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
+                TxDateds::destroy(item["uuid"])
+            end
             return
         end
 
@@ -261,14 +196,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxDated" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
-                TxDateds::destroy(item["uuid"])
-            end
-            return
-        end
-
-        if item["mikuType"] == "TxTimeCommitmentProject" then
+        if item["mikuType"] == "TxTimeCommitment" then
             return
         end
 
@@ -281,6 +209,18 @@ class PolyActions
 
         puts "I do not know how to PolyActions::done(#{JSON.pretty_generate(item)})"
         raise "(error: f278f3e4-3f49-4f79-89d2-e5d3b8f728e6)"
+    end
+
+    # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
+    def self.garbageCollectionAsPartOfLaterItemDestruction(item)
+        return if item.nil?
+
+        # order : alphabetical order
+
+        if item["mikuType"] == "CxDx8Unit" then
+            unitId = item["unitId"]
+            Dx8UnitsUtils::destroyUnit(unitId)
+        end
     end
 
     # PolyActions::link_line(item)
@@ -299,10 +239,20 @@ class PolyActions
         NetworkLinks::link(item["uuid"], i2["uuid"])
     end
 
+    # PolyActions::dataPrefetchAttempt(item)
+    def self.dataPrefetchAttempt(item)
+        return if item.nil?
+
+        # order : alphabetical order
+
+        if item["mikuType"] == "CxDx8Unit" then
+            unitId = item["unitId"]
+            Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId) # this brings the file to the wormhole
+        end
+    end
+
     # PolyActions::redate(item)
     def self.redate(item)
-        PolyFunctions::_check(item, "PolyActions::redate")
-
         if item["mikuType"] == "TxDated" then
             datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
             DxF1::setAttribute2(item["uuid"], "datetime", datetime)
@@ -321,26 +271,16 @@ class PolyActions
         DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
     end
 
-    # PolyActions::issueNxBallForItem(item)
-    def self.issueNxBallForItem(item)
-        puts "PolyActions::issueNxBallForItem(#{JSON.pretty_generate(item)})"
-        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), PolyFunctions::bankAccounts(item), PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
-    end
-
     # PolyActions::start(item)
     def self.start(item)
-
-        puts "PolyActions::start(#{JSON.pretty_generate(item)})"
-
-        PolyFunctions::_check(item, "PolyActions::start")
+        #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
         return if NxBallsService::isRunning(item["uuid"])
-
-        PolyActions::issueNxBallForItem(item)
+        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [item["uuid"]], PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
 
     # PolyActions::stop(item)
     def self.stop(item)
-        PolyFunctions::_check(item, "PolyActions::stop")
+        puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
         NxBallsService::close(item["uuid"], true)
     end
 
@@ -349,11 +289,6 @@ class PolyActions
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
-
-        if item["mikuType"] == "TxFloat" then
-            puts "Need to write the code (follow: e143fbfd-8819-4310-8857-9aec554b5271)"
-            LucilleCore::pressEnterToContinue()
-        end
     end
 
     # PolyActions::editDescription(item)

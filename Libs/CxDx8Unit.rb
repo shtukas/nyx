@@ -41,7 +41,7 @@ class CxDx8Unit
     # CxDx8Unit::access(item)
     def self.access(item)
         unitId = item["unitId"]
-        location = Dx8UnitsUtils::acquireUnit(unitId)
+        location = Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId)
         if location.nil? then
             puts "I could not acquire the Dx8Unit. Aborting operation."
             LucilleCore::pressEnterToContinue()

@@ -11,7 +11,7 @@ class SystemEvents
         # ordering: as they come
 
         if event["mikuType"] == "(bank account has been updated)" then
-            Ax39forSections::processEvent(event)
+            Ax39Extensions::processEvent(event)
         end
 
         if event["mikuType"] == "(object has been logically deleted)" then
@@ -19,11 +19,11 @@ class SystemEvents
         end
 
         if event["mikuType"] == "(element has been done for today)" then
-            Ax39forSections::processEvent(event)
+            Ax39Extensions::processEvent(event)
         end
 
         if event["mikuType"] == "(do not show until has been updated)" then
-            Ax39forSections::processEvent(event)
+            Ax39Extensions::processEvent(event)
         end
 
         if event["mikuType"] == "NxBankEvent" then
@@ -78,8 +78,16 @@ class SystemEvents
             XCache::setFlag(key, flag)
         end
 
-        if event["mikuType"] == "OwnerItemsMapping" then
-            OwnerItemsMapping::processEvent(event)
+        if event["mikuType"] == "TimeCommitmentMapping" then
+            TimeCommitmentMapping::processEvent(event)
+        end
+
+        if event["mikuType"] == "NxBall.v2" then
+            NxBallsIO::commitItemNoEvent(event)
+        end
+
+        if event["mikuType"] == "NxBallDestroy" then
+            NxBallsIO::destroyItemNoEvent(event["uuid"])
         end
     end
 
@@ -154,6 +162,11 @@ class SystemEvents
                 next if !File.exists?(filepath1)
                 next if File.basename(filepath1).start_with?(".")
 
+                if File.basename(filepath1).include?(".owner-mapping.sqlite3") then
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
                 if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))
                     if verbose then
@@ -212,7 +225,7 @@ class SystemEvents
                         puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
                     end
 
-                    knowneventuuids = OwnerItemsMapping::eventuuids()
+                    knowneventuuids = TimeCommitmentMapping::eventuuids()
 
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
@@ -227,7 +240,7 @@ class SystemEvents
                         itemuuid  = row["_itemuuid_"]
                         operationType = row["_operationType_"]
                         ordinal   = row["_ordinal_"]
-                        OwnerItemsMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
+                        TimeCommitmentMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
                     end
                     db1.close
 

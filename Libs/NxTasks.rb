@@ -109,11 +109,8 @@ class NxTasks
 
     # NxTasks::toString(item)
     def self.toString(item)
-        builder = lambda{
-            ax39str = item["ax39"] ? " #{Ax39::toString(item)}" : ""
-            "(task)#{Cx::uuidToString(item["nx112"])} #{item["description"]}#{ax39str}"
-        }
-        builder.call()
+        ax39str = item["ax39"] ? " #{Ax39::toString(item)}" : ""
+        "(task)#{Cx::uuidToString(item["nx112"])} #{item["description"]}#{ax39str}"
     end
 
     # NxTasks::toStringForSearch(item)
@@ -123,32 +120,18 @@ class NxTasks
 
     # NxTasks::cacheduuidsForSection2()
     def self.cacheduuidsForSection2()
-        key = "d0c5d86c-a815-4250-a746-9b93ecd4f443"
+        key = "baf670c7-20c2-497d-aa50-9ac71f682018"
         itemuuids = XCacheValuesWithExpiry::getOrNull(key)
         return itemuuids if itemuuids
 
-        itemuuids = TheIndex::mikuTypeToObjectuuids("NxTask").reduce([]){|selected, itemuuid|
-            echoIfValid = lambda{|itemuuid|
-                item = TheIndex::getItemOrNull(itemuuid)
-                return nil if nil? # this should never happen considering how `itemuuids` was made.
-                return nil if item["ax39"]
-                return nil if OwnerItemsMapping::elementuuidToOwnersuuids(item["uuid"]).size > 0
-                itemuuid
-            }
-            if selected.size >= 32 then
-                selected
-            else
-                ix = echoIfValid.call(itemuuid)
-                if ix then
-                    selected + [ix]
-                else
-                    selected
-                end
-            end
-        }
+        # Items not time commitments and without an owner
+        itemuuids = TheIndex::mikuTypeToItems("NxTask")
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                        .select{|item| TimeCommitmentMapping::elementuuidToOwnersuuids(item["uuid"]).empty? }
+                        .first(200)
+                        .map{|item| item["uuid"] }
 
         XCacheValuesWithExpiry::set(key, itemuuids, 86400)
-
         itemuuids
     end
 
@@ -157,10 +140,5 @@ class NxTasks
         NxTasks::cacheduuidsForSection2()
         .map{|itemuuid| TheIndex::getItemOrNull(itemuuid) }
         .compact
-    end
-
-    # NxTasks::topUnixtime()
-    def self.topUnixtime()
-        ([Time.new.to_f] + NxTasks::items().map{|item| item["unixtime"] }).min - 1
     end
 end

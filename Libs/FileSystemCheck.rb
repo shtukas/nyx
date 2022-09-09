@@ -160,14 +160,6 @@ class FileSystemCheck
             ensureAttribute.call("url")
         end
 
-        if mikuType == "InboxItem" then
-            ensureAttribute.call("description")
-            # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
-        end
-
         if mikuType == "NxAnniversary" then
             ensureAttribute.call("description")
             ensureAttribute.call("startdate")
@@ -195,22 +187,6 @@ class FileSystemCheck
             ensureAttribute.call("description")
         end
 
-        if mikuType == "TxFloat" then
-            ensureAttribute.call("description")
-            # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
-        end
-
-        if mikuType == "NxIced" then
-            ensureAttribute.call("description")
-            # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
-        end
-
         if mikuType == "NxPerson" then
             ensureAttribute.call("name")
         end
@@ -227,10 +203,6 @@ class FileSystemCheck
             ensureAttribute.call("description")
         end
 
-        if mikuType == "TopLevel" then
-            ensureAttribute.call("text")
-        end
-
         if mikuType == "TxDated" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
@@ -239,11 +211,7 @@ class FileSystemCheck
             end
         end
 
-        if mikuType == "TxTimeCommitmentProject" then
-            # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
+        if mikuType == "TxTimeCommitment" then
             ensureAttribute.call("ax39")
         end
 

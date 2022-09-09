@@ -7,7 +7,7 @@ require_relative "../Libs/loader.rb"
 puts ""
 
 total = 0
-TxTimeCommitmentProjects::items().each{|owner|
+TxTimeCommitments::items().each{|owner|
     ax39 = owner["ax39"]
     type = ax39["type"]
     next if !["daily-time-commitment"].include?(ax39["type"])
@@ -19,7 +19,7 @@ puts "total: #{total}"
 puts ""
 
 total = 0
-TxTimeCommitmentProjects::items().each{|owner|
+TxTimeCommitments::items().each{|owner|
     ax39 = owner["ax39"]
     type = ax39["type"]
     next if !["weekly-time-commitment"].include?(ax39["type"])

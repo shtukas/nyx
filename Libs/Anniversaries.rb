@@ -176,7 +176,7 @@ class Anniversaries
                         .sort{|i1, i2| Anniversaries::nextDateOrdinal(i1)[0] <=> Anniversaries::nextDateOrdinal(i2)[0] }
             anniversary = LucilleCore::selectEntityFromListOfEntitiesOrNull("anniversary", anniversaries, lambda{|item| Anniversaries::toString(item) })
             return if anniversary.nil?
-            PolyPrograms::landing(anniversary)
+            PolyPrograms::itemLanding(anniversary)
         }
     end
 end

@@ -26,12 +26,9 @@ class Iam
     # Iam::nx112CarrierTypes()
     def self.nx112CarrierTypes()
         [
-            "InboxItem",
-            "NxIced",
             "NxTask",
             "TxDated",
-            "TxFloat",
-            "TxTimeCommitmentProject",
+            "TxTimeCommitment",
             "Wave",
 
             "DxAionPoint",

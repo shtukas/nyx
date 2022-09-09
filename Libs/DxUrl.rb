@@ -36,7 +36,7 @@ class DxUrl
 
     # DxUrl::toString(item)
     def self.toString(item)
-        "(DxUrl) #{item["url"]}"
+        "#{Stargate::formatTypeForToString("DxUrl")} #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------

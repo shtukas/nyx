@@ -23,14 +23,29 @@ class NxBallsIO
         XCacheSets::getOrNull("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
     end
 
+    # NxBallsIO::commitItemNoEvent(item)
+    def self.commitItemNoEvent(item)
+        XCacheSets::set("38288c92-0dfa-4e85-83cc-1a2cc2300d47", item["uuid"], item)
+    end
+
     # NxBallsIO::commitItem(item)
     def self.commitItem(item)
-        XCacheSets::set("38288c92-0dfa-4e85-83cc-1a2cc2300d47", item["uuid"], item)
+        NxBallsIO::commitItemNoEvent(item)
+        SystemEvents::broadcast(item)
+    end
+
+    # NxBallsIO::destroyItemNoEvent(uuid)
+    def self.destroyItemNoEvent(uuid)
+        XCacheSets::destroy("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
     end
 
     # NxBallsIO::destroyItem(uuid)
     def self.destroyItem(uuid)
-        XCacheSets::destroy("38288c92-0dfa-4e85-83cc-1a2cc2300d47", uuid)
+        NxBallsIO::destroyItemNoEvent(uuid)
+        SystemEvents::broadcast({
+            "mikuType" => "NxBallDestroy",
+            "uuid"     => uuid
+        })
     end
 
 end
@@ -52,7 +67,7 @@ class NxBallsService
             "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
             "status"      => {
                 "type"                   => "running",
-                "thisRunStartUnixtime"   => start,
+                "thisSprintStartUnixtime"   => start,
                 "lastMarginCallUnixtime" => start,
                 "bankedTimeInSeconds"    => 0
             },
@@ -106,14 +121,14 @@ class NxBallsService
 
     # NxBallsService::pause(uuid) # timespan in seconds or null
     def self.pause(uuid)
+        nxball = NxBallsIO::getItemByIdOrNull(uuid)
+        return if nxball.nil?
+        return if nxball["status"]["type"] != "running"
         NxBallsService::marginCall(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
-        return nil if nxball.nil?
-        return if nxball["status"]["type"] == "paused"
         nxball["status"] = {
-            "type"                   => "paused",
-            "lastMarginCallUnixtime" => nxball["status"]["lastMarginCallUnixtime"],
-            "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
+            "type"                => "paused",
+            "bankedTimeInSeconds" => nxball["status"]["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
     end
@@ -122,11 +137,11 @@ class NxBallsService
     def self.pursue(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return nil if nxball.nil?
-        return if nxball["status"]["type"] == "running"
+        return if nxball["status"]["type"] != "paused"
         nxball["status"] = {
             "type"                   => "running",
-            "thisRunStartUnixtime"   => Time.new.to_i,
-            "lastMarginCallUnixtime" => nxball["status"]["lastMarginCallUnixtime"],
+            "thisSprintStartUnixtime"   => Time.new.to_i,
+            "lastMarginCallUnixtime" => Time.new.to_i, # we made a margin call when we went on pause
             "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
         }
         NxBallsIO::commitItem(nxball)
@@ -139,7 +154,7 @@ class NxBallsService
         timespan = nil
         if nxball["status"]["type"] == "running" then
             if verbose then
-                puts "(#{Time.new.to_s}) Running for #{((nxball["status"]["bankedTimeInSeconds"] + Time.new.to_i - nxball["status"]["thisRunStartUnixtime"]).to_f/3600).round(2)} hours"
+                puts "(#{Time.new.to_s}) nxball total time: #{((nxball["status"]["bankedTimeInSeconds"] + Time.new.to_i - nxball["status"]["thisSprintStartUnixtime"]).to_f/3600).round(2)} hours"
             end
             timespan = Time.new.to_f - nxball["status"]["lastMarginCallUnixtime"]
             timespan = [timespan, 3600*2].min
@@ -160,8 +175,8 @@ class NxBallsService
     # --------------------------------------------------------------------
     # Information
 
-    # NxBallsService::thisRunStartUnixtimeOrNull(uuid)
-    def self.thisRunStartUnixtimeOrNull(uuid)
+    # NxBallsService::thisSprintStartUnixtimeOrNull(uuid)
+    def self.thisSprintStartUnixtimeOrNull(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         if nxball.nil? then
             return nil
@@ -169,7 +184,7 @@ class NxBallsService
         if nxball["status"]["type"] == "paused" then
             return nil
         end
-        nxball["status"]["thisRunStartUnixtime"]
+        nxball["status"]["thisSprintStartUnixtime"]
     end
 
     # NxBallsService::activityStringOrEmptyString(leftSide, uuid, rightSide)
@@ -181,7 +196,10 @@ class NxBallsService
         if nxball["status"]["type"] == "paused" then
             return "#{leftSide}#{"paused".green}#{rightSide}"
         end
-        "#{leftSide}totaling #{((nxball["status"]["bankedTimeInSeconds"] + Time.new.to_i-nxball["status"]["lastMarginCallUnixtime"]).to_f/3600).round(2)} hours#{rightSide}"
+        realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
+        unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
+        currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
+        "#{leftSide}current sprint: #{(unrealiseTimeInSeconds.to_f/3600).round(2)} h, nxball total #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours#{rightSide}"
     end
 end
 
@@ -195,10 +213,15 @@ if $RunNonEssentialThreads then
             }
 
             NxBallsIO::nxballs().each{|nxball|
-                uuid = nxball["uuid"]
-                next if nxball["status"]["bankedTimeInSeconds"].nil?
-                next if nxball["status"]["bankedTimeInSeconds"] < (nxball["desiredBankedTimeInSeconds"] || 3600)
-                CommonUtils::onScreenNotification("Catalyst", "NxBall over running")
+                next if nxball["status"]["type"] != "running"
+
+                realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
+                unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
+                currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
+
+                if currentTotalTimeInSeconds > (nxball["desiredBankedTimeInSeconds"] || 3600) then
+                    CommonUtils::onScreenNotification("Catalyst", "NxBall over running")
+                end
             }
             
         }

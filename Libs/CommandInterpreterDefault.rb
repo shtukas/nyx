@@ -1,15 +1,15 @@
 
 # encoding: UTF-8
 
-class CommandInterpreter
+class CommandInterpreterDefault
 
-    # CommandInterpreter::commands()
+    # CommandInterpreterDefault::commands()
     def self.commands()
         [
             "Catalyst:",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update startd date (<n>)",
-            "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line",
+            "wave | anniversary | today | ondate | todo | task | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
             ">owner | >owner (n)",
             "require internet",
@@ -20,7 +20,7 @@ class CommandInterpreter
         ].join("\n")
     end
 
-    # CommandInterpreter::run(input, store)
+    # CommandInterpreterDefault::run(input, store)
     def self.run(input, store) # [command or null, item or null]
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
@@ -49,7 +49,7 @@ class CommandInterpreter
         if Interpreting::match(">owner", input) then
             item = store.getDefault()
             return if item.nil?
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -57,7 +57,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -187,26 +187,9 @@ class CommandInterpreter
             return
         end
 
-        if Interpreting::match("float", input) then
-            TxFloats::interactivelyCreateNewOrNull()
-            return
-        end
-
-        if Interpreting::match("floats", input) then
-            TxFloats::dive()
-            return
-        end
-
         if Interpreting::match("help", input) then
-            puts CommandInterpreter::commands().yellow
+            puts CommandInterpreterDefault::commands().yellow
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if input == "inbox" then
-            item = InboxItems::interactivelyCreateNewOrNull()
-            return if item.nil?
-            puts JSON.pretty_generate(item)
             return
         end
 
@@ -221,7 +204,7 @@ class CommandInterpreter
         end
 
         if Interpreting::match("landing", input) then
-            PolyPrograms::landing(store.getDefault())
+            PolyPrograms::itemLanding(store.getDefault())
             return
         end
 
@@ -229,7 +212,7 @@ class CommandInterpreter
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            PolyPrograms::landing(item)
+            PolyPrograms::itemLanding(item)
             return
         end
 
@@ -237,7 +220,7 @@ class CommandInterpreter
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxTasks::issueDescriptionOnly(line)
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -476,7 +459,7 @@ class CommandInterpreter
             item = NxTasks::interactivelyCreateNewOrNull(true)
             return if item.nil?
             if item["ax39"].nil? then
-                TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+                TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             end
             return
         end
@@ -491,23 +474,12 @@ class CommandInterpreter
         end
 
         if Interpreting::match("time commitments", input) then
-            TxTimeCommitmentProjects::dive()
+            Ax39Extensions::dive()
             return
         end
 
         if Interpreting::match("today", input) then
             TxDateds::interactivelyCreateNewTodayOrNull()
-            return
-        end
-
-        if input == "toplevel" then
-            item = TopLevel::interactivelyIssueNew()
-            puts JSON.pretty_generate(item)
-            return
-        end
-
-        if input == "toplevels" then
-            TopLevel::dive()
             return
         end
 
@@ -597,28 +569,16 @@ class CommandInterpreter
                     "lambda" => lambda { Anniversaries::listingItems() }
                 },
                 {
-                    "name" => "InboxItems::listingItems()",
-                    "lambda" => lambda { InboxItems::listingItems() }
-                },
-                {
-                    "name" => "NxIceds::listingItems()",
-                    "lambda" => lambda { NxIceds::listingItems() }
-                },
-                {
                     "name" => "NxTasks::listingItems()",
                     "lambda" => lambda { NxTasks::listingItems() }
-                },
-                {
-                    "name" => "TopLevel::items()",
-                    "lambda" => lambda { TopLevel::items() }
                 },
                 {
                     "name" => "TxDateds::listingItems()",
                     "lambda" => lambda { TxDateds::listingItems() }
                 },
                 {
-                    "name" => "TxTimeCommitmentProjects::listingItems()",
-                    "lambda" => lambda { TxTimeCommitmentProjects::listingItems() }
+                    "name" => "TxTimeCommitments::listingItems()",
+                    "lambda" => lambda { TxTimeCommitments::listingItems() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",
@@ -665,15 +625,5 @@ class CommandInterpreter
             LucilleCore::pressEnterToContinue()
             return
         end
-    end
-
-    # CommandInterpreter::commandPrompt(store)
-    def self.commandPrompt(store)
-        puts ""
-        input = LucilleCore::askQuestionAnswerAsString("> ")
-
-        return if input == ""
-
-        CommandInterpreter::run(input, store)
     end
 end

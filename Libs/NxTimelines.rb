@@ -44,6 +44,6 @@ class NxTimelines
 
     # NxTimelines::toString(item)
     def self.toString(item)
-        "(timeline) #{item["description"]}"
+        "#{Stargate::formatTypeForToString("NxTimeline")} #{item["description"]}"
     end
 end

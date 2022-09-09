@@ -1,0 +1,9 @@
+
+create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _owneruuid_ text, _itemuuid_ text, _operationType_ text, _ordinal_ float);
+
+operationType: "set", "unset"
+
+Nx78 {
+    "uuid"    => String
+    "ordinal" => Float
+}

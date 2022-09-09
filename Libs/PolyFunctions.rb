@@ -1,23 +1,9 @@
 class PolyFunctions
 
-    # PolyFunctions::_check(item, functionname)
-    def self._check(item, functionname)
-        if item.nil?  then
-            raise "(error: d366d408-93a1-4e91-af92-c115e88c501f) null item sent to #{functionname}"
-        end
-
-        if item["mikuType"].nil? then
-            puts "Objects sent to a poly function should have a mikuType attribute."
-            puts "function name: #{functionname}"
-            puts "item: #{JSON.pretty_generate(item)}"
-            puts "Aborting."
-            raise "(error: f74385d4-5ece-4eae-8a09-90d3a5e0f120)"
-        end
-    end
-
     # PolyFunctions::genericDescription(item)
     def self.genericDescription(item)
-        PolyFunctions::_check(item, "PolyFunctions::genericDescription")
+
+        # ordering: alphabetical order
 
         if item["mikuType"] == "CxAionPoint" then
             return "#{item["mikuType"]}"
@@ -55,9 +41,6 @@ class PolyFunctions
         if item["mikuType"] == "DxUrl" then
             return item["url"]
         end
-        if item["mikuType"] == "InboxItem" then
-            return item["description"]
-        end
         if item["mikuType"] == "NxAnniversary" then
             return item["description"]
         end
@@ -71,9 +54,6 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "NxEvent" then
-            return item["description"]
-        end
-        if item["mikuType"] == "NxIced" then
             return item["description"]
         end
         if item["mikuType"] == "NxPerson" then
@@ -91,12 +71,8 @@ class PolyFunctions
         if item["mikuType"] == "TxThread" then
             return item["description"]
         end
-        if item["mikuType"] == "TxTimeCommitmentProject" then
+        if item["mikuType"] == "TxTimeCommitment" then
             return item["description"]
-        end
-        if item["mikuType"] == "TopLevel" then
-            firstline = TopLevel::getFirstLineOrNull(item)
-            return (firstline ? firstline : "(no generic-description)")
         end
         if item["mikuType"] == "TxDated" then
             return item["description"]
@@ -111,7 +87,6 @@ class PolyFunctions
 
     # PolyFunctions::toString(item)
     def self.toString(item)
-        PolyFunctions::_check(item, "PolyFunctions::toString")
         if item["mikuType"] == "fitness1" then
             return item["announce"]
         end
@@ -145,9 +120,6 @@ class PolyFunctions
         if item["mikuType"] == "DxUrl" then
             return DxUrl::toString(item)
         end
-        if item["mikuType"] == "InboxItem" then
-            return InboxItems::toString(item)
-        end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
@@ -166,9 +138,6 @@ class PolyFunctions
         if item["mikuType"] == "NxEvent" then
             return NxEvents::toString(item)
         end
-        if item["mikuType"] == "NxIced" then
-            return NxIceds::toString(item)
-        end
         if item["mikuType"] == "NxPerson" then
             return NxPersons::toString(item)
         end
@@ -178,14 +147,8 @@ class PolyFunctions
         if item["mikuType"] == "NxTimeline" then
             return NxTimelines::toString(item)
         end
-        if item["mikuType"] == "TxFloat" then
-            return TxFloats::toString(item)
-        end
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            return TxTimeCommitmentProjects::toString(item)
-        end
-        if item["mikuType"] == "TopLevel" then
-            return TopLevel::toString(item)
+        if item["mikuType"] == "TxTimeCommitment" then
+            return TxTimeCommitments::toString(item)
         end
         if item["mikuType"] == "TxDated" then
             return TxDateds::toString(item)
@@ -223,10 +186,6 @@ class PolyFunctions
             return TheIndex::getItemOrNull(item["uuid"])
         end
 
-        if item["mikuType"] == "TopLevel" then
-            return TopLevel::edit(item)
-        end
-
         if Iam::isNx112Carrier(item) then
             if item["nx112"] then
                 targetItem = TheIndex::getItemOrNull(item["nx112"])
@@ -252,53 +211,6 @@ class PolyFunctions
     # PolyFunctions::timeBeforeNotificationsInHours(item)
     def self.timeBeforeNotificationsInHours(item)
         1
-    end
-
-    # PolyFunctions::bankAccounts(item)
-    def self.bankAccounts(item)
-
-        decideOwnersUUIDs = lambda {|item|
-
-            ownersuuids = OwnerItemsMapping::elementuuidToOwnersuuidsCached(item["uuid"])
-            if ownersuuids.size > 0 then
-                return ownersuuids
-            end
-
-            key = "bb9bf6c2-87c4-4fa1-a8eb-21c0b3c67c61:#{item["uuid"]}"
-            uuid = XCache::getOrNull(key)
-            if uuid == "null" then
-                return []
-            end
-            if uuid then
-                return [uuid]
-            end
-            puts "This is important, pay attention. We need an owner for this item, for the accounting."
-            LucilleCore::pressEnterToContinue()
-            ox = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
-            if ox then
-                XCache::set(key, ox["uuid"])
-                SystemEvents::broadcast({
-                    "mikuType" => "XCacheSet",
-                    "key"      => key,
-                    "value"    => ox["uuid"]
-                })
-                return [ox["uuid"]]
-            else
-                XCache::set(key, "null")
-                SystemEvents::broadcast({
-                    "mikuType" => "XCacheSet",
-                    "key"      => key,
-                    "value"    => "null"
-                })
-                return []
-            end
-        }
-
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            return [item["uuid"]]
-        end
-
-        [item["uuid"]] + decideOwnersUUIDs.call(item)
     end
 
     # PolyFunctions::foxTerrierAtItem(item)
