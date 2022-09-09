@@ -66,10 +66,10 @@ class NxBallsService
             "description" => description,
             "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
             "status"      => {
-                "type"                   => "running",
-                "thisSprintStartUnixtime"   => start,
-                "lastMarginCallUnixtime" => start,
-                "bankedTimeInSeconds"    => 0
+                "type"                    => "running",
+                "thisSprintStartUnixtime" => start,
+                "lastMarginCallUnixtime"  => start,
+                "bankedTimeInSeconds"     => 0
             },
             "accounts" => accounts
         }
