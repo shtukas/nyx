@@ -27,7 +27,6 @@ class Iam
     def self.nx112CarrierTypes()
         [
             "InboxItem",
-            "NxIced",
             "NxTask",
             "TxDated",
             "TxTimeCommitment",

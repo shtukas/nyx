@@ -591,10 +591,6 @@ class CommandInterpreterDefault
                     "lambda" => lambda { InboxItems::listingItems() }
                 },
                 {
-                    "name" => "NxIceds::listingItems()",
-                    "lambda" => lambda { NxIceds::listingItems() }
-                },
-                {
                     "name" => "NxTasks::listingItems()",
                     "lambda" => lambda { NxTasks::listingItems() }
                 },

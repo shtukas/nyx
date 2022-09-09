@@ -71,11 +71,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxIced" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
         if item["mikuType"] == "NxTask" then
             Nx112::carrierAccess(item)
             return
@@ -247,11 +242,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxIced" then
-            NxIceds::destroy(item["uuid"])
-            return
-        end
-
         if item["mikuType"] == "NxTask" then
             if item["ax39"] then
                 if LucilleCore::askQuestionAnswerAsBoolean("'#{PolyFunctions::toString(item).green}' done for today ? ", true) then
@@ -290,13 +280,6 @@ class PolyActions
             unitId = item["unitId"]
             Dx8UnitsUtils::destroyUnit(unitId)
         end
-
-        if item["mikuType"] == "NxIced" then
-            return if item["nx112"].nil?
-            item2 = TheIndex::getItemOrNull(item["nx112"])
-            return if item2.nil?
-            PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item2)
-        end
     end
 
     # PolyActions::link_line(item)
@@ -324,13 +307,6 @@ class PolyActions
         if item["mikuType"] == "CxDx8Unit" then
             unitId = item["unitId"]
             Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId) # this brings the file to the wormhole
-        end
-
-        if item["mikuType"] == "NxIced" then
-            return if item["nx112"].nil?
-            item2 = TheIndex::getItemOrNull(item["nx112"])
-            return if item2.nil?
-            PolyActions::dataPrefetchAttempt(item2)
         end
     end
 
