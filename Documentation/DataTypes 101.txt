@@ -10,13 +10,15 @@ Annonymous Data Carriers (owned and referred to by Nx112 strings)
 Catalyst:
 
     # self contained
-    NxAnniversary
+        NxAnniversary
+
+    #
+        TxTimeCommitment
 
     # Nx112 carriers
-    NxTask
-    TxDated
-    TxTimeCommitment
-    Wave
+        Wave
+        TxDated
+        NxTask
 
 Nyx Networks:
 
