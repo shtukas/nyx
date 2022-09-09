@@ -258,5 +258,13 @@ class PolyPrograms
 
             CommandInterpreterDefault::run(input, store)
         }
+
+        if NxBallsService::isRunning(item["uuid"]) then
+            if LucilleCore::askQuestionAnswerAsBoolean("Continue time commiment ? ") then
+
+            else
+                NxBallsService::close(item["uuid"], true)
+            end
+        end
     end
 end
