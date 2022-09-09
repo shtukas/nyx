@@ -9,7 +9,7 @@ class CommandInterpreterDefault
             "Catalyst:",
             ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update startd date (<n>)",
-            "wave | anniversary | float | today | ondate | todo | task | toplevel | inbox | line",
+            "wave | anniversary | today | ondate | todo | task | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
             ">owner | >owner (n)",
             "require internet",
@@ -184,16 +184,6 @@ class CommandInterpreterDefault
             return if item.nil?
             puts JSON.pretty_generate(item)
             LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if Interpreting::match("float", input) then
-            TxFloats::interactivelyCreateNewOrNull()
-            return
-        end
-
-        if Interpreting::match("floats", input) then
-            TxFloats::dive()
             return
         end
 

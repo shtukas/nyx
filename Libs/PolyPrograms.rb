@@ -43,19 +43,6 @@ class PolyPrograms
         puts ""
         vspaceleft = vspaceleft - 1
 
-        floats = TxFloats::listingItems()
-        floats.each{|item|
-            store.register(item, false)
-            line = "#{store.prefixString()} #{PolyFunctions::toString(item)}".yellow
-            if NxBallsService::isPresent(item["uuid"]) then
-                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-            end
-            puts line
-            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-        }
-        puts ""
-        vspaceleft = vspaceleft - 1
-
         listingItems = CatalystListing::listingItems()
 
         displayedOneNxBall = false

@@ -99,11 +99,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxFloat" then
-            Nx112::carrierAccess(item)
-            return
-        end
-
         if item["mikuType"] == "TxTimeCommitmentProject" then
             PolyPrograms::timeCommitmentProgram(item)
             return
@@ -270,10 +265,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxFloat" then
-            return
-        end
-
         if item["mikuType"] == "TxTimeCommitmentProject" then
             return
         end
@@ -381,11 +372,6 @@ class PolyActions
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
-
-        if item["mikuType"] == "TxFloat" then
-            puts "Need to write the code (follow: e143fbfd-8819-4310-8857-9aec554b5271)"
-            LucilleCore::pressEnterToContinue()
-        end
     end
 
     # PolyActions::editDescription(item)

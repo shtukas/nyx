@@ -76,23 +76,6 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            key = "8101be28-da9d-4e3d-83e6-3cee5470c59e:#{CommonUtils::today()}"
-            if !XCache::getFlag(key) then
-                system("clear")
-                puts "frames:"
-                TxFloats::items().each{|frame|
-                    puts "    - #{TxFloats::toString(frame)}"
-                }
-                LucilleCore::pressEnterToContinue()
-                XCache::setFlag(key, true)
-                SystemEvents::broadcast({
-                    "mikuType" => "XCacheFlag",
-                    "key"      => key,
-                    "flag"     => true
-                })
-                next
-            end
-
             PolyPrograms::catalystMainListing()
         }
     end

@@ -30,7 +30,6 @@ class Iam
             "NxIced",
             "NxTask",
             "TxDated",
-            "TxFloat",
             "TxTimeCommitmentProject",
             "Wave",
 
