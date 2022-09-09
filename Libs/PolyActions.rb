@@ -324,8 +324,8 @@ class PolyActions
         NetworkLinks::link(item["uuid"], i2["uuid"])
     end
 
-    # PolyActions::dataPrefetch(item)
-    def self.dataPrefetch(item)
+    # PolyActions::dataPrefetchAttempt(item)
+    def self.dataPrefetchAttempt(item)
         return if item.nil?
 
         # order : alphabetical order
@@ -339,7 +339,7 @@ class PolyActions
             return if item["nx112"].nil?
             item2 = TheIndex::getItemOrNull(item["nx112"])
             return if item2.nil?
-            PolyActions::dataPrefetch(item2)
+            PolyActions::dataPrefetchAttempt(item2)
         end
     end
 
