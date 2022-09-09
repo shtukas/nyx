@@ -194,6 +194,12 @@ class PolyFunctions
             return CxAionPoint::edit(item)
         end
 
+        if item["mikuType"] == "CxText" then
+            text = CommonUtils::editTextSynchronously(item["text"])
+            DxF1::setAttribute2(item["uuid"], "text", text)
+            return TheIndex::getItemOrNull(item["uuid"])
+        end
+
         if item["mikuType"] == "DxAionPoint" then
             return DxAionPoint::edit(item)
         end
