@@ -147,9 +147,4 @@ class NxTasks
         .map{|itemuuid| TheIndex::getItemOrNull(itemuuid) }
         .compact
     end
-
-    # NxTasks::topUnixtime()
-    def self.topUnixtime()
-        ([Time.new.to_f] + NxTasks::items().map{|item| item["unixtime"] }).min - 1
-    end
 end
