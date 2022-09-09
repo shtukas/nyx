@@ -212,13 +212,13 @@ class Ax39Extensions
     def self.dive()
         loop {
             system("clear")
-            items1 = TxTimeCommitmentProjects::items()
+            items1 = TxTimeCommitments::items()
             items2 = TheIndex::mikuTypeToItems("NxTask")
                         .select{|item| item["ax39"] }
             items = (items1+items2).sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("Ax39 carriers", items, lambda{|item| PolyFunctions::toString(item) })
             break if item.nil?
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", ["start", "landing", "access"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])
             return if option.nil?
             if option == "start" then
                 PolyActions::start(item)

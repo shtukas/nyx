@@ -74,7 +74,7 @@ class PolyFunctions
         if item["mikuType"] == "TxThread" then
             return item["description"]
         end
-        if item["mikuType"] == "TxTimeCommitmentProject" then
+        if item["mikuType"] == "TxTimeCommitment" then
             return item["description"]
         end
         if item["mikuType"] == "TopLevel" then
@@ -160,8 +160,8 @@ class PolyFunctions
         if item["mikuType"] == "NxTimeline" then
             return NxTimelines::toString(item)
         end
-        if item["mikuType"] == "TxTimeCommitmentProject" then
-            return TxTimeCommitmentProjects::toString(item)
+        if item["mikuType"] == "TxTimeCommitment" then
+            return TxTimeCommitments::toString(item)
         end
         if item["mikuType"] == "TopLevel" then
             return TopLevel::toString(item)

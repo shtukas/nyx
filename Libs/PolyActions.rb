@@ -99,7 +99,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxTimeCommitmentProject" then
+        if item["mikuType"] == "TxTimeCommitment" then
             PolyPrograms::timeCommitmentProgram(item)
             return
         end
@@ -154,7 +154,7 @@ class PolyActions
                 PolyActions::stop(item)
                 DxF1::setAttribute2(item["uuid"], "mikuType", "NxTask")
                 item = TheIndex::getItemOrNull(item["uuid"]) # We assume it's not null
-                TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+                TxTimeCommitments::interactivelyAddThisElementToOwner(item)
                 return
             end
             if action == "do not display until" then
@@ -189,7 +189,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxTimeCommitmentProject" then
+        if item["mikuType"] == "TxTimeCommitment" then
             # We do not start the commitment item itself, we just start the program
             PolyPrograms::timeCommitmentProgram(item)
             return
@@ -265,7 +265,7 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxTimeCommitmentProject" then
+        if item["mikuType"] == "TxTimeCommitment" then
             return
         end
 

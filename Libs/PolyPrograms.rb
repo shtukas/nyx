@@ -151,9 +151,9 @@ class PolyPrograms
             store = ItemStore.new()
 
             store.register(item, false)
-            puts "#{store.prefixString()} #{TxTimeCommitmentProjects::toString(item)} #{NxBallsService::activityStringOrEmptyString("(", item["uuid"], ")")}".green
+            puts "#{store.prefixString()} #{TxTimeCommitments::toString(item)} #{NxBallsService::activityStringOrEmptyString("(", item["uuid"], ")")}".green
 
-            nx79s = TxTimeCommitmentProjects::nx79s(item, 6)
+            nx79s = TxTimeCommitments::nx79s(item, 6)
             if nx79s.size > 0 then
                 puts ""
                 puts "Managed Items:"
@@ -179,7 +179,7 @@ class PolyPrograms
                     }
             end
 
-            nx79s = TxTimeCommitmentProjects::nx79s(item, CommonUtils::screenHeight()-20)
+            nx79s = TxTimeCommitments::nx79s(item, CommonUtils::screenHeight()-20)
             if nx79s.size > 0 then
                 puts ""
                 puts "Tail (#{nx79s.size} items):"

@@ -17,7 +17,7 @@ class CatalystListing
             Waves::listingItems(true),
             Waves::listingItems(false),
             TxDateds::listingItems(),
-            TxTimeCommitmentProjects::listingItems(),
+            TxTimeCommitments::listingItems(),
             NxTasks::listingItems(),
             NxIceds::listingItems(),
         ]

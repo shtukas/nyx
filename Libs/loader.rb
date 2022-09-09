@@ -292,7 +292,7 @@ require_relative "Stargate.rb"
 require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
 require_relative "TopLevel.rb"
-require_relative "TxTimeCommitmentProject.rb"
+require_relative "TxTimeCommitments.rb"
 require_relative "TheIndex.rb"
 
 require_relative "UniqueStringsFunctions.rb"

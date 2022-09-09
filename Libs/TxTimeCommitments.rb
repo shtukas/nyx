@@ -1,16 +1,16 @@
 # encoding: UTF-8
 
-class TxTimeCommitmentProjects
+class TxTimeCommitments
 
     # --------------------------------------------------
     # IO
 
-    # TxTimeCommitmentProjects::items()
+    # TxTimeCommitments::items()
     def self.items()
-        TheIndex::mikuTypeToItems("TxTimeCommitmentProject")
+        TheIndex::mikuTypeToItems("TxTimeCommitment")
     end
 
-    # TxTimeCommitmentProjects::destroy(uuid)
+    # TxTimeCommitments::destroy(uuid)
     def self.destroy(uuid)
         DxF1::deleteObjectLogically(uuid)
     end
@@ -18,7 +18,7 @@ class TxTimeCommitmentProjects
     # --------------------------------------------------
     # Makers
 
-    # TxTimeCommitmentProjects::interactivelyCreateNewOrNull()
+    # TxTimeCommitments::interactivelyCreateNewOrNull()
     def self.interactivelyCreateNewOrNull()
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
@@ -31,7 +31,7 @@ class TxTimeCommitmentProjects
 
         unixtime   = Time.new.to_i
         DxF1::setAttribute2(uuid, "uuid",         uuid)
-        DxF1::setAttribute2(uuid, "mikuType",     "TxTimeCommitmentProject")
+        DxF1::setAttribute2(uuid, "mikuType",     "TxTimeCommitment")
         DxF1::setAttribute2(uuid, "unixtime",     unixtime)
         DxF1::setAttribute2(uuid, "datetime",     datetime)
         DxF1::setAttribute2(uuid, "description",  description)
@@ -44,12 +44,12 @@ class TxTimeCommitmentProjects
         item
     end
 
-    # TxTimeCommitmentProjects::architectOneOrNull() # item or null
+    # TxTimeCommitments::architectOneOrNull() # item or null
     def self.architectOneOrNull()
-        item = TxTimeCommitmentProjects::interactivelySelectOneOrNull()
+        item = TxTimeCommitments::interactivelySelectOneOrNull()
         return item if item
-        if LucilleCore::askQuestionAnswerAsBoolean("Issue new TxTimeCommitmentProject ? ") then
-            return TxTimeCommitmentProjects::interactivelyCreateNewOrNull()
+        if LucilleCore::askQuestionAnswerAsBoolean("Issue new TxTimeCommitment ? ") then
+            return TxTimeCommitments::interactivelyCreateNewOrNull()
         end
         nil
     end
@@ -57,7 +57,7 @@ class TxTimeCommitmentProjects
     # --------------------------------------------------
     # Data
 
-    # TxTimeCommitmentProjects::toString(item)
+    # TxTimeCommitments::toString(item)
     def self.toString(item)
         ax39str2 = Ax39::toString(item)
         doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
@@ -65,19 +65,19 @@ class TxTimeCommitmentProjects
         "(tcpt) #{item["description"]} #{ax39str2}#{doneForTodayStr}#{dnsustr}"
     end
 
-    # TxTimeCommitmentProjects::toStringForSearch(item)
+    # TxTimeCommitments::toStringForSearch(item)
     def self.toStringForSearch(item)
         "(tcpt) #{item["description"]}"
     end
 
-    # TxTimeCommitmentProjects::listingItems()
+    # TxTimeCommitments::listingItems()
     def self.listingItems()
-        TxTimeCommitmentProjects::items()
+        TxTimeCommitments::items()
             .select{|item| Ax39forSections::itemShouldShow(item) }
             .sort{|i1, i2| Ax39forSections::orderingValue(i1) <=> Ax39forSections::orderingValue(i2) }
     end
 
-    # TxTimeCommitmentProjects::nx79s(owner, count) # Array[Nx79]
+    # TxTimeCommitments::nx79s(owner, count) # Array[Nx79]
     def self.nx79s(owner, count)
         map = OwnerItemsMapping::owneruuidToNx78(owner["uuid"])
         map.keys
@@ -103,21 +103,21 @@ class TxTimeCommitmentProjects
     # --------------------------------------------------
     # Operations
 
-    # TxTimeCommitmentProjects::interactivelySelectOneOrNull()
+    # TxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
-        items = TxTimeCommitmentProjects::items()
+        items = TxTimeCommitments::items()
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", items, lambda{|item| TxTimeCommitments::toString(item) })
     end
 
-    # TxTimeCommitmentProjects::dive()
+    # TxTimeCommitments::dive()
     def self.dive()
         loop {
             system("clear")
-            items = TxTimeCommitmentProjects::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitmentProjects::toString(item) })
+            items = TxTimeCommitments::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitments::toString(item) })
             break if item.nil?
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitmentProject", ["start", "landing", "access"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])
             return if option.nil?
             if option == "start" then
                 PolyActions::start(item)
@@ -134,15 +134,15 @@ class TxTimeCommitmentProjects
         }
     end
 
-    # TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(element)
+    # TxTimeCommitments::interactivelyAddThisElementToOwner(element)
     def self.interactivelyAddThisElementToOwner(element)
-        puts "TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
+        puts "TxTimeCommitments::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
         if element["mikuType"] != "NxTask" then
-            puts "The operation TxTimeCommitmentProjects::interactivelyAddThisElementToOwner only works on NxTasks"
+            puts "The operation TxTimeCommitments::interactivelyAddThisElementToOwner only works on NxTasks"
             LucilleCore::pressEnterToContinue()
             return
         end
-        owner = TxTimeCommitmentProjects::architectOneOrNull()
+        owner = TxTimeCommitments::architectOneOrNull()
         return if owner.nil?
         puts JSON.pretty_generate(owner)
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
@@ -150,10 +150,10 @@ class TxTimeCommitmentProjects
         NxBallsService::close(element["uuid"], true)
     end
 
-    # TxTimeCommitmentProjects::interactivelyProposeToAttachThisElementToOwner(element)
+    # TxTimeCommitments::interactivelyProposeToAttachThisElementToOwner(element)
     def self.interactivelyProposeToAttachThisElementToOwner(element)
         if LucilleCore::askQuestionAnswerAsBoolean("Would you like to add to an owner ? ") then
-            owner = TxTimeCommitmentProjects::architectOneOrNull()
+            owner = TxTimeCommitments::architectOneOrNull()
             return if owner.nil?
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             OwnerItemsMapping::link(owner["uuid"], element["uuid"], ordinal)

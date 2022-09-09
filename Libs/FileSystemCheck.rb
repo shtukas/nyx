@@ -231,7 +231,7 @@ class FileSystemCheck
             end
         end
 
-        if mikuType == "TxTimeCommitmentProject" then
+        if mikuType == "TxTimeCommitment" then
             ensureAttribute.call("ax39")
         end
 

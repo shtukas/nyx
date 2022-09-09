@@ -49,7 +49,7 @@ class CommandInterpreterDefault
         if Interpreting::match(">owner", input) then
             item = store.getDefault()
             return if item.nil?
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -57,7 +57,7 @@ class CommandInterpreterDefault
             _, ordinal = Interpreting::tokenizer(input)
             item = store.get(ordinal.to_i)
             return if item.nil?
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -227,7 +227,7 @@ class CommandInterpreterDefault
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxTasks::issueDescriptionOnly(line)
-            TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -466,7 +466,7 @@ class CommandInterpreterDefault
             item = NxTasks::interactivelyCreateNewOrNull(true)
             return if item.nil?
             if item["ax39"].nil? then
-                TxTimeCommitmentProjects::interactivelyAddThisElementToOwner(item)
+                TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             end
             return
         end
@@ -607,8 +607,8 @@ class CommandInterpreterDefault
                     "lambda" => lambda { TxDateds::listingItems() }
                 },
                 {
-                    "name" => "TxTimeCommitmentProjects::listingItems()",
-                    "lambda" => lambda { TxTimeCommitmentProjects::listingItems() }
+                    "name" => "TxTimeCommitments::listingItems()",
+                    "lambda" => lambda { TxTimeCommitments::listingItems() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",
