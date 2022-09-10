@@ -32,6 +32,7 @@ class PolyPrograms
 
         if context.nil? then
             tx = TxTimeCommitments::items()
+                    .select{|item| item["isAlive"].nil? or item["isAlive"] }
                     .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
                     .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
                     .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }
@@ -162,7 +163,7 @@ class PolyPrograms
                 return
             end
 
-            CommandInterpreterDefault::run(input, store)
+            CommandInterpreters::catalyst(input, store)
 
         else
 
@@ -197,19 +198,33 @@ class PolyPrograms
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
-            CommandInterpreterDefault::run(input, store)
+            CommandInterpreters::catalyst(input, store)
 
         end
     end
 
-    # PolyPrograms::itemLanding(item)
-    def self.itemLanding(item)
+    # PolyPrograms::itemLandingCatalyst(item)
+    def self.itemLandingCatalyst(item)
+        loop {
+            return nil if item.nil?
+            uuid = item["uuid"]
+            item = DxF1::getProtoItemOrNull(uuid)
+            return nil if item.nil?
+            system("clear")
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+            store = ItemStore.new()
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return if input == ""
+            CommandInterpreters::catalyst(input, store)
+        }
+    end
 
-        if item["mikuType"] == "fitness1" then
-            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
-            return nil
-        end
-
+    # PolyPrograms::itemLandingNyxNetwork(item)
+    def self.itemLandingNyxNetwork(item)
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
@@ -249,7 +264,24 @@ class PolyPrograms
                 next
             end
 
-            CommandInterpreterDefault::run(input, store)
+            CommandInterpreters::nyx(input, store)
         }
+    end
+
+    # PolyPrograms::itemLanding(item)
+    def self.itemLanding(item)
+        if item["mikuType"] == "fitness1" then
+            system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
+            return
+        end
+        if Iam::isCatalystItem(item) then
+            PolyPrograms::itemLandingCatalyst(item)
+            return
+        end
+        if PolyPrograms::itemLandingNyxNetwork(item) then
+            PolyPrograms::itemLandingCatalyst(item)
+            return
+        end
+        raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"
     end
 end

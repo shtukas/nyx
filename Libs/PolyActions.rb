@@ -223,16 +223,16 @@ class PolyActions
         end
     end
 
-    # PolyActions::link_line(item)
-    def self.link_line(item)
-        l1 = NxTasks::interactivelyIssueDescriptionOnlyOrNull()
+    # PolyActions::linktoDxLine(item)
+    def self.linktoDxLine(item)
+        l1 = DxLine::interactivelyIssueNewOrNull()
         return if l1.nil?
         puts JSON.pretty_generate(l1)
         NetworkLinks::link(item["uuid"], l1["uuid"])
     end
 
-    # PolyActions::link_text(item)
-    def self.link_text(item)
+    # PolyActions::linktoDxText(item)
+    def self.linktoDxText(item)
         i2 = DxText::interactivelyIssueNewOrNull()
         return if i2.nil?
         puts JSON.pretty_generate(i2)

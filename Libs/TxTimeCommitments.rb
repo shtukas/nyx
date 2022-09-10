@@ -106,6 +106,7 @@ class TxTimeCommitments
     # TxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
         items = TxTimeCommitments::items()
+                    .select{|item| item["isAlive"].nil? or item["isAlive"] }
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", items, lambda{|item| TxTimeCommitments::toString(item) })
     end
@@ -114,7 +115,9 @@ class TxTimeCommitments
     def self.dive()
         loop {
             system("clear")
-            items = TxTimeCommitments::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            items = TxTimeCommitments::items()
+                        .select{|item| item["isAlive"].nil? or item["isAlive"] }
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitments::toString(item) })
             break if item.nil?
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])

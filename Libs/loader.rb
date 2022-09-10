@@ -223,7 +223,7 @@ require_relative "Catalyst.rb"
 require_relative "CatalystListing.rb"
 require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
-require_relative "CommandInterpreterDefault.rb"
+require_relative "CommandInterpreters.rb"
 
 require_relative "CxText.rb"
 require_relative "CxUniqueString.rb"

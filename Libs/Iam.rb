@@ -44,4 +44,36 @@ class Iam
     def self.isNx112Carrier(item)
         Iam::nx112CarrierTypes().include?(item["mikuType"])
     end
+
+    # Iam::isCatalystItem(item)
+    def self.isCatalystItem(item)
+        types = [
+            "NxAnniversary",
+            "TxTimeCommitment",
+            "Wave",
+            "TxDated",
+            "NxTask"
+        ]
+        types.include?(item["mikuType"])
+    end
+
+    # Iam::isNyxNetworkItem(item)
+    def self.isNyxNetworkItem(item)
+        types = [
+    # self contained
+            "DxLine",
+            "DxAionPoint",
+            "DxFile",
+            "DxText",
+            "DxUniqueString",
+            "DxUrl",
+            "NxEvent",
+            "NxCollection",
+            "NxConcept",
+            "NxEntity",
+            "NxPerson",
+            "NxTimeline",
+        ]
+        types.include?(item["mikuType"])
+    end
 end

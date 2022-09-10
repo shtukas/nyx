@@ -1,9 +1,9 @@
 
 # encoding: UTF-8
 
-class CommandInterpreterDefault
+class CommandInterpreters
 
-    # CommandInterpreterDefault::commands()
+    # CommandInterpreters::commands()
     def self.commands()
         [
             "Catalyst:",
@@ -11,7 +11,6 @@ class CommandInterpreterDefault
             "update startd date (<n>)",
             "wave | anniversary | today | ondate | todo | task | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
-            ">owner | >owner (n)",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
             "Nyx:",
@@ -20,7 +19,7 @@ class CommandInterpreterDefault
         ].join("\n")
     end
 
-    # CommandInterpreterDefault::run(input, store)
+    # CommandInterpreters::catalyst(input, store)
     def self.run(input, store) # [command or null, item or null]
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
@@ -43,21 +42,6 @@ class CommandInterpreterDefault
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::doubleDot(item)
-            return
-        end
-
-        if Interpreting::match(">owner", input) then
-            item = store.getDefault()
-            return if item.nil?
-            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
-            return
-        end
-
-        if Interpreting::match(">owner *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
             return
         end
 
@@ -188,7 +172,7 @@ class CommandInterpreterDefault
         end
 
         if Interpreting::match("help", input) then
-            puts CommandInterpreterDefault::commands().yellow
+            puts CommandInterpreters::commands().yellow
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -238,97 +222,8 @@ class CommandInterpreterDefault
             return
         end
 
-        if input == "link:line" then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::link_line(item)
-            return
-        end
-
-        if input == "link:line *" then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::link_line(item)
-            return
-        end
-
-        if input == "link:text" then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::link_text(item)
-            return
-        end
-
-        if input == "link:text *" then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::link_text(item)
-            return
-        end
-
-        if input == "link" then
-            item = store.getDefault()
-            return if item.nil?
-            puts "base item: #{JSON.pretty_generate(item)}"
-            NetworkLinks::linkToArchitectured(item)
-            return
-        end
-
-        if input == "link *" then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NetworkLinks::linkToArchitectured(item)
-            return
-        end
-
         if Interpreting::match("maintenance", input) then
             TxDateds::dive()
-            return
-        end
-
-        if Interpreting::match("name", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::editDescription(item)
-        end
-
-        if Interpreting::match("name *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::editDescription(item)
-            return
-        end
-
-        if Interpreting::match("navigation", input) then
-            item = store.getDefault()
-            return if item.nil?
-            LinkedNavigation::navigateItem(item)
-        end
-
-        if Interpreting::match("navigation *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            LinkedNavigation::navigateItem(item)
-            return
-        end
-
-        if input == "network-migration" then
-            item = store.getDefault()
-            return if item.nil?
-            NetworkLinks::networkMigration(item)
-            return
-        end
-
-        if input == "network-migration *" then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NetworkLinks::networkMigration(item)
             return
         end
 
@@ -498,22 +393,6 @@ class CommandInterpreterDefault
             return
         end
 
-
-        if input == "unlink" then
-            item = store.getDefault()
-            return if item.nil?
-            NetworkLinks::selectOneLinkedAndUnlink(item)
-            return
-        end
-
-        if input == "unlink *" then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            NetworkLinks::selectOneLinkedAndUnlink(item)
-            return
-        end
-
         if Interpreting::match("update start date", input) then
             item = store.getDefault()
             return if item.nil?
@@ -525,21 +404,6 @@ class CommandInterpreterDefault
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyActions::editStartDate(item)
-            return
-        end
-
-        if input == "upload" then
-            item = store.getDefault()
-            return if item.nil?
-            Upload::interactivelyUploadToItem(item)
-            return
-        end
-
-        if input == "upload *" then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            Upload::interactivelyUploadToItem(item)
             return
         end
 
@@ -623,6 +487,238 @@ class CommandInterpreterDefault
                 }
 
             LucilleCore::pressEnterToContinue()
+            return
+        end
+    end
+
+    # CommandInterpreters::nyx(input, store)
+    def self.nyx(input, store) # [command or null, item or null]
+
+        if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
+            if (item = store.getDefault()) then
+                PolyActions::stop(item)
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+        end
+
+        if Interpreting::match("access", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::access(item)
+            return
+        end
+
+        if Interpreting::match("access *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::access(item)
+            return
+        end
+
+        if Interpreting::match("anniversary", input) then
+            Anniversaries::issueNewAnniversaryOrNullInteractively()
+            return
+        end
+
+        if Interpreting::match("anniversaries", input) then
+            Anniversaries::anniversariesDive()
+            return
+        end
+
+        if Interpreting::match("destroy", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::destroyWithPrompt(item)
+            return
+        end
+
+        if Interpreting::match("destroy *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::destroyWithPrompt(item)
+            return
+        end
+
+        if Interpreting::match("datetime", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::editDatetime(item)
+        end
+
+        if Interpreting::match("datetime *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::editDatetime(item)
+            return
+        end
+
+        if Interpreting::match("description", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::editDescription(item)
+        end
+
+        if Interpreting::match("description *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::editDescription(item)
+            return
+        end
+
+        if Interpreting::match("edit", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyFunctions::edit(item)
+            return
+        end
+
+        if Interpreting::match("edit *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyFunctions::edit(item)
+            return
+        end
+
+        if Interpreting::match("exit", input) then
+            exit
+        end
+
+        if Interpreting::match("expose", input) then
+            item = store.getDefault()
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("expose *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            puts JSON.pretty_generate(item)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("help", input) then
+            puts CommandInterpreters::commands().yellow
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("nx112", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::setNx112(item)
+        end
+
+        if Interpreting::match("nx112 *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::setNx112(item)
+            return
+        end
+
+        if input == "line" then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::linktoDxLine(item)
+            return
+        end
+
+        if input == "text" then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::linktoDxText(item)
+            return
+        end
+
+        if input == "link" then
+            item = store.getDefault()
+            return if item.nil?
+            puts "base item: #{JSON.pretty_generate(item)}"
+            NetworkLinks::linkToArchitectured(item)
+            return
+        end
+
+        if Interpreting::match("name", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::editDescription(item)
+        end
+
+
+        if Interpreting::match("navigation", input) then
+            item = store.getDefault()
+            return if item.nil?
+            LinkedNavigation::navigateItem(item)
+        end
+
+        if input == "network-migration" then
+            item = store.getDefault()
+            return if item.nil?
+            NetworkLinks::networkMigration(item)
+            return
+        end
+
+        if Interpreting::match("nyx", input) then
+            Nyx::program()
+            return
+        end
+
+        if Interpreting::match("search", input) then
+            Search::navigation()
+            return
+        end
+
+        if Interpreting::match("task", input) then
+            item = NxTasks::interactivelyCreateNewOrNull(true)
+            return if item.nil?
+            if item["ax39"].nil? then
+                TxTimeCommitments::interactivelyAddThisElementToOwner(item)
+            end
+            return
+        end
+
+        if Interpreting::match("today", input) then
+            TxDateds::interactivelyCreateNewTodayOrNull()
+            return
+        end
+
+        if input == "transmute" then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::transmute(item)
+            return
+        end
+
+        if input == "unlink *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            NetworkLinks::selectOneLinkedAndUnlink(item)
+            return
+        end
+
+        if input == "upload" then
+            item = store.getDefault()
+            return if item.nil?
+            Upload::interactivelyUploadToItem(item)
+            return
+        end
+
+        if input == "upload *" then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            Upload::interactivelyUploadToItem(item)
             return
         end
     end
