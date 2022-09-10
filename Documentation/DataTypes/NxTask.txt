@@ -5,4 +5,3 @@ NxTask:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
     "nx112"       : null or String
-    "ax39"        : null or Ax39

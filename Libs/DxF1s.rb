@@ -405,6 +405,14 @@ class DxF1Extended
     end
 end
 
+class DxF1Utils
+    # DxF1Utils::itemIsAlive(item)
+    def self.itemIsAlive(item)
+        item["isAlive"].nil? or item["isAlive"]
+    end
+end
+
+
 class DxF1sAtStargateCentral
 
     # DxF1sAtStargateCentral::dxF1Filepath(objectuuid)

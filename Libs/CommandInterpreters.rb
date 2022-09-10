@@ -369,7 +369,7 @@ class CommandInterpreters
         end
 
         if Interpreting::match("time commitments", input) then
-            Ax39Extensions::dive()
+            TxTimeCommitments::dive()
             return
         end
 
@@ -439,10 +439,6 @@ class CommandInterpreters
                 {
                     "name" => "TxDateds::listingItems()",
                     "lambda" => lambda { TxDateds::listingItems() }
-                },
-                {
-                    "name" => "TxTimeCommitments::listingItems()",
-                    "lambda" => lambda { TxTimeCommitments::listingItems() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",

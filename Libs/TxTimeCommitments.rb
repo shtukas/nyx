@@ -70,13 +70,6 @@ class TxTimeCommitments
         "(tcpt) #{item["description"]}"
     end
 
-    # TxTimeCommitments::listingItems()
-    def self.listingItems()
-        TxTimeCommitments::items()
-            .select{|item| Ax39forSections::itemShouldShow(item) }
-            .sort{|i1, i2| Ax39forSections::orderingValue(i1) <=> Ax39forSections::orderingValue(i2) }
-    end
-
     # TxTimeCommitments::nx79s(owner, count) # Array[Nx79]
     def self.nx79s(owner, count)
         map = TimeCommitmentMapping::owneruuidToNx78(owner["uuid"])
@@ -116,23 +109,19 @@ class TxTimeCommitments
         loop {
             system("clear")
             items = TxTimeCommitments::items()
-                        .select{|item| item["isAlive"].nil? or item["isAlive"] }
+                        .select{|item| DxF1Utils::itemIsAlive(item) }
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitments::toString(item) })
-            break if item.nil?
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| TxTimeCommitments::toString(item) })
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])
             return if option.nil?
             if option == "start" then
                 PolyActions::start(item)
-                return
             end
             if option == "landing" then
                 PolyPrograms::itemLanding(item)
-                return
             end
             if option == "access" then
                 PolyActions::access(item)
-                return
             end
         }
     end
