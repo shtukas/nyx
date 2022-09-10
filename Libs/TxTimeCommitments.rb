@@ -116,15 +116,12 @@ class TxTimeCommitments
             return if option.nil?
             if option == "start" then
                 PolyActions::start(item)
-                return
             end
             if option == "landing" then
                 PolyPrograms::itemLanding(item)
-                return
             end
             if option == "access" then
                 PolyActions::access(item)
-                return
             end
         }
     end
