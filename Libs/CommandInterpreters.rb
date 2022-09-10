@@ -529,7 +529,7 @@ class CommandInterpreters
         end
 
         if input == "copy dxf1 file to desktop" then
-            DxF1::copyFileToDesktop(item["uuid"]) 
+            DxF1OrbitalExpansion::copyFileToDesktop(item["uuid"]) 
             return
         end
 
