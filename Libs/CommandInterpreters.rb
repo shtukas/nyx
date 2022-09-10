@@ -20,7 +20,7 @@ class CommandInterpreters
     end
 
     # CommandInterpreters::catalyst(input, store)
-    def self.run(input, store) # [command or null, item or null]
+    def self.catalyst(input, store) # [command or null, item or null]
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
