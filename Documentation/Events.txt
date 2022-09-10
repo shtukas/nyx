@@ -94,10 +94,3 @@ We have two types of events
     "key"      : String
     "flag"     : Boolean
 }
-
-(NxBall)
-
-{
-    "mikuType" : "NxBallDestroy"
-    "uuid"     : String
-}

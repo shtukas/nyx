@@ -81,14 +81,6 @@ class SystemEvents
         if event["mikuType"] == "TimeCommitmentMapping" then
             TimeCommitmentMapping::processEvent(event)
         end
-
-        if event["mikuType"] == "NxBall.v2" then
-            NxBallsIO::commitItemNoEvent(event)
-        end
-
-        if event["mikuType"] == "NxBallDestroy" then
-            NxBallsIO::destroyItemNoEvent(event["uuid"])
-        end
     end
 
     # SystemEvents::broadcast(event)
