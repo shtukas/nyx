@@ -148,15 +148,8 @@ class TheIndex
         db.close
     end
 
-    # TheIndex::rebuildIndexFromScratch()
-    def self.rebuildIndexFromScratch()
-        db = SQLite3::Database.new(TheIndex::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "delete from _index_", []
-        db.close
-
+    # TheIndex::updateIndexReadingDxF1s()
+    def self.updateIndexReadingDxF1s()
         root = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s"
         Find.find(root) do |path|
             next if File.basename(path)[-8, 8] != ".sqlite3"

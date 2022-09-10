@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-TheIndex::rebuildIndexFromScratch()
+TheIndex::updateIndexReadingDxF1s()
