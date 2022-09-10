@@ -186,33 +186,6 @@ end
 
 class Ax39Extensions
 
-    # Ax39Extensions::dive()
-    def self.dive()
-        loop {
-            system("clear")
-            items1 = TxTimeCommitments::items()
-            items2 = TheIndex::mikuTypeToItems("NxTask")
-                        .select{|item| item["ax39"] }
-            items = (items1+items2).sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("Ax39 carriers", items, lambda{|item| PolyFunctions::toString(item) })
-            break if item.nil?
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])
-            return if option.nil?
-            if option == "start" then
-                PolyActions::start(item)
-                return
-            end
-            if option == "landing" then
-                PolyPrograms::itemLanding(item)
-                return
-            end
-            if option == "access" then
-                PolyActions::access(item)
-                return
-            end
-        }
-    end
-
     # Ax39Extensions::processEvent(event)
     def self.processEvent(event)
         if event["mikuType"] == "(bank account has been updated)" then

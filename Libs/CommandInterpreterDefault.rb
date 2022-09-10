@@ -474,7 +474,7 @@ class CommandInterpreterDefault
         end
 
         if Interpreting::match("time commitments", input) then
-            Ax39Extensions::dive()
+            TxTimeCommitments::dive()
             return
         end
 

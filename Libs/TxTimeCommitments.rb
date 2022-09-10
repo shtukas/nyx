@@ -114,8 +114,10 @@ class TxTimeCommitments
     def self.dive()
         loop {
             system("clear")
-            items = TxTimeCommitments::items().sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| TxTimeCommitments::toString(item) })
+            items = TxTimeCommitments::items()
+                        .select{|item| DxF1::objectIsAlive(item["uuid"]) }
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| TxTimeCommitments::toString(item) })
             break if item.nil?
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])
             return if option.nil?
