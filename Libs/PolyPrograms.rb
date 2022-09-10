@@ -262,8 +262,8 @@ class PolyPrograms
             PolyPrograms::itemLandingCatalyst(item)
             return
         end
-        if PolyPrograms::itemLandingNyxNetwork(item) then
-            PolyPrograms::itemLandingCatalyst(item)
+        if Iam::isNyxNetworkItem(item) then
+            PolyPrograms::itemLandingNyxNetwork(item)
             return
         end
         raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"

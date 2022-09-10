@@ -91,15 +91,6 @@ class CommonUtils
         displayStr.lines.map{|line| line.size/CommonUtils::screenWidth() + 1 }.inject(0, :+)
     end
 
-    # CommonUtils::sanitiseStringForFilenaming(str)
-    def self.sanitiseStringForFilenaming(str)
-        str
-            .gsub(":", "-")
-            .gsub("/", "-")
-            .gsub("'", "")
-            .strip
-    end
-
     # CommonUtils::fileByFilenameIsSafelyOpenable(filename)
     def self.fileByFilenameIsSafelyOpenable(filename)
         safelyOpeneableExtensions = [".txt", ".jpg", ".jpeg", ".png", ".eml", ".webloc", ".pdf"]
@@ -398,6 +389,15 @@ class CommonUtils
 
     # ----------------------------------------------------
     # String Utilities
+
+    # CommonUtils::sanitiseStringForFilenaming(str)
+    def self.sanitiseStringForFilenaming(str)
+        str
+            .gsub(":", "-")
+            .gsub("/", "-")
+            .gsub("'", "")
+            .strip
+    end
 
     # CommonUtils::ends_with?(str, ending)
     def self.ends_with?(str, ending)

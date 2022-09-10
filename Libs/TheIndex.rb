@@ -150,7 +150,7 @@ class TheIndex
 
     # TheIndex::updateIndexReadingDxF1s()
     def self.updateIndexReadingDxF1s()
-        DxF1Extended::dxF1sFilepathsEnumerator().each{|filepath|
+        DxF1::dxF1sFilepathsEnumerator().each{|filepath|
             puts filepath
             item = DxF1::getProtoItemAtFilepathOrNull(filepath)
             next if item.nil?

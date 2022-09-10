@@ -483,7 +483,8 @@ class CommandInterpreters
             "<n> | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "search",
             "description (<n>) | nx112 (<n>)",
-            "link:line (<n>) | link:text (<n>) | link (<n>) | navigation (<n>) | network-migration (<n>)"
+            "link:line (<n>) | link:text (<n>) | link (<n>) | navigation (<n>) | network-migration (<n>)",
+            "copy file to desktop"
         ].join("\n")
     end
 
@@ -564,6 +565,12 @@ class CommandInterpreters
             return if item.nil?
             PolyActions::editDescription(item)
             return
+        end
+
+        if input == "copy file to desktop" then
+            item = store.getDefault()
+            return if item.nil?
+            DxF1::copyFileToDesktop(item["uuid"]) 
         end
 
         if Interpreting::match("edit", input) then

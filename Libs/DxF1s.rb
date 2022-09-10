@@ -319,6 +319,49 @@ class DxF1
         records
     end
 
+    # DxF1::filepathIsDxF1(filepath)
+    def self.filepathIsDxF1(filepath)
+        CommonUtils::ends_with?(filepath, ".dxf1.sqlite3")
+    end
+
+    # DxF1::dxF1sFilepathsEnumerator()
+    def self.dxF1sFilepathsEnumerator()
+        root = "#{ENV['HOME']}/Galaxy"
+        Enumerator.new do |filepaths|
+            Find.find(root) do |path|
+                next if !File.file?(path)
+                next if !DxF1::filepathIsDxF1(path)
+                filepaths << path
+            end
+        end
+    end
+
+    # DxF1::copyFileToDesktop(objectuuid)
+    def self.copyFileToDesktop(objectuuid)
+        filepath1 = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
+        return if filepath1.nil?
+        filepath2 = "#{ENV['HOME']}/Desktop/#{File.basename(filepath1)}"
+        FileUtils.cp(filepath1, filepath2)
+        DxF1::renameDxF1FileAsUserFriendly(filepath2)
+    end
+
+    # DxF1::renameDxF1FileAsUserFriendly(filepath)
+    def self.renameDxF1FileAsUserFriendly(filepath)
+        if !DxF1::filepathIsDxF1(filepath) then
+            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
+        end
+        if filepath.include?(DxF1::pathToRepository()) then
+            raise "(error: 7b7810ea-d608-4d1b-9076-9f536db6e6aa) You cannot do that with filepath: #{filepath}"
+        end
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        return if item.nil?
+        genericDescription = PolyFunctions::genericDescription(item)
+        filenamePrefix = CommonUtils::sanitiseStringForFilenaming(genericDescription)
+        filename2 = "#{filenamePrefix} [#{item["mikuType"]}].dxf1.sqlite3"
+        filepath2 = "#{File.dirname(filepath)}/#{filename2}"
+        FileUtils.mv(filepath, filepath2)
+        filepath2
+    end
 end
 
 class DxF1Elizabeth
@@ -388,24 +431,6 @@ class DxF1Elizabeth
             return status
         rescue
             false
-        end
-    end
-end
-
-class DxF1Extended
-
-    # DxF1Extended::dxF1sFilepathsEnumerator()
-    def self.dxF1sFilepathsEnumerator()
-        filepathIsDxF1 = lambda {|filepath|
-            CommonUtils::ends_with?(filepath, ".dxf1.sqlite3")
-        }
-        root = "#{ENV['HOME']}/Galaxy"
-        Enumerator.new do |filepaths|
-            Find.find(root) do |path|
-                next if !File.file?(path)
-                next if !filepathIsDxF1.call(path)
-                filepaths << path
-            end
         end
     end
 end
