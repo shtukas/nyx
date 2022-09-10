@@ -122,6 +122,7 @@ class TxTimeCommitments
             end
             if option == "access" then
                 PolyActions::access(item)
+                return
             end
         }
     end
