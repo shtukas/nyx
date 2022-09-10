@@ -112,43 +112,19 @@ class NetworkLinks
 
     # NetworkLinks::interactivelySelectLinkedEntityOrNull(uuid)
     def self.interactivelySelectLinkedEntityOrNull(uuid)
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", NetworkLinks::linkedEntities(uuid), lambda{ |item| PolyFunctions::toString(item) })
+        entities = NetworkLinks::linkedEntities(uuid).sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("entity", entities, lambda{ |item| PolyFunctions::toString(item) })
     end
 
     # NetworkLinks::interactivelySelectLinkedEntities(uuid)
     def self.interactivelySelectLinkedEntities(uuid)
-        selected, unselected = LucilleCore::selectZeroOrMore("entity", [], NetworkLinks::linkedEntities(uuid), lambda{ |item| PolyFunctions::toString(item) })
+        entities = NetworkLinks::linkedEntities(uuid).sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+        selected, unselected = LucilleCore::selectZeroOrMore("entity", [], entities, lambda{ |item| PolyFunctions::toString(item) })
         selected
     end
 
-    # NetworkLinks::networkMigration(item)
-    def self.networkMigration(item)
-        uuid = item["uuid"]
-        entities = NetworkLinks::interactivelySelectLinkedEntities(uuid)
-        return if entities.empty?
-        mode = LucilleCore::selectEntityFromListOfEntitiesOrNull("mode", ["from linked", "from entire network"])
-        return if mode.nil?
-        if mode == "from linked" then
-            target = NetworkLinks::interactivelySelectLinkedEntityOrNull(uuid)
-        end
-        if mode == "from entire network" then
-            target = Nyx::selectExistingNetworkNodeOrNull()
-        end
-        return if target.nil?
-        if target["uuid"] == item["uuid"] then
-            puts "The target that you have chosen is equal to the current item"
-            LucilleCore::pressEnterToContinue()
-        end
-        entities.each{|entity|
-            NetworkLinks::link(target["uuid"], entity["uuid"])
-        }
-        entities.each{|entity|
-            NetworkLinks::unlink(item["uuid"], entity["uuid"])
-        }
-    end
-
-    # NetworkLinks::linkToArchitectured(item)
-    def self.linkToArchitectured(item)
+    # NetworkLinks::architectureAndLink(item)
+    def self.architectureAndLink(item)
         item2 = Nyx::architectOneOrNull()
         return if item2.nil?
         NetworkLinks::link(item["uuid"], item2["uuid"])

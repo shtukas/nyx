@@ -220,19 +220,41 @@ class PolyPrograms
             store = ItemStore.new()
             # We register the item which is also the default element in the store
             store.register(item, true)
+
+            parents = NetworkArrows::parents(item["uuid"])
+            if parents.size > 0 then
+                puts ""
+                puts "parents: "
+                parents
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity|
+                        store.register(entity, false)
+                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
+                    }
+            end
+
             entities = NetworkLinks::linkedEntities(item["uuid"])
             if entities.size > 0 then
                 puts ""
-                if entities.size < 200 then
-                    entities
-                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                        .each{|entity|
-                            store.register(entity, false)
-                            puts "#{store.prefixString()} #{PolyFunctions::toString(entity)}"
-                        }
-                else
-                    puts "(... many entities, use `navigation` ...)"
-                end
+                puts "related: "
+                entities
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity|
+                        store.register(entity, false)
+                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
+                    }
+            end
+
+            children = NetworkArrows::children(item["uuid"])
+            if children.size > 0 then
+                puts ""
+                puts "children: "
+                children
+                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                    .each{|entity|
+                        store.register(entity, false)
+                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
+                    }
             end
 
             puts ""
@@ -248,7 +270,7 @@ class PolyPrograms
                 next
             end
 
-            CommandInterpreters::nyx(input, store)
+            CommandInterpreters::nyx(item, input)
         }
     end
 
