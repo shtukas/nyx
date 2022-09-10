@@ -486,41 +486,21 @@ class DxF1OrbitalExpansion
         CommonUtils::sanitiseStringForFilenaming(genericDescription)
     end
 
-    # DxF1OrbitalExpansion::renameDxF1FileAsUserFriendlyOrNull(filepath) # filepath or null
-    def self.renameDxF1FileAsUserFriendlyOrNull(filepath)
-        # We can only rename on the Desktop on within Orbital
-        if !filepath.include?("#{ENV['HOME']}/Desktop") and !filepath.include?(Config::orbital()) then
-            raise "(error: 7b7810ea-d608-4d1b-9076-9f536db6e6aa) You cannot do that with filepath: #{filepath}"
-        end
-        if !DxF1::filepathIsDxF1(filepath) then
-            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
-        end
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        return nil if item.nil?
-        filenamePrefix = DxF1OrbitalExpansion::fileSystemSafeName(item)
-        filename2 = "#{filenamePrefix} [#{item["mikuType"]}].dxf1.sqlite3"
-        filepath2 = "#{File.dirname(filepath)}/#{filename2}"
-        if filepath == filepath2 then
-            return filepath2
-        end
-        if !File.exists?(filepath2) then
-            FileUtils.mv(filepath, filepath2)
-        end
-        filepath2
-    end
-
-    # DxF1OrbitalExpansion::copyDxF1FileToFolderWithUserFriendlyNameOrNull(objectuuid, folder) # filepath or null
-    def self.copyDxF1FileToFolderWithUserFriendlyNameOrNull(objectuuid, folder)
+    # DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(objectuuid, folder) # filepath or null
+    def self.copyDxF1FileToFolderOrNull(objectuuid, folder)
         filepath1 = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return if filepath1.nil?
         filepath2 = "#{folder}/#{File.basename(filepath1)}"
+        if File.exists?(filepath2) then
+            FileUtils.rm(filepath2)
+        end
         FileUtils.cp(filepath1, filepath2)
-        DxF1OrbitalExpansion::renameDxF1FileAsUserFriendlyOrNull(filepath2)
+        filepath2
     end
 
     # DxF1OrbitalExpansion::copyFileToDesktop(objectuuid) # filepath or null
     def self.copyFileToDesktop(objectuuid)
-        DxF1OrbitalExpansion::copyDxF1FileToFolderWithUserFriendlyNameOrNull(objectuuid, "#{ENV['HOME']}/Desktop")
+        DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(objectuuid, "#{ENV['HOME']}/Desktop")
     end
 
     # DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator()
@@ -553,7 +533,7 @@ class DxF1OrbitalExpansion
         if item["mikuType"] == "DxAionPoint" then
             operator = DxF1Elizabeth.new(item["uuid"], true, true)
             rootnhash = item["rootnhash"]
-            exportLocation = "#{File.dirname(filepath)}/#{DxF1OrbitalExpansion::fileSystemSafeName(item)} (export)"
+            exportLocation = "#{File.dirname(filepath)}/#{DxF1OrbitalExpansion::fileSystemSafeName(item)} (access)"
             FileUtils.mkdir(exportLocation)
             AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
             puts "Item exported at #{exportLocation}"
@@ -578,17 +558,7 @@ class DxF1OrbitalExpansion
 
     # DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(item, folder)
     def self.exposeItemAndDescendanceAtFolder(item, folder)
-        # We start by removing any dxf1 file at that location
-        LucilleCore::locationsAtFolder(folder)
-            .select{|filepath| DxF1::filepathIsDxF1(filepath) }
-            .each{|filepath|
-                if !filepath.include?(Config::orbital()) then
-                    raise "(error: cdd4c92c-235b-419a-a0b9-f812e311d495) filepath: #{filepath}"
-                end
-                FileUtils.rm(filepath)
-            }
-
-        filepath = DxF1OrbitalExpansion::copyDxF1FileToFolderWithUserFriendlyNameOrNull(item["uuid"], folder)
+        filepath = DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(item["uuid"], folder)
         return if filepath.nil?
         DxF1OrbitalExpansion::exposeFileContents(filepath)
         DxF1OrbitalExpansion::exposeChildrenRecursively(filepath)
