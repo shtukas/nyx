@@ -95,6 +95,18 @@ class PolyActions
         raise "(error: abb645e9-2575-458e-b505-f9c029f4ca69) I do not know how to access mikuType: #{item["mikuType"]}"
     end
 
+    # PolyActions::dataPrefetchAttempt(item)
+    def self.dataPrefetchAttempt(item)
+        return if item.nil?
+
+        # order : alphabetical order
+
+        if item["mikuType"] == "CxDx8Unit" then
+            unitId = item["unitId"]
+            Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId) # this brings the file to the wormhole
+        end
+    end
+
     # PolyActions::destroyWithPrompt(item)
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
@@ -211,6 +223,62 @@ class PolyActions
         raise "(error: f278f3e4-3f49-4f79-89d2-e5d3b8f728e6)"
     end
 
+    # PolyActions::editDatetime(item)
+    def self.editDatetime(item)
+        datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
+        return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
+        DxF1::setAttribute2(item["uuid"], "datetime", datetime)
+    end
+
+    # PolyActions::editDescription(item)
+    def self.editDescription(item)
+
+        noImplementationTypes = [
+            "CxAionPoint",
+            "CxDx8Unit",
+            "CxFile",
+            "CxText",
+            "CxUniqueString",
+            "CxUrl",
+            "DxUrl"
+        ]
+
+        if noImplementationTypes.include?(item["mikuType"]) then
+            puts "update description is not implemented for #{item["mikuType"]}"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if item["mikuType"] == "DxLine" then
+            str = CommonUtils::editTextSynchronously(item["line"]).strip
+            return if str == ""
+            DxF1::setAttribute2(item["uuid"], "line", str)
+        end
+
+        if item["mikuType"] == "NxPerson" then
+            str = CommonUtils::editTextSynchronously(item["name"]).strip
+            return if str == ""
+            DxF1::setAttribute2(item["uuid"], "name", str)
+        end
+
+        description = CommonUtils::editTextSynchronously(item["description"]).strip
+        return if description == ""
+        DxF1::setAttribute2(item["uuid"], "description", description)
+    end
+
+    # PolyActions::editStartDate(item)
+    def self.editStartDate(item)
+        if item["mikuType"] != "NxAnniversary" then
+            puts "update description is only implemented for NxAnniversary"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        startdate = CommonUtils::editTextSynchronously(item["startdate"])
+        return if startdate == ""
+        DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
+    end
+
     # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
     def self.garbageCollectionAsPartOfLaterItemDestruction(item)
         return if item.nil?
@@ -237,18 +305,6 @@ class PolyActions
         return if i2.nil?
         puts JSON.pretty_generate(i2)
         NetworkLinks::link(item["uuid"], i2["uuid"])
-    end
-
-    # PolyActions::dataPrefetchAttempt(item)
-    def self.dataPrefetchAttempt(item)
-        return if item.nil?
-
-        # order : alphabetical order
-
-        if item["mikuType"] == "CxDx8Unit" then
-            unitId = item["unitId"]
-            Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId) # this brings the file to the wormhole
-        end
     end
 
     # PolyActions::redate(item)
@@ -289,61 +345,5 @@ class PolyActions
         interactivelyChooseMikuTypeOrNull = lambda{|mikuTypes|
             LucilleCore::selectEntityFromListOfEntitiesOrNull("mikuType", mikuTypes)
         }
-    end
-
-    # PolyActions::editDescription(item)
-    def self.editDescription(item)
-
-        noImplementationTypes = [
-            "CxAionPoint",
-            "CxDx8Unit",
-            "CxFile",
-            "CxText",
-            "CxUniqueString",
-            "CxUrl",
-            "DxUrl"
-        ]
-
-        if noImplementationTypes.include?(item["mikuType"]) then
-            puts "update description is not implemented for #{item["mikuType"]}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if item["mikuType"] == "DxLine" then
-            str = CommonUtils::editTextSynchronously(item["line"]).strip
-            return if str == ""
-            DxF1::setAttribute2(item["uuid"], "line", str)
-        end
-
-        if item["mikuType"] == "NxPerson" then
-            str = CommonUtils::editTextSynchronously(item["name"]).strip
-            return if str == ""
-            DxF1::setAttribute2(item["uuid"], "name", str)
-        end
-
-        description = CommonUtils::editTextSynchronously(item["description"]).strip
-        return if description == ""
-        DxF1::setAttribute2(item["uuid"], "description", description)
-    end
-
-    # PolyActions::editDatetime(item)
-    def self.editDatetime(item)
-        datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
-        return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-        DxF1::setAttribute2(item["uuid"], "datetime", datetime)
-    end
-
-    # PolyActions::editStartDate(item)
-    def self.editStartDate(item)
-        if item["mikuType"] != "NxAnniversary" then
-            puts "update description is only implemented for NxAnniversary"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        startdate = CommonUtils::editTextSynchronously(item["startdate"])
-        return if startdate == ""
-        DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
     end
 end

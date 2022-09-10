@@ -324,43 +324,15 @@ class DxF1
         CommonUtils::ends_with?(filepath, ".dxf1.sqlite3")
     end
 
-    # DxF1::dxF1sFilepathsEnumerator()
-    def self.dxF1sFilepathsEnumerator()
-        root = "#{ENV['HOME']}/Galaxy"
+    # DxF1::databankRepositoryDxF1sFilepathEnumerator()
+    def self.databankRepositoryDxF1sFilepathEnumerator()
         Enumerator.new do |filepaths|
-            Find.find(root) do |path|
+            Find.find(DxF1::pathToRepository()) do |path|
                 next if !File.file?(path)
                 next if !DxF1::filepathIsDxF1(path)
                 filepaths << path
             end
         end
-    end
-
-    # DxF1::copyFileToDesktop(objectuuid)
-    def self.copyFileToDesktop(objectuuid)
-        filepath1 = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-        return if filepath1.nil?
-        filepath2 = "#{ENV['HOME']}/Desktop/#{File.basename(filepath1)}"
-        FileUtils.cp(filepath1, filepath2)
-        DxF1::renameDxF1FileAsUserFriendly(filepath2)
-    end
-
-    # DxF1::renameDxF1FileAsUserFriendly(filepath)
-    def self.renameDxF1FileAsUserFriendly(filepath)
-        if !DxF1::filepathIsDxF1(filepath) then
-            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
-        end
-        if filepath.include?(DxF1::pathToRepository()) then
-            raise "(error: 7b7810ea-d608-4d1b-9076-9f536db6e6aa) You cannot do that with filepath: #{filepath}"
-        end
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        return if item.nil?
-        genericDescription = PolyFunctions::genericDescription(item)
-        filenamePrefix = CommonUtils::sanitiseStringForFilenaming(genericDescription)
-        filename2 = "#{filenamePrefix} [#{item["mikuType"]}].dxf1.sqlite3"
-        filepath2 = "#{File.dirname(filepath)}/#{filename2}"
-        FileUtils.mv(filepath, filepath2)
-        filepath2
     end
 end
 
@@ -442,6 +414,71 @@ class DxF1Utils
     end
 end
 
+class DxF1OrbitalExpansion
+
+    # DxF1::copyFileToDesktop(objectuuid)
+    def self.copyFileToDesktop(objectuuid)
+        filepath1 = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
+        return if filepath1.nil?
+        filepath2 = "#{ENV['HOME']}/Desktop/#{File.basename(filepath1)}"
+        FileUtils.cp(filepath1, filepath2)
+        DxF1::renameDxF1FileAsUserFriendly(filepath2)
+    end
+
+    # DxF1::renameDxF1FileAsUserFriendly(filepath)
+    def self.renameDxF1FileAsUserFriendly(filepath)
+        # We can only rename on the Desktop on within Orbital
+        if !filepath.include?("#{ENV['HOME']}/Desktop") or !filepath.include?(Config::orbital()) then
+            raise "(error: 7b7810ea-d608-4d1b-9076-9f536db6e6aa) You cannot do that with filepath: #{filepath}"
+        end
+        if !DxF1::filepathIsDxF1(filepath) then
+            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
+        end
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        return if item.nil?
+        genericDescription = PolyFunctions::genericDescription(item)
+        filenamePrefix = CommonUtils::sanitiseStringForFilenaming(genericDescription)
+        filename2 = "#{filenamePrefix} [#{item["mikuType"]}].dxf1.sqlite3"
+        filepath2 = "#{File.dirname(filepath)}/#{filename2}"
+        FileUtils.mv(filepath, filepath2)
+        filepath2
+    end
+
+    # DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator()
+    def self.orbitalDxF1FilepathEnumerator()
+        Enumerator.new do |filepaths|
+            Find.find(Config::orbital()) do |path|
+                next if !File.file?(path)
+                next if !DxF1::filepathIsDxF1(path)
+                next if path.include?(DxF1::pathToRepository())
+                filepaths << path
+            end
+        end
+    end
+
+    # DxF1OrbitalExpansion::exposeFileContents(filepath)
+    def self.exposeFileContents(filepath)
+        if !filepath.include?(Config::orbital()) then
+            raise "(error: bf72c1c7-5fb5-453e-9710-9e691ca97219) You need to point at orbital. Given fiepath: #{filepath}"
+        end
+        if !DxF1::filepathIsDxF1(filepath) then
+            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
+        end
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        return if item.nil?
+
+        if item["mikuType"] == "NxPerson" then
+            return
+        end
+    end
+
+    # DxF1OrbitalExpansion::exposeAllExported()
+    def self.exposeAllExported()
+        DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator().each{|filepath|
+            puts filepath
+        }
+    end
+end
 
 class DxF1sAtStargateCentral
 

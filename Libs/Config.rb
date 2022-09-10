@@ -23,6 +23,11 @@ class Config
     def self.starlightCommsLine()
         "#{Config::userHomeDirectory()}/Galaxy/DataBank/Stargate/multi-instance-shared2/commsline"
     end
+
+    # Config::orbital()
+    def self.orbital()
+        "#{Config::userHomeDirectory()}/Galaxy/Orbital"
+    end
 end
 
 class SharedConfig
