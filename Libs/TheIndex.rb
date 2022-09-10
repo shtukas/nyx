@@ -150,23 +150,14 @@ class TheIndex
 
     # TheIndex::updateIndexReadingDxF1s()
     def self.updateIndexReadingDxF1s()
-
-        filepathIsDxF1 = lambda {|filepath|
-            CommonUtils::ends_with?(filepath, ".dxf1.sqlite3")
-        }
-
-        root = "#{ENV['HOME']}/Galaxy"
-        Find.find(root) do |path|
-            next if !File.file?(path)
-            next if !filepathIsDxF1.call(path)
-
-            puts path
-            item = DxF1::getProtoItemAtFilepathOrNull(path)
+        DxF1Extended::dxF1sFilepathsEnumerator().each{|filepath|
+            puts filepath
+            item = DxF1::getProtoItemAtFilepathOrNull(filepath)
             next if item.nil?
             next if !item["isAlive"].nil? and !item["isAlive"]
             puts JSON.pretty_generate(item)
             TheIndex::updateIndexWithThisObjectAttempt(item)
-        end
+        }
     end
 
     # TheIndex::destroy(objectuuid)

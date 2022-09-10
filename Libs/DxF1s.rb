@@ -396,9 +396,14 @@ class DxF1Extended
 
     # DxF1Extended::dxF1sFilepathsEnumerator()
     def self.dxF1sFilepathsEnumerator()
+        filepathIsDxF1 = lambda {|filepath|
+            CommonUtils::ends_with?(filepath, ".dxf1.sqlite3")
+        }
+        root = "#{ENV['HOME']}/Galaxy"
         Enumerator.new do |filepaths|
-            Find.find(DxF1::pathToRepository()) do |path|
-                next if path[-8, 8] != ".sqlite3"
+            Find.find(root) do |path|
+                next if !File.file?(path)
+                next if !filepathIsDxF1.call(path)
                 filepaths << path
             end
         end
@@ -513,24 +518,6 @@ class DxF1sAtStargateCentral
         end
 
         db1.close
-    end
-
-    # DxF1sAtStargateCentral::sync()
-    def self.sync()
-        StargateCentral::ensureCentral()
-        DxF1Extended::dxF1sFilepathsEnumerator().each{|filepath1|
-            objectuuid = DxF1::getAttributeAtFileOrNull(filepath1, "uuid")
-            if objectuuid.nil? then
-                puts "I could not extract a uuid at filepath: #{filepath1}"
-                if LucilleCore::askQuestionAnswerAsBoolean("destroy file ? ") then
-                    FileUtils.rm(filepath1)
-                    next
-                end
-                exit
-            end
-            filepath2 = DxF1sAtStargateCentral::dxF1Filepath(objectuuid)
-            DxF1sAtStargateCentral::localToCentralFilePropagation(filepath1, filepath2)
-        }
     end
 
     # DxF1sAtStargateCentral::getDatablobOrNull(objectuuid, nhash)
