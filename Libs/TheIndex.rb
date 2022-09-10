@@ -150,9 +150,16 @@ class TheIndex
 
     # TheIndex::updateIndexReadingDxF1s()
     def self.updateIndexReadingDxF1s()
-        root = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s"
+
+        filepathIsDxF1 = lambda {|filepath|
+            CommonUtils::ends_with?(filepath, ".dxf1.sqlite3")
+        }
+
+        root = "#{ENV['HOME']}/Galaxy"
         Find.find(root) do |path|
-            next if File.basename(path)[-8, 8] != ".sqlite3"
+            next if !File.file?(path)
+            next if !filepathIsDxF1.call(path)
+
             puts path
             item = DxF1::getProtoItemAtFilepathOrNull(path)
             next if item.nil?

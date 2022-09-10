@@ -399,6 +399,11 @@ class CommonUtils
     # ----------------------------------------------------
     # String Utilities
 
+    # CommonUtils::ends_with?(str, ending)
+    def self.ends_with?(str, ending)
+        str[-ending.size, ending.size] == ending
+    end
+
     # CommonUtils::levenshteinDistance(s, t)
     def self.levenshteinDistance(s, t)
       # https://stackoverflow.com/questions/16323571/measure-the-distance-between-two-strings-with-ruby
