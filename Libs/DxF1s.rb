@@ -470,12 +470,15 @@ class DxF1OrbitalExpansion
         if item["mikuType"] == "NxPerson" then
             return
         end
+
+        raise "(error: 5689a74c-813a-4459-9bfc-565458372eff) I don't know how to expose MikuType #{item["mikuType"]}"
     end
 
     # DxF1OrbitalExpansion::exposeAllExported()
     def self.exposeAllExported()
         DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator().each{|filepath|
             puts filepath
+            DxF1OrbitalExpansion::exposeFileContents(filepath)
         }
     end
 end
