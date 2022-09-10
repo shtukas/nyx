@@ -577,10 +577,6 @@ class CommandInterpreterDefault
                     "lambda" => lambda { TxDateds::listingItems() }
                 },
                 {
-                    "name" => "TxTimeCommitments::listingItems()",
-                    "lambda" => lambda { TxTimeCommitments::listingItems() }
-                },
-                {
                     "name" => "The99Percent::getCurrentCount()",
                     "lambda" => lambda { The99Percent::getCurrentCount() }
                 },

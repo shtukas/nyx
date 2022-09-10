@@ -70,13 +70,6 @@ class TxTimeCommitments
         "(tcpt) #{item["description"]}"
     end
 
-    # TxTimeCommitments::listingItems()
-    def self.listingItems()
-        TxTimeCommitments::items()
-            .select{|item| Ax39forSections::itemShouldShow(item) }
-            .sort{|i1, i2| Ax39forSections::orderingValue(i1) <=> Ax39forSections::orderingValue(i2) }
-    end
-
     # TxTimeCommitments::nx79s(owner, count) # Array[Nx79]
     def self.nx79s(owner, count)
         map = TimeCommitmentMapping::owneruuidToNx78(owner["uuid"])
