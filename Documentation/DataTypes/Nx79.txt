@@ -1,5 +1,0 @@
-
-Nx79 {
-    "item"    : Item
-    "ordinal" : Float
-}

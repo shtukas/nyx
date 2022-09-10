@@ -62,41 +62,10 @@ class PolyPrograms
             puts line
             vspaceleft = vspaceleft - 2
 
-            managedItemsSize = 6
-
-            nx79s = TxTimeCommitments::nx79s(context, managedItemsSize)
+            nx79s = TxTimeCommitments::nx79s(context, CommonUtils::screenHeight())
             if nx79s.size > 0 then
                 puts ""
-                puts "Managed Items:".yellow
-                vspaceleft = vspaceleft - 2
-                nx79s
-                    .map{|nx79|
-                        {
-                            "nx79" => nx79,
-                            "rt"   => BankExtended::stdRecoveredDailyTimeInHours(nx79["item"]["uuid"])
-                        }
-                    }
-                    .sort{|p1, p2| p1["rt"] <=> p2["rt"] }
-                    .each_with_index{|px, indx|
-                        nx79    = px["nx79"]
-                        rt      = px["rt"]
-                        element = nx79["item"]
-                        PolyActions::dataPrefetchAttempt(element)
-                        indx = store.register(element, indx == 0)
-                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)} (rt: #{BankExtended::stdRecoveredDailyTimeInHours(element["uuid"]).round(2)})"
-                        if NxBallsService::isPresent(element["uuid"]) then
-                            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
-                        end
-                        puts line
-                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    }
-            end
-
-            nx79s = TxTimeCommitments::nx79s(context, CommonUtils::screenHeight()).drop(managedItemsSize)
-            if nx79s.size > 0 then
-                puts ""
-                puts "Tail (#{nx79s.size} items):".yellow
-                vspaceleft = vspaceleft - 2
+                vspaceleft = vspaceleft - 1
                 nx79s
                     .each{|nx79|
                         element = nx79["item"]
