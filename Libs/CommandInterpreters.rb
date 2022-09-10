@@ -3,19 +3,15 @@
 
 class CommandInterpreters
 
-    # CommandInterpreters::commands()
-    def self.commands()
+    # CommandInterpreters::catalystCommands()
+    def self.catalystCommands()
         [
-            "Catalyst:",
-            ".. / <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
-            "update startd date (<n>)",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx112 (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            "update start date (<n>)",
             "wave | anniversary | today | ondate | todo | task | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves | frames | toplevels | time commitments",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
-            "Nyx:",
-            "description (<n>) | nx112 (<n>)",
-            "link:line (<n>) | link:text (<n>) | link (<n>) | navigation (<n>) | network-migration (<n>)"
         ].join("\n")
     end
 
@@ -167,12 +163,6 @@ class CommandInterpreters
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if Interpreting::match("help", input) then
-            puts CommandInterpreters::commands().yellow
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -487,6 +477,16 @@ class CommandInterpreters
         end
     end
 
+    # CommandInterpreters::nyxCommands()
+    def self.nyxCommands()
+        [
+            "<n> | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | landing (<n>) | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            "search",
+            "description (<n>) | nx112 (<n>)",
+            "link:line (<n>) | link:text (<n>) | link (<n>) | navigation (<n>) | network-migration (<n>)"
+        ].join("\n")
+    end
+
     # CommandInterpreters::nyx(input, store)
     def self.nyx(input, store) # [command or null, item or null]
 
@@ -598,12 +598,6 @@ class CommandInterpreters
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if Interpreting::match("help", input) then
-            puts CommandInterpreters::commands().yellow
             LucilleCore::pressEnterToContinue()
             return
         end

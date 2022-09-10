@@ -7,7 +7,9 @@ class PolyPrograms
 
         context = CatalystListing::getContextOrNull()
 
-        vspaceleft = CommonUtils::screenHeight() - (context ? 4 : 3)
+        vspaceleft = CommonUtils::screenHeight() - (context ? 5 : 4)
+
+        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CommandInterpreters::catalystCommands())
 
         if Config::get("instanceId") == "Lucille20-pascal" then
             reference = The99Percent::getReferenceOrNull()
@@ -82,7 +84,8 @@ class PolyPrograms
             end
 
             puts ""
-            puts "commands: start <n> | access <n> | stop <n> | set ordinal <n> | ax39 | insert | exit".yellow
+            puts CommandInterpreters::catalystCommands().yellow
+            puts "commands: set ordinal <n> | ax39 | insert | exit".yellow
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -134,6 +137,9 @@ class PolyPrograms
                 return
             end
 
+            puts ""
+            puts CommandInterpreters::catalystCommands().yellow
+            puts ""
             CommandInterpreters::catalyst(input, store)
 
         else
@@ -166,6 +172,9 @@ class PolyPrograms
                     puts line
                     vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                 }
+
+            puts ""
+            puts CommandInterpreters::catalystCommands().yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -187,6 +196,8 @@ class PolyPrograms
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
             store = ItemStore.new()
+            puts ""
+            puts CommandInterpreters::catalystCommands().yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -224,6 +235,8 @@ class PolyPrograms
                 end
             end
 
+            puts ""
+            puts CommandInterpreters::nyxCommands().yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""

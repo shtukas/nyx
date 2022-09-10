@@ -4,4 +4,6 @@
 
 require_relative "../Libs/loader.rb"
 
-CatalystListing::primaryCommandProcess()
+puts CommandInterpreters::catalystCommands().yellow
+input = LucilleCore::askQuestionAnswerAsString("> ")
+CommandInterpreters::catalyst(input, nil)
