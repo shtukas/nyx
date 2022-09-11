@@ -78,7 +78,7 @@ class CxAionPoint
     def self.access(item)
         operator = DxF1Elizabeth.new(item["uuid"])
         rootnhash = item["rootnhash"]
-        parentLocation = "#{ENV['HOME']}/Desktop/DxPure-Export-#{SecureRandom.hex(4)}"
+        parentLocation = "#{ENV['HOME']}/Desktop/CxAionPoint-Export-#{SecureRandom.hex(4)}"
         FileUtils.mkdir(parentLocation)
         AionCore::exportHashAtFolder(operator, rootnhash, parentLocation)
         puts "Item exported at #{parentLocation}"
