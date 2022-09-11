@@ -504,19 +504,43 @@ class DxF1OrbitalExpansion
             return
         end
 
+        if item["mikuType"] == "DxFile" then
+            dottedExtension = item["dottedExtension"]
+            nhash = item["nhash"]
+            parts = item["parts"]
+            operator = DxF1Elizabeth.new(item["uuid"])
+            filepath = "#{exportfolder}/#{DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)}#{dottedExtension}"
+            File.open(filepath, "w"){|f|
+                parts.each{|nhash|
+                    blob = operator.getBlobOrNull(nhash)
+                    raise "(error: e44376b0-6534-47ba-bd37-3254a52c7f94)" if blob.nil?
+                    f.write(blob)
+                }
+            }
+            return
+        end
+
+        if item["mikuType"] == "DxLine" then
+            exportfilepath = "#{exportfolder}/#{DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)} | #{item["mikuType"]}.txt"
+            File.open(exportfilepath, "w"){|f| f.puts(item["line"]) }
+            return
+        end
+
         if item["mikuType"] == "DxText" then
-            exportfilepath = "#{exportfolder}/DxText.txt"
+            exportfilepath = "#{exportfolder}/#{DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)} | #{item["mikuType"]}.txt"
             File.open(exportfilepath, "w"){|f| f.puts(item["text"]) }
             return
         end
 
         if item["mikuType"] == "NxPerson" then
-            LucilleCore::removeFileSystemLocation(exportfolder)
             return
         end
 
         if item["mikuType"] == "NxCollection" then
-            LucilleCore::removeFileSystemLocation(exportfolder)
+            return
+        end
+
+        if item["mikuType"] == "NxTimeline" then
             return
         end
 
@@ -525,11 +549,7 @@ class DxF1OrbitalExpansion
 
     # DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(item, folder)
     def self.exposeItemAndDescendanceAtFolder(item, folder)
-        folder1 = "#{folder}/#{DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)} | #{item["mikuType"]}"
-        if !File.exists?(folder1) then
-            FileUtils.mkdir(folder1)
-        end
-        DxF1OrbitalExpansion::exposeFileContents(item, folder1)
+        DxF1OrbitalExpansion::exposeFileContents(item, folder)
         folder2 = "#{folder}/#{DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)} | #{item["mikuType"]} (children)"
         children = NetworkArrows::children(item["uuid"])
         return if children.empty?

@@ -27,7 +27,7 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "DxFile" then
-            return (item["description"] ? item["description"] : "DxFile: #{item["nhash"]}")
+            return (item["description"] ? item["description"] : "DxFile-#{item["uuid"]}")
         end
         if item["mikuType"] == "DxLine" then
             return item["line"]
