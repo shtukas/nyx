@@ -459,6 +459,11 @@ class DxF1OrbitalExpansion
         CommonUtils::sanitiseStringForFilenaming(genericDescription)
     end
 
+    # DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)
+    def self.fileSystemSafeNameWithDateTimePrefix(item)
+        "#{item["datetime"].gsub(":","")} | #{DxF1OrbitalExpansion::fileSystemSafeName(item)}"
+    end
+
     # DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(objectuuid, folder) # filepath or null
     def self.copyDxF1FileToFolderOrNull(objectuuid, folder)
         filepath1 = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
@@ -488,53 +493,52 @@ class DxF1OrbitalExpansion
         end
     end
 
-    # DxF1OrbitalExpansion::exposeFileContents(filepath)
-    def self.exposeFileContents(filepath)
-        if !filepath.include?(Config::orbital()) then
-            raise "(error: bf72c1c7-5fb5-453e-9710-9e691ca97219) You need to point at orbital. Given fiepath: #{filepath}"
-        end
-        if !DxF1::filepathIsDxF1(filepath) then
-            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
-        end
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        return if item.nil?
+    # DxF1OrbitalExpansion::exposeFileContents(item, exportfolder)
+    def self.exposeFileContents(item, exportfolder)
+        # order: alphabetical
 
-        if item["mikuType"] == "NxPerson" then
+        if item["mikuType"] == "DxAionPoint" then
+            operator = DxF1Elizabeth.new(item["uuid"])
+            rootnhash = item["rootnhash"]
+            AionCore::exportHashAtFolder(operator, rootnhash, exportfolder)
             return
         end
 
-        if item["mikuType"] == "DxAionPoint" then
-            operator = DxF1Elizabeth.new(item["uuid"], true, true)
-            rootnhash = item["rootnhash"]
-            exportLocation = "#{File.dirname(filepath)}/#{DxF1OrbitalExpansion::fileSystemSafeName(item)} (access)"
-            FileUtils.mkdir(exportLocation)
-            AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
-            puts "Item exported at #{exportLocation}"
+        if item["mikuType"] == "DxText" then
+            exportfilepath = "#{exportfolder}/DxText.txt"
+            File.open(exportfilepath, "w"){|f| f.puts(item["text"]) }
+            return
+        end
+
+        if item["mikuType"] == "NxPerson" then
+            LucilleCore::removeFileSystemLocation(exportfolder)
+            return
+        end
+
+        if item["mikuType"] == "NxCollection" then
+            LucilleCore::removeFileSystemLocation(exportfolder)
             return
         end
 
         raise "(error: 5689a74c-813a-4459-9bfc-565458372eff) I don't know how to expose MikuType #{item["mikuType"]}"
     end
 
-    # DxF1OrbitalExpansion::exposeChildrenRecursively(filepath)
-    def self.exposeChildrenRecursively(filepath)
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        return if item.nil?
-        childrenExportFolder = "#{File.dirname(filepath)}/#{DxF1OrbitalExpansion::fileSystemSafeName(item)} (children)"
-        if !File.exists?(childrenExportFolder) then
-            FileUtils.mkdir(childrenExportFolder)
-        end
-        NetworkArrows::children(item["uuid"]).each{|child|
-            DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(child, childrenExportFolder)
-        }
-    end
-
     # DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(item, folder)
     def self.exposeItemAndDescendanceAtFolder(item, folder)
-        filepath = DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(item["uuid"], folder)
-        return if filepath.nil?
-        DxF1OrbitalExpansion::exposeFileContents(filepath)
-        DxF1OrbitalExpansion::exposeChildrenRecursively(filepath)
+        folder1 = "#{folder}/#{DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)} | #{item["mikuType"]}"
+        if !File.exists?(folder1) then
+            FileUtils.mkdir(folder1)
+        end
+        DxF1OrbitalExpansion::exposeFileContents(item, folder1)
+        folder2 = "#{folder}/#{DxF1OrbitalExpansion::fileSystemSafeNameWithDateTimePrefix(item)} | #{item["mikuType"]} (children)"
+        children = NetworkArrows::children(item["uuid"])
+        return if children.empty?
+        if !File.exists?(folder2) then
+            FileUtils.mkdir(folder2)
+        end
+        children.each{|child|
+            DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(child, folder2)
+        }
     end
 
     # DxF1OrbitalExpansion::exposeAllExported()
