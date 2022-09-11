@@ -81,6 +81,14 @@ class SystemEvents
         if event["mikuType"] == "TimeCommitmentMapping" then
             TimeCommitmentMapping::processEvent(event)
         end
+
+        if event["mikuType"] == "NetworkLinks" then
+            NetworkLinks::processEvent(event)
+        end
+
+        if event["mikuType"] == "NetworkArrows" then
+            NetworkArrows::processEvent(event)
+        end
     end
 
     # SystemEvents::broadcast(event)
