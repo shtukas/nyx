@@ -82,7 +82,7 @@ class Ax39
             return true
         end
         if item["ax39"]["type"] == "weekly-time-commitment" then
-            return false if Time.new.wday == 5 # We don't show those on Fridays
+            return false if [1, 2, 3, 4].include?(Time.new.wday) # We show these on Fridays, Saturdays and Sundays
             return false if Ax39::completionRatio(item) >= 1
             return true
         end
