@@ -47,7 +47,6 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
-checkLocation.call("#{ENV['HOME']}/Desktop/Inbox")
 checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Orbital")
@@ -293,7 +292,6 @@ require_relative "PolyPrograms.rb"
 
 require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
-require_relative "StargateCentral.rb"
 require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"
 

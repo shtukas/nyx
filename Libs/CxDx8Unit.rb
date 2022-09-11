@@ -48,7 +48,6 @@ class CxDx8Unit
             return
         end
         puts "location: #{location}"
-        StargateCentral::ensureCentral()
         if LucilleCore::locationsAtFolder(location).size == 1 and LucilleCore::locationsAtFolder(location).first[-5, 5] == ".webm" then
             location2 = LucilleCore::locationsAtFolder(location).first
             if File.basename(location2).include?("'") then
@@ -59,7 +58,6 @@ class CxDx8Unit
             location = location2
         end
         system("open '#{location}'")
-        return
         LucilleCore::pressEnterToContinue()
     end
 end

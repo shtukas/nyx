@@ -386,10 +386,10 @@ class DxF1Utils
         item["isAlive"].nil? or item["isAlive"]
     end
 
-    # DxF1sAtStargateCentral::dxF1FilePropagation(filepath1, filepath2)
+    # DxF1Utils::dxF1FilePropagation(filepath1, filepath2)
     def self.dxF1FilePropagation(filepath1, filepath2)
 
-        puts "DxF1sAtStargateCentral::dxF1FilePropagation(filepath1, filepath2)"
+        puts "DxF1Utils::dxF1FilePropagation(filepath1, filepath2)"
         puts "    - #{filepath1}"
         puts "    - #{filepath2}"
 
@@ -556,43 +556,5 @@ class DxF1OrbitalExpansion
             end
             DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(item, File.dirname(filepath))
         }
-    end
-end
-
-class DxF1sAtStargateCentral
-
-    # DxF1sAtStargateCentral::dxF1Filepath(objectuuid)
-    def self.dxF1Filepath(objectuuid)
-        StargateCentral::ensureCentral()
-        sha1 = Digest::SHA1.hexdigest(objectuuid)
-        folderpath = "#{StargateCentral::pathToCentral()}/DxF1s/#{sha1[0, 2]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        filepath = "#{folderpath}/#{sha1}.dxf1.sqlite3"
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob)", [])
-            db.close
-        end
-        filepath
-    end
-
-    # DxF1sAtStargateCentral::getDatablobOrNull(objectuuid, nhash)
-    def self.getDatablobOrNull(objectuuid, nhash)
-        db = SQLite3::Database.new(DxF1sAtStargateCentral::dxF1Filepath(objectuuid))
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        blob = nil
-        # It is of crutial importance that we `order by _eventTime_` to return the current (latest) value
-        db.execute("select * from _dxf1_ where _name_=? order by _eventTime_", [nhash]) do |row|
-            blob = row["_value_"]
-        end
-        db.close
-        blob
     end
 end
