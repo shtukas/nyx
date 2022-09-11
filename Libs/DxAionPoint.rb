@@ -21,7 +21,7 @@ class DxAionPoint
         location = CommonUtils::interactivelySelectDesktopLocationOrNull()
         return nil if location.nil?
 
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
 
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
 
@@ -49,7 +49,7 @@ class DxAionPoint
 
         description = File.basename(location)
 
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
 
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
 
@@ -81,7 +81,7 @@ class DxAionPoint
 
     # DxAionPoint::access(item)
     def self.access(item)
-        operator = DxF1Elizabeth.new(item["uuid"], true, true)
+        operator = DxF1Elizabeth.new(item["uuid"])
         rootnhash = item["rootnhash"]
         parentLocation = "#{ENV['HOME']}/Desktop/DxAionPoint-Export-#{SecureRandom.hex(4)}"
         FileUtils.mkdir(parentLocation)
@@ -92,7 +92,7 @@ class DxAionPoint
 
     # DxAionPoint::edit(item) # item
     def self.edit(item)
-        operator = DxF1Elizabeth.new(item["uuid"], true, true)
+        operator = DxF1Elizabeth.new(item["uuid"])
         rootnhash = item["rootnhash"]
         exportLocation = "#{ENV['HOME']}/Desktop/DxAionPoint-Edit-#{SecureRandom.hex(4)}"
         FileUtils.mkdir(exportLocation)
@@ -120,7 +120,7 @@ class DxAionPoint
         location = acquireLocationInsideExportFolder.call(exportLocation)
 
         uuid = item["uuid"]
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
         DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
