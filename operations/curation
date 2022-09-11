@@ -4,7 +4,61 @@
 
 require_relative "../Libs/loader.rb"
 
+# ========================================================================================
+# Landing on items with large Dxf1 files (biggest number of related comes first)
+# We want to turn them into Dx8Units and free DxF1 transfer between laptops
+
+$cache = {}
+
+def size(filepath)
+    return $cache[filepath] if $cache[filepath]
+    puts "looking  : #{filepath}"
+    size1 = XCache::getOrNull("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{filepath}")
+    if size1 then
+        size1 = size1.to_i
+        $cache[filepath] = size1
+        return size1.to_i 
+    end
+    puts "computing: #{filepath}"
+    size1 = File.size(filepath)
+    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{filepath}", size1)
+    $cache[filepath] = size1
+    size1
+end
+
+$cache2 = {}
+
+def decideItem(fp)
+    return $cache2[fp].clone if $cache2[fp]
+    item = DxF1::getProtoItemAtFilepathOrNull(fp)
+    $cache2[fp] = item.clone
+    item
+end
+
+loop {
+    filepath = DxF1::databankRepositoryDxF1sFilepathEnumerator()
+                    .reduce(nil){|filepathBig, fp|
+                        item = decideItem(fp)
+                        if item and Iam::isNyxNetworkItem(item) then
+                            if size(filepathBig) > size(fp) then
+                                filepathBig
+                            else
+                                fp
+                            end
+                        else
+                            filepathBig
+                        end
+                    }
+    puts "filepath: #{filepath}"
+    item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+    raise "item is null" if item.nil?
+    PolyPrograms::itemLanding(item)
+}
+
 exit
+
+# ========================================================================================
+# Landing on items with related (biggest number of related comes first)
 
 $cache = {}
 

@@ -43,8 +43,8 @@ class PolyPrograms
                 vspaceleft = vspaceleft - 1
                 tx
                     .each{|item|
-                        store.register(item, false)
-                        line = "#{store.prefixString()} #{TxTimeCommitments::toString(item)}".yellow
+                        store.register(item, true)
+                        line = "#{store.prefixString()} #{TxTimeCommitments::toString(item)}"
                         puts line
                         vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
                     }
