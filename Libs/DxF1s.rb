@@ -541,8 +541,8 @@ class DxF1OrbitalExpansion
         }
     end
 
-    # DxF1OrbitalExpansion::exposeAllExported()
-    def self.exposeAllExported()
+    # DxF1OrbitalExpansion::starFsOrbitalProjection()
+    def self.starFsOrbitalProjection()
         DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator().each{|filepath|
             puts filepath
             item = DxF1::getProtoItemAtFilepathOrNull(filepath)
