@@ -385,103 +385,11 @@ class DxF1Utils
     def self.itemIsAlive(item)
         item["isAlive"].nil? or item["isAlive"]
     end
-end
 
-class DxF1OrbitalExpansion
+    # DxF1sAtStargateCentral::dxF1FilePropagation(filepath1, filepath2)
+    def self.dxF1FilePropagation(filepath1, filepath2)
 
-    # DxF1::copyFileToDesktop(objectuuid)
-    def self.copyFileToDesktop(objectuuid)
-        filepath1 = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-        return if filepath1.nil?
-        filepath2 = "#{ENV['HOME']}/Desktop/#{File.basename(filepath1)}"
-        FileUtils.cp(filepath1, filepath2)
-        DxF1::renameDxF1FileAsUserFriendly(filepath2)
-    end
-
-    # DxF1::renameDxF1FileAsUserFriendly(filepath)
-    def self.renameDxF1FileAsUserFriendly(filepath)
-        # We can only rename on the Desktop on within Orbital
-        if !filepath.include?("#{ENV['HOME']}/Desktop") or !filepath.include?(Config::orbital()) then
-            raise "(error: 7b7810ea-d608-4d1b-9076-9f536db6e6aa) You cannot do that with filepath: #{filepath}"
-        end
-        if !DxF1::filepathIsDxF1(filepath) then
-            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
-        end
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        return if item.nil?
-        genericDescription = PolyFunctions::genericDescription(item)
-        filenamePrefix = CommonUtils::sanitiseStringForFilenaming(genericDescription)
-        filename2 = "#{filenamePrefix} [#{item["mikuType"]}].dxf1.sqlite3"
-        filepath2 = "#{File.dirname(filepath)}/#{filename2}"
-        FileUtils.mv(filepath, filepath2)
-        filepath2
-    end
-
-    # DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator()
-    def self.orbitalDxF1FilepathEnumerator()
-        Enumerator.new do |filepaths|
-            Find.find(Config::orbital()) do |path|
-                next if !File.file?(path)
-                next if !DxF1::filepathIsDxF1(path)
-                next if path.include?(DxF1::pathToRepository())
-                filepaths << path
-            end
-        end
-    end
-
-    # DxF1OrbitalExpansion::exposeFileContents(filepath)
-    def self.exposeFileContents(filepath)
-        if !filepath.include?(Config::orbital()) then
-            raise "(error: bf72c1c7-5fb5-453e-9710-9e691ca97219) You need to point at orbital. Given fiepath: #{filepath}"
-        end
-        if !DxF1::filepathIsDxF1(filepath) then
-            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
-        end
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        return if item.nil?
-
-        if item["mikuType"] == "NxPerson" then
-            return
-        end
-
-        raise "(error: 5689a74c-813a-4459-9bfc-565458372eff) I don't know how to expose MikuType #{item["mikuType"]}"
-    end
-
-    # DxF1OrbitalExpansion::exposeAllExported()
-    def self.exposeAllExported()
-        DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator().each{|filepath|
-            puts filepath
-            DxF1OrbitalExpansion::exposeFileContents(filepath)
-        }
-    end
-end
-
-class DxF1sAtStargateCentral
-
-    # DxF1sAtStargateCentral::dxF1Filepath(objectuuid)
-    def self.dxF1Filepath(objectuuid)
-        StargateCentral::ensureCentral()
-        sha1 = Digest::SHA1.hexdigest(objectuuid)
-        folderpath = "#{StargateCentral::pathToCentral()}/DxF1s/#{sha1[0, 2]}"
-        if !File.exists?(folderpath) then
-            FileUtils.mkpath(folderpath)
-        end
-        filepath = "#{folderpath}/#{sha1}.dxf1.sqlite3"
-        if !File.exists?(filepath) then
-            db = SQLite3::Database.new(filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            db.execute("create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob)", [])
-            db.close
-        end
-        filepath
-    end
-
-    # DxF1sAtStargateCentral::localToCentralFilePropagation(filepath1, filepath2)
-    def self.localToCentralFilePropagation(filepath1, filepath2)
-
-        puts "DxF1sAtStargateCentral::localToCentralFilePropagation(filepath1, filepath2)"
+        puts "DxF1sAtStargateCentral::dxF1FilePropagation(filepath1, filepath2)"
         puts "    - #{filepath1}"
         puts "    - #{filepath2}"
 
@@ -539,23 +447,134 @@ class DxF1sAtStargateCentral
         end
 
         db2.close
-
-        # By now all the events have been propagated.
-        # We are now going to delete the datablobs on local and vacuum the file if needed
-
-        hasDatablobs = false
-        db1.execute("select count(*) as _count_ from _dxf1_ where _eventType_=?", ["datablob"]) do |row|
-            count = row["_count_"]
-            hasDatablobs = (count > 0)
-        end
-        
-        if hasDatablobs then
-            puts "    removing datablobs from #{filepath1}"
-            db1.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
-            db1.execute "vacuum", []
-        end
-
         db1.close
+    end
+end
+
+class DxF1OrbitalExpansion
+
+    # DxF1OrbitalExpansion::fileSystemSafeName(item)
+    def self.fileSystemSafeName(item)
+        genericDescription = PolyFunctions::genericDescription(item)
+        CommonUtils::sanitiseStringForFilenaming(genericDescription)
+    end
+
+    # DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(objectuuid, folder) # filepath or null
+    def self.copyDxF1FileToFolderOrNull(objectuuid, folder)
+        filepath1 = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
+        return if filepath1.nil?
+        filepath2 = "#{folder}/#{File.basename(filepath1)}"
+        if File.exists?(filepath2) then
+            FileUtils.rm(filepath2)
+        end
+        FileUtils.cp(filepath1, filepath2)
+        filepath2
+    end
+
+    # DxF1OrbitalExpansion::copyFileToDesktop(objectuuid) # filepath or null
+    def self.copyFileToDesktop(objectuuid)
+        DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(objectuuid, "#{ENV['HOME']}/Desktop")
+    end
+
+    # DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator()
+    def self.orbitalDxF1FilepathEnumerator()
+        Enumerator.new do |filepaths|
+            Find.find(Config::orbital()) do |path|
+                next if !File.file?(path)
+                next if !DxF1::filepathIsDxF1(path)
+                next if path.include?(DxF1::pathToRepository())
+                filepaths << path
+            end
+        end
+    end
+
+    # DxF1OrbitalExpansion::exposeFileContents(filepath)
+    def self.exposeFileContents(filepath)
+        if !filepath.include?(Config::orbital()) then
+            raise "(error: bf72c1c7-5fb5-453e-9710-9e691ca97219) You need to point at orbital. Given fiepath: #{filepath}"
+        end
+        if !DxF1::filepathIsDxF1(filepath) then
+            raise "(error: d5f2a487-deca-4a1a-94eb-db12968fcf1e) You cannot do that with filepath: #{filepath}"
+        end
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        return if item.nil?
+
+        if item["mikuType"] == "NxPerson" then
+            return
+        end
+
+        if item["mikuType"] == "DxAionPoint" then
+            operator = DxF1Elizabeth.new(item["uuid"], true, true)
+            rootnhash = item["rootnhash"]
+            exportLocation = "#{File.dirname(filepath)}/#{DxF1OrbitalExpansion::fileSystemSafeName(item)} (access)"
+            FileUtils.mkdir(exportLocation)
+            AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
+            puts "Item exported at #{exportLocation}"
+            return
+        end
+
+        raise "(error: 5689a74c-813a-4459-9bfc-565458372eff) I don't know how to expose MikuType #{item["mikuType"]}"
+    end
+
+    # DxF1OrbitalExpansion::exposeChildrenRecursively(filepath)
+    def self.exposeChildrenRecursively(filepath)
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        return if item.nil?
+        childrenExportFolder = "#{File.dirname(filepath)}/#{DxF1OrbitalExpansion::fileSystemSafeName(item)} (children)"
+        if !File.exists?(childrenExportFolder) then
+            FileUtils.mkdir(childrenExportFolder)
+        end
+        NetworkArrows::children(item["uuid"]).each{|child|
+            DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(child, childrenExportFolder)
+        }
+    end
+
+    # DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(item, folder)
+    def self.exposeItemAndDescendanceAtFolder(item, folder)
+        filepath = DxF1OrbitalExpansion::copyDxF1FileToFolderOrNull(item["uuid"], folder)
+        return if filepath.nil?
+        DxF1OrbitalExpansion::exposeFileContents(filepath)
+        DxF1OrbitalExpansion::exposeChildrenRecursively(filepath)
+    end
+
+    # DxF1OrbitalExpansion::exposeAllExported()
+    def self.exposeAllExported()
+        DxF1OrbitalExpansion::orbitalDxF1FilepathEnumerator().each{|filepath|
+            puts filepath
+            item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+            if item.nil? then
+                puts "How did this happens? 🤨"
+                raise "(error: 770703d9-91c0-49cf-8694-5a2a3c820342)"
+            end
+            if (Time.new.to_f - File.mtime(filepath).to_f) < 10 then
+                puts "skipping #{filepath} (too soon)"
+                next
+            end
+            DxF1OrbitalExpansion::exposeItemAndDescendanceAtFolder(item, File.dirname(filepath))
+        }
+    end
+end
+
+class DxF1sAtStargateCentral
+
+    # DxF1sAtStargateCentral::dxF1Filepath(objectuuid)
+    def self.dxF1Filepath(objectuuid)
+        StargateCentral::ensureCentral()
+        sha1 = Digest::SHA1.hexdigest(objectuuid)
+        folderpath = "#{StargateCentral::pathToCentral()}/DxF1s/#{sha1[0, 2]}"
+        if !File.exists?(folderpath) then
+            FileUtils.mkpath(folderpath)
+        end
+        filepath = "#{folderpath}/#{sha1}.dxf1.sqlite3"
+        if !File.exists?(filepath) then
+            db = SQLite3::Database.new(filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("create table _dxf1_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _eventType_ text, _name_ text, _value_ blob)", [])
+            db.close
+        end
+        filepath
     end
 
     # DxF1sAtStargateCentral::getDatablobOrNull(objectuuid, nhash)

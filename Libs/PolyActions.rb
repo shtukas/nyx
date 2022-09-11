@@ -87,8 +87,8 @@ class PolyActions
             return
         end
 
-        if Iam::isNetworkAggregation(item) then
-            LinkedNavigation::navigateItem(item)
+        if Iam::isNyxNetworkItem(item) then
+            PolyPrograms::itemLandingNyxNetwork(item)
             return
         end
 

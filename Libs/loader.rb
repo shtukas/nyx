@@ -88,6 +88,16 @@ if !File.exists?(filepath) then
     db.close
 end
 
+filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/network-arrows.sqlite3"
+if !File.exists?(filepath) then
+    db = SQLite3::Database.new(filepath)
+    db.busy_timeout = 117
+    db.busy_handler { |count| true }
+    db.results_as_hash = true
+    db.execute("create table _arrows_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text)", [])
+    db.close
+end
+
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/owner-items-mapping.sqlite3"
 if !File.exists?(filepath) then
     puts "database migration: owner-items-mapping.sqlite3"
@@ -258,8 +268,6 @@ require_relative "Iam.rb"
 
 require_relative "FileSystemCheck.rb"
 
-require_relative "LinkedNavigation.rb"
-
 require_relative "Machines.rb"
 
 require_relative "NxTimelines.rb"
@@ -272,6 +280,7 @@ require_relative "NxEvents.rb"
 require_relative "NxEntities.rb"
 require_relative "NxConcepts.rb"
 require_relative "NetworkLinks.rb"
+require_relative "NetworkArrows.rb"
 require_relative "Nx112.rb"
 
 require_relative "TimeCommitmentMapping.rb"
