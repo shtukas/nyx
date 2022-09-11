@@ -485,7 +485,7 @@ class CommandInterpreters
         [
             "<n> | access | description | name | datetime | nx112 | edit | transmute | expose | destroy",
             "search",
-            "link | child | parent | >children | >parents",
+            "link | child | parent | parents>related | parents>children | related>children | related>parents",
             "copy dxf1 file to desktop"
         ].join("\n")
     end
@@ -493,12 +493,22 @@ class CommandInterpreters
     # CommandInterpreters::nyx(item, input)
     def self.nyx(item, input)
 
-        if Interpreting::match(">children", input) then
+        if Interpreting::match("parents>children", input) then
+            NetworkArrows::recastSelectedParentsAsChildren(item)
+            return
+        end
+
+        if Interpreting::match("parents>related", input) then
+            NetworkArrows::recastSelectedParentsAsRelated(item)
+            return
+        end
+
+        if Interpreting::match("related>children", input) then
             NetworkArrows::recastSelectedLinkedAsChildren(item)
             return
         end
 
-        if Interpreting::match(">parents", input) then
+        if Interpreting::match("related>parents", input) then
             NetworkArrows::recastSelectedLinkedAsParents(item)
             return
         end

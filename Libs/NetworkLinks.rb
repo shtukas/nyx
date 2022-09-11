@@ -10,12 +10,14 @@ class NetworkLinks
 
     # NetworkLinks::insertRow(row)
     def self.insertRow(row)
-        db = SQLite3::Database.new(NetworkLinks::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _links_ where _eventuuid_=?", [row["_eventuuid_"]]
-        db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_sourceuuid_"], row["_operation_"], row["_targetuuid_"]]
-        db.close
+        $links_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkLinks::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "delete from _links_ where _eventuuid_=?", [row["_eventuuid_"]]
+            db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_sourceuuid_"], row["_operation_"], row["_targetuuid_"]]
+            db.close
+        }
     end
 
     # NetworkLinks::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
@@ -25,11 +27,13 @@ class NetworkLinks
             raise "(error: 535c3cf7-f93b-43b2-8530-eb892910ceda) operation: #{operation}"
         end
         raise "(error: 9ee4dae9-1fee-4ba7-9016-80e56e58aa08)" if targetuuid.nil?
-        db = SQLite3::Database.new(NetworkLinks::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, sourceuuid, operation, targetuuid]
-        db.close
+        $links_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkLinks::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, sourceuuid, operation, targetuuid]
+            db.close
+        }
     end
 
     # NetworkLinks::issue(sourceuuid, operation, targetuuid)
@@ -62,32 +66,38 @@ class NetworkLinks
 
     # NetworkLinks::linkeduuids(itemuuid)
     def self.linkeduuids(itemuuid)
-        db = SQLite3::Database.new(NetworkLinks::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         linkeduuids = []
-        db.execute("select * from _links_ where _sourceuuid_=? order by _eventTime_", [itemuuid]) do |row|
-            if row["_operation_"] == "link" then
-                linkeduuids = (linkeduuids + [row["_targetuuid_"]]).uniq
+        $links_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkLinks::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _links_ where _sourceuuid_=? order by _eventTime_", [itemuuid]) do |row|
+                if row["_operation_"] == "link" then
+                    linkeduuids = (linkeduuids + [row["_targetuuid_"]]).uniq
+                end
+                if row["_operation_"] == "unlink" then
+                    linkeduuids = linkeduuids - [row["_targetuuid_"]]
+                end
             end
-            if row["_operation_"] == "unlink" then
-                linkeduuids = linkeduuids - [row["_targetuuid_"]]
-            end
-        end
+            db.close
+        }
         linkeduuids.compact
     end
 
     # NetworkLinks::eventuuids()
     def self.eventuuids()
-        db = SQLite3::Database.new(NetworkLinks::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         answer = []
-        db.execute("select _eventuuid_ from _links_", []) do |row|
-            answer << row["_eventuuid_"]
-        end
+        $links_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkLinks::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select _eventuuid_ from _links_", []) do |row|
+                answer << row["_eventuuid_"]
+            end
+            db.close
+        }
         answer
     end
 

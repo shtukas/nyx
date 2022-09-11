@@ -10,12 +10,14 @@ class NetworkArrows
 
     # NetworkArrows::insertRow(row)
     def self.insertRow(row)
-        db = SQLite3::Database.new(NetworkArrows::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "delete from _arrows_ where _eventuuid_=?", [row["_eventuuid_"]]
-        db.execute "insert into _arrows_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_sourceuuid_"], row["_operation_"], row["_targetuuid_"]]
-        db.close
+        $arrows_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkArrows::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "delete from _arrows_ where _eventuuid_=?", [row["_eventuuid_"]]
+            db.execute "insert into _arrows_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [row["_eventuuid_"], row["_eventTime_"], row["_sourceuuid_"], row["_operation_"], row["_targetuuid_"]]
+            db.close
+        }
     end
 
     # NetworkArrows::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
@@ -25,11 +27,13 @@ class NetworkArrows
             raise "(error: 1b50e252-6e6f-4336-a445-194a40bdb8ba) operation: #{operation}"
         end
         raise "(error: c14843be-9828-4702-8649-d3e35bb1da4d)" if targetuuid.nil?
-        db = SQLite3::Database.new(NetworkArrows::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.execute "insert into _arrows_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, sourceuuid, operation, targetuuid]
-        db.close
+        $arrows_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkArrows::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.execute "insert into _arrows_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, sourceuuid, operation, targetuuid]
+            db.close
+        }
     end
 
     # NetworkArrows::issue(sourceuuid, operation, targetuuid)
@@ -60,50 +64,59 @@ class NetworkArrows
 
     # NetworkArrows::childrenuuids(itemuuid)
     def self.childrenuuids(itemuuid)
-        db = SQLite3::Database.new(NetworkArrows::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         childrenuuids = []
-        db.execute("select * from _arrows_ where _sourceuuid_=? order by _eventTime_", [itemuuid]) do |row|
-            if row["_operation_"] == "link" then
-                childrenuuids = (childrenuuids + [row["_targetuuid_"]]).uniq
+        $arrows_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkArrows::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _arrows_ where _sourceuuid_=? order by _eventTime_", [itemuuid]) do |row|
+                if row["_operation_"] == "link" then
+                    childrenuuids = (childrenuuids + [row["_targetuuid_"]]).uniq
+                end
+                if row["_operation_"] == "unlink" then
+                    childrenuuids = childrenuuids - [row["_targetuuid_"]]
+                end
             end
-            if row["_operation_"] == "unlink" then
-                childrenuuids = childrenuuids - [row["_targetuuid_"]]
-            end
-        end
+            db.close
+        }
         childrenuuids.compact
     end
 
     # NetworkArrows::parentsuuids(itemuuid)
     def self.parentsuuids(itemuuid)
-        db = SQLite3::Database.new(NetworkArrows::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         parentsuuids = []
-        db.execute("select * from _arrows_ where _targetuuid_=? order by _eventTime_", [itemuuid]) do |row|
-            if row["_operation_"] == "link" then
-                parentsuuids = (parentsuuids + [row["_sourceuuid_"]]).uniq
+        $arrows_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkArrows::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select * from _arrows_ where _targetuuid_=? order by _eventTime_", [itemuuid]) do |row|
+                if row["_operation_"] == "link" then
+                    parentsuuids = (parentsuuids + [row["_sourceuuid_"]]).uniq
+                end
+                if row["_operation_"] == "unlink" then
+                    parentsuuids = parentsuuids - [row["_sourceuuid_"]]
+                end
             end
-            if row["_operation_"] == "unlink" then
-                parentsuuids = parentsuuids - [row["_sourceuuid_"]]
-            end
-        end
+            db.close
+        }
         parentsuuids.compact
     end
 
     # NetworkArrows::eventuuids()
     def self.eventuuids()
-        db = SQLite3::Database.new(NetworkArrows::databaseFile())
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
         answer = []
-        db.execute("select _eventuuid_ from _arrows_", []) do |row|
-            answer << row["_eventuuid_"]
-        end
+        $arrows_database_semaphore.synchronize {
+            db = SQLite3::Database.new(NetworkArrows::databaseFile())
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("select _eventuuid_ from _arrows_", []) do |row|
+                answer << row["_eventuuid_"]
+            end
+            db.close
+        }
         answer
     end
 
@@ -156,6 +169,28 @@ class NetworkArrows
         selected
     end
 
+    # NetworkArrows::recastSelectedParentsAsChildren(item)
+    def self.recastSelectedParentsAsChildren(item)
+        uuid = item["uuid"]
+        entities = NetworkArrows::interactivelySelectParents(uuid)
+        return if entities.empty?
+        entities.each{|entity|
+            NetworkArrows::unlink(entity["uuid"], item["uuid"])
+            NetworkArrows::link(item["uuid"], entity["uuid"])
+        }
+    end
+
+    # NetworkArrows::recastSelectedParentsAsRelated(item)
+    def self.recastSelectedParentsAsRelated(item)
+        uuid = item["uuid"]
+        entities = NetworkArrows::interactivelySelectParents(uuid)
+        return if entities.empty?
+        entities.each{|entity|
+            NetworkArrows::unlink(entity["uuid"], item["uuid"])
+            NetworkLinks::link(item["uuid"], entity["uuid"])
+        }
+    end
+
     # NetworkArrows::recastSelectedLinkedAsChildren(item)
     def self.recastSelectedLinkedAsChildren(item)
         uuid = item["uuid"]
@@ -175,10 +210,10 @@ class NetworkArrows
         entities = NetworkLinks::interactivelySelectLinkedEntities(uuid)
         return if entities.empty?
         entities.each{|parent|
-            NetworkArrows::link(item["uuid"], parent["uuid"])
+            NetworkArrows::link(parent["uuid"], item["uuid"])
         }
         entities.each{|parent|
-            NetworkLinks::unlink(item["uuid"], parent["uuid"])
+            NetworkLinks::unlink(parent["uuid"], item["uuid"])
         }
     end
 

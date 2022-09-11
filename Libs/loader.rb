@@ -315,5 +315,6 @@ $dnsu_database_semaphore = Mutex.new
 $item_to_group_mapping_database_semaphore = Mutex.new
 $commline_semaphore = Mutex.new
 $owner_items_mapping_database_semaphore = Mutex.new
-
+$links_database_semaphore = Mutex.new
+$arrows_database_semaphore = Mutex.new
 # ------------------------------------------------------------
