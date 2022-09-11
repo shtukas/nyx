@@ -20,7 +20,7 @@ class CxFile
         return nil if !File.file?(location)
         filepath = location
 
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
 
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
 
@@ -51,7 +51,7 @@ class CxFile
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
 
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
 
         dottedExtension, nhash, parts = PrimitiveFiles::commitFileReturnDataElements(filepath, operator) # [dottedExtension, nhash, parts]
 
@@ -89,7 +89,7 @@ class CxFile
         dottedExtension = item["dottedExtension"]
         nhash = item["nhash"]
         parts = item["parts"]
-        operator = DxF1Elizabeth.new(item["uuid"], true, true)
+        operator = DxF1Elizabeth.new(item["uuid"])
         filepath = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
         File.open(filepath, "w"){|f|
             parts.each{|nhash|

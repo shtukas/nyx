@@ -278,10 +278,10 @@ class DxF1
         db.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, "datablob", nhash, blob]
         db.close
 
-        Mercury2::put("e0fba9fd-c00b-4d0c-b884-4f058ef87653", {
-            "unixtime"   => Time.new.to_i,
-            "objectuuid" => objectuuid
-        })
+        #Mercury2::put("e0fba9fd-c00b-4d0c-b884-4f058ef87653", {
+        #    "unixtime"   => Time.new.to_i,
+        #    "objectuuid" => objectuuid
+        #})
     end
 
     # DxF1::setDatablob1(objectuuid, nhash, blob)
@@ -341,18 +341,13 @@ class DxF1Elizabeth
     # XCacheDatablobs::putBlob(blob)
     # XCacheDatablobs::getBlobOrNull(nhash)
 
-    def initialize(objectuuid, readXCache, writeXCache)
+    def initialize(objectuuid)
         @objectuuid  = objectuuid
-        @readXCache  = readXCache
-        @writeXCache = writeXCache
     end
 
     def putBlob(blob)
         nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
         DxF1::setDatablob1(@objectuuid, nhash, blob)
-        if @writeXCache then
-            XCacheDatablobs::putBlob(blob)
-        end
         nhash
     end
 
@@ -361,29 +356,7 @@ class DxF1Elizabeth
     end
 
     def getBlobOrNull(nhash)
-
-        if @readXCache then
-            blob = XCacheDatablobs::getBlobOrNull(nhash)
-            return blob if blob
-        end
-
-        blob = DxF1::getDatablobOrNull(@objectuuid, nhash)
-        if blob then
-            if @writeXCache then
-                XCacheDatablobs::putBlob(blob)
-            end
-            return blob
-        end
-
-        blob = DxF1sAtStargateCentral::getDatablobOrNull(@objectuuid, nhash)
-        if blob then
-            if @writeXCache then
-                XCacheDatablobs::putBlob(blob)
-            end
-            return blob
-        end
-
-        nil
+        DxF1::getDatablobOrNull(@objectuuid, nhash)
     end
 
     def readBlobErrorIfNotFound(nhash)

@@ -72,7 +72,7 @@ class FileSystemCheck
         if mikuType == "CxAionPoint" then
             ensureAttribute.call("owneruuid")
             ensureAttribute.call("rootnhash")
-            operator  = DxF1Elizabeth.new(item["uuid"], false, false)
+            operator  = DxF1Elizabeth.new(item["uuid"])
             rootnhash = item["rootnhash"]
             status    = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
@@ -91,7 +91,7 @@ class FileSystemCheck
             ensureAttribute.call("dottedExtension")
             ensureAttribute.call("nhash")
             ensureAttribute.call("parts")
-            operator = DxF1Elizabeth.new(item["uuid"], true, true)
+            operator = DxF1Elizabeth.new(item["uuid"])
             dottedExtension = item["dottedExtension"]
             nhash = item["nhash"]
             parts = item["parts"]
@@ -119,7 +119,7 @@ class FileSystemCheck
 
         if mikuType == "DxAionPoint" then
             ensureAttribute.call("rootnhash")
-            operator  = DxF1Elizabeth.new(item["uuid"], false, false)
+            operator  = DxF1Elizabeth.new(item["uuid"])
             rootnhash = item["rootnhash"]
             status    = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
@@ -132,7 +132,7 @@ class FileSystemCheck
             ensureAttribute.call("dottedExtension")
             ensureAttribute.call("nhash")
             ensureAttribute.call("parts")
-            operator = DxF1Elizabeth.new(item["uuid"], false, false)
+            operator = DxF1Elizabeth.new(item["uuid"])
             dottedExtension = item["dottedExtension"]
             nhash = item["nhash"]
             parts = item["parts"]
@@ -229,7 +229,7 @@ class FileSystemCheck
         filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return if filepath.nil?
 
-        repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{File.mtime(filepath)}"
+        repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{runhash}:#{File.mtime(filepath)}"
         return if (XCache::getFlag(repeatKey) and !useTheForce)
 
         puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash}, #{useTheForce})"
@@ -256,7 +256,7 @@ class FileSystemCheck
 
     # FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash, useTheForce)
     def self.fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash, useTheForce)
-        repeatKey = "0dfca14a-252b-45fc-bd80-95179ad4ac6e:#{filepath}:#{File.mtime(filepath)}"
+        repeatKey = "0dfca14a-252b-45fc-bd80-95179ad4ac6e:#{filepath}:#{runhash}:#{File.mtime(filepath)}"
         return if (XCache::getFlag(repeatKey) and !useTheForce)
         puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash}, #{useTheForce})"
         item = DxF1::getProtoItemAtFilepathOrNull(filepath)

@@ -18,7 +18,7 @@ class CxAionPoint
         location = CommonUtils::interactivelySelectDesktopLocationOrNull()
         return nil if location.nil?
 
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
 
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
 
@@ -44,7 +44,7 @@ class CxAionPoint
         unixtime = Time.new.to_i
         datetime = Time.new.utc.iso8601
 
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
 
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
 
@@ -76,7 +76,7 @@ class CxAionPoint
 
     # CxAionPoint::access(item)
     def self.access(item)
-        operator = DxF1Elizabeth.new(item["uuid"], true, true)
+        operator = DxF1Elizabeth.new(item["uuid"])
         rootnhash = item["rootnhash"]
         parentLocation = "#{ENV['HOME']}/Desktop/DxPure-Export-#{SecureRandom.hex(4)}"
         FileUtils.mkdir(parentLocation)
@@ -87,7 +87,7 @@ class CxAionPoint
 
     # CxAionPoint::edit(item) # item
     def self.edit(item)
-        operator = DxF1Elizabeth.new(item["uuid"], true, true)
+        operator = DxF1Elizabeth.new(item["uuid"])
         rootnhash = item["rootnhash"]
         exportLocation = "#{ENV['HOME']}/Desktop/CxAionPoint-Edit-#{SecureRandom.hex(4)}"
         FileUtils.mkdir(exportLocation)
@@ -115,7 +115,7 @@ class CxAionPoint
         location = acquireLocationInsideExportFolder.call(exportLocation)
 
         uuid = item["uuid"]
-        operator = DxF1Elizabeth.new(uuid, true, true)
+        operator = DxF1Elizabeth.new(uuid)
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
         DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
