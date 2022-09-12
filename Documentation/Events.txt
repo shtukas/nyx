@@ -46,19 +46,9 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "Daily Slots: Unregister",
-    "objectuuid" => objectuuid,
-}
-
-{
-    "mikuType"   => "Daily Slots: Register",
-    "hour"       => hour,
-    "objectuuid" => objectuuid,
-}
-
-{
     "mikuType"   => "NetworkLinks",
     "eventuuid"  => String
+    "eventTime"  => Float
     "sourceuuid" => sourceuuid,
     "operation"  => operation,
     "targetuuid" => targetuuid
@@ -70,7 +60,7 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "AttributeUpdate",
+    "mikuType"   => "AttributeUpdate", # DxF1 files update
     "objectuuid" => objectuuid,
     "eventuuid"  => String
     "eventTime"  => Float
@@ -93,4 +83,13 @@ We have two types of events
     "mikuType" : "XCacheFlag"
     "key"      : String
     "flag"     : Boolean
+}
+
+{
+    "mikuType"   => "NetworkArrows",
+    "eventuuid"  => eventuuid,
+    "eventTime"  => eventTime,
+    "sourceuuid" => sourceuuid,
+    "operation"  => operation,
+    "targetuuid" => targetuuid
 }
