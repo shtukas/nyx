@@ -6,6 +6,11 @@ class ImmutableDataFilesDxF4s
     # --------------------------------------------
     # Private
 
+    # ImmutableDataFilesDxF4s::dxF4Repository()
+    def self.dxF4Repository()
+        "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/DxF4-Repository"
+    end
+
     # The first trace is the objectuuid
     # We then return {inputForNextFile: String, filename: String}
     # ImmutableDataFilesDxF4s::dxF4FileCoordinates(input)
@@ -47,7 +52,15 @@ class ImmutableDataFilesDxF4s
     # ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(filename)
     def self.dxF4FilenameToEnergyGridFilepath(filename)
         fragment = filename[0, 2]
-        folderpath = "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/DxF4-Repository/#{fragment}"
+        if !File.exists?(ImmutableDataFilesDxF4s::dxF4Repository()) then
+            puts "I need Energy Grid."
+            LucilleCore::pressEnterToContinue()
+        end
+        if !File.exists?(ImmutableDataFilesDxF4s::dxF4Repository()) then
+            puts "Energy Grid not found. Operation aborted."
+            exit
+        end
+        folderpath = "#{ImmutableDataFilesDxF4s::dxF4Repository()}/#{fragment}"
         if !File.exists?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
@@ -152,8 +165,13 @@ class ImmutableDataFilesDxF4s
         db.close
     end
 
-    # ImmutableDataFilesDxF4s::getBlobOrNull(objectuuid, nhash)
-    def self.getBlobOrNull(objectuuid, nhash)
+    # ImmutableDataFilesDxF4s::getBlobOrNull(objectuuid, nhash, useCache)
+    def self.getBlobOrNull(objectuuid, nhash, useCache)
+        if useCache then
+            blob = XCacheDatablobs::getBlobOrNull(nhash)
+            return blob if blob
+        end
+
         filenames = ImmutableDataFilesDxF4s::getExistingDxF4DataFilenames(objectuuid)
         filenames.each{|dxF4Filename|
             dxf4Filepath = ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(dxF4Filename)
@@ -166,8 +184,14 @@ class ImmutableDataFilesDxF4s
                 blob = row["_datablob_"]
             end
             db.close
-            return blob if blob
+            if blob then
+                if useCache then
+                    XCacheDatablobs::putBlob(blob)
+                end
+                return blob
+            end
         }
+
         nil
     end
 end

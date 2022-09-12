@@ -72,7 +72,7 @@ class FileSystemCheck
         if mikuType == "CxAionPoint" then
             ensureAttribute.call("owneruuid")
             ensureAttribute.call("rootnhash")
-            operator  = DxF1Elizabeth.new(item["uuid"])
+            operator  = DxF1ElizabethFsck.new(item["uuid"])
             rootnhash = item["rootnhash"]
             status    = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
@@ -91,7 +91,7 @@ class FileSystemCheck
             ensureAttribute.call("dottedExtension")
             ensureAttribute.call("nhash")
             ensureAttribute.call("parts")
-            operator = DxF1Elizabeth.new(item["uuid"])
+            operator = DxF1ElizabethFsck.new(item["uuid"])
             dottedExtension = item["dottedExtension"]
             nhash = item["nhash"]
             parts = item["parts"]
@@ -119,7 +119,7 @@ class FileSystemCheck
 
         if mikuType == "DxAionPoint" then
             ensureAttribute.call("rootnhash")
-            operator  = DxF1Elizabeth.new(item["uuid"])
+            operator  = DxF1ElizabethFsck.new(item["uuid"])
             rootnhash = item["rootnhash"]
             status    = AionFsck::structureCheckAionHash(operator, rootnhash)
             if !status then
@@ -132,7 +132,7 @@ class FileSystemCheck
             ensureAttribute.call("dottedExtension")
             ensureAttribute.call("nhash")
             ensureAttribute.call("parts")
-            operator = DxF1Elizabeth.new(item["uuid"])
+            operator = DxF1ElizabethFsck.new(item["uuid"])
             dottedExtension = item["dottedExtension"]
             nhash = item["nhash"]
             parts = item["parts"]

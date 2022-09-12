@@ -359,7 +359,57 @@ class DxF1Elizabeth
         blob = DxF1::getDatablobOrNull(@objectuuid, nhash)
         return blob if blob
 
-        blob = ImmutableDataFilesDxF4s::getBlobOrNull(@objectuuid, nhash)
+        blob = ImmutableDataFilesDxF4s::getBlobOrNull(@objectuuid, nhash, true)
+        return blob if blob
+
+        nil
+    end
+
+    def readBlobErrorIfNotFound(nhash)
+        blob = getBlobOrNull(nhash)
+        return blob if blob
+        puts "(error: 28540df3-d3f4-4575-98cf-cc35658d5048) could not find blob, nhash: #{nhash}"
+        raise "(error: fc70765f-85f3-4edd-89d9-c11eea137ef8, nhash: #{nhash})" if blob.nil?
+    end
+
+    def datablobCheck(nhash)
+        begin
+            blob = readBlobErrorIfNotFound(nhash)
+            status = ("SHA256-#{Digest::SHA256.hexdigest(blob)}" == nhash)
+            if !status then
+                puts "(error: 8c2f7dc9-d2d2-4222-90fe-90a7d3884e80) incorrect blob, exists but doesn't have the right nhash: #{nhash}"
+            end
+            return status
+        rescue
+            false
+        end
+    end
+end
+
+class DxF1ElizabethFsck
+
+    # XCacheDatablobs::putBlob(blob)
+    # XCacheDatablobs::getBlobOrNull(nhash)
+
+    def initialize(objectuuid)
+        @objectuuid  = objectuuid
+    end
+
+    def putBlob(blob)
+        nhash = "SHA256-#{Digest::SHA256.hexdigest(blob)}"
+        DxF1::setDatablob1(@objectuuid, nhash, blob)
+        nhash
+    end
+
+    def filepathToContentHash(filepath)
+        "SHA256-#{Digest::SHA256.file(filepath).hexdigest}"
+    end
+
+    def getBlobOrNull(nhash)
+        blob = DxF1::getDatablobOrNull(@objectuuid, nhash)
+        return blob if blob
+
+        blob = ImmutableDataFilesDxF4s::getBlobOrNull(@objectuuid, nhash, false)
         return blob if blob
 
         nil
