@@ -4,56 +4,114 @@
 
 require_relative "../Libs/loader.rb"
 
+exit
+
 # ========================================================================================
 # Landing on items with large Dxf1 files (biggest number of related comes first)
 # We want to turn them into Dx8Units and free DxF1 transfer between laptops
 
-$cache = {}
+$cache = XCacheValuesWithExpiry::getOrNull("748c2f37-efb9-45b5-8fb5-bb6d3ea54ff2") || {}
+
+Thread.new {
+    loop {
+        sleep 60
+        XCacheValuesWithExpiry::set("748c2f37-efb9-45b5-8fb5-bb6d3ea54ff2", $cache, 3600)
+    }
+}
 
 def size(filepath)
     return $cache[filepath] if $cache[filepath]
     puts "looking  : #{filepath}"
-    size1 = XCache::getOrNull("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{filepath}")
+    size1 = XCache::getOrNull("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{filepath}")
     if size1 then
         size1 = size1.to_i
         $cache[filepath] = size1
-        return size1.to_i 
+        return size1
     end
     puts "computing: #{filepath}"
     size1 = File.size(filepath)
-    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{filepath}", size1)
+    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{filepath}", size1)
     $cache[filepath] = size1
     size1
 end
 
-$cache2 = {}
+DxF1::databankRepositoryDxF1sFilepathEnumerator()
+    .to_a
+    .sort{|f1, f2| size(f1) <=> size(f2) }
+    .reverse
+    .each{|filepath|
+        next if File.size(filepath) < 1024*1024*500 # 500 Mb
+        puts "filepath: #{filepath}"
+        puts "File.size(filepath): #{File.size(filepath).to_f/(1024*1024)} Mb"
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        raise "item is null" if item.nil?
 
-def decideItem(fp)
-    return $cache2[fp].clone if $cache2[fp]
-    item = DxF1::getProtoItemAtFilepathOrNull(fp)
-    $cache2[fp] = item.clone
-    item
-end
+        mikuType = item["mikuType"]
+        next if mikuType != "DxAionPoint"
 
-loop {
-    filepath = DxF1::databankRepositoryDxF1sFilepathEnumerator()
-                    .reduce(nil){|filepathBig, fp|
-                        item = decideItem(fp)
-                        if item and Iam::isNyxNetworkItem(item) then
-                            if size(filepathBig) > size(fp) then
-                                filepathBig
-                            else
-                                fp
-                            end
-                        else
-                            filepathBig
-                        end
-                    }
-    puts "filepath: #{filepath}"
-    item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-    raise "item is null" if item.nil?
-    PolyPrograms::itemLanding(item)
-}
+        puts PolyFunctions::toString(item)
+
+        if LucilleCore::askQuestionAnswerAsBoolean("need landing ? ") then
+            PolyPrograms::itemLanding(item)
+        end
+
+        if !LucilleCore::askQuestionAnswerAsBoolean("do this item ? ") then
+            next
+        end
+
+        dx8UnitId = item["uuid"]
+        exportFolderPathAtEnergyGrid = "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/Dx8Units/#{dx8UnitId}"
+        puts "exportFolderPathAtEnergyGrid: #{exportFolderPathAtEnergyGrid}"
+        if !File.exists?(exportFolderPathAtEnergyGrid) then
+            FileUtils.mkdir(exportFolderPathAtEnergyGrid)
+        end
+
+        # Export
+
+        operator = DxF1Elizabeth.new(item["uuid"])
+        rootnhash = item["rootnhash"]
+        AionCore::exportHashAtFolder(operator, rootnhash, exportFolderPathAtEnergyGrid)
+        puts "Item exported at #{exportFolderPathAtEnergyGrid}"
+
+=begin
+DxAionPoint:
+    "uuid"        : uuid
+    "mikuType"    : "DxAionPoint"
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "rootnhash"   : String
+    (datablobs)
+
+DxDx8Unit:
+    "uuid"        : String
+    "mikuType"    : "DxDx8Unit"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String # optional
+    "unitId"      : String
+=end
+
+        FileUtils.cp(filepath, exportFolderPathAtEnergyGrid)
+
+        DxF1::setAttribute0NoEvents(item["uuid"], SecureRandom.uuid, Time.new.to_f, "mikuType", "DxDx8Unit")
+        DxF1::setAttribute0NoEvents(item["uuid"], SecureRandom.uuid, Time.new.to_f, "unitId", dx8UnitId)
+
+        db = SQLite3::Database.new(filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
+        db.execute "vacuum", []
+        db.close
+
+        puts "File.size(filepath): #{File.size(filepath).to_f/(1024)} Kb"
+
+        TheIndex::updateIndexAtObjectAttempt(item["uuid"])
+
+        LucilleCore::pressEnterToContinue()
+
+    }
 
 exit
 
@@ -65,7 +123,7 @@ $cache = {}
 def size(uuid)
     return $cache[uuid] if $cache[uuid]
     puts "looking  : #{uuid}"
-    count = XCache::getOrNull("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{uuid}")
+    count = XCache::getOrNull("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{uuid}")
     if count then
         count = count.to_i
         $cache[uuid] = count
@@ -73,7 +131,7 @@ def size(uuid)
     end
     puts "computing: #{uuid}"
     count = NetworkLinks::linkeduuids(uuid).count
-    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{uuid}", count)
+    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{uuid}", count)
     $cache[uuid] = count
     count
 end
@@ -90,12 +148,12 @@ loop {
     item = TheIndex::getItemOrNull(objectuuid)
     raise "item is null" if item.nil?
     count = NetworkLinks::linkedEntities(item["uuid"]).count
-    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{item["uuid"]}", count)
+    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{item["uuid"]}", count)
     $cache[item["uuid"]] = count
     next if count == 0
     PolyPrograms::itemLanding(item)
     count = NetworkLinks::linkedEntities(item["uuid"]).count
-    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd506db:#{item["uuid"]}", count)
+    XCache::set("a99a66c3-3a38-4dbd-a3ae-c1e6ecd516db:#{item["uuid"]}", count)
     $cache[item["uuid"]] = count
 }
 

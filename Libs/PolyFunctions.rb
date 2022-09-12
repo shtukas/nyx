@@ -23,6 +23,9 @@ class PolyFunctions
         if item["mikuType"] == "CxUrl" then
             return "#{item["mikuType"]}"
         end
+        if item["mikuType"] == "DxDx8Unit" then
+            return item["description"]
+        end
         if item["mikuType"] == "DxAionPoint" then
             return item["description"]
         end
@@ -122,6 +125,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "DxUrl" then
             return DxUrl::toString(item)
+        end
+        if item["mikuType"] == "DxDx8Unit" then
+            return DxDx8Unit::toString(item)
         end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)

@@ -1,0 +1,10 @@
+#!/usr/bin/ruby
+
+# encoding: UTF-8
+
+require_relative "../Libs/loader.rb"
+
+filepath = ARGV[0]
+
+puts JSON.pretty_generate(DxF1::getProtoItemAtFilepathOrNull(filepath))
+

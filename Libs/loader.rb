@@ -249,7 +249,6 @@ require_relative "DoNotShowUntil.rb"
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
 require_relative "DxF1s.rb"
-
 require_relative "DxLine.rb"
 require_relative "DxText.rb"
 require_relative "DxUniqueString.rb"
@@ -257,6 +256,7 @@ require_relative "DxUrl.rb"
 require_relative "DxAionPoint.rb"
 require_relative "DxFile.rb"
 require_relative "Dx.rb"
+require_relative "DxDx8Unit.rb"
 
 require_relative "Galaxy.rb"
 
