@@ -64,7 +64,7 @@ class ImmutableDataFilesDxF4s
             filename = dxF4FileCoordinates["filename"]
             filepath = ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(filename)
             break if !File.exists?(filepath)
-            filenames << filepath
+            filenames << filename
             inputForNextFile = dxF4FileCoordinates["inputForNextFile"]
         }
         filenames
