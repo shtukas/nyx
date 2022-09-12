@@ -3,184 +3,187 @@ class PolyPrograms
 
     # PolyPrograms::catalystMainListing()
     def self.catalystMainListing()
-        system("clear")
+        loop {
+            system("clear")
 
-        context = CatalystListing::getContextOrNull()
+            context = CatalystListing::getContextOrNull()
 
-        vspaceleft = CommonUtils::screenHeight() - (context ? 5 : 4)
+            vspaceleft = CommonUtils::screenHeight() - (context ? 5 : 4)
 
-        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CommandInterpreters::catalystCommands())
+            vspaceleft =  vspaceleft - CommonUtils::verticalSize(CommandInterpreters::catalystCommands())
 
-        if Config::get("instanceId") == "Lucille20-pascal" then
-            reference = The99Percent::getReferenceOrNull()
-            current   = The99Percent::getCurrentCount()
-            ratio     = current.to_f/reference["count"]
-            line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-            puts ""
-            puts line
-            vspaceleft = vspaceleft - 2
-            if ratio < 0.99 then
-                The99Percent::issueNewReferenceOrNull()
+            if Config::get("instanceId") == "Lucille20-pascal" then
+                reference = The99Percent::getReferenceOrNull()
+                current   = The99Percent::getCurrentCount()
+                ratio     = current.to_f/reference["count"]
+                line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+                puts ""
+                puts line
+                vspaceleft = vspaceleft - 2
+                if ratio < 0.99 then
+                    The99Percent::issueNewReferenceOrNull()
+                end
             end
-        end
 
-        store = ItemStore.new()
+            store = ItemStore.new()
 
-        if !InternetStatus::internetIsActive() then
-            puts ""
-            puts "INTERNET IS OFF".green
-            vspaceleft = vspaceleft - 2
-        end
+            if !InternetStatus::internetIsActive() then
+                puts ""
+                puts "INTERNET IS OFF".green
+                vspaceleft = vspaceleft - 2
+            end
 
-        if context.nil? then
-            tx = TxTimeCommitments::items()
-                    .select{|item| DxF1Utils::itemIsAlive(item) }
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-                    .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }
-            if tx.size > 0 then
+            if context.nil? then
+                tx = TxTimeCommitments::items()
+                        .select{|item| DxF1Utils::itemIsAlive(item) }
+                        .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+                        .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+                        .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }
+                if tx.size > 0 then
+                    puts ""
+                    vspaceleft = vspaceleft - 1
+                    tx
+                        .each{|item|
+                            store.register(item, true)
+                            line = "#{store.prefixString()} #{TxTimeCommitments::toString(item)}"
+                            puts line
+                            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                        }
+                end
+            end
+
+            if context then
+
+                PolyActions::start(context)
+
+                puts ""
+                store.register(context, false)
+                line = TxTimeCommitments::toString(context)
+                if NxBallsService::isPresent(context["uuid"]) then
+                    line = "#{store.prefixString()} #{line} (#{NxBallsService::activityStringOrEmptyString("", context["uuid"], "")})".green
+                end
+                puts line
+                vspaceleft = vspaceleft - 2
+
+                nx79s = TxTimeCommitments::nx79s(context, CommonUtils::screenHeight())
+                if nx79s.size > 0 then
+                    puts ""
+                    vspaceleft = vspaceleft - 1
+                    nx79s
+                        .each{|nx79|
+                            element = nx79["item"]
+                            PolyActions::dataPrefetchAttempt(element)
+                            indx = store.register(element, false)
+                            line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
+                            if NxBallsService::isPresent(element["uuid"]) then
+                                line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
+                            end
+                            puts line
+                            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                            break if vspaceleft <= 0
+                        }
+                end
+
+                puts ""
+                puts CommandInterpreters::catalystCommands().yellow
+                puts "commands: set ordinal <n> | ax39 | insert | exit".yellow
+
+                input = LucilleCore::askQuestionAnswerAsString("> ")
+
+                if input == "exit" then
+                    if LucilleCore::askQuestionAnswerAsBoolean("Stop time commitment ? ") then
+                        PolyActions::stop(context)
+                    end
+                    CatalystListing::emptyContext()
+                    return # This is were we exit PolyPrograms::catalystMainListing() from a set context
+                end
+
+                if input.start_with?("set ordinal")  then
+                    indx = input[1, 99].strip.to_i
+                    entity = store.get(indx)
+                    return if entity.nil?
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    TimeCommitmentMapping::link(context["uuid"], entity["uuid"], ordinal)
+                    next
+                end
+
+                if input == "ax39"  then
+                    ax39 = Ax39::interactivelyCreateNewAx()
+                    DxF1::setAttribute2(context["uuid"], "ax39",  ax39)
+                    next
+                end
+
+                if input == "insert" then
+                    type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
+                    return if type.nil?
+                    if type == "line" then
+                        element = NxTasks::interactivelyIssueDescriptionOnlyOrNull()
+                        return if element.nil?
+                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                        TimeCommitmentMapping::link(context["uuid"], element["uuid"], ordinal)
+                    end
+                    if type == "task" then
+                        element = NxTasks::interactivelyCreateNewOrNull(false)
+                        return if element.nil?
+                        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                        TimeCommitmentMapping::link(context["uuid"], element["uuid"], ordinal)
+                    end
+                    next
+                end
+
+                if (indx = Interpreting::readAsIntegerOrNull(input)) then
+                    entity = store.get(indx)
+                    return if entity.nil?
+                    PolyPrograms::itemLanding(entity)
+                    next
+                end
+
+                puts ""
+                CommandInterpreters::catalyst(input, store)
+
+                # Here we do not return, we loop :)
+
+            else
+
+                nxballs = NxBallsIO::nxballs()
+                if nxballs.size > 0 then
+                    puts ""
+                    vspaceleft = vspaceleft - 1
+                    nxballs
+                        .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+                        .each{|nxball|
+                            store.register(nxball, false)
+                            line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                            puts line.green
+                            vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                        }
+                end
+
                 puts ""
                 vspaceleft = vspaceleft - 1
-                tx
+
+                CatalystListing::listingItems()
                     .each{|item|
+                        break if vspaceleft <= 0
                         store.register(item, true)
-                        line = "#{store.prefixString()} #{TxTimeCommitments::toString(item)}"
-                        puts line
-                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    }
-            end
-        end
-
-        if context then
-
-            PolyActions::start(context)
-
-            puts ""
-            store.register(context, false)
-            line = TxTimeCommitments::toString(context)
-            if NxBallsService::isPresent(context["uuid"]) then
-                line = "#{store.prefixString()} #{line} (#{NxBallsService::activityStringOrEmptyString("", context["uuid"], "")})".green
-            end
-            puts line
-            vspaceleft = vspaceleft - 2
-
-            nx79s = TxTimeCommitments::nx79s(context, CommonUtils::screenHeight())
-            if nx79s.size > 0 then
-                puts ""
-                vspaceleft = vspaceleft - 1
-                nx79s
-                    .each{|nx79|
-                        element = nx79["item"]
-                        PolyActions::dataPrefetchAttempt(element)
-                        indx = store.register(element, false)
-                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
-                        if NxBallsService::isPresent(element["uuid"]) then
-                            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
+                        line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                        if NxBallsService::isPresent(item["uuid"]) then
+                            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
                         end
                         puts line
                         vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                        break if vspaceleft <= 0
                     }
-            end
 
-            puts ""
-            puts CommandInterpreters::catalystCommands().yellow
-            puts "commands: set ordinal <n> | ax39 | insert | exit".yellow
-
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-
-            if input == "exit" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Stop time commitment ? ") then
-                    PolyActions::stop(context)
-                end
-                CatalystListing::emptyContext()
-                return
-            end
-
-            if input.start_with?("set ordinal")  then
-                indx = input[1, 99].strip.to_i
-                entity = store.get(indx)
-                return if entity.nil?
-                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                TimeCommitmentMapping::link(context["uuid"], entity["uuid"], ordinal)
-                return
-            end
-
-            if input == "ax39"  then
-                ax39 = Ax39::interactivelyCreateNewAx()
-                DxF1::setAttribute2(context["uuid"], "ax39",  ax39)
-                return
-            end
-
-            if input == "insert" then
-                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
-                return if type.nil?
-                if type == "line" then
-                    element = NxTasks::interactivelyIssueDescriptionOnlyOrNull()
-                    return if element.nil?
-                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                    TimeCommitmentMapping::link(context["uuid"], element["uuid"], ordinal)
-                end
-                if type == "task" then
-                    element = NxTasks::interactivelyCreateNewOrNull(false)
-                    return if element.nil?
-                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
-                    TimeCommitmentMapping::link(context["uuid"], element["uuid"], ordinal)
-                end
-                return
-            end
-
-            if (indx = Interpreting::readAsIntegerOrNull(input)) then
-                entity = store.get(indx)
-                return if entity.nil?
-                PolyPrograms::itemLanding(entity)
-                return
-            end
-
-            puts ""
-            puts CommandInterpreters::catalystCommands().yellow
-            puts ""
-            CommandInterpreters::catalyst(input, store)
-
-        else
-
-            nxballs = NxBallsIO::nxballs()
-            if nxballs.size > 0 then
                 puts ""
-                vspaceleft = vspaceleft - 1
-                nxballs
-                    .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
-                    .each{|nxball|
-                        store.register(nxball, false)
-                        line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
-                        puts line.green
-                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    }
+                puts CommandInterpreters::catalystCommands().yellow
+                puts ""
+                input = LucilleCore::askQuestionAnswerAsString("> ")
+                return if input == ""
+                CommandInterpreters::catalyst(input, store)
+
+                return
             end
-
-            puts ""
-            vspaceleft = vspaceleft - 1
-
-            CatalystListing::listingItems()
-                .each{|item|
-                    break if vspaceleft <= 0
-                    store.register(item, true)
-                    line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
-                    if NxBallsService::isPresent(item["uuid"]) then
-                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
-                    end
-                    puts line
-                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                }
-
-            puts ""
-            puts CommandInterpreters::catalystCommands().yellow
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-            CommandInterpreters::catalyst(input, store)
-
-        end
+        }
     end
 
     # PolyPrograms::itemLandingCatalyst(item)

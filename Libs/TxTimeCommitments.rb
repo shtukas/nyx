@@ -121,8 +121,8 @@ class TxTimeCommitments
                 PolyPrograms::itemLanding(item)
             end
             if option == "access" then
-                PolyActions::access(item)
-                return
+                CatalystListing::setContext(item["uuid"])
+                PolyPrograms::catalystMainListing()
             end
         }
     end
