@@ -3,6 +3,16 @@
 
 class ImmutableDataFilesDxF4s
 
+    # The first trace is the objectuuid
+    # We then return {inputForNextFile: String, filename: String}
+    # ImmutableDataFilesDxF4s::fileCoordinates(input)
+    def self.fileCoordinates(input)
+        {
+            "inputForNextFile" => Digest::SHA1.hexdigest(input),
+            "filename"         => "#{Digest::SHA1.hexdigest(input)}.dxf4.sqlite3"
+        }
+    end
+
     # ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
     def self.dxF1FileShouldFlushData(objectuuid)
         # The limit is 100 Mb, that's the side we are confortable sending over on Syncthing
@@ -36,7 +46,9 @@ class ImmutableDataFilesDxF4s
         # (comment group: 9d205ce8-885f-4a80-85aa-64bd081ec5e7)
         # At the moment we work on limited mode, using one file
 
-        dxf4Filename = "#{Digest::SHA1.hexdigest(objectuuid)}.dxf4.sqlite3"
+        dxf4FileCoordinates = ImmutableDataFilesDxF4s::fileCoordinates(objectuuid)
+
+        dxf4Filename = dxf4FileCoordinates["filename"]
         dxf4Filepath = ImmutableDataFilesDxF4s::filenameToEnergyGridFilepath(dxf4Filename)
 
         if !File.exists?(dxf4Filepath) then
@@ -105,7 +117,9 @@ class ImmutableDataFilesDxF4s
         raise "(error: 9e97abd1-57f3-4507-8342-16b0eec153a9) Can't see EnergyGrid" if !flag1
         # (comment group: 9d205ce8-885f-4a80-85aa-64bd081ec5e7)
         # At the moment we work on limited mode, using one file
-        filename = "#{Digest::SHA1.hexdigest(objectuuid)}.dxf4.sqlite3"
+
+        dxf4FileCoordinates = ImmutableDataFilesDxF4s::fileCoordinates(objectuuid)
+        filename = dxf4FileCoordinates["filename"]
         filepath = ImmutableDataFilesDxF4s::filenameToEnergyGridFilepath(filename)
         if File.exists?(filepath) then
             [filename]
@@ -116,7 +130,8 @@ class ImmutableDataFilesDxF4s
 
     # ImmutableDataFilesDxF4s::getBlobOrNull(objectuuid, nhash)
     def self.getBlobOrNull(objectuuid, nhash)
-        dxf4Filename = "#{Digest::SHA1.hexdigest(objectuuid)}.dxf4.sqlite3"
+        dxf4FileCoordinates = ImmutableDataFilesDxF4s::fileCoordinates(objectuuid)
+        dxf4Filename = dxf4FileCoordinates["filename"]
         dxf4Filepath = ImmutableDataFilesDxF4s::filenameToEnergyGridFilepath(dxf4Filename)
         db = SQLite3::Database.new(dxf4Filepath)
         db.busy_timeout = 117
