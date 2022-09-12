@@ -144,7 +144,7 @@ class SystemEvents
                 if DataFilesDxF4s::repositoryIsVisible() then
                     DataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
                 else
-                    puts "We need EnergyGrid (optional)"
+                    puts "[optional] We need EnergyGrid"
                     LucilleCore::pressEnterToContinue()
                     if DataFilesDxF4s::repositoryIsVisible() then
                         DataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
