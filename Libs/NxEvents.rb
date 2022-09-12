@@ -33,7 +33,7 @@ class NxEvents
         DxF1::setAttribute2(uuid, "datetime",    datetime)
         DxF1::setAttribute2(uuid, "description", description)
         DxF1::setAttribute2(uuid, "nx112",       cx ? cx["uuid"] : nil)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: c4d9e89d-d4f2-4a44-8c66-311431977b4c) How did that happen ? 🤨"

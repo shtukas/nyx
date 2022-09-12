@@ -4,6 +4,50 @@
 
 require_relative "../Libs/loader.rb"
 
+
+DxF1::databankRepositoryDxF1sFilepathEnumerator().each{|filepath|
+
+    flag = XCache::getOrNull("should flush data (2):#{filepath}")
+
+    if flag == "false" then
+        next 
+    end
+
+    if flag == "true" then
+        FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, SecureRandom.hex)
+        puts "filepath: #{filepath}"
+        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+        objectuuid = item["uuid"]
+        ImmutableDataFilesDxF4s::makeNewDataFileUsingDxF1File(objectuuid)
+        FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, SecureRandom.hex)
+        flag = ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
+        if flag then
+            XCache::set("should flush data (2):#{filepath}", "true")
+        else
+            XCache::set("should flush data (2):#{filepath}", "false")
+        end
+        next
+    end
+
+    puts "filepath: #{filepath}"
+    item = DxF1::getProtoItemAtFilepathOrNull(filepath)
+    if item.nil? then
+        puts "item is null, continue to delete"
+        LucilleCore::pressEnterToContinue()
+        FileUtils.rm(filepath)
+        next
+    end
+    objectuuid = item["uuid"]
+    flag = ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
+    if flag then
+        XCache::set("should flush data (2):#{filepath}", "true")
+    else
+        XCache::set("should flush data (2):#{filepath}", "false")
+    end
+    puts flag
+
+}
+
 exit
 
 # ========================================================================================

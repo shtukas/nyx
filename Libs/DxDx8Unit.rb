@@ -26,7 +26,7 @@ class DxDx8Unit
         DxF1::setAttribute2(uuid, "datetime", datetime)
         DxF1::setAttribute2(uuid, "description", description)
         DxF1::setAttribute2(uuid, "unitId", unitId)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: dfd0d395-47d3-4e13-a51c-3dcbc473a2b2) How did that happen ? 🤨"

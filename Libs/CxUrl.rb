@@ -21,7 +21,7 @@ class CxUrl
         DxF1::setAttribute2(uuid, "datetime", datetime)
         DxF1::setAttribute2(uuid, "owneruuid", owneruuid)
         DxF1::setAttribute2(uuid, "url", url)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"
@@ -40,7 +40,7 @@ class CxUrl
         DxF1::setAttribute2(uuid, "datetime", datetime)
         DxF1::setAttribute2(uuid, "owneruuid", owneruuid)
         DxF1::setAttribute2(uuid, "url", url)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"

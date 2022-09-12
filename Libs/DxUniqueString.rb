@@ -26,7 +26,7 @@ class DxUniqueString
         DxF1::setAttribute2(uuid, "datetime", datetime)
         DxF1::setAttribute2(uuid, "description", description)
         DxF1::setAttribute2(uuid, "uniquestring", uniquestring)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 0f512f44-6d46-4f15-9015-ca4c7bfe6d9c) How did that happen ? 🤨"

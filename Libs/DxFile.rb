@@ -36,7 +36,7 @@ class DxFile
         DxF1::setAttribute2(uuid, "nhash", nhash)
         DxF1::setAttribute2(uuid, "parts", parts)
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 7221bfe9-c2f7-4948-a878-e23e161ea728) How did that happen ? 🤨"
@@ -69,7 +69,7 @@ class DxFile
         DxF1::setAttribute2(uuid, "nhash", nhash)
         DxF1::setAttribute2(uuid, "parts", parts)
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 7221bfe9-c2f7-4948-a878-e23e161ea728) How did that happen ? 🤨"

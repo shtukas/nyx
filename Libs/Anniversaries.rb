@@ -120,7 +120,7 @@ class Anniversaries
         DxF1::setAttribute2(uuid, "startdate",   startdate)
         DxF1::setAttribute2(uuid, "repeatType",  repeatType)
         DxF1::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"

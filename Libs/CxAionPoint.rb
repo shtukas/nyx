@@ -29,7 +29,7 @@ class CxAionPoint
         DxF1::setAttribute2(uuid, "owneruuid", owneruuid)
         DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 2295bb26-24ee-41c1-ae8d-a918367977c2) How did that happen ? 🤨"
@@ -55,7 +55,7 @@ class CxAionPoint
         DxF1::setAttribute2(uuid, "owneruuid", owneruuid)
         DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
 
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 2295bb26-24ee-41c1-ae8d-a918367977c2) How did that happen ? 🤨"
@@ -118,7 +118,7 @@ class CxAionPoint
         operator = DxF1Elizabeth.new(uuid)
         rootnhash = AionCore::commitLocationReturnHash(operator, location)
         DxF1::setAttribute2(uuid, "rootnhash", rootnhash)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
 
         return TheIndex::getItemOrNull(item["uuid"])
     end

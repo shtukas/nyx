@@ -36,7 +36,7 @@ class TxTimeCommitments
         DxF1::setAttribute2(uuid, "datetime",     datetime)
         DxF1::setAttribute2(uuid, "description",  description)
         DxF1::setAttribute2(uuid, "ax39",         ax39)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 058e5a67-7fbe-4922-b638-2533428ee019) How did that happen ? 🤨"

@@ -356,7 +356,13 @@ class DxF1Elizabeth
     end
 
     def getBlobOrNull(nhash)
-        DxF1::getDatablobOrNull(@objectuuid, nhash)
+        blob = DxF1::getDatablobOrNull(@objectuuid, nhash)
+        return blob if blob
+
+        blob = ImmutableDataFilesDxF4s::getBlobOrNull(@objectuuid, nhash)
+        return blob if blob
+
+        nil
     end
 
     def readBlobErrorIfNotFound(nhash)

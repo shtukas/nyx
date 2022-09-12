@@ -5,5 +5,5 @@
 require_relative "../Libs/loader.rb"
 
 objectuuid = ARGV[0]
-FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, SecureRandom.hex, true)
+FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, SecureRandom.hex)
 puts "fsck completed successfully".green

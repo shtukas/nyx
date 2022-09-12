@@ -31,7 +31,7 @@ class NxTimelines
         DxF1::setAttribute2(uuid, "unixtime",    unixtime)
         DxF1::setAttribute2(uuid, "datetime",    datetime)
         DxF1::setAttribute2(uuid, "description", description)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex, true)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
         item = TheIndex::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: a6cc9094-7100-4aa3-8ebc-1fec0669733e) How did that happen ? 🤨"

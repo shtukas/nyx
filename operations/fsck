@@ -18,4 +18,4 @@ runhash =
         r
     end
 
-FileSystemCheck::fsckErrorAtFirstFailure(runhash, false)
+FileSystemCheck::fsckErrorAtFirstFailure(runhash)

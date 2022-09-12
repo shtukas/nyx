@@ -11,29 +11,29 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, useTheForce)
-    def self.fsckItemErrorArFirstFailure(item, runhash, useTheForce)
+    # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+    def self.fsckItemErrorArFirstFailure(item, runhash)
         repeatKey = "#{runhash}:#{item}"
-        return if (XCache::getFlag(repeatKey) and !useTheForce)
+        return if XCache::getFlag(repeatKey)
 
-        puts "FileSystemCheck::fsckItemErrorArFirstFailure(#{item}, #{runhash}, #{useTheForce})"
+        puts "FileSystemCheck::fsckItemErrorArFirstFailure(#{item}, #{runhash})"
 
         if item["uuid"].nil? then
             puts JSON.pretty_generate(item)
             puts "Missing attribute: uuid"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
         end
 
         if item["mikuType"].nil? then
             puts JSON.pretty_generate(item)
             puts "Missing attribute: mikuType"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
         end
 
         if item["unixtime"].nil? then
             puts JSON.pretty_generate(item)
             puts "Missing attribute: unixtime"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
         end
 
         if item["datetime"].nil? then
@@ -41,16 +41,16 @@ class FileSystemCheck
             puts "Missing attribute: datetime"
             if LucilleCore::askQuestionAnswerAsBoolean("Should I add it now ? ", true) then
                 DxF1::setAttribute2(item["uuid"], "datetime", CommonUtils::now_iso8601())
-                return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex, true)
+                return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex)
             end
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
         end
 
         ensureAttribute = lambda {|attname|
             return if item[attname]
             puts JSON.pretty_generate(item)
             puts "Missing attribute: #{attname}"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
         }
 
         ensureItemFileExists = lambda {|itemuuid|
@@ -58,12 +58,12 @@ class FileSystemCheck
             if filepath.nil? then
                 puts "DxF1::filepathIfExistsOrNullNoSideEffect(#{itemuuid})"
                 puts "Missing file for itemuuid (v1): #{itemuuid}"
-                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
             end
             if !File.exists?(filepath) then
                 puts "DxF1::filepathIfExistsOrNullNoSideEffect(#{itemuuid})"
                 puts "Missing file for itemuuid (v2): #{itemuuid}"
-                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash}, #{useTheForce})"
+                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
             end
         }
 
@@ -224,22 +224,22 @@ class FileSystemCheck
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash, useTheForce)
-    def self.fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash, useTheForce)
+    # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
+    def self.fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
         filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return if filepath.nil?
 
         repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{runhash}:#{File.mtime(filepath)}"
-        return if (XCache::getFlag(repeatKey) and !useTheForce)
+        return if XCache::getFlag(repeatKey)
 
-        puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash}, #{useTheForce})"
+        puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
 
         filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
 
         if filepath.nil? then
             puts JSON.pretty_generate(item)
             puts "Could not find item filepath on the disk: #{filepath}"
-            raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash}, #{useTheForce})"
+            raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
         end
 
         item = DxF1::getProtoItemAtFilepathOrNull(filepath)
@@ -247,21 +247,21 @@ class FileSystemCheck
         if item.nil? then
             puts JSON.pretty_generate(item)
             puts "Could not recover item from the disk #{filepath}"
-            raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash}, #{useTheForce})"
+            raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
         end
 
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, useTheForce)
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash, useTheForce)
-    def self.fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash, useTheForce)
+    # FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash)
+    def self.fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash)
         repeatKey = "0dfca14a-252b-45fc-bd80-95179ad4ac6e:#{filepath}:#{runhash}:#{File.mtime(filepath)}"
-        return if (XCache::getFlag(repeatKey) and !useTheForce)
-        puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash}, #{useTheForce})"
+        return if XCache::getFlag(repeatKey)
+        puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash})"
         item = DxF1::getProtoItemAtFilepathOrNull(filepath)
         if item.nil? then
-            puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash}, #{useTheForce}), item was nil"
+            puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash}), item was nil"
             puts "sql dump:"
             system("sqlite3 '#{filepath}' .dump")
             if LucilleCore::askQuestionAnswerAsBoolean("delete file ? ") then
@@ -272,16 +272,16 @@ class FileSystemCheck
                 exit
             end
         end
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash, useTheForce)
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
         XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckErrorAtFirstFailure(runhash, useTheForce)
-    def self.fsckErrorAtFirstFailure(runhash, useTheForce)
+    # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
+    def self.fsckErrorAtFirstFailure(runhash)
         Find.find("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s") do |path|
             FileSystemCheck::exitIfMissingCanary()
             next if File.basename(path)[-8, 8] != ".sqlite3"
-            FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(path, runhash, useTheForce)
+            FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(path, runhash)
         end
         puts "fsck completed successfully".green
     end
