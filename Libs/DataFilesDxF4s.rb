@@ -34,8 +34,8 @@ class DataFilesDxF4s
         answer
     end
 
-    # DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
-    def self.getDxF4EnergyGridFilepathOrNull(objectuuid)
+    # DataFilesDxF4s::computeDxF4EnergyGridFilepathOrNull(objectuuid)
+    def self.computeDxF4EnergyGridFilepathOrNull(objectuuid)
         DataFilesDxF4s::acquireRepositoryOrExit()
         filename = "#{Digest::SHA1.hexdigest(objectuuid)}.dxf4.sqlite3"
         fragment = filename[0, 2]
@@ -74,9 +74,10 @@ class DataFilesDxF4s
 
         return false if !DataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
 
-        DataFilesDxF4s::acquireRepositoryOrExit()
+        dxf4Filepath = DataFilesDxF4s::computeDxF4EnergyGridFilepathOrNull(objectuuid)
+        return false if dxf4Filepath.nil?
 
-        dxf4Filepath = DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
+        DataFilesDxF4s::acquireRepositoryOrExit()
 
         if !File.exists?(dxf4Filepath) then
             db = SQLite3::Database.new(dxf4Filepath)
@@ -140,7 +141,8 @@ class DataFilesDxF4s
 
         DataFilesDxF4s::acquireRepositoryOrExit()
 
-        dxf4Filepath = DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
+        dxf4Filepath = DataFilesDxF4s::computeDxF4EnergyGridFilepathOrNull(objectuuid)
+        return false if dxf4Filepath.nil?
         return nil if !File.exists?(dxf4Filepath)
 
         db = SQLite3::Database.new(dxf4Filepath)

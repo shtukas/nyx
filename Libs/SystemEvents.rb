@@ -138,6 +138,7 @@ class SystemEvents
         loop {
             packet = Mercury2::readFirstOrNull(channel)
             return if packet.nil?
+            puts "flush @ (#{Time.new.to_s}): #{JSON.pretty_generate(packet)}"
             objectuuid = packet["objectuuid"]
             if DataFilesDxF4s::dxF1FileShouldFlushData(objectuuid) then
                 if DataFilesDxF4s::repositoryIsVisible() then
@@ -152,10 +153,11 @@ class SystemEvents
                     end
                 end
             end
-            next if objectuuids.include?(objectuuid)
-            puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
-            SystemEvents::publishDxF1OnCommsline(objectuuid)
-            objectuuids << objectuuid
+            if !objectuuids.include?(objectuuid) then
+                puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
+                SystemEvents::publishDxF1OnCommsline(objectuuid)
+                objectuuids << objectuuid
+            end
             Mercury2::dequeue(channel)
         }
     end
