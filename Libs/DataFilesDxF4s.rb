@@ -11,6 +11,15 @@ class DataFilesDxF4s
         "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/DxF4-Repository"
     end
 
+    # DataFilesDxF4s::acquireRepositoryOrExit()
+    def self.acquireRepositoryOrExit()
+        return if File.exists?(DataFilesDxF4s::dxF4Repository())
+        puts "We need Energy Grid"
+        LucilleCore::pressEnterToContinue()
+        return if File.exists?(DataFilesDxF4s::dxF4Repository())
+        exit
+    end
+
     # DataFilesDxF4s::dxF1FileHasDatablobs(filepath)
     def self.dxF1FileHasDatablobs(filepath)
         db = SQLite3::Database.new(filepath)
@@ -27,6 +36,7 @@ class DataFilesDxF4s
 
     # DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
     def self.getDxF4EnergyGridFilepathOrNull(objectuuid)
+        DataFilesDxF4s::acquireRepositoryOrExit()
         filename = "#{Digest::SHA1.hexdigest(objectuuid)}.dxf4.sqlite3"
         fragment = filename[0, 2]
         folderpath = "#{DataFilesDxF4s::dxF4Repository()}/#{fragment}"
@@ -63,6 +73,8 @@ class DataFilesDxF4s
         end
 
         return false if !DataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
+
+        DataFilesDxF4s::acquireRepositoryOrExit()
 
         dxf4Filepath = DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
 
@@ -125,6 +137,8 @@ class DataFilesDxF4s
             blob = XCacheDatablobs::getBlobOrNull(nhash)
             return blob if blob
         end
+
+        DataFilesDxF4s::acquireRepositoryOrExit()
 
         dxf4Filepath = DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
         return nil if !File.exists?(dxf4Filepath)
