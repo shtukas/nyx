@@ -109,7 +109,7 @@ class DataFilesDxF4s
             nhash      = attname
             datablob   = attvalue
 
-            puts "Putting nhash #{nhash} @ #{dxF4Filename}"
+            puts "Putting nhash #{nhash} @ #{File.basename(dxf4Filepath)}"
 
             db2.execute "delete from _dxf4_ where _nhash_=?", [nhash]
             db2.execute "insert into _dxf4_ (_nhash_, _datablob_) values (?, ?)", [nhash, datablob]
