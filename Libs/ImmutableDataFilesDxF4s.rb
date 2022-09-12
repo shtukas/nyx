@@ -111,7 +111,7 @@ class ImmutableDataFilesDxF4s
             raise "(error: 28f18c49-04a3-4a05-a48b-283e647fc1fa) Can't see dxF1Filepath: #{dxF1Filepath}, for objectuuid: #{objectuuid}"
         end
 
-        return if ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
+        return if !ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
 
         dxF4FileCoordinates = ImmutableDataFilesDxF4s::decideNextPossibleDxF4FileCoordinates(objectuuid)
 
