@@ -88,7 +88,7 @@ class PolyActions
         end
 
         if Iam::isNyxNetworkItem(item) then
-            PolyPrograms::itemLandingNyxNetwork(item)
+            PolyPrograms::nyxNetworkItemLanding(item)
             return
         end
 

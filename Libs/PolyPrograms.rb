@@ -10,7 +10,7 @@ class PolyPrograms
 
             vspaceleft = CommonUtils::screenHeight() - (context ? 5 : 4)
 
-            vspaceleft =  vspaceleft - CommonUtils::verticalSize(CommandInterpreters::catalystCommands())
+            vspaceleft =  vspaceleft - CommonUtils::verticalSize(CommandInterpreters::catalystListingCommands())
 
             if Config::get("instanceId") == "Lucille20-pascal" then
                 reference = The99Percent::getReferenceOrNull()
@@ -85,7 +85,7 @@ class PolyPrograms
                 end
 
                 puts ""
-                puts CommandInterpreters::catalystCommands().yellow
+                puts CommandInterpreters::catalystListingCommands().yellow
                 puts "commands: set ordinal <n> | ax39 | insert | exit".yellow
 
                 input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -139,7 +139,7 @@ class PolyPrograms
                 end
 
                 puts ""
-                CommandInterpreters::catalyst(input, store)
+                CommandInterpreters::catalystListing(input, store)
 
                 # Here we do not return, we loop :)
 
@@ -175,19 +175,19 @@ class PolyPrograms
                     }
 
                 puts ""
-                puts CommandInterpreters::catalystCommands().yellow
+                puts CommandInterpreters::catalystListingCommands().yellow
                 puts ""
                 input = LucilleCore::askQuestionAnswerAsString("> ")
                 return if input == ""
-                CommandInterpreters::catalyst(input, store)
+                CommandInterpreters::catalystListing(input, store)
 
                 return
             end
         }
     end
 
-    # PolyPrograms::itemLandingCatalyst(item)
-    def self.itemLandingCatalyst(item)
+    # PolyPrograms::catalystItemLanding(item)
+    def self.catalystItemLanding(item)
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
@@ -200,16 +200,16 @@ class PolyPrograms
             puts "datetime: #{item["datetime"]}".yellow
             store = ItemStore.new()
             puts ""
-            puts CommandInterpreters::catalystCommands().yellow
+            puts "description | access | start | stop | edit | done | done for today | do not show until | redate | ax39 | nx112 | update start date | expose | destroy | nyx".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
-            CommandInterpreters::catalyst(input, store)
+            CommandInterpreters::catalystItemLanding(item, input)
         }
     end
 
-    # PolyPrograms::itemLandingNyxNetwork(item)
-    def self.itemLandingNyxNetwork(item)
+    # PolyPrograms::nyxNetworkItemLanding(item)
+    def self.nyxNetworkItemLanding(item)
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
@@ -284,11 +284,11 @@ class PolyPrograms
             return
         end
         if Iam::isCatalystItem(item) then
-            PolyPrograms::itemLandingCatalyst(item)
+            PolyPrograms::catalystItemLanding(item)
             return
         end
         if Iam::isNyxNetworkItem(item) then
-            PolyPrograms::itemLandingNyxNetwork(item)
+            PolyPrograms::nyxNetworkItemLanding(item)
             return
         end
         raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"

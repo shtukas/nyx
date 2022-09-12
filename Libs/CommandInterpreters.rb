@@ -3,20 +3,20 @@
 
 class CommandInterpreters
 
-    # CommandInterpreters::catalystCommands()
-    def self.catalystCommands()
+    # CommandInterpreters::catalystListingCommands()
+    def self.catalystListingCommands()
         [
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx112 (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until (<n>) | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | today | ondate | todo | task | toplevel | inbox | line",
-            "anniversaries | ondates | todos | waves | time commitments",
+            "anniversaries | ondates | todos | waves | tc",
             "require internet",
             "search | nyx | speed | nxballs | maintenance",
         ].join("\n")
     end
 
-    # CommandInterpreters::catalyst(input, store)
-    def self.catalyst(input, store)
+    # CommandInterpreters::catalystListing(input, store)
+    def self.catalystListing(input, store)
 
         if input.start_with?("+") and (unixtime = CommonUtils::codeToUnixtimeOrNull(input.gsub(" ", ""))) then
             if (item = store.getDefault()) then
@@ -361,7 +361,7 @@ class CommandInterpreters
             return
         end
 
-        if Interpreting::match("time commitments", input) then
+        if Interpreting::match("tc", input) then
             TxTimeCommitments::dive()
             return
         end
@@ -477,6 +477,95 @@ class CommandInterpreters
 
             LucilleCore::pressEnterToContinue()
             return
+        end
+    end
+
+    # CommandInterpreters::catalystItemLanding(item, input)
+    def self.catalystItemLanding(item, input)
+
+
+        if Interpreting::match("access", input) then
+            PolyActions::access(item)
+            return
+        end
+
+
+        if input == "ax39"  then
+            return if item["mikuType"] != "TxTimeCommitment"
+            ax39 = Ax39::interactivelyCreateNewAx()
+            DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
+            return
+        end
+
+        if Interpreting::match("destroy", input) then
+            PolyActions::destroyWithPrompt(item)
+            return
+        end
+
+        if Interpreting::match("description", input) then
+            PolyActions::editDescription(item)
+            return
+        end
+
+        if Interpreting::match("done", input) then
+            PolyActions::done(item)
+            return
+        end
+
+        if input == "done for today" then
+            return if item["mikuType"] != "TxTimeCommitment"
+            DoneForToday::setDoneToday(item["uuid"])
+            return
+        end
+
+        if Interpreting::match("edit", input) then
+            PolyFunctions::edit(item)
+            return
+        end
+
+        if Interpreting::match("expose", input) then
+            puts JSON.pretty_generate(item)
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("nx112", input) then
+            PolyActions::setNx112(item)
+            return
+        end
+
+        if Interpreting::match("nyx", input) then
+            Nyx::program()
+            return
+        end
+
+        if Interpreting::match("do not show until", input) then
+            datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
+            return if datecode == ""
+            unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
+            return if unixtime.nil?
+            PolyActions::stop(item)
+            DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+            return
+        end
+
+        if Interpreting::match("redate", input) then
+            PolyActions::redate(item)
+            return
+        end
+
+        if Interpreting::match("start", input) then
+            PolyActions::start(item)
+            return
+        end
+
+        if Interpreting::match("stop", input) then
+            PolyActions::stop(item)
+            return
+        end
+
+        if Interpreting::match("update start date", input) then
+            PolyActions::editStartDate(item)
         end
     end
 
