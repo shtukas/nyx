@@ -12,7 +12,7 @@ class TxTimeCommitments
 
     # TxTimeCommitments::destroy(uuid)
     def self.destroy(uuid)
-        DxF1::deleteObjectLogically(uuid)
+        DxF1::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -99,7 +99,6 @@ class TxTimeCommitments
     # TxTimeCommitments::interactivelySelectOneOrNull()
     def self.interactivelySelectOneOrNull()
         items = TxTimeCommitments::items()
-                    .select{|item| item["isAlive"].nil? or item["isAlive"] }
                     .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
         LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", items, lambda{|item| TxTimeCommitments::toString(item) })
     end
@@ -109,7 +108,6 @@ class TxTimeCommitments
         loop {
             system("clear")
             items = TxTimeCommitments::items()
-                        .select{|item| DxF1Utils::itemIsAlive(item) }
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| TxTimeCommitments::toString(item) })
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])

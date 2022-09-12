@@ -154,7 +154,6 @@ class TheIndex
             puts filepath
             item = DxF1::getProtoItemAtFilepathOrNull(filepath)
             next if item.nil?
-            next if !item["isAlive"].nil? and !item["isAlive"]
             puts JSON.pretty_generate(item)
             TheIndex::updateIndexWithThisObjectAttempt(item)
         }

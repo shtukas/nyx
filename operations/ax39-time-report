@@ -8,7 +8,6 @@ puts ""
 
 total = 0
 TxTimeCommitments::items()
-    .select{|item| item["isAlive"].nil? or item["isAlive"] }
     .each{|owner|
         ax39 = owner["ax39"]
         type = ax39["type"]
@@ -22,7 +21,6 @@ puts ""
 
 total = 0
 TxTimeCommitments::items()
-    .select{|item| item["isAlive"].nil? or item["isAlive"] }
     .each{|owner|
         ax39 = owner["ax39"]
         type = ax39["type"]

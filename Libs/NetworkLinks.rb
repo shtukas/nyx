@@ -118,7 +118,6 @@ class NetworkLinks
     # NetworkLinks::linkedEntities(uuid)
     def self.linkedEntities(uuid)
         NetworkLinks::linkeduuids(uuid)
-            .select{|linkeduuid| DxF1::objectIsAlive(linkeduuid) }
             .map{|objectuuid| TheIndex::getItemOrNull(objectuuid) }
             .compact
     end

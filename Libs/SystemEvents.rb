@@ -39,7 +39,8 @@ class SystemEvents
         end
 
         if event["mikuType"] == "NxDeleted" then
-            DxF1::deleteObjectLogicallyNoEvents(event["objectuuid"])
+            objectuuid = event["objectuuid"]
+            DxF1::deleteObjectNoEvents(objectuuid)
         end
 
         if event["mikuType"] == "AttributeUpdate" then
@@ -66,10 +67,7 @@ class SystemEvents
 
         if event["mikuType"] == "NxFileDeletion" then
             objectuuid = event["objectuuid"]
-            filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-            if File.exists?(filepath) then
-                FileUtils.rm(filepath)
-            end
+            DxF1::deleteObjectNoEvents(objectuuid)
         end
 
         if event["mikuType"] == "XCacheFlag" then

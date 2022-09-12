@@ -111,7 +111,7 @@ class PolyActions
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            DxF1::deleteObjectLogically(item["uuid"])
+            DxF1::deleteObject(item["uuid"])
         end
     end
 
@@ -180,7 +180,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "DxUrl" then
-            DxF1::deleteObjectLogically(item["uuid"])
+            DxF1::deleteObject(item["uuid"])
             return
         end
 
@@ -203,7 +203,7 @@ class PolyActions
                 return
             end
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{PolyFunctions::toString(item).green}' ? ") then
-                DxF1::deleteObjectLogically(item["uuid"])
+                DxF1::deleteObject(item["uuid"])
             end
             return
         end

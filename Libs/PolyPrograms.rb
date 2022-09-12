@@ -35,7 +35,6 @@ class PolyPrograms
 
             if context.nil? then
                 tx = TxTimeCommitments::items()
-                        .select{|item| DxF1Utils::itemIsAlive(item) }
                         .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
                         .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
                         .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }

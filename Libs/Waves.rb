@@ -11,7 +11,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        DxF1::deleteObjectLogically(uuid)
+        DxF1::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -167,6 +167,7 @@ class Waves
     def self.listingItems(priority)
         Waves::items()
             .select{|item| priority ? Waves::isPriority(item) : !Waves::isPriority(item) }
+            .sort{|i1, i2| i1["lastDoneDateTime"] <=> i2["lastDoneDateTime"] }
     end
 
     # -------------------------------------------------------------------------

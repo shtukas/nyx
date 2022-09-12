@@ -137,7 +137,6 @@ class NetworkArrows
     # NetworkArrows::children(uuid)
     def self.children(uuid)
         NetworkArrows::childrenuuids(uuid)
-            .select{|linkeduuid| DxF1::objectIsAlive(linkeduuid) }
             .map{|objectuuid| TheIndex::getItemOrNull(objectuuid) }
             .compact
     end
@@ -145,7 +144,6 @@ class NetworkArrows
     # NetworkArrows::parents(uuid)
     def self.parents(uuid)
         NetworkArrows::parentsuuids(uuid)
-            .select{|linkeduuid| DxF1::objectIsAlive(linkeduuid) }
             .map{|objectuuid| TheIndex::getItemOrNull(objectuuid) }
             .compact
     end
