@@ -359,7 +359,7 @@ class DxF1Elizabeth
         blob = DxF1::getDatablobOrNull(@objectuuid, nhash)
         return blob if blob
 
-        blob = ImmutableDataFilesDxF4s::getBlobOrNull(@objectuuid, nhash, true)
+        blob = DataFilesDxF4s::getBlobOrNull(@objectuuid, nhash, true)
         return blob if blob
 
         nil
@@ -409,7 +409,7 @@ class DxF1ElizabethFsck
         blob = DxF1::getDatablobOrNull(@objectuuid, nhash)
         return blob if blob
 
-        blob = ImmutableDataFilesDxF4s::getBlobOrNull(@objectuuid, nhash, false)
+        blob = DataFilesDxF4s::getBlobOrNull(@objectuuid, nhash, false)
         return blob if blob
 
         nil

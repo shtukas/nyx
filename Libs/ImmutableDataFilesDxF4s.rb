@@ -1,41 +1,17 @@
 
 # encoding: UTF-8
 
-class ImmutableDataFilesDxF4s
+class DataFilesDxF4s
 
     # --------------------------------------------
     # Private
 
-    # ImmutableDataFilesDxF4s::dxF4Repository()
+    # DataFilesDxF4s::dxF4Repository()
     def self.dxF4Repository()
         "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/DxF4-Repository"
     end
 
-    # The first trace is the objectuuid
-    # We then return {inputForNextFile: String, filename: String}
-    # ImmutableDataFilesDxF4s::dxF4FileCoordinates(input)
-    def self.dxF4FileCoordinates(input)
-        {
-            "inputForNextFile" => Digest::SHA1.hexdigest(input),
-            "filename"         => "#{Digest::SHA1.hexdigest(input)}.dxf4.sqlite3"
-        }
-    end
-
-    # ImmutableDataFilesDxF4s::decideNextPossibleDxF4FileCoordinates(objectuuid)
-    def self.decideNextPossibleDxF4FileCoordinates(objectuuid)
-        inputForNextFile = objectuuid
-        loop {
-            dxF4FileCoordinates = ImmutableDataFilesDxF4s::dxF4FileCoordinates(inputForNextFile)
-            filename = dxF4FileCoordinates["filename"]
-            filepath = ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(filename)
-            if !File.exists?(filepath) then
-                return dxF4FileCoordinates
-            end
-            inputForNextFile = dxF4FileCoordinates["inputForNextFile"]
-        }
-    end
-
-    # ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(filepath)
+    # DataFilesDxF4s::dxF1FileHasDatablobs(filepath)
     def self.dxF1FileHasDatablobs(filepath)
         db = SQLite3::Database.new(filepath)
         db.busy_timeout = 117
@@ -49,18 +25,11 @@ class ImmutableDataFilesDxF4s
         answer
     end
 
-    # ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(filename)
-    def self.dxF4FilenameToEnergyGridFilepath(filename)
+    # DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
+    def self.getDxF4EnergyGridFilepathOrNull(objectuuid)
+        filename = "#{Digest::SHA1.hexdigest(objectuuid)}.dxf4.sqlite3"
         fragment = filename[0, 2]
-        if !File.exists?(ImmutableDataFilesDxF4s::dxF4Repository()) then
-            puts "I need Energy Grid."
-            LucilleCore::pressEnterToContinue()
-        end
-        if !File.exists?(ImmutableDataFilesDxF4s::dxF4Repository()) then
-            puts "Energy Grid not found. Operation aborted."
-            exit
-        end
-        folderpath = "#{ImmutableDataFilesDxF4s::dxF4Repository()}/#{fragment}"
+        folderpath = "#{DataFilesDxF4s::dxF4Repository()}/#{fragment}"
         if !File.exists?(folderpath) then
             FileUtils.mkdir(folderpath)
         end
@@ -68,39 +37,24 @@ class ImmutableDataFilesDxF4s
         filepath
     end
 
-    # ImmutableDataFilesDxF4s::getExistingDxF4DataFilenames(objectuuid)
-    def self.getExistingDxF4DataFilenames(objectuuid)
-        filenames = []
-        inputForNextFile = objectuuid
-        loop {
-            dxF4FileCoordinates = ImmutableDataFilesDxF4s::dxF4FileCoordinates(inputForNextFile)
-            filename = dxF4FileCoordinates["filename"]
-            filepath = ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(filename)
-            break if !File.exists?(filepath)
-            filenames << filename
-            inputForNextFile = dxF4FileCoordinates["inputForNextFile"]
-        }
-        filenames
-    end
-
     # --------------------------------------------
     # Public
 
-    # ImmutableDataFilesDxF4s::repositoryIsVisible()
+    # DataFilesDxF4s::repositoryIsVisible()
     def self.repositoryIsVisible()
-        File.exists?(ImmutableDataFilesDxF4s::dxF4Repository())
+        File.exists?(DataFilesDxF4s::dxF4Repository())
     end
 
-    # ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
+    # DataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
     def self.dxF1FileShouldFlushData(objectuuid)
         # The limit is 100 Mb, that's the side we are confortable sending over on Syncthing
         dxF1Filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return false if dxF1Filepath.nil?
         return false if !File.exists?(dxF1Filepath)
-        ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
+        DataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
     end
 
-    # ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid) # Boolean: Indicates if a transfer has happened
+    # DataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid) # Boolean: Indicates if a transfer has happened
     def self.transferDataToDxF4OrNothing(objectuuid)
 
         dxF1Filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
@@ -108,19 +62,18 @@ class ImmutableDataFilesDxF4s
             raise "(error: 28f18c49-04a3-4a05-a48b-283e647fc1fa) Can't see dxF1Filepath: #{dxF1Filepath}, for objectuuid: #{objectuuid}"
         end
 
-        return false if !ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
+        return false if !DataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
 
-        dxF4FileCoordinates = ImmutableDataFilesDxF4s::decideNextPossibleDxF4FileCoordinates(objectuuid)
+        dxf4Filepath = DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
 
-        dxF4Filename = dxF4FileCoordinates["filename"]
-        dxf4Filepath = ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(dxF4Filename)
-
-        db = SQLite3::Database.new(dxf4Filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("create table _dxf4_ (_nhash_ text, _datablob_ blob)", [])
-        db.close
+        if !File.exists?(dxf4Filepath) then
+            db = SQLite3::Database.new(dxf4Filepath)
+            db.busy_timeout = 117
+            db.busy_handler { |count| true }
+            db.results_as_hash = true
+            db.execute("create table _dxf4_ (_nhash_ text, _datablob_ blob)", [])
+            db.close
+        end
 
         db1 = SQLite3::Database.new(dxF1Filepath)
         db1.busy_timeout = 117
@@ -166,32 +119,31 @@ class ImmutableDataFilesDxF4s
         true
     end
 
-    # ImmutableDataFilesDxF4s::getBlobOrNull(objectuuid, nhash, useCache)
+    # DataFilesDxF4s::getBlobOrNull(objectuuid, nhash, useCache)
     def self.getBlobOrNull(objectuuid, nhash, useCache)
         if useCache then
             blob = XCacheDatablobs::getBlobOrNull(nhash)
             return blob if blob
         end
 
-        filenames = ImmutableDataFilesDxF4s::getExistingDxF4DataFilenames(objectuuid)
-        filenames.each{|dxF4Filename|
-            dxf4Filepath = ImmutableDataFilesDxF4s::dxF4FilenameToEnergyGridFilepath(dxF4Filename)
-            db = SQLite3::Database.new(dxf4Filepath)
-            db.busy_timeout = 117
-            db.busy_handler { |count| true }
-            db.results_as_hash = true
-            blob = nil
-            db.execute("select * from _dxf4_ where _nhash_=?", [nhash]) do |row|
-                blob = row["_datablob_"]
+        dxf4Filepath = DataFilesDxF4s::getDxF4EnergyGridFilepathOrNull(objectuuid)
+        return nil if !File.exists?(dxf4Filepath)
+
+        db = SQLite3::Database.new(dxf4Filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        blob = nil
+        db.execute("select * from _dxf4_ where _nhash_=?", [nhash]) do |row|
+            blob = row["_datablob_"]
+        end
+        db.close
+        if blob then
+            if useCache then
+                XCacheDatablobs::putBlob(blob)
             end
-            db.close
-            if blob then
-                if useCache then
-                    XCacheDatablobs::putBlob(blob)
-                end
-                return blob
-            end
-        }
+            return blob
+        end
 
         nil
     end

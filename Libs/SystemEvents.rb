@@ -139,14 +139,14 @@ class SystemEvents
             packet = Mercury2::readFirstOrNull(channel)
             return if packet.nil?
             objectuuid = packet["objectuuid"]
-            if ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid) then
-                if ImmutableDataFilesDxF4s::repositoryIsVisible() then
-                    ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
+            if DataFilesDxF4s::dxF1FileShouldFlushData(objectuuid) then
+                if DataFilesDxF4s::repositoryIsVisible() then
+                    DataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
                 else
                     puts "We need EnergyGrid (optional)"
                     LucilleCore::pressEnterToContinue()
-                    if ImmutableDataFilesDxF4s::repositoryIsVisible() then
-                        ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
+                    if DataFilesDxF4s::repositoryIsVisible() then
+                        DataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
                     else
                         return
                     end
