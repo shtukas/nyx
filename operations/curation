@@ -6,9 +6,11 @@ require_relative "../Libs/loader.rb"
 
 
 DxF1::databankRepositoryDxF1sFilepathEnumerator().each{|filepath|
+    puts filepath
     item = DxF1::getProtoItemAtFilepathOrNull(filepath)
     objectuuid = item["uuid"]
-    ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
+    status = ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
+    next if !status
     FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, SecureRandom.hex)
 }
 

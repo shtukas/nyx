@@ -103,7 +103,7 @@ class ImmutableDataFilesDxF4s
         true
     end
 
-    # ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
+    # ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid) # Boolean: Indicates if a transfer has happened
     def self.transferDataToDxF4OrNothing(objectuuid)
 
         dxF1Filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
@@ -111,7 +111,7 @@ class ImmutableDataFilesDxF4s
             raise "(error: 28f18c49-04a3-4a05-a48b-283e647fc1fa) Can't see dxF1Filepath: #{dxF1Filepath}, for objectuuid: #{objectuuid}"
         end
 
-        return if !ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
+        return false if !ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
 
         dxF4FileCoordinates = ImmutableDataFilesDxF4s::decideNextPossibleDxF4FileCoordinates(objectuuid)
 
@@ -152,6 +152,8 @@ class ImmutableDataFilesDxF4s
             db2.execute "delete from _dxf4_ where _nhash_=?", [nhash]
             db2.execute "insert into _dxf4_ (_nhash_, _datablob_) values (?, ?)", [nhash, datablob]
 
+            XCacheDatablobs::putBlob(datablob) # To be read later after when the DxF4 is no longer visible
+
         end
         db2.close
         db1.close
@@ -163,6 +165,8 @@ class ImmutableDataFilesDxF4s
         db.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
         db.execute "vacuum", []
         db.close
+
+        true
     end
 
     # ImmutableDataFilesDxF4s::getBlobOrNull(objectuuid, nhash, useCache)
