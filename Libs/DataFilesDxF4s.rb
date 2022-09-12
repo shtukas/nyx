@@ -57,10 +57,12 @@ class DataFilesDxF4s
 
     # DataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
     def self.dxF1FileShouldFlushData(objectuuid)
-        # The limit is 100 Mb, that's the side we are confortable sending over on Syncthing
+        # On 12 Sept 2022, I migrated all data inside DxF1s to Energy Grid (DxF4s) 
+        # and then set the limit to 100Mb.
         dxF1Filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return false if dxF1Filepath.nil?
         return false if !File.exists?(dxF1Filepath)
+        return false if File.size(dxF1Filepath) < 1024*1024*100 # 100Mb
         DataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
     end
 
