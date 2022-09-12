@@ -18,7 +18,7 @@ DxF1::databankRepositoryDxF1sFilepathEnumerator().each{|filepath|
         puts "filepath: #{filepath}"
         item = DxF1::getProtoItemAtFilepathOrNull(filepath)
         objectuuid = item["uuid"]
-        ImmutableDataFilesDxF4s::makeNewDataFileUsingDxF1File(objectuuid)
+        ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
         FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, SecureRandom.hex)
         flag = ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
         if flag then
