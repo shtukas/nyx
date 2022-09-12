@@ -86,21 +86,18 @@ class ImmutableDataFilesDxF4s
     # --------------------------------------------
     # Public
 
+    # ImmutableDataFilesDxF4s::repositoryIsVisible()
+    def self.repositoryIsVisible()
+        File.exists?(ImmutableDataFilesDxF4s::dxF4Repository())
+    end
+
     # ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid)
     def self.dxF1FileShouldFlushData(objectuuid)
         # The limit is 100 Mb, that's the side we are confortable sending over on Syncthing
         dxF1Filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
         return false if dxF1Filepath.nil?
         return false if !File.exists?(dxF1Filepath)
-        return false if File.size(dxF1Filepath) < 1024*1024*100 # 100Mb
-        db = SQLite3::Database.new(dxF1Filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute "vacuum", []
-        db.close
-        return false if File.size(dxF1Filepath) < 1024*1024*100 # 100Mb
-        true
+        ImmutableDataFilesDxF4s::dxF1FileHasDatablobs(dxF1Filepath)
     end
 
     # ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid) # Boolean: Indicates if a transfer has happened

@@ -137,14 +137,25 @@ class SystemEvents
         objectuuids = []
         loop {
             packet = Mercury2::readFirstOrNull(channel)
-            break if packet.nil?
-            break if (Time.new.to_i - packet["unixtime"]) < 60
+            return if packet.nil?
             objectuuid = packet["objectuuid"]
-            if !objectuuids.include?(objectuuid) then
-                objectuuids << objectuuid
-                puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
-                SystemEvents::publishDxF1OnCommsline(objectuuid)
+            if ImmutableDataFilesDxF4s::dxF1FileShouldFlushData(objectuuid) then
+                if ImmutableDataFilesDxF4s::repositoryIsVisible() then
+                    ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
+                else
+                    puts "We need EnergyGrid (optional)"
+                    LucilleCore::pressEnterToContinue()
+                    if ImmutableDataFilesDxF4s::repositoryIsVisible() then
+                        ImmutableDataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
+                    else
+                        return
+                    end
+                end
             end
+            next if objectuuids.include?(objectuuid)
+            puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
+            SystemEvents::publishDxF1OnCommsline(objectuuid)
+            objectuuids << objectuuid
             Mercury2::dequeue(channel)
         }
     end
