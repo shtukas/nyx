@@ -20,8 +20,8 @@ class NetworkLinks
         }
     end
 
-    # NetworkLinks::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
-    def self.issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
+    # NetworkLinks::issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
+    def self.issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
         raise "(error: 1afe537d-edae-4f87-9615-042b9c43cd05)" if sourceuuid.nil?
         if !["link", "unlink"].include?(operation) then
             raise "(error: 535c3cf7-f93b-43b2-8530-eb892910ceda) operation: #{operation}"
@@ -31,7 +31,7 @@ class NetworkLinks
             db = SQLite3::Database.new(NetworkLinks::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
-            db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, sourceuuid, operation, targetuuid]
+            db.execute "insert into _links_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, sourceuuid, operation, targetuuid]
             db.close
         }
     end
@@ -42,10 +42,12 @@ class NetworkLinks
             raise "(error: cf4cb260-1709-474d-a4f9-3f99f95fdb52) operation: #{operation}"
         end
         eventuuid = SecureRandom.uuid
-        NetworkLinks::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
+        eventTime = Time.new.to_f
+        NetworkLinks::issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
         SystemEvents::broadcast({
           "mikuType"   => "NetworkLinks",
           "eventuuid"  => eventuuid,
+          "eventTime"  => eventTime,
           "sourceuuid" => sourceuuid,
           "operation"  => operation,
           "targetuuid" => targetuuid
@@ -105,10 +107,11 @@ class NetworkLinks
     def self.processEvent(event)
         if event["mikuType"] == "NetworkLinks" then
             eventuuid  = event["eventuuid"]
+            eventTime  = event["eventTime"] || Time.new.to_f
             sourceuuid = event["sourceuuid"]
             operation  = event["operation"]
             targetuuid = event["targetuuid"]
-            NetworkLinks::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
+            NetworkLinks::issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
         end
     end
 

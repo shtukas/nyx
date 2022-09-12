@@ -20,8 +20,8 @@ class NetworkArrows
         }
     end
 
-    # NetworkArrows::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
-    def self.issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
+    # NetworkArrows::issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
+    def self.issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
         raise "(error: b070549f-9df3-47a5-baeb-85e5ddbceeac)" if sourceuuid.nil?
         if !["link", "unlink"].include?(operation) then
             raise "(error: 1b50e252-6e6f-4336-a445-194a40bdb8ba) operation: #{operation}"
@@ -31,7 +31,7 @@ class NetworkArrows
             db = SQLite3::Database.new(NetworkArrows::databaseFile())
             db.busy_timeout = 117
             db.busy_handler { |count| true }
-            db.execute "insert into _arrows_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, Time.new.to_f, sourceuuid, operation, targetuuid]
+            db.execute "insert into _arrows_ (_eventuuid_, _eventTime_, _sourceuuid_, _operation_, _targetuuid_) values (?, ?, ?, ?, ?)", [eventuuid, eventTime, sourceuuid, operation, targetuuid]
             db.close
         }
     end
@@ -42,10 +42,12 @@ class NetworkArrows
             raise "(error: 2324efe0-d9e1-419e-8cd9-2dfb5449f8a8) operation: #{operation}"
         end
         eventuuid = SecureRandom.uuid
-        NetworkArrows::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
+        eventTime = Time.new.to_f
+        NetworkArrows::issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
         SystemEvents::broadcast({
           "mikuType"   => "NetworkArrows",
           "eventuuid"  => eventuuid,
+          "eventTime"  => eventTime,
           "sourceuuid" => sourceuuid,
           "operation"  => operation,
           "targetuuid" => targetuuid
@@ -124,10 +126,11 @@ class NetworkArrows
     def self.processEvent(event)
         if event["mikuType"] == "NetworkArrows" then
             eventuuid  = event["eventuuid"]
+            eventTime  = event["eventTime"] || Time.new.to_f # backward compatibility
             sourceuuid = event["sourceuuid"]
             operation  = event["operation"]
             targetuuid = event["targetuuid"]
-            NetworkArrows::issueNoEvents(eventuuid, sourceuuid, operation, targetuuid)
+            NetworkArrows::issueNoEvents(eventuuid, eventTime, sourceuuid, operation, targetuuid)
         end
     end
 
