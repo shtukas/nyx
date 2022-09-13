@@ -130,17 +130,26 @@ class TxTimeCommitments
         }
     end
 
-    # TxTimeCommitments::interactivelyAddThisElementToOwner(element)
-    def self.interactivelyAddThisElementToOwner(element)
-        puts "TxTimeCommitments::interactivelyAddThisElementToOwner(#{JSON.pretty_generate(element)})"
+    # TxTimeCommitments::interactivelyAddThisElementToOwnerOrNothing(element)
+    def self.interactivelyAddThisElementToOwnerOrNothing(element)
+        puts "TxTimeCommitments::interactivelyAddThisElementToOwnerOrNothing(#{JSON.pretty_generate(element)})"
         if element["mikuType"] != "NxTask" then
-            puts "The operation TxTimeCommitments::interactivelyAddThisElementToOwner only works on NxTasks"
+            puts "The operation TxTimeCommitments::interactivelyAddThisElementToOwnerOrNothing only works on NxTasks"
             LucilleCore::pressEnterToContinue()
             return
         end
         owner = TxTimeCommitments::architectOneOrNull()
         return if owner.nil?
-        puts JSON.pretty_generate(owner)
+
+        puts PolyFunctions::toString(owner).green
+
+        nx79s = TxTimeCommitments::nx79s(owner, CommonUtils::screenHeight()-2)
+        nx79s
+            .each{|nx79|
+                element = nx79["item"]
+                puts "(#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
+            }
+
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
         TimeCommitmentMapping::link(owner["uuid"], element["uuid"], ordinal)
         NxBallsService::close(element["uuid"], true)

@@ -196,7 +196,7 @@ class CommandInterpreters
             line = LucilleCore::askQuestionAnswerAsString("line (empty to abort): ")
             return if line == ""
             item = NxTasks::issueDescriptionOnly(line)
-            TxTimeCommitments::interactivelyAddThisElementToOwner(item)
+            TxTimeCommitments::interactivelyAddThisElementToOwnerOrNothing(item)
             return
         end
 
@@ -347,7 +347,7 @@ class CommandInterpreters
             item = NxTasks::interactivelyCreateNewOrNull(true)
             return if item.nil?
             if item["ax39"].nil? then
-                TxTimeCommitments::interactivelyAddThisElementToOwner(item)
+                TxTimeCommitments::interactivelyAddThisElementToOwnerOrNothing(item)
             end
             return
         end
