@@ -301,6 +301,29 @@ class SystemEvents
                     next
                 end
 
+                if CommonUtils::ends_with?(filepath1, ".system-events.jsonlines") then
+
+                    if verbose then
+                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
+                    end
+
+                    IO.read(filepath1)
+                        .lines
+                        .each{|line|
+                            data = line.strip
+                            next if data == ""
+                            event = JSON.parse(data)
+                            if verbose then
+                                puts "event from system events: #{puts JSON.pretty_generate(event)}"
+                            end
+                            SystemEvents::process(event)
+                        }
+
+                    FileUtils.rm(filepath1)
+                    next
+                end
+
+
                 raise "(error: 600967d9-e9d4-4612-bf62-f8cc4f616fd1) I do not know how to process file: #{filepath1}"
             }
 
