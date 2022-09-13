@@ -92,9 +92,7 @@ class SystemEvents
     # SystemEvents::broadcast(event)
     def self.broadcast(event)
         #puts "SystemEvents::broadcast(#{JSON.pretty_generate(event)})"
-        Machines::theOtherInstanceIds().each{|targetInstanceId|
-            SystemEvents::sendTo(event.clone, targetInstanceId)
-        }
+        SystemEvents::writeEventToOutBuffer(event)
     end
 
     # SystemEvents::sendTo(event, targetInstanceId)
@@ -307,5 +305,25 @@ class SystemEvents
             }
 
         updatedObjectuuids.each{|objectuuid| TheIndex::updateIndexAtObjectAttempt(objectuuid) }
+    end
+
+    # SystemEvents::writeEventToOutBuffer(event)
+    def self.writeEventToOutBuffer(event)
+        $system_events_out_buffer.synchronize {
+            filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
+            File.open(filepath, "a"){|f| f.puts(JSON.generate(event)) }
+        }
+    end
+
+    # SystemEvents::publishSystemEventsOutBuffer()
+    def self.publishSystemEventsOutBuffer()
+        $system_events_out_buffer.synchronize {
+            filepath1 = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
+            Machines::theOtherInstanceIds().each{|targetInstanceId|
+                filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-events.jsonlines"
+                FileUtils.cp(filepath1, filepath2)
+            }
+            File.open(filepath1, "w"){|f| f.puts("") }
+        }
     end
 end

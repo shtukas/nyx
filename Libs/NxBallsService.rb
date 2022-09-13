@@ -187,28 +187,3 @@ class NxBallsService
         "#{leftSide}current sprint: #{(unrealiseTimeInSeconds.to_f/3600).round(2)} h, nxball total #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours#{rightSide}"
     end
 end
-
-if $RunNonEssentialThreads then
-    Thread.new {
-        loop {
-            sleep 60
-
-            NxBallsIO::nxballs().each{|nxball|
-                NxBallsService::marginCallIfIsTime(nxball["uuid"])
-            }
-
-            NxBallsIO::nxballs().each{|nxball|
-                next if nxball["status"]["type"] != "running"
-
-                realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
-                unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
-                currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
-
-                if currentTotalTimeInSeconds > (nxball["desiredBankedTimeInSeconds"] || 3600) then
-                    CommonUtils::onScreenNotification("Catalyst", "NxBall over running")
-                end
-            }
-            
-        }
-    }
-end

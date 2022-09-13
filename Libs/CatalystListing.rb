@@ -28,15 +28,6 @@ class CatalystListing
 
         SystemEvents::processCommsLine(true)
 
-        if Config::get("instanceId") == "Lucille20-pascal" then 
-            Thread.new {
-                loop {
-                    sleep 600
-                    system("#{File.dirname(__FILE__)}/operations/vienna-import")
-                }
-            }
-        end
-
         loop {
 
             #puts "(code trace)"

@@ -300,6 +300,7 @@ require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
 require_relative "TxTimeCommitments.rb"
 require_relative "TheIndex.rb"
+require_relative "ThreadsX.rb"
 
 require_relative "UniqueStringsFunctions.rb"
 require_relative "Upload.rb"
@@ -318,4 +319,14 @@ $commline_semaphore = Mutex.new
 $owner_items_mapping_database_semaphore = Mutex.new
 $links_database_semaphore = Mutex.new
 $arrows_database_semaphore = Mutex.new
+$system_events_out_buffer = Mutex.new
+
 # ------------------------------------------------------------
+
+if $RunNonEssentialThreads then
+    ThreadsX::startNxBallsMonitoringAndNotification()
+    ThreadsX::startCommsLineOps()
+    if Config::get("instanceId") == "Lucille20-pascal" then 
+        ThreadsX::startViennaImport()
+    end
+end

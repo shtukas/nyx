@@ -12,7 +12,7 @@ class ProgrammableBooleans
     def self.trueNoMoreOftenThanEveryNSeconds(uuid, n)
         lastTimestamp = XCache::getOrDefaultValue(uuid, "0").to_f
         return false if (Time.new.to_f - lastTimestamp) < n
-        ProgrammableBooleans::resetTrueNoMoreOften(uuid)
+        XCache::set(uuid, Time.new.to_f)
         true
     end
 end
