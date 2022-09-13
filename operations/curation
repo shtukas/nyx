@@ -4,6 +4,7 @@
 
 require_relative "../Libs/loader.rb"
 
+exit
 
 DxF1::databankRepositoryDxF1sFilepathEnumerator().each{|filepath|
     puts filepath

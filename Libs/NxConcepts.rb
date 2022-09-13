@@ -13,7 +13,7 @@ class NxConcepts
 
     # NxConcepts::destroy(uuid)
     def self.destroy(uuid)
-        DxF1::deleteObjectLogically(uuid)
+        DxF1::deleteObject(uuid)
     end
 
     # ----------------------------------------------------------------------

@@ -176,22 +176,18 @@ class DxF1
         DxF1::getProtoItemAtFilepathOrNull(filepath)
     end
 
-    # DxF1::objectIsAlive(objectuuid)
-    def self.objectIsAlive(objectuuid)
-        value = DxF1::getAttributeOrNull(objectuuid, "isAlive")
-        return true if value.nil?
-        value
-    end
-
-    # DxF1::deleteObjectLogicallyNoEvents(objectuuid)
-    def self.deleteObjectLogicallyNoEvents(objectuuid)
-        DxF1::setAttribute2(objectuuid, "isAlive", false)
-    end
-
-    # DxF1::deleteObjectLogically(objectuuid)
-    def self.deleteObjectLogically(objectuuid)
-        DxF1::deleteObjectLogicallyNoEvents(objectuuid)
+    # DxF1::deleteObjectNoEvents(objectuuid)
+    def self.deleteObjectNoEvents(objectuuid)
+        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
+        if !filepath.nil? then
+            FileUtils.rm(filepath)
+        end
         TheIndex::destroy(objectuuid)
+    end
+
+    # DxF1::deleteObject(objectuuid)
+    def self.deleteObject(objectuuid)
+        DxF1::deleteObjectNoEvents(objectuuid)
         SystemEvents::broadcast({
             "mikuType"   => "NxDeleted",
             "objectuuid" => objectuuid,
@@ -437,10 +433,6 @@ class DxF1ElizabethFsck
 end
 
 class DxF1Utils
-    # DxF1Utils::itemIsAlive(item)
-    def self.itemIsAlive(item)
-        item["isAlive"].nil? or item["isAlive"]
-    end
 
     # DxF1Utils::dxF1FilePropagation(filepath1, filepath2)
     def self.dxF1FilePropagation(filepath1, filepath2)

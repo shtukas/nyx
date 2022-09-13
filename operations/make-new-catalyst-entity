@@ -4,6 +4,6 @@
 
 require_relative "../Libs/loader.rb"
 
-puts CommandInterpreters::catalystCommands().yellow
+puts CommandInterpreters::catalystListingCommands().yellow
 input = LucilleCore::askQuestionAnswerAsString("> ")
-CommandInterpreters::catalyst(input, nil)
+CommandInterpreters::catalystListing(input, nil)

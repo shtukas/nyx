@@ -13,7 +13,6 @@ class CatalystListing
             NxTasks::listingItems(),
         ]
             .flatten
-            .select{|item| item["isAlive"].nil? or item["isAlive"] }
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
             .select{|item| !TimeCommitmentMapping::isOwned(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
