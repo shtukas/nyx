@@ -92,7 +92,7 @@ class PolyPrograms
 
                 puts ""
                 puts CommandInterpreters::catalystListingCommands().yellow
-                puts "commands: set ordinal <n> | ax39 | insert | exit".yellow
+                puts "commands: set ordinal <n> | ax39 | insert | detach <n> | exit".yellow
 
                 input = LucilleCore::askQuestionAnswerAsString("> ")
 
@@ -105,11 +105,19 @@ class PolyPrograms
                 end
 
                 if input.start_with?("set ordinal")  then
-                    indx = input[1, 99].strip.to_i
+                    indx = input[11, 99].strip.to_i
                     entity = store.get(indx)
                     return if entity.nil?
                     ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                     TimeCommitmentMapping::link(context["uuid"], entity["uuid"], ordinal)
+                    next
+                end
+
+                if input.start_with?("detach")  then
+                    indx = input[6, 99].strip.to_i
+                    entity = store.get(indx)
+                    return if entity.nil?
+                    TimeCommitmentMapping::unlink(context["uuid"], entity["uuid"])
                     next
                 end
 
