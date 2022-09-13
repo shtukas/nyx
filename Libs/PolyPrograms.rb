@@ -4,6 +4,7 @@ class PolyPrograms
     # PolyPrograms::catalystMainListing()
     def self.catalystMainListing()
         loop {
+
             system("clear")
 
             context = CatalystListing::getContextOrNull()
@@ -12,17 +13,23 @@ class PolyPrograms
 
             vspaceleft =  vspaceleft - CommonUtils::verticalSize(CommandInterpreters::catalystListingCommands())
 
-            if Config::get("instanceId") == "Lucille20-pascal" then
-                reference = The99Percent::getReferenceOrNull()
-                current   = The99Percent::getCurrentCount()
-                ratio     = current.to_f/reference["count"]
-                line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
-                puts ""
-                puts line
-                vspaceleft = vspaceleft - 2
-                if ratio < 0.99 then
-                    The99Percent::issueNewReferenceOrNull()
+            if context.nil? then
+                if Config::get("instanceId") == "Lucille20-pascal" then
+                    reference = The99Percent::getReferenceOrNull()
+                    current   = The99Percent::getCurrentCount()
+                    ratio     = current.to_f/reference["count"]
+                    line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+                    puts ""
+                    puts line
+                    vspaceleft = vspaceleft - 2
+                    if ratio < 0.99 then
+                        The99Percent::issueNewReferenceOrNull()
+                    end
                 end
+            else
+                puts ""
+                puts "🚀 Time Commitment 🚀"
+                vspaceleft = vspaceleft - 2
             end
 
             store = ItemStore.new()
