@@ -319,6 +319,7 @@ class SystemEvents
     def self.publishSystemEventsOutBuffer()
         $system_events_out_buffer.synchronize {
             filepath1 = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/system-events-out-buffer.jsonlines"
+            return if !File.exitsts?(filepath1)
             return if IO.read(filepath1).strip.size == 0
             Machines::theOtherInstanceIds().each{|targetInstanceId|
                 filepath2 = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.system-events.jsonlines"
