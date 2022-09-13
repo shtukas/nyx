@@ -147,8 +147,8 @@ class TxTimeCommitments
         nx79s = TxTimeCommitments::nx79s(owner, CommonUtils::screenHeight()-2)
         nx79s
             .each{|nx79|
-                element = nx79["item"]
-                puts "(#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
+                e = nx79["item"]
+                puts "(#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(e)}"
             }
 
         ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f

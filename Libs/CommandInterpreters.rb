@@ -576,7 +576,7 @@ class CommandInterpreters
             "search",
             "link | child | parent | parents>related | parents>children | related>children | related>parents",
             "copy dxf1 file to desktop"
-        ].join("\n")
+        ].join(" | ")
     end
 
     # CommandInterpreters::nyx(item, input)
