@@ -121,6 +121,7 @@ class TxTimeCommitments
             if option == "access" then
                 CatalystListing::setContext(item["uuid"])
                 PolyPrograms::catalystMainListing()
+                break
             end
             if option == "add time" then
                 timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f

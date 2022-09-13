@@ -96,11 +96,11 @@ class PolyPrograms
             input = LucilleCore::askQuestionAnswerAsString("> ")
 
             if input == "exit" then
-                if LucilleCore::askQuestionAnswerAsBoolean("Stop time commitment ? ") then
+                if LucilleCore::askQuestionAnswerAsBoolean("You are exiting context. Stop NxBall ? ", true) then
                     PolyActions::stop(context)
                 end
                 CatalystListing::emptyContext()
-                return # This is were we exit PolyPrograms::catalystMainListing() from a set context
+                return
             end
 
             if input.start_with?("set ordinal")  then
@@ -109,7 +109,7 @@ class PolyPrograms
                 return if entity.nil?
                 ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                 TimeCommitmentMapping::link(context["uuid"], entity["uuid"], ordinal)
-                next
+                return
             end
 
             if input.start_with?("detach")  then
@@ -117,13 +117,13 @@ class PolyPrograms
                 entity = store.get(indx)
                 return if entity.nil?
                 TimeCommitmentMapping::unlink(context["uuid"], entity["uuid"])
-                next
+                return
             end
 
             if input == "ax39"  then
                 ax39 = Ax39::interactivelyCreateNewAx()
                 DxF1::setAttribute2(context["uuid"], "ax39",  ax39)
-                next
+                return
             end
 
             if input == "insert" then
@@ -141,20 +141,18 @@ class PolyPrograms
                     ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
                     TimeCommitmentMapping::link(context["uuid"], element["uuid"], ordinal)
                 end
-                next
+                return
             end
 
             if (indx = Interpreting::readAsIntegerOrNull(input)) then
                 entity = store.get(indx)
                 return if entity.nil?
                 PolyPrograms::itemLanding(entity)
-                next
+                return
             end
 
             puts ""
             CommandInterpreters::catalystListing(input, store)
-
-            # Here we do not return, we loop :)
 
         else
 
@@ -193,8 +191,6 @@ class PolyPrograms
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
             CommandInterpreters::catalystListing(input, store)
-
-            return
         end
 
     end
