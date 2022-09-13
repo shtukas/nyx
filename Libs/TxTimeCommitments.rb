@@ -110,7 +110,7 @@ class TxTimeCommitments
             items = TxTimeCommitments::items()
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
             item = LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| TxTimeCommitments::toString(item) })
-            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "landing", "access"])
+            option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "access" , "landing", "add time"])
             return if option.nil?
             if option == "start" then
                 PolyActions::start(item)
@@ -121,6 +121,11 @@ class TxTimeCommitments
             if option == "access" then
                 CatalystListing::setContext(item["uuid"])
                 PolyPrograms::catalystMainListing()
+            end
+            if option == "add time" then
+                timeInHours = LucilleCore::askQuestionAnswerAsString("time in hours: ").to_f
+                puts "Adding #{timeInHours.to_f} hours to #{PolyFunctions::toString(item).green}"
+                Bank::put(item["uuid"], timeInHours.to_f*3600)
             end
         }
     end
