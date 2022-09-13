@@ -257,6 +257,7 @@ require_relative "DxAionPoint.rb"
 require_relative "DxFile.rb"
 require_relative "Dx.rb"
 require_relative "DxDx8Unit.rb"
+require_relative "DataStore1.rb"
 
 require_relative "Galaxy.rb"
 
