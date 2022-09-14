@@ -5,7 +5,7 @@ class DataStore1
 
     # DataStore1::extractLocalCacheFilepathForFilename(storageFilename)
     def self.extractLocalCacheFilepathForFilename(storageFilename)
-
+        XCache::filepath(storageFilename)
     end
 
     # DataStore1::computeEnergyGridFilepathForFilename(storageFilename)

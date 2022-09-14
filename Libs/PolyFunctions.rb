@@ -1,5 +1,100 @@
 class PolyFunctions
 
+    # ordering: alphabetical
+
+    # PolyFunctions::edit(item) # item
+    def self.edit(item)
+
+        puts "PolyFunctions::edit(#{JSON.pretty_generate(item)})"
+
+        # order: by mikuType
+
+        if item["mikuType"] == "CxAionPoint" then
+            return CxAionPoint::edit(item)
+        end
+
+        if item["mikuType"] == "CxText" then
+            return CxText::edit(item)
+        end
+
+        if item["mikuType"] == "DxAionPoint" then
+            return DxAionPoint::edit(item)
+        end
+
+        if item["mikuType"] == "DxText" then
+            text = CommonUtils::editTextSynchronously(item["text"])
+            DxF1::setAttribute2(item["uuid"], "text", text)
+            return TheIndex::getItemOrNull(item["uuid"])
+        end
+
+        if Iam::isNx112Carrier(item) then
+            if item["nx112"] then
+                targetItem = TheIndex::getItemOrNull(item["nx112"])
+                puts "target data carrier: #{JSON.pretty_generate(targetItem)}"
+                PolyFunctions::edit(targetItem)
+                return item
+            else
+                puts "This item doesn't have a Nx112 attached to it"
+                status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
+                if status then
+                    PolyActions::editDescription(item)
+                    return TheIndex::getItemOrNull(item["uuid"])
+                else
+                    return item
+                end
+            end
+        end
+ 
+        puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
+        raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
+    end
+
+    # PolyFunctions::foxTerrierAtItem(item)
+    def self.foxTerrierAtItem(item)
+        loop {
+            system("clear")
+            puts "------------------------------".green
+            puts "Fox Terrier Or Null (`select`)".green
+            puts "------------------------------".green
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+            store = ItemStore.new()
+            # We register the item which is also the default element in the store
+            store.register(item, true)
+            entities = NetworkLinks::linkedEntities(item["uuid"])
+            if entities.size > 0 then
+                puts ""
+                if entities.size < 200 then
+                    entities
+                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
+                        .each{|entity|
+                            indx = store.register(entity, false)
+                            puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
+                        }
+                else
+                    puts "(... many entities, use `navigation` ...)"
+                end
+            end
+
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return nil if input == ""
+
+            if input == "select" then
+                return item
+            end
+
+            if (indx = Interpreting::readAsIntegerOrNull(input)) then
+                entity = store.get(indx)
+                return if entity.nil?
+                resultOpt = PolyFunctions::foxTerrierAtItem(entity)
+                return resultOpt if resultOpt
+            end
+        }
+    end
+
     # PolyFunctions::genericDescription(item)
     def self.genericDescription(item)
 
@@ -91,6 +186,11 @@ class PolyFunctions
         raise "(error: 475225ec-74fe-4614-8664-a99c1b2c9916)"
     end
 
+    # PolyFunctions::timeBeforeNotificationsInHours(item)
+    def self.timeBeforeNotificationsInHours(item)
+        1
+    end
+
     # PolyFunctions::toString(item)
     def self.toString(item)
         if item["mikuType"] == "fitness1" then
@@ -168,103 +268,5 @@ class PolyFunctions
 
         puts "I do not know how to PolyFunctions::toString(#{JSON.pretty_generate(item)})"
         raise "(error: 820ce38d-e9db-4182-8e14-69551f58671c)"
-    end
-
-    # PolyFunctions::edit(item) # item
-    def self.edit(item)
-
-        puts "PolyFunctions::edit(#{JSON.pretty_generate(item)})"
-
-        # order: by mikuType
-
-        if item["mikuType"] == "CxAionPoint" then
-            return CxAionPoint::edit(item)
-        end
-
-        if item["mikuType"] == "CxText" then
-            return CxText::edit(item)
-        end
-
-        if item["mikuType"] == "DxAionPoint" then
-            return DxAionPoint::edit(item)
-        end
-
-        if item["mikuType"] == "DxText" then
-            text = CommonUtils::editTextSynchronously(item["text"])
-            DxF1::setAttribute2(item["uuid"], "text", text)
-            return TheIndex::getItemOrNull(item["uuid"])
-        end
-
-        if Iam::isNx112Carrier(item) then
-            if item["nx112"] then
-                targetItem = TheIndex::getItemOrNull(item["nx112"])
-                puts "target data carrier: #{JSON.pretty_generate(targetItem)}"
-                PolyFunctions::edit(targetItem)
-                return item
-            else
-                puts "This item doesn't have a Nx112 attached to it"
-                status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
-                if status then
-                    PolyActions::editDescription(item)
-                    return TheIndex::getItemOrNull(item["uuid"])
-                else
-                    return item
-                end
-            end
-        end
- 
-        puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
-        raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
-    end
-
-    # PolyFunctions::timeBeforeNotificationsInHours(item)
-    def self.timeBeforeNotificationsInHours(item)
-        1
-    end
-
-    # PolyFunctions::foxTerrierAtItem(item)
-    def self.foxTerrierAtItem(item)
-        loop {
-            system("clear")
-            puts "------------------------------".green
-            puts "Fox Terrier Or Null (`select`)".green
-            puts "------------------------------".green
-            puts PolyFunctions::toString(item)
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "unixtime: #{item["unixtime"]}".yellow
-            puts "datetime: #{item["datetime"]}".yellow
-            store = ItemStore.new()
-            # We register the item which is also the default element in the store
-            store.register(item, true)
-            entities = NetworkLinks::linkedEntities(item["uuid"])
-            if entities.size > 0 then
-                puts ""
-                if entities.size < 200 then
-                    entities
-                        .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                        .each{|entity|
-                            indx = store.register(entity, false)
-                            puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"
-                        }
-                else
-                    puts "(... many entities, use `navigation` ...)"
-                end
-            end
-
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return nil if input == ""
-
-            if input == "select" then
-                return item
-            end
-
-            if (indx = Interpreting::readAsIntegerOrNull(input)) then
-                entity = store.get(indx)
-                return if entity.nil?
-                resultOpt = PolyFunctions::foxTerrierAtItem(entity)
-                return resultOpt if resultOpt
-            end
-        }
     end
 end
