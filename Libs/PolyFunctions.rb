@@ -186,6 +186,11 @@ class PolyFunctions
         raise "(error: 475225ec-74fe-4614-8664-a99c1b2c9916)"
     end
 
+    # PolyFunctions::listingPriority(item)
+    def self.listingPriority(item) # Float between 0 and 1
+        0.8
+    end
+
     # PolyFunctions::timeBeforeNotificationsInHours(item)
     def self.timeBeforeNotificationsInHours(item)
         1

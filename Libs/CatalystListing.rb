@@ -18,7 +18,7 @@ class CatalystListing
             .select{|item| !TimeCommitmentMapping::isOwned(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
 
         its1, its2 = items.partition{|item| NxBallsService::isPresent(item["uuid"]) }
-        its1 + its2
+        its1 + its2.sort{|i1, i2| PolyFunctions::listingPriority(i1) <=> PolyFunctions::listingPriority(i2) }.reverse
     end
 
     # CatalystListing::program()
