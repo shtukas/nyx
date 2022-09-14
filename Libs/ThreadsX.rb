@@ -23,12 +23,7 @@ class ThreadsX
 
                 NxBallsIO::nxballs().each{|nxball|
                     next if nxball["status"]["type"] != "running"
-
-                    realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
-                    unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
-                    currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
-
-                    if currentTotalTimeInSeconds > (nxball["desiredBankedTimeInSeconds"] || 3600) then
+                    if currentTotalTimeInSeconds > nxball["status"]["bankedTimeInSeconds"] then
                         CommonUtils::onScreenNotification("Catalyst", "NxBall over running")
                     end
                 }

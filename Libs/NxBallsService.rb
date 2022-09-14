@@ -37,26 +37,54 @@ end
 
 class NxBallsService
 
+=begin
+
+    status {
+        "type"                    => "running",
+        "thisSprintStartUnixtime" => Float,
+        "lastMarginCallUnixtime"  => nil or Float,
+        "bankedTimeInSeconds"     => Float
+    }
+
+    {
+        "type"                    => "paused",
+        "bankedTimeInSeconds"     => Float
+    }
+
+=end
+
+    # NxBallsService::makeRunningStatus(lastMarginCallUnixtime, bankedTimeInSeconds)
+    def self.makeRunningStatus(lastMarginCallUnixtime, bankedTimeInSeconds)
+        {
+            "type"                    => "running",
+            "thisSprintStartUnixtime" => Time.new.to_f, # NxBall start (or restart from pause) time
+            "lastMarginCallUnixtime"  => lastMarginCallUnixtime,
+            "bankedTimeInSeconds"     => bankedTimeInSeconds
+        }
+    end
+
+    # NxBallsService::makePausedStatus(bankedTimeInSeconds)
+    def self.makePausedStatus(bankedTimeInSeconds)
+        {
+            "type"                    => "paused",
+            "bankedTimeInSeconds"     => bankedTimeInSeconds
+        }
+    end
+
     # --------------------------------------------------------------------
     # Operations
 
     # NxBallsService::issue(uuid, description, accounts, desiredBankedTimeInSeconds)
     def self.issue(uuid, description, accounts, desiredBankedTimeInSeconds)
         return if NxBallsIO::getItemByIdOrNull(uuid)
-        start = Time.new.to_f
         nxball = {
             "uuid"        => uuid,
             "mikuType"    => "NxBall.v2",
             "unixtime"    => Time.new.to_f,
             "description" => description,
             "desiredBankedTimeInSeconds" => desiredBankedTimeInSeconds,
-            "status"      => {
-                "type"                    => "running",
-                "thisSprintStartUnixtime" => start,
-                "lastMarginCallUnixtime"  => start,
-                "bankedTimeInSeconds"     => 0
-            },
-            "accounts" => accounts
+            "status"      => NxBallsService::makeRunningStatus(nil, 0),
+            "accounts"    => accounts
         }
         NxBallsIO::commitItem(nxball)
     end
@@ -85,7 +113,8 @@ class NxBallsService
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
-        timespan = Time.new.to_f - nxball["status"]["lastMarginCallUnixtime"]
+        referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
+        timespan = Time.new.to_f - referenceTimeForUnrealisedAccounting
         timespan = [timespan, 3600*2].min
         nxball["accounts"].each{|account|
             Bank::put(account, timespan)
@@ -100,7 +129,8 @@ class NxBallsService
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return if nxball.nil?
         return if nxball["status"]["type"] != "running"
-        return if (Time.new.to_f - nxball["status"]["lastMarginCallUnixtime"]) < 600
+        referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
+        return if (Time.new.to_f - referenceTimeForUnrealisedAccounting) < 600
         NxBallsService::marginCall(uuid)
     end
 
@@ -111,10 +141,7 @@ class NxBallsService
         return if nxball["status"]["type"] != "running"
         NxBallsService::marginCall(uuid)
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
-        nxball["status"] = {
-            "type"                => "paused",
-            "bankedTimeInSeconds" => nxball["status"]["bankedTimeInSeconds"]
-        }
+        nxball["status"] = NxBallsService::makePausedStatus(nxball["status"]["bankedTimeInSeconds"])
         NxBallsIO::commitItem(nxball)
     end
 
@@ -123,12 +150,7 @@ class NxBallsService
         nxball = NxBallsIO::getItemByIdOrNull(uuid)
         return nil if nxball.nil?
         return if nxball["status"]["type"] != "paused"
-        nxball["status"] = {
-            "type"                   => "running",
-            "thisSprintStartUnixtime"   => Time.new.to_i,
-            "lastMarginCallUnixtime" => Time.new.to_i, # we made a margin call when we went on pause
-            "bankedTimeInSeconds"    => nxball["status"]["bankedTimeInSeconds"]
-        }
+        nxball["status"] = NxBallsService::makeRunningStatus(nil, nxball["status"]["bankedTimeInSeconds"])
         NxBallsIO::commitItem(nxball)
     end
 
@@ -141,7 +163,8 @@ class NxBallsService
             if verbose then
                 puts "(#{Time.new.to_s}) nxball total time: #{((nxball["status"]["bankedTimeInSeconds"] + Time.new.to_i - nxball["status"]["thisSprintStartUnixtime"]).to_f/3600).round(2)} hours"
             end
-            timespan = Time.new.to_f - nxball["status"]["lastMarginCallUnixtime"]
+            referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
+            timespan = Time.new.to_f - referenceTimeForUnrealisedAccounting
             timespan = [timespan, 3600*2].min
             nxball["accounts"].each{|account|
                 puts "(#{Time.new.to_s}) putting #{timespan} seconds into account: #{account}" if verbose
@@ -181,9 +204,11 @@ class NxBallsService
         if nxball["status"]["type"] == "paused" then
             return "#{leftSide}#{"paused".green}#{rightSide}"
         end
-        realisedTimeInSeconds = nxball["status"]["bankedTimeInSeconds"]
-        unrealiseTimeInSeconds = Time.new.to_i - nxball["status"]["lastMarginCallUnixtime"]
+        currentSprintTimeInSecond = Time.new.to_i - nxball["status"]["thisSprintStartUnixtime"]
+        realisedTimeInSeconds     = nxball["status"]["bankedTimeInSeconds"]
+        referenceTimeForUnrealisedAccounting = nxball["status"]["lastMarginCallUnixtime"] ? nxball["status"]["lastMarginCallUnixtime"] : nxball["status"]["thisSprintStartUnixtime"]
+        unrealiseTimeInSeconds    = Time.new.to_i - referenceTimeForUnrealisedAccounting
         currentTotalTimeInSeconds = realisedTimeInSeconds + unrealiseTimeInSeconds
-        "#{leftSide}current sprint: #{(unrealiseTimeInSeconds.to_f/3600).round(2)} h, nxball total #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours#{rightSide}"
+        "#{leftSide}current sprint: #{(currentSprintTimeInSecond.to_f/3600).round(2)} h, nxball total #{(currentTotalTimeInSeconds.to_f/3600).round(2)} hours#{rightSide}"
     end
 end
