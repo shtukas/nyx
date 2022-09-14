@@ -103,6 +103,11 @@ class PolyPrograms
                 return
             end
 
+            if input == "stop 0" then
+                NxBallsService::pause(context["uuid"])
+                return
+            end
+
             if input.start_with?("set ordinal")  then
                 indx = input[11, 99].strip.to_i
                 entity = store.get(indx)
