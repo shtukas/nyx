@@ -39,24 +39,6 @@ class PolyPrograms
             vspaceleft = vspaceleft - 2
         end
 
-        if context.nil? then
-            tx = TxTimeCommitments::items()
-                    .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-                    .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-                    .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }
-            if tx.size > 0 then
-                puts ""
-                vspaceleft = vspaceleft - 1
-                tx
-                    .each{|item|
-                        store.register(item, true)
-                        line = "#{store.prefixString()} #{TxTimeCommitments::toString(item)}"
-                        puts line
-                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
-                    }
-            end
-        end
-
         if context then
 
             PolyActions::start(context)

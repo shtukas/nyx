@@ -188,6 +188,13 @@ class PolyFunctions
 
     # PolyFunctions::listingPriority(item)
     def self.listingPriority(item) # Float between 0 and 1
+
+        # ordering: alphabetical order
+
+        if item["mikuType"] == "TxTimeCommitment" then
+            return 0.9
+        end
+
         0.8
     end
 

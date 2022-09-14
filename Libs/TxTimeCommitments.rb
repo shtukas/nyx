@@ -93,6 +93,14 @@ class TxTimeCommitments
             }
     end
 
+    # TxTimeCommitments::listingItems()
+    def self.listingItems()
+        TxTimeCommitments::items()
+                .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+                .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
+                .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }
+    end
+
     # --------------------------------------------------
     # Operations
 

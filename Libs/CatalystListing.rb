@@ -8,6 +8,7 @@ class CatalystListing
             JSON.parse(`#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness ns16s`),
             Anniversaries::listingItems(),
             Waves::listingItems(true),
+            TxTimeCommitments::listingItems(),
             Waves::listingItems(false),
             TxDateds::listingItems(),
             NxTasks::listingItems(),
