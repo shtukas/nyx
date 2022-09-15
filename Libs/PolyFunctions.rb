@@ -192,11 +192,11 @@ class PolyFunctions
         # ordering: alphabetical order
 
         if item["mikuType"] == "TxTimeCommitment" then
-            return 0.8
+            return 0.5 + 0.5*(1-Ax39::completionRatio(item)) # 1 when not started, 0.5 hen done
         end
 
         if item["mikuType"] == "Wave" then
-            return (Waves::isPriority(item) ? 0.9 : 0.7)
+            return (Waves::isPriority(item) ? 0.9 : 0.4) + 0.01*(Time.new.to_f - DateTime.parse(item["lastDoneDateTime"]).to_time.to_f)/86400
         end
 
         0.6

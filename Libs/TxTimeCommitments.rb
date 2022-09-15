@@ -117,7 +117,7 @@ class TxTimeCommitments
             system("clear")
             items = TxTimeCommitments::items()
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
-            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item| TxTimeCommitments::toString(item) })
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("time commitment", items, lambda{|item|  "#{TxTimeCommitments::toString(item)} [#{PolyFunctions::listingPriority(item).round(2)}]" })
             option = LucilleCore::selectEntityFromListOfEntitiesOrNull("TxTimeCommitment", ["start", "access" , "landing", "add time"])
             return if option.nil?
             if option == "start" then

@@ -156,6 +156,7 @@ class CommandInterpreters
             item = store.getDefault()
             return if item.nil?
             puts JSON.pretty_generate(item)
+            puts "PolyFunctions::listingPriority(item): #{PolyFunctions::listingPriority(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
@@ -165,6 +166,7 @@ class CommandInterpreters
             item = store.get(ordinal.to_i)
             return if item.nil?
             puts JSON.pretty_generate(item)
+            puts "PolyFunctions::listingPriority(item): #{PolyFunctions::listingPriority(item)}"
             LucilleCore::pressEnterToContinue()
             return
         end
