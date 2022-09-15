@@ -195,7 +195,11 @@ class PolyFunctions
             return 0.9
         end
 
-        0.8
+        if item["mikuType"] == "Wave" then
+            return 0.9
+        end
+
+        0.7
     end
 
     # PolyFunctions::timeBeforeNotificationsInHours(item)
