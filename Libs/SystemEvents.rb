@@ -43,22 +43,6 @@ class SystemEvents
             DxF1::deleteObjectNoEvents(objectuuid)
         end
 
-        if event["mikuType"] == "AttributeUpdate" then
-            objectuuid = event["objectuuid"]
-            eventuuid  = event["eventuuid"]
-            eventTime  = event["eventTime"]
-            attname    = event["attname"]
-            attvalue   = event["attvalue"]
-            DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-            begin
-                # This cane fail when we are using a new program, which doesn't expect old mikuTypes 
-                # (for instance generic-description is failing)
-                # on data that is still old.
-                TheIndex::updateIndexAtObjectAttempt(objectuuid)
-            rescue
-            end
-        end
-
         if event["mikuType"] == "XCacheSet" then
             key = event["key"]
             value = event["value"]

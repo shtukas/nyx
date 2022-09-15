@@ -60,15 +60,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "AttributeUpdate", # DxF1 files update
-    "objectuuid" => objectuuid,
-    "eventuuid"  => String
-    "eventTime"  => Float
-    "attname"    => string
-    "attvalue"   => value
-}
-
-{
     "mikuType" : "XCacheUpdate"
     "key"      : String
     "value"    : String

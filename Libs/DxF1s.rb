@@ -96,21 +96,10 @@ class DxF1
     # DxF1::setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
     def self.setAttribute0(objectuuid, eventuuid, eventTime, attname, attvalue)
         DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-
-        #SystemEvents::broadcast({
-        #    "mikuType"   => "AttributeUpdate",
-        #    "objectuuid" => objectuuid,
-        #    "eventuuid"  => eventuuid,
-        #    "eventTime"  => eventTime,
-        #    "attname"    => attname,
-        #    "attvalue"   => attvalue
-        #})
-
         Mercury2::put("e0fba9fd-c00b-4d0c-b884-4f058ef87653", {
             "unixtime"   => Time.new.to_i,
             "objectuuid" => objectuuid
         })
-
         TheIndex::updateIndexAtObjectAttempt(objectuuid)
     end
 

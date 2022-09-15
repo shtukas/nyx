@@ -191,6 +191,14 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
+        if item["mikuType"] == "NxTask" then
+            return 0.3
+        end
+
+        if item["mikuType"] == "TxDated" then
+            return 0.8 + 0.01*(Time.new.to_f - DateTime.parse(item["datetime"]).to_time.to_f)/86400
+        end
+
         if item["mikuType"] == "TxTimeCommitment" then
             return 0.5 + 0.5*(1-Ax39::completionRatio(item)) # 1 when not started, 0.5 hen done
         end
@@ -199,7 +207,7 @@ class PolyFunctions
             return (Waves::isPriority(item) ? 0.9 : 0.4) + 0.01*(Time.new.to_f - DateTime.parse(item["lastDoneDateTime"]).to_time.to_f)/86400
         end
 
-        0.6
+        raise "(error: 5ea6d640-4546-4f7c-8873-1536d8c181e5) I do not know how to prioritise: #{item}"
     end
 
     # PolyFunctions::timeBeforeNotificationsInHours(item)
