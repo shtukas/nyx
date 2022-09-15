@@ -52,11 +52,12 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Orbital/01-Local-Private")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Orbital/02-Multi-Instance-Shared")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2/shared-config.json")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DataStore1OutGoingBuffer")
 
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/bank.sqlite3"
 if !File.exists?(filepath) then
@@ -259,6 +260,9 @@ require_relative "DxFile.rb"
 require_relative "Dx.rb"
 require_relative "DxDx8Unit.rb"
 require_relative "DataStore1.rb"
+require_relative "DataFilesDxF4s.rb"
+
+require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
 
@@ -266,7 +270,6 @@ require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
 require_relative "Iam.rb"
-require_relative "DataFilesDxF4s.rb"
 
 require_relative "FileSystemCheck.rb"
 
