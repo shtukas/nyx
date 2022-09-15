@@ -55,6 +55,7 @@ class DoNotShowUntil
             db.execute("select * from _mapping_ where _uuid_=?", [uuid]) do |row|
                 unixtime = row['_unixtime_']
             end
+            db.close
         }
         unixtime
     end
