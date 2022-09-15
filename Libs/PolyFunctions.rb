@@ -192,14 +192,14 @@ class PolyFunctions
         # ordering: alphabetical order
 
         if item["mikuType"] == "TxTimeCommitment" then
-            return 0.9
+            return 0.8
         end
 
         if item["mikuType"] == "Wave" then
-            return 0.9
+            return (Waves::isPriority(item) ? 0.9 : 0.7)
         end
 
-        0.7
+        0.6
     end
 
     # PolyFunctions::timeBeforeNotificationsInHours(item)
