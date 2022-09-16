@@ -1,0 +1,11 @@
+
+NyxNode:
+    "uuid"        : uuid
+    "mikuType"    : "NyxNode"
+    "subtype"     : NyxNodeSubType
+    "unixtime"    : unixtime
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : description
+    "nx113"       : String
+
+NyxNodeSubType: "Collection" | "Concept" | "Entity" | "Event" | "Person" | "Timeline"
