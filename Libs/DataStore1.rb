@@ -82,6 +82,7 @@ class DataStore1
             next if File.exists?(filepath)
             File.open(filepath, "w"){|f| f.write(content) }
         }
+        nhash
     end
 
     # DataStore1::putDataByFilepath(sourcefilepath) # nhash
@@ -91,6 +92,7 @@ class DataStore1
             next if File.exists?(filepath)
             FileUtils.cp(sourcefilepath, filepath)
         }
+        nhash
     end
 
     # DataStore1::putDataByFilepathNoCommLine(sourcefilepath) # nhash
@@ -100,6 +102,7 @@ class DataStore1
             next if File.exists?(filepath)
             FileUtils.cp(sourcefilepath, filepath)
         }
+        nhash
     end
 
     # DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash) # Array[filepath]
