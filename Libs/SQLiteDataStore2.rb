@@ -38,10 +38,11 @@ class SQLiteDataStore2
     end
 end
 
-class SQLiteDataStore2ElizabethWriteOnly
+class SQLiteDataStore2ElizabethTheForge
 
-    def initialize(filepath)
-        @filepath = filepath
+    def initialize()
+        @filepath = "/tmp/#{SecureRandom.hex}"
+        SQLiteDataStore2::createDatabase(@filepath)
     end
 
     def putBlob(datablob)
@@ -64,6 +65,10 @@ class SQLiteDataStore2ElizabethWriteOnly
 
     def datablobCheck(nhash)
         raise "(error: 477e4fcc-e32e-4a8e-9221-c50c1a1bad27) nhash: #{nhash}"
+    end
+
+    def publish() # nhash
+        DataStore1::putDataByFilepath(@filepath) # nhash
     end
 end
 
