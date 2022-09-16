@@ -323,6 +323,11 @@ class SystemEvents
                     next
                 end
 
+                if CommonUtils::ends_with?(filepath1, ".file-datastore1") then
+                    DataStore1::putDataByFilepathNoCommLine(filepath1)
+                    FileUtils.rm(filepath1)
+                    next
+                end
 
                 raise "(error: 600967d9-e9d4-4612-bf62-f8cc4f616fd1) I do not know how to process file: #{filepath1}"
             }

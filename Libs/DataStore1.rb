@@ -52,6 +52,20 @@ class DataStore1
 
     # DataStore1::acquireFilepathsForWriting(nhash) # Array[filepath]
     def self.acquireFilepathsForWriting(nhash)
+        filepaths1 = [
+            DataStore1::computeOutGoingBufferFilepath(nhash),
+            DataStore1::requestLocalCacheFilepath(nhash)
+        ]
+        filepaths2 = Machines::theOtherInstanceIds()
+                        .map{|targetInstanceId|
+                            "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.file-datastore1"
+                        }
+
+        filepaths1 + filepaths2
+    end
+
+    # DataStore1::acquireFilepathsForWritingNoCommLine(nhash) # Array[filepath]
+    def self.acquireFilepathsForWritingNoCommLine(nhash)
         [
             DataStore1::computeOutGoingBufferFilepath(nhash),
             DataStore1::requestLocalCacheFilepath(nhash)
@@ -74,6 +88,15 @@ class DataStore1
     def self.putDataByFilepath(sourcefilepath)
         nhash = "SHA256-#{Digest::SHA256.file(sourcefilepath).hexdigest}"
         DataStore1::acquireFilepathsForWriting(nhash).each{|filepath|
+            next if File.exists?(filepath)
+            FileUtils.cp(sourcefilepath, filepath)
+        }
+    end
+
+    # DataStore1::putDataByFilepathNoCommLine(sourcefilepath) # nhash
+    def self.putDataByFilepathNoCommLine(sourcefilepath)
+        nhash = "SHA256-#{Digest::SHA256.file(sourcefilepath).hexdigest}"
+        DataStore1::acquireFilepathsForWritingNoCommLine(nhash).each{|filepath|
             next if File.exists?(filepath)
             FileUtils.cp(sourcefilepath, filepath)
         }
