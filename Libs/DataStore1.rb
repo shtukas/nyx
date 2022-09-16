@@ -5,7 +5,7 @@ class DataStore1
 
     # DataStore1::energyGridDataStore1Folder()
     def self.energyGridDataStore1Folder()
-        "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/DataStore1"
+        "/Volumes/EnergyGrid1/Data/Pascal/Galaxy/Stargate/DataStore1"
     end
 
     # DataStore1::outGoingBufferFolder()
