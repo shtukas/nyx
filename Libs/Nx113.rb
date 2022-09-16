@@ -79,7 +79,7 @@ end
 class Nx113Access
 
     # Nx113Access::getNx113(nhash)
-    def self.getDataOrNullErrorIfNotFound(nhash)
+    def self.getNx113(nhash)
         filepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash)
         JSON.parse(IO.read(filepath))
     end
