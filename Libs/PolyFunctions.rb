@@ -189,8 +189,12 @@ class PolyFunctions
     # PolyFunctions::listingPriority(item)
     def self.listingPriority(item) # Float between 0 and 1
 
-        shiftOndateTimeAtKey = lambda {|item, key|
-            0.01*(Time.new.to_f - DateTime.parse(item[key]).to_time.to_f)/86400
+        shiftOnDateTime = lambda {|item, datetime|
+            0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
+        }
+
+        shiftOnUnixtime = lambda {|item, unixtime|
+            0.01*(Time.new.to_f - unixtime).to_f/86400
         }
 
         # ordering: alphabetical order
@@ -200,7 +204,7 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxTask" then
-            return 0.3 + shiftOndateTimeAtKey.call(item, "datetime")
+            return 0.3 + shiftOnUnixtime.call(item, item["unixtime"])
         end
 
         if item["mikuType"] == "TxTimeCommitment" then
@@ -208,11 +212,11 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "TxDated" then
-            return 1 + shiftOndateTimeAtKey.call(item, "datetime")
+            return 1 + shiftOnDateTime.call(item, item["datetime"])
         end
 
         if item["mikuType"] == "Wave" then
-            return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOndateTimeAtKey.call(item, "lastDoneDateTime")
+            return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
 
         raise "(error: 4302a0f5-91a0-4902-8b91-e409f123d305) no priority defined for item: #{item}"
