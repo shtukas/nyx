@@ -124,6 +124,11 @@ class DataStore1
             next if !File.basename(filepath1).start_with?("SHA256-")
             nhash = File.basename(filepath1)
             filepath2 = DataStore1::computeEnergyGridFilepathErrorIfNotAcquisable(nhash)
+            puts "out buffer to energy grid: #{nhash}"
+            if File.exists?(filepath2) then
+                FileUtils.rm(filepath1)
+                next
+            end
             FileUtils.mv(filepath1, filepath2)
         }
     end
