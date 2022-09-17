@@ -74,6 +74,54 @@ class Nx113Make
         }
         DataStore1::putDataByContent(JSON.generate(item))
     end
+
+    # Nx113Make::types()
+    def self.types()
+        ["text", "url", "file", "aion-point", "Dx8Unit", "unique-string"]
+    end
+
+    # Nx113Make::interactivelySelectOneNx113TypeOrNull()
+    def self.interactivelySelectOneNx113TypeOrNull()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx113Make::types())
+    end
+
+    # Nx113Make::interactivelyIssueNewOrNull() # nhash pointer to DataStore1 location of JSON encoded Nx113
+    def self.interactivelyIssueNewOrNull()
+        type = Nx113Make::interactivelySelectOneNx113TypeOrNull()
+        return nil if type.nil?
+        if type == "text" then
+            text = CommonUtils::editTextSynchronously("")
+            return Nx113Make::text(text)
+        end
+        if type == "url" then
+            url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
+            return nil if url == ""
+            return Nx113Make::url(url)
+        end
+        if type == "file" then
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            return nil if location.nil?
+            return nil if !File.file?(location)
+            filepath = location
+            return Nx113Make::file(filepath)
+        end
+        if type == "aion-point" then
+            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
+            return nil if location.nil?
+            return Nx113Make::aionpoint(location)
+        end
+        if type == "Dx8Unit" then
+            unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
+            return nil if  unitId == ""
+            return Nx113Make::dx8Unit(unitId)
+        end
+        if type == "unique-string" then
+            uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
+            return nil if uniquestring.nil?
+            return Nx113Make::uniqueString(uniquestring)
+        end
+        raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"
+    end
 end
 
 class Nx113Access
@@ -159,6 +207,11 @@ class Nx113Access
     # Nx113Access::access2(itemNx113Carrier)
     def self.access2(itemNx113Carrier)
         Nx113Access::access(itemNx113Carrier["nx113"])
+    end
+
+    # Nx113Access::toStringOrNull(nhash)
+    def self.toStringOrNull(nhash)
+        "(Nx113: nhash: #{nhash})"
     end
 end
 

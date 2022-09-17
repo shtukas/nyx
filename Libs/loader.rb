@@ -288,6 +288,7 @@ require_relative "NetworkLinks.rb"
 require_relative "NetworkArrows.rb"
 require_relative "Nx112.rb"
 require_relative "Nx113.rb"
+require_relative "NyxNode.rb"
 
 require_relative "TimeCommitmentMapping.rb"
 

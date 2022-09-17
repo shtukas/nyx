@@ -194,7 +194,7 @@ class PolyFunctions
         }
 
         shiftOnUnixtime = lambda {|item, unixtime|
-            0.01*(Time.new.to_f - unixtime).to_f/86400
+            0.01*Math.log(Time.new.to_f - unixtime)
         }
 
         # ordering: alphabetical order
