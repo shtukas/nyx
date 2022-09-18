@@ -6,6 +6,6 @@ NyxNode:
     "unixtime"    : unixtime
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
-    "nx113"       : String
+    "nx113"       : String # nhash to the DataStore1 of the Nx113
 
-NetworkType: "PureData" | "Collection" | "Concept" | "Entity" | "Event" | "Person" | "Timeline"
+NetworkType: "PureData" | "Concept" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"

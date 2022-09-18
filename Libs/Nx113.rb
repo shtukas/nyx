@@ -85,40 +85,52 @@ class Nx113Make
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type", Nx113Make::types())
     end
 
-    # Nx113Make::interactivelyIssueNewOrNull() # nhash pointer to DataStore1 location of JSON encoded Nx113
-    def self.interactivelyIssueNewOrNull()
+    # Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash() # nhash pointer to DataStore1 location of JSON encoded Nx113
+    def self.interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         type = Nx113Make::interactivelySelectOneNx113TypeOrNull()
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            return Nx113Make::text(text)
+            nx113 = Nx113Make::text(text)
+            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+            return nx113
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            return Nx113Make::url(url)
+            nx113 = Nx113Make::url(url)
+            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+            return nx113
         end
         if type == "file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
-            return Nx113Make::file(filepath)
+            nx113 = Nx113Make::file(filepath)
+            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+            return nx113
         end
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            return Nx113Make::aionpoint(location)
+            nx113 = Nx113Make::aionpoint(location)
+            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+            return nx113
         end
         if type == "Dx8Unit" then
             unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
             return nil if  unitId == ""
-            return Nx113Make::dx8Unit(unitId)
+            nx113 = Nx113Make::dx8Unit(unitId)
+            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+            return nx113
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring.nil?
-            return Nx113Make::uniqueString(uniquestring)
+            nx113 = Nx113Make::uniqueString(uniquestring)
+            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+            return nx113
         end
         raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"
     end
@@ -126,7 +138,7 @@ end
 
 class Nx113Access
 
-    # Nx113Access::getNx113(nhash)
+    # Nx113Access::getNx113(nhash) Nx113 or Error
     def self.getNx113(nhash)
         filepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash)
         JSON.parse(IO.read(filepath))
@@ -204,14 +216,11 @@ class Nx113Access
         end
     end
 
-    # Nx113Access::access2(itemNx113Carrier)
-    def self.access2(itemNx113Carrier)
-        Nx113Access::access(itemNx113Carrier["nx113"])
-    end
-
-    # Nx113Access::toStringOrNull(nhash)
-    def self.toStringOrNull(nhash)
-        "(Nx113: nhash: #{nhash})"
+    # Nx113Access::toStringOrNull(prefix, nhash, postfix)
+    def self.toStringOrNull(prefix, nhash, postfix)
+        return nil if nhash.nil?
+        nx113 = Nx113Access::getNx113(nhash)
+        "#{prefix}(Nx113: #{nx113["type"]})#{postfix}"
     end
 end
 
@@ -242,9 +251,44 @@ class Nx113Edit
         end
 
         if nx113["type"] == "aion-point" then
-            Nx113Access::access(itemNx113Carrier["nx113"])
-            location = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            nhash = Nx113Make::aionpoint(location)
+
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["rootnhash"])
+            operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
+            rootnhash        = nx113["rootnhash"]
+            exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
+            FileUtils.mkdir(exportLocation)
+            AionCore::exportHashAtFolder(operator, rootnhash, exportLocation)
+            puts "Item exported at #{exportLocation} for edition"
+            LucilleCore::pressEnterToContinue()
+
+            acquireLocationInsideExportFolder = lambda {|exportLocation|
+                locations = LucilleCore::locationsAtFolder(exportLocation).select{|loc| File.basename(loc)[0, 1] != "."}
+                if locations.size == 0 then
+                    puts "I am in the middle of a Nx113 aion-point edit. I cannot see anything inside the export folder"
+                    puts "Exit"
+                    exit
+                end
+                if locations.size == 1 then
+                    return locations[0]
+                end
+                if locations.size > 1 then
+                    puts "I am in the middle of a Nx113 aion-point edit. I found more than one location in the export folder."
+                    puts "Exit"
+                    exit
+                end
+            }
+
+            operator = SQLiteDataStore2ElizabethTheForge.new()
+            location = acquireLocationInsideExportFolder.call(exportLocation)
+            rootnhash = AionCore::commitLocationReturnHash(operator, location)
+            item = {
+                "mikuType"   => "Nx113",
+                "type"       => "aion-point",
+                "rootnhash"  => rootnhash,
+                "database"   => operator.publish()
+            }
+            nx113hash = DataStore1::putDataByContent(JSON.generate(item))
+
             DxF1::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
         end
 

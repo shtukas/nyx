@@ -136,19 +136,6 @@ class SystemEvents
             return if packet.nil?
             puts "flush @ (#{Time.new.to_s}): #{JSON.pretty_generate(packet)}"
             objectuuid = packet["objectuuid"]
-            if DataFilesDxF4s::dxF1FileShouldFlushData(objectuuid) then
-                if DataFilesDxF4s::repositoryIsVisible() then
-                    DataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
-                else
-                    puts "[optional] We need EnergyGrid"
-                    LucilleCore::pressEnterToContinue()
-                    if DataFilesDxF4s::repositoryIsVisible() then
-                        DataFilesDxF4s::transferDataToDxF4OrNothing(objectuuid)
-                    else
-                        return
-                    end
-                end
-            end
             if !objectuuids.include?(objectuuid) then
                 puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
                 SystemEvents::publishDxF1OnCommsline(objectuuid)

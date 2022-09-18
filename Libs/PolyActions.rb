@@ -12,53 +12,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "CxAionPoint" then
-            CxAionPoint::access(item)
-            return
-        end
-
-        if item["mikuType"] == "CxDx8Unit" then
-            CxDx8Unit::access(item)
-            return
-        end
-
-        if item["mikuType"] == "CxFile" then
-            CxFile::access(item)
-            return
-        end
-
-        if item["mikuType"] == "CxText" then
-            CxText::access(item)
-            return
-        end
-
-        if item["mikuType"] == "CxUrl" then
-            CxUrl::access(item)
-            return
-        end
-
-        if item["mikuType"] == "DxAionPoint" then
-            DxAionPoint::access(item)
-            return
-        end
-
-        if item["mikuType"] == "DxText" then
-            CommonUtils::accessText(item["text"])
-            return
-        end
-
-        if item["mikuType"] == "DxUrl" then
-            DxUrl::access(item)
-            return
-        end
-
         if item["mikuType"] == "NxAnniversary" then
             Anniversaries::access(item)
-            return
-        end
-
-        if item["mikuType"] == "NxEvent" then
-            Nx112::carrierAccess(item)
             return
         end
 
@@ -72,7 +27,17 @@ class PolyActions
         end
 
         if item["mikuType"] == "NxTask" then
-            Nx112::carrierAccess(item)
+            NxTasks::access(item)
+            return
+        end
+
+        if item["mikuType"] == "NyxNode" then
+            NyxNodes::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "TxDated" then
+            TxDateds::access(item)
             return
         end
 
@@ -83,12 +48,7 @@ class PolyActions
 
         if item["mikuType"] == "Wave" then
             puts Waves::toString(item).green
-            Nx112::carrierAccess(item)
-            return
-        end
-
-        if Iam::isNyxNetworkItem(item) then
-            PolyPrograms::nyxNetworkItemLanding(item)
+            Waves::access(item)
             return
         end
 
@@ -101,10 +61,7 @@ class PolyActions
 
         # order : alphabetical order
 
-        if item["mikuType"] == "CxDx8Unit" then
-            unitId = item["unitId"]
-            Dx8UnitsUtils::acquireUnitFolderPathOrNull(unitId) # this brings the file to the wormhole
-        end
+
     end
 
     # PolyActions::destroyWithPrompt(item)
@@ -179,11 +136,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "DxUrl" then
-            DxF1::deleteObject(item["uuid"])
-            return
-        end
-
         if item["mikuType"] == "NxBall.v2" then
             return
         end
@@ -232,35 +184,6 @@ class PolyActions
 
     # PolyActions::editDescription(item)
     def self.editDescription(item)
-
-        noImplementationTypes = [
-            "CxAionPoint",
-            "CxDx8Unit",
-            "CxFile",
-            "CxText",
-            "CxUniqueString",
-            "CxUrl",
-            "DxUrl"
-        ]
-
-        if noImplementationTypes.include?(item["mikuType"]) then
-            puts "update description is not implemented for #{item["mikuType"]}"
-            LucilleCore::pressEnterToContinue()
-            return
-        end
-
-        if item["mikuType"] == "DxLine" then
-            str = CommonUtils::editTextSynchronously(item["line"]).strip
-            return if str == ""
-            DxF1::setAttribute2(item["uuid"], "line", str)
-        end
-
-        if item["mikuType"] == "NxPerson" then
-            str = CommonUtils::editTextSynchronously(item["name"]).strip
-            return if str == ""
-            DxF1::setAttribute2(item["uuid"], "name", str)
-        end
-
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
         DxF1::setAttribute2(item["uuid"], "description", description)
@@ -285,23 +208,19 @@ class PolyActions
 
         # order : alphabetical order
 
-        if item["mikuType"] == "CxDx8Unit" then
-            unitId = item["unitId"]
-            Dx8UnitsUtils::destroyUnit(unitId)
-        end
     end
 
-    # PolyActions::linktoDxLine(item)
-    def self.linktoDxLine(item)
+    # PolyActions::linktoPureDataDescriptionOnly(item)
+    def self.linktoPureDataDescriptionOnly(item)
         l1 = DxLine::interactivelyIssueNewOrNull()
         return if l1.nil?
         puts JSON.pretty_generate(l1)
         NetworkLinks::link(item["uuid"], l1["uuid"])
     end
 
-    # PolyActions::linktoDxText(item)
-    def self.linktoDxText(item)
-        i2 = DxText::interactivelyIssueNewOrNull()
+    # PolyActions::linktoPureDataText(item)
+    def self.linktoPureDataText(item)
+        i2 = NyxNodes::interactivelyIssueNewPureDataTextOrNull()
         return if i2.nil?
         puts JSON.pretty_generate(i2)
         NetworkLinks::link(item["uuid"], i2["uuid"])
@@ -319,12 +238,11 @@ class PolyActions
         raise "(error: bfc8c526-b23a-4d38-bc47-40d3733b4044)"
     end
 
-    # PolyActions::setNx112(item)
-    def self.setNx112(item)
-        i2 = Cx::interactivelyCreateNewCxForOwnerOrNull(item["uuid"])
-        return if i2.nil?
-        puts JSON.pretty_generate(i2)
-        DxF1::setAttribute2(item["uuid"], "nx112", i2["uuid"])
+    # PolyActions::setNx113(item)
+    def self.setNx113(item)
+        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+        return if nx113nhash.nil?
+        DxF1::setAttribute2(item["uuid"], "nx113", nx113nhash)
     end
 
     # PolyActions::start(item)

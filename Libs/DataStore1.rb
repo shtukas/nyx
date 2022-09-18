@@ -62,6 +62,8 @@ class DataStore1
                         }
 
         filepaths1 + filepaths2
+
+        [DataStore1::computeOutGoingBufferFilepath(nhash)]
     end
 
     # DataStore1::acquireFilepathsForWritingNoCommLine(nhash) # Array[filepath]
@@ -105,7 +107,7 @@ class DataStore1
         nhash
     end
 
-    # DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash) # Array[filepath]
+    # DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash) # filepath
     def self.acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash)
         filepath = DataStore1::requestLocalCacheFilepath(nhash)
         return filepath if File.exists?(filepath)
@@ -132,7 +134,8 @@ class DataStore1
                 FileUtils.rm(filepath1)
                 next
             end
-            FileUtils.mv(filepath1, filepath2)
+            FileUtils.cp(filepath1, filepath2)
+            FileUtils.rm(filepath1)
         }
     end
 end

@@ -173,4 +173,97 @@ class TxTimeCommitments
             TimeCommitmentMapping::link(owner["uuid"], element["uuid"], ordinal)
         end
     end
+
+    # TxTimeCommitments::landing(item)
+    def self.landing(item)
+
+        loop {
+
+            return nil if item.nil?
+
+            uuid = item["uuid"]
+            item = DxF1::getProtoItemOrNull(uuid)
+            return nil if item.nil?
+
+            system("clear")
+
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+
+            puts ""
+            puts "description | access | start | stop | edit | ax39 | do not show until | expose | destroy | nyx".yellow
+            puts ""
+
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            next if input == ""
+
+            # ordering: alphabetical
+
+            if Interpreting::match("access", input) then
+                PolyActions::access(item)
+                next
+            end
+
+            if input == "ax39"  then
+                return if item["mikuType"] != "TxTimeCommitment"
+                ax39 = Ax39::interactivelyCreateNewAx()
+                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
+                next
+            end
+
+            if Interpreting::match("destroy", input) then
+                PolyActions::destroyWithPrompt(item)
+                return
+            end
+
+            if Interpreting::match("description", input) then
+                PolyActions::editDescription(item)
+                next
+            end
+
+            if input == "done for today" then
+                DoneForToday::setDoneToday(item["uuid"])
+                return
+            end
+
+            if Interpreting::match("do not show until", input) then
+                datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
+                return if datecode == ""
+                unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
+                return if unixtime.nil?
+                PolyActions::stop(item)
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+
+            if Interpreting::match("edit", input) then
+                PolyFunctions::edit(item)
+                return
+            end
+
+            if Interpreting::match("expose", input) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
+            if Interpreting::match("nyx", input) then
+                Nyx::program()
+                return
+            end
+
+            if Interpreting::match("start", input) then
+                PolyActions::start(item)
+                return
+            end
+
+            if Interpreting::match("stop", input) then
+                PolyActions::stop(item)
+                return
+            end
+        }
+
+    end
 end

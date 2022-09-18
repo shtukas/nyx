@@ -1,7 +1,0 @@
-CxUniqueString:
-    "uuid"         : uuid
-    "mikuType"     : "CxUniqueString"
-    "unixtime"     : unixtime
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "owneruuid"    : String
-    "uniquestring" : String

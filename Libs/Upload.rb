@@ -15,7 +15,7 @@ class Upload
         end
         LucilleCore::locationsAtFolder(folder).each{|location|
             puts "processing: #{location}"
-            child = DxAionPoint::issueNewUsingLocation(location)
+            child = NyxNodes::issueNewUsingLocation(location)
             if overrideDatetime then
                 DxF1::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
@@ -38,7 +38,7 @@ class Upload
         end
         LucilleCore::locationsAtFolder(folder).each{|filepath|
             puts "processing: #{filepath}"
-            child = DxFile::issueNewUsingLocation(filepath)
+            child = NyxNodes::issueNewUsingFile(filepath)
             if overrideDatetime then
                 DxF1::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
@@ -59,7 +59,7 @@ class Upload
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return if location.nil?
             return if !File.file?(location)
-            child = DxFile::issueNewUsingLocation(location)
+            child = NyxNodes::issueNewUsingFile(location)
             if overrideDatetime then
                 DxF1::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end

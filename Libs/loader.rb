@@ -237,30 +237,13 @@ require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "CommandInterpreters.rb"
 
-require_relative "CxText.rb"
-require_relative "CxUniqueString.rb"
-require_relative "CxUrl.rb"
-require_relative "CxAionPoint.rb"
-require_relative "CxFile.rb"
-require_relative "CxDx8Unit.rb"
-require_relative "Cx.rb"
-
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
 require_relative "DxF1s.rb"
-require_relative "DxLine.rb"
-require_relative "DxText.rb"
-require_relative "DxUniqueString.rb"
-require_relative "DxUrl.rb"
-require_relative "DxAionPoint.rb"
-require_relative "DxFile.rb"
-require_relative "Dx.rb"
-require_relative "DxDx8Unit.rb"
 require_relative "DataStore1.rb"
-require_relative "DataFilesDxF4s.rb"
 
 require_relative "EnergyGrid.rb"
 
@@ -269,26 +252,19 @@ require_relative "Galaxy.rb"
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
-require_relative "Iam.rb"
 
 require_relative "FileSystemCheck.rb"
 
 require_relative "Machines.rb"
 
-require_relative "NxTimelines.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
-require_relative "NxPersons.rb"
-require_relative "NxCollections.rb"
 require_relative "NxTasks.rb"
-require_relative "NxEvents.rb"
-require_relative "NxEntities.rb"
-require_relative "NxConcepts.rb"
 require_relative "NetworkLinks.rb"
 require_relative "NetworkArrows.rb"
 require_relative "Nx112.rb"
 require_relative "Nx113.rb"
-require_relative "NyxNode.rb"
+require_relative "NyxNodes.rb"
 
 require_relative "TimeCommitmentMapping.rb"
 

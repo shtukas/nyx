@@ -179,4 +179,64 @@ class Anniversaries
             PolyPrograms::itemLanding(anniversary)
         }
     end
+
+    # Anniversaries::landing(item)
+    def self.landing(item)
+
+        loop {
+
+            return nil if item.nil?
+
+            uuid = item["uuid"]
+            item = DxF1::getProtoItemOrNull(uuid)
+            return nil if item.nil?
+
+            system("clear")
+
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+
+            puts ""
+            puts "description | update start date | edit | done | expose | destroy | nyx".yellow
+            puts ""
+
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            next if input == ""
+
+            # ordering: alphabetical
+
+            if Interpreting::match("destroy", input) then
+                PolyActions::destroyWithPrompt(item)
+                return
+            end
+
+            if Interpreting::match("description", input) then
+                PolyActions::editDescription(item)
+                next
+            end
+
+            if Interpreting::match("done", input) then
+                PolyActions::done(item)
+                return
+            end
+
+            if Interpreting::match("expose", input) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+                return
+            end
+
+            if Interpreting::match("nyx", input) then
+                Nyx::program()
+                return
+            end
+
+            if Interpreting::match("update start date", input) then
+                PolyActions::editStartDate(item)
+            end
+        }
+
+    end
 end
