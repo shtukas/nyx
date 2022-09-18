@@ -140,7 +140,7 @@ class Nx113Access
 
     # Nx113Access::getNx113(nhash) Nx113 or Error
     def self.getNx113(nhash)
-        filepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash)
+        filepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, true)
         JSON.parse(IO.read(filepath))
     end
 
@@ -162,7 +162,7 @@ class Nx113Access
             dottedExtension  = nx113["dottedExtension"]
             nhash            = nx113["nhash"]
             parts            = nx113["parts"]
-            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"])
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
             operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
             filepath         = "#{ENV['HOME']}/Desktop/#{nhash}#{dottedExtension}"
             File.open(filepath, "w"){|f|
@@ -178,7 +178,7 @@ class Nx113Access
         end
 
         if nx113["type"] == "aion-point" then
-            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["rootnhash"])
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["rootnhash"], true)
             operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
             rootnhash        = nx113["rootnhash"]
             parentLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
@@ -251,8 +251,7 @@ class Nx113Edit
         end
 
         if nx113["type"] == "aion-point" then
-
-            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["rootnhash"])
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["rootnhash"], true)
             operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
             rootnhash        = nx113["rootnhash"]
             exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"

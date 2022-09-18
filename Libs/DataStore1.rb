@@ -107,18 +107,32 @@ class DataStore1
         nhash
     end
 
-    # DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash) # filepath
-    def self.acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash)
+    # DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, optimiseUsingCacheWrites) # filepath
+    def self.acquireNearestFilepathForReadingErrorIfNotAcquisable(nhash, optimiseUsingCacheWrites)
         filepath = DataStore1::requestLocalCacheFilepath(nhash)
-        return filepath if File.exists?(filepath)
+        if File.exists?(filepath) then
+            return filepath
+        end
 
         filepath = DataStore1::computeOutGoingBufferFilepath(nhash)
-        return filepath if File.exists?(filepath)
+        if File.exists?(filepath) then
+            if optimiseUsingCacheWrites then
+                puts "caching nhash: #{nhash}"
+                FileUtils.cp(filepath, DataStore1::requestLocalCacheFilepath(nhash)) # Caching the file from the out buffer into the local cache
+            end
+            return filepath
+        end
 
         EnergyGrid::acquireEnergyGridOrExit()
 
         filepath = DataStore1::computeEnergyGridFilepathErrorIfNotAcquisable(nhash)
-        return filepath if File.exists?(filepath)
+        if File.exists?(filepath) then
+            if optimiseUsingCacheWrites then
+                puts "caching nhash: #{nhash}"
+                FileUtils.cp(filepath, DataStore1::requestLocalCacheFilepath(nhash)) # Caching the file from Energy Grid into the local cache
+            end
+            return filepath
+        end
 
         raise "(error: 22825ba0-7b86-452d-be25-af73ac31ab61) nhash: #{nhash}"
     end
