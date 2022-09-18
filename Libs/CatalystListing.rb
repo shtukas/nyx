@@ -50,6 +50,10 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
+            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("79ff9488-403e-43e4-b972-dd6e87b4e8d9", 86400) then
+                TheIndex::updateIndexReadingDxF1s()
+            end
+
             PolyPrograms::catalystMainListing()
         }
     end

@@ -179,7 +179,6 @@ class PolyPrograms
             return if input == ""
             CommandInterpreters::catalystListing(input, store)
         end
-
     end
 
     # PolyPrograms::itemLanding(item)
