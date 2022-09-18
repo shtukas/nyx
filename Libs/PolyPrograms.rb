@@ -214,6 +214,11 @@ class PolyPrograms
             return
         end
 
+        if item["mikuType"] == "NyxNode" then
+            NyxNodes::landing(item)
+            return
+        end
+
         raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"
     end
 end

@@ -32,7 +32,7 @@ class PolyActions
         end
 
         if item["mikuType"] == "NyxNode" then
-            NyxNodes::landing(item)
+            NyxNodes::access(item)
             return
         end
 

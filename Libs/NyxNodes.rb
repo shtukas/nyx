@@ -153,7 +153,7 @@ class NyxNodes
 
     # NyxNodes::toString(item)
     def self.toString(item)
-        "#{Nx113Access::toStringOrNull("", nhash, " ")} #{item["description"]}"
+        "#{Nx113Access::toStringOrNull("", item["nx113"], " ")} #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------
