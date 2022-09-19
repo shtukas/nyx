@@ -110,6 +110,9 @@ class PolyFunctions
         if item["mikuType"] == "Wave" then
             return item["description"]
         end
+        if item["mikuType"] == "CxAionPoint" then
+            return "CxAionPoint"
+        end
 
         puts "I do not know how to PolyFunctions::genericDescription(#{JSON.pretty_generate(item)})"
         raise "(error: 475225ec-74fe-4614-8664-a99c1b2c9916)"

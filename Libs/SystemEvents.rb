@@ -270,7 +270,7 @@ class SystemEvents
                             next if data == ""
                             event = JSON.parse(data)
                             if verbose then
-                                puts "event from system events: #{puts JSON.pretty_generate(event)}"
+                                puts "event from system events: #{JSON.pretty_generate(event)}"
                             end
                             SystemEvents::process(event)
                         }
