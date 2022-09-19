@@ -15,12 +15,19 @@ class TxDateds
     # --------------------------------------------------
     # Makers
 
-    # TxDateds::interactivelyCreateNewOrNull()
-    def self.interactivelyCreateNewOrNull()
+    # TxDateds::interactivelyCreateNewOrNull(datetime = nil)
+    def self.interactivelyCreateNewOrNull(datetime = nil)
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
 
-        datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
+        if datetime.nil? then
+             datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
+             # TODO: we could also have an interactive builder that always returns a non null value
+             if datetime.nil? then
+                datetime = Time.new.utc.iso8601
+             end
+        end
+       
         return nil if datetime.nil?
         uuid = SecureRandom.uuid
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
@@ -41,24 +48,7 @@ class TxDateds
 
     # TxDateds::interactivelyCreateNewTodayOrNull()
     def self.interactivelyCreateNewTodayOrNull()
-        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
-        return nil if description == ""
-        uuid = SecureRandom.uuid
-        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
-        unixtime   = Time.new.to_i
-        datetime   = Time.new.utc.iso8601
-        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
-        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "TxDated")
-        ItemsEventsLog::setAttribute2(uuid, "unixtime",    unixtime)
-        ItemsEventsLog::setAttribute2(uuid, "datetime",    datetime)
-        ItemsEventsLog::setAttribute2(uuid, "description", description)
-        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
-        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = Items::getItemOrNull(uuid)
-        if item.nil? then
-            raise "(error: 69486f48-3748-4c73-b604-a7edad98871d) How did that happen ? 🤨"
-        end
-        item
+        TxDateds::interactivelyCreateNewOrNull(Time.new.utc.iso8601)
     end
 
     # --------------------------------------------------
