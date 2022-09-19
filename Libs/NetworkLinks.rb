@@ -118,7 +118,7 @@ class NetworkLinks
     # NetworkLinks::linkedEntities(uuid)
     def self.linkedEntities(uuid)
         NetworkLinks::linkeduuids(uuid)
-            .map{|objectuuid| TheIndex::getItemOrNull(objectuuid) }
+            .map{|objectuuid| Items::getItemOrNull(objectuuid) }
             .compact
     end
 
@@ -148,7 +148,7 @@ class NetworkLinks
 
         NetworkLinks::linkeduuids(item["uuid"]) # .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
             .each{|entityuuid|
-                entity = TheIndex::getItemOrNull(entityuuid)
+                entity = Items::getItemOrNull(entityuuid)
                 next if entity.nil?
                 indx = store.register(entity, false)
                 puts "[#{indx.to_s.ljust(3)}] #{PolyFunctions::toString(entity)}"

@@ -1,0 +1,48 @@
+
+Nx113 was defined to capitalise on the introduction of DataStore1 (a content addressed blob datastore) and SQLiteDataStore2 (using a SQLite file for datablob storage). 
+
+Note that the reason for using SQLiteDataStore2 and not just using DataStore1, is that we want to ultimately limit the number of files generated (to facilitate backups and CommsLine propagation).
+
+Nx113 are immutable, and sent JSON-encoded to DataStore1, and a reference to them stored into the primary Catalyst or Nyx object.
+
+Typically we have [Primary Object; DxF1 file] -> (optional) Nx113 -> (optional) data files, possibly SQLite files.
+
+{
+    "mikuType" => "Nx113"
+    "type"     => "text",
+    "text"     => String, Text
+}
+
+{
+    "mikuType" => "Nx113"
+    "type"     => "url",
+    "url"      => String, URL
+}
+
+{
+    "mikuType"        => "Nx113"
+    "type"            => "file"
+    "dottedExtension" => String
+    "nhash"           => String
+    "parts"           => Array[String]
+    "database"        => hash # pointer to a SQLite file which contains all the data
+}
+
+{
+    "mikuType"  => "Nx113"
+    "type"      => "aion-point"
+    "rootnhash" => String
+    "database"  => nhash # pointer to a SQLite file which contains all the data
+}
+
+{
+    "mikuType" => "Nx113"
+    "type"     => "Dx8Unit"
+    "unitId"   => String
+}
+
+{
+    "mikuType"     => "Nx113"
+    "type"         => "unique-string"
+    "uniquestring" => String
+}

@@ -52,11 +52,11 @@ checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Orbital/01-Local-Private")
 checkLocation.call("#{ENV['HOME']}/Galaxy/Orbital/02-Multi-Instance-Shared")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3")
-checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/config.json")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/items.sqlite3")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/multi-instance-shared2/shared-config.json")
+checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DataStore1OutGoingBuffer")
 
 filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/bank.sqlite3"
 if !File.exists?(filepath) then
@@ -96,45 +96,6 @@ if !File.exists?(filepath) then
     db.results_as_hash = true
     db.execute("create table _arrows_ (_eventuuid_ text primary key, _eventTime_ float, _sourceuuid_ text, _operation_ text, _targetuuid_ text)", [])
     db.close
-end
-
-filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/owner-items-mapping.sqlite3"
-if !File.exists?(filepath) then
-    puts "database migration: owner-items-mapping.sqlite3"
-
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute("create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _owneruuid_ text, _itemuuid_ text, _operationType_ text, _ordinal_ float)", [])
-    db.close
-
-    # create table _mapping_ (_eventuuid_ text primary key, _eventTime_ float, _itemuuid_ text, _groupuuid_ text, _status_ text)
-
-    db1 = SQLite3::Database.new("#{ENV['HOME']}/Galaxy/DataBank/Stargate/item-to-group-mapping.sqlite3")
-    db1.busy_timeout = 117
-    db1.busy_handler { |count| true }
-    db1.results_as_hash = true
-
-    db2 = SQLite3::Database.new("#{ENV['HOME']}/Galaxy/DataBank/Stargate/owner-items-mapping.sqlite3")
-    db2.busy_timeout = 117
-    db2.busy_handler { |count| true }
-    db2.results_as_hash = true
-
-    ordinal = 1
-
-    db1.execute("select * from _mapping_ order by _eventTime_", []) do |row|
-        eventuuid = row["_eventuuid_"]
-        eventTime = row["_eventTime_"]
-        owneruuid = row["_groupuuid_"]
-        itemuuid  = row["_itemuuid_"]
-        operationType = "set"
-        ordinal       = ordinal + 1
-        db2.execute "insert into _mapping_ (_eventuuid_, _eventTime_, _owneruuid_, _itemuuid_, _operationType_, _ordinal_) values (?, ?, ?, ?, ?, ?)", [eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal]
-    end
-
-    db2.close
-    db1.close
 end
 
 # ------------------------------------------------------------
@@ -236,54 +197,33 @@ require_relative "CommonUtils.rb"
 require_relative "CompositeElizabeth.rb"
 require_relative "CommandInterpreters.rb"
 
-require_relative "CxText.rb"
-require_relative "CxUniqueString.rb"
-require_relative "CxUrl.rb"
-require_relative "CxAionPoint.rb"
-require_relative "CxFile.rb"
-require_relative "CxDx8Unit.rb"
-require_relative "Cx.rb"
-
 require_relative "DoNotShowUntil.rb"
 # DoNotShowUntil::setUnixtime(uid, unixtime)
 # DoNotShowUntil::isVisible(uid)
 require_relative "Dx8UnitsUtils.rb"
 require_relative "DoneForToday.rb"
-require_relative "DxF1s.rb"
-require_relative "DxLine.rb"
-require_relative "DxText.rb"
-require_relative "DxUniqueString.rb"
-require_relative "DxUrl.rb"
-require_relative "DxAionPoint.rb"
-require_relative "DxFile.rb"
-require_relative "Dx.rb"
-require_relative "DxDx8Unit.rb"
 require_relative "DataStore1.rb"
+
+require_relative "EnergyGrid.rb"
 
 require_relative "Galaxy.rb"
 
 require_relative "Interpreting.rb"
 require_relative "ItemStore.rb"
 require_relative "InternetStatus.rb"
-require_relative "Iam.rb"
-require_relative "DataFilesDxF4s.rb"
+require_relative "ItemsEventsLog.rb"
 
 require_relative "FileSystemCheck.rb"
 
 require_relative "Machines.rb"
 
-require_relative "NxTimelines.rb"
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
-require_relative "NxPersons.rb"
-require_relative "NxCollections.rb"
 require_relative "NxTasks.rb"
-require_relative "NxEvents.rb"
-require_relative "NxEntities.rb"
-require_relative "NxConcepts.rb"
 require_relative "NetworkLinks.rb"
 require_relative "NetworkArrows.rb"
-require_relative "Nx112.rb"
+require_relative "Nx113.rb"
+require_relative "NyxNodes.rb"
 
 require_relative "TimeCommitmentMapping.rb"
 
@@ -297,11 +237,12 @@ require_relative "SectionsType0141.rb"
 require_relative "Search.rb"
 require_relative "SystemEvents.rb"
 require_relative "Stargate.rb"
+require_relative "SQLiteDataStore2.rb"
 
 require_relative "TxDateds.rb"
 require_relative "The99Percent.rb"
 require_relative "TxTimeCommitments.rb"
-require_relative "TheIndex.rb"
+require_relative "Items.rb"
 require_relative "ThreadsX.rb"
 
 require_relative "UniqueStringsFunctions.rb"
@@ -314,9 +255,40 @@ require_relative "XCacheValuesWithExpiry.rb"
 
 # ------------------------------------------------------------
 
+filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/items-events-log.sqlite3"
+if !File.exists?(filepath) then
+    db = SQLite3::Database.new(filepath)
+    db.busy_timeout = 117
+    db.busy_handler { |count| true }
+    db.results_as_hash = true
+    db.execute("create table _events_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _attname_ text, _attvalue_ blob)", [])
+    db.close
+    Find.find("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s") do |path|
+        next if !File.file?(path)
+        next if !path.include?(".dxf1.sqlite3")
+        dxf1filepath = path
+        puts "importing #{dxf1filepath}"
+        db = SQLite3::Database.new(dxf1filepath)
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _dxf1_ where _eventType_=? order by _eventTime_", ["attribute"]) do |row|
+            objectuuid = row["_objectuuid_"] 
+            eventuuid  = row["_eventuuid_"]
+            eventTime  = row["_eventTime_"]
+            attname    = row["_name_"]
+            attvalue   = JSON.parse(row["_value_"])
+            ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+        end
+        db.close
+        FileUtils.rm(dxf1filepath)
+    end
+end
+
+# ------------------------------------------------------------
+
 $bank_database_semaphore = Mutex.new
 $dnsu_database_semaphore = Mutex.new
-$item_to_group_mapping_database_semaphore = Mutex.new
 $commline_semaphore = Mutex.new
 $owner_items_mapping_database_semaphore = Mutex.new
 $links_database_semaphore = Mutex.new

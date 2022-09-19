@@ -1,7 +1,0 @@
-DxUniqueString:
-    "uuid"         : uuid
-    "mikuType"     : "DxUniqueString"
-    "unixtime"     : unixtime
-    "datetime"     : DateTime Iso 8601 UTC Zulu
-    "description"  : String
-    "uniquestring" : String

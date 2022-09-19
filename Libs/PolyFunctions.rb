@@ -9,42 +9,22 @@ class PolyFunctions
 
         # order: by mikuType
 
-        if item["mikuType"] == "CxAionPoint" then
-            return CxAionPoint::edit(item)
-        end
-
-        if item["mikuType"] == "CxText" then
-            return CxText::edit(item)
-        end
-
-        if item["mikuType"] == "DxAionPoint" then
-            return DxAionPoint::edit(item)
-        end
-
-        if item["mikuType"] == "DxText" then
-            text = CommonUtils::editTextSynchronously(item["text"])
-            DxF1::setAttribute2(item["uuid"], "text", text)
-            return TheIndex::getItemOrNull(item["uuid"])
-        end
-
-        if Iam::isNx112Carrier(item) then
-            if item["nx112"] then
-                targetItem = TheIndex::getItemOrNull(item["nx112"])
-                puts "target data carrier: #{JSON.pretty_generate(targetItem)}"
-                PolyFunctions::edit(targetItem)
-                return item
-            else
-                puts "This item doesn't have a Nx112 attached to it"
-                status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
-                if status then
-                    PolyActions::editDescription(item)
-                    return TheIndex::getItemOrNull(item["uuid"])
-                else
-                    return item
-                end
-            end
+        if item["mikuType"] == "NxTask" then
+            return NxTasks::edit(item)
         end
  
+        if item["mikuType"] == "NyxNode" then
+            return NyxNodes::edit(item)
+        end
+
+        if item["mikuType"] == "TxDated" then
+            return TxDateds::edit(item)
+        end
+
+        if item["mikuType"] == "Wave" then
+            return Waves::edit(item)
+        end
+
         puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
         raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
     end
@@ -100,70 +80,19 @@ class PolyFunctions
 
         # ordering: alphabetical order
 
-        if item["mikuType"] == "CxAionPoint" then
-            return "#{item["mikuType"]}"
-        end
-        if item["mikuType"] == "CxDx8Unit" then
-            return "#{item["mikuType"]}"
-        end
-        if item["mikuType"] == "CxFile" then
-           return "#{item["mikuType"]}"
-        end
-        if item["mikuType"] == "CxText" then
-            return "#{item["mikuType"]}"
-        end
-        if item["mikuType"] == "CxUniqueString" then
-            return "#{item["mikuType"]}"
-        end
-        if item["mikuType"] == "CxUrl" then
-            return "#{item["mikuType"]}"
-        end
-        if item["mikuType"] == "DxDx8Unit" then
+        if item["mikuType"] == "InboxItem" then
             return item["description"]
-        end
-        if item["mikuType"] == "DxAionPoint" then
-            return item["description"]
-        end
-        if item["mikuType"] == "DxFile" then
-            return (item["description"] ? item["description"] : "DxFile-#{item["uuid"]}")
-        end
-        if item["mikuType"] == "DxLine" then
-            return item["line"]
-        end
-        if item["mikuType"] == "DxText" then
-            return item["description"]
-        end
-        if item["mikuType"] == "DxUniqueString" then
-            return item["description"]
-        end
-        if item["mikuType"] == "DxUrl" then
-            return item["url"]
         end
         if item["mikuType"] == "NxAnniversary" then
             return item["description"]
         end
-        if item["mikuType"] == "NxCollection" then
+        if item["mikuType"] == "NxIced" then
             return item["description"]
         end
-        if item["mikuType"] == "NxConcept" then
+        if item["mikuType"] == "NyxNode" then
             return item["description"]
-        end
-        if item["mikuType"] == "NxEntity" then
-            return item["description"]
-        end
-        if item["mikuType"] == "NxEvent" then
-            return item["description"]
-        end
-        if ["NxIced", "InboxItem"].include?(item["mikuType"]) then
-            return item["description"]
-        end
-        if item["mikuType"] == "NxPerson" then
-            return item["name"]
         end
         if item["mikuType"] == "NxTask" then
-            return item["description"]
-        end
-        if item["mikuType"] == "NxTimeline" then
             return item["description"]
         end
         if item["mikuType"] == "TxFloat" then
@@ -189,25 +118,41 @@ class PolyFunctions
     # PolyFunctions::listingPriority(item)
     def self.listingPriority(item) # Float between 0 and 1
 
+        shiftOnDateTime = lambda {|item, datetime|
+            0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
+        }
+
+        shiftOnUnixtime = lambda {|item, unixtime|
+            0.01*Math.log(Time.new.to_f - unixtime)
+        }
+
         # ordering: alphabetical order
 
-        if item["mikuType"] == "NxTask" then
-            return 0.3
+        if item["mikuType"] == "fitness1" then
+            return 0.8
         end
 
-        if item["mikuType"] == "TxDated" then
-            return 0.8 + 0.01*(Time.new.to_f - DateTime.parse(item["datetime"]).to_time.to_f)/86400
+        if item["mikuType"] == "NxAnniversary" then
+            return 0.9
+        end
+
+        if item["mikuType"] == "NxTask" then
+            return 0.3 + shiftOnUnixtime.call(item, item["unixtime"])
         end
 
         if item["mikuType"] == "TxTimeCommitment" then
-            return 0.5 + 0.5*(1-Ax39::completionRatio(item)) # 1 when not started, 0.5 hen done
+            return 0.5 + 0.5*(1-Ax39::completionRatio(item)) # 1 when not started, 0.5 when done
+        end
+
+        if item["mikuType"] == "TxDated" then
+            return 1 + shiftOnDateTime.call(item, item["datetime"])
         end
 
         if item["mikuType"] == "Wave" then
-            return (Waves::isPriority(item) ? 0.9 : 0.4) + 0.01*(Time.new.to_f - DateTime.parse(item["lastDoneDateTime"]).to_time.to_f)/86400
+            return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
 
-        raise "(error: 5ea6d640-4546-4f7c-8873-1536d8c181e5) I do not know how to prioritise: #{item}"
+        raise "(error: 4302a0f5-91a0-4902-8b91-e409f123d305) no priority defined for item: #{item}"
     end
 
     # PolyFunctions::timeBeforeNotificationsInHours(item)
@@ -220,65 +165,17 @@ class PolyFunctions
         if item["mikuType"] == "fitness1" then
             return item["announce"]
         end
-        if item["mikuType"] == "DxAionPoint" then
-            return DxAionPoint::toString(item)
-        end
-        if item["mikuType"] == "CxFile" then
-            return CxFile::toString(item)
-        end
-        if item["mikuType"] == "CxText" then
-            return CxText::toString(item)
-        end
-        if item["mikuType"] == "CxUniqueString" then
-            return CxUniqueString::toString(item)
-        end
-        if item["mikuType"] == "CxUrl" then
-            return CxUrl::toString(item)
-        end
-        if item["mikuType"] == "DxFile" then
-            return DxFile::toString(item)
-        end
-        if item["mikuType"] == "DxLine" then
-            return DxLine::toString(item)
-        end
-        if item["mikuType"] == "DxText" then
-            return DxText::toString(item)
-        end
-        if item["mikuType"] == "DxUniqueString" then
-            return DxUniqueString::toString(item)
-        end
-        if item["mikuType"] == "DxUrl" then
-            return DxUrl::toString(item)
-        end
-        if item["mikuType"] == "DxDx8Unit" then
-            return DxDx8Unit::toString(item)
-        end
         if item["mikuType"] == "NxAnniversary" then
             return Anniversaries::toString(item)
         end
         if item["mikuType"] == "NxBall.v2" then
             return item["description"]
         end
-        if item["mikuType"] == "NxCollection" then
-            return NxCollections::toString(item)
-        end
-        if item["mikuType"] == "NxConcept" then
-            return NxConcepts::toString(item)
-        end
-        if item["mikuType"] == "NxEntity" then
-            return NxEntities::toString(item)
-        end
-        if item["mikuType"] == "NxEvent" then
-            return NxEvents::toString(item)
-        end
-        if item["mikuType"] == "NxPerson" then
-            return NxPersons::toString(item)
-        end
         if item["mikuType"] == "NxTask" then
             return NxTasks::toString(item)
         end
-        if item["mikuType"] == "NxTimeline" then
-            return NxTimelines::toString(item)
+        if item["mikuType"] == "NyxNode" then
+            return NyxNodes::toString(item)
         end
         if item["mikuType"] == "TxTimeCommitment" then
             return TxTimeCommitments::toString(item)

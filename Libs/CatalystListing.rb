@@ -39,7 +39,6 @@ class CatalystListing
 
             $commline_semaphore.synchronize {
                 SystemEvents::processCommsLine(true)
-                SystemEvents::flushChannel1()
             }
 
             LucilleCore::locationsAtFolder("#{ENV['HOME']}/Desktop/NxTasks")
@@ -59,7 +58,7 @@ class CatalystListing
     def self.getContextOrNull()
         uuid = XCache::getOrNull("7390a691-c8c4-4798-9214-704c5282f5e3")
         return nil if uuid.nil?
-        TheIndex::getItemOrNull(uuid)
+        Items::getItemOrNull(uuid)
     end
 
     # CatalystListing::setContext(uuid)

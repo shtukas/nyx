@@ -11,12 +11,106 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
-    def self.fsckItemErrorArFirstFailure(item, runhash)
-        repeatKey = "#{runhash}:#{item}"
+    # FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+    def self.fsckNx113ErrorAtFirstFailure(nx113)
+        puts "FileSystemCheck::fsckNx113ErrorAtFirstFailure(#{JSON.pretty_generate(nx113)})"
+
+        if nx113["type"].nil? then
+            raise "Nx113 doesn't have a type"
+        end
+
+        type = nx113["type"]
+
+        if type == "text" then
+            return
+        end
+
+        if type == "url" then
+            return
+        end
+
+        if type == "file" then
+            if nx113["dottedExtension"].nil? then
+                 raise "dottedExtension is not defined on #{nx113}"
+            end
+            if nx113["nhash"].nil? then
+                 raise "nhash is not defined on #{nx113}"
+            end
+            if nx113["parts"].nil? then
+                 raise "parts is not defined on #{nx113}"
+            end
+            if nx113["database"].nil? then
+                 raise "database is not defined on #{nx113}"
+            end
+            dottedExtension  = nx113["dottedExtension"]
+            nhash            = nx113["nhash"]
+            parts            = nx113["parts"]
+            database         = nx113["database"]
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(database, false)
+            operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
+            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
+            if !status then
+                puts JSON.pretty_generate(item)
+                raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed"
+            end
+            return
+        end
+
+        if type == "aion-point" then
+            if nx113["rootnhash"].nil? then
+                 raise "rootnhash is not defined on #{nx113}"
+            end
+            if nx113["database"].nil? then
+                 raise "database is not defined on #{nx113}"
+            end
+            rootnhash        = nx113["rootnhash"]
+            database         = nx113["database"]
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(database, false)
+            operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
+            status = AionFsck::structureCheckAionHash(operator, rootnhash)
+            if !status then
+                puts JSON.pretty_generate(item)
+                raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
+            end
+            return
+        end
+
+        if type == "Dx8Unit" then
+            return
+        end
+
+        if type == "unique-string" then
+            return
+        end
+
+        puts "FileSystemCheck::fsckNx113(#{JSON.pretty_generate(nx113)})"
+        raise "Unsupported Nx113 type: #{type}"
+    end
+
+    # FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash) # We allow for null argument
+    def self.fsckNx113NhashIfNotNullErrorAtFirstFailure(nhash)
+        return if nhash.nil?
+
+        puts "FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(#{JSON.pretty_generate(nhash)})"
+
+        repeatKey = "daf95139-61ea-4872-b298-0d703825ec37:#{nhash}" # We can cache against the nhash without using a runhash, because of immutability
         return if XCache::getFlag(repeatKey)
 
-        puts "FileSystemCheck::fsckItemErrorArFirstFailure(#{item}, #{runhash})"
+        begin
+            nx113 = Nx113Access::getNx113(nhash)
+            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
+            XCache::setFlag(repeatKey, true)
+        rescue => error
+            puts "error message:"
+            puts error.message
+            raise "Could not extract the Nx113"
+        end
+    end
+
+    # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
+    def self.fsckItemErrorArFirstFailure(item, runhash)
+
+        puts "FileSystemCheck::fsckItemErrorArFirstFailure(#{JSON.pretty_generate(item)}, #{runhash})"
 
         if item["uuid"].nil? then
             puts JSON.pretty_generate(item)
@@ -40,7 +134,7 @@ class FileSystemCheck
             puts JSON.pretty_generate(item)
             puts "Missing attribute: datetime"
             if LucilleCore::askQuestionAnswerAsBoolean("Should I add it now ? ", true) then
-                DxF1::setAttribute2(item["uuid"], "datetime", CommonUtils::now_iso8601())
+                ItemsEventsLog::setAttribute2(item["uuid"], "datetime", CommonUtils::now_iso8601())
                 return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex)
             end
             raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
@@ -53,236 +147,68 @@ class FileSystemCheck
             raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
         }
 
-        ensureItemFileExists = lambda {|itemuuid|
-            filepath = DxF1::filepathIfExistsOrNullNoSideEffect(itemuuid)
-            if filepath.nil? then
-                puts "DxF1::filepathIfExistsOrNullNoSideEffect(#{itemuuid})"
-                puts "Missing file for itemuuid (v1): #{itemuuid}"
-                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
-            end
-            if !File.exists?(filepath) then
-                puts "DxF1::filepathIfExistsOrNullNoSideEffect(#{itemuuid})"
-                puts "Missing file for itemuuid (v2): #{itemuuid}"
-                raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
-            end
-        }
-
         mikuType = item["mikuType"]
-
-        if mikuType == "CxAionPoint" then
-            ensureAttribute.call("owneruuid")
-            ensureAttribute.call("rootnhash")
-            operator  = DxF1ElizabethFsck.new(item["uuid"])
-            rootnhash = item["rootnhash"]
-            status    = AionFsck::structureCheckAionHash(operator, rootnhash)
-            if !status then
-                puts JSON.pretty_generate(item)
-                raise "(error: 50daf867-0dab-47d9-ae79-d8e431650eab) aion structure fsck failed "
-            end
-        end
-
-        if mikuType == "CxDx8Unit" then
-            ensureAttribute.call("owneruuid")
-            ensureAttribute.call("unitId")
-        end
-
-        if mikuType == "CxFile" then
-            ensureAttribute.call("owneruuid")
-            ensureAttribute.call("dottedExtension")
-            ensureAttribute.call("nhash")
-            ensureAttribute.call("parts")
-            operator = DxF1ElizabethFsck.new(item["uuid"])
-            dottedExtension = item["dottedExtension"]
-            nhash = item["nhash"]
-            parts = item["parts"]
-            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
-            if !status then
-                puts JSON.pretty_generate(item)
-                raise "(error: 3e428541-805b-455e-b6a2-c400a6519aef) primitive file fsck failed "
-            end
-        end
-
-        if mikuType == "CxText" then
-            ensureAttribute.call("owneruuid")
-            ensureAttribute.call("text")
-        end
-
-        if mikuType == "CxUniqueString" then
-            ensureAttribute.call("owneruuid")
-            ensureAttribute.call("uniquestring")
-        end
-
-        if mikuType == "CxUrl" then
-            ensureAttribute.call("owneruuid")
-            ensureAttribute.call("url")
-        end
-
-        if mikuType == "DxAionPoint" then
-            ensureAttribute.call("rootnhash")
-            operator  = DxF1ElizabethFsck.new(item["uuid"])
-            rootnhash = item["rootnhash"]
-            status    = AionFsck::structureCheckAionHash(operator, rootnhash)
-            if !status then
-                puts JSON.pretty_generate(item)
-                raise "(error: eca3b221-df0f-473d-9367-f2d12353266c) aion structure fsck failed "
-            end
-        end
-
-        if mikuType == "DxFile" then
-            ensureAttribute.call("dottedExtension")
-            ensureAttribute.call("nhash")
-            ensureAttribute.call("parts")
-            operator = DxF1ElizabethFsck.new(item["uuid"])
-            dottedExtension = item["dottedExtension"]
-            nhash = item["nhash"]
-            parts = item["parts"]
-            status = PrimitiveFiles::fsckPrimitiveFileDataRaiseAtFirstError(operator, dottedExtension, nhash, parts)
-            if !status then
-                puts JSON.pretty_generate(item)
-                raise "(error: eb78a1da-f7be-490d-94f7-2974d1af4c2f) primitive file fsck failed "
-            end
-        end
-
-        if mikuType == "DxLine" then
-            ensureAttribute.call("line")
-        end
-
-        if mikuType == "DxText" then
-            ensureAttribute.call("description")
-            ensureAttribute.call("text")
-        end
-
-        if mikuType == "DxUniqueString" then
-            ensureAttribute.call("uniquestring")
-        end
-
-        if mikuType == "DxUrl" then
-            ensureAttribute.call("url")
-        end
 
         if mikuType == "NxAnniversary" then
             ensureAttribute.call("description")
             ensureAttribute.call("startdate")
             ensureAttribute.call("repeatType")
             ensureAttribute.call("lastCelebrationDate")
-        end
-
-        if mikuType == "NxEvent" then
-            ensureAttribute.call("description")
-            # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
-        end
-
-        if mikuType == "NxCollection" then
-            ensureAttribute.call("description")
-        end
-
-        if mikuType == "NxConcept" then
-            ensureAttribute.call("description")
-        end
-
-        if mikuType == "NxEntity" then
-            ensureAttribute.call("description")
-        end
-
-        if mikuType == "NxPerson" then
-            ensureAttribute.call("name")
+            return
         end
 
         if mikuType == "NxTask" then
             ensureAttribute.call("description")
-            # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
+            return
         end
 
-        if mikuType == "NxTimeline" then
+        if mikuType == "NyxNode" then
             ensureAttribute.call("description")
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"]) # nx113 is optional for NyxNodes, the function return if the argument in null
+            return
         end
 
         if mikuType == "TxDated" then
             ensureAttribute.call("description")
             # ensureAttribute.call("nx112") # optional
-            if item["nx112"] then
-                ensureItemFileExists.call(item["nx112"])
-            end
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
+            return
         end
 
         if mikuType == "TxTimeCommitment" then
             ensureAttribute.call("ax39")
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
+            return
         end
 
         if mikuType == "Wave" then
             ensureAttribute.call("description")
             ensureAttribute.call("nx46")
             ensureAttribute.call("lastDoneDateTime")
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
+            return
         end
 
-        XCache::setFlag(repeatKey, true)
+        raise "Unsupported Miku Type: #{item}"
     end
 
     # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
     def self.fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
-        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-        return if filepath.nil?
-
-        repeatKey = "e5efa6c6-f950-4a29-b15f-aa25ba4c0d5e:#{filepath}:#{runhash}:#{File.mtime(filepath)}"
-        return if XCache::getFlag(repeatKey)
-
         puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
-
-        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-
-        if filepath.nil? then
-            puts JSON.pretty_generate(item)
-            puts "Could not find item filepath on the disk: #{filepath}"
-            raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
-        end
-
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-
+        item = ItemsEventsLog::getProtoItemOrNull(objectuuid)
         if item.nil? then
-            puts JSON.pretty_generate(item)
-            puts "Could not recover item from the disk #{filepath}"
-            raise "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
-        end
-
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
-        XCache::setFlag(repeatKey, true)
-    end
-
-    # FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash)
-    def self.fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash)
-        repeatKey = "0dfca14a-252b-45fc-bd80-95179ad4ac6e:#{filepath}:#{runhash}:#{File.mtime(filepath)}"
-        return if XCache::getFlag(repeatKey)
-        puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash})"
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        if item.nil? then
-            puts "FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(#{filepath}, #{runhash}), item was nil"
-            puts "sql dump:"
-            system("sqlite3 '#{filepath}' .dump")
-            if LucilleCore::askQuestionAnswerAsBoolean("delete file ? ") then
-                FileUtils.rm(filepath)
-                return
-            else
-                puts "exiting"
-                exit
-            end
+            raise "Could not find an item for objectuuid: #{objectuuid}"
         end
         FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
-        XCache::setFlag(repeatKey, true)
     end
 
-    # FileSystemCheck::fsckErrorAtFirstFailure(runhash)
-    def self.fsckErrorAtFirstFailure(runhash)
-        Find.find("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s") do |path|
+    # FileSystemCheck::fsckAllErrorAtFirstFailure(runhash)
+    def self.fsckAllErrorAtFirstFailure(runhash)
+        ItemsEventsLog::objectuuids().each{|objectuuid|
             FileSystemCheck::exitIfMissingCanary()
-            next if File.basename(path)[-8, 8] != ".sqlite3"
-            FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(path, runhash)
-        end
+            FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
+        }
         puts "fsck completed successfully".green
     end
 end

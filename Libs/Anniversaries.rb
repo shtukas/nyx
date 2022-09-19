@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        TheIndex::mikuTypeToItems("NxAnniversary")
+        Items::mikuTypeToItems("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -112,16 +112,16 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        DxF1::setAttribute2(uuid, "uuid",        uuid)
-        DxF1::setAttribute2(uuid, "mikuType",    "NxAnniversary")
-        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "startdate",   startdate)
-        DxF1::setAttribute2(uuid, "repeatType",  repeatType)
-        DxF1::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxAnniversary")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "startdate",   startdate)
+        ItemsEventsLog::setAttribute2(uuid, "repeatType",  repeatType)
+        ItemsEventsLog::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
         end
@@ -141,7 +141,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        DxF1::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        ItemsEventsLog::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -178,5 +178,66 @@ class Anniversaries
             return if anniversary.nil?
             PolyPrograms::itemLanding(anniversary)
         }
+    end
+
+    # Anniversaries::landing(item)
+    def self.landing(item)
+
+        loop {
+
+            return nil if item.nil?
+
+            uuid = item["uuid"]
+            item = ItemsEventsLog::getProtoItemOrNull(uuid)
+            return nil if item.nil?
+
+            system("clear")
+
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+
+            puts ""
+            puts "description | update start date | edit | done | expose | destroy | nyx".yellow
+            puts ""
+
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            next if input == ""
+
+            # ordering: alphabetical
+
+            if Interpreting::match("destroy", input) then
+                PolyActions::destroyWithPrompt(item)
+                return
+            end
+
+            if Interpreting::match("description", input) then
+                PolyActions::editDescription(item)
+                next
+            end
+
+            if Interpreting::match("done", input) then
+                PolyActions::done(item)
+                return
+            end
+
+            if Interpreting::match("expose", input) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if Interpreting::match("nyx", input) then
+                Nyx::program()
+                next
+            end
+
+            if Interpreting::match("update start date", input) then
+                PolyActions::editStartDate(item)
+                next
+            end
+        }
+
     end
 end

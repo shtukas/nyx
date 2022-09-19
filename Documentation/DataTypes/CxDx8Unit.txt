@@ -1,8 +1,0 @@
-
-CxDx8Unit:
-    "uuid"        : String
-    "mikuType"    : "CxDx8Unit"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso 8601 UTC Zulu
-    "owneruuid"   : String
-    "unitId"      : String

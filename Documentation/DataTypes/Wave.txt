@@ -6,8 +6,8 @@ Wave:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : description
     "nx46"        : Nx46 # Wave pattern
-    "nx112"       : String
     "lastDoneDateTime" : DateTime Iso 8601 UTC Zulu
+    "nx113"       : String # nhash to the DataStore1 of the Nx113
 
 Nx46 {
     "type"  :

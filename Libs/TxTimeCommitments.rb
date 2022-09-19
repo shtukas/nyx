@@ -7,12 +7,12 @@ class TxTimeCommitments
 
     # TxTimeCommitments::items()
     def self.items()
-        TheIndex::mikuTypeToItems("TxTimeCommitment")
+        Items::mikuTypeToItems("TxTimeCommitment")
     end
 
     # TxTimeCommitments::destroy(uuid)
     def self.destroy(uuid)
-        DxF1::deleteObject(uuid)
+        ItemsEventsLog::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -30,14 +30,14 @@ class TxTimeCommitments
         ax39 = Ax39::interactivelyCreateNewAx()
 
         unixtime   = Time.new.to_i
-        DxF1::setAttribute2(uuid, "uuid",         uuid)
-        DxF1::setAttribute2(uuid, "mikuType",     "TxTimeCommitment")
-        DxF1::setAttribute2(uuid, "unixtime",     unixtime)
-        DxF1::setAttribute2(uuid, "datetime",     datetime)
-        DxF1::setAttribute2(uuid, "description",  description)
-        DxF1::setAttribute2(uuid, "ax39",         ax39)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",         uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",     "TxTimeCommitment")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",     unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",     datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description",  description)
+        ItemsEventsLog::setAttribute2(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 058e5a67-7fbe-4922-b638-2533428ee019) How did that happen ? 🤨"
         end
@@ -79,7 +79,7 @@ class TxTimeCommitments
                 if selected.size >= count then
                     selected
                 else
-                    item = TheIndex::getItemOrNull(itemuuid)
+                    item = Items::getItemOrNull(itemuuid)
                     if item then
                         nx79 = {
                             "item" => item,
@@ -172,5 +172,98 @@ class TxTimeCommitments
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
             TimeCommitmentMapping::link(owner["uuid"], element["uuid"], ordinal)
         end
+    end
+
+    # TxTimeCommitments::landing(item)
+    def self.landing(item)
+
+        loop {
+
+            return nil if item.nil?
+
+            uuid = item["uuid"]
+            item = ItemsEventsLog::getProtoItemOrNull(uuid)
+            return nil if item.nil?
+
+            system("clear")
+
+            puts PolyFunctions::toString(item)
+            puts "uuid: #{item["uuid"]}".yellow
+            puts "unixtime: #{item["unixtime"]}".yellow
+            puts "datetime: #{item["datetime"]}".yellow
+
+            puts ""
+            puts "description | access | start | stop | edit | ax39 | do not show until | expose | destroy | nyx".yellow
+            puts ""
+
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            next if input == ""
+
+            # ordering: alphabetical
+
+            if Interpreting::match("access", input) then
+                PolyActions::access(item)
+                next
+            end
+
+            if input == "ax39"  then
+                next if item["mikuType"] != "TxTimeCommitment"
+                ax39 = Ax39::interactivelyCreateNewAx()
+                ItemsEventsLog::setAttribute2(item["uuid"], "ax39",  ax39)
+                next
+            end
+
+            if Interpreting::match("destroy", input) then
+                PolyActions::destroyWithPrompt(item)
+                return
+            end
+
+            if Interpreting::match("description", input) then
+                PolyActions::editDescription(item)
+                next
+            end
+
+            if input == "done for today" then
+                DoneForToday::setDoneToday(item["uuid"])
+                return
+            end
+
+            if Interpreting::match("do not show until", input) then
+                datecode = LucilleCore::askQuestionAnswerAsString("datecode: ")
+                return if datecode == ""
+                unixtime = CommonUtils::codeToUnixtimeOrNull(datecode.gsub(" ", ""))
+                return if unixtime.nil?
+                PolyActions::stop(item)
+                DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
+                return
+            end
+
+            if Interpreting::match("edit", input) then
+                item = PolyFunctions::edit(item)
+                next
+            end
+
+            if Interpreting::match("expose", input) then
+                puts JSON.pretty_generate(item)
+                LucilleCore::pressEnterToContinue()
+                next
+            end
+
+            if Interpreting::match("nyx", input) then
+                Nyx::program()
+                next
+            end
+
+            if Interpreting::match("start", input) then
+                PolyActions::start(item)
+                next
+            end
+
+            if Interpreting::match("stop", input) then
+                PolyActions::stop(item)
+                next
+            end
+        }
+
     end
 end

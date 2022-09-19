@@ -4,10 +4,6 @@
 
 require_relative "../Libs/loader.rb"
 
-item = Nyx::interactivelyMakeNewOrNull()
+item = NyxNodes::interactivelyIssueNewOrNull()
 exit if item.nil?
-item = TheIndex::getItemOrNull(item["uuid"])
-if item.nil? then
-    raise "(error: d628570c-db78-45d0-83de-0535cf44533b) this should not have hapenned 🤔"
-end
 PolyPrograms::itemLanding(item)

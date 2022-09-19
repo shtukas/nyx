@@ -109,7 +109,7 @@ class PolyPrograms
 
             if input == "ax39"  then
                 ax39 = Ax39::interactivelyCreateNewAx()
-                DxF1::setAttribute2(context["uuid"], "ax39",  ax39)
+                ItemsEventsLog::setAttribute2(context["uuid"], "ax39",  ax39)
                 return
             end
 
@@ -179,98 +179,6 @@ class PolyPrograms
             return if input == ""
             CommandInterpreters::catalystListing(input, store)
         end
-
-    end
-
-    # PolyPrograms::catalystItemLanding(item)
-    def self.catalystItemLanding(item)
-        loop {
-            return nil if item.nil?
-            uuid = item["uuid"]
-            item = DxF1::getProtoItemOrNull(uuid)
-            return nil if item.nil?
-            system("clear")
-            puts PolyFunctions::toString(item)
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "unixtime: #{item["unixtime"]}".yellow
-            puts "datetime: #{item["datetime"]}".yellow
-            store = ItemStore.new()
-            puts ""
-            puts "description | access | start | stop | edit | done | done for today | do not show until | redate | ax39 | nx112 | update start date | expose | destroy | nyx".yellow
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-            CommandInterpreters::catalystItemLanding(item, input)
-        }
-    end
-
-    # PolyPrograms::nyxNetworkItemLanding(item)
-    def self.nyxNetworkItemLanding(item)
-        loop {
-            return nil if item.nil?
-            uuid = item["uuid"]
-            item = DxF1::getProtoItemOrNull(uuid)
-            return nil if item.nil?
-            system("clear")
-            puts PolyFunctions::toString(item)
-            puts "uuid: #{item["uuid"]}".yellow
-            puts "unixtime: #{item["unixtime"]}".yellow
-            puts "datetime: #{item["datetime"]}".yellow
-            store = ItemStore.new()
-            # We register the item which is also the default element in the store
-            store.register(item, true)
-
-            parents = NetworkArrows::parents(item["uuid"])
-            if parents.size > 0 then
-                puts ""
-                puts "parents: "
-                parents
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    .each{|entity|
-                        store.register(entity, false)
-                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
-                    }
-            end
-
-            entities = NetworkLinks::linkedEntities(item["uuid"])
-            if entities.size > 0 then
-                puts ""
-                puts "related: "
-                entities
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    .each{|entity|
-                        store.register(entity, false)
-                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
-                    }
-            end
-
-            children = NetworkArrows::children(item["uuid"])
-            if children.size > 0 then
-                puts ""
-                puts "children: "
-                children
-                    .sort{|e1, e2| e1["datetime"]<=>e2["datetime"] }
-                    .each{|entity|
-                        store.register(entity, false)
-                        puts "    #{store.prefixString()} #{PolyFunctions::toString(entity)}"
-                    }
-            end
-
-            puts ""
-            puts CommandInterpreters::nyxCommands().yellow
-            puts ""
-            input = LucilleCore::askQuestionAnswerAsString("> ")
-            return if input == ""
-
-            if (indx = Interpreting::readAsIntegerOrNull(input)) then
-                entity = store.get(indx)
-                next if entity.nil?
-                PolyPrograms::itemLanding(entity)
-                next
-            end
-
-            CommandInterpreters::nyx(item, input)
-        }
     end
 
     # PolyPrograms::itemLanding(item)
@@ -279,14 +187,37 @@ class PolyPrograms
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
             return
         end
-        if Iam::isCatalystItem(item) then
-            PolyPrograms::catalystItemLanding(item)
+
+        if item["mikuType"] == "NxAnniversary" then
+            Anniversaries::landing(item)
             return
         end
-        if Iam::isNyxNetworkItem(item) then
-            PolyPrograms::nyxNetworkItemLanding(item)
+
+        if item["mikuType"] == "TxTimeCommitment" then
+            TxTimeCommitments::landing(item)
             return
         end
+
+        if item["mikuType"] == "Wave" then
+            Waves::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "TxDated" then
+            TxDateds::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "NxTask" then
+            NxTasks::landing(item)
+            return
+        end
+
+        if item["mikuType"] == "NyxNode" then
+            NyxNodes::landing(item)
+            return
+        end
+
         raise "(error: D9DD0C7C-ECC4-46D0-A1ED-CD73591CC87B): item: #{item}"
     end
 end
