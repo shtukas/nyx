@@ -40,7 +40,7 @@ class SystemEvents
 
         if event["mikuType"] == "NxDeleted" then
             objectuuid = event["objectuuid"]
-            DxF1::deleteObjectNoEvents(objectuuid)
+            ItemsEventsLog::deleteObjectNoEvents(objectuuid)
         end
 
         if event["mikuType"] == "AttributeUpdate" then
@@ -49,12 +49,12 @@ class SystemEvents
             eventTime  = event["eventTime"]
             attname    = event["attname"]
             attvalue   = event["attvalue"]
-            DxF1::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+            ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
             begin
                 # This cane fail when we are using a new program, which doesn't expect old mikuTypes 
                 # (for instance generic-description is failing)
                 # on data that is still old.
-                TheIndex::updateIndexAtObjectAttempt(objectuuid)
+                Items::updateIndexAtObjectAttempt(objectuuid)
             rescue
             end
         end
@@ -67,7 +67,7 @@ class SystemEvents
 
         if event["mikuType"] == "NxFileDeletion" then
             objectuuid = event["objectuuid"]
-            DxF1::deleteObjectNoEvents(objectuuid)
+            ItemsEventsLog::deleteObjectNoEvents(objectuuid)
         end
 
         if event["mikuType"] == "XCacheFlag" then
@@ -87,6 +87,22 @@ class SystemEvents
         if event["mikuType"] == "NetworkArrows" then
             NetworkArrows::processEvent(event)
         end
+
+        if event["mikuType"] == "AttributeUpdate.v2" then
+            objectuuid = event["objectuuid"]
+            eventuuid  = event["eventuuid"]
+            eventTime  = event["eventTime"]
+            attname    = event["attname"]
+            attvalue   = event["attvalue"]
+            ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+            begin
+                # This cane fail when we are using a new program, which doesn't expect old mikuTypes 
+                # (for instance generic-description is failing)
+                # on data that is still old.
+                Items::updateIndexAtObjectAttempt(objectuuid)
+            rescue
+            end
+        end
     end
 
     # SystemEvents::broadcast(event)
@@ -105,44 +121,6 @@ class SystemEvents
     def self.processAndBroadcast(event)
         SystemEvents::process(event)
         SystemEvents::broadcast(event)
-    end
-
-    # SystemEvents::publishDxF1OnCommsline(objectuuid)
-    def self.publishDxF1OnCommsline(objectuuid)
-        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-        return if filepath.nil?
-        Machines::theOtherInstanceIds().each{|targetInstanceId|
-            targetFilepath = "#{Config::starlightCommsLine()}/#{targetInstanceId}/#{CommonUtils::timeStringL22()}.dxf1.sqlite3"
-            FileUtils.cp(filepath, targetFilepath)
-            if File.size(targetFilepath) > 1024*1024*100 then
-                # The target is big, let's remove the datablobs and only keep the attributes
-                db = SQLite3::Database.new(targetFilepath)
-                db.busy_timeout = 117
-                db.busy_handler { |count| true }
-                db.results_as_hash = true
-                db.execute "delete from _dxf1_ where _eventType_=?", ["datablob"]
-                db.execute "vacuum", []
-                db.close
-            end
-        }
-    end
-
-    # SystemEvents::flushChannel1()
-    def self.flushChannel1()
-        channel = "e0fba9fd-c00b-4d0c-b884-4f058ef87653"
-        objectuuids = []
-        loop {
-            packet = Mercury2::readFirstOrNull(channel)
-            return if packet.nil?
-            puts "flush @ (#{Time.new.to_s}): #{JSON.pretty_generate(packet)}"
-            objectuuid = packet["objectuuid"]
-            if !objectuuids.include?(objectuuid) then
-                puts "SystemEvents::publishDxF1OnCommsline(#{objectuuid})"
-                SystemEvents::publishDxF1OnCommsline(objectuuid)
-                objectuuids << objectuuid
-            end
-            Mercury2::dequeue(channel)
-        }
     end
 
     # SystemEvents::processCommsLine(verbose)
@@ -186,27 +164,18 @@ class SystemEvents
 
                         objectuuid = row["_objectuuid_"]
                         eventuuid  = row["_eventuuid_"]
+
+                        next if ItemsEventsLog::eventExistsAtItemsEventsLog(eventuuid)
+
                         eventTime  = row["_eventTime_"]
                         eventType  = row["_eventType_"]
+
+                        next if eventType != "attribute"
+
                         attname    = row["_name_"]
-                        attvalue   = row["_value_"] # We cannot deserialise that, could be a datablob
+                        attvalue   = JSON.parse(row["_value_"])
 
-                        next if DxF1::eventExistsAtDxF1(objectuuid, eventuuid)
-
-                        filepath2 = DxF1::filepath(objectuuid)
-
-                        if verbose then
-                            puts "SystemEvents::processCommsLine: writing event: #{eventuuid} at file: #{File.basename(filepath2)}"
-                        end
-
-                        db2 = SQLite3::Database.new(filepath2)
-                        db2.busy_timeout = 117
-                        db2.busy_handler { |count| true }
-                        db2.results_as_hash = true
-                        # I am commenting the next one out because we have checked that the record doesn't exists
-                        # db2.execute "delete from _dxf1_ where _eventuuid_=?", [eventuuid]
-                        db2.execute "insert into _dxf1_ (_objectuuid_, _eventuuid_, _eventTime_, _eventType_, _name_, _value_) values (?, ?, ?, ?, ?, ?)", [objectuuid, eventuuid, eventTime, eventType, attname, attvalue]
-                        db2.close
+                        ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
 
                         updatedObjectuuids << objectuuid
                     end
@@ -319,7 +288,7 @@ class SystemEvents
                 raise "(error: 600967d9-e9d4-4612-bf62-f8cc4f616fd1) I do not know how to process file: #{filepath1}"
             }
 
-        updatedObjectuuids.each{|objectuuid| TheIndex::updateIndexAtObjectAttempt(objectuuid) }
+        updatedObjectuuids.each{|objectuuid| Items::updateIndexAtObjectAttempt(objectuuid) }
     end
 
     # SystemEvents::writeEventToOutBuffer(event)

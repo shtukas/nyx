@@ -5,7 +5,7 @@ class NyxNodes
 
     # NyxNodes::items()
     def self.items()
-        TheIndex::mikuTypeToItems("NyxNode")
+        Items::mikuTypeToItems("NyxNode")
     end
 
     # NyxNodes::networkType()
@@ -37,19 +37,19 @@ class NyxNodes
             nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         end
 
-        DxF1::setAttribute2(uuid, "uuid", uuid)
-        DxF1::setAttribute2(uuid, "mikuType", "NyxNode")
-        DxF1::setAttribute2(uuid, "networkType", networkType)
-        DxF1::setAttribute2(uuid, "unixtime", unixtime)
-        DxF1::setAttribute2(uuid, "datetime", datetime)
-        DxF1::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
+        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
+        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
 
         if nx113nhash then
-            DxF1::setAttribute2(uuid, "nx113", nx113nhash)
+            ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
         end
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
         end
@@ -69,17 +69,17 @@ class NyxNodes
 
         nx113nhash = Nx113Make::aionpoint(location)
 
-        DxF1::setAttribute2(uuid, "uuid", uuid)
-        DxF1::setAttribute2(uuid, "mikuType", "NyxNode")
-        DxF1::setAttribute2(uuid, "networkType", networkType)
-        DxF1::setAttribute2(uuid, "unixtime", unixtime)
-        DxF1::setAttribute2(uuid, "datetime", datetime)
-        DxF1::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
+        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
+        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
 
-        DxF1::setAttribute2(uuid, "nx113", nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
         end
@@ -99,17 +99,17 @@ class NyxNodes
 
         nx113nhash = Nx113Make::file(filepath)
 
-        DxF1::setAttribute2(uuid, "uuid", uuid)
-        DxF1::setAttribute2(uuid, "mikuType", "NyxNode")
-        DxF1::setAttribute2(uuid, "networkType", networkType)
-        DxF1::setAttribute2(uuid, "unixtime", unixtime)
-        DxF1::setAttribute2(uuid, "datetime", datetime)
-        DxF1::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
+        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
+        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
 
-        DxF1::setAttribute2(uuid, "nx113", nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
         end
@@ -131,17 +131,17 @@ class NyxNodes
         text = CommonUtils::editTextSynchronously("")
         nx113nhash = Nx113Make::text(text)
 
-        DxF1::setAttribute2(uuid, "uuid", uuid)
-        DxF1::setAttribute2(uuid, "mikuType", "NyxNode")
-        DxF1::setAttribute2(uuid, "networkType", networkType)
-        DxF1::setAttribute2(uuid, "unixtime", unixtime)
-        DxF1::setAttribute2(uuid, "datetime", datetime)
-        DxF1::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "uuid", uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType", "NyxNode")
+        ItemsEventsLog::setAttribute2(uuid, "networkType", networkType)
+        ItemsEventsLog::setAttribute2(uuid, "unixtime", unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime", datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
 
-        DxF1::setAttribute2(uuid, "nx113", nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "nx113", nx113nhash)
 
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 6035de89-5fbc-4882-a6f9-f1f703e8b106) How did that happen ? 🤨"
         end
@@ -153,7 +153,7 @@ class NyxNodes
 
     # NyxNodes::toString(item)
     def self.toString(item)
-        "#{Nx113Access::toStringOrNull("", item["nx113"], " ")} #{item["description"]}"
+        "(NyxNode: #{item["networkType"]}) #{Nx113Access::toStringOrNull("", item["nx113"], " ")} #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------
@@ -182,7 +182,7 @@ class NyxNodes
         loop {
             return nil if item.nil?
             uuid = item["uuid"]
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = ItemsEventsLog::getProtoItemOrNull(uuid)
             return nil if item.nil?
             system("clear")
             puts NyxNodes::toString(item)
@@ -234,7 +234,6 @@ class NyxNodes
                 "<n> | access | description | name | datetime | nx112 | edit | transmute | expose | destroy",
                 "search",
                 "link | child | parent | parents>related | parents>children | related>children | related>parents",
-                "copy dxf1 file to desktop"
             ]
             puts commands.join(" | ").yellow
             puts ""
@@ -290,11 +289,6 @@ class NyxNodes
 
             if Interpreting::match("description", input) then
                 PolyActions::editDescription(item)
-                return
-            end
-
-            if input == "copy dxf1 file to desktop" then
-                DxF1OrbitalExpansion::copyFileToDesktop(item["uuid"]) 
                 return
             end
 

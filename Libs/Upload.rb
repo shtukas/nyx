@@ -17,7 +17,7 @@ class Upload
             puts "processing: #{location}"
             child = NyxNodes::issueNewUsingLocation(location)
             if overrideDatetime then
-                DxF1::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                ItemsEventsLog::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
             NetworkLinks::link(item["uuid"], child["uuid"])
         }
@@ -40,7 +40,7 @@ class Upload
             puts "processing: #{filepath}"
             child = NyxNodes::issueNewUsingFile(filepath)
             if overrideDatetime then
-                DxF1::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                ItemsEventsLog::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
             NetworkLinks::link(item["uuid"], child["uuid"])
         }
@@ -61,7 +61,7 @@ class Upload
             return if !File.file?(location)
             child = NyxNodes::issueNewUsingFile(location)
             if overrideDatetime then
-                DxF1::setAttribute2(child["uuid"], "datetime", overrideDatetime)
+                ItemsEventsLog::setAttribute2(child["uuid"], "datetime", overrideDatetime)
             end
             NetworkLinks::link(item["uuid"], child["uuid"])
         end

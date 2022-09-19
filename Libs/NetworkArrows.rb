@@ -137,14 +137,14 @@ class NetworkArrows
     # NetworkArrows::children(uuid)
     def self.children(uuid)
         NetworkArrows::childrenuuids(uuid)
-            .map{|objectuuid| TheIndex::getItemOrNull(objectuuid) }
+            .map{|objectuuid| Items::getItemOrNull(objectuuid) }
             .compact
     end
 
     # NetworkArrows::parents(uuid)
     def self.parents(uuid)
         NetworkArrows::parentsuuids(uuid)
-            .map{|objectuuid| TheIndex::getItemOrNull(objectuuid) }
+            .map{|objectuuid| Items::getItemOrNull(objectuuid) }
             .compact
     end
 

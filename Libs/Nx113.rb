@@ -91,46 +91,46 @@ class Nx113Make
         return nil if type.nil?
         if type == "text" then
             text = CommonUtils::editTextSynchronously("")
-            nx113 = Nx113Make::text(text)
-            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
-            return nx113
+            nx113hhash = Nx113Make::text(text)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113hhash)
+            return nx113hhash
         end
         if type == "url" then
             url = LucilleCore::askQuestionAnswerAsString("url (empty to abort): ")
             return nil if url == ""
-            nx113 = Nx113Make::url(url)
-            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
-            return nx113
+            nx113nhash = Nx113Make::url(url)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash)
+            return nx113nhash
         end
         if type == "file" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
             return nil if !File.file?(location)
             filepath = location
-            nx113 = Nx113Make::file(filepath)
-            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
-            return nx113
+            nx113nhash = Nx113Make::file(filepath)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash)
+            return nx113nhash
         end
         if type == "aion-point" then
             location = CommonUtils::interactivelySelectDesktopLocationOrNull()
             return nil if location.nil?
-            nx113 = Nx113Make::aionpoint(location)
-            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
-            return nx113
+            nx113nhash = Nx113Make::aionpoint(location)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash)
+            return nx113nhash
         end
         if type == "Dx8Unit" then
             unitId = LucilleCore::askQuestionAnswerAsString("unitId (empty to abort): ")
             return nil if  unitId == ""
-            nx113 = Nx113Make::dx8Unit(unitId)
-            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
-            return nx113
+            nx113nhash = Nx113Make::dx8Unit(unitId)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash)
+            return nx113nhash
         end
         if type == "unique-string" then
             uniquestring = LucilleCore::askQuestionAnswerAsString("unique string (empty to abort): ")
             return nil if uniquestring.nil?
-            nx113 = Nx113Make::uniqueString(uniquestring)
-            FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
-            return nx113
+            nx113nhash = Nx113Make::uniqueString(uniquestring)
+            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(nx113nhash)
+            return nx113nhash
         end
         raise "(error: 0d26fe42-8669-4f33-9a09-aeecbd52c77c)"
     end
@@ -178,7 +178,7 @@ class Nx113Access
         end
 
         if nx113["type"] == "aion-point" then
-            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["rootnhash"], true)
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
             operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
             rootnhash        = nx113["rootnhash"]
             parentLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
@@ -233,21 +233,21 @@ class Nx113Edit
         if nx113["type"] == "text" then
             newtext = CommonUtils::editTextSynchronously(nx113["text"])
             nhash = Nx113Make::text(text)
-            DxF1::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
         end
 
         if nx113["type"] == "url" then
             puts "current url: #{nx113["url"]}"
             url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
             nhash = Nx113Make::url(url2)
-            DxF1::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
         end
 
         if nx113["type"] == "file" then
             Nx113Access::access(itemNx113Carrier["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
             nhash = Nx113Make::file(filepath)
-            DxF1::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
         end
 
         if nx113["type"] == "aion-point" then
@@ -288,7 +288,7 @@ class Nx113Edit
             }
             nx113hash = DataStore1::putDataByContent(JSON.generate(item))
 
-            DxF1::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
         end
 
         if nx113["type"] == "Dx8Unit" then

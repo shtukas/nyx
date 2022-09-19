@@ -18,7 +18,7 @@ class Nx112
     # Nx112::targetAccess(uuid)
     def self.targetAccess(uuid)
         return if uuid.nil?
-        target = DxF1::getProtoItemOrNull(uuid)
+        target = ItemsEventsLog::getProtoItemOrNull(uuid)
         if target.nil? then
             puts "I the target object (uuid: #{uuid}) doesn't exists."
             LucilleCore::pressEnterToContinue()

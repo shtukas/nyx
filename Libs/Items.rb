@@ -1,21 +1,21 @@
 # encoding: UTF-8
 
-class TheIndex
+class Items
 
     # create table _index_ (_objectuuid_ text primary key, _unixtime_ float, _mikuType_ text, _announce_ text, _item_ text)
 
     # -----------------------------------------------------------------
     # READ
 
-    # TheIndex::databaseFile()
+    # Items::databaseFile()
     def self.databaseFile()
-        "#{ENV['HOME']}/Galaxy/DataBank/Stargate/theindex.sqlite3"
+        "#{ENV['HOME']}/Galaxy/DataBank/Stargate/items.sqlite3"
     end
 
-    # TheIndex::objectuuids() # Array[objectuuid]
+    # Items::objectuuids() # Array[objectuuid]
     def self.objectuuids()
         objectuuids = []
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -26,10 +26,10 @@ class TheIndex
         objectuuids
     end
 
-    # TheIndex::getItemOrNull(objectuuid)
+    # Items::getItemOrNull(objectuuid)
     def self.getItemOrNull(objectuuid)
         item = nil
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -40,10 +40,10 @@ class TheIndex
         item
     end
 
-    # TheIndex::mikuTypeCount(mikuType) # Integer
+    # Items::mikuTypeCount(mikuType) # Integer
     def self.mikuTypeCount(mikuType)
         count = nil
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -54,10 +54,10 @@ class TheIndex
         count
     end
 
-    # TheIndex::mikuTypeToObjectuuids(mikuType) # Array[objectuuid]
+    # Items::mikuTypeToObjectuuids(mikuType) # Array[objectuuid]
     def self.mikuTypeToObjectuuids(mikuType)
         objectuuids = []
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -68,10 +68,10 @@ class TheIndex
         objectuuids
     end
 
-    # TheIndex::mikuTypeToItems(mikuType) # Array[Item]
+    # Items::mikuTypeToItems(mikuType) # Array[Item]
     def self.mikuTypeToItems(mikuType)
         items = []
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -82,10 +82,10 @@ class TheIndex
         items
     end
 
-    # TheIndex::nx20s() # Array[Nx20]
+    # Items::nx20s() # Array[Nx20]
     def self.nx20s()
         nx20s = []
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -100,10 +100,10 @@ class TheIndex
         nx20s
     end
 
-    # TheIndex::items() # Array[Item]
+    # Items::items() # Array[Item]
     def self.items()
         items = []
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -117,17 +117,10 @@ class TheIndex
     # -----------------------------------------------------------------
     # WRITE
 
-    # TheIndex::updateIndexAtObjectAttempt(objectuuid)
-    def self.updateIndexAtObjectAttempt(objectuuid)
-        item = DxF1::getProtoItemOrNull(objectuuid)
-        return if item.nil?
-        TheIndex::updateIndexWithThisObjectAttempt(item)
-    end
-
-    # TheIndex::updateIndexWithThisObjectAttempt(item)
+    # Items::updateIndexWithThisObjectAttempt(item)
     def self.updateIndexWithThisObjectAttempt(item)
 
-       # create table _index_ (_objectuuid_ text primary key, _unixtime_ float, _mikuType_ text, _announce_ text, _item_ text)
+        # create table _index_ (_objectuuid_ text primary key, _unixtime_ float, _mikuType_ text, _announce_ text, _item_ text)
 
         objectuuid = item["uuid"]
         unixtime   = item["unixtime"]
@@ -139,7 +132,7 @@ class TheIndex
 
         announce = PolyFunctions::genericDescription(item)
 
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true
@@ -148,20 +141,23 @@ class TheIndex
         db.close
     end
 
-    # TheIndex::updateIndexReadingDxF1s()
-    def self.updateIndexReadingDxF1s()
-        DxF1::databankRepositoryDxF1sFilepathEnumerator().each{|filepath|
-            puts filepath
-            item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-            next if item.nil?
-            puts JSON.pretty_generate(item)
-            TheIndex::updateIndexWithThisObjectAttempt(item)
+    # Items::updateIndexAtObjectAttempt(objectuuid)
+    def self.updateIndexAtObjectAttempt(objectuuid)
+        item = ItemsEventsLog::getProtoItemOrNull(objectuuid)
+        return if item.nil?
+        Items::updateIndexWithThisObjectAttempt(item)
+    end
+
+    # Items::batchUpdateFromEventLog()
+    def self.batchUpdateFromEventLog()
+        ItemsEventsLog::objectuuids().each{|objectuuid|
+            Items::updateIndexAtObjectAttempt(objectuuid)
         }
     end
 
-    # TheIndex::destroy(objectuuid)
+    # Items::destroy(objectuuid)
     def self.destroy(objectuuid)
-        db = SQLite3::Database.new(TheIndex::databaseFile())
+        db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
         db.results_as_hash = true

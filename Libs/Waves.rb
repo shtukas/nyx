@@ -6,12 +6,12 @@ class Waves
 
     # Waves::items()
     def self.items()
-        TheIndex::mikuTypeToItems("Wave")
+        Items::mikuTypeToItems("Wave")
     end
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        DxF1::deleteObject(uuid)
+        ItemsEventsLog::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -133,16 +133,16 @@ class Waves
 
         uuid = SecureRandom.uuid
 
-        DxF1::setAttribute2(uuid, "uuid",        uuid)
-        DxF1::setAttribute2(uuid, "mikuType",    "Wave")
-        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx46",        nx46)
-        DxF1::setAttribute2(uuid, "nx113",       nx113nhash)
-        DxF1::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "Wave")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "nx46",        nx46)
+        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "lastDoneDateTime", "#{Time.new.strftime("%Y")}-01-01T00:00:00Z")
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 28781f44-be29-4f67-bc87-4c9d6171ffc9) How did that happen ? 🤨"
         end
@@ -180,7 +180,7 @@ class Waves
     # Waves::performWaveNx46WaveDone(item)
     def self.performWaveNx46WaveDone(item)
         puts "done-ing: #{Waves::toString(item)}"
-        DxF1::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
+        ItemsEventsLog::setAttribute2(item["uuid"], "lastDoneDateTime", Time.now.utc.iso8601)
 
         unixtime = Waves::computeNextDisplayTimeForNx46(item["nx46"])
         puts "not shown until: #{Time.at(unixtime).to_s}"
@@ -215,7 +215,7 @@ class Waves
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return TheIndex::getItemOrNull(item["uuid"])
+                return Items::getItemOrNull(item["uuid"])
             else
                 return item
             end
@@ -231,7 +231,7 @@ class Waves
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = ItemsEventsLog::getProtoItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")

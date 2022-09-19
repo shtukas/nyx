@@ -109,7 +109,7 @@ class PolyPrograms
 
             if input == "ax39"  then
                 ax39 = Ax39::interactivelyCreateNewAx()
-                DxF1::setAttribute2(context["uuid"], "ax39",  ax39)
+                ItemsEventsLog::setAttribute2(context["uuid"], "ax39",  ax39)
                 return
             end
 

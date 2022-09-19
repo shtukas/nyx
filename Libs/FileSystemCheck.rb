@@ -107,17 +107,6 @@ class FileSystemCheck
         end
     end
 
-    # FileSystemCheck::fsckNx112(nx112)
-    def self.fsckNx112(nx112)
-        itemuuid = nx112
-        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(itemuuid)
-        if filepath.nil? then
-            puts "FileSystemCheck::fsckNx112(#{itemuuid})"
-            puts "Missing file for nx112 (v1): #{itemuuid}"
-            raise "FileSystemCheck::fsckNx112(#{itemuuid})"
-        end
-    end
-
     # FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     def self.fsckItemErrorArFirstFailure(item, runhash)
 
@@ -145,7 +134,7 @@ class FileSystemCheck
             puts JSON.pretty_generate(item)
             puts "Missing attribute: datetime"
             if LucilleCore::askQuestionAnswerAsBoolean("Should I add it now ? ", true) then
-                DxF1::setAttribute2(item["uuid"], "datetime", CommonUtils::now_iso8601())
+                ItemsEventsLog::setAttribute2(item["uuid"], "datetime", CommonUtils::now_iso8601())
                 return FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(item["uuid"], SecureRandom.hex)
             end
             raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
@@ -204,48 +193,22 @@ class FileSystemCheck
         raise "Unsupported Miku Type: #{item}"
     end
 
-    # FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash)
-    def self.fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash)
-        if !File.exists?(filepath) then
-            raise "filepath (#{filepath}) doesn't exist"
-        end
-        repeatKey = "0dfca14a-252b-45fc-bd80-95179ad4ac6e:#{filepath}:#{runhash}:#{File.mtime(filepath)}"
-        return if XCache::getFlag(repeatKey)
-        item = DxF1::getProtoItemAtFilepathOrNull(filepath)
-        if item.nil? then
-            puts "DxF1::getProtoItemAtFilepathOrNull(filepath): item extacted was nil"
-            puts "sql dump:"
-            system("sqlite3 '#{filepath}' .dump")
-            if LucilleCore::askQuestionAnswerAsBoolean("delete file ? ") then
-                FileUtils.rm(filepath)
-                return
-            else
-                puts "exiting"
-                exit
-            end
-        end
-        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
-        XCache::setFlag(repeatKey, true)
-    end
-
     # FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
     def self.fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
         puts "FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(#{objectuuid}, #{runhash})"
-        filepath = DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)
-        if filepath.nil? then
-            puts "DxF1::filepathIfExistsOrNullNoSideEffect(objectuuid)"
-            raise "Could not find a DxF1 filepath for objectuuid: #{objectuuid}"
+        item = ItemsEventsLog::getProtoItemOrNull(objectuuid)
+        if item.nil? then
+            raise "Could not find an item for objectuuid: #{objectuuid}"
         end
-        FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(filepath, runhash)
+        FileSystemCheck::fsckItemErrorArFirstFailure(item, runhash)
     end
 
-    # FileSystemCheck::fsckAllDxF1sErrorAtFirstFailure(runhash)
-    def self.fsckAllDxF1sErrorAtFirstFailure(runhash)
-        Find.find("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s") do |path|
+    # FileSystemCheck::fsckAllErrorAtFirstFailure(runhash)
+    def self.fsckAllErrorAtFirstFailure(runhash)
+        ItemsEventsLog::objectuuids().each{|objectuuid|
             FileSystemCheck::exitIfMissingCanary()
-            next if File.basename(path)[-8, 8] != ".sqlite3"
-            FileSystemCheck::fsckDxF1FilepathErrorAtFirstFailure(path, runhash)
-        end
+            FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(objectuuid, runhash)
+        }
         puts "fsck completed successfully".green
     end
 end

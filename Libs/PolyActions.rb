@@ -69,7 +69,7 @@ class PolyActions
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            DxF1::deleteObject(item["uuid"])
+            ItemsEventsLog::deleteObject(item["uuid"])
         end
     end
 
@@ -156,7 +156,7 @@ class PolyActions
                 return
             end
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{PolyFunctions::toString(item).green}' ? ") then
-                DxF1::deleteObject(item["uuid"])
+                ItemsEventsLog::deleteObject(item["uuid"])
             end
             return
         end
@@ -180,14 +180,14 @@ class PolyActions
     def self.editDatetime(item)
         datetime = CommonUtils::editTextSynchronously(item["datetime"]).strip
         return if !CommonUtils::isDateTime_UTC_ISO8601(datetime)
-        DxF1::setAttribute2(item["uuid"], "datetime", datetime)
+        ItemsEventsLog::setAttribute2(item["uuid"], "datetime", datetime)
     end
 
     # PolyActions::editDescription(item)
     def self.editDescription(item)
         description = CommonUtils::editTextSynchronously(item["description"]).strip
         return if description == ""
-        DxF1::setAttribute2(item["uuid"], "description", description)
+        ItemsEventsLog::setAttribute2(item["uuid"], "description", description)
     end
 
     # PolyActions::editStartDate(item)
@@ -200,7 +200,7 @@ class PolyActions
 
         startdate = CommonUtils::editTextSynchronously(item["startdate"])
         return if startdate == ""
-        DxF1::setAttribute2(item["uuid"], "startdate",   startdate)
+        ItemsEventsLog::setAttribute2(item["uuid"], "startdate",   startdate)
     end
 
     # PolyActions::garbageCollectionAsPartOfLaterItemDestruction(item)
@@ -231,7 +231,7 @@ class PolyActions
     def self.redate(item)
         if item["mikuType"] == "TxDated" then
             datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-            DxF1::setAttribute2(item["uuid"], "datetime", datetime)
+            ItemsEventsLog::setAttribute2(item["uuid"], "datetime", datetime)
             return
         end
 
@@ -243,7 +243,7 @@ class PolyActions
     def self.setNx113(item)
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         return if nx113nhash.nil?
-        DxF1::setAttribute2(item["uuid"], "nx113", nx113nhash)
+        ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
     end
 
     # PolyActions::start(item)

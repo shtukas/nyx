@@ -4,12 +4,12 @@ class TxDateds
 
     # TxDateds::items()
     def self.items()
-        TheIndex::mikuTypeToItems("TxDated")
+        Items::mikuTypeToItems("TxDated")
     end
 
     # TxDateds::destroy(uuid)
     def self.destroy(uuid)
-        DxF1::deleteObject(uuid)
+        ItemsEventsLog::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -25,14 +25,14 @@ class TxDateds
         uuid = SecureRandom.uuid
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         unixtime   = Time.new.to_i
-        DxF1::setAttribute2(uuid, "uuid",        uuid)
-        DxF1::setAttribute2(uuid, "mikuType",    "TxDated")
-        DxF1::setAttribute2(uuid, "unixtime",    unixtime)
-        DxF1::setAttribute2(uuid, "datetime",    datetime)
-        DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx113",       nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "TxDated")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
         end
@@ -47,14 +47,14 @@ class TxDateds
         nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         unixtime   = Time.new.to_i
         datetime   = Time.new.utc.iso8601
-        DxF1::setAttribute2(uuid, "uuid",        uuid)
-        DxF1::setAttribute2(uuid, "mikuType",    "TxDated")
-        DxF1::setAttribute2(uuid, "unixtime",    unixtime)
-        DxF1::setAttribute2(uuid, "datetime",    datetime)
-        DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "nx113",       nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "TxDated")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 69486f48-3748-4c73-b604-a7edad98871d) How did that happen ? 🤨"
         end
@@ -103,7 +103,7 @@ class TxDateds
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return TheIndex::getItemOrNull(item["uuid"])
+                return Items::getItemOrNull(item["uuid"])
             else
                 return item
             end
@@ -119,7 +119,7 @@ class TxDateds
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = ItemsEventsLog::getProtoItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")

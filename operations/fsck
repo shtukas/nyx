@@ -18,4 +18,4 @@ runhash =
         r
     end
 
-FileSystemCheck::fsckAllDxF1sErrorAtFirstFailure(runhash)
+FileSystemCheck::fsckAllErrorAtFirstFailure(runhash)

@@ -7,12 +7,12 @@ class TxTimeCommitments
 
     # TxTimeCommitments::items()
     def self.items()
-        TheIndex::mikuTypeToItems("TxTimeCommitment")
+        Items::mikuTypeToItems("TxTimeCommitment")
     end
 
     # TxTimeCommitments::destroy(uuid)
     def self.destroy(uuid)
-        DxF1::deleteObject(uuid)
+        ItemsEventsLog::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -30,14 +30,14 @@ class TxTimeCommitments
         ax39 = Ax39::interactivelyCreateNewAx()
 
         unixtime   = Time.new.to_i
-        DxF1::setAttribute2(uuid, "uuid",         uuid)
-        DxF1::setAttribute2(uuid, "mikuType",     "TxTimeCommitment")
-        DxF1::setAttribute2(uuid, "unixtime",     unixtime)
-        DxF1::setAttribute2(uuid, "datetime",     datetime)
-        DxF1::setAttribute2(uuid, "description",  description)
-        DxF1::setAttribute2(uuid, "ax39",         ax39)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",         uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",     "TxTimeCommitment")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",     unixtime)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",     datetime)
+        ItemsEventsLog::setAttribute2(uuid, "description",  description)
+        ItemsEventsLog::setAttribute2(uuid, "ax39",         ax39)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: 058e5a67-7fbe-4922-b638-2533428ee019) How did that happen ? 🤨"
         end
@@ -79,7 +79,7 @@ class TxTimeCommitments
                 if selected.size >= count then
                     selected
                 else
-                    item = TheIndex::getItemOrNull(itemuuid)
+                    item = Items::getItemOrNull(itemuuid)
                     if item then
                         nx79 = {
                             "item" => item,
@@ -182,7 +182,7 @@ class TxTimeCommitments
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = ItemsEventsLog::getProtoItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")
@@ -209,7 +209,7 @@ class TxTimeCommitments
             if input == "ax39"  then
                 return if item["mikuType"] != "TxTimeCommitment"
                 ax39 = Ax39::interactivelyCreateNewAx()
-                DxF1::setAttribute2(item["uuid"], "ax39",  ax39)
+                ItemsEventsLog::setAttribute2(item["uuid"], "ax39",  ax39)
                 next
             end
 

@@ -83,7 +83,7 @@ class Anniversaries
 
     # Anniversaries::anniversaries()
     def self.anniversaries()
-        TheIndex::mikuTypeToItems("NxAnniversary")
+        Items::mikuTypeToItems("NxAnniversary")
     end
 
     # Anniversaries::issueNewAnniversaryOrNullInteractively()
@@ -112,16 +112,16 @@ class Anniversaries
         end
 
         uuid = SecureRandom.uuid
-        DxF1::setAttribute2(uuid, "uuid",        uuid)
-        DxF1::setAttribute2(uuid, "mikuType",    "NxAnniversary")
-        DxF1::setAttribute2(uuid, "unixtime",    Time.new.to_i)
-        DxF1::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
-        DxF1::setAttribute2(uuid, "description", description)
-        DxF1::setAttribute2(uuid, "startdate",   startdate)
-        DxF1::setAttribute2(uuid, "repeatType",  repeatType)
-        DxF1::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxAnniversary")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "startdate",   startdate)
+        ItemsEventsLog::setAttribute2(uuid, "repeatType",  repeatType)
+        ItemsEventsLog::setAttribute2(uuid, "lastCelebrationDate", lastCelebrationDate)
         FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
-        item = TheIndex::getItemOrNull(uuid)
+        item = Items::getItemOrNull(uuid)
         if item.nil? then
             raise "(error: d2fd7192-0ed3-4405-9a7d-8badc5ccc3c6) How did that happen ? 🤨"
         end
@@ -141,7 +141,7 @@ class Anniversaries
 
     # Anniversaries::done(uuid)
     def self.done(uuid)
-        DxF1::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
+        ItemsEventsLog::setAttribute2(uuid, "lastCelebrationDate", Time.new.to_s[0, 10])
     end
 
     # Anniversaries::access(anniversary)
@@ -188,7 +188,7 @@ class Anniversaries
             return nil if item.nil?
 
             uuid = item["uuid"]
-            item = DxF1::getProtoItemOrNull(uuid)
+            item = ItemsEventsLog::getProtoItemOrNull(uuid)
             return nil if item.nil?
 
             system("clear")

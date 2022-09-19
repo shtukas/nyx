@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-TheIndex::updateIndexReadingDxF1s()
+Items::batchUpdateFromEventLog()
