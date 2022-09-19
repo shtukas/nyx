@@ -109,7 +109,8 @@ class NxTasks
 
     # NxTasks::toString(item)
     def self.toString(item)
-        ax39str = item["ax39"] ? " #{Ax39::toString(item)}" : ""
+        ax39str = Ax39Extensions::toString2OrNull(item["ax39"], item["uuid"])
+        ax39str = ax39str ? " #{ax39str}" : ""
         "(task)#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} #{item["description"]}#{ax39str}"
     end
 
@@ -118,14 +119,15 @@ class NxTasks
         "(task) #{item["description"]}"
     end
 
-    # NxTasks::cacheduuidsForSection2()
-    def self.cacheduuidsForSection2()
-        key = "baf670c7-20c2-497d-aa50-9ac71f682018"
+    # NxTasks::cacheduuidsForListingItems1()
+    def self.cacheduuidsForListingItems1()
+        key = "baf670c7-20c2-497d-aa50-9ac71f682019"
         itemuuids = XCacheValuesWithExpiry::getOrNull(key)
         return itemuuids if itemuuids
 
         # Items not time commitments and without an owner
         itemuuids = Items::mikuTypeToItems("NxTask")
+                        .select{|item| item["ax39"].nil? }
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                         .select{|item| TimeCommitmentMapping::elementuuidToOwnersuuids(item["uuid"]).empty? }
                         .first(200)
@@ -135,11 +137,34 @@ class NxTasks
         itemuuids
     end
 
-    # NxTasks::listingItems()
-    def self.listingItems()
-        NxTasks::cacheduuidsForSection2()
-        .map{|itemuuid| Items::getItemOrNull(itemuuid) }
-        .compact
+    # NxTasks::cacheduuidsForListingItems2()
+    def self.cacheduuidsForListingItems2()
+        key = "a13c22c2-468a-412e-902c-62abc030b924"
+        itemuuids = XCacheValuesWithExpiry::getOrNull(key)
+        return itemuuids if itemuuids
+
+        # Items not time commitments and without an owner
+        itemuuids = Items::mikuTypeToItems("NxTask")
+                        .select{|item| item["ax39"] }
+                        .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
+                        .map{|item| item["uuid"] }
+
+        XCacheValuesWithExpiry::set(key, itemuuids, 86400)
+        itemuuids
+    end
+
+    # NxTasks::listingItems1()
+    def self.listingItems1()
+        NxTasks::cacheduuidsForListingItems1()
+            .map{|itemuuid| Items::getItemOrNull(itemuuid) }
+            .compact
+    end
+
+    # NxTasks::listingItems2TimeCommitments()
+    def self.listingItems2TimeCommitments()
+        NxTasks::cacheduuidsForListingItems2()
+            .map{|itemuuid| Items::getItemOrNull(itemuuid) }
+            .compact
     end
 
     # --------------------------------------------------

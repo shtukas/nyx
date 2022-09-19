@@ -372,6 +372,15 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("todo", input) then
+            item = NxTasks::interactivelyCreateNewOrNull(true)
+            return if item.nil?
+            if item["ax39"].nil? then
+                TxTimeCommitments::interactivelyAddThisElementToOwnerOrNothing(item)
+            end
+            return
+        end
+
         if input == "transmute" then
             item = store.getDefault()
             return if item.nil?
@@ -427,8 +436,8 @@ class CatalystListing
                     "lambda" => lambda { Anniversaries::listingItems() }
                 },
                 {
-                    "name" => "NxTasks::listingItems()",
-                    "lambda" => lambda { NxTasks::listingItems() }
+                    "name" => "NxTasks::listingItems1()",
+                    "lambda" => lambda { NxTasks::listingItems1() }
                 },
                 {
                     "name" => "TxDateds::listingItems()",
@@ -490,7 +499,8 @@ class CatalystListing
             TxTimeCommitments::listingItems(),
             Waves::listingItems(false),
             TxDateds::listingItems(),
-            NxTasks::listingItems(),
+            NxTasks::listingItems1(),
+            NxTasks::listingItems2TimeCommitments()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }

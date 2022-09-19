@@ -59,10 +59,11 @@ class TxTimeCommitments
 
     # TxTimeCommitments::toString(item)
     def self.toString(item)
-        ax39str2 = Ax39::toString(item)
+        ax39str = Ax39Extensions::toString2OrNull(item["ax39"], item["uuid"])
+        ax39str = ax39str ? " #{ax39str}" : ""
         doneForTodayStr = DoneForToday::isDoneToday(item["uuid"]) ? " (done for today)" : ""
         dnsustr = DoNotShowUntil::isVisible(item["uuid"]) ? "" : " (DoNotShowUntil: #{DoNotShowUntil::getDateTimeOrNull(item["uuid"])})"
-        "(tcpt) #{item["description"]} #{ax39str2}#{doneForTodayStr}#{dnsustr}"
+        "(tcpt) #{item["description"]}#{ax39str}#{doneForTodayStr}#{dnsustr}"
     end
 
     # TxTimeCommitments::toStringForSearch(item)
@@ -98,7 +99,6 @@ class TxTimeCommitments
         TxTimeCommitments::items()
                 .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
                 .select{|item| InternetStatus::itemShouldShow(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }
-                .select{|item| Ax39forSections::itemShouldShow(item) or NxBallsService::isPresent(item["uuid"]) }
     end
 
     # --------------------------------------------------

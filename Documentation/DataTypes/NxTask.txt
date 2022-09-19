@@ -5,3 +5,4 @@ NxTask:
     "datetime"    : DateTime Iso 8601 UTC Zulu
     "description" : String
     "nx113"       : String # nhash to the DataStore1 of the Nx113
+    "ax39"        : Ax39 # optional

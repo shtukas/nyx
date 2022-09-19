@@ -137,11 +137,18 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "NxTask" then
-            return 0.3 + shiftOnUnixtime.call(item, item["unixtime"])
+            if item["ax39"].nil? then
+                return 0.3 + shiftOnUnixtime.call(item, item["unixtime"])
+            else
+                cr = Ax39Extensions::completionRatio(item["ax39"], item["uuid"]) # always defined with this Miku type
+                return 0.5 + 0.5*(1-cr) # 1 when not started, 0.5 when done
+            end
+            
         end
 
         if item["mikuType"] == "TxTimeCommitment" then
-            return 0.5 + 0.5*(1-Ax39::completionRatio(item)) # 1 when not started, 0.5 when done
+            cr = Ax39Extensions::completionRatio(item["ax39"], item["uuid"]) # always defined with this Miku type
+            return 0.5 + 0.5*(1-cr) # 1 when not started, 0.5 when done
         end
 
         if item["mikuType"] == "TxDated" then
