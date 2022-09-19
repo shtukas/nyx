@@ -10,7 +10,7 @@ class PolyPrograms
 
         vspaceleft = CommonUtils::screenHeight() - (context ? 5 : 4)
 
-        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CommandInterpreters::catalystListingCommands())
+        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
 
         if context.nil? then
             if Config::get("instanceId") == "Lucille20-pascal" then
@@ -72,7 +72,7 @@ class PolyPrograms
             end
 
             puts ""
-            puts CommandInterpreters::catalystListingCommands().yellow
+            puts CatalystListing::listingCommands().yellow
             puts "commands: set ordinal <n> | ax39 | insert | detach <n> | exit".yellow
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -139,7 +139,7 @@ class PolyPrograms
             end
 
             puts ""
-            CommandInterpreters::catalystListing(input, store)
+            CatalystListing::listingCommandInterpreter(input, store)
 
         else
 
@@ -173,11 +173,11 @@ class PolyPrograms
                 }
 
             puts ""
-            puts CommandInterpreters::catalystListingCommands().yellow
+            puts CatalystListing::listingCommands().yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
-            CommandInterpreters::catalystListing(input, store)
+            CatalystListing::listingCommandInterpreter(input, store)
         end
     end
 
