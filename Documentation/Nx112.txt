@@ -1,2 +1,0 @@
-
-Nx122 is a uuid to any type of object. Often a Cx[*] but can be anything.

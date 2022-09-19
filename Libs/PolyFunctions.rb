@@ -133,6 +133,10 @@ class PolyFunctions
             return 0.8
         end
 
+        if item["mikuType"] == "NxAnniversary" then
+            return 0.9
+        end
+
         if item["mikuType"] == "NxTask" then
             return 0.3 + shiftOnUnixtime.call(item, item["unixtime"])
         end
