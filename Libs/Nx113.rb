@@ -226,32 +226,36 @@ end
 
 class Nx113Edit
 
-    # Nx113Edit::edit(itemNx113Carrier)
-    def self.edit(itemNx113Carrier)
-        nx113 = Nx113Access::getNx113(itemNx113Carrier["nx113"])
+    # Nx113Edit::edit(item)
+    def self.edit(item)
+        return if item["nx113"].nil?
+
+        nx113nhash = item["nx113"]
+
+        nx113 = Nx113Access::getNx113(nx113nhash)
 
         if nx113["type"] == "text" then
             newtext = CommonUtils::editTextSynchronously(nx113["text"])
-            nhash = Nx113Make::text(text)
-            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            nx113nhash = Nx113Make::text(text)
+            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "url" then
             puts "current url: #{nx113["url"]}"
             url2 = LucilleCore::askQuestionAnswerAsString("new url: ")
-            nhash = Nx113Make::url(url2)
-            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            nx113nhash = Nx113Make::url(url2)
+            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "file" then
-            Nx113Access::access(itemNx113Carrier["nx113"])
+            Nx113Access::access(item["nx113"])
             filepath = CommonUtils::interactivelySelectDesktopLocationOrNull()
-            nhash = Nx113Make::file(filepath)
-            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            nx113nhash = Nx113Make::file(filepath)
+            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "aion-point" then
-            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["rootnhash"], true)
+            databasefilepath = DataStore1::acquireNearestFilepathForReadingErrorIfNotAcquisable(nx113["database"], true)
             operator         = SQLiteDataStore2ElizabethReadOnly.new(databasefilepath)
             rootnhash        = nx113["rootnhash"]
             exportLocation   = "#{ENV['HOME']}/Desktop/aion-point-#{SecureRandom.hex(4)}"
@@ -279,16 +283,17 @@ class Nx113Edit
 
             operator = SQLiteDataStore2ElizabethTheForge.new()
             location = acquireLocationInsideExportFolder.call(exportLocation)
+            puts "reading: #{location}"
             rootnhash = AionCore::commitLocationReturnHash(operator, location)
-            item = {
+            nx113 = {
                 "mikuType"   => "Nx113",
                 "type"       => "aion-point",
                 "rootnhash"  => rootnhash,
                 "database"   => operator.publish()
             }
-            nx113hash = DataStore1::putDataByContent(JSON.generate(item))
+            nx113nhash = DataStore1::putDataByContent(JSON.generate(nx113))
 
-            ItemsEventsLog::setAttribute2(itemNx113Carrier["uuid"], "nx113", nhash)
+            ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 
         if nx113["type"] == "Dx8Unit" then

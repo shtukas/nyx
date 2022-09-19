@@ -225,16 +225,17 @@ class Anniversaries
             if Interpreting::match("expose", input) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                return
+                next
             end
 
             if Interpreting::match("nyx", input) then
                 Nyx::program()
-                return
+                next
             end
 
             if Interpreting::match("update start date", input) then
                 PolyActions::editStartDate(item)
+                next
             end
         }
 

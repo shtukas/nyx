@@ -18,8 +18,7 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "TxDated" then
-            TxDateds::edit(item)
-            return
+            return TxDateds::edit(item)
         end
 
         if item["mikuType"] == "Wave" then

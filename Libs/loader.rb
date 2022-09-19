@@ -222,7 +222,6 @@ require_relative "NxBallsService.rb"
 require_relative "NxTasks.rb"
 require_relative "NetworkLinks.rb"
 require_relative "NetworkArrows.rb"
-require_relative "Nx112.rb"
 require_relative "Nx113.rb"
 require_relative "NyxNodes.rb"
 

@@ -208,20 +208,20 @@ class Waves
         end
     end
 
-    # Waves::edit(item)
+    # Waves::edit(item) # item
     def self.edit(item)
         if item["nx113"].nil? then
             puts "This item doesn't have a Nx113 attached to it"
             status = LucilleCore::askQuestionAnswerAsBoolean("Would you like to edit the description instead ? ")
             if status then
                 PolyActions::editDescription(item)
-                return Items::getItemOrNull(item["uuid"])
+                return ItemsEventsLog::getProtoItemOrNull(item["uuid"])
             else
                 return item
             end
         end
-        Nx113Access::access(item["nx113"])
-        item
+        Nx113Edit::edit(item)
+        ItemsEventsLog::getProtoItemOrNull(item["uuid"])
     end
 
     # Waves::landing(item)
@@ -281,39 +281,39 @@ class Waves
             end
 
             if Interpreting::match("edit", input) then
-                PolyFunctions::edit(item)
-                return
+                item = PolyFunctions::edit(item)
+                next
             end
 
             if Interpreting::match("expose", input) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                return
+                next
             end
 
             if Interpreting::match("nx113", input) then
                 PolyActions::setNx113(item)
-                return
+                next
             end
 
             if Interpreting::match("nyx", input) then
                 Nyx::program()
-                return
+                next
             end
 
             if Interpreting::match("redate", input) then
                 PolyActions::redate(item)
-                return
+                next
             end
 
             if Interpreting::match("start", input) then
                 PolyActions::start(item)
-                return
+                next
             end
 
             if Interpreting::match("stop", input) then
                 PolyActions::stop(item)
-                return
+                next
             end
         }
     end

@@ -171,10 +171,8 @@ class NyxNodes
 
     # NyxNodes::edit(item) # item
     def self.edit(item)
-        if item["nx113"] then
-            Nx113Access::access(item["nx113"])
-        end
-        item
+        Nx113Edit::edit(item)
+        ItemsEventsLog::getProtoItemOrNull(item["uuid"])
     end
 
     # NyxNodes::landing(item)
@@ -232,8 +230,7 @@ class NyxNodes
             puts ""
             commands = [
                 "<n> | access | description | name | datetime | nx112 | edit | transmute | expose | destroy",
-                "search",
-                "link | child | parent | parents>related | parents>children | related>children | related>parents",
+                "link | child | parent | upload | parents>related | parents>children | related>children | related>parents",
             ]
             puts commands.join(" | ").yellow
             puts ""
@@ -249,32 +246,32 @@ class NyxNodes
 
             if Interpreting::match("parents>children", input) then
                 NetworkArrows::recastSelectedParentsAsChildren(item)
-                return
+                next
             end
 
             if Interpreting::match("parents>related", input) then
                 NetworkArrows::recastSelectedParentsAsRelated(item)
-                return
+                next
             end
 
             if Interpreting::match("related>children", input) then
                 NetworkArrows::recastSelectedLinkedAsChildren(item)
-                return
+                next
             end
 
             if Interpreting::match("related>parents", input) then
                 NetworkArrows::recastSelectedLinkedAsParents(item)
-                return
+                next
             end
 
             if Interpreting::match("access", input) then
                 PolyActions::access(item)
-                return
+                next
             end
 
             if input == "child" then
                 NetworkArrows::architectureAndSetAsChild(item)
-                return
+                next
             end
 
             if Interpreting::match("destroy", input) then
@@ -284,63 +281,59 @@ class NyxNodes
 
             if Interpreting::match("datetime", input) then
                 PolyActions::editDatetime(item)
-                return
+                next
             end
 
             if Interpreting::match("description", input) then
                 PolyActions::editDescription(item)
-                return
+                next
             end
 
             if Interpreting::match("edit", input) then
-                PolyFunctions::edit(item)
-                return
+                item = NyxNodes::edit(item)
+                puts JSON.pretty_generate(item)
+                next
             end
 
             if Interpreting::match("expose", input) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                return
+                next
             end
 
             if Interpreting::match("nx113", input) then
                 PolyActions::setNx113(item)
-                return
+                next
             end
 
             if input == "link" then
                 NetworkLinks::architectureAndLink(item)
-                return
+                next
             end
 
             if Interpreting::match("name", input) then
                 PolyActions::editDescription(item)
-                return
+                next
             end
 
             if input == "parent" then
                 NetworkArrows::architectureAndSetAsParent(item)
-                return
+                next
             end
 
             if input == "transmute" then
                 PolyActions::transmute(item)
-                return
+                next
             end
 
             if input == "unlink" then
                 NetworkLinks::selectOneLinkedAndUnlink(item)
-                return
+                next
             end
 
             if input == "upload" then
                 Upload::interactivelyUploadToItem(item)
-                return
-            end
-
-            if input == "upload" then
-                Upload::interactivelyUploadToItem(item)
-                return
+                next
             end
         }
     end

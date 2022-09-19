@@ -207,7 +207,7 @@ class TxTimeCommitments
             end
 
             if input == "ax39"  then
-                return if item["mikuType"] != "TxTimeCommitment"
+                next if item["mikuType"] != "TxTimeCommitment"
                 ax39 = Ax39::interactivelyCreateNewAx()
                 ItemsEventsLog::setAttribute2(item["uuid"], "ax39",  ax39)
                 next
@@ -239,29 +239,29 @@ class TxTimeCommitments
             end
 
             if Interpreting::match("edit", input) then
-                PolyFunctions::edit(item)
-                return
+                item = PolyFunctions::edit(item)
+                next
             end
 
             if Interpreting::match("expose", input) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                return
+                next
             end
 
             if Interpreting::match("nyx", input) then
                 Nyx::program()
-                return
+                next
             end
 
             if Interpreting::match("start", input) then
                 PolyActions::start(item)
-                return
+                next
             end
 
             if Interpreting::match("stop", input) then
                 PolyActions::stop(item)
-                return
+                next
             end
         }
 

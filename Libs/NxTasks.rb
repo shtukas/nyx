@@ -153,7 +153,7 @@ class NxTasks
         end
     end
 
-    # NxTasks::edit(item)
+    # NxTasks::edit(item) # item
     def self.edit(item)
         if item["nx113"].nil? then
             puts "This item doesn't have a Nx113 attached to it"
@@ -165,8 +165,8 @@ class NxTasks
                 return item
             end
         end
-        Nx113Access::access(item["nx113"])
-        item
+        Nx113Edit::edit(item)
+        ItemsEventsLog::getProtoItemOrNull(item["uuid"])
     end
 
     # NxTasks::landing(item)
@@ -226,7 +226,7 @@ class NxTasks
             end
 
             if Interpreting::match("edit", input) then
-                PolyFunctions::edit(item)
+                item = PolyFunctions::edit(item)
                 return
             end
 
