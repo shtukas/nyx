@@ -110,8 +110,8 @@ class PolyFunctions
         if item["mikuType"] == "Wave" then
             return item["description"]
         end
-        if item["mikuType"] == "CxAionPoint" then
-            return "CxAionPoint"
+        if ["CxAionPoint", "DxFile"].include?(item["mikuType"]) then
+            return item["mikuType"]
         end
 
         puts "I do not know how to PolyFunctions::genericDescription(#{JSON.pretty_generate(item)})"
