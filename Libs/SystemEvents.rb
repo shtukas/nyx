@@ -151,40 +151,6 @@ class SystemEvents
                     next
                 end
 
-                if File.basename(filepath1)[-13, 13] == ".dxf1.sqlite3" then
-                    if verbose then
-                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
-                    end
-
-                    db1 = SQLite3::Database.new(filepath1)
-                    db1.busy_timeout = 117
-                    db1.busy_handler { |count| true }
-                    db1.results_as_hash = true
-                    db1.execute("select * from _dxf1_", []) do |row|
-
-                        objectuuid = row["_objectuuid_"]
-                        eventuuid  = row["_eventuuid_"]
-
-                        next if ItemsEventsLog::eventExistsAtItemsEventsLog(eventuuid)
-
-                        eventTime  = row["_eventTime_"]
-                        eventType  = row["_eventType_"]
-
-                        next if eventType != "attribute"
-
-                        attname    = row["_name_"]
-                        attvalue   = JSON.parse(row["_value_"])
-
-                        ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-
-                        updatedObjectuuids << objectuuid
-                    end
-                    db1.close
-
-                    FileUtils.rm(filepath1)
-                    next
-                end
-
                 if File.basename(filepath1)[-28, 28] == ".owner-items-mapping.sqlite3" then
                     if verbose then
                         puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
@@ -211,6 +177,24 @@ class SystemEvents
 
                     FileUtils.rm(filepath1)
                     next
+                end
+
+                if File.basename(filepath1) == "items-events-log.sqlite3" then
+                    db1 = SQLite3::Database.new(filepath1)
+                    db1.busy_timeout = 117
+                    db1.busy_handler { |count| true }
+                    db1.results_as_hash = true
+                    db1.execute("select * from _events_", []) do |row|
+                        objectuuid = row["_objectuuid_"]
+                        eventuuid  = row["_eventuuid_"]
+                        eventTime  = row["_eventTime_"]
+                        attname    = row["_attname_"]
+                        attvalue   = row["_attvalue_"]
+                        next if ItemsEventsLog::eventExistsAtItemsEventsLog(eventuuid)
+                        puts "reading from a items-events-log.sqlite3 that came on the commsline: event: #{eventuuid}"
+                        ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
+                    end
+                    db1.close
                 end
 
                 if File.basename(filepath1)[-13, 13] == ".bank.sqlite3" then
