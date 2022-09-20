@@ -115,7 +115,7 @@ class DataStore1
         filepath = DataStore1::computeOutGoingBufferFilepath(nhash)
         if File.exists?(filepath) then
             if optimiseUsingCacheWrites then
-                puts "DataStore1: caching nhash: #{nhash}"
+                #puts "DataStore1: caching nhash: #{nhash}"
                 FileUtils.cp(filepath, DataStore1::requestLocalCacheFilepath(nhash)) # Caching the file from the out buffer into the local cache
             end
             return filepath
@@ -126,7 +126,7 @@ class DataStore1
         filepath = DataStore1::computeEnergyGridFilepathErrorIfNotAcquisable(nhash)
         if File.exists?(filepath) then
             if optimiseUsingCacheWrites then
-                puts "DataStore1: caching nhash: #{nhash}"
+                #puts "DataStore1: caching nhash: #{nhash}"
                 FileUtils.cp(filepath, DataStore1::requestLocalCacheFilepath(nhash)) # Caching the file from Energy Grid into the local cache
             end
             return filepath
@@ -141,7 +141,7 @@ class DataStore1
             next if !File.basename(filepath1).start_with?("SHA256-")
             nhash = File.basename(filepath1)
             filepath2 = DataStore1::computeEnergyGridFilepathErrorIfNotAcquisable(nhash)
-            puts "out buffer to energy grid: #{nhash}"
+            #puts "out buffer to energy grid: #{nhash}"
             if File.exists?(filepath2) then
                 FileUtils.rm(filepath1)
                 next

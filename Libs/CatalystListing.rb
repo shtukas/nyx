@@ -511,6 +511,204 @@ class CatalystListing
         its1 + its2.sort{|i1, i2| PolyFunctions::listingPriority(i1) <=> PolyFunctions::listingPriority(i2) }.reverse
     end
 
+    # CatalystListing::getContextOrNull()
+    # context: a time commitment
+    def self.getContextOrNull()
+        uuid = XCache::getOrNull("7390a691-c8c4-4798-9214-704c5282f5e3")
+        return nil if uuid.nil?
+        Items::getItemOrNull(uuid)
+    end
+
+    # CatalystListing::setContext(uuid)
+    def self.setContext(uuid)
+        XCache::set("7390a691-c8c4-4798-9214-704c5282f5e3", uuid)
+    end
+
+    # CatalystListing::emptyContext()
+    def self.emptyContext()
+        XCache::destroy("7390a691-c8c4-4798-9214-704c5282f5e3")
+    end
+
+    # CatalystListing::mainListing()
+    def self.mainListing()
+
+        system("clear")
+
+        context = CatalystListing::getContextOrNull()
+
+        vspaceleft = CommonUtils::screenHeight() - (context ? 5 : 4)
+
+        vspaceleft =  vspaceleft - CommonUtils::verticalSize(CatalystListing::listingCommands())
+
+        if context.nil? then
+            if Config::get("instanceId") == "Lucille20-pascal" then
+                reference = The99Percent::getReferenceOrNull()
+                current   = The99Percent::getCurrentCount()
+                ratio     = current.to_f/reference["count"]
+                line      = "👩‍💻 🔥 #{current} #{ratio} ( #{reference["count"]} @ #{reference["datetime"]} )"
+                puts ""
+                puts line
+                vspaceleft = vspaceleft - 2
+                if ratio < 0.99 then
+                    The99Percent::issueNewReferenceOrNull()
+                end
+            end
+        else
+            puts ""
+            puts "🚀 Time Commitment 🚀"
+            vspaceleft = vspaceleft - 2
+        end
+
+        store = ItemStore.new()
+
+        if !InternetStatus::internetIsActive() then
+            puts ""
+            puts "INTERNET IS OFF".green
+            vspaceleft = vspaceleft - 2
+        end
+
+        if context then
+
+            PolyActions::start(context)
+
+            puts ""
+            store.register(context, false)
+            line = TxTimeCommitments::toString(context)
+            if NxBallsService::isPresent(context["uuid"]) then
+                line = "#{store.prefixString()} #{line} (#{NxBallsService::activityStringOrEmptyString("", context["uuid"], "")})".green
+            end
+            puts line
+            vspaceleft = vspaceleft - 2
+
+            nx79s = TxTimeCommitments::nx79s(context, CommonUtils::screenHeight())
+            if nx79s.size > 0 then
+                puts ""
+                vspaceleft = vspaceleft - 1
+                nx79s
+                    .each{|nx79|
+                        element = nx79["item"]
+                        PolyActions::dataPrefetchAttempt(element)
+                        indx = store.register(element, false)
+                        line = "#{store.prefixString()} (#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(element)}"
+                        if NxBallsService::isPresent(element["uuid"]) then
+                            line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", element["uuid"], "")})".green
+                        end
+                        puts line
+                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                        break if vspaceleft <= 0
+                    }
+            end
+
+            puts ""
+            puts CatalystListing::listingCommands().yellow
+            puts "commands: set ordinal <n> | ax39 | insert | detach <n> | exit".yellow
+
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+
+            if input == "exit" then
+                if LucilleCore::askQuestionAnswerAsBoolean("You are exiting context. Stop NxBall ? ", true) then
+                    PolyActions::stop(context)
+                end
+                CatalystListing::emptyContext()
+                return
+            end
+
+            if input == "stop 0" then
+                NxBallsService::pause(context["uuid"])
+                return
+            end
+
+            if input.start_with?("set ordinal")  then
+                indx = input[11, 99].strip.to_i
+                entity = store.get(indx)
+                return if entity.nil?
+                ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                TimeCommitmentMapping::link(context["uuid"], entity["uuid"], ordinal)
+                return
+            end
+
+            if input.start_with?("detach")  then
+                indx = input[6, 99].strip.to_i
+                entity = store.get(indx)
+                return if entity.nil?
+                TimeCommitmentMapping::unlink(context["uuid"], entity["uuid"])
+                return
+            end
+
+            if input == "ax39"  then
+                ax39 = Ax39::interactivelyCreateNewAx()
+                ItemsEventsLog::setAttribute2(context["uuid"], "ax39",  ax39)
+                return
+            end
+
+            if input == "insert" then
+                type = LucilleCore::selectEntityFromListOfEntitiesOrNull("type", ["line", "task"])
+                return if type.nil?
+                if type == "line" then
+                    element = NxTasks::interactivelyIssueDescriptionOnlyOrNull()
+                    return if element.nil?
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    TimeCommitmentMapping::link(context["uuid"], element["uuid"], ordinal)
+                end
+                if type == "task" then
+                    element = NxTasks::interactivelyCreateNewOrNull(false)
+                    return if element.nil?
+                    ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+                    TimeCommitmentMapping::link(context["uuid"], element["uuid"], ordinal)
+                end
+                return
+            end
+
+            if (indx = Interpreting::readAsIntegerOrNull(input)) then
+                entity = store.get(indx)
+                return if entity.nil?
+                PolyPrograms::itemLanding(entity)
+                return
+            end
+
+            puts ""
+            CatalystListing::listingCommandInterpreter(input, store)
+
+        else
+
+            nxballs = NxBallsIO::nxballs()
+            if nxballs.size > 0 then
+                puts ""
+                vspaceleft = vspaceleft - 1
+                nxballs
+                    .sort{|t1, t2| t1["unixtime"] <=> t2["unixtime"] }
+                    .each{|nxball|
+                        store.register(nxball, false)
+                        line = "#{store.prefixString()} [NxBall] #{nxball["description"]} (#{NxBallsService::activityStringOrEmptyString("", nxball["uuid"], "")})"
+                        puts line.green
+                        vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                    }
+            end
+
+            puts ""
+            vspaceleft = vspaceleft - 1
+
+            CatalystListing::listingItems()
+                .each{|item|
+                    break if vspaceleft <= 0
+                    store.register(item, true)
+                    line = "#{store.prefixString()} #{PolyFunctions::toString(item)}"
+                    if NxBallsService::isPresent(item["uuid"]) then
+                        line = "#{line} (#{NxBallsService::activityStringOrEmptyString("", item["uuid"], "")})".green
+                    end
+                    puts line
+                    vspaceleft = vspaceleft - CommonUtils::verticalSize(line)
+                }
+
+            puts ""
+            puts CatalystListing::listingCommands().yellow
+            puts ""
+            input = LucilleCore::askQuestionAnswerAsString("> ")
+            return if input == ""
+            CatalystListing::listingCommandInterpreter(input, store)
+        end
+    end
+
     # CatalystListing::program()
     def self.program()
 
@@ -538,25 +736,7 @@ class CatalystListing
                     LucilleCore::removeFileSystemLocation(location)
                 }
 
-            PolyPrograms::catalystMainListing()
+            CatalystListing::mainListing()
         }
-    end
-
-    # CatalystListing::getContextOrNull()
-    # context: a time commitment
-    def self.getContextOrNull()
-        uuid = XCache::getOrNull("7390a691-c8c4-4798-9214-704c5282f5e3")
-        return nil if uuid.nil?
-        Items::getItemOrNull(uuid)
-    end
-
-    # CatalystListing::setContext(uuid)
-    def self.setContext(uuid)
-        XCache::set("7390a691-c8c4-4798-9214-704c5282f5e3", uuid)
-    end
-
-    # CatalystListing::emptyContext()
-    def self.emptyContext()
-        XCache::destroy("7390a691-c8c4-4798-9214-704c5282f5e3")
     end
 end

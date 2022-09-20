@@ -255,7 +255,7 @@ class PolyActions
 
     # PolyActions::stop(item)
     def self.stop(item)
-        puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
+        #puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
         NxBallsService::close(item["uuid"], true)
     end
 
