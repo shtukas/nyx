@@ -8,4 +8,4 @@ NyxNode:
     "description" : description
     "nx113"       : String # nhash to the DataStore1 of the Nx113
 
-NetworkType: "PureData" | "Concept" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"
+NetworkType: "PureData" | "Entity" | "Concept" | "Event" | "Person" | "Collection" | "Timeline"

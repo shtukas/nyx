@@ -139,7 +139,7 @@ class NxTasks
 
     # NxTasks::cacheduuidsForListingItems2()
     def self.cacheduuidsForListingItems2()
-        key = "a13c22c2-468a-412e-902c-62abc030b924"
+        key = "a13c22c2-468a-412e-902c-62abc030b925"
         itemuuids = XCacheValuesWithExpiry::getOrNull(key)
         return itemuuids if itemuuids
 
@@ -149,7 +149,7 @@ class NxTasks
                         .sort{|i1, i2| i1["unixtime"] <=> i2["unixtime"] }
                         .map{|item| item["uuid"] }
 
-        XCacheValuesWithExpiry::set(key, itemuuids, 86400)
+        XCacheValuesWithExpiry::set(key, itemuuids, 3600)
         itemuuids
     end
 
