@@ -62,8 +62,6 @@ class DataStore1
                         }
 
         filepaths1 + filepaths2
-
-        [DataStore1::computeOutGoingBufferFilepath(nhash)]
     end
 
     # DataStore1::acquireFilepathsForWritingNoCommLine(nhash) # Array[filepath]
