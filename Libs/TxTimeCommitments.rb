@@ -94,6 +94,11 @@ class TxTimeCommitments
             }
     end
 
+    # TxTimeCommitments::items()
+    def self.topItems()
+        TxTimeCommitments::items()
+    end
+
     # TxTimeCommitments::listingItems()
     def self.listingItems()
         TxTimeCommitments::items()
@@ -128,7 +133,7 @@ class TxTimeCommitments
             end
             if option == "access" then
                 CatalystListing::setContext(item["uuid"])
-                PolyPrograms::catalystMainListing()
+                CatalystListing::mainListing()
                 break
             end
             if option == "add time" then
