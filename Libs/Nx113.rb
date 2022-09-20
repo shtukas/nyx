@@ -236,7 +236,7 @@ class Nx113Edit
 
         if nx113["type"] == "text" then
             newtext = CommonUtils::editTextSynchronously(nx113["text"])
-            nx113nhash = Nx113Make::text(text)
+            nx113nhash = Nx113Make::text(newtext)
             ItemsEventsLog::setAttribute2(item["uuid"], "nx113", nx113nhash)
         end
 

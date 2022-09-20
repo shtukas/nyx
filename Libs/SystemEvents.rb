@@ -180,6 +180,9 @@ class SystemEvents
                 end
 
                 if File.basename(filepath1) == "items-events-log.sqlite3" then
+                    if verbose then
+                        puts "SystemEvents::processCommsLine: reading: items-events-log.sqlite3"
+                    end
                     db1 = SQLite3::Database.new(filepath1)
                     db1.busy_timeout = 117
                     db1.busy_handler { |count| true }
