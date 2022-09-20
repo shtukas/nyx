@@ -198,6 +198,8 @@ class SystemEvents
                         ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
                     end
                     db1.close
+                    FileUtils.rm(filepath1)
+                    next
                 end
 
                 if File.basename(filepath1)[-13, 13] == ".bank.sqlite3" then
