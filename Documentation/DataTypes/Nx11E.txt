@@ -19,8 +19,13 @@ Nx11E {
 
 Nx11E {
     "mikuType" => "Nx11E"
-    "type"     => "TimeCommitmentCompanion"
-    "tcuuid"   => String
+    "type"     => "Ax39Group"
+    "group"    => {
+        "mikuType" => "Ax39Group"
+        "id"       => String
+        "name"     => String
+        "account"  => String # bank account
+    }
     "position" => Float
 }
 
@@ -29,4 +34,9 @@ Nx11E {
     "type"     => "Ax39Engine"
     "ax39"     => Ax39
     "itemuuid" => String # essentially the bank account
+}
+
+Nx11E {
+    "mikuType" => "Nx11E"
+    "type"     => "standard"
 }

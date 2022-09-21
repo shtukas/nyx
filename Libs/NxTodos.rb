@@ -20,8 +20,9 @@ class NxTodos
         description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
         return nil if description == ""
         uuid       = SecureRandom.uuid
-        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         nx11e      = Nx11E::interactivelyCreateNewNx11EOrNull(uuid)
+        return if nx11e.nil?
+        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
         ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
         ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
         ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
@@ -42,8 +43,7 @@ class NxTodos
 
     # NxTodos::toString(item)
     def self.toString(item)
-        nx11estr = item["nx11e"] ? " (#{Nx11E::toString(item["nx11e"])})" : ""
-        "(todo) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}#{nx11estr}"
+        "(todo) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Nx11E::toString(item["nx11e"])})"
     end
 
     # NxTodos::toStringForSearch(item)

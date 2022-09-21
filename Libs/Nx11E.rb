@@ -4,7 +4,7 @@ class Nx11E
 
     # Nx11E::types()
     def self.types()
-        ["hot", "ordinal", "ondate", "TimeCommitmentCompanion", "Ax39Engine"]
+        ["hot", "ordinal", "ondate", "Ax39Group", "Ax39Engine", "standard"]
     end
 
     # Nx11E::interactivelySelectTypeOrNull()
@@ -40,15 +40,18 @@ class Nx11E
                 "datetime" => datetime
             }
         end
-        if type == "TimeCommitmentCompanion" then
-            pair = TxTimeCommitments::interactivelySelectTxTimeCommitmentAndOrdinalOrNull()
-            return nil if pair.nil?
-            tcuuid = pair[0]["uuid"]
-            position = pair[1]
+        if type == "Ax39Group" then
+            group = {
+                "id"       => "338b688b-5b45-447c-8445-df3ec389e9c3"
+                "mikuType" => "Ax39Group"
+                "name"     => "default"
+                "account"  => "627fc35e-b0c3-4d3c-960d-9d0dd7787182"
+            }
+            position = 0
             return {
                 "mikuType" => "Nx11E",
-                "type"     => "TimeCommitmentCompanion",
-                "tcuuid"   => tcuuid,
+                "type"     => "Ax39Group",
+                "group"    => group,
                 "position" => position
             }
         end
@@ -60,6 +63,12 @@ class Nx11E
                 "type"     => "Ax39Engine",
                 "ax39"     => ax39,
                 "itemuuid" => itemuuid
+            }
+        end
+        if type == "standard" then
+            return {
+                "mikuType" => "Nx11E",
+                "type"     => "standard"
             }
         end
     end

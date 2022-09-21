@@ -135,9 +135,10 @@ class PolyFunctions
         # fitness1                      : 0.75
         # Nx11E ondate                  : 0.70
         # TxDated                       : 0.70
-        # Nx11E TimeCommitmentCompanion : 0.60
+        # Nx11E Ax39Group               : 0.60
         # Nx11E Ax39Engine              : 0.50 (or 0.2 if above completion)
         # Wave (low priority)           : 0.40
+        # Nx11E standard                : 0.20 
 
         # NxTask
         # NxTodo 0.4 or Nx11E derived value
@@ -177,10 +178,8 @@ class PolyFunctions
                 return 0.70 # TODO: take account of the datetime
             end
 
-            if item["type"] == "TimeCommitmentCompanion" then
-                tc = Items::getItemOrNull(item["tcuuid"])
-                # TODO: what happens if tc.nil?
-                return PolyFunctions::listingPriority(tc) # TODO: take account of the position
+            if item["type"] == "Ax39Group" then
+                return 0.60
             end
 
             if item["type"] == "Ax39Engine" then
@@ -192,7 +191,11 @@ class PolyFunctions
                 end
             end
 
-            raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1)"
+            if item["type"] == "standard" then
+                return 0.20
+            end
+
+            raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) item: #{item}"
         end
 
         if item["mikuType"] == "NxTask" then
