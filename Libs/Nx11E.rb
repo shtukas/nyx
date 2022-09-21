@@ -42,9 +42,9 @@ class Nx11E
         end
         if type == "Ax39Group" then
             group = {
-                "id"       => "338b688b-5b45-447c-8445-df3ec389e9c3"
-                "mikuType" => "Ax39Group"
-                "name"     => "default"
+                "id"       => "338b688b-5b45-447c-8445-df3ec389e9c3",
+                "mikuType" => "Ax39Group",
+                "name"     => "default",
                 "account"  => "627fc35e-b0c3-4d3c-960d-9d0dd7787182"
             }
             position = 0
