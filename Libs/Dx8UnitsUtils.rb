@@ -10,7 +10,7 @@ class Dx8UnitsUtils
 
     # Dx8UnitsUtils::orbitalMultiInstnceRepository()
     def self.orbitalMultiInstnceRepository()
-        "#{Config::userHomeDirectory()}/Galaxy/Orbital/02-Multi-Instance-Shared/Encyclopedia/Dx8Units"
+        "#{Config::userHomeDirectory()}/Galaxy/DataHub/Dx8Units"
     end
 
     # Dx8UnitsUtils::attemptRepository()
