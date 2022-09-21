@@ -24,6 +24,7 @@ Nx11E {
         "mikuType" => "Ax39Group"
         "id"       => String
         "name"     => String
+        "ax39"     => Ax39
         "account"  => String # bank account
     }
     "position" => Float

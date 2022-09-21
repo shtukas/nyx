@@ -165,37 +165,7 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "Nx11E" then
-
-            if item["type"] == "hot" then
-                return 0.90
-            end
-
-            if item["type"] == "ordinal" then
-                return 0.80 # TODO: take account of the ordinal
-            end
-
-            if item["type"] == "ondate" then
-                return 0.70 # TODO: take account of the datetime
-            end
-
-            if item["type"] == "Ax39Group" then
-                return 0.60
-            end
-
-            if item["type"] == "Ax39Engine" then
-                cr = Ax39Extensions::completionRatio(item["ax39"], item["itemuuid"])
-                if cr < 1 then
-                    return 0.50 + 0.2*(1-cr)
-                else
-                    return 0.20
-                end
-            end
-
-            if item["type"] == "standard" then
-                return 0.20
-            end
-
-            raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) item: #{item}"
+            Nx11E::priority(item)
         end
 
         if item["mikuType"] == "NxTask" then
