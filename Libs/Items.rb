@@ -148,9 +148,12 @@ class Items
         Items::updateIndexWithThisObjectAttempt(item)
     end
 
-    # Items::batchUpdateFromEventLog()
-    def self.batchUpdateFromEventLog()
+    # Items::batchUpdateFromEventLog(verbose)
+    def self.batchUpdateFromEventLog(verbose)
         ItemsEventsLog::objectuuids().each{|objectuuid|
+            if verbose then
+                puts "Items::batchUpdateFromEventLog(#{verbose}): objectuuid: #{objectuuid}"
+            end
             Items::updateIndexAtObjectAttempt(objectuuid)
         }
     end

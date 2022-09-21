@@ -1,0 +1,9 @@
+
+NxTodo:
+    "uuid"        : String
+    "mikuType"    : "NxTodo"
+    "unixtime"    : Float
+    "datetime"    : DateTime Iso 8601 UTC Zulu
+    "description" : String
+    "nx113"       : String # optional; nhash to the DataStore1 of the Nx113
+    "nx11e"       : Nx11E  # optional; driver

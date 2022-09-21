@@ -2,76 +2,75 @@
 
 class Nx11E
 
-=begin
-
-Nx11Engine {
-    "mikuType" => "Nx11Engine"
-    "type"     => "ondate"
-    "datetime" => DateTime # the date decides the date it shows up. 
-                           # The DateTime is used for ordering, priotorization
-}
-
-Nx11Engine {
-    "type"    => "ordinal"
-    "ordinal" => Float
-}
-
-Nx11Engine {
-    "type"    => "hot"
-}
-
-Nx11Engine {
-    "type"    => "hot"
-}
-
-Nx11Engine {
-    "type"     => "TimeCommitmentCompanion"
-    "tcuuid"   => String
-    "position" => Float
-}
-
-Nx11Engine {
-    "type"     => "SelfDrive"
-    "ax39"     => Ax39
-    "itemuuid" => String # essentially the bank account
-}
-=end
-
     # Nx11E::types()
     def self.types()
-        ["daily-singleton-run", "daily-time-commitment", "weekly-time-commitment"]
+        ["hot", "ordinal", "ondate", "TimeCommitmentCompanion", "Ax39Engine"]
     end
 
     # Nx11E::interactivelySelectTypeOrNull()
     def self.interactivelySelectTypeOrNull()
-        LucilleCore::selectEntityFromListOfEntitiesOrNull("type:", Nx11E::types())
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("type (none to abort):", Nx11E::types())
     end
 
-    # Nx11E::interactivelyCreateNewAxOrNull()
-    def self.interactivelyCreateNewAxOrNull()
+    # Nx11E::interactivelyCreateNewNx11EOrNull(itemuuid)
+    def self.interactivelyCreateNewNx11EOrNull(itemuuid)
         type = Nx11E::interactivelySelectTypeOrNull()
         return nil if type.nil?
-        if type == "daily-singleton-run" then
+        if type == "hot" then
             return {
-                "type" => "daily-singleton-run"
+                "mikuType" => "Nx11E",
+                "type"     => "hot"
             }
         end
-        if type == "daily-time-commitment" then
-            hours = LucilleCore::askQuestionAnswerAsString("daily hours : ")
-            return nil if hours == ""
+        if type == "ordinal" then
+            ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty to abort): ")
+            return nil if ordinal == ""
             return {
-                "type"  => "daily-time-commitment",
-                "hours" => hours.to_f
+                "mikuType" => "Nx11E",
+                "type"     => "ordinal",
+                "ordinal"  => ordinal
             }
         end
-        if type == "weekly-time-commitment" then
-            hours = LucilleCore::askQuestionAnswerAsString("weekly hours : ")
-            return nil if hours == ""
+        if type == "ondate" then
+            datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
+            return nil if datetime.nil?
             return {
-                "type"  => "weekly-time-commitment",
-                "hours" => hours.to_f
+                "mikuType" => "Nx11E",
+                "type"     => "ondate",
+                "datetime" => datetime
+            }
+        end
+        if type == "TimeCommitmentCompanion" then
+            pair = TxTimeCommitments::interactivelySelectTxTimeCommitmentAndOrdinalOrNull()
+            return nil if pair.nil?
+            tcuuid = pair[0]["uuid"]
+            position = pair[1]
+            return {
+                "mikuType" => "Nx11E",
+                "type"     => "TimeCommitmentCompanion",
+                "tcuuid"   => tcuuid,
+                "position" => position
+            }
+        end
+        if type == "Ax39Engine" then
+            ax39 = Ax39::interactivelyCreateNewAxOrNull()
+            return nil if ax39.nil?
+            return {
+                "mikuType" => "Nx11E",
+                "type"     => "Ax39Engine",
+                "ax39"     => ax39,
+                "itemuuid" => itemuuid
             }
         end
     end
 
+    # Nx11E::toString(nx11e)
+    def self.toString(nx11e)
+        nx11e.to_s
+    end
+
+    # Nx11E::priority(nx11e)
+    def self.priority(nx11e)
+        0.8
+    end
 end

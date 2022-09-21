@@ -269,6 +269,21 @@ class TxTimeCommitments
                 next
             end
         }
+    end
 
+    # TxTimeCommitments::interactivelySelectTxTimeCommitmentAndOrdinalOrNull()
+    def self.interactivelySelectTxTimeCommitmentAndOrdinalOrNull()
+        owner = TxTimeCommitments::architectOneOrNull()
+        return nil if owner.nil?
+        puts PolyFunctions::toString(owner).green
+        nx79s = TxTimeCommitments::nx79s(owner, CommonUtils::screenHeight()-2)
+        nx79s
+            .each{|nx79|
+                e = nx79["item"]
+                puts "(#{"%6.2f" % nx79["ordinal"]}) #{PolyFunctions::toString(e)}"
+            }
+
+        ordinal = LucilleCore::askQuestionAnswerAsString("ordinal: ").to_f
+        [owner, ordinal]
     end
 end

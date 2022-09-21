@@ -1,0 +1,32 @@
+
+Nx11E {
+    "mikuType" => "Nx11E"
+    "type"    => "hot"
+}
+
+Nx11E {
+    "mikuType" => "Nx11E"
+    "type"    => "ordinal"
+    "ordinal" => Float
+}
+
+Nx11E {
+    "mikuType" => "Nx11E"
+    "type"     => "ondate"
+    "datetime" => DateTime # the date decides the date it shows up. 
+                           # The DateTime is used for ordering, priotorization
+}
+
+Nx11E {
+    "mikuType" => "Nx11E"
+    "type"     => "TimeCommitmentCompanion"
+    "tcuuid"   => String
+    "position" => Float
+}
+
+Nx11E {
+    "mikuType" => "Nx11E"
+    "type"     => "Ax39Engine"
+    "ax39"     => Ax39
+    "itemuuid" => String # essentially the bank account
+}

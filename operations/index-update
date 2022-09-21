@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-Items::batchUpdateFromEventLog()
+Items::batchUpdateFromEventLog(true)

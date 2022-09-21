@@ -373,11 +373,9 @@ class CatalystListing
         end
 
         if Interpreting::match("todo", input) then
-            item = NxTasks::interactivelyCreateNewOrNull(true)
+            item = NxTodos::interactivelyCreateNewOrNull()
             return if item.nil?
-            if item["ax39"].nil? then
-                TxTimeCommitments::interactivelyAddThisElementToOwnerOrNothing(item)
-            end
+            puts JSON.pretty_generate(item)
             return
         end
 
@@ -500,7 +498,8 @@ class CatalystListing
             Waves::listingItems(false),
             TxDateds::listingItems(),
             NxTasks::listingItems1(),
-            NxTasks::listingItems2TimeCommitments()
+            NxTasks::listingItems2TimeCommitments(),
+            NxTodos::listingItems()
         ]
             .flatten
             .select{|item| DoNotShowUntil::isVisible(item["uuid"]) or NxBallsService::isPresent(item["uuid"]) }

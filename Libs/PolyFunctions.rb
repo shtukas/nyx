@@ -25,6 +25,10 @@ class PolyFunctions
             return Waves::edit(item)
         end
 
+        if item["mikuType"] == "NxTodo" then
+            return NxTodos::edit(item)
+        end
+
         puts "I do not know how to PolyFunctions::edit(#{JSON.pretty_generate(item)})"
         raise "(error: 628167a9-f6c9-4560-bdb0-4b0eb9579c86)"
     end
@@ -95,6 +99,9 @@ class PolyFunctions
         if item["mikuType"] == "NxTask" then
             return item["description"]
         end
+        if item["mikuType"] == "NxTodo" then
+            return item["description"]
+        end
         if item["mikuType"] == "TxFloat" then
             return item["description"]
         end
@@ -121,6 +128,23 @@ class PolyFunctions
     # PolyFunctions::listingPriority(item)
     def self.listingPriority(item) # Float between 0 and 1
 
+        # NxAnniversary                 : 0.95
+        # Nx11E hot                     : 0.90
+        # Wave (priority)               : 0.90
+        # Nx11E ordinal                 : 0.80
+        # fitness1                      : 0.75
+        # Nx11E ondate                  : 0.70
+        # TxDated                       : 0.70
+        # Nx11E TimeCommitmentCompanion : 0.60
+        # Nx11E Ax39Engine              : 0.50 (or 0.2 if above completion)
+        # Wave (low priority)           : 0.40
+
+        # NxTask
+        # NxTodo 0.4 or Nx11E derived value
+        # TxTimeCommitment (not diplayed)
+
+        # Wave
+
         shiftOnDateTime = lambda {|item, datetime|
             0.01*(Time.new.to_f - DateTime.parse(datetime).to_time.to_f)/86400
         }
@@ -132,11 +156,43 @@ class PolyFunctions
         # ordering: alphabetical order
 
         if item["mikuType"] == "fitness1" then
-            return 0.8
+            return 0.75
         end
 
         if item["mikuType"] == "NxAnniversary" then
-            return 0.9
+            return 0.95
+        end
+
+        if item["mikuType"] == "Nx11E" then
+
+            if item["type"] == "hot" then
+                return 0.90
+            end
+
+            if item["type"] == "ordinal" then
+                return 0.80 # TODO: take account of the ordinal
+            end
+
+            if item["type"] == "ondate" then
+                return 0.70 # TODO: take account of the datetime
+            end
+
+            if item["type"] == "TimeCommitmentCompanion" then
+                tc = Items::getItemOrNull(item["tcuuid"])
+                # TODO: what happens if tc.nil?
+                return PolyFunctions::listingPriority(tc) # TODO: take account of the position
+            end
+
+            if item["type"] == "Ax39Engine" then
+                cr = Ax39Extensions::completionRatio(item["ax39"], item["itemuuid"])
+                if cr < 1 then
+                    return 0.50 + 0.2*(1-cr)
+                else
+                    return 0.20
+                end
+            end
+
+            raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1)"
         end
 
         if item["mikuType"] == "NxTask" then
@@ -146,16 +202,23 @@ class PolyFunctions
                 cr = Ax39Extensions::completionRatio(item["ax39"], item["uuid"]) # always defined with this Miku type
                 return 0.5 + 0.5*(1-cr) # 1 when not started, 0.5 when done
             end
-            
+        end
+
+        if item["mikuType"] == "NxTodo" then
+            if item["nx11e"] then
+                return PolyFunctions::listingPriority(item["nx11e"])
+            else
+                return 0.4
+            end
         end
 
         if item["mikuType"] == "TxTimeCommitment" then
             cr = Ax39Extensions::completionRatio(item["ax39"], item["uuid"]) # always defined with this Miku type
-            return 0.5 + 0.5*(1-cr) # 1 when not started, 0.5 when done
+            return 0.5 + 0.2*(1-cr) # 1 when not started, 0.5 when done
         end
 
         if item["mikuType"] == "TxDated" then
-            return 1 + shiftOnDateTime.call(item, item["datetime"])
+            return 0.70 + shiftOnDateTime.call(item, item["datetime"])
         end
 
         if item["mikuType"] == "Wave" then
@@ -183,6 +246,9 @@ class PolyFunctions
         end
         if item["mikuType"] == "NxTask" then
             return NxTasks::toString(item)
+        end
+        if item["mikuType"] == "NxTodo" then
+            return NxTodos::toString(item)
         end
         if item["mikuType"] == "NyxNode" then
             return NyxNodes::toString(item)

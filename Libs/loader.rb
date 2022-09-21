@@ -224,6 +224,7 @@ require_relative "NetworkArrows.rb"
 require_relative "Nx113.rb"
 require_relative "NyxNodes.rb"
 require_relative "Nx11E.rb"
+require_relative "NxTodos.rb"
 
 require_relative "TimeCommitmentMapping.rb"
 
@@ -252,38 +253,6 @@ require_relative "Waves.rb"
 
 require_relative "XCacheDatablobs.rb"
 require_relative "XCacheValuesWithExpiry.rb"
-
-# ------------------------------------------------------------
-
-filepath = "#{ENV['HOME']}/Galaxy/DataBank/Stargate/items-events-log.sqlite3"
-if !File.exists?(filepath) then
-    db = SQLite3::Database.new(filepath)
-    db.busy_timeout = 117
-    db.busy_handler { |count| true }
-    db.results_as_hash = true
-    db.execute("create table _events_ (_objectuuid_ text, _eventuuid_ text primary key, _eventTime_ float, _attname_ text, _attvalue_ blob)", [])
-    db.close
-    Find.find("#{ENV['HOME']}/Galaxy/DataBank/Stargate/DxF1s") do |path|
-        next if !File.file?(path)
-        next if !path.include?(".dxf1.sqlite3")
-        dxf1filepath = path
-        puts "importing #{dxf1filepath}"
-        db = SQLite3::Database.new(dxf1filepath)
-        db.busy_timeout = 117
-        db.busy_handler { |count| true }
-        db.results_as_hash = true
-        db.execute("select * from _dxf1_ where _eventType_=? order by _eventTime_", ["attribute"]) do |row|
-            objectuuid = row["_objectuuid_"] 
-            eventuuid  = row["_eventuuid_"]
-            eventTime  = row["_eventTime_"]
-            attname    = row["_name_"]
-            attvalue   = JSON.parse(row["_value_"])
-            ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
-        end
-        db.close
-        FileUtils.rm(dxf1filepath)
-    end
-end
 
 # ------------------------------------------------------------
 
