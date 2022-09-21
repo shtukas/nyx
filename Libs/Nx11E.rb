@@ -68,7 +68,8 @@ class Nx11E
         if type == "standard" then
             return {
                 "mikuType" => "Nx11E",
-                "type"     => "standard"
+                "type"     => "standard",
+                "unixtime" => Time.new.to_f
             }
         end
     end

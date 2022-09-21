@@ -39,4 +39,5 @@ Nx11E {
 Nx11E {
     "mikuType" => "Nx11E"
     "type"     => "standard"
+    "unixtime" => Float
 }
