@@ -19,7 +19,8 @@ class Nx11E
         if type == "hot" then
             return {
                 "mikuType" => "Nx11E",
-                "type"     => "hot"
+                "type"     => "hot",
+                "unixtime" => Time.new.to_f
             }
         end
         if type == "ordinal" then
@@ -87,12 +88,16 @@ class Nx11E
     # Nx11E::priority(item)
     def self.priority(item)
 
+        shiftForUnixtimeOrdering = lambda {|unixtime|
+            Math.atan(Time.new.to_f - unixtime).to_f/100
+        }
+
         if item["mikuType"] != "Nx11E" then
-            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) item: #{item}"
+            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) This function only takes Nx11Es, item: #{item}"
         end
 
         if item["type"] == "hot" then
-            return 0.90
+            return 0.90 + shiftForUnixtimeOrdering.call(unixtime)
         end
 
         if item["type"] == "ordinal" then
@@ -126,7 +131,7 @@ class Nx11E
 
         if item["type"] == "standard" then
             unixtime = item["unixtime"]
-            return 0.40 + Math.atan(Time.new.to_f - unixtime).to_f/100
+            return 0.40 + shiftForUnixtimeOrdering.call(unixtime)
         end
 
         raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) item: #{item}"

@@ -1,7 +1,8 @@
 
 Nx11E {
     "mikuType" => "Nx11E"
-    "type"    => "hot"
+    "type"     => "hot"
+    "unixtime" => Float
 }
 
 Nx11E {
