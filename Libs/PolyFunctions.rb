@@ -165,7 +165,7 @@ class PolyFunctions
         end
 
         if item["mikuType"] == "Nx11E" then
-            Nx11E::priority(item)
+            return Nx11E::priority(item)
         end
 
         if item["mikuType"] == "NxTask" then

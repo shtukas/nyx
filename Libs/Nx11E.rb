@@ -97,6 +97,7 @@ class Nx11E
         end
 
         if item["type"] == "hot" then
+            unixtime = item["unixtime"] || 0 # TODO: the first one created was missing it
             return 0.90 + shiftForUnixtimeOrdering.call(unixtime)
         end
 
