@@ -1,7 +1,8 @@
 
 Nx11E {
     "mikuType" => "Nx11E"
-    "type"    => "hot"
+    "type"     => "hot"
+    "unixtime" => Float
 }
 
 Nx11E {
@@ -24,6 +25,7 @@ Nx11E {
         "mikuType" => "Ax39Group"
         "id"       => String
         "name"     => String
+        "ax39"     => Ax39
         "account"  => String # bank account
     }
     "position" => Float
@@ -39,4 +41,5 @@ Nx11E {
 Nx11E {
     "mikuType" => "Nx11E"
     "type"     => "standard"
+    "unixtime" => Float
 }

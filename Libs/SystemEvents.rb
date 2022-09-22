@@ -41,6 +41,7 @@ class SystemEvents
         if event["mikuType"] == "NxDeleted" then
             objectuuid = event["objectuuid"]
             ItemsEventsLog::deleteObjectNoEvents(objectuuid)
+            Items::destroy(objectuuid)
         end
 
         if event["mikuType"] == "AttributeUpdate" then
@@ -63,11 +64,6 @@ class SystemEvents
             key = event["key"]
             value = event["value"]
             XCache::set(key, value)
-        end
-
-        if event["mikuType"] == "NxFileDeletion" then
-            objectuuid = event["objectuuid"]
-            ItemsEventsLog::deleteObjectNoEvents(objectuuid)
         end
 
         if event["mikuType"] == "XCacheFlag" then

@@ -228,11 +228,10 @@ class NyxNodes
             end
 
             puts ""
-            commands = [
-                "<n> | access | description | name | datetime | nx112 | edit | transmute | expose | destroy",
-                "link | child | parent | upload | parents>related | parents>children | related>children | related>parents",
-            ]
-            puts commands.join(" | ").yellow
+            puts "<n> | access | description | name | datetime | nx113 | edit | transmute | expose | destroy".yellow
+            puts "link | child | parent | upload".yellow
+            puts "[link type update] parents>related | parents>children | related>children | related>parents".yellow
+            puts "[network shape] select children; move to selected child".yellow
             puts ""
             input = LucilleCore::askQuestionAnswerAsString("> ")
             return if input == ""
@@ -244,33 +243,13 @@ class NyxNodes
                 next
             end
 
-            if Interpreting::match("parents>children", input) then
-                NetworkArrows::recastSelectedParentsAsChildren(item)
-                next
-            end
-
-            if Interpreting::match("parents>related", input) then
-                NetworkArrows::recastSelectedParentsAsRelated(item)
-                next
-            end
-
-            if Interpreting::match("related>children", input) then
-                NetworkArrows::recastSelectedLinkedAsChildren(item)
-                next
-            end
-
-            if Interpreting::match("related>parents", input) then
-                NetworkArrows::recastSelectedLinkedAsParents(item)
-                next
-            end
-
             if Interpreting::match("access", input) then
                 PolyActions::access(item)
                 next
             end
 
             if input == "child" then
-                NetworkArrows::architectureAndSetAsChild(item)
+                NetworkShapeAroundNode::architectureAndSetAsChild(item)
                 next
             end
 
@@ -317,7 +296,7 @@ class NyxNodes
             end
 
             if input == "parent" then
-                NetworkArrows::architectureAndSetAsParent(item)
+                NetworkShapeAroundNode::architectureAndSetAsParent(item)
                 next
             end
 
@@ -333,6 +312,31 @@ class NyxNodes
 
             if input == "upload" then
                 Upload::interactivelyUploadToItem(item)
+                next
+            end
+
+            if Interpreting::match("parents>children", input) then
+                NetworkShapeAroundNode::selectParentsAndRecastAsChildren(item)
+                next
+            end
+
+            if Interpreting::match("parents>related", input) then
+                NetworkShapeAroundNode::selectParentsAndRecastAsRelated(item)
+                next
+            end
+
+            if Interpreting::match("related>children", input) then
+                NetworkShapeAroundNode::selectLinkedsAndRecastAsChildren(item)
+                next
+            end
+
+            if Interpreting::match("related>parents", input) then
+                NetworkShapeAroundNode::selectLinkedAndRecastAsParents(item)
+                next
+            end
+
+            if Interpreting::match("select children; move to selected child", input) then
+                NetworkShapeAroundNode::selectChildrenAndSelectTargetChildAndMove(item)
                 next
             end
         }

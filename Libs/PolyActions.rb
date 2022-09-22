@@ -250,7 +250,18 @@ class PolyActions
     def self.start(item)
         #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
         return if NxBallsService::isRunning(item["uuid"])
-        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), [item["uuid"]], PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
+        accounts = []
+        accounts << item["uuid"]
+        if item["mikuType"] == "NxTodo" then
+            nx11e = item["nx11e"]
+            if nx11e["type"] == "Ax39Group" then
+                accounts << nx11e["group"]["account"] # We also register the group account
+            end
+            if nx11e["type"] == "Ax39Engine" then
+                # There is a itemuuid here, but it is the same as the item["uuid"] itself
+            end
+        end
+        NxBallsService::issue(item["uuid"], PolyFunctions::toString(item), accounts, PolyFunctions::timeBeforeNotificationsInHours(item)*3600)
     end
 
     # PolyActions::stop(item)
