@@ -177,7 +177,6 @@ class FileSystemCheck
 
         if mikuType == "TxDated" then
             ensureAttribute.call("description")
-            # ensureAttribute.call("nx112") # optional
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             return
         end

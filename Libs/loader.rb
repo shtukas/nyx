@@ -224,6 +224,7 @@ require_relative "Nx113.rb"
 require_relative "NyxNodes.rb"
 require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
+require_relative "NetworkShapeAroundNode.rb"
 
 require_relative "TimeCommitmentMapping.rb"
 
