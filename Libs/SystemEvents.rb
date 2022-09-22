@@ -41,6 +41,7 @@ class SystemEvents
         if event["mikuType"] == "NxDeleted" then
             objectuuid = event["objectuuid"]
             ItemsEventsLog::deleteObjectNoEvents(objectuuid)
+            Items::destroy(objectuuid)
         end
 
         if event["mikuType"] == "AttributeUpdate" then
