@@ -4,7 +4,7 @@ class NxDeleted
 
     # NxDeleted::deleteObjectNoEvents(objectuuid)
     def self.deleteObjectNoEvents(objectuuid)
-        ItemsEventsLog::addNxDeletedMarkerNoEvents(objectuuid)
+        ItemsEventsLog::deleteObjectNoEvents(objectuuid)
         Items::deleteObjectNoEvents(objectuuid)
     end
 

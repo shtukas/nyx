@@ -15,4 +15,3 @@ Misc:
     Nx20      # Search Item
     Nx79      # Ownership inventory item
     NxBall.v2 # Running data
-    NxDeleted #
