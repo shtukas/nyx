@@ -156,7 +156,7 @@ class Items
         objectuuidsFromTheEventLog = []
         ItemsEventsLog::objectuuids().each{|objectuuid|
             if verbose then
-                puts "Items::syncWithEventLog(#{verbose}): objectuuid: #{objectuuid}"
+                puts "Items::syncWithEventLog(#{verbose}) @ objectuuid: #{objectuuid}"
             end
             status = Items::updateIndexAtObjectAttempt(objectuuid)
             if status then
