@@ -175,12 +175,6 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "TxDated" then
-            ensureAttribute.call("description")
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
-            return
-        end
-
         if mikuType == "TxTimeCommitment" then
             ensureAttribute.call("ax39")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])

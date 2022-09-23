@@ -23,8 +23,8 @@ class PolyPrograms
             return
         end
 
-        if item["mikuType"] == "TxDated" then
-            TxDateds::landing(item)
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::landing(item)
             return
         end
 

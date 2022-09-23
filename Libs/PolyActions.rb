@@ -36,8 +36,8 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxDated" then
-            TxDateds::access(item)
+        if item["mikuType"] == "NxTodo" then
+            NxTodos::access(item)
             return
         end
 
@@ -141,9 +141,9 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "TxDated" then
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy TxDated '#{item["description"].green}' ? ", true) then
-                TxDateds::destroy(item["uuid"])
+        if item["mikuType"] == "NxTodo" then
+            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
+                NxTodos::destroy(item["uuid"])
             end
             return
         end
@@ -225,18 +225,6 @@ class PolyActions
         return if i2.nil?
         puts JSON.pretty_generate(i2)
         NetworkLinks::link(item["uuid"], i2["uuid"])
-    end
-
-    # PolyActions::redate(item)
-    def self.redate(item)
-        if item["mikuType"] == "TxDated" then
-            datetime = (CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode() || Time.new.utc.iso8601)
-            ItemsEventsLog::setAttribute2(item["uuid"], "datetime", datetime)
-            return
-        end
-
-        puts "I do not know how to PolyActions::redate(#{JSON.pretty_generate(item)})"
-        raise "(error: bfc8c526-b23a-4d38-bc47-40d3733b4044)"
     end
 
     # PolyActions::setNx113(item)

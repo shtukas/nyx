@@ -38,12 +38,48 @@ class NxTodos
         item
     end
 
+    # NxTodos::interactivelyCreateNewOndateOrNull(datetime = nil)
+    def self.interactivelyCreateNewOndateOrNull(datetime = nil)
+        description = LucilleCore::askQuestionAnswerAsString("description (empty to abort): ")
+        return nil if description == ""
+
+        if datetime.nil? then
+             datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
+             # TODO: we could also have an interactive builder that always returns a non null value
+             if datetime.nil? then
+                datetime = Time.new.utc.iso8601
+             end
+        end
+
+        uuid = SecureRandom.uuid
+        nx113nhash = Nx113Make::interactivelyIssueNewNx113OrNullReturnDataBase1Nhash()
+        nx11e      = Nx11E::makeOndate(datetime)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601) # This is the object datetime, not the engine datetime (back during the TxDated era they used to be the same)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        item = Items::getItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: 06f11b6f-7d31-411b-b3bf-7b1115a756a9) How did that happen ? 🤨"
+        end
+        item
+    end
+
+    # NxTodos::interactivelyCreateNewTodayOrNull()
+    def self.interactivelyCreateNewTodayOrNull()
+        NxTodos::interactivelyCreateNewOndateOrNull(Time.new.utc.iso8601)
+    end
+
     # --------------------------------------------------
     # Data
 
     # NxTodos::toString(item)
     def self.toString(item)
-        "(todo) #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")} (#{Nx11E::toString(item["nx11e"])})"
+        "(todo) #{Nx11E::toString(item["nx11e"])} #{item["description"]}#{Nx113Access::toStringOrNull(" ", item["nx113"], "")}"
     end
 
     # NxTodos::toStringForSearch(item)
@@ -54,6 +90,12 @@ class NxTodos
     # NxTodos::listingItems()
     def self.listingItems()
         Items::mikuTypeToItems("NxTodo")
+    end
+
+    # NxTodos::itemsOndates()
+    def self.itemsOndates()
+        NxTodos::items()
+            .select{|item| item["nx11e"]["type"] == "ondate" }
     end
 
     # --------------------------------------------------
@@ -99,13 +141,14 @@ class NxTodos
             puts "uuid: #{item["uuid"]}".yellow
             puts "unixtime: #{item["unixtime"]}".yellow
             puts "datetime: #{item["datetime"]}".yellow
+            puts "Nx11E: #{JSON.pretty_generate(item["nx11e"])}".yellow
 
             puts ""
-            puts "description | access | start | stop | edit | done | do not show until | redate | nx113 | expose | destroy | nyx".yellow
+            puts "description | access | start | stop | engine | edit | nx113 | done | do not show until | expose | destroy | nyx".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
-            next if input == ""
+            return if input == ""
 
             # ordering: alphabetical
 
@@ -141,39 +184,52 @@ class NxTodos
 
             if Interpreting::match("edit", input) then
                 item = PolyFunctions::edit(item)
-                return
+                next
+            end
+
+            if Interpreting::match("engine", input) then
+                engine = Nx11E::interactivelyCreateNewNx11EOrNull(item["uuid"])
+                next if engine.nil?
+                ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", engine)
+                next
             end
 
             if Interpreting::match("expose", input) then
                 puts JSON.pretty_generate(item)
                 LucilleCore::pressEnterToContinue()
-                return
+                next
             end
 
             if Interpreting::match("nx113", input) then
                 PolyActions::setNx113(item)
-                return
+                next
             end
 
             if Interpreting::match("nyx", input) then
                 Nyx::program()
-                return
-            end
-
-            if Interpreting::match("redate", input) then
-                PolyActions::redate(item)
-                return
+                next
             end
 
             if Interpreting::match("start", input) then
                 PolyActions::start(item)
-                return
+                next
             end
 
             if Interpreting::match("stop", input) then
                 PolyActions::stop(item)
-                return
+                next
             end
+        }
+    end
+
+    # NxTodos::diveOndates()
+    def self.diveOndates()
+        loop {
+            system("clear")
+            items = NxTodos::itemsOndates().sort{|i1, i2| i1["nx11e"]["datetime"] <=> i2["nx11e"]["datetime"] }
+            item = LucilleCore::selectEntityFromListOfEntitiesOrNull("dated", items, lambda{|item| NxTodos::toString(item) })
+            break if item.nil?
+            PolyPrograms::itemLanding(item)
         }
     end
 end

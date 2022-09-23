@@ -242,7 +242,7 @@ class Waves
             puts "datetime: #{item["datetime"]}".yellow
 
             puts ""
-            puts "description | access | start | stop | edit | done | do not show until | redate | nx113 | expose | destroy | nyx".yellow
+            puts "description | access | start | stop | edit | done | do not show until | nx113 | expose | destroy | nyx".yellow
             puts ""
 
             input = LucilleCore::askQuestionAnswerAsString("> ")
@@ -298,11 +298,6 @@ class Waves
 
             if Interpreting::match("nyx", input) then
                 Nyx::program()
-                next
-            end
-
-            if Interpreting::match("redate", input) then
-                PolyActions::redate(item)
                 next
             end
 
