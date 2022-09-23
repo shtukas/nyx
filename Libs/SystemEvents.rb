@@ -175,7 +175,7 @@ class SystemEvents
                     next
                 end
 
-                if File.basename(filepath1) == "items-events-log.sqlite3" then
+                if CommonUtils::ends_with?(File.basename(filepath1), "items-events-log.sqlite3") then
                     if verbose then
                         puts "SystemEvents::processCommsLine: reading: items-events-log.sqlite3"
                     end
