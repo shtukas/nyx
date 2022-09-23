@@ -126,12 +126,12 @@ class Items
         unixtime   = item["unixtime"]
         mikuType   = item["mikuType"]
 
-        return if objectuuid.nil?
-        return if unixtime.nil?
-        return if mikuType.nil?
+        return false if objectuuid.nil?
+        return false if unixtime.nil?
+        return false if mikuType.nil?
 
         announce = PolyFunctions::genericDescription(item)
-        return if announce.nil?
+        return false if announce.nil?
 
         db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
@@ -140,22 +140,36 @@ class Items
         db.execute "delete from _index_ where _objectuuid_=?", [objectuuid]
         db.execute "insert into _index_ (_objectuuid_, _unixtime_, _mikuType_, _announce_, _item_) values (?, ?, ?, ?, ?)", [objectuuid, unixtime, mikuType, announce, JSON.generate(item)]
         db.close
+
+        true
     end
 
     # Items::updateIndexAtObjectAttempt(objectuuid)
     def self.updateIndexAtObjectAttempt(objectuuid)
         item = ItemsEventsLog::getProtoItemOrNull(objectuuid)
-        return if item.nil?
+        return false if item.nil?
         Items::updateIndexWithThisObjectAttempt(item)
     end
 
-    # Items::batchUpdateFromEventLog(verbose)
-    def self.batchUpdateFromEventLog(verbose)
+    # Items::syncWithEventLog(verbose)
+    def self.syncWithEventLog(verbose)
+        objectuuidsFromTheEventLog = []
         ItemsEventsLog::objectuuids().each{|objectuuid|
             if verbose then
-                puts "Items::batchUpdateFromEventLog(#{verbose}): objectuuid: #{objectuuid}"
+                puts "Items::syncWithEventLog(#{verbose}): objectuuid: #{objectuuid}"
             end
-            Items::updateIndexAtObjectAttempt(objectuuid)
+            objectuuidsFromTheEventLog << objectuuid
+            status = Items::updateIndexAtObjectAttempt(objectuuid)
+            if !status then
+                # We remove from the index any object that doesn't validate
+                Items::deleteObjectNoEvents(objectuuid)
+            end
+        }
+
+        # We now remove from the index, the objects that are no longer in the event log
+        Items::objectuuids().each{|objuuid|
+            next if objectuuidsFromTheEventLog.include?(objuuid)
+            Items::deleteObjectNoEvents(objectuuid)
         }
     end
 
