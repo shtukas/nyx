@@ -11,8 +11,8 @@ class ThreadsX
         }
     end
 
-    # ThreadsX::startNxBallsMonitoringAndNotification()
-    def self.startNxBallsMonitoringAndNotification()
+    # ThreadsX::nxBallsMonitoringAndNotification()
+    def self.nxBallsMonitoringAndNotification()
         Thread.new {
             loop {
                 sleep 60
@@ -32,8 +32,8 @@ class ThreadsX
         }
     end
 
-    # ThreadsX::startCommsLineOps()
-    def self.startCommsLineOps()
+    # ThreadsX::publishSystemEventsOutBuffer()
+    def self.publishSystemEventsOutBuffer()
         Thread.new {
             loop {
                 # We use a programmable boolean because we want to remain consistent across restarts
@@ -42,6 +42,16 @@ class ThreadsX
                 end
                 sleep 60
             }
+        }
+    end
+
+    # ThreadsX::refreshTodosActivePool()
+    def self.refreshTodosActivePool()
+        Thread.new {
+            sleep 300
+            if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("ec3f3f57-ff52-412c-9257-351e5345df8e", 86400) then # once every day
+                NxTodosActivePool::commitPoolToCache(NxTodosActivePool::computeActivePool())
+            end
         }
     end
 end

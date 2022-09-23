@@ -265,8 +265,9 @@ $system_events_out_buffer = Mutex.new
 # ------------------------------------------------------------
 
 if $RunNonEssentialThreads then
-    ThreadsX::startNxBallsMonitoringAndNotification()
-    ThreadsX::startCommsLineOps()
+    ThreadsX::nxBallsMonitoringAndNotification()
+    ThreadsX::publishSystemEventsOutBuffer()
+    ThreadsX::refreshTodosActivePool()
     if Config::get("instanceId") == "Lucille20-pascal" then 
         ThreadsX::startViennaImport()
     end
