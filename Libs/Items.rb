@@ -158,17 +158,18 @@ class Items
             if verbose then
                 puts "Items::syncWithEventLog(#{verbose}): objectuuid: #{objectuuid}"
             end
-            objectuuidsFromTheEventLog << objectuuid
             status = Items::updateIndexAtObjectAttempt(objectuuid)
-            if !status then
+            if status then
+                objectuuidsFromTheEventLog << objectuuid
+            else
                 # We remove from the index any object that doesn't validate
                 Items::deleteObjectNoEvents(objectuuid)
             end
         }
 
         # We now remove from the index, the objects that are no longer in the event log
-        Items::objectuuids().each{|objuuid|
-            next if objectuuidsFromTheEventLog.include?(objuuid)
+        Items::objectuuids().each{|objectuuid|
+            next if objectuuidsFromTheEventLog.include?(objectuuid)
             Items::deleteObjectNoEvents(objectuuid)
         }
     end
