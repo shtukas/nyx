@@ -109,6 +109,12 @@ class PolyFunctions
         end
 
         puts "I do not know how to PolyFunctions::genericDescription(#{JSON.pretty_generate(item)})"
+
+        if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
+            NxDeleted::deleteObject(item["uuid"])
+            return nil
+        end
+
         raise "(error: 475225ec-74fe-4614-8664-a99c1b2c9916)"
     end
 

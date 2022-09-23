@@ -131,6 +131,7 @@ class Items
         return if mikuType.nil?
 
         announce = PolyFunctions::genericDescription(item)
+        return if announce.nil?
 
         db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
