@@ -110,8 +110,8 @@ class PolyFunctions
 
         puts "I do not know how to PolyFunctions::genericDescription(#{JSON.pretty_generate(item)})"
 
-        if mikuType == "\"NxTodo\"" then
-            item["mikuType"] == "NxTodo"
+        if item["mikuType"] == "\"NxTodo\"" then
+            item["mikuType"] = "NxTodo"
             ItemsEventsLog::setAttribute2(item["uuid"], "mikuType", "NxTodo")
             if item["nx11e"].class.to_s == "String" then
                 item["nx11e"] = JSON.parse(item["nx11e"])
