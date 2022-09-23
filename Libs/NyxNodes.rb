@@ -10,7 +10,7 @@ class NyxNodes
 
     # NyxNodes::networkType()
     def self.networkType()
-        ["PureData", "Concept", "Entity", "Concept", "Event", "Person", "Collection", "Timeline"]
+        ["PureData", "Entity", "Concept", "Event", "Person", "Collection", "Timeline"]
     end
 
     # NyxNodes::interactivelySelectNetworkType()
