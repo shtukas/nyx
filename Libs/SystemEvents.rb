@@ -183,7 +183,7 @@ class SystemEvents
                         eventuuid  = row["_eventuuid_"]
                         eventTime  = row["_eventTime_"]
                         attname    = row["_attname_"]
-                        attvalue   = row["_attvalue_"]
+                        attvalue   = JSON.parse(row["_attvalue_"])
                         next if ItemsEventsLog::eventExistsAtItemsEventsLog(eventuuid)
                         puts "reading from a items-events-log.sqlite3 that came on the commsline: event: #{eventuuid}"
                         ItemsEventsLog::setAttribute0NoEvents(objectuuid, eventuuid, eventTime, attname, attvalue)
