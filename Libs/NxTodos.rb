@@ -40,7 +40,7 @@ class NxTodosActivePool
     # NxTodosActivePool::todoObjectHadBeenCreated(item)
     def self.todoObjectHadBeenCreated(item)
         return if item["mikuType"] != "NxTodo"
-        objectuuids = NxTodosActivePool::getActivePool() + item["uuid"]
+        objectuuids = NxTodosActivePool::getActivePool() + [item["uuid"]]
         NxTodosActivePool::commitPoolToCache(objectuuids)
     end
 end
