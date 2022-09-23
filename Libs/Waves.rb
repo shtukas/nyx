@@ -11,7 +11,7 @@ class Waves
 
     # Waves::destroy(uuid)
     def self.destroy(uuid)
-        ItemsEventsLog::deleteObject(uuid)
+        NxDeleted::deleteObject(uuid)
     end
 
     # --------------------------------------------------

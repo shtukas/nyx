@@ -13,11 +13,6 @@ class PolyPrograms
             return
         end
 
-        if item["mikuType"] == "TxTimeCommitment" then
-            TxTimeCommitments::landing(item)
-            return
-        end
-
         if item["mikuType"] == "Wave" then
             Waves::landing(item)
             return
@@ -25,11 +20,6 @@ class PolyPrograms
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::landing(item)
-            return
-        end
-
-        if item["mikuType"] == "NxTask" then
-            NxTasks::landing(item)
             return
         end
 

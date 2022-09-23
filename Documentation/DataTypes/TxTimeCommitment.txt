@@ -1,8 +1,0 @@
-TxTimeCommitment:
-    "uuid"         : String
-    "mikuType"     : "TxTimeCommitment"
-    "unixtime"     : Float
-    "datetime"     : DateTime Iso8601
-    "description"  : String
-    "ax39"         : Ax39
-

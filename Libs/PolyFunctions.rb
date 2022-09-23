@@ -9,10 +9,6 @@ class PolyFunctions
 
         # order: by mikuType
 
-        if item["mikuType"] == "NxTask" then
-            return NxTasks::edit(item)
-        end
- 
         if item["mikuType"] == "NyxNode" then
             return NyxNodes::edit(item)
         end
@@ -96,9 +92,6 @@ class PolyFunctions
         if item["mikuType"] == "NyxNode" then
             return item["description"]
         end
-        if item["mikuType"] == "NxTask" then
-            return item["description"]
-        end
         if item["mikuType"] == "NxTodo" then
             return item["description"]
         end
@@ -106,9 +99,6 @@ class PolyFunctions
             return item["description"]
         end
         if item["mikuType"] == "TxThread" then
-            return item["description"]
-        end
-        if item["mikuType"] == "TxTimeCommitment" then
             return item["description"]
         end
         if item["mikuType"] == "Wave" then
@@ -136,9 +126,7 @@ class PolyFunctions
         # Wave (low priority)           : 0.40
         # Nx11E standard                : 0.20 
 
-        # NxTask
         # NxTodo 0.4 or Nx11E derived value
-        # TxTimeCommitment (not diplayed)
 
         # Wave
 
@@ -164,26 +152,12 @@ class PolyFunctions
             return Nx11E::priority(item)
         end
 
-        if item["mikuType"] == "NxTask" then
-            if item["ax39"].nil? then
-                return 0.3 + shiftOnUnixtime.call(item, item["unixtime"])
-            else
-                cr = Ax39Extensions::completionRatio(item["ax39"], item["uuid"]) # always defined with this Miku type
-                return 0.5 + 0.5*(1-cr) # 1 when not started, 0.5 when done
-            end
-        end
-
         if item["mikuType"] == "NxTodo" then
             if item["nx11e"] then
                 return PolyFunctions::listingPriority(item["nx11e"])
             else
                 return 0.4
             end
-        end
-
-        if item["mikuType"] == "TxTimeCommitment" then
-            cr = Ax39Extensions::completionRatio(item["ax39"], item["uuid"]) # always defined with this Miku type
-            return 0.5 + 0.2*(1-cr) # 1 when not started, 0.5 when done
         end
 
         if item["mikuType"] == "Wave" then
@@ -209,17 +183,11 @@ class PolyFunctions
         if item["mikuType"] == "NxBall.v2" then
             return item["description"]
         end
-        if item["mikuType"] == "NxTask" then
-            return NxTasks::toString(item)
-        end
         if item["mikuType"] == "NxTodo" then
             return NxTodos::toString(item)
         end
         if item["mikuType"] == "NyxNode" then
             return NyxNodes::toString(item)
-        end
-        if item["mikuType"] == "TxTimeCommitment" then
-            return TxTimeCommitments::toString(item)
         end
         if item["mikuType"] == "Wave" then
             return Waves::toString(item)

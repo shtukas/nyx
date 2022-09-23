@@ -5,4 +5,4 @@
 require_relative "../Libs/loader.rb"
 
 uuid = LucilleCore::askQuestionAnswerAsString("uuid: ")
-ItemsEventsLog::deleteObject(uuid)
+NxDeleted::deleteObject(uuid)

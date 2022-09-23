@@ -101,20 +101,6 @@ class ItemsEventsLog
         db.results_as_hash = true
         db.execute("delete from _events_ where _objectuuid_=?", [objectuuid])
         db.close
-        Items::destroy(objectuuid)
-    end
-
-    # ItemsEventsLog::deleteObject(objectuuid)
-    def self.deleteObject(objectuuid)
-        ItemsEventsLog::deleteObjectNoEvents(objectuuid)
-        SystemEvents::broadcast({
-            "mikuType"   => "NxDeleted",
-            "objectuuid" => objectuuid,
-        })
-        SystemEvents::process({
-            "mikuType"   => "(object has been logically deleted)",
-            "objectuuid" => objectuuid,
-        })
     end
 
     # ItemsEventsLog::eventExistsAtItemsEventsLog(eventuuid)

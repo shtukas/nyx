@@ -47,7 +47,7 @@ checkLocation = lambda{|location|
 } 
 
 checkLocation.call("#{ENV['HOME']}/x-space/xcache-v1-days")
-checkLocation.call("#{ENV['HOME']}/Desktop/NxTasks")
+checkLocation.call("#{ENV['HOME']}/Desktop/NxTodos")
 checkLocation.call("#{ENV['HOME']}/Galaxy/LucilleOS/Libraries/Ruby-Libraries")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataHub")
 checkLocation.call("#{ENV['HOME']}/Galaxy/DataBank/Stargate")
@@ -217,7 +217,6 @@ require_relative "Machines.rb"
 
 require_relative "Nyx.rb"
 require_relative "NxBallsService.rb"
-require_relative "NxTasks.rb"
 require_relative "NetworkLinks.rb"
 require_relative "NetworkArrows.rb"
 require_relative "Nx113.rb"
@@ -225,6 +224,7 @@ require_relative "NyxNodes.rb"
 require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
+require_relative "NxDeleted.rb"
 
 require_relative "TimeCommitmentMapping.rb"
 
@@ -241,7 +241,6 @@ require_relative "Stargate.rb"
 require_relative "SQLiteDataStore2.rb"
 
 require_relative "The99Percent.rb"
-require_relative "TxTimeCommitments.rb"
 require_relative "Items.rb"
 require_relative "ThreadsX.rb"
 

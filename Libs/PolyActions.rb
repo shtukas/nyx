@@ -26,11 +26,6 @@ class PolyActions
             return
         end
 
-        if item["mikuType"] == "NxTask" then
-            NxTasks::access(item)
-            return
-        end
-
         if item["mikuType"] == "NyxNode" then
             NyxNodes::access(item)
             return
@@ -38,11 +33,6 @@ class PolyActions
 
         if item["mikuType"] == "NxTodo" then
             NxTodos::access(item)
-            return
-        end
-
-        if item["mikuType"] == "TxTimeCommitment" then
-            CatalystListing::setContext(item["uuid"])
             return
         end
 
@@ -69,7 +59,7 @@ class PolyActions
     def self.destroyWithPrompt(item)
         PolyActions::stop(item)
         if LucilleCore::askQuestionAnswerAsBoolean("confirm destruction of #{item["mikuType"]} '#{PolyFunctions::toString(item).green}' ") then
-            ItemsEventsLog::deleteObject(item["uuid"])
+            NxDeleted::deleteObject(item["uuid"])
         end
     end
 
@@ -145,23 +135,6 @@ class PolyActions
             if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTodo '#{item["description"].green}' ? ", true) then
                 NxTodos::destroy(item["uuid"])
             end
-            return
-        end
-
-        if item["mikuType"] == "NxTask" then
-            if item["ax39"] then
-                if LucilleCore::askQuestionAnswerAsBoolean("'#{PolyFunctions::toString(item).green}' done for today ? ", true) then
-                    DoneForToday::setDoneToday(item["uuid"])
-                end
-                return
-            end
-            if LucilleCore::askQuestionAnswerAsBoolean("destroy NxTask '#{PolyFunctions::toString(item).green}' ? ") then
-                ItemsEventsLog::deleteObject(item["uuid"])
-            end
-            return
-        end
-
-        if item["mikuType"] == "TxTimeCommitment" then
             return
         end
 

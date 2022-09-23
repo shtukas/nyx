@@ -158,8 +158,8 @@ class Items
         }
     end
 
-    # Items::destroy(objectuuid)
-    def self.destroy(objectuuid)
+    # Items::deleteObjectNoEvents(objectuuid)
+    def self.deleteObjectNoEvents(objectuuid)
         db = SQLite3::Database.new(Items::databaseFile())
         db.busy_timeout = 117
         db.busy_handler { |count| true }

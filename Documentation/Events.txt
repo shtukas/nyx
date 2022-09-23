@@ -10,11 +10,6 @@ We have two types of events
 }
 
 {
-    "mikuType"   => "(object has been logically deleted)",
-    "objectuuid" => objectuuid,
-}
-
-{
     "mikuType"    => "(do not show until has been updated)",
     "targetuuid"  => uuid,
 }

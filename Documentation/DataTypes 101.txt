@@ -1,17 +1,15 @@
 
 Catalyst:
     NxAnniversary    (self contained)
-    TxTimeCommitment (+ TimeCommitmentMapping pointing at NxTasks)
     Wave             (Nx113)
     NxTodo           (Nx113)
-    NxTask           (Nx113)
 
 Nyx Networks:
 
     NxNode           (Nx113)
 
 Misc:
-    Ax39      # Timing data for TxTimeCommitment
+    Ax39      # Timing data for some Nx11Es
     Nx01      # Unique string convention
     Nx45      # UUID naming convention 
     Nx20      # Search Item

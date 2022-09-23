@@ -157,12 +157,6 @@ class FileSystemCheck
             return
         end
 
-        if mikuType == "NxTask" then
-            ensureAttribute.call("description")
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
-            return
-        end
-
         if mikuType == "NxTodo" then
             ensureAttribute.call("description")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
@@ -172,12 +166,6 @@ class FileSystemCheck
         if mikuType == "NyxNode" then
             ensureAttribute.call("description")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"]) # nx113 is optional for NyxNodes, the function return if the argument in null
-            return
-        end
-
-        if mikuType == "TxTimeCommitment" then
-            ensureAttribute.call("ax39")
-            FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             return
         end
 

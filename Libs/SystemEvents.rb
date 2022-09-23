@@ -14,10 +14,6 @@ class SystemEvents
             Ax39Extensions::processEvent(event)
         end
 
-        if event["mikuType"] == "(object has been logically deleted)" then
-            #
-        end
-
         if event["mikuType"] == "(element has been done for today)" then
             Ax39Extensions::processEvent(event)
         end
@@ -40,8 +36,7 @@ class SystemEvents
 
         if event["mikuType"] == "NxDeleted" then
             objectuuid = event["objectuuid"]
-            ItemsEventsLog::deleteObjectNoEvents(objectuuid)
-            Items::destroy(objectuuid)
+            NxDeleted::deleteObjectNoEvents(objectuuid)
         end
 
         if event["mikuType"] == "AttributeUpdate" then

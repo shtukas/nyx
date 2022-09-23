@@ -9,7 +9,7 @@ class NxTodos
 
     # NxTodos::destroy(uuid)
     def self.destroy(uuid)
-        ItemsEventsLog::deleteObject(uuid)
+        NxDeleted::deleteObject(uuid)
     end
 
     # --------------------------------------------------
@@ -72,6 +72,77 @@ class NxTodos
     # NxTodos::interactivelyCreateNewTodayOrNull()
     def self.interactivelyCreateNewTodayOrNull()
         NxTodos::interactivelyCreateNewOndateOrNull(Time.new.utc.iso8601)
+    end
+
+    # NxTodos::interactivelyCreateNewDescriptionOnlyOrNull_v1(description)
+    def self.interactivelyCreateNewDescriptionOnlyOrNull_v1(description)
+        uuid  = SecureRandom.uuid
+        nx11e = Nx11E::interactivelyCreateNewNx11EOrNull(uuid)
+        return if nx11e.nil?
+        nx113nhash = nil
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        item = Items::getItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
+        end
+        item
+    end
+
+    # NxTodos::issueUsingLocation(location)
+    def self.issueUsingLocation(location)
+        description = File.basename(location)
+        uuid        = SecureRandom.uuid
+        nx11e       = {
+            "mikuType" => "Nx11E",
+            "type"     => "standard",
+            "unixtime" => Time.new.to_f
+        }
+        nx113nhash  = Nx113Make::aionpoint(location)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        item = Items::getItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
+        end
+        item
+    end
+
+    # NxTodos::issueUsingUrl(url)
+    def self.issueUsingUrl(url)
+        description = File.basename(location)
+        uuid        = SecureRandom.uuid
+        nx11e       = {
+            "mikuType" => "Nx11E",
+            "type"     => "standard",
+            "unixtime" => Time.new.to_f
+        }
+        nx113nhash  = Nx113Make::url(url)
+        ItemsEventsLog::setAttribute2(uuid, "uuid",        uuid)
+        ItemsEventsLog::setAttribute2(uuid, "mikuType",    "NxTodo")
+        ItemsEventsLog::setAttribute2(uuid, "unixtime",    Time.new.to_i)
+        ItemsEventsLog::setAttribute2(uuid, "datetime",    Time.new.utc.iso8601)
+        ItemsEventsLog::setAttribute2(uuid, "description", description)
+        ItemsEventsLog::setAttribute2(uuid, "nx113",       nx113nhash)
+        ItemsEventsLog::setAttribute2(uuid, "nx11e",       nx11e)
+        FileSystemCheck::fsckObjectuuidErrorAtFirstFailure(uuid, SecureRandom.hex)
+        item = Items::getItemOrNull(uuid)
+        if item.nil? then
+            raise "(error: ec1f1b6f-62b4-4426-bfe3-439a51cf76d4) How did that happen ? 🤨"
+        end
+        item
     end
 
     # --------------------------------------------------
