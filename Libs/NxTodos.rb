@@ -160,7 +160,10 @@ class NxTodos
 
     # NxTodos::listingItems()
     def self.listingItems()
-        Items::mikuTypeToItems("NxTodo")
+        Items::mikuTypeToObjectuuids("NxTodo")
+            .first(20)
+            .map{|objectuuid| Items::getItemOrNull(objectuuid) }
+            .compact
     end
 
     # NxTodos::itemsOndates()
