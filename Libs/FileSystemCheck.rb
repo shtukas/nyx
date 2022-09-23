@@ -157,6 +157,11 @@ class FileSystemCheck
             return
         end
 
+        if mikuType == "NxLine" then
+            ensureAttribute.call("line")
+            return
+        end
+
         if mikuType == "NxTodo" then
             ensureAttribute.call("description")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])

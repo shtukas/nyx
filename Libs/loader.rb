@@ -225,6 +225,7 @@ require_relative "Nx11E.rb"
 require_relative "NxTodos.rb"
 require_relative "NetworkShapeAroundNode.rb"
 require_relative "NxDeleted.rb"
+require_relative "NxLines.rb"
 
 require_relative "TimeCommitmentMapping.rb"
 

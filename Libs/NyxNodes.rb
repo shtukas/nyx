@@ -229,7 +229,7 @@ class NyxNodes
 
             puts ""
             puts "<n> | access | description | name | datetime | nx113 | edit | transmute | expose | destroy".yellow
-            puts "link | child | parent | upload".yellow
+            puts "line | link | child | parent | upload".yellow
             puts "[link type update] parents>related | parents>children | related>children | related>parents".yellow
             puts "[network shape] select children; move to selected child".yellow
             puts ""
@@ -245,6 +245,12 @@ class NyxNodes
 
             if Interpreting::match("access", input) then
                 PolyActions::access(item)
+                next
+            end
+            if input == "line" then
+                line = LucilleCore::askQuestionAnswerAsString("line: ")
+                i2 = NxLines::issueNew(line)
+                NetworkArrows::link(item["uuid"], i2["uuid"])
                 next
             end
 
