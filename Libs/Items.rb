@@ -130,7 +130,7 @@ class Items
         return false if unixtime.nil?
         return false if mikuType.nil?
 
-        announce = PolyFunctions::genericDescription(item)
+        announce = PolyFunctions::genericDescriptionOrNull(item)
         return false if announce.nil?
 
         db = SQLite3::Database.new(Items::databaseFile())
@@ -151,27 +151,34 @@ class Items
         Items::updateIndexWithThisObjectAttempt(item)
     end
 
-    # Items::syncWithEventLog(verbose)
-    def self.syncWithEventLog(verbose)
+    # Items::syncWithEventLog()
+    def self.syncWithEventLog()
         objectuuidsFromTheEventLog = []
-        ItemsEventsLog::objectuuids().each{|objectuuid|
-            if verbose then
-                puts "Items::syncWithEventLog(#{verbose}) @ objectuuid: #{objectuuid}"
-            end
-            status = Items::updateIndexAtObjectAttempt(objectuuid)
-            if status then
-                objectuuidsFromTheEventLog << objectuuid
-            else
-                # We remove from the index any object that doesn't validate
-                Items::deleteObjectNoEvents(objectuuid)
+        
+        items = ItemsEventsLog::allObjectsFromEventLog()
+        objectuuidsFromTheEventLog = items.map{|item| item["uuid"] }
+
+        # We start by removing from the index, the objects that are no longer in the event log
+        (Items::objectuuids()-objectuuidsFromTheEventLog).each{|objectuuid|
+            next if objectuuidsFromTheEventLog.include?(objectuuid)
+            puts "Items::syncWithEventLog() @ remove objectuuid: #{objectuuid}"
+            Items::deleteObjectNoEvents(objectuuid)
+        }
+
+        items.each{|item|
+            puts "Items::syncWithEventLog() @ update item: #{item["uuid"]}"
+            status = Items::updateIndexWithThisObjectAttempt(item)
+            if !status then
+                Items::deleteObjectNoEvents(item["uuid"])
             end
         }
 
-        # We now remove from the index, the objects that are no longer in the event log
-        Items::objectuuids().each{|objectuuid|
-            next if objectuuidsFromTheEventLog.include?(objectuuid)
-            Items::deleteObjectNoEvents(objectuuid)
-        }
+        db = SQLite3::Database.new(Items::databaseFile())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute "vacuum", []
+        db.close
     end
 
     # Items::deleteObjectNoEvents(objectuuid)

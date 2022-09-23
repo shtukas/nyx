@@ -130,4 +130,24 @@ class ItemsEventsLog
         db.close
         objectuuids
     end
+
+    # ItemsEventsLog::allObjectsFromEventLog()
+    def self.allObjectsFromEventLog()
+        themap = {}
+        db = SQLite3::Database.new(ItemsEventsLog::pathToDatabase())
+        db.busy_timeout = 117
+        db.busy_handler { |count| true }
+        db.results_as_hash = true
+        db.execute("select * from _events_ order by _eventTime_", []) do |row|
+            objectuuid    = row["_objectuuid_"]
+            if themap[objectuuid].nil? then
+                themap[objectuuid] = {}
+            end
+            attname  = row["_attname_"]
+            attvalue = JSON.parse(row["_attvalue_"])
+            themap[objectuuid][attname] = attvalue
+        end
+        db.close
+        themap.values
+    end
 end

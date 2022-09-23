@@ -190,7 +190,7 @@ class SystemEvents
                     end
                     db1.close
                     FileUtils.rm(filepath1)
-                    Items::syncWithEventLog(true)
+                    Items::syncWithEventLog()
                     next
                 end
 

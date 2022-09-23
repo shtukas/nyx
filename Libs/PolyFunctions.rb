@@ -75,8 +75,8 @@ class PolyFunctions
         }
     end
 
-    # PolyFunctions::genericDescription(item)
-    def self.genericDescription(item)
+    # PolyFunctions::genericDescriptionOrNull(item)
+    def self.genericDescriptionOrNull(item)
 
         # ordering: alphabetical order
 
@@ -104,11 +104,7 @@ class PolyFunctions
         if item["mikuType"] == "Wave" then
             return item["description"]
         end
-        if ["CxAionPoint", "DxFile"].include?(item["mikuType"]) then
-            return item["mikuType"]
-        end
-
-        return "(error: 475225ec-74fe-4614-8664-a99c1b2c9916)"
+        return nil
     end
 
     # PolyFunctions::listingPriority(item)

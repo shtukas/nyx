@@ -4,4 +4,4 @@
 
 require_relative "../Libs/loader.rb"
 
-Items::syncWithEventLog(true)
+Items::syncWithEventLog()
