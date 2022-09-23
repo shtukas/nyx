@@ -17,8 +17,8 @@ class PolyFunctions
             return NyxNodes::edit(item)
         end
 
-        if item["mikuType"] == "TxDated" then
-            return TxDateds::edit(item)
+        if item["mikuType"] == "NxTodo" then
+            return NxTodos::edit(item)
         end
 
         if item["mikuType"] == "Wave" then
@@ -111,9 +111,6 @@ class PolyFunctions
         if item["mikuType"] == "TxTimeCommitment" then
             return item["description"]
         end
-        if item["mikuType"] == "TxDated" then
-            return item["description"]
-        end
         if item["mikuType"] == "Wave" then
             return item["description"]
         end
@@ -134,7 +131,6 @@ class PolyFunctions
         # Nx11E ordinal                 : 0.80
         # fitness1                      : 0.75
         # Nx11E ondate                  : 0.70
-        # TxDated                       : 0.70
         # Nx11E Ax39Group               : 0.60
         # Nx11E Ax39Engine              : 0.50 (or 0.2 if above completion)
         # Wave (low priority)           : 0.40
@@ -190,10 +186,6 @@ class PolyFunctions
             return 0.5 + 0.2*(1-cr) # 1 when not started, 0.5 when done
         end
 
-        if item["mikuType"] == "TxDated" then
-            return 0.70 + shiftOnDateTime.call(item, item["datetime"])
-        end
-
         if item["mikuType"] == "Wave" then
             return (Waves::isPriority(item) ? 0.9 : 0.4) + shiftOnDateTime.call(item, item["lastDoneDateTime"])
         end
@@ -228,9 +220,6 @@ class PolyFunctions
         end
         if item["mikuType"] == "TxTimeCommitment" then
             return TxTimeCommitments::toString(item)
-        end
-        if item["mikuType"] == "TxDated" then
-            return TxDateds::toString(item)
         end
         if item["mikuType"] == "Wave" then
             return Waves::toString(item)

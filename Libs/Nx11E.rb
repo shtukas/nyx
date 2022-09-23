@@ -80,9 +80,50 @@ class Nx11E
         end
     end
 
+    # Nx11E::makeOndate(datetime)
+    def self.makeOndate(datetime)
+        {
+            "mikuType" => "Nx11E",
+            "type"     => "ondate",
+            "datetime" => datetime
+        }
+    end
+
+    # Functions
+
     # Nx11E::toString(nx11e)
     def self.toString(nx11e)
-        nx11e.to_s
+        if nx11e["mikuType"] != "Nx11E" then
+            raise "(error: a06d321f-d66c-4909-bfb9-00a6787c0311) This function only takes Nx11Es, nx11e: #{nx11e}"
+        end
+
+        if nx11e["type"] == "hot" then
+            return "(hot)"
+        end
+
+        if nx11e["type"] == "ordinal" then
+            return "(ordinal: #{"%.2f" % nx11e["ordinal"]})"
+        end
+
+        if nx11e["type"] == "ondate" then
+            return "(ondate: #{nx11e["datetime"][0, 10]})"
+        end
+
+        if nx11e["type"] == "Ax39Group" then
+
+            group    = nx11e["group"]
+            return "(ax39 group: #{group["name"]})"
+        end
+
+        if nx11e["type"] == "Ax39Engine" then
+            return "(ax39)"
+        end
+
+        if nx11e["type"] == "standard" then
+            return "(standard)"
+        end
+
+        raise "(error: b8adb3e1-eaee-4d06-afb4-bc0f3db0142b) nx11e: #{nx11e}"
     end
 
     # Nx11E::priority(item)

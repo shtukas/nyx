@@ -10,7 +10,7 @@ class CatalystListing
             "wave | anniversary | today | ondate | todo | task | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves | tc",
             "require internet",
-            "search | nyx | speed | nxballs | maintenance",
+            "search | nyx | speed | nxballs",
         ].join("\n")
     end
 
@@ -216,11 +216,6 @@ class CatalystListing
             return
         end
 
-        if Interpreting::match("maintenance", input) then
-            TxDateds::dive()
-            return
-        end
-
         if Interpreting::match("nyx", input) then
             Nyx::program()
             return
@@ -233,14 +228,14 @@ class CatalystListing
         end
 
         if Interpreting::match("ondate", input) then
-            item = TxDateds::interactivelyCreateNewOrNull()
+            item = NxTodos::interactivelyCreateNewOndateOrNull()
             return if item.nil?
             puts JSON.pretty_generate(item)
             return
         end
 
         if Interpreting::match("ondates", input) then
-            TxDateds::dive()
+            NxTodos::diveOndates()
             return
         end
 
@@ -284,21 +279,6 @@ class CatalystListing
             return if unixtime.nil?
             PolyActions::stop(item)
             DoNotShowUntil::setUnixtime(item["uuid"], unixtime)
-            return
-        end
-
-        if Interpreting::match("redate", input) then
-            item = store.getDefault()
-            return if item.nil?
-            PolyActions::redate(item)
-            return
-        end
-
-        if Interpreting::match("redate *", input) then
-            _, ordinal = Interpreting::tokenizer(input)
-            item = store.get(ordinal.to_i)
-            return if item.nil?
-            PolyActions::redate(item)
             return
         end
 
@@ -368,7 +348,7 @@ class CatalystListing
         end
 
         if Interpreting::match("today", input) then
-            TxDateds::interactivelyCreateNewTodayOrNull()
+            NxTodos::interactivelyCreateNewTodayOrNull()
             return
         end
 
@@ -438,8 +418,8 @@ class CatalystListing
                     "lambda" => lambda { NxTasks::listingItems1() }
                 },
                 {
-                    "name" => "TxDateds::listingItems()",
-                    "lambda" => lambda { TxDateds::listingItems() }
+                    "name" => "NxTodos::listingItems()",
+                    "lambda" => lambda { NxTodos::listingItems() }
                 },
                 {
                     "name" => "The99Percent::getCurrentCount()",
@@ -496,7 +476,6 @@ class CatalystListing
             Waves::listingItems(true),
             TxTimeCommitments::listingItems(),
             Waves::listingItems(false),
-            TxDateds::listingItems(),
             NxTasks::listingItems1(),
             NxTasks::listingItems2TimeCommitments(),
             NxTodos::listingItems()

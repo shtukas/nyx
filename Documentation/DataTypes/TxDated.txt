@@ -1,7 +1,0 @@
-TxDated:
-    "uuid"        : String
-    "mikuType"    : "TxDated"
-    "unixtime"    : Float
-    "datetime"    : DateTime Iso8601
-    "description" : String
-    "nx113"       : String

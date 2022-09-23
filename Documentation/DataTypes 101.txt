@@ -3,7 +3,7 @@ Catalyst:
     NxAnniversary    (self contained)
     TxTimeCommitment (+ TimeCommitmentMapping pointing at NxTasks)
     Wave             (Nx113)
-    TxDated          (Nx113)
+    NxTodo           (Nx113)
     NxTask           (Nx113)
 
 Nyx Networks:
