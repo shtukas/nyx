@@ -169,6 +169,7 @@ class Items
             puts "Items::syncWithEventLog() @ update item: #{item["uuid"]}"
             status = Items::updateIndexWithThisObjectAttempt(item)
             if !status then
+                puts "Items::syncWithEventLog() @ remove objectuuid: #{item["uuid"]}"
                 Items::deleteObjectNoEvents(item["uuid"])
             end
         }
