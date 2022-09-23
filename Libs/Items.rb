@@ -167,6 +167,11 @@ class Items
 
         items.each{|item|
             puts "Items::syncWithEventLog() @ update item: #{item["uuid"]}"
+            if item["NxDeleted"] then # the type is also a possible attribute of objects
+                puts "Items::syncWithEventLog() @ update item is logically deleted: #{item["uuid"]}"
+                Items::deleteObjectNoEvents(item["uuid"])
+                next
+            end
             status = Items::updateIndexWithThisObjectAttempt(item)
             if !status then
                 puts "Items::syncWithEventLog() @ remove objectuuid: #{item["uuid"]}"

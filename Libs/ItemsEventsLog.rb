@@ -93,8 +93,13 @@ class ItemsEventsLog
         item
     end
 
-    # ItemsEventsLog::deleteObjectNoEvents(objectuuid)
-    def self.deleteObjectNoEvents(objectuuid)
+    # ItemsEventsLog::addNxDeletedMarkerNoEvents(objectuuid)
+    def self.addNxDeletedMarkerNoEvents(objectuuid)
+        ItemsEventsLog::setAttribute2(objectuuid, "NxDeleted", true)
+    end
+
+    # ItemsEventsLog::deleteObjectRecordsUseTheForceNoEvents(objectuuid)
+    def self.deleteObjectRecordsUseTheForceNoEvents(objectuuid)
         db = SQLite3::Database.new(ItemsEventsLog::pathToDatabase())
         db.busy_timeout = 117
         db.busy_handler { |count| true }
