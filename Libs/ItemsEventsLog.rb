@@ -148,6 +148,8 @@ class ItemsEventsLog
             themap[objectuuid][attname] = attvalue
         end
         db.close
-        themap.values
+        themap
+            .values
+            .select{|item| item["uuid"] }
     end
 end
