@@ -108,24 +108,7 @@ class PolyFunctions
             return item["mikuType"]
         end
 
-        puts "I do not know how to PolyFunctions::genericDescription(#{JSON.pretty_generate(item)})"
-
-        if item["mikuType"] == "\"NxTodo\"" then
-            item["mikuType"] = "NxTodo"
-            ItemsEventsLog::setAttribute2(item["uuid"], "mikuType", "NxTodo")
-            if item["nx11e"].class.to_s == "String" then
-                item["nx11e"] = JSON.parse(item["nx11e"])
-                ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", item["nx11e"])
-            end
-            return PolyFunctions::genericDescription(item)
-        end
-
-        if LucilleCore::askQuestionAnswerAsBoolean("destroy ? ") then
-            NxDeleted::deleteObject(item["uuid"])
-            return nil
-        end
-
-        raise "(error: 475225ec-74fe-4614-8664-a99c1b2c9916)"
+        return "(error: 475225ec-74fe-4614-8664-a99c1b2c9916)"
     end
 
     # PolyFunctions::listingPriority(item)
