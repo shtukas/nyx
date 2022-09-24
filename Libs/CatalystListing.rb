@@ -308,6 +308,21 @@ class CatalystListing
             return
         end
 
+        if Interpreting::match("redate", input) then
+            item = store.getDefault()
+            return if item.nil?
+            PolyActions::redate(item)
+            return
+        end
+
+        if Interpreting::match("redate *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            PolyActions::redate(item)
+            return
+        end
+
         if Interpreting::match("search", input) then
             Search::navigation()
             return

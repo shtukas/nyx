@@ -181,7 +181,6 @@ class PolyActions
         return if item.nil?
 
         # order : alphabetical order
-
     end
 
     # PolyActions::linktoPureDataDescriptionOnly(item)
@@ -198,6 +197,23 @@ class PolyActions
         return if i2.nil?
         puts JSON.pretty_generate(i2)
         NetworkLinks::link(item["uuid"], i2["uuid"])
+    end
+
+    # PolyActions::redate(item)
+    def self.redate(item)
+        if item["mikuType"] != "NxTodo" then
+            puts "redate only applies to NxTodos (engine: ondate)"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        if item["nx11e"]["type"] != "ondate" then
+            puts "redate only applies to NxTodos (engine: ondate)"
+            LucilleCore::pressEnterToContinue()
+            return
+        end
+        datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
+        return if datetime.nil?
+        ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", Nx11E::makeOndate(datetime))
     end
 
     # PolyActions::setNx113(item)

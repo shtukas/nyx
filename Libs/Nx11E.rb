@@ -126,6 +126,15 @@ class Nx11E
         LucilleCore::selectEntityFromListOfEntitiesOrNull("type (none to abort):", Nx11E::types())
     end
 
+    # Nx11E::makeOndate(datetime)
+    def self.makeOndate(datetime)
+        {
+            "mikuType" => "Nx11E",
+            "type"     => "ondate",
+            "datetime" => datetime
+        }
+    end
+
     # Nx11E::interactivelyCreateNewNx11EOrNull(itemuuid)
     def self.interactivelyCreateNewNx11EOrNull(itemuuid)
         type = Nx11E::interactivelySelectTypeOrNull()
@@ -149,11 +158,7 @@ class Nx11E
         if type == "ondate" then
             datetime = CommonUtils::interactivelySelectDateTimeIso8601OrNullUsingDateCode()
             return nil if datetime.nil?
-            return {
-                "mikuType" => "Nx11E",
-                "type"     => "ondate",
-                "datetime" => datetime
-            }
+            return Nx11E::makeOndate(datetime)
         end
         if type == "Ax39Group" then
             return Nx11EGroupsUtils::interactivelyMakeNewNx11EGroupOrNull()
@@ -175,15 +180,6 @@ class Nx11E
                 "unixtime" => Time.new.to_f
             }
         end
-    end
-
-    # Nx11E::makeOndate(datetime)
-    def self.makeOndate(datetime)
-        {
-            "mikuType" => "Nx11E",
-            "type"     => "ondate",
-            "datetime" => datetime
-        }
     end
 
     # Nx11E::interactivelySetANewEngineForItemOrNothing(item)
