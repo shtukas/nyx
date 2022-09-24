@@ -222,6 +222,13 @@ class Nx113Access
         nx113 = Nx113Access::getNx113(nhash)
         "#{prefix}(Nx113: #{nx113["type"]})#{postfix}"
     end
+
+    # Nx113Access::toStringOrNullShort(prefix, nhash, postfix)
+    def self.toStringOrNullShort(prefix, nhash, postfix)
+        return nil if nhash.nil?
+        nx113 = Nx113Access::getNx113(nhash)
+        "#{prefix}(#{nx113["type"]})#{postfix}"
+    end
 end
 
 class Nx113Edit

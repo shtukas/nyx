@@ -61,7 +61,7 @@ class Nx11EGroupsUtils
 
     # Nx11EGroupsUtils::interactivelyMakeNewNx11EGroupOrNull()
     def self.interactivelyMakeNewNx11EGroupOrNull()
-        group = Nx11EGroupsUtils::makeNewGroupOrNull()
+        group = Nx11EGroupsUtils::architectGroupOrNull()
         position = Nx11EGroupsUtils::interactivelyDecidePositionInThisGroup(group)
         return {
             "mikuType" => "Nx11E",

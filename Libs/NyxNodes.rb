@@ -153,7 +153,7 @@ class NyxNodes
 
     # NyxNodes::toString(item)
     def self.toString(item)
-        "(NyxNode: #{item["networkType"]}) #{Nx113Access::toStringOrNull("", item["nx113"], "")} #{item["description"]}"
+        "(NyxNode: #{item["networkType"]})#{Nx113Access::toStringOrNullShort(" ", item["nx113"], "")} #{item["description"]}"
     end
 
     # ----------------------------------------------------------------------
