@@ -535,6 +535,29 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
+        groups = Nx11EGroupsUtils::groups()
+        if groups.size > 0 then
+            puts ""
+            puts "groups (below completion 1):".yellow
+            vspaceleft = vspaceleft - 2
+            groups
+                .map{|group|
+                    ax39     = group["ax39"]
+                    account  = group["account"]
+                    cr = Ax39Extensions::completionRatio(ax39, account)
+                    {
+                        "group" => group,
+                        "cr"    => cr
+                    }
+                }
+                .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
+                .each{|packet|
+                    puts "    - #{packet["group"]["name"]} (#{packet["cr"].round(2)})".yellow
+                    vspaceleft = vspaceleft - 1
+                }
+        end
+
+
         nxballs = NxBallsIO::nxballs()
         if nxballs.size > 0 then
             puts ""
