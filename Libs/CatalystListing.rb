@@ -8,7 +8,7 @@ class CatalystListing
             ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | today | ondate | todo | toplevel | inbox | line",
-            "anniversaries | ondates | todos | waves",
+            "anniversaries | ondates | todos | waves | groups",
             "require internet",
             "search | nyx | speed | nxballs",
         ].join("\n")
@@ -182,6 +182,11 @@ class CatalystListing
             puts JSON.pretty_generate(item)
             puts "PolyFunctions::listingPriority(item): #{PolyFunctions::listingPriority(item)}"
             LucilleCore::pressEnterToContinue()
+            return
+        end
+
+        if Interpreting::match("groups", input) then
+            Nx11EGroupsUtils::groupsDive()
             return
         end
 

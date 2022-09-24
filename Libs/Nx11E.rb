@@ -81,6 +81,25 @@ class Nx11EGroupsUtils
             "position" => position
         }
     end
+
+    # Nx11EGroupsUtils::groupDive(group)
+    def self.groupDive(group)
+        loop {
+            elements = Nx11EGroupsUtils::groupElementsInOrder(group).first(20)
+            element = LucilleCore::selectEntityFromListOfEntitiesOrNull("element", elements, lambda{|element| PolyFunctions::toString(element) })
+            break if element.nil?
+            PolyPrograms::itemLanding(element)
+        }
+    end
+
+    # Nx11EGroupsUtils::groupsDive()
+    def self.groupsDive()
+        loop {
+            group = Nx11EGroupsUtils::interactivelySelectGroupOrNull()
+            break if group.nil?
+            Nx11EGroupsUtils::groupDive(group)
+        }
+    end
 end
 
 class Nx11E
