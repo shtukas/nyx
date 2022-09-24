@@ -31,6 +31,13 @@ class Nx11EGroupsUtils
             .sort{|i1, i2| i1["nx11e"]["position"] <=> i2["nx11e"]["position"] }
     end
 
+    # Nx11EGroupsUtils::groupNextPosition(group)
+    def self.groupNextPosition(group)
+        elements = Nx11EGroupsUtils::groupElementsInOrder(group)
+        return 1 if elements.empty?
+        elements.map{|element| element["nx11e"]["position"] }.max.floor + 1
+    end
+
     # Nx11EGroupsUtils::interactivelySelectGroupOrNull()
     def self.interactivelySelectGroupOrNull()
         groups = Nx11EGroupsUtils::groups()
@@ -67,12 +74,15 @@ class Nx11EGroupsUtils
         Nx11EGroupsUtils::groupElementsInOrder(group)
             .first(20)
             .each{|item| puts "    (#{"%7.3f" % item["nx11e"]["position"]}) #{item["description"]}" }
-        LucilleCore::askQuestionAnswerAsString("position: ").to_f
+        position = LucilleCore::askQuestionAnswerAsString("position (empty for next): ")
+        return position.to_f if position
+        Nx11EGroupsUtils::groupNextPosition(group)
     end
 
     # Nx11EGroupsUtils::interactivelyMakeNewNx11EGroupOrNull()
     def self.interactivelyMakeNewNx11EGroupOrNull()
         group = Nx11EGroupsUtils::architectGroupOrNull()
+        return nil if group.nil?
         position = Nx11EGroupsUtils::interactivelyDecidePositionInThisGroup(group)
         return {
             "mikuType" => "Nx11E",

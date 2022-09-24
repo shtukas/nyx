@@ -67,10 +67,6 @@ class SystemEvents
             XCache::setFlag(key, flag)
         end
 
-        if event["mikuType"] == "TimeCommitmentMapping" then
-            TimeCommitmentMapping::processEvent(event)
-        end
-
         if event["mikuType"] == "NetworkLinks" then
             NetworkLinks::processEvent(event)
         end
@@ -127,45 +123,12 @@ class SystemEvents
                 next if !File.exists?(filepath1)
                 next if File.basename(filepath1).start_with?(".")
 
-                if File.basename(filepath1).include?(".owner-mapping.sqlite3") then
-                    FileUtils.rm(filepath1)
-                    next
-                end
-
                 if File.basename(filepath1)[-11, 11] == ".event.json" then
                     e = JSON.parse(IO.read(filepath1))
                     if verbose then
                         puts "SystemEvents::processCommsLine: event: #{JSON.pretty_generate(e)}"
                     end
                     SystemEvents::process(e)
-                    FileUtils.rm(filepath1)
-                    next
-                end
-
-                if File.basename(filepath1)[-28, 28] == ".owner-items-mapping.sqlite3" then
-                    if verbose then
-                        puts "SystemEvents::processCommsLine: reading: #{File.basename(filepath1)}"
-                    end
-
-                    knowneventuuids = TimeCommitmentMapping::eventuuids()
-
-                    db1 = SQLite3::Database.new(filepath1)
-                    db1.busy_timeout = 117
-                    db1.busy_handler { |count| true }
-                    db1.results_as_hash = true
-                    db1.execute("select * from _mapping_", []) do |row|
-                        next if knowneventuuids.include?(row["_eventuuid_"])
-                        puts "owner-items-mapping: importing event: #{row["_eventuuid_"]}"
-                        eventuuid = row["_eventuuid_"]
-                        eventTime = row["_eventTime_"]
-                        owneruuid = row["_owneruuid_"]
-                        itemuuid  = row["_itemuuid_"]
-                        operationType = row["_operationType_"]
-                        ordinal   = row["_ordinal_"]
-                        TimeCommitmentMapping::linkNoEvents(eventuuid, eventTime, owneruuid, itemuuid, operationType, ordinal)
-                    end
-                    db1.close
-
                     FileUtils.rm(filepath1)
                     next
                 end
