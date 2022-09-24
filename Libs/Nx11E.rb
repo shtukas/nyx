@@ -89,6 +89,13 @@ class Nx11E
         }
     end
 
+    # Nx11E::interactivelySetANewEngineForItemOrNothing(item)
+    def self.interactivelySetANewEngineForItemOrNothing(item)
+        engine = Nx11E::interactivelyCreateNewNx11EOrNull(item["uuid"])
+        return if engine.nil?
+        ItemsEventsLog::setAttribute2(item["uuid"], "nx11e", engine)
+    end
+
     # Functions
 
     # Nx11E::toString(nx11e)
@@ -177,6 +184,5 @@ class Nx11E
         end
 
         raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) item: #{item}"
-
     end
 end

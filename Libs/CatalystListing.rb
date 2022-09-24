@@ -5,7 +5,7 @@ class CatalystListing
     # CatalystListing::listingCommands()
     def self.listingCommands()
         [
-            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
+            ".. | <datecode> | <n> | start (<n>) | stop (<n>) | access (<n>) | description (<n>) | name (<n>) | datetime (<n>) | nx113 (<n>) | engine (<n>) | landing (<n>) | pause (<n>) | pursue (<n>) | do not show until <n> | redate (<n>) | done (<n>) | done for today | edit (<n>) | transmute (<n>) | time * * | expose (<n>) | destroy",
             "update start date (<n>)",
             "wave | anniversary | today | ondate | todo | toplevel | inbox | line",
             "anniversaries | ondates | todos | waves",
@@ -144,6 +144,21 @@ class CatalystListing
             item = store.get(ordinal.to_i)
             return if item.nil?
             PolyFunctions::edit(item)
+            return
+        end
+
+        if Interpreting::match("engine", input) then
+            item = store.getDefault()
+            return if item.nil?
+            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
+            return
+        end
+
+        if Interpreting::match("engine *", input) then
+            _, ordinal = Interpreting::tokenizer(input)
+            item = store.get(ordinal.to_i)
+            return if item.nil?
+            Nx11E::interactivelySetANewEngineForItemOrNothing(item)
             return
         end
 
