@@ -36,11 +36,8 @@ class ThreadsX
     def self.publishSystemEventsOutBuffer()
         Thread.new {
             loop {
-                # We use a programmable boolean because we want to remain consistent across restarts
-                if ProgrammableBooleans::trueNoMoreOftenThanEveryNSeconds("6ba54135-fa9b-43c5-aa2f-eeb3dd09e16f", 600) then # 10 mins
-                    SystemEvents::publishSystemEventsOutBuffer()
-                end
                 sleep 60
+                SystemEvents::publishSystemEventsOutBuffer()
             }
         }
     end
