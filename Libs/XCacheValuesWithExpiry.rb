@@ -17,4 +17,9 @@ class XCacheValuesWithExpiry
         return nil if Time.new.to_i > packet["expiryunixtime"]
         packet["value"]
     end
+
+    # XCacheValuesWithExpiry::decache(key)
+    def self.decache(key)
+        XCache::destroy(key)
+    end
 end

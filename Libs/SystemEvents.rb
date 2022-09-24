@@ -90,6 +90,10 @@ class SystemEvents
             rescue
             end
         end
+
+        if event["mikuType"] == "(object has been manually touched)" then
+            Nx11EPriorityCache::processEvent(event)
+        end
     end
 
     # SystemEvents::broadcast(event)

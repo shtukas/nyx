@@ -449,6 +449,10 @@ class CatalystListing
                     "name" => "Waves::listingItems(false)",
                     "lambda" => lambda { Waves::listingItems(false) }
                 },
+                {
+                    "name" => "CatalystListing::listingItems()",
+                    "lambda" => lambda { CatalystListing::listingItems() }
+                }
             ]
 
             # dry run to initialise things

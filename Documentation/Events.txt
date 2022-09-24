@@ -83,3 +83,8 @@ We have two types of events
     "attname"    => string
     "attvalue"   => value
 }
+
+{
+    "mikuType"   => "(object has been manually touched)",
+    "objectuuid" => objectuuid,
+}

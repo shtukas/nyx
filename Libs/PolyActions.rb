@@ -6,6 +6,11 @@ class PolyActions
     # PolyActions::access(item)
     def self.access(item)
 
+        SystemEvents::process({
+            "mikuType"   => "(object has been manually touched)",
+            "objectuuid" => item["uuid"]
+        })
+
         if item["mikuType"] == "fitness1" then
             puts PolyFunctions::toString(item).green
             system("#{Config::userHomeDirectory()}/Galaxy/Binaries/fitness doing #{item["fitness-domain"]}")
@@ -52,7 +57,6 @@ class PolyActions
         # order : alphabetical order
 
         # TODO: 
-
     end
 
     # PolyActions::destroyWithPrompt(item)
@@ -67,6 +71,11 @@ class PolyActions
     def self.doubleDot(item)
 
         puts "PolyActions::doubleDot(#{JSON.pretty_generate(item)})"
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been manually touched)",
+            "objectuuid" => item["uuid"]
+        })
 
         if item["mikuType"] == "fitness1" then
             PolyActions::access(item)
@@ -118,6 +127,11 @@ class PolyActions
 
     # PolyActions::done(item)
     def self.done(item)
+        SystemEvents::process({
+            "mikuType"   => "(object has been manually touched)",
+            "objectuuid" => item["uuid"]
+        })
+
         PolyActions::stop(item)
 
         # order: alphabetical order
@@ -183,24 +197,14 @@ class PolyActions
         # order : alphabetical order
     end
 
-    # PolyActions::linktoPureDataDescriptionOnly(item)
-    def self.linktoPureDataDescriptionOnly(item)
-        l1 = DxLine::interactivelyIssueNewOrNull()
-        return if l1.nil?
-        puts JSON.pretty_generate(l1)
-        NetworkLinks::link(item["uuid"], l1["uuid"])
-    end
-
-    # PolyActions::linktoPureDataText(item)
-    def self.linktoPureDataText(item)
-        i2 = NyxNodes::interactivelyIssueNewPureDataTextOrNull()
-        return if i2.nil?
-        puts JSON.pretty_generate(i2)
-        NetworkLinks::link(item["uuid"], i2["uuid"])
-    end
-
     # PolyActions::redate(item)
     def self.redate(item)
+
+        SystemEvents::process({
+            "mikuType"   => "(object has been manually touched)",
+            "objectuuid" => item["uuid"]
+        })
+
         if item["mikuType"] != "NxTodo" then
             puts "redate only applies to NxTodos (engine: ondate)"
             LucilleCore::pressEnterToContinue()
@@ -225,6 +229,11 @@ class PolyActions
 
     # PolyActions::start(item)
     def self.start(item)
+        SystemEvents::process({
+            "mikuType"   => "(object has been manually touched)",
+            "objectuuid" => item["uuid"]
+        })
+
         #puts "PolyActions::start(#{JSON.pretty_generate(item)})"
         return if NxBallsService::isRunning(item["uuid"])
         accounts = []
@@ -243,6 +252,11 @@ class PolyActions
 
     # PolyActions::stop(item)
     def self.stop(item)
+        SystemEvents::process({
+            "mikuType"   => "(object has been manually touched)",
+            "objectuuid" => item["uuid"]
+        })
+
         #puts "PolyActions::stop(#{JSON.pretty_generate(item)})"
         NxBallsService::close(item["uuid"], true)
     end
