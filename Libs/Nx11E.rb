@@ -23,6 +23,14 @@ class Nx11EGroupsUtils
             }
     end
 
+    # Nx11EGroupsUtils::groupElementsInOrder(group)
+    def self.groupElementsInOrder(group)
+        NxTodos::items()
+            .select{|item| item["nx11e"]["type"] == "Ax39Group" }
+            .select{|item| item["nx11e"]["group"]["id"] == group["id"] }
+            .sort{|i1, i2| i1["nx11e"]["position"] <=> i2["nx11e"]["position"] }
+    end
+
     # Nx11EGroupsUtils::interactivelySelectGroupOrNull()
     def self.interactivelySelectGroupOrNull()
         groups = Nx11EGroupsUtils::groups()
@@ -56,6 +64,9 @@ class Nx11EGroupsUtils
 
     # Nx11EGroupsUtils::interactivelyDecidePositionInThisGroup(group)
     def self.interactivelyDecidePositionInThisGroup(group)
+        Nx11EGroupsUtils::groupElementsInOrder(group)
+            .first(20)
+            .each{|item| puts "    (#{"%7.3f" % item["nx11e"]["position"]}) #{item["description"]}" }
         LucilleCore::askQuestionAnswerAsString("position: ").to_f
     end
 
@@ -70,7 +81,6 @@ class Nx11EGroupsUtils
             "position" => position
         }
     end
-
 end
 
 class Nx11E
