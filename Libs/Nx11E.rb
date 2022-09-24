@@ -1,11 +1,86 @@
 # encoding: UTF-8
 
+class Nx11EGroupsUtils
+
+    # Nx11EGroupsUtils::groups()
+    def self.groups()
+        NxTodos::items()
+            .map{|item|
+                if item["nx11e"]["type"] == "Ax39Group" then
+                    item["nx11e"]["group"]
+                else
+                    nil
+                end
+            }
+            .compact
+            .reduce([]){|groups, group|
+                groupIds = groups.map{|group| group["id"] }
+                if groupIds.include?(group["id"]) then
+                    groups
+                else
+                    groups + [group]
+                end
+            }
+    end
+
+    # Nx11EGroupsUtils::interactivelySelectGroupOrNull()
+    def self.interactivelySelectGroupOrNull()
+        groups = Nx11EGroupsUtils::groups()
+        LucilleCore::selectEntityFromListOfEntitiesOrNull("group", groups, lambda{|group| group["name"] })
+    end
+
+    # Nx11EGroupsUtils::makeNewGroupOrNull()
+    def self.makeNewGroupOrNull()
+        name1 = LucilleCore::askQuestionAnswerAsString("name: ")
+        return nil if name1 == ""
+        ax39 = Ax39::interactivelyCreateNewAxOrNull()
+        {
+            "id"       => SecureRandom.uuid,
+            "mikuType" => "Ax39Group",
+            "name"     => name1,
+            "ax39"     => ax39,
+            "account"  => SecureRandom.hex
+        }
+    end
+
+    # Nx11EGroupsUtils::architectGroupOrNull()
+    def self.architectGroupOrNull()
+        puts "Select a group and if nothing you will get a chance to create a new one"
+        group = Nx11EGroupsUtils::interactivelySelectGroupOrNull()
+        return group if group
+        if LucilleCore::askQuestionAnswerAsBoolean("Would you like to create a new group ? ", true) then
+            return Nx11EGroupsUtils::makeNewGroupOrNull()
+        end
+        nil
+    end
+
+    # Nx11EGroupsUtils::interactivelyDecidePositionInThisGroup(group)
+    def self.interactivelyDecidePositionInThisGroup(group)
+        LucilleCore::askQuestionAnswerAsString("position: ").to_f
+    end
+
+    # Nx11EGroupsUtils::interactivelyMakeNewNx11EGroupOrNull()
+    def self.interactivelyMakeNewNx11EGroupOrNull()
+        group = Nx11EGroupsUtils::makeNewGroupOrNull()
+        position = Nx11EGroupsUtils::interactivelyDecidePositionInThisGroup(group)
+        return {
+            "mikuType" => "Nx11E",
+            "type"     => "Ax39Group",
+            "group"    => group,
+            "position" => position
+        }
+    end
+
+end
+
 class Nx11E
 
     # Nx11E::types()
     def self.types()
         ["hot", "ordinal", "ondate", "Ax39Group", "Ax39Engine", "standard"]
     end
+
+    # Makers
 
     # Nx11E::interactivelySelectTypeOrNull()
     def self.interactivelySelectTypeOrNull()
@@ -42,24 +117,7 @@ class Nx11E
             }
         end
         if type == "Ax39Group" then
-            ax39 = {
-                "type"  => "daily-time-commitment",
-                "hours" => 1
-            }
-            group = {
-                "id"       => "338b688b-5b45-447c-8445-df3ec389e9c3",
-                "mikuType" => "Ax39Group",
-                "name"     => "default",
-                "ax39"     => ax39,
-                "account"  => "627fc35e-b0c3-4d3c-960d-9d0dd7787182"
-            }
-            position = 0
-            return {
-                "mikuType" => "Nx11E",
-                "type"     => "Ax39Group",
-                "group"    => group,
-                "position" => position
-            }
+            return Nx11EGroupsUtils::interactivelyMakeNewNx11EGroupOrNull()
         end
         if type == "Ax39Engine" then
             ax39 = Ax39::interactivelyCreateNewAxOrNull()
