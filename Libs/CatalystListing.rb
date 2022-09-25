@@ -535,24 +535,30 @@ class CatalystListing
             vspaceleft = vspaceleft - 2
         end
 
-        groups = Nx11EGroupsUtils::groups()
-        if groups.size > 0 then
+        nx53s = Nx11EListingMonitorUtils::nx53s()
+        if nx53s.size > 0 then
             puts ""
-            puts "groups (below completion 1):".yellow
+            puts "Nx53 (below completion 1):".yellow
             vspaceleft = vspaceleft - 2
-            groups
-                .map{|group|
-                    ax39     = group["ax39"]
-                    account  = group["account"]
-                    cr = Ax39Extensions::completionRatio(ax39, account)
+            nx53s
+                .map{|nx53|
+                    name1 = (lambda{|nx53|
+                        if nx53["mikuType"] == "Ax39Group" then
+                            return nx53["name"]
+                        end
+                        if nx53["mikuType"] == "NxTodo" then
+                            return nx53["description"]
+                        end
+                    }).call(nx53)
                     {
-                        "group" => group,
-                        "cr"    => cr
+                        "name" => name1,
+                        "cr"   => Nx11EListingMonitorUtils::nx53ToCompletionRatio(nx53)
                     }
                 }
+                .select{|packet| packet["cr"] < 1 }
                 .sort{|p1, p2| p1["cr"] <=> p2["cr"] }
                 .each{|packet|
-                    puts "    - #{packet["group"]["name"]} (#{packet["cr"].round(2)})".yellow
+                    puts "    - #{packet["name"]} (#{packet["cr"].round(2)})".yellow
                     vspaceleft = vspaceleft - 1
                 }
         end
@@ -593,7 +599,6 @@ class CatalystListing
         input = LucilleCore::askQuestionAnswerAsString("> ")
         return if input == ""
         CatalystListing::listingCommandInterpreter(input, store)
-
     end
 
     # CatalystListing::program()

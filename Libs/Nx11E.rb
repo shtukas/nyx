@@ -1,5 +1,53 @@
 # encoding: UTF-8
 
+class Nx11EListingMonitorUtils
+
+    # We call Nx53 a Ax39Group or a NxTodo with a Nx11E/Ax39Engine
+
+    # Nx11EListingMonitorUtils::nx53s()
+    def self.nx53s()
+        groups = NxTodos::items()
+            .map{|item|
+                if item["nx11e"]["type"] == "Ax39Group" then
+                    item["nx11e"]["group"]
+                else
+                    nil
+                end
+            }
+            .compact
+            .reduce([]){|groups, group|
+                groupIds = groups.map{|group| group["id"] }
+                if groupIds.include?(group["id"]) then
+                    groups
+                else
+                    groups + [group]
+                end
+            }
+        simpleEngines = NxTodos::items()
+            .map{|item|
+                if item["nx11e"]["type"] == "Ax39Engine" then
+                    item
+                else
+                    nil
+                end
+            }
+            .compact
+        groups + simpleEngines
+    end
+
+    # Nx11EListingMonitorUtils::nx53ToCompletionRatio(nx53)
+    def self.nx53ToCompletionRatio(nx53)
+        #puts "Nx11EListingMonitorUtils::nx53ToCompletionRatio(#{JSON.pretty_generate(nx53)})"
+        if nx53["mikuType"] == "Ax39Group" then
+            return Ax39Extensions::completionRatio(nx53["ax39"], nx53["account"])
+        end
+        if nx53["mikuType"] == "NxTodo" then
+            return Ax39Extensions::completionRatio(nx53["nx11e"]["ax39"], nx53["nx11e"]["itemuuid"])
+        end
+        raise "(error: 80bf4429-79bb-4596-b8ea-beba8249d767)"
+    end
+end
+
 class Nx11EGroupsUtils
 
     # Nx11EGroupsUtils::groups()
