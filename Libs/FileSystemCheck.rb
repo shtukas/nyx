@@ -11,6 +11,20 @@ class FileSystemCheck
         end
     end
 
+    # FileSystemCheck::fsckNx11EErrorAtFirstFailure(nx11e)
+    def self.fsckNx11EErrorAtFirstFailure(nx11e)
+        puts "FileSystemCheck::fsckNx11EErrorAtFirstFailure(#{nx11e})"
+
+        ensureAttribute = lambda {|nx11e, attname|
+            return if nx11e[attname]
+            puts JSON.pretty_generate(nx11e)
+            raise "Missing attribute: #{attname} in #{nx11e}"
+        }
+
+        ensureAttribute.call(nx11e, "uuid")
+
+    end
+
     # FileSystemCheck::fsckNx113ErrorAtFirstFailure(nx113)
     def self.fsckNx113ErrorAtFirstFailure(nx113)
         puts "FileSystemCheck::fsckNx113ErrorAtFirstFailure(#{JSON.pretty_generate(nx113)})"
@@ -140,44 +154,44 @@ class FileSystemCheck
             raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
         end
 
-        ensureAttribute = lambda {|attname|
+        ensureAttribute = lambda {|item, attname|
             return if item[attname]
             puts JSON.pretty_generate(item)
-            puts "Missing attribute: #{attname}"
-            raise "FileSystemCheck::fsckItemErrorArFirstFailure(item, #{runhash})"
+            raise "Missing attribute #{attname} in #{attname}"
         }
 
         mikuType = item["mikuType"]
 
         if mikuType == "NxAnniversary" then
-            ensureAttribute.call("description")
-            ensureAttribute.call("startdate")
-            ensureAttribute.call("repeatType")
-            ensureAttribute.call("lastCelebrationDate")
+            ensureAttribute.call(item, "description")
+            ensureAttribute.call(item, "startdate")
+            ensureAttribute.call(item, "repeatType")
+            ensureAttribute.call(item, "lastCelebrationDate")
             return
         end
 
         if mikuType == "NxLine" then
-            ensureAttribute.call("line")
+            ensureAttribute.call(item, "line")
             return
         end
 
         if mikuType == "NxTodo" then
-            ensureAttribute.call("description")
+            ensureAttribute.call(item, "description")
+            FileSystemCheck::fsckNx11EErrorAtFirstFailure(item["nx11e"])
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             return
         end
 
         if mikuType == "NyxNode" then
-            ensureAttribute.call("description")
+            ensureAttribute.call(item, "description")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"]) # nx113 is optional for NyxNodes, the function return if the argument in null
             return
         end
 
         if mikuType == "Wave" then
-            ensureAttribute.call("description")
-            ensureAttribute.call("nx46")
-            ensureAttribute.call("lastDoneDateTime")
+            ensureAttribute.call(item, "description")
+            ensureAttribute.call(item, "nx46")
+            ensureAttribute.call(item, "lastDoneDateTime")
             FileSystemCheck::fsckNx113NhashIfNotNullErrorAtFirstFailure(item["nx113"])
             return
         end

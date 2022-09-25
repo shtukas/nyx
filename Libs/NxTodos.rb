@@ -10,9 +10,11 @@ class NxTodosActivePool
                     .map{|item|
                         {
                             "item"     => item,
-                            "priority" => PolyFunctions::listingPriority(item)
+                            "priority" => PolyFunctions::listingPriorityOrNull(item)
                         }
-                    }.sort{|p1, p2|
+                    }
+                    .select{|packet| !packet["priority"].nil? }
+                    .sort{|p1, p2|
                         p1["priority"] <=> p2["priority"]
                     }
                     .reverse

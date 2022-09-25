@@ -87,14 +87,14 @@ class CatalystListing
                 bankaccount = nx11e["group"]["account"]
                 BankAccountDoneForToday::setDoneToday(bankaccount)
                 Nx11EPriorityCache::bankaccountToItems(bankaccount).each{|item|
-                    Nx11EPriorityCache::priorityDecache(item["uuid"])
+                    Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
                 }
                 return
             end
 
             if nx11e["type"] == "Ax39Engine" then
                 BankAccountDoneForToday::setDoneToday(nx11e["itemuuid"])
-                Nx11EPriorityCache::priorityDecache(item["uuid"])
+                Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
                 return
             end
             

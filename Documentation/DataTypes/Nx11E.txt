@@ -1,17 +1,20 @@
 
 Nx11E {
+    "uuid"     => String
     "mikuType" => "Nx11E"
     "type"     => "hot"
     "unixtime" => Float
 }
 
 Nx11E {
+    "uuid"     => String
     "mikuType" => "Nx11E"
     "type"    => "ordinal"
     "ordinal" => Float
 }
 
 Nx11E {
+    "uuid"     => String
     "mikuType" => "Nx11E"
     "type"     => "ondate"
     "datetime" => DateTime # the date decides the date it shows up. 
@@ -19,6 +22,7 @@ Nx11E {
 }
 
 Nx11E {
+    "uuid"     => String
     "mikuType" => "Nx11E"
     "type"     => "Ax39Group"
     "group"    => {
@@ -32,6 +36,7 @@ Nx11E {
 }
 
 Nx11E {
+    "uuid"     => String
     "mikuType" => "Nx11E"
     "type"     => "Ax39Engine"
     "ax39"     => Ax39
@@ -39,6 +44,7 @@ Nx11E {
 }
 
 Nx11E {
+    "uuid"     => String
     "mikuType" => "Nx11E"
     "type"     => "standard"
     "unixtime" => Float

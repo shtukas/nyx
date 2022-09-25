@@ -133,6 +133,7 @@ class Nx11EGroupsUtils
         return nil if group.nil?
         position = Nx11EGroupsUtils::interactivelyDecidePositionInThisGroup(group)
         return {
+            "uuid"     => SecureRandom.uuid,
             "mikuType" => "Nx11E",
             "type"     => "Ax39Group",
             "group"    => group,
@@ -162,37 +163,38 @@ end
 
 class Nx11EPriorityCache
 
-    # Nx11EPriorityCache::priorityCoreOrNull(item)
-    # We return a null value when the item should not be displayed
-    def self.priorityCoreOrNull(item)
+    # Nx11EPriorityCache::priorityCoreOrNull(nx11e)
+    # We return a null value when the nx11e should not be displayed
+    def self.priorityCoreOrNull(nx11e)
         shiftForUnixtimeOrdering = lambda {|unixtime|
             Math.atan(Time.new.to_f - unixtime).to_f/100
         }
 
-        if item["mikuType"] != "Nx11E" then
-            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) This function only takes Nx11Es, item: #{item}"
+        if nx11e["mikuType"] != "Nx11E" then
+            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) This function only takes Nx11Es, nx11e: #{nx11e}"
         end
 
-        if item["type"] == "hot" then
-            unixtime = item["unixtime"] || 0 # TODO: the first one created was missing it
+        if nx11e["type"] == "hot" then
+            unixtime = nx11e["unixtime"] || 0 # TODO: the first one created was missing it
             return 0.90 + shiftForUnixtimeOrdering.call(unixtime)
         end
 
-        if item["type"] == "ordinal" then
-            return 0.85 -  Math.atan(item["ordinal"]).to_f/100
+        if nx11e["type"] == "ordinal" then
+            return 0.85 -  Math.atan(nx11e["ordinal"]).to_f/100
         end
 
-        if item["type"] == "ondate" then
-            return 0.70 + Math.atan(Time.new.to_f - DateTime.parse(item["datetime"]).to_time.to_f).to_f/100
+        if nx11e["type"] == "ondate" then
+            return nil if (CommonUtils::today() < nx11e["datetime"][0, 10])
+            return 0.70 + Math.atan(Time.new.to_f - DateTime.parse(nx11e["datetime"]).to_time.to_f).to_f/100
         end
 
-        if item["type"] == "Ax39Group" then
+        if nx11e["type"] == "Ax39Group" then
 
-            group    = item["group"]
+            group    = nx11e["group"]
             ax39     = group["ax39"]
             account  = group["account"]
 
-            position = item["position"]
+            position = nx11e["position"]
 
             cr = Ax39::completionRatio(ax39, account)
 
@@ -201,33 +203,36 @@ class Nx11EPriorityCache
             return 0.60 + (1 - cr).to_f/100 - Math.atan(position).to_f/100
         end
 
-        if item["type"] == "Ax39Engine" then
-            cr = Ax39::completionRatio(item["ax39"], item["itemuuid"])
+        if nx11e["type"] == "Ax39Engine" then
+            cr = Ax39::completionRatio(nx11e["ax39"], nx11e["itemuuid"])
             return nil if cr > 1
             return 0.50 + 0.2*(1-cr)
         end
 
-        if item["type"] == "standard" then
-            unixtime = item["unixtime"]
+        if nx11e["type"] == "standard" then
+            unixtime = nx11e["unixtime"]
             return 0.40 + shiftForUnixtimeOrdering.call(unixtime)
         end
 
-        raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) item: #{item}"
+        raise "(error: 188c8d4b-1a79-4659-bd93-6d8e3ddfe4d1) nx11e: #{nx11e}"
     end
 
-    # Nx11EPriorityCache::priorityCachedOrNull(item)
-    def self.priorityCachedOrNull(item)
-        key = "01602c53-1103-4917-84bf-3c85bd178b40:#{item["uuid"]}"
+    # Nx11EPriorityCache::priorityCachedOrNull(nx11e)
+    def self.priorityCachedOrNull(nx11e)
+        if nx11e["mikuType"] != "Nx11E" then
+            raise "(error: a99fb12c-53a6-465a-8b87-14a85c58463b) This function only takes Nx11Es, nx11e: #{nx11e}"
+        end
+        key = "01602c53-1103-4917-84bf-3c85bd178b41:#{nx11e["uuid"]}"
         priority = XCacheValuesWithExpiry::getOrNull(key)
-        #return priority if priority
-        priority = Nx11EPriorityCache::priorityCoreOrNull(item)
+        return priority if priority
+        priority = Nx11EPriorityCache::priorityCoreOrNull(nx11e)
         XCacheValuesWithExpiry::set(key, priority, 3600) # one hour
         priority
     end
 
-    # Nx11EPriorityCache::priorityDecache(itemuuid)
-    def self.priorityDecache(itemuuid)
-        key = "01602c53-1103-4917-84bf-3c85bd178b40:#{itemuuid}"
+    # Nx11EPriorityCache::priorityDecache(nx11euuid)
+    def self.priorityDecache(nx11euuid)
+        key = "01602c53-1103-4917-84bf-3c85bd178b41:#{nx11euuid}"
         XCacheValuesWithExpiry::decache(key)
     end
 
@@ -235,7 +240,14 @@ class Nx11EPriorityCache
     def self.processEvent(event)
         if event["mikuType"] == "(object has been manually touched)" then
             objectuuid = event["objectuuid"]
-            Nx11EPriorityCache::priorityDecache(objectuuid)
+            item = Items::getItemOrNull(objectuuid)
+            return if item["mikuType"] != "NxTodo"
+            if item["nx11e"]["type"] == "Ax39Group" then
+                Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
+            end
+            if item["nx11e"]["type"] == "Ax39Engine" then
+                Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
+            end
         end
     end
 
@@ -268,6 +280,7 @@ class Nx11E
     # Nx11E::makeOndate(datetime)
     def self.makeOndate(datetime)
         {
+            "uuid"     => SecureRandom.uuid,
             "mikuType" => "Nx11E",
             "type"     => "ondate",
             "datetime" => datetime
@@ -280,6 +293,7 @@ class Nx11E
         return nil if type.nil?
         if type == "hot" then
             return {
+                "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Nx11E",
                 "type"     => "hot",
                 "unixtime" => Time.new.to_f
@@ -289,6 +303,7 @@ class Nx11E
             ordinal = LucilleCore::askQuestionAnswerAsString("ordinal (empty to abort): ")
             return nil if ordinal == ""
             return {
+                "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Nx11E",
                 "type"     => "ordinal",
                 "ordinal"  => ordinal
@@ -306,6 +321,7 @@ class Nx11E
             ax39 = Ax39::interactivelyCreateNewAxOrNull()
             return nil if ax39.nil?
             return {
+                "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Nx11E",
                 "type"     => "Ax39Engine",
                 "ax39"     => ax39,
@@ -314,6 +330,7 @@ class Nx11E
         end
         if type == "standard" then
             return {
+                "uuid"     => SecureRandom.uuid,
                 "mikuType" => "Nx11E",
                 "type"     => "standard",
                 "unixtime" => Time.new.to_f
@@ -364,9 +381,9 @@ class Nx11E
         raise "(error: b8adb3e1-eaee-4d06-afb4-bc0f3db0142b) nx11e: #{nx11e}"
     end
 
-    # Nx11E::priorityOrNull(item)
-    # We return a null value when the item should not be displayed
-    def self.priorityOrNull(item)
-        Nx11EPriorityCache::priorityCachedOrNull(item)
+    # Nx11E::priorityOrNull(nx11e)
+    # We return a null value when the nx11e should not be displayed
+    def self.priorityOrNull(nx11e)
+        Nx11EPriorityCache::priorityCachedOrNull(nx11e)
     end
 end
