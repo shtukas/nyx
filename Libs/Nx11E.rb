@@ -241,6 +241,7 @@ class Nx11EPriorityCache
         if event["mikuType"] == "(object has been manually touched)" then
             objectuuid = event["objectuuid"]
             item = Items::getItemOrNull(objectuuid)
+            return if item.nil?
             return if item["mikuType"] != "NxTodo"
             if item["nx11e"]["type"] == "Ax39Group" then
                 Nx11EPriorityCache::priorityDecache(item["nx11e"]["uuid"])
